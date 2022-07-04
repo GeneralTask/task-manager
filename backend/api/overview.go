@@ -86,7 +86,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 }
 
 func (api *API) getOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
-	if view.Type == "task_section" {
+	if view.Type == string(ViewTaskSection) {
 		return api.GetTaskSectionOverviewResult(db, ctx, view, userID)
 	}
 	return nil, errors.New("invalid view type")
