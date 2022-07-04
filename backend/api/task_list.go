@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -161,9 +160,6 @@ func (api *API) adjustForCompletedTasks(
 	fetchedTasks *[]*database.Item,
 	failedFetchSources map[string]bool,
 ) error {
-	if fetchedTasks != nil && len(*fetchedTasks) == 0 {
-		return errors.New("invalid empty list of fetched tasks")
-	}
 	// decrements IDOrdering for tasks behind newly completed tasks
 	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
@@ -174,10 +170,14 @@ func (api *API) adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
+		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK {
+			// we don't ever need to mark GT tasks as done here as they would have already been marked done
+			continue
+		}
 		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
-				api.Logger.Error().Err(err).Msg("failed to update task ordering ID")
+				api.Logger.Error().Err(err).Msg("failed to complete task")
 				return err
 			}
 			for _, newTask := range newTasks {
