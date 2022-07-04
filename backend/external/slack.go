@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rs/zerolog/log"
 	"github.com/slack-go/slack"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -90,7 +89,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	}
 	userInfo, err := api.AuthTest()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to get user identity")
+		logger.Error().Err(err).Msg("failed to get user identity")
 		return errors.New("internal server error")
 	}
 
@@ -112,7 +111,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil
