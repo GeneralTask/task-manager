@@ -74,23 +74,31 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
+	results, err := api.getOverviewResults(db, dbCtx, views, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to load views with view items")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, results)
+}
+
+func (api *API) getOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]*OverviewResult, error) {
 	var overviewResults []*OverviewResult
 	for _, view := range views {
-		result, err := api.getOverviewResult(db, parentCtx, view, userID)
+		var result *OverviewResult
+		var err error
+		if view.Type == string(ViewTaskSection) {
+			result, err = api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+		} else {
+			return nil, errors.New("invalid view type")
+		}
 		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to load view items in view")
-			Handle500(c)
+			return nil, err
 		}
 		overviewResults = append(overviewResults, result)
 	}
-	c.JSON(200, overviewResults)
-}
-
-func (api *API) getOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
-	if view.Type == string(ViewTaskSection) {
-		return api.GetTaskSectionOverviewResult(db, ctx, view, userID)
-	}
-	return nil, errors.New("invalid view type")
+	return overviewResults, nil
 }
 
 func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
