@@ -6,6 +6,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -120,7 +121,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	return &OverviewResult{
 		ID:            view.ID,
 		Name:          name,
-		Logo:          "generaltask",
+		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
 		TaskSectionID: &view.TaskSectionID,
