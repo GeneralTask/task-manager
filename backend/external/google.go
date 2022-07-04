@@ -197,7 +197,6 @@ func (Google GoogleService) HandleSignupCallback(params CallbackParams) (primiti
 		dbCtx,
 		bson.M{"google_id": userInfo.SUB},
 	)
-	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Send()
 	}
