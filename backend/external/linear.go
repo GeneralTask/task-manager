@@ -10,6 +10,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	graphqlBasic "github.com/machinebox/graphql"
 	"github.com/rs/zerolog/log"
 	"github.com/shurcooL/graphql"
@@ -61,8 +62,9 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := linear.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Linear")
+		logger.Error().Err(err).Msg("failed to fetch token from Linear")
 		return errors.New("internal server error")
 	}
 	log.Debug().Interface("token", token).Send()
@@ -70,7 +72,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 	tokenString, err := json.Marshal(&token)
 	log.Info().Msgf("token string: %s", string(tokenString))
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -98,7 +100,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error saving token")
+		logging.GetSentryLogger().Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 
@@ -117,7 +119,7 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 	}
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
-		log.Error().Err(err).Interface("query", query).Msg("could not execute query")
+		logging.GetSentryLogger().Error().Err(err).Interface("query", query).Msg("could not execute query")
 		return "", err
 	}
 	log.Debug().Interface("query", query).Send()
@@ -147,7 +149,7 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
-			log.Error().Msg("could not create linear client")
+			logging.GetSentryLogger().Error().Msg("could not create linear client")
 			return nil, errors.New("could not create linear client")
 		}
 		client = graphql.NewClient(LinearGraphqlEndpoint, httpClient)
@@ -167,7 +169,7 @@ func getBasicLinearClient(overrideURL *string, db *mongo.Database, userID primit
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
-			log.Error().Msg("could not create linear client")
+			logging.GetSentryLogger().Error().Msg("could not create linear client")
 			return nil, errors.New("could not create linear client")
 		}
 		client = graphqlBasic.NewClient(LinearGraphqlEndpoint, graphqlBasic.WithHTTPClient(httpClient))
@@ -290,11 +292,12 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 		if *updateFields.IsCompleted {
 			req.Var("stateId", task.CompletedStatus.ExternalID)
 		} else {
+			logger := logging.GetSentryLogger()
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
-				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+				logger.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
 			} else if task.PreviousStatus.ExternalID == "" {
-				log.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
+				logger.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 			}
 			req.Var("stateId", task.PreviousStatus.ExternalID)
@@ -303,7 +306,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), req, &query); err != nil {
-		log.Error().Err(err).Msg("failed to update linear issue")
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
 	return &query, nil
@@ -313,7 +316,7 @@ func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, erro
 	var query linearUserInfoQuery
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch user info")
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch user info")
 		return nil, err
 	}
 	return &query, nil
@@ -326,7 +329,7 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 	var query linearAssignedIssuesQuery
 	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch issues assigned to user")
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch issues assigned to user")
 		return nil, err
 	}
 	return &query, nil

@@ -13,6 +13,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -71,14 +72,15 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := slackService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Slack")
+		logger.Error().Err(err).Msg("failed to fetch token from Slack")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 

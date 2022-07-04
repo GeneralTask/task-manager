@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/rs/zerolog/log"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -61,24 +61,25 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := asana.Config.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Asana")
+		logger.Error().Err(err).Msg("failed to fetch token from Asana")
 		return errors.New("internal server error")
 	}
 	tokenExtra := token.Extra("data")
 	if tokenExtra == nil {
-		log.Error().Msg("missing 'data' from token response")
+		logger.Error().Msg("missing 'data' from token response")
 		return errors.New("internal server error")
 	}
 	accountEmail, ok := tokenExtra.(map[string]interface{})["email"]
 	if !ok {
-		log.Error().Msg("missing 'email' in 'data' from token response")
+		logger.Error().Msg("missing 'email' in 'data' from token response")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -101,7 +102,7 @@ func (asana AsanaService) HandleLinkCallback(params CallbackParams, userID primi
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 

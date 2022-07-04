@@ -7,10 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -74,8 +73,9 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 
 	var userInfo AsanaUserInfoResponse
 	err = getJSON(client, userInfoURL, &userInfo)
+	logger := logging.GetSentryLogger()
 	if err != nil || len(userInfo.Data.Workspaces) == 0 {
-		log.Error().Err(err).Msg("failed to get asana workspace ID")
+		logger.Error().Err(err).Msg("failed to get asana workspace ID")
 		if err == nil {
 			err = errors.New("user has not workspaces")
 		}
@@ -95,7 +95,7 @@ func (asanaTask AsanaTaskSource) GetTasks(userID primitive.ObjectID, accountID s
 	var asanaTasks AsanaTasksResponse
 	err = getJSON(client, taskFetchURL, &asanaTasks)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch asana tasks")
+		logger.Error().Err(err).Msg("failed to fetch asana tasks")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
 		return
 	}
@@ -180,7 +180,7 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to update asana task")
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to update asana task")
 		return err
 	}
 	return nil
