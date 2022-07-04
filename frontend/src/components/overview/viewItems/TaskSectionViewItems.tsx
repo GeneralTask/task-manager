@@ -1,8 +1,9 @@
 import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { TOverviewView } from '../../../utils/types'
+import { DropType, TOverviewView } from '../../../utils/types'
+import { emptyFunction } from '../../../utils/utils'
+import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import Task from '../../molecules/Task'
-import TaskDropContainer from '../../molecules/TaskDropContainer'
 
 interface TaskSectionViewItemsProps {
     view: TOverviewView
@@ -18,18 +19,23 @@ const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
         <div ref={scrollingRef}>
             {sectionId &&
                 view.view_items.map((item, index) => (
-                    <TaskDropContainer key={item.id} task={item} taskIndex={index} sectionId={sectionId}>
+                    <ReorderDropContainer
+                        key={item.id}
+                        index={index}
+                        acceptDropType={DropType.TASK}
+                        onReorder={emptyFunction} // TODO: add reordering
+                    >
                         <Task
                             key={item.id}
                             task={item}
-                            dragDisabled={true}
+                            dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
                             sectionScrollingRef={scrollingRef}
                             isSelected={overviewItem === item.id}
                             link={`/overview/${item.id}`}
                         />
-                    </TaskDropContainer>
+                    </ReorderDropContainer>
                 ))}
         </div>
     )

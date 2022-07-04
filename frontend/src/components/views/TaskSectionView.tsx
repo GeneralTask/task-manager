@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api-query-hooks'
+import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api-query-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'
@@ -10,12 +10,12 @@ import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
-import TaskDropContainer from '../molecules/TaskDropContainer'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import TaskDropArea from '../molecules/task-dnd/TaskDropArea'
 import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import { DropItem, DropType } from '../../utils/types'
+import ReorderDropContainer from '../atoms/ReorderDropContainer'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -51,6 +51,7 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading } = useGetTasks()
+    const { mutate: reorderTask } = useReorderTask()
     const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
 
     const navigate = useNavigate()
@@ -65,6 +66,18 @@ const TaskSectionView = () => {
     const selectTask = useCallback(
         (itemId: string) => {
             if (section) navigate(`/tasks/${section.id}/${itemId}`)
+        },
+        [section]
+    )
+
+    const handleReorderTask = useCallback(
+        (item: DropItem, dropIndex: number) => {
+            if (!section) return
+            reorderTask({
+                taskId: item.id,
+                orderingId: dropIndex,
+                dropSectionId: section.id,
+            })
         },
         [section]
     )
@@ -103,11 +116,11 @@ const TaskSectionView = () => {
                                 {!section.is_done && <CreateNewTask section={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
-                                        <TaskDropContainer
+                                        <ReorderDropContainer
                                             key={task.id}
-                                            task={task}
-                                            taskIndex={index}
-                                            sectionId={section.id}
+                                            index={index}
+                                            acceptDropType={DropType.TASK}
+                                            onReorder={handleReorderTask}
                                         >
                                             <Task
                                                 task={task}
@@ -118,10 +131,15 @@ const TaskSectionView = () => {
                                                 isSelected={task.id === params.task}
                                                 link={`/tasks/${params.section}/${task.id}`}
                                             />
-                                        </TaskDropContainer>
+                                        </ReorderDropContainer>
                                     ))}
                                 </TasksContainer>
-                                <TaskDropArea dropIndex={section.tasks.length + 1} taskSectionId={section.id} />
+                                <ReorderDropContainer
+                                    index={section.tasks.length + 1}
+                                    acceptDropType={DropType.TASK}
+                                    onReorder={handleReorderTask}
+                                    isLast
+                                />
                             </>
                         )}
                     </TaskSectionViewContainer>
