@@ -79,7 +79,7 @@ func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID,
 }
 
 func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
-	return errors.New("has not been implemented yet")
+	return nil
 }
 
 func (slackTask SlackSavedTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {

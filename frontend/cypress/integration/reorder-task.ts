@@ -20,7 +20,7 @@ describe('user can reorder tasks using react-dnd', () => {
         cy.findAllByTestId('list-item').first().findByTestId('drag-domino').dragStart()
         cy.findAllByTestId('list-item').first().invoke('text').then(($text) => {
             // End drag on bottom of the task list
-            cy.findByTestId('task-drop-area').dragEnd('center')
+            cy.findByTestId('reorder-bottom-drop-area').dragEnd('center')
             cy.wait('@taskModifyMutation').then(({ response }) => { expect(response?.statusCode).to.eq(200) })
             cy.findAllByTestId('list-item').last().should('have.text', $text)
         })

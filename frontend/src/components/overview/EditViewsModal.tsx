@@ -1,13 +1,13 @@
 import React from 'react'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import useGetOverviewViews from './dummydata'
 import { SelectedView, EditViewsDeleteButton } from './styles'
 import { Border, Colors, Spacing } from '../../styles'
 import GTModal from '../atoms/GTModal'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import useGetOverviewViews from './dummydata'
 
 const AddViewsButton = styled(NoStyleButton)`
     border: 1px solid ${Colors.gray._500};

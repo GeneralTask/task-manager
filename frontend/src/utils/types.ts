@@ -209,19 +209,15 @@ export interface TLinkedAccount {
 }
 
 // React-DND Item Types
-export const ItemTypes = {
-    TASK: 'task',
+export enum DropType {
+    TASK = 'task',
+    OVERVIEW_VIEW = 'overview-view',
 }
 
-export interface DropResult {
+export interface DropItem {
     id: string
-    dropDisabled: boolean
-}
-export interface DropProps {
-    id: string
-    taskIndex: number
-    sectionId: string
-    task: TTask
+    sectionId?: string
+    task?: TTask
 }
 
 export interface TTaskCreateParams {
