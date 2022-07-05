@@ -13,14 +13,10 @@ interface EditViewsSelectedViewProps {
     onReorder: (item: DropItem, dropIndex: number) => void
 }
 const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelectedViewProps) => {
-    const [, drag] = useDrag(
+    const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.OVERVIEW_VIEW,
             item: { id: view.id },
-            collect: (monitor) => {
-                const isDragging = !!monitor.isDragging()
-                return { opacity: isDragging ? 0.5 : 1 }
-            },
         }),
         [view.id]
     )
@@ -32,7 +28,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
             acceptDropType={DropType.OVERVIEW_VIEW}
             onReorder={onReorder}
         >
-            <SelectedView key={view.id}>
+            <SelectedView key={view.id} ref={dragPreview}>
                 <Domino ref={drag} />
                 <Icon source={logos[view.logo]} size="small" />
                 {view.name}
