@@ -293,24 +293,29 @@ type linearUpdateIssueQuery struct {
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
-	reqVars := make(map[string]interface{})
-	reqVars["id"] = issueID
+	updateIssueQueryStr := linearUpdateIssueQueryStr
+	if updateFields.Body != nil && *updateFields.Body == "" {
+		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
+	}
+	req := graphqlBasic.NewRequest(updateIssueQueryStr)
+
+	req.Var("id", issueID)
 	if updateFields.Title != nil {
 		if *updateFields.Title == "" {
 			return nil, errors.New("cannot set linear issue title to empty string")
 		}
-		reqVars["title"] = *updateFields.Title
+		req.Var("title", *updateFields.Title)
 	}
 	if updateFields.Body != nil {
 		if *updateFields.Body == "" {
-			reqVars["descriptionData"] = `{"type":"doc","content":[{"type":"paragraph"}]}`
+			req.Var("descriptionData", `{"type":"doc","content":[{"type":"paragraph"}]}`)
 		} else {
-			reqVars["description"] = *updateFields.Body
+			req.Var("description", *updateFields.Body)
 		}
 	}
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
-			reqVars["stateId"] = task.CompletedStatus.ExternalID
+			req.Var("stateId", task.CompletedStatus.ExternalID)
 		} else {
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
 				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
@@ -319,17 +324,8 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 				log.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 			}
-			reqVars["stateId"] = task.PreviousStatus.ExternalID
+			req.Var("stateId", task.PreviousStatus.ExternalID)
 		}
-	}
-
-	updateIssueQueryStr := linearUpdateIssueQueryStr
-	if updateFields.Body != nil && *updateFields.Body == "" {
-		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
-	}
-	req := graphqlBasic.NewRequest(updateIssueQueryStr)
-	for key, value := range reqVars {
-		req.Var(key, value)
 	}
 
 	log.Debug().Msgf("sending request to Linear: %+v", req)
