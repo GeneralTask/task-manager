@@ -85,7 +85,7 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
     }, [dropRef])
 
     return (
-        <DropOverlay ref={dropRef} isLast={isLast}>
+        <DropOverlay ref={dropRef} isLast={isLast} data-testid={isLast && 'reorder-bottom-drop-area'}>
             <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
             {children}
             <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW && !isLast} />
