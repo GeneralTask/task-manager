@@ -29,10 +29,12 @@ export const RemoveButton = styled(NoStyleButton)`
 export const SelectedView = styled.div`
     display: flex;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
     border-radius: ${Border.radius.large};
     border: 1px solid ${Colors.purple._3};
-    padding: ${Spacing.padding._16} ${Spacing.padding._12};
-    margin: ${Spacing.margin._12} 0;
+    padding: ${Spacing.padding._12};
+    margin: ${Spacing.margin._4} 0;
     gap: ${Spacing.margin._12};
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
