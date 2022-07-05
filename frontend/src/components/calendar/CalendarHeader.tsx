@@ -61,6 +61,14 @@ export const ArrowButton = styled(ButtonStyles)`
     }
 `
 
+export const CaretButton = styled(ButtonStyles)`
+    background-color: inherit;
+    padding: ${Spacing.padding._4};
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
+`
+
 const HeaderIconsContainer = styled.div`
     display: flex;
     align-items: center;
@@ -106,9 +114,9 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                                 <Icon source={icons.arrows_out} size="small" />
                             )}
                         </ArrowButton>
-                        <ArrowButton onClick={() => collapseCalendar()}>
+                        <CaretButton onClick={() => collapseCalendar()}>
                             <Icon source={icons.caret_right} size="small" />
-                        </ArrowButton>
+                        </CaretButton>
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
@@ -128,12 +136,12 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                         >
                             Today
                         </HoverButton>
-                        <ArrowButton onClick={selectPrevious}>
+                        <CaretButton onClick={selectPrevious}>
                             <Icon source={icons.caret_left} size="small" />
-                        </ArrowButton>
-                        <ArrowButton onClick={selectNext}>
+                        </CaretButton>
+                        <CaretButton onClick={selectNext}>
                             <Icon source={icons.caret_right} size="small" />
-                        </ArrowButton>
+                        </CaretButton>
                     </ButtonContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>

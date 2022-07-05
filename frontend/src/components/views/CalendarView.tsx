@@ -1,4 +1,4 @@
-import CalendarHeader, { ArrowButton } from '../calendar/CalendarHeader'
+import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
 import { Colors, Spacing } from '../../styles'
 import React, { useMemo, useState } from 'react'
 
@@ -18,6 +18,7 @@ import { useInterval } from '../../hooks'
 const CollapsedCalendarView = styled.div`
     padding-top: ${Spacing.padding._16};
     padding-right: ${Spacing.padding._4};
+    padding-left: ${Spacing.padding._4};
     background-color: ${Colors.gray._100};
     display: flex;
     justify-content: center;
@@ -61,9 +62,9 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
 
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
-            <ArrowButton>
+            <CaretButton>
                 <Icon source={icons.caret_left} size="small" />
-            </ArrowButton>
+            </CaretButton>
         </CollapsedCalendarView>
     ) : (
         <CalendarContainer expanded={isExpanded}>
