@@ -297,25 +297,25 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	if updateFields.Body != nil && *updateFields.Body == "" {
 		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
 	}
-	req := graphqlBasic.NewRequest(updateIssueQueryStr)
+	request := graphqlBasic.NewRequest(updateIssueQueryStr)
 
-	req.Var("id", issueID)
+	request.Var("id", issueID)
 	if updateFields.Title != nil {
 		if *updateFields.Title == "" {
 			return nil, errors.New("cannot set linear issue title to empty string")
 		}
-		req.Var("title", *updateFields.Title)
+		request.Var("title", *updateFields.Title)
 	}
 	if updateFields.Body != nil {
 		if *updateFields.Body == "" {
-			req.Var("descriptionData", `{"type":"doc","content":[{"type":"paragraph"}]}`)
+			request.Var("descriptionData", `{"type":"doc","content":[{"type":"paragraph"}]}`)
 		} else {
-			req.Var("description", *updateFields.Body)
+			request.Var("description", *updateFields.Body)
 		}
 	}
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
-			req.Var("stateId", task.CompletedStatus.ExternalID)
+			request.Var("stateId", task.CompletedStatus.ExternalID)
 		} else {
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
 				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
@@ -324,13 +324,13 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 				log.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 			}
-			req.Var("stateId", task.PreviousStatus.ExternalID)
+			request.Var("stateId", task.PreviousStatus.ExternalID)
 		}
 	}
 
-	log.Debug().Msgf("sending request to Linear: %+v", req)
+	log.Debug().Msgf("sending request to Linear: %+v", request)
 	var query linearUpdateIssueQuery
-	if err := client.Run(context.Background(), req, &query); err != nil {
+	if err := client.Run(context.Background(), request, &query); err != nil {
 		log.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
