@@ -60,6 +60,7 @@ export const ArrowButton = styled(ButtonStyles)`
         background-color: ${Colors.gray._200};
     }
 `
+
 const HeaderIconsContainer = styled.div`
     display: flex;
     align-items: center;
@@ -105,9 +106,9 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                                 <Icon source={icons.arrows_out} size="small" />
                             )}
                         </ArrowButton>
-                        <CursorPointerDiv onClick={() => collapseCalendar()}>
+                        <ArrowButton onClick={() => collapseCalendar()}>
                             <Icon source={icons.caret_right} size="small" />
-                        </CursorPointerDiv>
+                        </ArrowButton>
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>

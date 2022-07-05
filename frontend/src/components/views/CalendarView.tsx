@@ -1,4 +1,4 @@
-import CalendarHeader, { CursorPointerDiv } from '../calendar/CalendarHeader'
+import CalendarHeader, { ArrowButton } from '../calendar/CalendarHeader'
 import { Colors, Spacing } from '../../styles'
 import React, { useMemo, useState } from 'react'
 
@@ -61,9 +61,9 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
 
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
-            <CursorPointerDiv>
+            <ArrowButton>
                 <Icon source={icons.caret_left} size="small" />
-            </CursorPointerDiv>
+            </ArrowButton>
         </CollapsedCalendarView>
     ) : (
         <CalendarContainer expanded={isExpanded}>
