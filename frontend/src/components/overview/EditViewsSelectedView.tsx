@@ -26,10 +26,10 @@ const EditViewsSelectedView = ({ view, viewIndex }: EditViewsSelectedViewProps) 
         [view.id]
     )
 
-    const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        console.log({ item, dropIndex })
-        temporaryReorderViews(item.id, dropIndex)
-    }, [])
+    const handleReorder = useCallback(
+        (item: DropItem, dropIndex: number) => temporaryReorderViews(item.id, dropIndex),
+        []
+    )
 
     return (
         <ReorderDropContainer

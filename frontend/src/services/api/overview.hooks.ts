@@ -280,8 +280,6 @@ export const useGetOverviewViews = () => {
         setViews(newViews)
     }
 
-    console.log({ views })
-
     return { data: views, temporaryReorderViews }
 }
 
