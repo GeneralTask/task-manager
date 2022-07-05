@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useDrag } from 'react-dnd'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { logos, icons } from '../../styles/images'
-import { DropType, TOverviewView } from '../../utils/types'
-import { emptyFunction } from '../../utils/utils'
+import { DropItem, DropType, TOverviewView } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
@@ -13,9 +13,10 @@ interface EditViewsSelectedViewProps {
     viewIndex: number
 }
 const EditViewsSelectedView = ({ view, viewIndex }: EditViewsSelectedViewProps) => {
+    const { temporaryReorderViews } = useGetOverviewViews()
     const [, drag] = useDrag(
         () => ({
-            type: DropType.TASK,
+            type: DropType.OVERVIEW_VIEW,
             item: { id: view.id },
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
@@ -24,8 +25,19 @@ const EditViewsSelectedView = ({ view, viewIndex }: EditViewsSelectedViewProps) 
         }),
         [view.id]
     )
+
+    const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
+        console.log({ item, dropIndex })
+        temporaryReorderViews(item.id, dropIndex)
+    }, [])
+
     return (
-        <ReorderDropContainer key={view.id} index={viewIndex} acceptDropType={DropType.TASK} onReorder={emptyFunction}>
+        <ReorderDropContainer
+            key={view.id}
+            index={viewIndex}
+            acceptDropType={DropType.OVERVIEW_VIEW}
+            onReorder={handleReorder}
+        >
             <SelectedView key={view.id}>
                 <Domino ref={drag} />
                 <Icon source={logos[view.logo]} size="small" />

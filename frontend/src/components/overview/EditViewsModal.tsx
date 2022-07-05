@@ -6,8 +6,8 @@ import GTModal from '../atoms/GTModal'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import useGetOverviewViews from './dummydata'
 import EditViewsSelectedView from './EditViewsSelectedView'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 
 const AddViewsButton = styled(NoStyleButton)`
     border: 1px solid ${Colors.gray._500};
