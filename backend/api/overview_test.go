@@ -97,3 +97,21 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.Nil(t, result)
 	})
 }
+
+func assertOverviewViewResultEqual(t *testing.T, expected OverviewResult, actual *OverviewResult) {
+	assert.Equal(t, expected.Name, actual.Name)
+	assert.Equal(t, expected.Type, actual.Type)
+	assert.Equal(t, expected.Logo, actual.Logo)
+	assert.Equal(t, expected.IsLinked, actual.IsLinked)
+	assert.Equal(t, expected.Sources, actual.Sources)
+	assert.Equal(t, *expected.TaskSectionID, *actual.TaskSectionID)
+	assert.Equal(t, expected.IsPaginated, actual.IsPaginated)
+	assert.Equal(t, expected.IsReorderable, actual.IsReorderable)
+	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
+	actualItems, ok := actual.ViewItems.([]*TaskResult)
+	assert.True(t, ok)
+	expectedItems, ok := expected.ViewItems.([]*TaskResult)
+	assert.True(t, ok)
+	assert.Equal(t, len(expectedItems), len(actualItems))
+	assert.Equal(t, actualItems[0].ID, expectedItems[0].ID)
+}
