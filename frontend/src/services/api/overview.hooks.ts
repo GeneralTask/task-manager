@@ -270,12 +270,12 @@ export const useGetOverviewViews = () => {
     const temporaryReorderViews = (viewId: string, idOrdering: number) => {
         const newViews = produce(views, draft => {
             const startIndex = draft.findIndex(view => view.id === viewId)
-            if (startIndex === -1) return
             let endIndex = idOrdering - 1
             if (startIndex < endIndex) {
                 endIndex -= 1
             }
-            arrayMoveInPlace<TOverviewView>(draft, startIndex, endIndex)
+            if (startIndex === -1 || endIndex === -1) return
+            arrayMoveInPlace(draft, startIndex, endIndex)
         })
         setViews(newViews)
     }
