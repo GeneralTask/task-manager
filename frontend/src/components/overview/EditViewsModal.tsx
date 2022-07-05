@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Border, Colors, Spacing } from '../../styles'
@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import EditViewsSelectedView from './EditViewsSelectedView'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { DropItem } from '../../utils/types'
 
 const AddViewsButton = styled(NoStyleButton)`
     border: 1px solid ${Colors.gray._500};
@@ -25,7 +26,12 @@ interface EditViewsModalProps {
     goToAddViewsView: () => void
 }
 const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalProps) => {
-    const { data: views } = useGetOverviewViews()
+    const { data: views, temporaryReorderViews } = useGetOverviewViews()
+
+    const handleReorder = useCallback(
+        (item: DropItem, dropIndex: number) => temporaryReorderViews(item.id, dropIndex),
+        [temporaryReorderViews]
+    )
 
     return (
         <GTModal
@@ -42,7 +48,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
         >
             <>
                 {views.map((view, index) => (
-                    <EditViewsSelectedView key={view.id} view={view} viewIndex={index} />
+                    <EditViewsSelectedView key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
                 ))}
             </>
         </GTModal>

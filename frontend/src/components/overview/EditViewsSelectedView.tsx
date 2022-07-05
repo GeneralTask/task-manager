@@ -1,6 +1,5 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useDrag } from 'react-dnd'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { logos, icons } from '../../styles/images'
 import { DropItem, DropType, TOverviewView } from '../../utils/types'
 import Domino from '../atoms/Domino'
@@ -11,9 +10,9 @@ import { SelectedView, EditViewsDeleteButton } from './styles'
 interface EditViewsSelectedViewProps {
     view: TOverviewView
     viewIndex: number
+    onReorder: (item: DropItem, dropIndex: number) => void
 }
-const EditViewsSelectedView = ({ view, viewIndex }: EditViewsSelectedViewProps) => {
-    const { temporaryReorderViews } = useGetOverviewViews()
+const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelectedViewProps) => {
     const [, drag] = useDrag(
         () => ({
             type: DropType.OVERVIEW_VIEW,
@@ -26,17 +25,12 @@ const EditViewsSelectedView = ({ view, viewIndex }: EditViewsSelectedViewProps) 
         [view.id]
     )
 
-    const handleReorder = useCallback(
-        (item: DropItem, dropIndex: number) => temporaryReorderViews(item.id, dropIndex),
-        []
-    )
-
     return (
         <ReorderDropContainer
             key={view.id}
             index={viewIndex}
             acceptDropType={DropType.OVERVIEW_VIEW}
-            onReorder={handleReorder}
+            onReorder={onReorder}
         >
             <SelectedView key={view.id}>
                 <Domino ref={drag} />
