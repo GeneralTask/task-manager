@@ -1,7 +1,6 @@
 package external
 
 import (
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
