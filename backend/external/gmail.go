@@ -135,6 +135,12 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 		// TODO implement unit testing for this logic
 		historyThreadIDsToFetch := handleThreadDeletion(db, userID, historyThreadIDs, netChangeInNumEmailsPerThread)
+
+		if len(historyThreadIDsToFetch) > int(fullFetchMaxResults) {
+			gmailSource.GetEmails(userID, accountID, latestHistoryID, result, true)
+			return
+		}
+
 		threads = runThreadWorkers(gmailService, historyThreadIDsToFetch)
 	}
 
