@@ -8,7 +8,7 @@ import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
@@ -41,16 +41,18 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     display: block;
     background-color: inherit;
     border: 1px solid transparent;
+    border-radius: ${Border.radius.large};
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing.padding._12};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
     :focus {
-        border: 1px solid ${Colors.gray._500};
+        border: 1px solid ${Colors.gray._400};
+        box-shadow: ${Shadows.medium};
     }
 `
 const TitleInput = styled.textarea`
@@ -246,12 +248,11 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                 <Spinner />
             ) : (
                 <>
-                    {task.slack_message_params && <SlackMessage slack_message_params={task.slack_message_params} />}
                     <BodyTextArea
                         ref={bodyRef}
                         data-testid="task-body-input"
                         placeholder="Add task details"
-                        isFullHeight={!thread}
+                        isFullHeight={!(thread || task.slack_message_params)}
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
@@ -261,6 +262,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     />
                     {thread && <EmailList thread={thread} />}
                     {task.comments && <LinearCommentList comments={task.comments} />}
+                    {task.slack_message_params && <SlackMessage slack_message_params={task.slack_message_params} />}
                 </>
             )}
         </DetailsViewContainer>

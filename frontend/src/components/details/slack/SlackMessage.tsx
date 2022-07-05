@@ -6,8 +6,8 @@ import { DateTime } from 'luxon'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 
 const MessageContainer = styled.div`
-    border: 1px solid ${Colors.gray._200};
-    border-radius: ${Border.radius.large};
+    /* border: 1px solid ${Colors.gray._200};
+    border-radius: ${Border.radius.large}; */
     padding: ${Spacing.padding._8};
 `
 const TopContainer = styled.div`
@@ -28,6 +28,12 @@ const GrayText = styled(BlackText)`
     color: ${Colors.gray._400};
 `
 
+const DividerView = styled.div`
+    height: 1px;
+    background-color: ${Colors.gray._300};
+    margin: ${Spacing.margin._8};
+`
+
 interface SlackMessageProps {
     slack_message_params: TSlackMessageParams
 }
@@ -41,15 +47,18 @@ const SlackMessage = forwardRef<HTMLDivElement, SlackMessageProps>(
                 ? 'Direct Message'
                 : `#${slack_message_params.channel.name}`
         return (
-            <MessageContainer ref={ref}>
-                <TopContainer>
-                    <BlackText>{`${slack_message_params.message.user} (${channel})`}</BlackText>
-                    <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
-                </TopContainer>
-                <BodyContainer>
-                    <BlackText>{slack_message_params.message.text}</BlackText>
-                </BodyContainer>
-            </MessageContainer>
+            <>
+                <DividerView />
+                <MessageContainer ref={ref}>
+                    <TopContainer>
+                        <BlackText>{`${slack_message_params.message.user} (${channel})`}</BlackText>
+                        <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
+                    </TopContainer>
+                    <BodyContainer>
+                        <GrayText>{slack_message_params.message.text}</GrayText>
+                    </BodyContainer>
+                </MessageContainer>
+            </>
         )
     }
 )
