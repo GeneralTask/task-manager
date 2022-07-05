@@ -114,7 +114,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error loading task service")
-			continue
+			return nil, nil, err
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
@@ -132,6 +132,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
+			api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
 			failedFetchSources[taskResult.SourceID] = true
 			continue
 		}
@@ -140,6 +141,8 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
+			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
+			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
 		for _, pullRequest := range pullRequestResult.PullRequests {
@@ -167,10 +170,14 @@ func (api *API) adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
+		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK {
+			// we don't ever need to mark GT tasks as done here as they would have already been marked done
+			continue
+		}
 		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
-				api.Logger.Error().Err(err).Msg("failed to update task ordering ID")
+				api.Logger.Error().Err(err).Msg("failed to complete task")
 				return err
 			}
 			for _, newTask := range newTasks {
