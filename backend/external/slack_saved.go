@@ -35,6 +35,11 @@ type SlackSavedTaskSource struct {
 	Slack SlackService
 }
 
+type SlackParamsToFetch struct {
+	Username string
+	Deeplink string
+}
+
 func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
@@ -103,9 +108,9 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		taskSection = task.IDTaskSection
 	}
 
-	permalink, err := GetSlackMessagePermalink(db, userID, accountID, task.SlackMessageParams.Channel.ID, task.SlackMessageParams.Message.TimeSent)
+	fetchedParams, err := GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch Slack message permalink")
+		log.Error().Err(err).Msg("failed to fetch Slack message params")
 	}
 
 	newTask := database.Item{
@@ -116,7 +121,8 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 			Title:           task.Title,
 			Body:            task.Body,
 			SourceAccountID: accountID,
-			Deeplink:        permalink,
+			Deeplink:        fetchedParams.Deeplink,
+			Sender:          fetchedParams.Username,
 		},
 		TaskType: database.TaskType{
 			IsTask: true,
@@ -152,27 +158,57 @@ func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }
 
-func GetSlackMessagePermalink(db *mongo.Database, userID primitive.ObjectID, accountID string, channelID string, ts string) (string, error) {
-	if channelID == "" || ts == "" {
-		return "", nil
-	}
-
+func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackParamsToFetch, error) {
 	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
 	if err != nil {
-		return "", err
+		return SlackParamsToFetch{}, err
 	}
 
 	var oauthToken oauth2.Token
 	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
 
 	client := slack.New(oauthToken.AccessToken)
+	deeplinkChan := make(chan string)
+	usernameChan := make(chan string)
+
+	go getSlackDeeplink(client, slackParams.Channel.ID, slackParams.Message.TimeSent, deeplinkChan)
+	go getSlackUsername(client, slackParams.Message.User, usernameChan)
+
+	return SlackParamsToFetch{
+		Deeplink: <-deeplinkChan,
+		Username: <-usernameChan,
+	}, nil
+}
+
+func getSlackDeeplink(client *slack.Client, channelID string, ts string, result chan<- string) {
+	if channelID == "" || ts == "" {
+		result <- ""
+		return
+	}
 	params := slack.PermalinkParameters{
 		Channel: channelID,
 		Ts:      ts,
 	}
 	permalink, err := client.GetPermalink(&params)
 	if err != nil {
-		return "", err
+		log.Error().Err(err).Msg("failed to fetch Slack message permalink")
+		result <- ""
+		return
 	}
-	return permalink, nil
+	result <- permalink
+}
+
+func getSlackUsername(client *slack.Client, userID string, result chan<- string) {
+	if userID == "" {
+		result <- ""
+		return
+	}
+	userProfile, err := client.GetUserInfo(userID)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch Slack username")
+		result <- ""
+		return
+	}
+	result <- userProfile.Profile.DisplayName
+	return
 }
