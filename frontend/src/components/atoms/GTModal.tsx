@@ -34,6 +34,8 @@ const Header = styled.div`
 `
 const Body = styled.div`
     overflow: auto;
+    display: flex;
+    flex-direction: column;
     flex: 1;
 `
 const Footer = styled.div`
