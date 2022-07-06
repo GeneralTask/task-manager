@@ -11,12 +11,9 @@ export function getMonthsAroundDate(date: DateTime, numMonths = 1): DateRange[] 
     const startOfFirstMonth = date.startOf('month').minus({ months: numMonths })
     const endOfFirstMonth = date.endOf('month').minus({ months: numMonths })
 
-    return [...Array(numMonths * 2 + 1).keys()].map((i: number): DateRange => {
-        return {
+    return [...Array(numMonths * 2 + 1).keys()].map((i: number): DateRange => ({
             start: startOfFirstMonth.plus({ months: i }).startOf('month'),
             end: endOfFirstMonth.plus({ months: i }).endOf('month'),
-        }
-    })
-
+        }))
 }
 
