@@ -35,7 +35,7 @@ type SlackSavedTaskSource struct {
 	Slack SlackService
 }
 
-type SlackParamsToFetch struct {
+type SlackAdditionalInformation struct {
 	Username string
 	Deeplink string
 }
@@ -108,7 +108,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		taskSection = task.IDTaskSection
 	}
 
-	fetchedParams, err := GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
+	slackAdditionalInformation, err := GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch Slack message params")
 	}
@@ -121,8 +121,8 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 			Title:           task.Title,
 			Body:            task.Body,
 			SourceAccountID: accountID,
-			Deeplink:        fetchedParams.Deeplink,
-			Sender:          fetchedParams.Username,
+			Deeplink:        slackAdditionalInformation.Deeplink,
+			Sender:          slackAdditionalInformation.Username,
 		},
 		TaskType: database.TaskType{
 			IsTask: true,
@@ -158,10 +158,10 @@ func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }
 
-func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackParamsToFetch, error) {
+func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackAdditionalInformation, error) {
 	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
 	if err != nil {
-		return SlackParamsToFetch{}, err
+		return SlackAdditionalInformation{}, err
 	}
 
 	var oauthToken oauth2.Token
@@ -174,7 +174,7 @@ func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID
 	go getSlackDeeplink(client, slackParams.Channel.ID, slackParams.Message.TimeSent, deeplinkChan)
 	go getSlackUsername(client, slackParams.Message.User, usernameChan)
 
-	return SlackParamsToFetch{
+	return SlackAdditionalInformation{
 		Deeplink: <-deeplinkChan,
 		Username: <-usernameChan,
 	}, nil
