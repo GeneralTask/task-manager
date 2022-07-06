@@ -11,7 +11,6 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8};
