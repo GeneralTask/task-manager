@@ -33,6 +33,9 @@ export default function useItemSelectionController(items: TTask[] | TEmailThread
         [selectedItemId, items, selectItem]
     )
 
+    //add KB shortcut for J/K and Up/Down Arrow 
     useKeyboardShortcut('down', () => onUpDown('down'))
     useKeyboardShortcut('up', () => onUpDown('up'))
+    useKeyboardShortcut('arrowDown', () => onUpDown('down'))
+    useKeyboardShortcut('arrowUp', () => onUpDown('up'))
 }
