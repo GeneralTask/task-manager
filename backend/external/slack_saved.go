@@ -212,3 +212,62 @@ func getSlackUsername(client *slack.Client, userID string, result chan<- string)
 	result <- userProfile.Profile.DisplayName
 	return
 }
+
+func GetSlackModal(triggerID string) []byte {
+	return []byte(`{
+		"trigger_id": "` + triggerID + `",
+		"view": {
+			"title": {
+				"type": "plain_text",
+				"text": "Create a new task",
+				"emoji": true
+			},
+			"submit": {
+				"type": "plain_text",
+				"text": "Submit",
+				"emoji": true
+			},
+			"type": "modal",
+			"close": {
+				"type": "plain_text",
+				"text": "Cancel",
+				"emoji": true
+			},
+			"blocks": [
+				{
+					"block_id": "task_title",
+					"type": "input",
+					"optional": true,
+					"label": {
+						"type": "plain_text",
+						"text": "Enter a task title"
+					},
+					"element": {
+						"type": "plain_text_input",
+						"placeholder": {
+							"type": "plain_text",
+							"text": "Optional task title"
+						}
+					}
+				},
+				{
+					"block_id": "task_details",
+					"type": "input",
+					"optional": true,
+					"label": {
+						"type": "plain_text",
+						"text": "Enter task details"
+					},
+					"element": {
+						"type": "plain_text_input",
+						"multiline": true,
+						"placeholder": {
+							"type": "plain_text",
+							"text": "Optional task title"
+						}
+					}
+				}
+			]
+		}
+	}`)
+}
