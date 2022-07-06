@@ -72,24 +72,16 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		taskID := taskResult.InsertedID.(primitive.ObjectID)
-
 		api := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		assert.Equal(t, taskSectionName, result.Name)
-		assert.Equal(t, ViewTaskSection, result.Type)
-		assert.Equal(t, "generaltask", result.Logo)
-		assert.Equal(t, false, result.IsLinked)
-		assert.Equal(t, []SourcesResult(nil), result.Sources)
-		assert.Equal(t, taskSectionID, *result.TaskSectionID)
-		assert.Equal(t, false, result.IsPaginated)
-		assert.Equal(t, false, result.IsReorderable)
-		assert.Equal(t, 1, result.IDOrdering)
-		items, ok := result.ViewItems.([]*TaskResult)
-		assert.True(t, ok)
-		assert.Equal(t, 1, len(items))
-		assert.Equal(t, taskID, items[0].ID)
+		expectedViewResult.ViewItems = []*TaskResult{
+			{
+				ID: taskID,
+			},
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
 		api := GetAPI()
@@ -124,6 +116,6 @@ func assertOverviewViewResultEqual(t *testing.T, expected OverviewResult, actual
 	assert.True(t, ok)
 	assert.Equal(t, len(expectedItems), len(actualItems))
 	for i := range expectedItems {
-		assert.Equal(t, expectedItems[i], actualItems[i])
+		assert.Equal(t, expectedItems[i].ID, actualItems[i].ID)
 	}
 }
