@@ -1,3 +1,13 @@
+- [task-manager](#task-manager)
+  - [Frontend testing](#frontend-testing)
+  - [Pre-Commit](#pre-commit)
+  - [Backend setup](#backend-setup)
+  - [Backend testing](#backend-testing)
+    - [Running Tests in IDE](#running-tests-in-ide)
+  - [Deploying backend](#deploying-backend)
+  - [Debugging backend](#debugging-backend)
+  - [Useful links](#useful-links)
+
 # task-manager
 
 A manager of tasks.
