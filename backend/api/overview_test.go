@@ -17,14 +17,15 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	defer dbCleanup()
 
 	taskSectionName := "Test Task Section"
+	userID := primitive.NewObjectID()
 	taskSectionCollection := database.GetTaskSectionCollection(db)
 	taskSectionResult, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
-		Name: taskSectionName,
+		Name:   taskSectionName,
+		UserID: userID,
 	})
 	assert.NoError(t, err)
 	taskSectionID := taskSectionResult.InsertedID.(primitive.ObjectID)
 
-	userID := primitive.NewObjectID()
 	view := database.View{
 		UserID:        userID,
 		IDOrdering:    1,

@@ -415,7 +415,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	return &tasks, nil
 }
 
-func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID) (string, error) {
+func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID *primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
 		return "Default", nil
 	}
@@ -428,7 +428,10 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID) (s
 	err := GetTaskSectionCollection(db).FindOne(
 		dbCtx,
 		bson.M{
-			"_id": taskSectionID,
+			"$and": []bson.M{
+				{"_id": taskSectionID},
+				{"user_id": *userID},
+			},
 		},
 	).Decode(&taskSection)
 
