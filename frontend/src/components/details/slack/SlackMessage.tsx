@@ -35,11 +35,12 @@ const DividerView = styled.div`
 `
 
 interface SlackMessageProps {
+    sender: string
     slack_message_params: TSlackMessageParams
 }
 
 const SlackMessage = forwardRef<HTMLDivElement, SlackMessageProps>(
-    ({ slack_message_params }: SlackMessageProps, ref) => {
+    ({ sender, slack_message_params }: SlackMessageProps, ref) => {
         const dateSent = DateTime.fromMillis(slack_message_params.message.ts * 1000)
 
         const channel =
@@ -51,7 +52,7 @@ const SlackMessage = forwardRef<HTMLDivElement, SlackMessageProps>(
                 <DividerView />
                 <MessageContainer ref={ref}>
                     <TopContainer>
-                        <BlackText>{`${slack_message_params.message.user} (${channel})`}</BlackText>
+                        <BlackText>{`${sender} (${channel})`}</BlackText>
                         <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
                     </TopContainer>
                     <BodyContainer>

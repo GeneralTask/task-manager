@@ -262,7 +262,9 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     />
                     {thread && <EmailList thread={thread} />}
                     {task.comments && <LinearCommentList comments={task.comments} />}
-                    {task.slack_message_params && <SlackMessage slack_message_params={task.slack_message_params} />}
+                    {task.slack_message_params && (
+                        <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
+                    )}
                 </>
             )}
         </DetailsViewContainer>
