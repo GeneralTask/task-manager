@@ -74,7 +74,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	results, err := api.getOverviewResults(db, dbCtx, views, userID)
+	results, err := api.GetOverviewResults(db, dbCtx, views, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views with view items")
 		Handle500(c)
@@ -83,7 +83,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, results)
 }
 
-func (api *API) getOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]*OverviewResult, error) {
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]*OverviewResult, error) {
 	var overviewResults []*OverviewResult
 	for _, view := range views {
 		var result *OverviewResult
