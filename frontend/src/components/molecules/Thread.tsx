@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TEmailThread } from '../../utils/types'
 import { removeHTMLTags, getHumanDateTime } from '../../utils/utils'
@@ -115,8 +114,6 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     const onClickHandler = useCallback(() => {
         navigate(`/messages/${params.mailbox}/${thread.id}`)
     }, [params, thread])
-
-    useKeyboardShortcut('select', onClickHandler, !isSelected)
 
     const senders = thread.emails[0]?.sender.name
     const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length}) ` : ''
