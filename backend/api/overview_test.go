@@ -10,6 +10,82 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func TestGetOverviewResults(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	parentCtx := context.Background()
+	api := GetAPI()
+
+	t.Run("NoViews", func(t *testing.T) {
+		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID())
+		assert.NoError(t, err)
+		assert.Nil(t, result)
+	})
+	t.Run("InvalidViewType", func(t *testing.T) {
+		result, err := api.GetOverviewResults(db, parentCtx, []database.View{{
+			Type: "invalid",
+		}}, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid view type", err.Error())
+		assert.Nil(t, result)
+	})
+	t.Run("SingleTaskSection", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		taskSectionName := "Test Task Section"
+
+		taskSectionCollection := database.GetTaskSectionCollection(db)
+		taskSectionResult, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
+			Name:   taskSectionName,
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		taskSectionID := taskSectionResult.InsertedID.(primitive.ObjectID)
+		views := []database.View{
+			{
+				ID:            primitive.NewObjectID(),
+				Type:          "task_section",
+				UserID:        userID,
+				TaskSectionID: taskSectionID,
+				IDOrdering:    1,
+			},
+		}
+
+		taskCollection := database.GetTaskCollection(db)
+		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: taskSectionID,
+				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+
+		result, err := api.GetOverviewResults(db, parentCtx, views, userID)
+		expectedViewResult := OverviewResult{
+			ID:            views[0].ID,
+			Name:          taskSectionName,
+			Type:          ViewTaskSection,
+			Logo:          "generaltask",
+			IsLinked:      false,
+			IsPaginated:   false,
+			IsReorderable: false,
+			IDOrdering:    1,
+			TaskSectionID: &taskSectionID,
+			ViewItems: []*TaskResult{{
+				ID: taskResult.InsertedID.(primitive.ObjectID),
+			}},
+		}
+		assert.NoError(t, err)
+		assert.Len(t, result, 1)
+		assertOverviewViewResultEqual(t, expectedViewResult, result[0])
+	})
+}
+
 func TestGetTaskSectionOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
