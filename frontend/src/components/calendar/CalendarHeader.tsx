@@ -9,6 +9,7 @@ import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
+import { useKeyboardShortcut } from '../../hooks'
 
 export const PaddedContainer = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
@@ -100,6 +101,9 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
         dispatch(setExpandedCalendar(expanded))
         setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
     }
+
+    useKeyboardShortcut('nextDate', selectNext)
+    useKeyboardShortcut('previousDate', selectPrevious)
 
     return (
         <div>
