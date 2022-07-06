@@ -192,6 +192,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
 
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
+    const deeplinkLabel = task.linked_email_thread ? 'Gmail' : task.source.name
 
     const status = task.external_status ? task.external_status.state : ''
 
@@ -215,7 +216,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
                                     <RoundedGeneralButton
                                         textStyle="dark"
-                                        value={task.source.name}
+                                        value={deeplinkLabel}
                                         hasBorder
                                         iconSource="external_link"
                                     />
