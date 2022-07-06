@@ -46,6 +46,7 @@ export const NO_EVENT_TITLE = '(no title)'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 export const KEYBOARD_SHORTCUTS = Object.freeze({
+    calendar: 'C', 
     close: 'Escape',
     createTask: 'T',
     down: 'ArrowDown',

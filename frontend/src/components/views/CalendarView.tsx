@@ -14,6 +14,7 @@ import { useAppDispatch } from '../../redux/hooks'
 import { useGetEvents, useGetLinkedAccounts } from '../../services/api-query-hooks'
 import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const CollapsedCalendarView = styled.div`
     padding-top: ${Spacing.padding._16};
@@ -58,6 +59,12 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
         [linkedAccounts]
     )
+
+    const onCalendar = () => {
+        isCalendarCollapsed ? setIsCalendarCollapsed(false) : setIsCalendarCollapsed(true)
+    }
+
+    useKeyboardShortcut('calendar', onCalendar)
 
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
