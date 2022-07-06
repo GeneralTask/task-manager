@@ -116,8 +116,6 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
         navigate(`/messages/${params.mailbox}/${thread.id}`)
     }, [params, thread])
 
-    useKeyboardShortcut('select', onClickHandler, !isSelected)
-
     const senders = thread.emails[0]?.sender.name
     const threadCountString = thread.emails.length > 1 ? `(${thread.emails.length}) ` : ''
     const title = `${threadCountString}${thread.emails[0]?.subject}`
