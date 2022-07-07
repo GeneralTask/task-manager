@@ -26,7 +26,6 @@ const LinearViewItems = ({ view }: LinearViewItemsProps) => {
                         task={item}
                         dragDisabled={!isReorderable}
                         index={index}
-                        sectionId={''}
                         sectionScrollingRef={scrollingRef}
                         isSelected={overviewItem === item.id}
                         link={`/overview/${item.id}`}
