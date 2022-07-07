@@ -36,6 +36,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-q
 
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
+import { getTaskFromSections } from '../utils/utils'
 import { getMonthsAroundDate } from '../utils/time'
 import { v4 as uuidv4 } from 'uuid'
 import produce from 'immer'
@@ -238,20 +239,19 @@ export const useModifyTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
 
-                for (const section of sections) {
-                    for (const task of section.tasks) {
-                        if (task.id === data.id) {
-                            task.title = data.title || task.title
-                            task.due_date = data.dueDate || task.due_date
-                            task.time_allocated = data.timeAllocated || task.time_allocated
-                            task.body = data.body || task.body
-                        }
-                    }
-                }
-                queryClient.setQueryData('tasks', sections)
+                const newSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, data.id)
+                    if (!task) return
+                    task.title = data.title || task.title
+                    task.due_date = data.dueDate || task.due_date
+                    task.time_allocated = data.timeAllocated || task.time_allocated
+                    task.body = data.body || task.body
+                })
+
+                queryClient.setQueryData('tasks', newSections)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
