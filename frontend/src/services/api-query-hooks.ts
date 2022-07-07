@@ -519,27 +519,30 @@ export const useModifyThread = () => {
     return useMutation((data: TModifyThreadData) => modifyThread(data), {
         onMutate: async (data: TModifyThreadData) => {
             await queryClient.cancelQueries('emailThreads')
-            const queryDataInbox: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: false }])
-            const queryDataArchive: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: true }])
+            const queryDataInbox = queryClient.getQueryData<TThreadQueryData>(['emailThreads', { isArchived: false }])
+            const queryDataArchive = queryClient.getQueryData<TThreadQueryData>(['emailThreads', { isArchived: true }])
 
             if (!queryDataInbox || !queryDataArchive) return
 
-            for (const page of [...queryDataInbox.pages, ...queryDataArchive.pages]) {
-                if (!page) continue
-                for (const thread of page) {
-                    if (thread.id === data.thread_id) {
-                        if (data.is_archived !== undefined)
-                            thread.is_archived = data.is_archived
-                        for (const email of thread.emails) {
-                            if (data.is_unread !== undefined)
-                                email.is_unread = data.is_unread
+            const [newQueryDataInbox, newQueryDataArchive] = produce([queryDataInbox, queryDataArchive], draft => {
+                for (const page of [...draft[0].pages, ...draft[1].pages]) {
+                    if (!page) continue
+                    for (const thread of page) {
+                        if (thread.id === data.thread_id) {
+                            if (data.is_archived !== undefined)
+                                thread.is_archived = data.is_archived
+                            for (const email of thread.emails) {
+                                if (data.is_unread !== undefined)
+                                    email.is_unread = data.is_unread
+                            }
+                            break
                         }
-                        break
                     }
                 }
-            }
-            queryClient.setQueryData(['emailThreads', { isArchived: false }], queryDataInbox)
-            queryClient.setQueryData(['emailThreads', { isArchived: true }], queryDataArchive)
+            })
+
+            queryClient.setQueryData(['emailThreads', { isArchived: false }], newQueryDataInbox)
+            queryClient.setQueryData(['emailThreads', { isArchived: true }], newQueryDataArchive)
         },
         onSettled: () => {
             queryClient.invalidateQueries(['emailThreads'])
