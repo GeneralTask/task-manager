@@ -207,7 +207,6 @@ func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db
 			UserID:        userID,
 			IDOrdering:    index + 1,
 			Type:          view.Type,
-			IsPaginated:   view.IsPaginated,
 			IsReorderable: view.IsReorderable,
 			IsLinked:      view.IsLinked,
 			TaskSectionID: view.TaskSectionID,

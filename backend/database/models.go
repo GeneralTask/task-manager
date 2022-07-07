@@ -348,7 +348,6 @@ type View struct {
 	UserID        primitive.ObjectID `bson:"user_id"`
 	IDOrdering    int                `bson:"id_ordering"`
 	Type          string             `bson:"type"`
-	IsPaginated   bool               `bson:"is_paginated"`
 	IsReorderable bool               `bson:"is_reorderable"`
 	IsLinked      bool               `bson:"is_linked"`
 	TaskSectionID primitive.ObjectID `bson:"task_section_id"`

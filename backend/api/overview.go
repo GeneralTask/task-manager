@@ -32,7 +32,6 @@ type OverviewResult struct {
 	IsLinked      bool                `json:"is_linked"`
 	Sources       []SourcesResult     `json:"sources"`
 	TaskSectionID *primitive.ObjectID `json:"task_section_id"`
-	IsPaginated   bool                `json:"is_paginated"`
 	IsReorderable bool                `json:"is_reorderable"`
 	IDOrdering    int                 `json:"ordering_id"`
 	ViewItems     interface{}         `json:"view_items"`
@@ -134,7 +133,6 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
 		TaskSectionID: &view.TaskSectionID,
-		IsPaginated:   view.IsPaginated,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     taskResults,

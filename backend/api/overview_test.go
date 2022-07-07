@@ -72,7 +72,6 @@ func TestGetOverviewResults(t *testing.T) {
 			Type:          ViewTaskSection,
 			Logo:          "generaltask",
 			IsLinked:      false,
-			IsPaginated:   false,
 			IsReorderable: false,
 			IDOrdering:    1,
 			TaskSectionID: &taskSectionID,
@@ -106,7 +105,6 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		UserID:        userID,
 		IDOrdering:    1,
 		Type:          "generaltask",
-		IsPaginated:   false,
 		IsLinked:      false,
 		TaskSectionID: taskSectionResult.InsertedID.(primitive.ObjectID),
 	}
@@ -120,7 +118,6 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		Type:          ViewTaskSection,
 		Logo:          "generaltask",
 		IsLinked:      false,
-		IsPaginated:   false,
 		IsReorderable: false,
 		IDOrdering:    1,
 		TaskSectionID: &taskSectionID,
@@ -184,7 +181,6 @@ func assertOverviewViewResultEqual(t *testing.T, expected OverviewResult, actual
 	assert.Equal(t, expected.IsLinked, actual.IsLinked)
 	assert.Equal(t, expected.Sources, actual.Sources)
 	assert.Equal(t, *expected.TaskSectionID, *actual.TaskSectionID)
-	assert.Equal(t, expected.IsPaginated, actual.IsPaginated)
 	assert.Equal(t, expected.IsReorderable, actual.IsReorderable)
 	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
 	actualItems, ok := actual.ViewItems.([]*TaskResult)
