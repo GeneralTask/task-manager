@@ -251,6 +251,9 @@ func getGithubPullRequests(ctx context.Context, githubClient *github.Client, rep
 	if err != nil {
 		return nil, err
 	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
 	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
 	return fetchedPullRequests, err
 }
@@ -259,6 +262,12 @@ func listReviewers(ctx context.Context, githubClient *github.Client, repository 
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
+	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
+	if pullRequest == nil || pullRequest.Number == nil {
+		return nil, errors.New("pull request is nil")
 	}
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
