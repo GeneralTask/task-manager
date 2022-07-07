@@ -407,8 +407,10 @@ export const useAddTaskSection = () => {
                 is_done: false,
                 tasks: [],
             }
-            sections.splice(sections.length - 1, 0, newSection)
-            queryClient.setQueryData('tasks', sections)
+            const newSections = produce(sections, draft => {
+                draft.splice(sections.length - 1, 0, newSection)
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -433,14 +435,13 @@ export const useDeleteTaskSection = () => {
 
             const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
-            for (let i = 0; i < sections.length; i++) {
-                const section = sections[i]
-                if (section.id === data.sectionId) {
-                    sections.splice(i, 1)
-                    return
-                }
-            }
-            queryClient.setQueryData('tasks', sections)
+
+            const newSections = produce(sections, draft => {
+                const sectionIdx = draft.findIndex((s) => s.id === data.sectionId)
+                if (sectionIdx === -1) return
+                draft.splice(sectionIdx, 1)
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -466,12 +467,13 @@ export const useModifyTaskSection = () => {
             const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            for (const section of sections) {
-                if (section.id === data.sectionId) {
+            const newSections = produce(sections, draft => {
+                const section = draft.find((s) => s.id === data.sectionId)
+                if (section) {
                     section.name = data.name
                 }
-            }
-            queryClient.setQueryData('tasks', sections)
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
     })
 }
