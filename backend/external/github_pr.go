@@ -251,6 +251,9 @@ func getGithubPullRequests(ctx context.Context, githubClient *github.Client, rep
 	if err != nil {
 		return nil, err
 	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
 	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
 	return fetchedPullRequests, err
 }
@@ -259,6 +262,12 @@ func listReviewers(ctx context.Context, githubClient *github.Client, repository 
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
+	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
+	if pullRequest == nil || pullRequest.Number == nil {
+		return nil, errors.New("pull request is nil")
 	}
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
@@ -274,7 +283,7 @@ func listComments(context context.Context, githubClient *github.Client, reposito
 	return comments, err
 }
 
-func listCheckRunsForRef(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
+func listCheckRunsForCommit(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
@@ -290,6 +299,9 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+	if pullRequest == nil || githubUser == nil {
+		return false
+	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
@@ -354,7 +366,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 }
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
-	checkRuns, err := listCheckRunsForRef(context, githubClient, repository, pullRequest, overrideURL)
+	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return false, err
 	}
