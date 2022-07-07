@@ -207,6 +207,9 @@ func TestUserIsOwner(t *testing.T) {
 	})
 	t.Run("PullRequestUserIdIsNil", func(t *testing.T) {
 		assert.False(t, userIsOwner(&testGithubUser1, &pullRequestUser3))
+	})
+}
+
 func TestSetOverrideURL(t *testing.T) {
 	t.Run("WithoutOverrideURL", func(t *testing.T) {
 		githubClient := *github.NewClient(nil)
@@ -518,5 +521,3 @@ func TestPullRequestIsApproved(t *testing.T) {
 	})
 	t.Run("PullRequestIsNotApproved", func(t *testing.T) {
 		assert.False(t, pullRequestIsApproved(notApprovedReviews))
-	})
-}
