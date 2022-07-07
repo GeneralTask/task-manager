@@ -364,7 +364,7 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 		RandomizationFactor: 2.0,
 		Multiplier:          backoff.DefaultMultiplier,
 		MaxInterval:         backoff.DefaultMaxInterval,
-		MaxElapsedTime:      10 * time.Second,
+		MaxElapsedTime:      30 * time.Second,
 		Stop:                backoff.Stop,
 		Clock:               backoff.SystemClock,
 	}
