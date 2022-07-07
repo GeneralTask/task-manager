@@ -9,6 +9,7 @@ const TemplateContainer = styled.div`
     height: calc(${TASK_DEFAULT_LINE_HEIGHT} * 2);
     border-radius: ${Border.radius.large};
     padding: 1px 0;
+    margin: 2px 0;
 `
 interface TaskTemplateProps {
     isShadow?: boolean

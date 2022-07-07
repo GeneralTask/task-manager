@@ -1,12 +1,7 @@
 import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { TOverviewView } from '../../../utils/types'
 import Task from '../../molecules/Task'
-
-const PaddedContainer = styled.div`
-    padding: 2px 0;
-`
 
 interface LinearViewItemsProps {
     view: TOverviewView
@@ -21,16 +16,15 @@ const LinearViewItems = ({ view }: LinearViewItemsProps) => {
     return (
         <div ref={scrollingRef}>
             {view.view_items.map((item, index) => (
-                <PaddedContainer key={item.id}>
-                    <Task
-                        task={item}
-                        dragDisabled={!isReorderable}
-                        index={index}
-                        sectionScrollingRef={scrollingRef}
-                        isSelected={overviewItem === item.id}
-                        link={`/overview/${item.id}`}
-                    />
-                </PaddedContainer>
+                <Task
+                    key={item.id}
+                    task={item}
+                    dragDisabled={!isReorderable}
+                    index={index}
+                    sectionScrollingRef={scrollingRef}
+                    isSelected={overviewItem === item.id}
+                    link={`/overview/${item.id}`}
+                />
             ))}
         </div>
     )
