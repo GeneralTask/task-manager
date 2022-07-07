@@ -6,6 +6,7 @@ export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 export const MESSAGES_PER_PAGE = 30
 export const TASK_SECTION_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
+export const MESSAGE_TYPE_DM = 'directmessage'
 
 // Time constants (in seconds)
 export const TASK_REFETCH_INTERVAL = 30
