@@ -165,7 +165,7 @@ export const useCreateTaskFromThread = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            const newSections = produce(sections, draft => {
+            const newSections = produce(sections, (draft) => {
                 draft[0].tasks = [
                     {
                         id: optimisticId,
@@ -284,7 +284,7 @@ export const useMarkTaskDone = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            const newSections = produce(sections, draft => {
+            const newSections = produce(sections, (draft) => {
                 const task = getTaskFromSections(draft, data.taskId, data.sectionId)
                 if (task) task.is_done = data.isCompleted
             })
@@ -296,7 +296,7 @@ export const useMarkTaskDone = () => {
                     const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                     if (!sections) return
 
-                    const newSections = produce(sections, draft => {
+                    const newSections = produce(sections, (draft) => {
                         const task = getTaskFromSections(draft, data.taskId, data.sectionId)
                         if (task) task.is_done = data.isCompleted
                     })
@@ -329,7 +329,7 @@ export const useReorderTask = () => {
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
 
-                const newSections = produce(sections, draft => {
+                const newSections = produce(sections, (draft) => {
                     // move within the existing section
                     if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
                         const section = draft.find((s) => s.id === data.dropSectionId)
@@ -404,7 +404,7 @@ export const useAddTaskSection = () => {
                 is_done: false,
                 tasks: [],
             }
-            const newSections = produce(sections, draft => {
+            const newSections = produce(sections, (draft) => {
                 draft.splice(sections.length - 1, 0, newSection)
             })
             queryClient.setQueryData('tasks', newSections)
@@ -433,7 +433,7 @@ export const useDeleteTaskSection = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            const newSections = produce(sections, draft => {
+            const newSections = produce(sections, (draft) => {
                 const sectionIdx = draft.findIndex((s) => s.id === data.sectionId)
                 if (sectionIdx === -1) return
                 draft.splice(sectionIdx, 1)
@@ -464,7 +464,7 @@ export const useModifyTaskSection = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            const newSections = produce(sections, draft => {
+            const newSections = produce(sections, (draft) => {
                 const section = draft.find((s) => s.id === data.sectionId)
                 if (section) {
                     section.name = data.name
@@ -650,7 +650,7 @@ export const useComposeMessage = () => {
                 num_attachments: 0
             }
 
-            const newResponse = produce(response, draft => {
+            const newResponse = produce(response, (draft) => {
                 const thread = draft.pages.flat().find(
                     thread => thread.emails.find(
                         email => email.message_id === data.message_id
