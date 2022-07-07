@@ -265,6 +265,13 @@ export interface TEmailComposeState {
 export type TMailbox = 'inbox' | 'archive'
 
 export type TOverviewItem = TTask // TODO: change this to more general type
+export enum OverviewViewType {
+    GITHUB = 'github',
+    TASK_SECTION = 'task_section',
+    LINEAR = 'linear',
+    MESSAGE = 'message',
+    SLACK = 'slack',
+}
 export interface TOverviewView {
     id: string
     name: string

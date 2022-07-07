@@ -7,7 +7,6 @@ interface LinearViewItemsProps {
     view: TOverviewView
 }
 const LinearViewItems = ({ view }: LinearViewItemsProps) => {
-    const { is_reorderable: isReorderable } = view
     const { overviewItem } = useParams()
 
     // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
@@ -15,12 +14,11 @@ const LinearViewItems = ({ view }: LinearViewItemsProps) => {
 
     return (
         <div ref={scrollingRef}>
-            {view.view_items.map((item, index) => (
+            {view.view_items.map((item) => (
                 <Task
                     key={item.id}
                     task={item}
-                    dragDisabled={!isReorderable}
-                    index={index}
+                    dragDisabled={true}
                     sectionScrollingRef={scrollingRef}
                     isSelected={overviewItem === item.id}
                     link={`/overview/${item.id}`}
