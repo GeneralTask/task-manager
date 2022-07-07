@@ -50,9 +50,9 @@ const TaskSectionView = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const { data: taskSections, isLoading } = useGetTasks()
+    const { data: taskSections, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
-    const { refetch: fetchExternalTasks, isFetching: isRefetchingTasks } = useFetchExternalTasks()
+    const { refetch: fetchExternal, isFetching: isFetchingExternal } = useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
@@ -102,15 +102,15 @@ const TaskSectionView = () => {
                 <EventBanner date={DateTime.now()} />
                 <ScrollViewMimic ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
-                        {isLoading || !section ? (
+                        {isLoadingTasks || !section ? (
                             <Loading />
                         ) : (
                             <>
                                 <SectionHeader
                                     sectionName={section.name}
                                     allowRefresh={true}
-                                    refetch={fetchExternalTasks}
-                                    isRefetching={isRefetchingTasks}
+                                    refetch={fetchExternal}
+                                    isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
                                 {!section.is_done && <CreateNewTask section={section.id} />}

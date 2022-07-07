@@ -45,7 +45,7 @@ interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
     refetch?: () => void
-    isRefetching?: boolean
+    isRefreshing?: boolean
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
@@ -100,7 +100,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <SectionHeaderContainer>
             {headerText}
             {props.allowRefresh && (
-                <RefreshButton onClick={props.refetch} isRefreshing={props.isRefetching}>
+                <RefreshButton onClick={props.refetch} isRefreshing={props.isRefreshing}>
                     <Icon size={'small'} source={icons.spinner} />
                 </RefreshButton>
             )}
