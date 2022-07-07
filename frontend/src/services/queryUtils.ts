@@ -1,4 +1,7 @@
+import { Immutable } from 'immer'
 import Cookies from 'js-cookie'
+import { QueryClient, QueryKey, useQueryClient } from 'react-query'
+import { QueryFilters } from 'react-query/types/core/utils'
 import { AUTHORIZATION_COOKE, MESSAGES_PER_PAGE } from '../constants'
 import getEnvVars from '../environment'
 const { REACT_APP_FRONTEND_BASE_URL, REACT_APP_API_BASE_URL } = getEnvVars()
@@ -47,4 +50,19 @@ export const mutateUserInfo = async (userInfo: { agreed_to_terms: boolean; opted
         body: JSON.stringify(userInfo),
     })
     return res.json()
+}
+
+/**
+ * Wrapper for useQueryClient that adds getImmutableQueryData method
+ * getImmutableQueryData simply casts the result as Immutable so the editor disallows direct assignment
+ */
+interface GTQueryClient extends QueryClient {
+    getImmutableQueryData: <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters) => Immutable<TData> | undefined
+}
+export const useGTQueryClient = (): GTQueryClient => {
+    const queryClient = useQueryClient() as GTQueryClient
+
+    queryClient.getImmutableQueryData = <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters): Immutable<TData> | undefined => queryClient.getQueryData(queryKey, filters)
+
+    return queryClient
 }

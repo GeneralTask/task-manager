@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { TTask } from './types'
+import { TTask, TTaskSection } from './types'
 import sanitizeHtml from 'sanitize-html'
 import he from 'he'
 
@@ -69,4 +69,20 @@ export const countWithOverflow = (count: number, max = 99) => {
         return `${max}+`
     }
     return `${count}`
+}
+
+export const getTaskFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TTask | undefined => {
+    if (sectionId) {
+        return sections.find(section => section.id === sectionId)?.tasks.find(task => task.id === taskId)
+    }
+    else {
+        for (const section of sections) {
+            for (const task of section.tasks) {
+                if (task.id === taskId) {
+                    return task
+                }
+            }
+        }
+    }
+    return undefined
 }

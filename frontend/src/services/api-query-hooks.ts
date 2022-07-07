@@ -32,13 +32,15 @@ import {
     TUserInfo,
 } from '../utils/types'
 import { arrayMoveInPlace, resetOrderingIds } from '../utils/utils'
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from 'react-query'
+import { useInfiniteQuery, useMutation, useQuery } from 'react-query'
 
 import { DateTime } from 'luxon'
 import apiClient from '../utils/api'
+import { getTaskFromSections } from '../utils/utils'
 import { getMonthsAroundDate } from '../utils/time'
 import { v4 as uuidv4 } from 'uuid'
-import produce from 'immer'
+import produce, { castImmutable } from 'immer'
+import { useGTQueryClient } from './queryUtils'
 
 /**
  * TASKS QUERIES
@@ -49,7 +51,7 @@ export const useGetTasks = () => {
 const getTasks = async () => {
     try {
         const res = await apiClient.get('/tasks/v3/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
     }
@@ -61,14 +63,14 @@ export const useGetTaskDetail = (data: { taskId: string }) => {
 const getTaskDetail = async (data: { taskId: string }) => {
     try {
         const res = await apiClient.get(`/tasks/detail/${data.taskId}`)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getTaskDetail failed')
     }
 }
 
 export const useFetchExternalTasks = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useQuery('tasksExternal', fetchExternalTasks, {
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -78,26 +80,94 @@ export const useFetchExternalTasks = () => {
 const fetchExternalTasks = async () => {
     try {
         const res = await apiClient.get('/tasks/fetch/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('fetchTasks failed')
     }
 }
 
 export const useCreateTask = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            for (const section of sections) {
-                if (section.id === data.id_task_section) {
-                    const newTask: TTask = {
+            const newSections = produce(sections, (draft) => {
+                const section = draft.find((section) => section.id === data.id_task_section)
+                if (!section) return
+                const newTask: TTask = {
+                    id: optimisticId,
+                    id_ordering: 0,
+                    title: data.title,
+                    body: data.body,
+                    deeplink: '',
+                    sent_at: '',
+                    time_allocated: 0,
+                    due_date: '',
+                    source: {
+                        name: 'General Task',
+                        logo: '',
+                        logo_v2: 'generaltask',
+                        is_completable: false,
+                        is_replyable: false,
+                    },
+                    sender: '',
+                    is_done: false,
+                    recipients: { to: [], cc: [], bcc: [] },
+                    isOptimistic: true,
+                }
+                section.tasks = [newTask, ...section.tasks]
+            })
+
+            queryClient.setQueryData('tasks', newSections)
+        },
+        onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            if (!sections) return
+            const newSections = produce(sections, (draft) => {
+                const task = getTaskFromSections(draft, optimisticId, createData.id_task_section)
+                if (!task) return
+
+                task.id = response.task_id
+                task.isOptimistic = false
+            })
+            queryClient.setQueryData('tasks', newSections)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
+    })
+}
+const createTask = async (data: TCreateTaskData) => {
+    try {
+        const res = await apiClient.post('/tasks/create/gt_task/', data)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('createTask failed')
+    }
+}
+
+/**
+ * Creates a task with a reference link back to the email thread
+ */
+export const useCreateTaskFromThread = () => {
+    const queryClient = useGTQueryClient()
+    const optimisticId = uuidv4()
+
+    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
+        onMutate: async (data: TCreateTaskFromThreadData) => {
+            queryClient.cancelQueries('tasks')
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            if (!sections) return
+
+            const newSections = produce(sections, (draft) => {
+                draft[0].tasks = [
+                    {
                         id: optimisticId,
                         id_ordering: 0,
                         title: data.title,
@@ -115,98 +185,31 @@ export const useCreateTask = () => {
                         },
                         sender: '',
                         is_done: false,
-                        recipients: { to: [], cc: [], bcc: [] },
-                        isOptimistic: true,
-                    }
-                    section.tasks = [newTask, ...section.tasks]
-                    queryClient.setQueryData('tasks', () => sections)
-                    return
-                }
-            }
-        },
-        onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-            if (!sections) return
-
-            const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
-            if (!task) return
-
-            task.id = response.task_id
-            task.isOptimistic = false
-            queryClient.setQueryData('tasks', () => sections)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-        },
-    })
-}
-const createTask = async (data: TCreateTaskData) => {
-    try {
-        const res = await apiClient.post('/tasks/create/gt_task/', data)
-        return res.data
-    } catch {
-        throw new Error('createTask failed')
-    }
-}
-
-/**
- * Creates a task with a reference link back to the email thread
- */
-export const useCreateTaskFromThread = () => {
-    const queryClient = useQueryClient()
-    const optimisticId = uuidv4()
-
-    return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
-        onMutate: async (data: TCreateTaskFromThreadData) => {
-            queryClient.cancelQueries('tasks')
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
-            if (!sections) return
-            sections[0].tasks = [
-                {
-                    id: optimisticId,
-                    id_ordering: 0,
-                    title: data.title,
-                    body: data.body,
-                    deeplink: '',
-                    sent_at: '',
-                    time_allocated: 0,
-                    due_date: '',
-                    source: {
-                        name: 'General Task',
-                        logo: '',
-                        logo_v2: 'generaltask',
-                        is_completable: false,
-                        is_replyable: false,
+                        recipients: {} as TRecipients,
+                        linked_email_thread: {
+                            linked_thread_id: data.thread_id,
+                            email_thread: {
+                                id: '0',
+                                deeplink: '',
+                                is_archived: false,
+                                source: {
+                                    account_id: '0',
+                                    name: 'Gmail',
+                                    logo: '',
+                                    logo_v2: 'gmail',
+                                    is_completable: false,
+                                    is_replyable: true,
+                                },
+                                emails: []
+                            }
+                        },
+                        comments: [],
                     },
-                    external_status: {
-                        state: 'Todo',
-                        type: 'unstarted',
-                    },
-                    sender: '',
-                    is_done: false,
-                    recipients: {} as TRecipients,
-                    linked_email_thread: {
-                        linked_thread_id: data.thread_id,
-                        email_thread: {
-                            id: '0',
-                            deeplink: '',
-                            is_archived: false,
-                            source: {
-                                account_id: '0',
-                                name: 'Gmail',
-                                logo: '',
-                                logo_v2: 'gmail',
-                                is_completable: false,
-                                is_replyable: true,
-                            },
-                            emails: []
-                        }
-                    },
-                    comments: [],
-                },
-                ...sections[0].tasks
-            ]
-            queryClient.setQueryData('tasks', () => sections)
+                    ...draft[0].tasks
+                ]
+            })
+
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -221,14 +224,14 @@ const createTaskFromThread = async (data: TCreateTaskFromThreadData) => {
             body: data.body,
             email_id: data.email_id,
         })
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('createTaskFromThread failed')
     }
 }
 
 export const useModifyTask = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation(
         (data: TModifyTaskData) =>
             modifyTask(data),
@@ -237,20 +240,19 @@ export const useModifyTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
 
-                for (const section of sections) {
-                    for (const task of section.tasks) {
-                        if (task.id === data.id) {
-                            task.title = data.title || task.title
-                            task.due_date = data.dueDate || task.due_date
-                            task.time_allocated = data.timeAllocated || task.time_allocated
-                            task.body = data.body || task.body
-                        }
-                    }
-                }
-                queryClient.setQueryData('tasks', sections)
+                const newSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, data.id)
+                    if (!task) return
+                    task.title = data.title || task.title
+                    task.due_date = data.dueDate || task.due_date
+                    task.time_allocated = data.timeAllocated || task.time_allocated
+                    task.body = data.body || task.body
+                })
+
+                queryClient.setQueryData('tasks', newSections)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
@@ -266,43 +268,39 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.body !== undefined) requestBody.body = data.body
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('modifyTask failed')
     }
 }
 
 export const useMarkTaskDone = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
         onMutate: async (data: TMarkTaskDoneData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
-            const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
-            if (sectionIdx === -1) return
-            const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
-            if (taskIdx === -1) return
 
-            const newSections = produce(sections, newSections => {
-                newSections[sectionIdx].tasks[taskIdx].is_done = data.isCompleted
+            const newSections = produce(sections, (draft) => {
+                const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                if (task) task.is_done = data.isCompleted
             })
+
             queryClient.setQueryData('tasks', newSections)
 
             if (data.isCompleted) {
                 setTimeout(() => {
-                    const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
+                    const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                     if (!sections) return
-                    const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
-                    if (sectionIdx === -1) return
-                    const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
-                    if (taskIdx === -1) return
 
-                    const newSections = produce(sections, newSections => {
-                        newSections[sectionIdx].tasks.splice(taskIdx, 1)
+                    const newSections = produce(sections, (draft) => {
+                        const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                        if (task) task.is_done = data.isCompleted
                     })
+
                     queryClient.setQueryData('tasks', newSections)
                 }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
@@ -312,14 +310,14 @@ export const useMarkTaskDone = () => {
 const markTaskDone = async (data: TMarkTaskDoneData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('markTaskDone failed')
     }
 }
 
 export const useReorderTask = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation(
         (data: TReorderTaskData) =>
             reorderTask(data),
@@ -328,43 +326,46 @@ export const useReorderTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
-                // move within the existing section
-                if (data.dragSectionId === undefined || data.dragSectionId === data.dropSectionId) {
-                    const section = sections.find((s) => s.id === data.dropSectionId)
-                    if (section == null) return
-                    const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
-                    if (startIndex === -1) return
-                    let endIndex = data.orderingId - 1
-                    if (startIndex < endIndex) {
-                        endIndex -= 1
+
+                const newSections = produce(sections, (draft) => {
+                    // move within the existing section
+                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                        const section = draft.find((s) => s.id === data.dropSectionId)
+                        if (section == null) return
+                        const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
+                        if (startIndex === -1) return
+                        let endIndex = data.orderingId - 1
+                        if (startIndex < endIndex) {
+                            endIndex -= 1
+                        }
+                        arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                        // update ordering ids
+                        resetOrderingIds(section.tasks)
                     }
-                    arrayMoveInPlace(section.tasks, startIndex, endIndex)
+                    // move task from one section to the other
+                    else {
+                        // remove task from old location
+                        const dragSection = draft.find((section) => section.id === data.dragSectionId)
+                        if (dragSection == null) return
+                        const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
+                        if (dragTaskIndex === -1) return
+                        const dragTask = dragSection.tasks[dragTaskIndex]
+                        dragSection.tasks.splice(dragTaskIndex, 1)
 
-                    // update ordering ids
-                    resetOrderingIds(section.tasks)
-                }
-                // move task from one section to the other
-                else {
-                    // remove task from old location
-                    const dragSection = sections.find((section) => section.id === data.dragSectionId)
-                    if (dragSection == null) return
-                    const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
-                    if (dragTaskIndex === -1) return
-                    const dragTask = dragSection.tasks[dragTaskIndex]
-                    dragSection.tasks.splice(dragTaskIndex, 1)
+                        // add task to new location
+                        const dropSection = draft.find((section) => section.id === data.dropSectionId)
+                        if (dropSection == null) return
+                        dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
 
-                    // add task to new location
-                    const dropSection = sections.find((section) => section.id === data.dropSectionId)
-                    if (dropSection == null) return
-                    dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
-
-                    // update ordering ids
-                    resetOrderingIds(dropSection.tasks)
-                    resetOrderingIds(dragSection.tasks)
-                }
-                queryClient.setQueryData('tasks', sections)
+                        // update ordering ids
+                        resetOrderingIds(dropSection.tasks)
+                        resetOrderingIds(dragSection.tasks)
+                    }
+                })
+                queryClient.setQueryData('tasks', newSections)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
@@ -378,7 +379,7 @@ const reorderTask = async (data: TReorderTaskData) => {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
         })
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('reorderTask failed')
     }
@@ -389,13 +390,13 @@ const reorderTask = async (data: TReorderTaskData) => {
  */
 
 export const useAddTaskSection = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: TAddTaskSectionData) => addTaskSection(data), {
         onMutate: async (data: TAddTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             const newSection: TTaskSection = {
                 id: TASK_SECTION_DEFAULT_ID,
@@ -403,8 +404,10 @@ export const useAddTaskSection = () => {
                 is_done: false,
                 tasks: [],
             }
-            sections.splice(sections.length - 1, 0, newSection)
-            queryClient.setQueryData('tasks', sections)
+            const newSections = produce(sections, (draft) => {
+                draft.splice(sections.length - 1, 0, newSection)
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -414,29 +417,28 @@ export const useAddTaskSection = () => {
 const addTaskSection = async (data: TAddTaskSectionData) => {
     try {
         const res = await apiClient.post('/sections/create/', data)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('addTaskSection failed')
     }
 }
 
 export const useDeleteTaskSection = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: { sectionId: string }) => deleteTaskSection(data), {
         onMutate: async (data: { sectionId: string }) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
-            for (let i = 0; i < sections.length; i++) {
-                const section = sections[i]
-                if (section.id === data.sectionId) {
-                    sections.splice(i, 1)
-                    return
-                }
-            }
-            queryClient.setQueryData('tasks', sections)
+
+            const newSections = produce(sections, (draft) => {
+                const sectionIdx = draft.findIndex((s) => s.id === data.sectionId)
+                if (sectionIdx === -1) return
+                draft.splice(sectionIdx, 1)
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
@@ -446,35 +448,36 @@ export const useDeleteTaskSection = () => {
 const deleteTaskSection = async (data: { sectionId: string }) => {
     try {
         const res = await apiClient.delete(`/sections/delete/${data.sectionId}/`)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('deleteTaskSection failed')
     }
 }
 
 export const useModifyTaskSection = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
         onMutate: async (data: TModifyTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            for (const section of sections) {
-                if (section.id === data.sectionId) {
+            const newSections = produce(sections, (draft) => {
+                const section = draft.find((s) => s.id === data.sectionId)
+                if (section) {
                     section.name = data.name
                 }
-            }
-            queryClient.setQueryData('tasks', sections)
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
     })
 }
 const modifyTaskSection = async (data: TModifyTaskSectionData) => {
     try {
         const res = await apiClient.patch(`/sections/modify/${data.sectionId}/`, { name: data.name })
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('modifyTaskSection failed')
     }
@@ -490,7 +493,7 @@ export const useGetInfiniteThreads = (data: { isArchived: boolean }) => {
 const getInfiniteThreads = async (pageParam: number, isArchived: boolean) => {
     try {
         const res = await apiClient.get(`/threads/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}&is_archived=${isArchived}`)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getInfiniteThreads failed')
     }
@@ -502,38 +505,42 @@ export const useGetThreadDetail = (data: { threadId: string }) => {
 const getThreadDetail = async (data: { threadId: string }) => {
     try {
         const res = await apiClient.get(`/threads/detail/${data.threadId}`)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getThreadDetail failed')
     }
 }
 
 export const useModifyThread = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: TModifyThreadData) => modifyThread(data), {
         onMutate: async (data: TModifyThreadData) => {
             await queryClient.cancelQueries('emailThreads')
-            const queryDataInbox: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: false }])
-            const queryDataArchive: TThreadQueryData | undefined = queryClient.getQueryData(['emailThreads', { isArchived: true }])
+            const queryDataInbox = queryClient.getImmutableQueryData<TThreadQueryData>(['emailThreads', { isArchived: false }])
+            const queryDataArchive = queryClient.getImmutableQueryData<TThreadQueryData>(['emailThreads', { isArchived: true }])
 
             if (!queryDataInbox || !queryDataArchive) return
 
-            for (const page of [...queryDataInbox.pages, ...queryDataArchive.pages]) {
-                if (!page) continue
-                for (const thread of page) {
-                    if (thread.id === data.thread_id) {
-                        if (data.is_archived !== undefined)
-                            thread.is_archived = data.is_archived
-                        for (const email of thread.emails) {
-                            if (data.is_unread !== undefined)
-                                email.is_unread = data.is_unread
+            const [newQueryDataInbox, newQueryDataArchive] = produce([queryDataInbox, queryDataArchive], (draft) => {
+                const [pageInbox, pageArchive] = draft
+                for (const page of [...pageInbox.pages, ...pageArchive.pages]) {
+                    if (!page) continue
+                    for (const thread of page) {
+                        if (thread.id === data.thread_id) {
+                            if (data.is_archived !== undefined)
+                                thread.is_archived = data.is_archived
+                            for (const email of thread.emails) {
+                                if (data.is_unread !== undefined)
+                                    email.is_unread = data.is_unread
+                            }
+                            break
                         }
-                        break
                     }
                 }
-            }
-            queryClient.setQueryData(['emailThreads', { isArchived: false }], queryDataInbox)
-            queryClient.setQueryData(['emailThreads', { isArchived: true }], queryDataArchive)
+            })
+
+            queryClient.setQueryData(['emailThreads', { isArchived: false }], newQueryDataInbox)
+            queryClient.setQueryData(['emailThreads', { isArchived: true }], newQueryDataArchive)
         },
         onSettled: () => {
             queryClient.invalidateQueries(['emailThreads'])
@@ -545,7 +552,7 @@ export const useModifyThread = () => {
 const modifyThread = async (data: TModifyThreadData) => {
     try {
         const res = await apiClient.patch(`/threads/modify/${data.thread_id}/`, data)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('modifyThread failed')
     }
@@ -563,14 +570,14 @@ export const useGetInfiniteMessages = () => {
 const getInfiniteMessages = async ({ pageParam = 1 }) => {
     try {
         const res = await apiClient.get(`/messages/v2/?page=${pageParam}&limit=${MESSAGES_PER_PAGE}`)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getInfiniteMessages failed')
     }
 }
 
 export const useFetchMessages = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useQuery([], () => fetchMessages(), {
         onSettled: () => {
             queryClient.invalidateQueries('emailThreads')
@@ -580,7 +587,7 @@ export const useFetchMessages = () => {
 const fetchMessages = async () => {
     try {
         const res = await apiClient.get('/messages/fetch/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('fetchMessages failed')
     }
@@ -592,14 +599,14 @@ export const useMeetingBanner = () => {
 const meetingBanner = async () => {
     try {
         const res = await apiClient.get('/meeting_banner/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('useMeetingBanner failed')
     }
 }
 
 export const useMarkMessageRead = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: TMarkMessageReadData) => markMessageRead(data), {
         onSettled: (_, error, variables) => {
             if (error) return
@@ -610,29 +617,23 @@ export const useMarkMessageRead = () => {
 const markMessageRead = async (data: TMarkMessageReadData) => {
     try {
         const res = await apiClient.patch(`/messages/modify/${data.id}/`, { is_read: data.isRead })
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('markMessageRead failed')
     }
 }
 
 export const useComposeMessage = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {
         onMutate: async (data: TComposeMessageData) => {
-            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('emailThreads')
-            if (!response) return
-
             // if message is part of a thread
             if (!data.message_id) return
+
             await queryClient.cancelQueries('emailThreads')
 
-            const thread = response.pages.flat().find(
-                thread => thread.emails.find(
-                    email => email.message_id === data.message_id
-                ) !== null
-            )
-            if (!thread) return
+            const response = queryClient.getImmutableQueryData<TEmailThreadResponse>('emailThreads')
+            if (!response) return
 
             const tempEmail: TEmail = {
                 message_id: DEFAULT_MESSAGE_ID,
@@ -648,9 +649,20 @@ export const useComposeMessage = () => {
                 recipients: data.recipients,
                 num_attachments: 0
             }
-            thread.emails.push(tempEmail)
 
-            queryClient.setQueryData('emailThreads', response)
+            const newResponse = produce(response, (draft) => {
+                const thread = draft.pages.flat().find(
+                    thread => thread.emails.find(
+                        email => email.message_id === data.message_id
+                    ) !== null
+                )
+                if (!thread) return
+
+                thread.emails.push(tempEmail)
+            })
+
+
+            queryClient.setQueryData('emailThreads', newResponse)
         },
         onSettled: async () => {
             await fetchMessages()
@@ -661,7 +673,7 @@ export const useComposeMessage = () => {
 const composeMessage = async (data: TComposeMessageData) => {
     try {
         const res = await apiClient.post(`/messages/compose/`, data)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('composeMessage failed')
     }
@@ -678,7 +690,7 @@ const getEvents = async (params: { startISO: string; endISO: string }) => {
         const res = await apiClient.get('/events/', {
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
         })
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getEvents failed')
     }
@@ -689,7 +701,7 @@ interface CreateEventParams {
     date: DateTime
 }
 export const useCreateEvent = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
         {
             onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
@@ -701,7 +713,7 @@ export const useCreateEvent = () => {
                 const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]
 
-                const events: TEvent[] | undefined = queryClient.getQueryData([
+                const events = queryClient.getImmutableQueryData<TEvent[]>([
                     'events',
                     'calendar',
                     block.start.toISO(),
@@ -718,11 +730,15 @@ export const useCreateEvent = () => {
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
                 }
+
+                const newEvents = produce(events, (draft) => {
+                    draft.push(newEvent)
+                })
                 queryClient.setQueryData([
                     'events',
                     'calendar',
                     block.start.toISO(),
-                ], [...events, newEvent])
+                ], newEvents)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('events')
@@ -733,7 +749,7 @@ export const useCreateEvent = () => {
 const createEvent = async (data: TCreateEventPayload) => {
     try {
         const res = await apiClient.post('/events/create/gcal/', data)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('createEvent failed')
     }
@@ -749,7 +765,7 @@ export const useGetUserInfo = () => {
 const getUserInfo = async () => {
     try {
         const res = await apiClient.get('/user_info/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getUserInfo failed')
     }
@@ -758,7 +774,7 @@ const getUserInfo = async () => {
 export const mutateUserInfo = async (userInfo: TUserInfo) => {
     try {
         const res = await apiClient.patch('/user_info/', JSON.stringify(userInfo))
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('mutateUserInfo failed')
     }
@@ -773,7 +789,7 @@ export const useGetLinkedAccounts = () => {
 const getLinkedAccounts = async () => {
     try {
         const res = await apiClient.get('/linked_accounts/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getLinkedAccounts failed')
     }
@@ -785,14 +801,14 @@ export const useGetSupportedTypes = () => {
 const getSupportedTypes = async () => {
     try {
         const res = await apiClient.get('/linked_accounts/supported_types/')
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('getSupportedTypes failed')
     }
 }
 
 export const useDeleteLinkedAccount = () => {
-    const queryClient = useQueryClient()
+    const queryClient = useGTQueryClient()
     return useMutation(deleteLinkedAccount, {
         onSettled: () => {
             queryClient.invalidateQueries('linked_accounts')
@@ -802,7 +818,7 @@ export const useDeleteLinkedAccount = () => {
 const deleteLinkedAccount = async (data: { id: string }) => {
     try {
         const res = await apiClient.delete(`/linked_accounts/${data.id}/`)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('deleteLinkedAccount failed')
     }
@@ -817,7 +833,7 @@ export const usePostFeedback = () => {
 const postFeedback = async (data: TPostFeedbackData) => {
     try {
         const res = await apiClient.post('/feedback/', data)
-        return res.data
+        return castImmutable(res.data)
     } catch {
         throw new Error('postFeedback failed')
     }
