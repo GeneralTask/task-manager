@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -9,6 +11,18 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+func TestOverview(t *testing.T) {
+	api := GetAPI()
+	router := GetRouter(api)
+	t.Run("Unauthorized", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/overview/views/", nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+}
 
 func TestGetOverviewResults(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
