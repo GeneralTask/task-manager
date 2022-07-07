@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import styled from 'styled-components'
 import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -39,8 +39,8 @@ const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProp
         >
             <>
                 {supportedViews.map((supportedView, index) => (
-                    <>
-                        <SupportedView key={supportedView.id}>
+                    <Fragment key={supportedView.id}>
+                        <SupportedView>
                             <SupportedViewContent>
                                 <Icon source={logos[supportedView.logo]} size="small" />
                                 {supportedView.name}
@@ -51,7 +51,7 @@ const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProp
                             />
                         </SupportedView>
                         {index !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
-                    </>
+                    </Fragment>
                 ))}
             </>
         </GTModal>
