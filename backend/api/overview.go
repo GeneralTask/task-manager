@@ -83,7 +83,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 }
 
 func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]*OverviewResult, error) {
-	var overviewResults []*OverviewResult
+	overviewResults := []*OverviewResult{}
 	for _, view := range views {
 		var result *OverviewResult
 		var err error
