@@ -8,8 +8,6 @@ import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { cp } from 'fs/promises'
 
 export const PaddedContainer = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
