@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,14 +14,27 @@ import (
 )
 
 func TestOverview(t *testing.T) {
+	authtoken := login("test_overview@generaltask.com", "")
 	api := GetAPI()
 	router := GetRouter(api)
-	t.Run("Unauthorized", func(t *testing.T) {
+	t.Run("UnauthorizedGetViews", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
+	t.Run("SuccessGetViews", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/overview/views/", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":false,"sources":null,"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]}]`
+		assert.Regexp(t, regex, string(body))
 	})
 }
 
