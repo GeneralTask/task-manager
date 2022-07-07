@@ -40,6 +40,38 @@ type SlackAdditionalInformation struct {
 	Deeplink string
 }
 
+type SlackRequestParams struct {
+	Type      string    `json:"type"`
+	TriggerID string    `json:"trigger_id"`
+	View      SlackView `json:"view"`
+}
+
+type SlackView struct {
+	PrivateMetadata string           `json:"private_metadata"`
+	State           SlackStateValues `json:"state"`
+}
+
+type SlackStateValues struct {
+	Values SlackBlockValues `json:"values"`
+}
+
+type SlackBlockValues struct {
+	TaskTitle   SlackTaskTitle   `json:"task_title"`
+	TaskDetails SlackTaskDetails `json:"task_details"`
+}
+
+type SlackTaskTitle struct {
+	TitleInput SlackInputValue `json:"task_title_input"`
+}
+
+type SlackTaskDetails struct {
+	DetailsInput SlackInputValue `json:"task_details_input"`
+}
+
+type SlackInputValue struct {
+	Value string `json:"value"`
+}
+
 func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
@@ -213,7 +245,7 @@ func getSlackUsername(client *slack.Client, userID string, result chan<- string)
 	return
 }
 
-func GetSlackModal(triggerID string) []byte {
+func GetSlackModal(triggerID string, formData string, message string) []byte {
 	return []byte(`{
 		"trigger_id": "` + triggerID + `",
 		"view": {
@@ -244,6 +276,8 @@ func GetSlackModal(triggerID string) []byte {
 					},
 					"element": {
 						"type": "plain_text_input",
+						"action_id": "task_title_input",
+						"initial_value": "` + message + `",
 						"placeholder": {
 							"type": "plain_text",
 							"text": "Optional task title"
@@ -260,14 +294,16 @@ func GetSlackModal(triggerID string) []byte {
 					},
 					"element": {
 						"type": "plain_text_input",
+						"action_id": "task_details_input",
 						"multiline": true,
 						"placeholder": {
 							"type": "plain_text",
-							"text": "Optional task title"
+							"text": "Optional task details"
 						}
 					}
 				}
-			]
+			],
+			"private_metadata": ` + formData + `,
 		}
 	}`)
 }
