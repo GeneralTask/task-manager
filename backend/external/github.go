@@ -4,22 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-<<<<<<< HEAD
 	"fmt"
 	"net/url"
-=======
->>>>>>> 9886c8b3... Add more sentry
 
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-<<<<<<< HEAD
-	"github.com/google/go-github/v45/github"
-=======
 	"github.com/GeneralTask/task-manager/backend/logging"
->>>>>>> 9886c8b3... Add more sentry
+	"github.com/google/go-github/v45/github"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -100,12 +94,8 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-<<<<<<< HEAD
 	token, err := githubService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
-=======
-	token, err := github.Config.Exchange(extCtx, *params.Oauth2Code)
 	logger := logging.GetSentryLogger()
->>>>>>> 9886c8b3... Add more sentry
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch token from Github")
 		return errors.New("internal server error")
