@@ -8,6 +8,7 @@ const isLastStyle = css`
     flex: 1;
 `
 const DropOverlay = styled.div<{ isLast?: boolean }>`
+    position: relative;
     width: 100%;
     height: fit-content;
     display: flex;
@@ -19,7 +20,7 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     width: 100%;
     background-color: ${Colors.gray._800};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
-    position: relative;
+    position: absolute;
     height: 2px;
 `
 export const DropIndicatorAbove = styled.div`
@@ -27,7 +28,7 @@ export const DropIndicatorAbove = styled.div`
 `
 const DropIndicatorBelow = styled.div`
     ${DropIndicatorStyles}
-    top: 2px;
+    bottom: -2px;
 `
 
 enum DropDirection {
