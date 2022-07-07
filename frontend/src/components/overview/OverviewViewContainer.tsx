@@ -12,6 +12,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
     const viewItems = useMemo(() => {
         switch (view.type) {
             case 'task_section':
+            case 'linear':
                 return <TaskSectionViewItems view={view} />
             default:
                 return <div>[WIP]List of items for type {view.type}</div>
