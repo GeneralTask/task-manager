@@ -52,8 +52,10 @@ export const mutateUserInfo = async (userInfo: { agreed_to_terms: boolean; opted
     return res.json()
 }
 
-// Wrapper for useQueryClient that adds getImmutableQueryData method
-// getImmutableQueryData simply casts the result as Immutable so the editor disallows direct assignment
+/**
+ * Wrapper for useQueryClient that adds getImmutableQueryData method
+ * getImmutableQueryData simply casts the result as Immutable so the editor disallows direct assignment
+ */
 interface GTQueryClient extends QueryClient {
     getImmutableQueryData: <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters) => Immutable<TData> | undefined
 }
