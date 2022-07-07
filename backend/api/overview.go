@@ -25,16 +25,16 @@ type SourcesResult struct {
 }
 
 type OverviewResult struct {
-	ID            primitive.ObjectID  `json:"id"`
-	Name          string              `json:"name"`
-	Type          ViewType            `json:"type"`
-	Logo          string              `json:"logo"`
-	IsLinked      bool                `json:"is_linked"`
-	Sources       []SourcesResult     `json:"sources"`
-	TaskSectionID *primitive.ObjectID `json:"task_section_id"`
-	IsReorderable bool                `json:"is_reorderable"`
-	IDOrdering    int                 `json:"ordering_id"`
-	ViewItems     interface{}         `json:"view_items"`
+	ID            primitive.ObjectID `json:"id"`
+	Name          string             `json:"name"`
+	Type          ViewType           `json:"type"`
+	Logo          string             `json:"logo"`
+	IsLinked      bool               `json:"is_linked"`
+	Sources       []SourcesResult    `json:"sources"`
+	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	IsReorderable bool               `json:"is_reorderable"`
+	IDOrdering    int                `json:"ordering_id"`
+	ViewItems     interface{}        `json:"view_items"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
@@ -131,7 +131,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
-		TaskSectionID: &view.TaskSectionID,
+		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     taskResults,

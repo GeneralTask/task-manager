@@ -122,7 +122,7 @@ func TestGetOverviewResults(t *testing.T) {
 			IsLinked:      false,
 			IsReorderable: false,
 			IDOrdering:    1,
-			TaskSectionID: &taskSectionID,
+			TaskSectionID: taskSectionID,
 			ViewItems: []*TaskResult{{
 				ID: taskResult.InsertedID.(primitive.ObjectID),
 			}},
@@ -168,7 +168,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		IsLinked:      false,
 		IsReorderable: false,
 		IDOrdering:    1,
-		TaskSectionID: &taskSectionID,
+		TaskSectionID: taskSectionID,
 	}
 
 	t.Run("EmptyViewItems", func(t *testing.T) {
@@ -228,7 +228,7 @@ func assertOverviewViewResultEqual(t *testing.T, expected OverviewResult, actual
 	assert.Equal(t, expected.Logo, actual.Logo)
 	assert.Equal(t, expected.IsLinked, actual.IsLinked)
 	assert.Equal(t, expected.Sources, actual.Sources)
-	assert.Equal(t, *expected.TaskSectionID, *actual.TaskSectionID)
+	assert.Equal(t, expected.TaskSectionID, actual.TaskSectionID)
 	assert.Equal(t, expected.IsReorderable, actual.IsReorderable)
 	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
 	actualItems, ok := actual.ViewItems.([]*TaskResult)
