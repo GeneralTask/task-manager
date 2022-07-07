@@ -236,7 +236,7 @@ func TestGetGithubUser(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, *githubUser.Login, "chad1616")
 	})
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("BadStatusCode", func(t *testing.T) {
 		githubUserServer := testutils.GetMockAPIServer(t, 401, "")
 		userURL := &githubUserServer.URL
 		defer githubUserServer.Close()
@@ -246,6 +246,18 @@ func TestGetGithubUser(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Equal(t, fmt.Sprintf("GET %s/user: 401  []", *userURL), err.Error())
+		assert.Nil(t, githubUser)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubUserServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		userURL := &githubUserServer.URL
+		defer githubUserServer.Close()
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
 		assert.Nil(t, githubUser)
 	})
 }
@@ -263,7 +275,7 @@ func TestGithubRepositories(t *testing.T) {
 		assert.Equal(t, len(githubRepositories), 1)
 		assert.Equal(t, *githubRepositories[0].Name, "ExampleRepository")
 	})
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("BadStatusCode", func(t *testing.T) {
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 401, "")
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
 		defer githubUserRepositoriesServer.Close()
@@ -274,6 +286,19 @@ func TestGithubRepositories(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Equal(t, fmt.Sprintf("GET %s/user/repos: 401  []", *userRepositoriesURL), err.Error())
+		assert.Nil(t, githubRepositories)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		userRepositoriesURL := &githubUserRepositoriesServer.URL
+		defer githubUserRepositoriesServer.Close()
+
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
 		assert.Nil(t, githubRepositories)
 	})
 }
@@ -308,7 +333,7 @@ func TestGithubPullRequests(t *testing.T) {
 		assert.Equal(t, "repository is nil", err.Error())
 		assert.Nil(t, githubPullRequests)
 	})
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("BadStatusCode", func(t *testing.T) {
 		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 401, "")
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
 		defer githubUserPullRequestsServer.Close()
@@ -320,30 +345,65 @@ func TestGithubPullRequests(t *testing.T) {
 		assert.Equal(t, fmt.Sprintf("GET %s/repos/%s/%s/pulls: 401  []", *userPullRequestsURL, repositoryOwner, repositoryName), err.Error())
 		assert.Nil(t, githubPullRequests)
 	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		userPullRequestsURL := &githubUserPullRequestsServer.URL
+		defer githubUserPullRequestsServer.Close()
+		ctx := context.Background()
+		githubClient := github.NewClient(nil)
+		githubPullRequests, err := getGithubPullRequests(ctx, githubClient, repository, userPullRequestsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Nil(t, githubPullRequests)
+	})
 }
 
 func TestListReviewers(t *testing.T) {
+	ctx := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+	}
 	t.Run("Success", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
 		reviewersURL := &githubReviewersServer.URL
 		defer githubReviewersServer.Close()
-		ctx := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-		}
 		githubReviewers, err := listReviewers(ctx, githubClient, repository, pullRequest, reviewersURL)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(githubReviewers.Users))
 		assert.Equal(t, "goodTeamMember", *githubReviewers.Users[0].Login)
+	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 503, testutils.PullRequestReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		githubReviewers, err := listReviewers(ctx, githubClient, repository, pullRequest, reviewersURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/pulls/1/requested_reviewers: 503  []", *reviewersURL), err.Error())
+		assert.Nil(t, githubReviewers)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		githubReviewers, err := listReviewers(ctx, githubClient, repository, pullRequest, reviewersURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Nil(t, githubReviewers)
 	})
 	t.Run("FailureWithNilRepository", func(t *testing.T) {
 		ctx := context.Background()
@@ -375,56 +435,102 @@ func TestListReviewers(t *testing.T) {
 }
 
 func TestListComments(t *testing.T) {
+	ctx := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+	}
 	t.Run("Success", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
 		commentsURL := &githubCommentsServer.URL
 		defer githubCommentsServer.Close()
-		ctx := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-		}
 		githubComments, err := listComments(ctx, githubClient, repository, pullRequest, commentsURL)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(githubComments))
 		assert.Equal(t, "chad1616", *githubComments[0].User.Login)
 	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 503, testutils.PullRequestCommentsPayload)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubComments, err := listComments(ctx, githubClient, repository, pullRequest, commentsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/pulls/1/comments: 503  []", *commentsURL), err.Error())
+		assert.Equal(t, 0, len(githubComments))
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubComments, err := listComments(ctx, githubClient, repository, pullRequest, commentsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Equal(t, 0, len(githubComments))
+	})
 }
 
 func TestCheckRunsForCommit(t *testing.T) {
+	ctx := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+		Head: &github.PullRequestBranch{
+			SHA: github.String("abc123"),
+		},
+	}
 	t.Run("Success", func(t *testing.T) {
 		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
 		checkRunsURL := &githubCheckRunsServer.URL
 		defer githubCheckRunsServer.Close()
-		ctx := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
-			},
-		}
 		githubCheckRuns, err := listCheckRunsForCommit(ctx, githubClient, repository, pullRequest, checkRunsURL)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, *githubCheckRuns.Total)
 		assert.Equal(t, 1, len(githubCheckRuns.CheckRuns))
 		assert.Equal(t, int64(96024), *githubCheckRuns.CheckRuns[0].ID)
+	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 503, testutils.CheckRunsForRefPayload)
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		githubCheckRuns, err := listCheckRunsForCommit(ctx, githubClient, repository, pullRequest, checkRunsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/commits/abc123/check-runs: 503  []", *checkRunsURL), err.Error())
+		assert.Nil(t, githubCheckRuns)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		githubCheckRuns, err := listCheckRunsForCommit(ctx, githubClient, repository, pullRequest, checkRunsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Nil(t, githubCheckRuns)
 	})
 }
 
