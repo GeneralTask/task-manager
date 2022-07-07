@@ -17,25 +17,25 @@ const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
 
     return (
         <div ref={scrollingRef}>
-            {view.view_items.map((item, index) => (
-                <ReorderDropContainer
-                    key={item.id}
-                    index={index}
-                    acceptDropType={DropType.TASK}
-                    onReorder={emptyFunction} // TODO: add reordering
-                >
-                    <Task
+            {sectionId &&
+                view.view_items.map((item, index) => (
+                    <ReorderDropContainer
                         key={item.id}
-                        task={item}
-                        dragDisabled={!view.is_reorderable}
                         index={index}
-                        sectionId={sectionId || ''}
-                        sectionScrollingRef={scrollingRef}
-                        isSelected={overviewItem === item.id}
-                        link={`/overview/${item.id}`}
-                    />
-                </ReorderDropContainer>
-            ))}
+                        acceptDropType={DropType.TASK}
+                        onReorder={emptyFunction} // TODO: add reordering
+                    >
+                        <Task
+                            task={item}
+                            dragDisabled={false}
+                            index={index}
+                            sectionId={sectionId}
+                            sectionScrollingRef={scrollingRef}
+                            isSelected={overviewItem === item.id}
+                            link={`/overview/${item.id}`}
+                        />
+                    </ReorderDropContainer>
+                ))}
         </div>
     )
 }
