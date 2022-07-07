@@ -26,7 +26,7 @@ const Title = styled.span`
 interface TaskProps {
     task: TTask
     dragDisabled: boolean
-    index: number
+    index?: number
     sectionId?: string
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
