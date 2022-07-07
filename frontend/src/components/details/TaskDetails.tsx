@@ -50,7 +50,8 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
-    :focus {
+    :focus,
+    :hover {
         border: 1px solid ${Colors.gray._400};
         box-shadow: ${Shadows.medium};
     }
@@ -150,7 +151,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     }, [titleInput])
 
     useLayoutEffect(() => {
-        if (bodyRef.current && thread) {
+        if (bodyRef.current && (thread || task.slack_message_params)) {
             bodyRef.current.style.height = '0px'
             bodyRef.current.style.height =
                 bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
