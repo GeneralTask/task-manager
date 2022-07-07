@@ -211,7 +211,7 @@ func TestUserIsOwner(t *testing.T) {
 }
 
 func TestSetOverrideURL(t *testing.T) {
-	t.Run("WithoutOverrideURL", func(t *testing.T) {
+	t.Run("Default", func(t *testing.T) {
 		githubClient := *github.NewClient(nil)
 		setOverrideURL(&githubClient, nil)
 		assert.Equal(t, githubClient.BaseURL.String(), "https://api.github.com/")
@@ -323,7 +323,7 @@ func TestGithubPullRequests(t *testing.T) {
 }
 
 func TestListReviewers(t *testing.T) {
-	t.Run("SuccessWithoverrideURL", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
 		reviewersURL := &githubReviewersServer.URL
 		defer githubReviewersServer.Close()
@@ -372,28 +372,10 @@ func TestListReviewers(t *testing.T) {
 		assert.Equal(t, "pull request is nil", err.Error())
 		assert.Nil(t, githubReviewers)
 	})
-	t.Run("FailureWithoutOverrideURL", func(t *testing.T) {
-		ctx := context.Background()
-		githubClient := github.NewClient(nil)
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-		}
-		githubReviewers, err := listReviewers(ctx, githubClient, repository, pullRequest, nil)
-
-		assert.Error(t, err)
-		assert.Equal(t, "GET https://api.github.com/repos/chad1616/ExampleRepository/pulls/1/requested_reviewers: 404 Not Found []", err.Error())
-		assert.Nil(t, githubReviewers)
-	})
 }
 
 func TestListComments(t *testing.T) {
-	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
 		commentsURL := &githubCommentsServer.URL
 		defer githubCommentsServer.Close()
@@ -417,8 +399,8 @@ func TestListComments(t *testing.T) {
 	})
 }
 
-func TestCheckRunsForRef(t *testing.T) {
-	t.Run("SuccessWithOverrideURL", func(t *testing.T) {
+func TestCheckRunsForCommit(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
 		checkRunsURL := &githubCheckRunsServer.URL
 		defer githubCheckRunsServer.Close()
@@ -437,7 +419,7 @@ func TestCheckRunsForRef(t *testing.T) {
 				SHA: github.String("abc123"),
 			},
 		}
-		githubCheckRuns, err := listCheckRunsForRef(ctx, githubClient, repository, pullRequest, checkRunsURL)
+		githubCheckRuns, err := listCheckRunsForCommit(ctx, githubClient, repository, pullRequest, checkRunsURL)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, *githubCheckRuns.Total)

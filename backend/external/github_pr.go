@@ -283,7 +283,7 @@ func listComments(context context.Context, githubClient *github.Client, reposito
 	return comments, err
 }
 
-func listCheckRunsForRef(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
+func listCheckRunsForCommit(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
@@ -363,7 +363,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 }
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
-	checkRuns, err := listCheckRunsForRef(context, githubClient, repository, pullRequest, overrideURL)
+	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return false, err
 	}
