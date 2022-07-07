@@ -521,8 +521,9 @@ export const useModifyThread = () => {
 
             if (!queryDataInbox || !queryDataArchive) return
 
-            const [newQueryDataInbox, newQueryDataArchive] = produce([queryDataInbox, queryDataArchive], draft => {
-                for (const page of [...draft[0].pages, ...draft[1].pages]) {
+            const [newQueryDataInbox, newQueryDataArchive] = produce([queryDataInbox, queryDataArchive], (draft) => {
+                const [pageInbox, pageArchive] = draft
+                for (const page of [...pageInbox.pages, ...pageArchive.pages]) {
                     if (!page) continue
                     for (const thread of page) {
                         if (thread.id === data.thread_id) {

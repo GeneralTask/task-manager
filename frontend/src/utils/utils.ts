@@ -84,4 +84,5 @@ export const getTaskFromSections = (sections: TTaskSection[], taskId: string, se
             }
         }
     }
+    return undefined
 }
