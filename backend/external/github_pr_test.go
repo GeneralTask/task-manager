@@ -446,37 +446,6 @@ func TestCheckRunsForRef(t *testing.T) {
 	})
 }
 
-func TestUserIsOwner(t *testing.T) {
-	testGithubUser1 := &github.User{
-		ID: github.Int64(1),
-	}
-	testGithubUser2 := &github.User{
-		ID: github.Int64(2),
-	}
-	testGithubUser3 := &github.User{
-		ID: nil,
-	}
-	pullRequestUser1 := &github.PullRequest{
-		User: testGithubUser1,
-	}
-	pullRequestUser3 := &github.PullRequest{
-		User: testGithubUser3,
-	}
-
-	t.Run("UserIsOwner", func(t *testing.T) {
-		assert.True(t, userIsOwner(testGithubUser1, pullRequestUser1))
-	})
-	t.Run("UserIsNotOwner", func(t *testing.T) {
-		assert.False(t, userIsOwner(testGithubUser2, pullRequestUser1))
-	})
-	t.Run("UserIdIsNil", func(t *testing.T) {
-		assert.False(t, userIsOwner(testGithubUser3, pullRequestUser1))
-	})
-	t.Run("PullRequestUserIdIsNil", func(t *testing.T) {
-		assert.False(t, userIsOwner(testGithubUser1, pullRequestUser3))
-	})
-}
-
 func TestUserIsReviewer(t *testing.T) {
 	testGithubUser1 := &github.User{
 		ID: github.Int64(1),
@@ -521,3 +490,5 @@ func TestPullRequestIsApproved(t *testing.T) {
 	})
 	t.Run("PullRequestIsNotApproved", func(t *testing.T) {
 		assert.False(t, pullRequestIsApproved(notApprovedReviews))
+	})
+}
