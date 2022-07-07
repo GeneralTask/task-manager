@@ -4,6 +4,7 @@ import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, RemoveButton } from './styles'
+import LinearViewItems from './viewItems/LinearViewItems'
 
 interface OverviewViewProps {
     view: TOverviewView
@@ -12,8 +13,9 @@ const OverviewView = ({ view }: OverviewViewProps) => {
     const viewItems = useMemo(() => {
         switch (view.type) {
             case 'task_section':
-            case 'linear':
                 return <TaskSectionViewItems view={view} />
+            case 'linear':
+                return <LinearViewItems view={view} />
             default:
                 return <div>[WIP]List of items for type {view.type}</div>
         }

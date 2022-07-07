@@ -222,7 +222,7 @@ const dummyOverviewViews: TOverviewView[] = [
         name: 'Linear',
         type: 'linear',
         is_paginated: false,
-        is_reorderable: true,
+        is_reorderable: false,
         logo: 'linear',
         view_items: [
             {
