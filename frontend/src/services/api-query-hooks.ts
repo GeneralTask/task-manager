@@ -160,54 +160,54 @@ export const useCreateTaskFromThread = () => {
     return useMutation((data: TCreateTaskFromThreadData) => createTaskFromThread(data), {
         onMutate: async (data: TCreateTaskFromThreadData) => {
             queryClient.cancelQueries('tasks')
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
-            sections[0].tasks = [
-                {
-                    id: optimisticId,
-                    id_ordering: 0,
-                    title: data.title,
-                    body: data.body,
-                    deeplink: '',
-                    sent_at: '',
-                    time_allocated: 0,
-                    due_date: '',
-                    source: {
-                        name: 'General Task',
-                        logo: '',
-                        logo_v2: 'generaltask',
-                        is_completable: false,
-                        is_replyable: false,
+
+            const newSections = produce(sections, draft => {
+                draft[0].tasks = [
+                    {
+                        id: optimisticId,
+                        id_ordering: 0,
+                        title: data.title,
+                        body: data.body,
+                        deeplink: '',
+                        sent_at: '',
+                        time_allocated: 0,
+                        due_date: '',
+                        source: {
+                            name: 'General Task',
+                            logo: '',
+                            logo_v2: 'generaltask',
+                            is_completable: false,
+                            is_replyable: false,
+                        },
+                        sender: '',
+                        is_done: false,
+                        recipients: {} as TRecipients,
+                        linked_email_thread: {
+                            linked_thread_id: data.thread_id,
+                            email_thread: {
+                                id: '0',
+                                deeplink: '',
+                                is_archived: false,
+                                source: {
+                                    account_id: '0',
+                                    name: 'Gmail',
+                                    logo: '',
+                                    logo_v2: 'gmail',
+                                    is_completable: false,
+                                    is_replyable: true,
+                                },
+                                emails: []
+                            }
+                        },
+                        comments: [],
                     },
-                    external_status: {
-                        state: 'Todo',
-                        type: 'unstarted',
-                    },
-                    sender: '',
-                    is_done: false,
-                    recipients: {} as TRecipients,
-                    linked_email_thread: {
-                        linked_thread_id: data.thread_id,
-                        email_thread: {
-                            id: '0',
-                            deeplink: '',
-                            is_archived: false,
-                            source: {
-                                account_id: '0',
-                                name: 'Gmail',
-                                logo: '',
-                                logo_v2: 'gmail',
-                                is_completable: false,
-                                is_replyable: true,
-                            },
-                            emails: []
-                        }
-                    },
-                    comments: [],
-                },
-                ...sections[0].tasks
-            ]
-            queryClient.setQueryData('tasks', () => sections)
+                    ...draft[0].tasks
+                ]
+            })
+
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
