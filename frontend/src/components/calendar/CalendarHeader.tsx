@@ -2,7 +2,6 @@ import { Colors, Spacing } from '../../styles'
 import React, { useCallback } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'

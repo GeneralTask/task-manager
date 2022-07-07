@@ -48,6 +48,7 @@ const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 export const KEYBOARD_SHORTCUTS = Object.freeze({
     arrowUp: 'ArrowUp', 
     arrowDown: 'ArrowDown', 
+    calendar: 'C', 
     close: 'Escape',
     createTask: 'T',
     down: 'K',
