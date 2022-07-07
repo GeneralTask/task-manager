@@ -488,7 +488,7 @@ func TestTaskSectionName(t *testing.T) {
 	userID := primitive.NewObjectID()
 
 	t.Run("Default task section", func(t *testing.T) {
-		name, err := GetTaskSectionName(db, constants.IDTaskSectionDefault, nil)
+		name, err := GetTaskSectionName(db, constants.IDTaskSectionDefault, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "Default", name)
 	})
@@ -508,7 +508,7 @@ func TestTaskSectionName(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		name, err := GetTaskSectionName(db, res.InsertedID.(primitive.ObjectID), &userID)
+		name, err := GetTaskSectionName(db, res.InsertedID.(primitive.ObjectID), userID)
 		assert.NoError(t, err)
 		assert.Equal(t, sectionName, name)
 	})
@@ -516,7 +516,7 @@ func TestTaskSectionName(t *testing.T) {
 		db, dbCleanup, err := GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		name, err := GetTaskSectionName(db, primitive.NewObjectID(), &userID)
+		name, err := GetTaskSectionName(db, primitive.NewObjectID(), userID)
 		assert.Error(t, err)
 		assert.Equal(t, "", name)
 	})

@@ -105,7 +105,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	name, err := database.GetTaskSectionName(db, view.TaskSectionID, &userID)
+	name, err := database.GetTaskSectionName(db, view.TaskSectionID, userID)
 	if err != nil {
 		return nil, err
 	}
