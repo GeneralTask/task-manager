@@ -92,48 +92,49 @@ export const useCreateTask = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
-            for (const section of sections) {
-                if (section.id === data.id_task_section) {
-                    const newTask: TTask = {
-                        id: optimisticId,
-                        id_ordering: 0,
-                        title: data.title,
-                        body: data.body,
-                        deeplink: '',
-                        sent_at: '',
-                        time_allocated: 0,
-                        due_date: '',
-                        source: {
-                            name: 'General Task',
-                            logo: '',
-                            logo_v2: 'generaltask',
-                            is_completable: false,
-                            is_replyable: false,
-                        },
-                        sender: '',
-                        is_done: false,
-                        recipients: { to: [], cc: [], bcc: [] },
-                        isOptimistic: true,
-                    }
-                    section.tasks = [newTask, ...section.tasks]
-                    queryClient.setQueryData('tasks', () => sections)
-                    return
+            const newSections = produce(sections, (draft) => {
+                const section = draft.find((section) => section.id === data.id_task_section)
+                if (!section) return
+                const newTask: TTask = {
+                    id: optimisticId,
+                    id_ordering: 0,
+                    title: data.title,
+                    body: data.body,
+                    deeplink: '',
+                    sent_at: '',
+                    time_allocated: 0,
+                    due_date: '',
+                    source: {
+                        name: 'General Task',
+                        logo: '',
+                        logo_v2: 'generaltask',
+                        is_completable: false,
+                        is_replyable: false,
+                    },
+                    sender: '',
+                    is_done: false,
+                    recipients: { to: [], cc: [], bcc: [] },
+                    isOptimistic: true,
                 }
-            }
+                section.tasks = [newTask, ...section.tasks]
+            })
+
+            queryClient.setQueryData('tasks', newSections)
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
+            const newSections = produce(sections, (draft) => {
+                const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
+                if (!task) return
 
-            const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
-            if (!task) return
-
-            task.id = response.task_id
-            task.isOptimistic = false
-            queryClient.setQueryData('tasks', () => sections)
+                task.id = response.task_id
+                task.isOptimistic = false
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
