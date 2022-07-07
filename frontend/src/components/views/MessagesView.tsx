@@ -7,7 +7,7 @@ import { useFetchMessages, useGetInfiniteThreads, useModifyThread } from '../../
 import Loading from '../atoms/Loading'
 import Thread from '../molecules/Thread'
 import ThreadDetails from '../details/ThreadDetails'
-import { Border, Colors, Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import ThreadTemplate from '../atoms/ThreadTemplate'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { TASK_MARK_AS_READ_TIMEOUT } from '../../constants'
@@ -19,15 +19,13 @@ const ScrollViewMimic = styled.div`
     overflow-y: auto;
     margin-right: auto;
     flex-shrink: 0;
+    user-select: none;
 `
 const MessagesContainer = styled.div`
-    border-radius: ${Border.radius.large};
-    background-color: ${Colors.gray._100};
     width: ${DEFAULT_VIEW_WIDTH};
 `
-const MessageDivider = styled.div`
-    border-bottom: 1px solid ${Colors.gray._200};
-    margin-top: ${Spacing.margin._4};
+const MessageDivider = styled.div<{ transparent?: boolean }>`
+    border: 0.5px solid ${(props) => (props.transparent ? 'transparent' : Colors.gray._200)};
     margin-left: ${Spacing.margin._16};
     margin-right: ${Spacing.margin._16};
 `
@@ -35,7 +33,7 @@ const MessageDivider = styled.div`
 const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
-    const { refetch: refetchMessages, isFetching: isRefetchingMessages } = useFetchMessages()
+    const { refetch: refetchMessages, isFetching: isFetchingMessages } = useFetchMessages()
     const {
         data,
         isLoading: isLoadingThreads,
@@ -48,13 +46,15 @@ const MessagesView = () => {
     const unreadTimer = useRef<NodeJS.Timeout>()
 
     const threads = useMemo(() => data?.pages.flat().filter((thread) => thread != null) ?? [], [data])
-    useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${itemId}`))
+    useItemSelectionController(threads, (itemId: string) => navigate(`/messages/${params.mailbox}/${itemId}`))
 
-    const expandedThread = useMemo(() => {
+    const { expandedThread, expandedIndex } = useMemo(() => {
         if (threads.length > 0) {
-            return threads.find((thread) => thread.id === params.thread) ?? threads[0]
+            const thread = threads.find((thread) => thread.id === params.thread) ?? threads[0]
+            const index = threads.findIndex((thread) => thread.id === params.thread) ?? 0
+            return { expandedThread: thread, expandedIndex: index }
         }
-        return null
+        return { expandedThread: undefined, expandedIndex: 0 }
     }, [params.thread, params.mailbox, JSON.stringify(threads)])
 
     useEffect(() => {
@@ -99,7 +99,7 @@ const MessagesView = () => {
                         refetchMessages()
                         getThreads()
                     }}
-                    isRefetching={isRefetchingMessages || isFetchingThreads}
+                    isRefreshing={isFetchingMessages || isFetchingThreads}
                 />
                 <MessagesContainer>
                     {threads.map(
@@ -109,7 +109,11 @@ const MessagesView = () => {
                                     <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
                                         <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
                                     </ThreadTemplate>
-                                    {index !== threads.length - 1 && <MessageDivider />}
+                                    {index !== threads.length - 1 && (
+                                        <MessageDivider
+                                            transparent={expandedIndex === index || expandedIndex - 1 === index}
+                                        />
+                                    )}
                                 </div>
                             )
                     )}

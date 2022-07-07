@@ -27,7 +27,7 @@ const (
 )
 
 type Config struct {
-	Github                OauthConfigWrapper
+	Github                GithubConfig
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 SlackConfig
@@ -42,7 +42,7 @@ func GetConfig() Config {
 	return Config{
 		GoogleLoginConfig:     getGoogleLoginConfig(),
 		GoogleAuthorizeConfig: getGoogleLinkConfig(),
-		Github:                getGithubConfig(),
+		Github:                GithubConfig{OauthConfig: getGithubConfig()},
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
@@ -362,7 +362,7 @@ var TaskSourceSlackSaved = TaskSourceDetails{
 	Logo:                   "/images/slack.png",
 	LogoV2:                 "slack",
 	IsCompletable:          true,
-	CanCreateTask:          false,
+	CanCreateTask:          true,
 	IsReplyable:            false,
 	CanCreateCalendarEvent: false,
 }

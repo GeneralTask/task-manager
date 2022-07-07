@@ -24,7 +24,7 @@ import TaskSection from '../views/TaskSectionView'
 import { cssTransition } from 'react-toastify'
 import { useAppSelector } from '../../redux/hooks'
 import { useInterval } from '../../hooks'
-import OverviewView from '../views/OverviewView'
+import OverviewPageView from '../views/OverviewPageView'
 
 const toastAnimation = cssTransition({
     enter: 'animate__animated animate__fadeInRight',
@@ -51,7 +51,7 @@ const MainScreen = () => {
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
             case 'overview':
-                return <OverviewView />
+                return <OverviewPageView />
             case 'tasks':
                 return <TaskSection />
             case 'messages':

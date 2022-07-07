@@ -4,11 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net/url"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
+	"github.com/google/go-github/v45/github"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,8 +21,24 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type GithubConfigValues struct {
+	FetchExternalAPIToken       *bool
+	GetUserURL                  *string
+	ListPullRequestsURL         *string
+	ListPullRequestReviewURL    *string
+	ListPullRequestReviewersURL *string
+	ListCheckRunsForRefURL      *string
+	ListPullRequestCommentsURL  *string
+	ListRepositoriesURL         *string
+}
+
+type GithubConfig struct {
+	OauthConfig  OauthConfigWrapper
+	ConfigValues GithubConfigValues
+}
+
 type GithubService struct {
-	Config OauthConfigWrapper
+	Config GithubConfig
 }
 
 func getGithubConfig() *OauthConfig {
@@ -54,16 +75,16 @@ func GetGithubToken(externalAPITokenCollection *mongo.Collection, userID primiti
 	return &token, nil
 }
 
-func (github GithubService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := github.Config.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+func (githubService GithubService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
+	authURL := githubService.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	return &authURL, nil
 }
 
-func (github GithubService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
+func (githubService GithubService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
 	return nil, errors.New("github does not support signup")
 }
 
-func (github GithubService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (githubService GithubService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -73,23 +94,30 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	token, err := github.Config.Exchange(extCtx, *params.Oauth2Code)
+	token, err := githubService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Github")
+		logger.Error().Err(err).Msg("failed to fetch token from Github")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	log.Info().Msgf("token string: %s", string(tokenString))
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
+		return errors.New("internal server error")
+	}
+
+	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.GetUserURL)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch Github user")
 		return errors.New("internal server error")
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	// TODO add DisplayID, IsLinkable etc.
+
 	_, err = externalAPITokenCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_GITHUB}}},
@@ -97,7 +125,7 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 			UserID:         userID,
 			ServiceID:      TASK_SERVICE_ID_GITHUB,
 			Token:          string(tokenString),
-			AccountID:      "todo",
+			AccountID:      fmt.Sprint(githubAccountID),
 			DisplayID:      "Github",
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
@@ -105,7 +133,7 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil
@@ -113,4 +141,28 @@ func (github GithubService) HandleLinkCallback(params CallbackParams, userID pri
 
 func (github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
+}
+
+func getGithubClientFromToken(ctx context.Context, token *oauth2.Token) *github.Client {
+	tokenSource := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token.AccessToken},
+	)
+	tokenClient := oauth2.NewClient(ctx, tokenSource)
+	return github.NewClient(tokenClient)
+}
+
+func getGithubAccountIDFromToken(ctx context.Context, token *oauth2.Token, currentlyAuthedUserFilter string, overrideURL *string) (int64, error) {
+	githubClient := getGithubClientFromToken(ctx, token)
+	return getGithubAccountID(ctx, currentlyAuthedUserFilter, githubClient, overrideURL)
+}
+
+func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
+	if overrideURL != nil {
+		githubClient.BaseURL, _ = url.Parse(fmt.Sprintf("%s/", *overrideURL))
+	}
+	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
+	if err != nil || githubUser == nil {
+		return 0, err
+	}
+	return githubUser.GetID(), nil
 }

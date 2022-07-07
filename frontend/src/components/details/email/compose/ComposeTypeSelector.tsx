@@ -63,7 +63,11 @@ const EmailComposeTypeSelector = ({ email, isNewEmail, setThreadComposeState }: 
 
     return (
         <div ref={emailActionsRef}>
-            <EmailComposeIconButton onClick={handleEmailActionsButtonClick} hasBorder={!isNewEmail}>
+            <EmailComposeIconButton
+                onClick={handleEmailActionsButtonClick}
+                hasBorder={!isNewEmail}
+                isPressed={showEmailActions}
+            >
                 <Icon
                     size={isNewEmail ? 'small' : 'xxSmall'}
                     source={isNewEmail ? icons.skinnyHamburger : icons.caret_down}

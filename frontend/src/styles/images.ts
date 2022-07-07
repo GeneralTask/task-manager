@@ -37,13 +37,14 @@ export const icons = Object.freeze({
     inbox: '/images/inbox.png',
     inbox_purple: '/images/inbox_purple.png',
     label: '/images/label.png',
+    list: '/images/list.svg',
     mark_as_task: '/images/mark_as_task.png',
     mark_as_task_active: '/images/mark_as_task_active.png',
     mark_read: '/images/mark_read.svg',
     mark_unread: '/images/mark_unread.svg',
     message_to_task: '/images/message_to_task.svg',
     messages: '/images/messages.png',
-    plus: '/images/plus.png',
+    plus: '/images/plus.svg',
     pencil: '/images/pencil.png',
     reply: '/images/reply.svg',
     replyAll: '/images/reply-all.svg',
@@ -55,6 +56,7 @@ export const icons = Object.freeze({
     task_incomplete: '/images/task_incomplete.png',
     timer: '/images/timer.png',
     trash: '/images/trash.png',
+    x_thin: '/images/x_thin.svg',
     x: '/images/x.svg',
 })
 
@@ -74,5 +76,6 @@ export const linearStatus = Object.freeze({
     duplicate: '/images/linear_duplicate.svg',
 })
 
+export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons
 export type TLinearStatusImage = keyof typeof linearStatus

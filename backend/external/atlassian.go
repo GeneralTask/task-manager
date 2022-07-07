@@ -8,11 +8,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -94,14 +93,15 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := atlassian.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Atlassian")
+		logger.Error().Err(err).Msg("failed to fetch token from Atlassian")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -133,7 +133,7 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create external token record")
+		logger.Error().Err(err).Msg("failed to create external token record")
 		return errors.New("internal server error")
 	}
 
@@ -153,14 +153,14 @@ func (atlassian AtlassianService) HandleLinkCallback(params CallbackParams, user
 	)
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create external site collection record")
+		logger.Error().Err(err).Msg("failed to create external site collection record")
 		return errors.New("internal server error")
 	}
 
 	JIRA := JIRASource{Atlassian: atlassian}
 	err = JIRA.GetListOfPriorities(userID, token.AccessToken)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to download priorities")
+		logger.Error().Err(err).Msg("failed to download priorities")
 		return errors.New("internal server error")
 	}
 	return nil
@@ -176,35 +176,36 @@ func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite
 		cloudIDURL = *atlassian.Config.ConfigValues.CloudIDURL
 	}
 	req, err := http.NewRequest("GET", cloudIDURL, nil)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("error forming cloud ID request")
+		logger.Error().Err(err).Msg("error forming cloud ID request")
 		return nil
 	}
 	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load cloud ID")
+		logger.Error().Err(err).Msg("failed to load cloud ID")
 		return nil
 	}
 	cloudIDData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to read cloud ID response")
+		logger.Error().Err(err).Msg("failed to read cloud ID response")
 		return nil
 	}
 	if resp.StatusCode != 200 {
-		log.Error().Msgf("cloud ID request failed: %s", cloudIDData)
+		logger.Error().Msgf("cloud ID request failed: %s", cloudIDData)
 		return nil
 	}
 	AtlassianSites := []AtlassianSite{}
 	err = json.Unmarshal(cloudIDData, &AtlassianSites)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to parse cloud ID response")
+		logger.Error().Err(err).Msg("failed to parse cloud ID response")
 		return nil
 	}
 
 	if len(AtlassianSites) == 0 {
-		log.Error().Msg("no accessible JIRA resources found")
+		logger.Error().Msg("no accessible JIRA resources found")
 		return nil
 	}
 	return &AtlassianSites
@@ -257,8 +258,9 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 
 	var token AtlassianAuthToken
 	err = json.Unmarshal([]byte(JIRAToken.Token), &token)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to parse JIRA token")
+		logger.Error().Err(err).Msg("failed to parse JIRA token")
 		return nil, err
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
@@ -268,28 +270,28 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 	}
 	req, err := http.NewRequest("POST", tokenURL, bytes.NewBuffer(params))
 	if err != nil {
-		log.Error().Err(err).Msg("error forming token request")
+		logger.Error().Err(err).Msg("error forming token request")
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to request token")
+		logger.Error().Err(err).Msg("failed to request token")
 		return nil, err
 	}
 	tokenString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to read token response")
+		logger.Error().Err(err).Msg("failed to read token response")
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		log.Error().Msgf("JIRA authorization failed: %s", tokenString)
+		logger.Error().Msgf("JIRA authorization failed: %s", tokenString)
 		return nil, err
 	}
 	var newToken AtlassianAuthToken
 	err = json.Unmarshal(tokenString, &newToken)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to parse new JIRA token")
+		logger.Error().Err(err).Msg("failed to parse new JIRA token")
 		return nil, err
 	}
 	return &newToken, nil

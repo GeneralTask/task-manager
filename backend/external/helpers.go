@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/GeneralTask/task-manager/backend/logging"
 )
 
 type EmptyResponse struct{}
@@ -27,9 +28,10 @@ func requestJSON(client *http.Client, method string, url string, body string, da
 		return err
 	}
 	responseBody, bodyErr := ioutil.ReadAll(response.Body)
+	logger := logging.GetSentryLogger()
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		if err == nil {
-			log.Error().Str("responseBody", string(responseBody)).Msg("bad response body")
+			logger.Error().Str("responseBody", string(responseBody)).Msg("bad response body")
 		}
 		return fmt.Errorf("bad status code: %d", response.StatusCode)
 	}

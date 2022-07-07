@@ -3,8 +3,6 @@ package api
 import (
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -60,7 +58,7 @@ func markReadMessagesInDB(
 			}
 			err := updateMessageInDB(api, nil, currentEmail.ID, currentEmail.UserID, &messageChangeable)
 			if err != nil {
-				log.Error().Err(err).Msgf("failed to mark message read: (ID=%v)", currentEmail.ID)
+				api.Logger.Error().Err(err).Msgf("failed to mark message read: (ID=%v)", currentEmail.ID)
 				return err
 			}
 		}

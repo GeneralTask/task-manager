@@ -4,25 +4,51 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v45/github"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/oauth2"
 )
 
 const (
 	CurrentlyAuthedUserFilter string = ""
 	RepoOwnerTypeOrganization string = "Organization"
+	StateApproved             string = "APPROVED"
+	StateChangesRequested     string = "CHANGES_REQUESTED"
+)
+
+const (
+	ActionAddReviewers      string = "Add Reviewers"
+	ActionFixMergeConflicts string = "Fix Merge Conflicts"
+	ActionFixFailedCI       string = "Fix Failed CI"
+	ActionAddressRequested  string = "Address Requested Changes"
+	ActionMergePR           string = "Merge PR"
+	ActionWaitingOnReview   string = "Waiting on Review"
+)
+
+const (
+	ChecksStatusCompleted    string = "completed"
+	ChecksConclusionFailure  string = "failure"
+	ChecksConclusionTimedOut string = "timed_out"
 )
 
 type GithubPRSource struct {
 	Github GithubService
+}
+
+type GithubPRData struct {
+	RequestedReviewers   int
+	IsMergeable          bool
+	IsApproved           bool
+	HaveRequestedChanges bool
+	ChecksDidFail        bool
 }
 
 func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
@@ -42,90 +68,123 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	var githubClient *github.Client
 	var err error
-
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyPullRequestResult(err)
-		return
-	}
-	defer dbCleanup()
-
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
-	if token == nil {
-		log.Error().Msg("failed to fetch Github API token")
-		result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
-		return
-	}
-	if err != nil {
-		result <- emptyPullRequestResult(err)
-		return
-	}
-	tokenSource := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token.AccessToken},
-	)
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	tokenClient := oauth2.NewClient(extCtx, tokenSource)
-	githubClient = github.NewClient(tokenClient)
+	db, dbCleanup, err := database.GetDBConnection()
+	defer dbCleanup()
+	if err != nil {
+		result <- emptyPullRequestResult(err)
+		return
+	}
+	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
+		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		if token == nil {
+			log.Error().Msg("failed to fetch Github API token")
+			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
+			return
+		}
+		if err != nil {
+			result <- emptyPullRequestResult(err)
+			return
+		}
 
-	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
-	defer cancel()
-	githubUser, _, err := githubClient.Users.Get(extCtx, CurrentlyAuthedUserFilter)
+		githubClient = getGithubClientFromToken(extCtx, token)
+		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
+		defer cancel()
+	} else {
+		githubClient = github.NewClient(nil)
+	}
+	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
+
+	logger := logging.GetSentryLogger()
 	if err != nil || githubUser == nil {
-		log.Error().Msg("failed to fetch Github user")
+		logger.Error().Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
-	repos, _, err := githubClient.Repositories.List(extCtx, CurrentlyAuthedUserFilter, nil)
+	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
-		log.Error().Msg("failed to fetch Github repos for user")
+		logger.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
-	repoNameToOwner := getReposInOrganizations(repos)
 
-	pullRequests := []*github.PullRequest{}
 	var pullRequestItems []*database.Item
-	for repoName, ownerName := range repoNameToOwner {
+	for _, repository := range repositories {
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
-		fetchedPullRequests, _, err := githubClient.PullRequests.List(extCtx, ownerName, repoName, nil)
+		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
 		}
-		pullRequests = append(pullRequests, fetchedPullRequests...)
-	}
-	for _, pullRequest := range pullRequests {
-		body := ""
-		if pullRequest.Body != nil {
-			body = *pullRequest.Body
+		for _, pullRequest := range fetchedPullRequests {
+			if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
+				continue
+			}
+
+			reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviews"))
+				return
+			}
+			requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR reviewers"))
+				return
+			}
+			pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR"))
+				return
+			}
+			checksDidFail, err := checksDidFail(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR check runs"))
+				return
+			}
+			commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL)
+			if err != nil {
+				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR comments"))
+				return
+			}
+
+			pullRequestData := GithubPRData{
+				RequestedReviewers:   requestedReviewers,
+				IsMergeable:          pullRequestFetch.GetMergeable(),
+				IsApproved:           pullRequestIsApproved(reviews),
+				HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
+				ChecksDidFail:        checksDidFail,
+			}
+
+			pullRequest := &database.Item{
+				TaskBase: database.TaskBase{
+					UserID:            userID,
+					IDExternal:        fmt.Sprint(*pullRequest.ID),
+					Deeplink:          *pullRequest.HTMLURL,
+					SourceID:          TASK_SOURCE_ID_GITHUB_PR,
+					Title:             *pullRequest.Title,
+					SourceAccountID:   accountID,
+					CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+				},
+				PullRequest: database.PullRequest{
+					RepositoryId:   fmt.Sprint(*repository.ID),
+					RepositoryName: *repository.Name,
+					Number:         *pullRequest.Number,
+					Author:         *pullRequest.User.Login,
+					Branch:         *pullRequest.Head.Ref,
+					RequiredAction: getPullRequestRequiredAction(pullRequestData),
+					CommentCount:   commentCount,
+				},
+				TaskType: database.TaskType{
+					IsTask:        false,
+					IsPullRequest: true,
+				},
+			}
+			pullRequestItems = append(pullRequestItems, pullRequest)
 		}
-		if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
-			continue
-		}
-		pullRequest := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      fmt.Sprint(*pullRequest.ID),
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        *pullRequest.HTMLURL,
-				SourceID:        TASK_SOURCE_ID_GITHUB_PR,
-				Title:           *pullRequest.Title,
-				Body:            body,
-				SourceAccountID: accountID,
-			},
-			PullRequest: database.PullRequest{
-				Opened: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
-			},
-			TaskType: database.TaskType{
-				IsTask:        true,
-				IsPullRequest: true,
-			},
-		}
-		pullRequestItems = append(pullRequestItems, pullRequest)
 	}
 
 	for _, pullRequest := range pullRequestItems {
@@ -144,7 +203,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			nil,
 			false)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to update or create pull request")
+			logger.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
 			return
 		}
@@ -159,19 +218,78 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 }
 
-func getReposInOrganizations(repos []*github.Repository) map[string]string {
-	repoNameToOwner := make(map[string]string)
-	for _, repo := range repos {
-		if repo != nil &&
-			repo.Name != nil &&
-			repo.Owner != nil &&
-			repo.Owner.Login != nil &&
-			repo.Owner.Type != nil &&
-			*repo.Owner.Type == RepoOwnerTypeOrganization {
-			repoNameToOwner[*repo.Name] = *repo.Owner.Login
-		}
+func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
+	var err error
+	var baseURL *url.URL
+	if overrideURL != nil {
+		baseURL, err = url.Parse(fmt.Sprintf("%s/", *overrideURL))
+		githubClient.BaseURL = baseURL
 	}
-	return repoNameToOwner
+	return err
+}
+
+func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	githubUser, _, err := githubClient.Users.Get(ctx, currentlyAuthedUserFilter)
+	return githubUser, err
+}
+
+func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) ([]*github.Repository, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
+	return repositories, err
+}
+
+func getGithubPullRequests(ctx context.Context, githubClient *github.Client, repository *github.Repository, overrideURL *string) ([]*github.PullRequest, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
+	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
+	return fetchedPullRequests, err
+}
+
+func listReviewers(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.Reviewers, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
+	if pullRequest == nil || pullRequest.Number == nil {
+		return nil, errors.New("pull request is nil")
+	}
+	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	return reviewers, err
+
+}
+
+func listComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) ([]*github.PullRequestComment, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	comments, _, err := githubClient.PullRequests.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	return comments, err
+}
+
+func listCheckRunsForCommit(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	checkRuns, _, err := githubClient.Checks.ListCheckRunsForRef(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
+	return checkRuns, err
 }
 
 func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool {
@@ -181,12 +299,104 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+	if pullRequest == nil || githubUser == nil {
+		return false
+	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
 		}
 	}
 	return false
+}
+
+func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool {
+	for _, review := range pullRequestReviews {
+		if review.State != nil && *review.State == StateApproved {
+			return true
+		}
+	}
+	return false
+}
+
+func getCommentCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
+	comments, err := listComments(context, githubClient, repository, pullRequest, overrideURL)
+	if err != nil {
+		return 0, err
+	}
+	issueComments, _, err := githubClient.Issues.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	if err != nil {
+		return 0, err
+	}
+	reviewCommentCount := 0
+	for _, review := range reviews {
+		if review.GetBody() != "" {
+			reviewCommentCount += 1
+		}
+	}
+	return len(comments) + len(issueComments) + reviewCommentCount, nil
+}
+
+func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
+	reviewers, err := listReviewers(context, githubClient, repository, pullRequest, overrideURL)
+	if err != nil {
+		return 0, err
+	}
+	submittedReviews := 0
+	for _, review := range reviews {
+		state := review.GetState()
+		if review.GetUser() != nil && (state == StateApproved || state == StateChangesRequested) {
+			submittedReviews += 1
+		}
+	}
+	return submittedReviews + len(reviewers.Users), nil
+}
+
+func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
+	userToMostRecentReview := make(map[string]string)
+	for _, review := range reviews {
+		userToMostRecentReview[review.GetUser().GetLogin()] = review.GetState()
+	}
+	for _, review := range userToMostRecentReview {
+		if review == StateChangesRequested {
+			return true
+		}
+	}
+	return false
+}
+
+func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
+	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
+	if err != nil {
+		return false, err
+	}
+
+	// check runs are individual tests that make up a check suite associated with a commit
+	for _, run := range checkRuns.CheckRuns {
+		if run.GetStatus() == ChecksStatusCompleted && (run.GetConclusion() == ChecksConclusionFailure || run.GetConclusion() == ChecksConclusionTimedOut) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func getPullRequestRequiredAction(data GithubPRData) string {
+	if data.RequestedReviewers == 0 {
+		return ActionAddReviewers
+	}
+	if !data.IsMergeable {
+		return ActionFixMergeConflicts
+	}
+	if data.ChecksDidFail {
+		return ActionFixFailedCI
+	}
+	if data.HaveRequestedChanges {
+		return ActionAddressRequested
+	}
+	if data.IsApproved {
+		return ActionMergePR
+	}
+	return ActionWaitingOnReview
 }
 
 func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {

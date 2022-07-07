@@ -18,7 +18,7 @@ func TestLinkSlack(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		TestAuthorizeSuccess(t, GetAPI(), "/link/slack/", func(stateToken string) string {
-			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fslack%2Fcallback%2F&amp;response_type=code&amp;scope=identify+stars%3Aread&amp;state=" + stateToken + "\">Found</a>.\n\n"
+			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fslack%2Fcallback%2F&amp;response_type=code&amp;scope=commands&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
 }

@@ -6,25 +6,30 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const SentryDSN = "https://2b8b40065a7c480584a06774b22741d5@o1302719.ingest.sentry.io/6540750"
+
 // API is the object containing API route handlers
 type API struct {
 	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
+	Logger              zerolog.Logger
 }
 
 func GetAPI() *API {
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false}
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {

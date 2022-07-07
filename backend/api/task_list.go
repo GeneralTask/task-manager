@@ -35,20 +35,21 @@ type externalStatus struct {
 }
 
 type TaskResult struct {
-	ID                primitive.ObjectID  `json:"id"`
-	IDOrdering        int                 `json:"id_ordering"`
-	Source            TaskSource          `json:"source"`
-	Deeplink          string              `json:"deeplink"`
-	Title             string              `json:"title"`
-	Body              string              `json:"body"`
-	Sender            string              `json:"sender"`
-	DueDate           string              `json:"due_date"`
-	TimeAllocation    int64               `json:"time_allocated"`
-	SentAt            string              `json:"sent_at"`
-	IsDone            bool                `json:"is_done"`
-	LinkedEmailThread *linkedEmailThread  `json:"linked_email_thread,omitempty"`
-	ExternalStatus    *externalStatus     `json:"external_status,omitempty"`
-	Comments          *[]database.Comment `json:"comments,omitempty"`
+	ID                 primitive.ObjectID           `json:"id"`
+	IDOrdering         int                          `json:"id_ordering"`
+	Source             TaskSource                   `json:"source"`
+	Deeplink           string                       `json:"deeplink"`
+	Title              string                       `json:"title"`
+	Body               string                       `json:"body"`
+	Sender             string                       `json:"sender"`
+	DueDate            string                       `json:"due_date"`
+	TimeAllocation     int64                        `json:"time_allocated"`
+	SentAt             string                       `json:"sent_at"`
+	IsDone             bool                         `json:"is_done"`
+	LinkedEmailThread  *linkedEmailThread           `json:"linked_email_thread,omitempty"`
+	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
+	Comments           *[]database.Comment          `json:"comments,omitempty"`
+	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 }
 
 type TaskSection struct {
@@ -90,14 +91,14 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch api tokens")
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
 		return nil, nil, err
 	}
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to iterate through api tokens")
+		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		return nil, nil, err
 	}
 	// add dummy token for gt_task fetch logic
@@ -112,8 +113,8 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Error().Err(err).Msg("error loading task service")
-			continue
+			api.Logger.Error().Err(err).Msg("error loading task service")
+			return nil, nil, err
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
@@ -131,6 +132,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
+			api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
 			failedFetchSources[taskResult.SourceID] = true
 			continue
 		}
@@ -139,6 +141,8 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
+			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
+			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
 		for _, pullRequest := range pullRequestResult.PullRequests {
@@ -150,7 +154,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	return &tasks, failedFetchSources, nil
 }
 
-func adjustForCompletedTasks(
+func (api *API) adjustForCompletedTasks(
 	db *mongo.Database,
 	currentTasks *[]database.Item,
 	fetchedTasks *[]*database.Item,
@@ -166,10 +170,14 @@ func adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
+		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK {
+			// we don't ever need to mark GT tasks as done here as they would have already been marked done
+			continue
+		}
 		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
 			err := database.MarkItemComplete(db, currentTask.ID)
 			if err != nil {
-				log.Error().Err(err).Msg("failed to update task ordering ID")
+				api.Logger.Error().Err(err).Msg("failed to complete task")
 				return err
 			}
 			for _, newTask := range newTasks {
@@ -182,7 +190,7 @@ func adjustForCompletedTasks(
 	return nil
 }
 
-func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
+func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	orderingID := 1
@@ -197,11 +205,11 @@ func updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to update task ordering ID")
+			api.Logger.Error().Err(err).Msg("failed to update task ordering ID")
 			return err
 		}
 		if res.MatchedCount != 1 {
-			log.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+			api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
 		}
 	}
 	return nil
@@ -244,11 +252,20 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		}
 	}
 
+	if t.SlackMessageParams != (database.SlackMessageParams{}) {
+		taskResult.SlackMessageParams = &database.SlackMessageParams{
+			Channel: t.SlackMessageParams.Channel,
+			User:    t.SlackMessageParams.User,
+			Team:    t.SlackMessageParams.Team,
+			Message: t.SlackMessageParams.Message,
+		}
+	}
+
 	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
 	if t.LinkedMessage.ThreadID != nil {
 		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
 		if err != nil {
-			log.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
+			api.Logger.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
 			return taskResult
 		}
 

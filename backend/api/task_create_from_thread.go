@@ -28,7 +28,7 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 	var requestParams taskCreateParams
 	err = c.BindJSON(&requestParams)
 	if err != nil {
-		log.Error().Err(err).Msg("could not parse request params")
+		api.Logger.Error().Err(err).Msg("could not parse request params")
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
@@ -44,14 +44,14 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 
 	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(thread.SourceID)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load external task source")
+		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
 
-	err = createTaskFromEmailThread(userID, thread, requestParams, taskSourceResult)
+	err = api.createTaskFromEmailThread(userID, thread, requestParams, taskSourceResult)
 	if err != nil {
-		log.Error().Err(err).Msgf("could not update thread %v in DB", threadID)
+		api.Logger.Error().Err(err).Msgf("could not update thread %v in DB", threadID)
 		Handle500(c)
 		return
 	}
@@ -59,7 +59,7 @@ func (api *API) CreateTaskFromThread(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func createTaskFromEmailThread(
+func (api *API) createTaskFromEmailThread(
 	userID primitive.ObjectID,
 	thread *database.Item,
 	params taskCreateParams,
@@ -76,7 +76,7 @@ func createTaskFromEmailThread(
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
 			IDTaskSection:   taskSection,
-			SourceID:        external.TASK_SOURCE_ID_GMAIL,
+			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
 			Title:           params.Title,
 			Body:            params.Body,
 			SourceAccountID: accountID,
@@ -96,7 +96,7 @@ func createTaskFromEmailThread(
 		messageID, err := primitive.ObjectIDFromHex(*params.EmailID)
 		if err != nil {
 			// This means the message ID is improperly formatted
-			log.Error().Err(err).Send()
+			api.Logger.Error().Err(err).Send()
 			return err
 		}
 		taskDetails.LinkedMessage.EmailID = &messageID

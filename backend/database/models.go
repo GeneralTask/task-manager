@@ -77,13 +77,45 @@ type Oauth1RequestSecret struct {
 }
 
 type Item struct {
-	TaskBase      `bson:",inline"`
-	TaskType      `bson:"task_type"`
-	Task          `bson:"task,omitempty"`
-	Email         `bson:"email,omitempty"`
-	EmailThread   `bson:"email_thread,omitempty"`
-	CalendarEvent `bson:"calendar_event,omitempty"`
-	PullRequest   `bson:"pull_request,omitempty"`
+	TaskBase           `bson:",inline"`
+	TaskType           `bson:"task_type"`
+	Task               `bson:"task,omitempty"`
+	Email              `bson:"email,omitempty"`
+	EmailThread        `bson:"email_thread,omitempty"`
+	CalendarEvent      `bson:"calendar_event,omitempty"`
+	PullRequest        `bson:"pull_request,omitempty"`
+	SlackMessageParams `bson:"slack_message_params,omitempty"`
+}
+
+// Note that this model is used in the request for Slack, and thus should match
+// the payload from the Slack request.
+type SlackMessageParams struct {
+	Channel SlackChannel `json:"channel,omitempty"`
+	User    SlackUser    `json:"user,omitempty"`
+	Team    SlackTeam    `json:"team,omitempty"`
+	Message SlackMessage `json:"message,omitempty"`
+}
+
+type SlackTeam struct {
+	ID     string `json:"id,omitempty"`
+	Domain string `json:"domain,omitempty"`
+}
+
+type SlackChannel struct {
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type SlackUser struct {
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+type SlackMessage struct {
+	Type     string `json:"type,omitempty"`
+	User     string `json:"user,omitempty"`
+	TimeSent string `json:"ts,omitempty"`
+	Text     string `json:"text,omitempty"`
 }
 
 type TaskType struct {
@@ -126,7 +158,13 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	Opened primitive.DateTime `bson:"opened"`
+	RepositoryId   string `bson:"repository_id"`
+	RepositoryName string `bson:"repository_name"`
+	Number         int    `bson:"number"`
+	Author         string `bson:"author"`
+	Branch         string `bson:"branch"`
+	RequiredAction string `bson:"required_action"`
+	CommentCount   int    `bson:"comment_count"`
 }
 
 type PullRequestChangeableFields struct {
@@ -309,4 +347,15 @@ type EmailThreadChangeable struct {
 type ThreadItemChangeable struct {
 	EmailThreadChangeable `bson:"email_thread,omitempty"`
 	TaskTypeChangeable    *TaskTypeChangeable `bson:"task_type,omitempty"`
+}
+
+type View struct {
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	IDOrdering    int                `bson:"id_ordering"`
+	Type          string             `bson:"type"`
+	IsPaginated   bool               `bson:"is_paginated"`
+	IsReorderable bool               `bson:"is_reorderable"`
+	IsLinked      bool               `bson:"is_linked"`
+	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
 }

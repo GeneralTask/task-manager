@@ -15,6 +15,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -133,8 +134,9 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	}
 	JQL := "assignee=currentuser() AND status != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("error forming search request")
+		logger.Error().Err(err).Msg("error forming search request")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -142,18 +144,18 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load search results")
+		logger.Error().Err(err).Msg("failed to load search results")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to read search response")
+		logger.Error().Err(err).Msg("failed to read search response")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		log.Error().Msgf("search failed: %s %v", taskData, resp.StatusCode)
+		logger.Error().Msgf("search failed: %s %v", taskData, resp.StatusCode)
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -161,7 +163,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	var jiraTasks JIRATaskList
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to parse JIRA tasks")
+		logger.Error().Err(err).Msg("failed to parse JIRA tasks")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -177,7 +179,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
-			log.Error().Err(err).Msg("unable to parse JIRA template")
+			logger.Error().Err(err).Msg("unable to parse JIRA template")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -225,7 +227,7 @@ func (jira JIRASource) GetTasks(userID primitive.ObjectID, accountID string, res
 	if needsRefresh {
 		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to fetch priorities")
+			logger.Error().Err(err).Msg("failed to fetch priorities")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
@@ -282,8 +284,9 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID})
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch local priorities")
+		logger.Error().Err(err).Msg("failed to fetch local priorities")
 		return nil
 	}
 	var priorities []database.JIRAPriority
@@ -308,21 +311,22 @@ func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to request transitions")
+		logger.Error().Err(err).Msg("failed to request transitions")
 		return nil
 	}
 
 	responseString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to read http response body")
+		logger.Error().Err(err).Msg("failed to read http response body")
 		return nil
 	}
 
 	var data map[string]interface{}
 	err = json.Unmarshal(responseString, &data)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to parse json data")
+		logger.Error().Err(err).Msg("failed to parse json data")
 		return nil
 	}
 

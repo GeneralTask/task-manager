@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -114,7 +113,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 	userID, userIsNew, email, err := googleService.HandleSignupCallback(external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to handle signup")
+		api.Logger.Error().Err(err).Msg("Failed to handle signup")
 		Handle500(c)
 		return
 	}
@@ -122,7 +121,11 @@ func (api *API) LoginCallback(c *gin.Context) {
 	if userIsNew != nil && *userIsNew {
 		err = createNewUserTasks(parentCtx, userID, db)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to create starter tasks")
+			api.Logger.Error().Err(err).Msg("failed to create starter tasks")
+		}
+		err = createNewUserViews(parentCtx, userID, db)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to create starter views")
 		}
 	}
 
@@ -135,7 +138,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to query waitlist")
+		api.Logger.Error().Err(err).Msg("failed to query waitlist")
 		Handle500(c)
 		return
 	}
@@ -154,7 +157,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		&database.InternalAPIToken{UserID: userID, Token: internalToken},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create internal token record")
+		api.Logger.Error().Err(err).Msg("failed to create internal token record")
 		Handle500(c)
 		return
 	}
@@ -186,6 +189,31 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		_, err := taskCollection.InsertOne(dbCtx, newTask)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
+	viewCollection := database.GetViewCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	for index, view := range constants.StarterViews {
+		newView := database.View{
+			ID:            primitive.NewObjectID(),
+			UserID:        userID,
+			IDOrdering:    index + 1,
+			Type:          view.Type,
+			IsPaginated:   view.IsPaginated,
+			IsReorderable: view.IsReorderable,
+			IsLinked:      view.IsLinked,
+			TaskSectionID: view.TaskSectionID,
+		}
+		_, err := viewCollection.InsertOne(dbCtx, newView)
+
 		if err != nil {
 			return err
 		}

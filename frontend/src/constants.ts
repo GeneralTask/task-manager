@@ -46,9 +46,11 @@ export const NO_EVENT_TITLE = '(no title)'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 export const KEYBOARD_SHORTCUTS = Object.freeze({
+    arrowUp: 'ArrowUp', 
+    arrowDown: 'ArrowDown', 
     close: 'Escape',
     createTask: 'T',
-    down: 'ArrowDown',
+    down: 'K',
     forward: 'F',
     markComplete: 'D',
     next: 'ArrowDown',
@@ -60,7 +62,7 @@ export const KEYBOARD_SHORTCUTS = Object.freeze({
     showDatePicker: 'S',
     showLabelEditor: 'L',
     showTimeEstimationPicker: 'F',
-    up: 'ArrowUp',
+    up: 'J',
 })
 
 export type TKeyboardShortcuts = keyof typeof KEYBOARD_SHORTCUTS

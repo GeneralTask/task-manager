@@ -1,5 +1,6 @@
 import { EmailComposeType } from "./enums"
 import { TPullRequestStatusColors } from "../components/pull-requests/styles"
+import { TLogoImage } from "../styles/images"
 
 export type Datestring = string
 
@@ -208,19 +209,15 @@ export interface TLinkedAccount {
 }
 
 // React-DND Item Types
-export const ItemTypes = {
-    TASK: 'task',
+export enum DropType {
+    TASK = 'task',
+    OVERVIEW_VIEW = 'overview-view',
 }
 
-export interface DropResult {
+export interface DropItem {
     id: string
-    dropDisabled: boolean
-}
-export interface DropProps {
-    id: string
-    taskIndex: number
-    sectionId: string
-    task: TTask
+    sectionId?: string
+    task?: TTask
 }
 
 export interface TTaskCreateParams {
@@ -244,3 +241,22 @@ export interface TEmailComposeState {
 }
 
 export type TMailbox = 'inbox' | 'archive'
+
+export type TOverviewItem = TTask // TODO: change this to more general type
+export interface TOverviewView {
+    id: string
+    name: string
+    type: 'github' | 'task_section' | 'linear' | 'message' | 'slack'
+    section_id?: string
+    is_paginated: boolean
+    is_reorderable: boolean
+    logo: TLogoImage
+    view_items: TOverviewItem[]
+}
+
+export interface TSupportedOverviewView {
+    id: string
+    name: string
+    logo: TLogoImage
+    is_added: boolean
+}

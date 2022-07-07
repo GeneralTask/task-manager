@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -64,7 +63,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch api tokens")
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
 		Handle500(c)
 		return
 	}
@@ -73,7 +72,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	defer cancel()
 	err = cursor.All(dbCtx, &tokens)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to iterate through api tokens")
+		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
 		return
 	}
@@ -81,7 +80,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to fetch task service")
+			api.Logger.Error().Err(err).Msg("failed to fetch task service")
 			Handle500(c)
 			return
 		}
@@ -143,7 +142,7 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		bson.M{"_id": accountID},
 	)
 	if err != nil || res.DeletedCount != 1 {
-		log.Error().Err(err).Msg("error deleting linked account")
+		api.Logger.Error().Err(err).Msg("error deleting linked account")
 		Handle500(c)
 		return
 	}

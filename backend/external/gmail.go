@@ -12,6 +12,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -24,7 +25,8 @@ import (
 )
 
 const (
-	fullFetchMaxResults = int64(500)
+	fullFetchMaxResults = int64(100)
+	concurrencyLimit    = 15
 )
 
 type GmailThreadResponse struct {
@@ -43,6 +45,12 @@ type EmailContents struct {
 	Body       string
 }
 
+type GmailThreadRequest struct {
+	GmailService *gmail.Service
+	ThreadID     string
+	Result       chan *gmail.Thread
+}
+
 func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -53,93 +61,49 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	defer dbCleanup()
 
 	gmailService, err := createGmailService(gmailSource.Google.OverrideURLs.GmailFetchURL, db, userID, accountID, &gmailSource, parentCtx)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create Gmail service")
+		logger.Error().Err(err).Msg("unable to create Gmail service")
 		result <- emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		return
 	}
 
-	threadChannels := []chan *gmail.Thread{}
+	threads := []*gmail.Thread{}
 	var recentHistoryID uint64
-	var historiesRequiringUpdate []*gmail.History
-	// loads all thread changes, or 500 recent threads in the inbox
-	// do fullRefresh if we don't have history data stored for the account
-	if fullRefresh || latestHistoryID == 0 {
-		log.Debug().Msg("Performing full gmail thread refresh")
 
-		// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
-		threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(fullFetchMaxResults).Do()
-		if err != nil {
-			log.Error().Err(err).Msg("failed to load Gmail threads for user")
-			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
-				strings.Contains(err.Error(), "authError")
-			threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
-			threadOutput.IsBadToken = isBadToken
-			result <- threadOutput
-			return
-		}
-
-		for _, threadListItem := range threadsResponse.Threads {
-			var threadResult = make(chan *gmail.Thread)
-			go getThreadFromGmail(gmailService, threadListItem.Id, threadResult)
-			threadChannels = append(threadChannels, threadResult)
-		}
-
-		if len(threadsResponse.Threads) > 0 {
-			recentHistoryID = threadsResponse.Threads[0].HistoryId
-		}
-	} else {
-		log.Debug().Msg("Performing small gmail thread update/refresh")
-
-		historiesRequiringUpdate, recentHistoryID, err = getAllRecentGmailHistory(gmailService, latestHistoryID)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to load Gmail history for user")
-			isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
-				strings.Contains(err.Error(), "authError")
-			threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
-			threadOutput.IsBadToken = isBadToken
-			result <- threadOutput
-			return
-		}
-
-		// get all thread IDs mentioned in the history
-		historyThreadIDs := []string{}
-		netChangeInNumEmailsPerThread := make(map[string]int)
-		for _, historyEntry := range historiesRequiringUpdate {
-			for _, message := range historyEntry.Messages {
-				historyThreadIDs = append(historyThreadIDs, message.ThreadId)
-			}
-			for _, messageAdded := range historyEntry.MessagesAdded {
-				netChangeInNumEmailsPerThread[messageAdded.Message.ThreadId] += 1
-			}
-			for _, messageDeleted := range historyEntry.MessagesDeleted {
-				netChangeInNumEmailsPerThread[messageDeleted.Message.ThreadId] -= 1
-			}
-		}
-
-		historyThreadIDs = removeDuplicateStr(historyThreadIDs)
-
-		// TODO implement unit testing for this logic
-		historyThreadIDsToFetch := handleThreadDeletion(db, userID, historyThreadIDs, netChangeInNumEmailsPerThread)
-
-		// TODO: think about not fetching emails if the only updates are label changes
-		for _, threadListItem := range historyThreadIDsToFetch {
-			var threadResult = make(chan *gmail.Thread)
-			go getThreadFromGmail(gmailService, threadListItem, threadResult)
-			threadChannels = append(threadChannels, threadResult)
-		}
+	// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
+	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(fullFetchMaxResults).Do()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load Gmail threads for user")
+		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
+			strings.Contains(err.Error(), "authError")
+		threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+		threadOutput.IsBadToken = isBadToken
+		result <- threadOutput
+		return
 	}
 
-	emailResult := updateOrCreateThreads(userID, accountID, db, threadChannels)
+	threadIds := []string{}
+	for _, thread := range threadsResponse.Threads {
+		threadIds = append(threadIds, thread.Id)
+	}
+	threads = runThreadWorkers(gmailService, threadIds)
+	if len(threadsResponse.Threads) > 0 {
+		recentHistoryID = threadsResponse.Threads[0].HistoryId
+	}
+
+	emailResult := updateOrCreateThreads(userID, accountID, db, threads)
 	emailResult.HistoryID = recentHistoryID
 	result <- emailResult
 }
 
-func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threadChannels []chan *gmail.Thread) EmailResult {
+func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mongo.Database, threads []*gmail.Thread) EmailResult {
 	emails := []*database.Item{}
 
-	for _, threadChannel := range threadChannels {
-		thread := <-threadChannel
+	for _, thread := range threads {
+		if thread == nil {
+			continue
+		}
 
 		var nestedEmails []database.Email
 		var mostRecentEmailTimestamp primitive.DateTime
@@ -163,16 +127,16 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 		}
 		// this database creation item should be before email parsing, otherwise we get duplicate _id errors in Mongo
 		threadItem, err := database.GetOrCreateItem(db, userID, thread.Id, TASK_SOURCE_ID_GMAIL, threadItem)
+		logger := logging.GetSentryLogger()
 		if err != nil {
-			log.Error().Err(err).Msg("failed to get or create gmail thread")
+			logger.Error().Err(err).Msg("failed to get or create gmail thread")
 			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		}
-
 		for _, message := range thread.Messages {
 			emailItem, err := parseEmail(userID, accountID, message, thread.Id)
 			// if we ran into an error parsing message body
 			if err != nil {
-				log.Error().Err(err).Msg("issue parsing gmail thread")
+				logger.Error().Err(err).Msg("issue parsing gmail thread")
 				return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			}
 
@@ -183,7 +147,7 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 				true,
 			)
 			if err != nil {
-				log.Error().Err(err).Msgf("could not update or create %+v", emailItem)
+				logger.Error().Err(err).Msgf("could not update or create %+v", emailItem)
 				return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			}
 
@@ -212,11 +176,10 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 			threadItem, database.ThreadItemToChangeable(threadItem),
 			&[]bson.M{{"task_type.is_thread": true}}, true)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to update or create gmail thread")
+			logger.Error().Err(err).Msg("failed to update or create gmail thread")
 			return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 		}
 	}
-
 	return EmailResult{Emails: emails, Error: nil, SourceID: TASK_SOURCE_ID_GMAIL}
 }
 
@@ -247,11 +210,11 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 	for _, messagePart := range messageParts {
 		numAttachments += countAttachmentsInMessagePart(messagePart)
 	}
-
+	logger := logging.GetSentryLogger()
 	for _, messagePart := range messageParts {
 		parsedBody, err := parseMessagePartBody(messagePart.MimeType, messagePart.Body)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to parse message body")
+			logger.Error().Err(err).Msg("failed to parse message body")
 			continue
 		}
 		if messagePart.MimeType == "text/html" {
@@ -317,77 +280,6 @@ func parseEmail(userID primitive.ObjectID, accountID string, message *gmail.Mess
 	return emailItem, nil
 }
 
-func getAllRecentGmailHistory(gmailService *gmail.Service, historyID uint64) ([]*gmail.History, uint64, error) {
-	historyResponse, err := gmailService.Users.History.List("me").StartHistoryId(historyID).MaxResults(fullFetchMaxResults).Do()
-	if err != nil {
-		return []*gmail.History{}, 0, err
-	}
-
-	historiesRequiringUpdate := historyResponse.History
-
-	// iterate through until we have the full history (no returned new entries)
-	for len(historyResponse.History) > 0 {
-		historiesRequiringUpdate = append(historiesRequiringUpdate, historyResponse.History...)
-		nextHistoryID := historyResponse.History[len(historyResponse.History)-1].Id
-		historyResponse, err = gmailService.Users.History.List("me").StartHistoryId(nextHistoryID).MaxResults(fullFetchMaxResults).Do()
-		if err != nil {
-			return []*gmail.History{}, 0, err
-		}
-	}
-
-	return historiesRequiringUpdate, historyResponse.HistoryId, nil
-}
-
-func handleThreadDeletion(db *mongo.Database, userID primitive.ObjectID, historyThreadIDs []string, netThreadEmailDelta map[string]int) []string {
-	threadsToFetch := []string{}
-	for _, threadID := range historyThreadIDs {
-		// if thread mentioned in additions/deletions, fetch, otherwise simply fetch updates
-		if netThreadCount, ok := netThreadEmailDelta[threadID]; ok {
-			dbThreadCount, err := getDBThreadCount(db, userID, threadID)
-			if err != nil {
-				if err != mongo.ErrNoDocuments {
-					threadsToFetch = append(threadsToFetch, threadID)
-					continue
-				}
-				dbThreadCount = 0
-			}
-
-			totalThreadCount := netThreadCount + dbThreadCount
-			if totalThreadCount <= 0 {
-				_, err := database.DeleteEmailThread(db, userID, threadID)
-				if err != nil {
-					log.Error().Err(err).Send()
-				}
-				continue
-			}
-		}
-		threadsToFetch = append(threadsToFetch, threadID)
-	}
-	return threadsToFetch
-}
-
-func getDBThreadCount(db *mongo.Database, userID primitive.ObjectID, threadID string) (int, error) {
-	thread, err := database.GetThread(db, userID, threadID)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch DB thread count")
-		return 0, err
-	}
-	return len(thread.Emails), nil
-}
-
-// from StackOverflow: https://stackoverflow.com/questions/66643946/how-to-remove-duplicates-strings-or-int-from-slice-in-go
-func removeDuplicateStr(strSlice []string) []string {
-	allKeys := make(map[string]bool)
-	list := []string{}
-	for _, item := range strSlice {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
-	}
-	return list
-}
-
 func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []database.Email) []database.Email {
 	emailIDToObjectID := make(map[string]primitive.ObjectID)
 	for _, dbEmail := range threadItem.Emails {
@@ -405,10 +297,59 @@ func assignOrGenerateNestedEmailIDs(threadItem *database.Item, fetchedEmails []d
 	return fetchedEmails
 }
 
+// based on: https://gobyexample.com/worker-pools
+func runThreadWorkers(gmailService *gmail.Service, threadIds []string) []*gmail.Thread {
+	threads := []*gmail.Thread{}
+
+	// concurrently fetch a number of threads at any one time
+	// this logic is required in order to stop the threadsd from failing
+	var jobs = make(chan *GmailThreadRequest, len(threadIds))
+	var results = make(chan *gmail.Thread, len(threadIds))
+
+	// don't create more workers than necessary
+	numWorkers := concurrencyLimit
+	if len(threadIds) < numWorkers {
+		numWorkers = len(threadIds)
+	}
+
+	for i := 1; i <= numWorkers; i++ {
+		go threadWorker(jobs, results)
+	}
+	for _, threadId := range threadIds {
+		var channel = make(chan *gmail.Thread)
+		jobs <- &GmailThreadRequest{
+			GmailService: gmailService,
+			ThreadID:     threadId,
+			Result:       channel,
+		}
+	}
+	close(jobs)
+	for i := 1; i <= len(threadIds); i++ {
+		emailResult := <-results
+		threads = append(threads, emailResult)
+	}
+	return threads
+}
+
+func threadWorker(jobs <-chan *GmailThreadRequest, results chan<- *gmail.Thread) {
+	for j := range jobs {
+		go getThreadFromGmail(j.GmailService, j.ThreadID, j.Result)
+		thread := <-j.Result
+		results <- thread
+	}
+}
+
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
+	logger := logging.GetSentryLogger()
 	getThreadCall := func() error {
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 		if err != nil {
+			// short circuit retry with nil return on 404, trying again will not fix the issue
+			if strings.Contains(err.Error(), "Error 404") {
+				logger.Error().Err(err).Msg("failed to fetch thread from gmail: 404")
+				result <- nil
+				return nil
+			}
 			return err
 		}
 		result <- thread
@@ -430,7 +371,7 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 	expBackoff.Reset()
 	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
 	if err != nil {
-		log.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
+		logger.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
 		return
 	}
@@ -469,8 +410,9 @@ func expandMessageParts(parts []*gmail.MessagePart) []*gmail.MessagePart {
 func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string, error) {
 	data := body.Data
 	bodyData, err := base64.URLEncoding.DecodeString(data)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to decode email body")
+		logger.Error().Err(err).Msg("failed to decode email body")
 		return nil, err
 	}
 
@@ -479,7 +421,7 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 	if mimeType == "text/plain" {
 		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to decode email body")
+			logger.Error().Err(err).Msg("failed to decode email body")
 			return nil, err
 		} else {
 			bodyString = formattedBody
@@ -524,14 +466,15 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
 	}
 
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create Gmail service")
+		logger.Error().Err(err).Msg("unable to create Gmail service")
 		return err
 	}
 
 	doneSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to load user setting")
+		logger.Error().Err(err).Msg("failed to load user setting")
 		return err
 	}
 	var labelToRemove string
@@ -541,7 +484,7 @@ func (gmailSource GmailSource) MarkAsDone(userID primitive.ObjectID, accountID s
 	case settings.ChoiceKeyMarkAsRead:
 		labelToRemove = "UNREAD"
 	default:
-		log.Error().Msgf("invalid done user setting: %s", *doneSetting)
+		logger.Error().Msgf("invalid done user setting: %s", *doneSetting)
 		return err
 	}
 
@@ -609,14 +552,15 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("could not find user")
+		logger.Error().Err(err).Msg("could not find user")
 		return err
 	}
 
 	email, err := database.GetEmailFromMessageID(parentCtx, messageID, userID)
 	if err != nil {
-		log.Error().Err(err).Msg("could not find message in DB")
+		logger.Error().Err(err).Msg("could not find message in DB")
 		return err
 	}
 
@@ -626,7 +570,7 @@ func (gmailSource GmailSource) Reply(userID primitive.ObjectID, accountID string
 	}
 	messageResponse, err := gmailService.Users.Messages.Get("me", email.EmailID).Do()
 	if err != nil {
-		log.Error().Err(err).Msg("could not get message from gmail")
+		logger.Error().Err(err).Msg("could not get message from gmail")
 		return err
 	}
 
@@ -744,8 +688,9 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
 	}
 
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create Gmail service")
+		logger.Error().Err(err).Msg("unable to create Gmail service")
 		return err
 	}
 

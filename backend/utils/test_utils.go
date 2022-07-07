@@ -23,4 +23,12 @@ func AssertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
 	assert.Equal(t, a.ConferenceCall, b.ConferenceCall)
 	assert.Equal(t, a.CreatedAtExternal, b.CreatedAtExternal)
+	if (a.SlackMessageParams != (database.SlackMessageParams{})) || (b.SlackMessageParams != (database.SlackMessageParams{})) {
+		expectedSlack := a.SlackMessageParams
+		actualSlack := b.SlackMessageParams
+		assert.Equal(t, expectedSlack.Channel, actualSlack.Channel)
+		assert.Equal(t, expectedSlack.User, actualSlack.User)
+		assert.Equal(t, expectedSlack.Team, actualSlack.Team)
+		assert.Equal(t, expectedSlack.Message, actualSlack.Message)
+	}
 }

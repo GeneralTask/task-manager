@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"strings"
 	"time"
 
@@ -23,7 +22,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	var params WaitlistParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
-		log.Error().Err(err).Msg("error")
+		api.Logger.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'email' parameter."})
 		return
 	}
@@ -45,7 +44,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	defer cancel()
 	count, err := waitlistCollection.CountDocuments(dbCtx, bson.M{"email": email})
 	if err != nil {
-		log.Error().Err(err).Msg("failed to query waitlist")
+		api.Logger.Error().Err(err).Msg("failed to query waitlist")
 		Handle500(c)
 		return
 	}
@@ -64,7 +63,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		},
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to insert waitlist entry")
+		api.Logger.Error().Err(err).Msg("failed to insert waitlist entry")
 		Handle500(c)
 		return
 	}

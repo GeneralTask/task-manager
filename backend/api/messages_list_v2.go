@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -38,7 +37,7 @@ func (api *API) MessagesListV2(c *gin.Context) {
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to find user")
+		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
 		return
 	}
@@ -84,7 +83,7 @@ func (api *API) orderMessagesV2(
 ) ([]*message, error) {
 	orderingSetting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailOrderingPreference)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch email ordering setting")
+		api.Logger.Error().Err(err).Msg("failed to fetch email ordering setting")
 		return []*message{}, err
 	}
 	newestEmailsFirst := *orderingSetting == settings.ChoiceKeyNewestFirst
