@@ -1,13 +1,15 @@
-import React from 'react'
-import { icons, logos } from '../../styles/images'
+import React, { useCallback } from 'react'
+import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { SelectedView, EditViewsDeleteButton } from './styles'
 import { Border, Colors, Spacing } from '../../styles'
 import GTModal from '../atoms/GTModal'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import useGetOverviewViews from './dummydata'
+import EditViewsSelectedView from './EditViewsSelectedView'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { DropItem, DropType } from '../../utils/types'
+import ReorderDropContainer from '../atoms/ReorderDropContainer'
 
 const AddViewsButton = styled(NoStyleButton)`
     border: 1px solid ${Colors.gray._500};
@@ -25,7 +27,13 @@ interface EditViewsModalProps {
     goToAddViewsView: () => void
 }
 const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalProps) => {
-    const { data: blocks } = useGetOverviewViews()
+    const { data: views, temporaryReorderViews } = useGetOverviewViews()
+
+    const handleReorder = useCallback(
+        (item: DropItem, dropIndex: number) => temporaryReorderViews(item.id, dropIndex),
+        [temporaryReorderViews]
+    )
+
     return (
         <GTModal
             isOpen={isOpen}
@@ -40,15 +48,15 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             }
         >
             <>
-                {blocks.map((block) => (
-                    <SelectedView key={block.id}>
-                        <Icon source={logos[block.logo]} size="small" />
-                        {block.name}
-                        <EditViewsDeleteButton>
-                            <Icon source={icons.x_thin} size="small" />
-                        </EditViewsDeleteButton>
-                    </SelectedView>
+                {views.map((view, index) => (
+                    <EditViewsSelectedView key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
                 ))}
+                <ReorderDropContainer
+                    index={views.length}
+                    acceptDropType={DropType.OVERVIEW_VIEW}
+                    onReorder={handleReorder}
+                    isLast
+                />
             </>
         </GTModal>
     )

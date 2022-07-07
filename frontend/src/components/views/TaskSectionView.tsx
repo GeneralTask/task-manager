@@ -44,6 +44,9 @@ const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
 `
+const BottomDropArea = styled.div`
+    height: 100px;
+`
 
 const TaskSectionView = () => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
@@ -139,7 +142,9 @@ const TaskSectionView = () => {
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
                                     isLast
-                                />
+                                >
+                                    <BottomDropArea />
+                                </ReorderDropContainer>
                             </>
                         )}
                     </TaskSectionViewContainer>

@@ -6,7 +6,6 @@ import { Colors } from '../../styles'
 
 const isLastStyle = css`
     flex: 1;
-    min-height: 100px;
 `
 const DropOverlay = styled.div<{ isLast?: boolean }>`
     width: 100%;
