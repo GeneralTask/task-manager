@@ -731,7 +731,7 @@ export const useCreateEvent = () => {
                     conference_call: null,
                 }
 
-                const newEvents = produce(events, draft => {
+                const newEvents = produce(events, (draft) => {
                     draft.push(newEvent)
                 })
                 queryClient.setQueryData([
