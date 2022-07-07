@@ -67,7 +67,8 @@ func TestGetOverviewResults(t *testing.T) {
 	t.Run("NoViews", func(t *testing.T) {
 		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID())
 		assert.NoError(t, err)
-		assert.Nil(t, result)
+		assert.NotNil(t, result)
+		assert.Equal(t, 0, len(result))
 	})
 	t.Run("InvalidViewType", func(t *testing.T) {
 		result, err := api.GetOverviewResults(db, parentCtx, []database.View{{
