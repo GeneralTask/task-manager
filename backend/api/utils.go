@@ -3,12 +3,9 @@ package api
 import (
 	"context"
 	"errors"
-	"io"
 	"net/http"
-	"os"
 	"time"
 
-	zlogsentry "github.com/archdx/zerolog-sentry"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -16,6 +13,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,26 +29,7 @@ type API struct {
 }
 
 func GetAPI() *API {
-	logger := GetSentryLogger()
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: logger}
-}
-
-// note: sentry logger returns a stdout logger when not in production
-func GetSentryLogger() zerolog.Logger {
-	var logger io.Writer
-	if config.GetEnvironment() == config.Prod {
-		w, err := zlogsentry.New(SentryDSN, zlogsentry.WithLevels(zerolog.WarnLevel, zerolog.ErrorLevel, zerolog.FatalLevel, zerolog.PanicLevel))
-		if err != nil {
-			log.Error().Err(err).Msg("failed to initialize sentry logger")
-		}
-
-		defer w.Close()
-		logger = io.MultiWriter(w, os.Stdout)
-	} else {
-		logger = os.Stdout
-	}
-
-	return zerolog.New(logger).With().Timestamp().Logger()
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {

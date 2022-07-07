@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rs/zerolog/log"
 	"github.com/slack-go/slack"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -71,14 +71,15 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := slackService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Slack")
+		logger.Error().Err(err).Msg("failed to fetch token from Slack")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -88,7 +89,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	}
 	userInfo, err := api.AuthTest()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to get user identity")
+		logger.Error().Err(err).Msg("failed to get user identity")
 		return errors.New("internal server error")
 	}
 
@@ -110,7 +111,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil

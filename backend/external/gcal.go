@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/logging"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -46,8 +48,9 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to load calendar events")
+		logger.Error().Err(err).Msg("unable to load calendar events")
 		result <- emptyCalendarResult(err)
 		return
 	}
@@ -178,8 +181,9 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
 		ConferenceDataVersion(1).
 		Do()
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create event")
+		logger.Error().Err(err).Msg("unable to create event")
 		return err
 	}
 	log.Info().Msgf("Event created: %s\n", gcalEvent.HtmlLink)
@@ -261,6 +265,7 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 	defer dbCleanup()
 
 	var calendarService *calendar.Service
+	logger := logging.GetSentryLogger()
 	if overrideURL != nil {
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()
@@ -272,7 +277,7 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 	} else {
 		client := getGoogleHttpClient(db, userID, accountID)
 		if client == nil {
-			log.Error().Msg("failed to fetch google API token")
+			logger.Error().Msg("failed to fetch google API token")
 			return nil, errors.New("failed to fetch google API token")
 		}
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
@@ -280,7 +285,7 @@ func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID
 		calendarService, err = calendar.NewService(extCtx, option.WithHTTPClient(client))
 	}
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create calendar service")
+		logger.Error().Err(err).Msg("unable to create calendar service")
 		return nil, fmt.Errorf("unable to create calendar service")
 	}
 	return calendarService, nil

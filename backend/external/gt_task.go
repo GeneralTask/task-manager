@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -45,8 +45,9 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 		}},
 	)
 	var tasks []*database.Item
+	logger := logging.GetSentryLogger()
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Error().Err(err).Msg("failed to fetch general task tasks")
+		logger.Error().Err(err).Msg("failed to fetch general task tasks")
 		result <- emptyTaskResult(err)
 		return
 	}
