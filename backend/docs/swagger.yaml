@@ -17,7 +17,7 @@ paths:
       parameters:
       - description: Source ID
         in: path
-        name: id
+        name: sourceID
         required: true
         type: string
       produces:

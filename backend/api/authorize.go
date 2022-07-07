@@ -24,7 +24,7 @@ type Oauth2RedirectParams struct {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        id   path      string  true  "Source ID"
+// @Param        sourceID   path      string  true  "Source ID"
 // @Success      302 {object} string "URL redirect"
 // @Failure      404 {object} string "service not found"
 // @Success      500 {object} string "internal server error"

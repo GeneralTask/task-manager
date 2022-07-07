@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/GeneralTask/task-manager/backend/config"
 	_ "github.com/GeneralTask/task-manager/backend/docs"
 
 	"github.com/gin-gonic/gin"
@@ -22,8 +23,10 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Introduce fake lag when running local server to more accurately simulate prod
 	router.Use(FakeLagMiddleware)
 
-	// Swagger API
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Swagger API (only on local)
+	if config.GetEnvironment() == config.Dev {
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	// Unauthenticated endpoints
 	router.GET("/ping/", handlers.Ping)

@@ -37,7 +37,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Source ID",
-                        "name": "id",
+                        "name": "sourceID",
                         "in": "path",
                         "required": true
                     }
