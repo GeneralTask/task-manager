@@ -370,7 +370,6 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 	}
 	expBackoff.Reset()
 	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
-	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
