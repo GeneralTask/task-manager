@@ -112,7 +112,6 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 
 	tasks, err := database.GetItems(db, userID,
 		&[]bson.M{
-			{"user_id": userID},
 			{"is_completed": false},
 			{"task_type.is_task": true},
 			{"id_task_section": view.TaskSectionID},
