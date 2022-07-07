@@ -285,7 +285,7 @@ export const useMarkTaskDone = () => {
             if (!sections) return
 
             const newSections = produce(sections, (draft) => {
-                const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                const task = getTaskFromSections(draft, data.taskId)
                 if (task) task.is_done = data.isCompleted
             })
 
@@ -297,7 +297,7 @@ export const useMarkTaskDone = () => {
                     if (!sections) return
 
                     const newSections = produce(sections, (draft) => {
-                        const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                        const task = getTaskFromSections(draft, data.taskId)
                         if (task) task.is_done = data.isCompleted
                     })
 

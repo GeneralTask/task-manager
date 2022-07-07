@@ -6,13 +6,11 @@ import GTCheckbox from '../GTCheckbox'
 interface CompleteButtonProps {
     isComplete: boolean
     taskId: string
-    sectionId: string
     isSelected: boolean
 }
 const CompleteButton = (props: CompleteButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
-    const handleClick = () =>
-        markTaskDone({ taskId: props.taskId, sectionId: props.sectionId, isCompleted: !props.isComplete })
+    const handleClick = () => markTaskDone({ taskId: props.taskId, isCompleted: !props.isComplete })
 
     useKeyboardShortcut('markComplete', handleClick, !props.isSelected)
     return <GTCheckbox isChecked={props.isComplete} onChange={handleClick} />
