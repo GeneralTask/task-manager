@@ -299,6 +299,9 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+	if pullRequest == nil || githubUser == nil {
+		return false
+	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
