@@ -59,11 +59,9 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         [linkedAccounts]
     )
 
-    const onCalendar = () => {
-        isCalendarCollapsed ? setIsCalendarCollapsed(false) : setIsCalendarCollapsed(true)
-    }
-
-    useKeyboardShortcut('calendar', onCalendar)
+    useKeyboardShortcut('calendar', () =>
+        isCalendarCollapsed ? setIsCalendarCollapsed(false) : handleCollapseCalendar()
+    )
 
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
