@@ -130,7 +130,7 @@ export const useCreateTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             const newSections = produce(sections, (draft) => {
-                const task = draft.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
+                const task = getTaskFromSections(draft, optimisticId, createData.id_task_section)
                 if (!task) return
 
                 task.id = response.task_id
@@ -283,28 +283,24 @@ export const useMarkTaskDone = () => {
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
-            const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
-            if (sectionIdx === -1) return
-            const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
-            if (taskIdx === -1) return
 
-            const newSections = produce(sections, newSections => {
-                newSections[sectionIdx].tasks[taskIdx].is_done = data.isCompleted
+            const newSections = produce(sections, draft => {
+                const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                if (task) task.is_done = data.isCompleted
             })
+
             queryClient.setQueryData('tasks', newSections)
 
             if (data.isCompleted) {
                 setTimeout(() => {
                     const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                     if (!sections) return
-                    const sectionIdx = sections.findIndex(section => section.id === data.sectionId)
-                    if (sectionIdx === -1) return
-                    const taskIdx = sections[sectionIdx].tasks.findIndex(t => t.id === data.taskId)
-                    if (taskIdx === -1) return
 
-                    const newSections = produce(sections, newSections => {
-                        newSections[sectionIdx].tasks.splice(taskIdx, 1)
+                    const newSections = produce(sections, draft => {
+                        const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                        if (task) task.is_done = data.isCompleted
                     })
+
                     queryClient.setQueryData('tasks', newSections)
                 }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }

@@ -73,10 +73,7 @@ export const countWithOverflow = (count: number, max = 99) => {
 
 export const getTaskFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TTask | undefined => {
     if (sectionId) {
-        const section = sections.find(section => section.id === sectionId)
-        if (section) {
-            return section.tasks.find(task => task.id === taskId)
-        }
+        return sections.find(section => section.id === sectionId)?.tasks.find(task => task.id === taskId)
     }
     else {
         for (const section of sections) {
