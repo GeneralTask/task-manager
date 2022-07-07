@@ -329,43 +329,46 @@ export const useReorderTask = () => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
 
-                const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+                const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
-                // move within the existing section
-                if (data.dragSectionId === undefined || data.dragSectionId === data.dropSectionId) {
-                    const section = sections.find((s) => s.id === data.dropSectionId)
-                    if (section == null) return
-                    const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
-                    if (startIndex === -1) return
-                    let endIndex = data.orderingId - 1
-                    if (startIndex < endIndex) {
-                        endIndex -= 1
+
+                const newSections = produce(sections, draft => {
+                    // move within the existing section
+                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                        const section = draft.find((s) => s.id === data.dropSectionId)
+                        if (section == null) return
+                        const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
+                        if (startIndex === -1) return
+                        let endIndex = data.orderingId - 1
+                        if (startIndex < endIndex) {
+                            endIndex -= 1
+                        }
+                        arrayMoveInPlace(section.tasks, startIndex, endIndex)
+
+                        // update ordering ids
+                        resetOrderingIds(section.tasks)
                     }
-                    arrayMoveInPlace(section.tasks, startIndex, endIndex)
+                    // move task from one section to the other
+                    else {
+                        // remove task from old location
+                        const dragSection = draft.find((section) => section.id === data.dragSectionId)
+                        if (dragSection == null) return
+                        const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
+                        if (dragTaskIndex === -1) return
+                        const dragTask = dragSection.tasks[dragTaskIndex]
+                        dragSection.tasks.splice(dragTaskIndex, 1)
 
-                    // update ordering ids
-                    resetOrderingIds(section.tasks)
-                }
-                // move task from one section to the other
-                else {
-                    // remove task from old location
-                    const dragSection = sections.find((section) => section.id === data.dragSectionId)
-                    if (dragSection == null) return
-                    const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
-                    if (dragTaskIndex === -1) return
-                    const dragTask = dragSection.tasks[dragTaskIndex]
-                    dragSection.tasks.splice(dragTaskIndex, 1)
+                        // add task to new location
+                        const dropSection = draft.find((section) => section.id === data.dropSectionId)
+                        if (dropSection == null) return
+                        dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
 
-                    // add task to new location
-                    const dropSection = sections.find((section) => section.id === data.dropSectionId)
-                    if (dropSection == null) return
-                    dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
-
-                    // update ordering ids
-                    resetOrderingIds(dropSection.tasks)
-                    resetOrderingIds(dragSection.tasks)
-                }
-                queryClient.setQueryData('tasks', sections)
+                        // update ordering ids
+                        resetOrderingIds(dropSection.tasks)
+                        resetOrderingIds(dragSection.tasks)
+                    }
+                })
+                queryClient.setQueryData('tasks', newSections)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
@@ -396,7 +399,7 @@ export const useAddTaskSection = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             const newSection: TTaskSection = {
                 id: TASK_SECTION_DEFAULT_ID,
@@ -428,7 +431,7 @@ export const useDeleteTaskSection = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             for (let i = 0; i < sections.length; i++) {
                 const section = sections[i]
@@ -460,7 +463,7 @@ export const useModifyTaskSection = () => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
 
-            const sections: TTaskSection[] | undefined = queryClient.getQueryData('tasks')
+            const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
             for (const section of sections) {
