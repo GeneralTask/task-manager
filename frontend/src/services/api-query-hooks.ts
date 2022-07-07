@@ -129,7 +129,7 @@ export const useCreateTask = () => {
             const sections = queryClient.getQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             const newSections = produce(sections, (draft) => {
-                const task = sections.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
+                const task = draft.find(section => section.id === createData.id_task_section)?.tasks.find(task => task.id === optimisticId)
                 if (!task) return
 
                 task.id = response.task_id
@@ -629,19 +629,13 @@ export const useComposeMessage = () => {
     const queryClient = useQueryClient()
     return useMutation((data: TComposeMessageData) => composeMessage(data), {
         onMutate: async (data: TComposeMessageData) => {
-            const response: TEmailThreadResponse | undefined = queryClient.getQueryData('emailThreads')
-            if (!response) return
-
             // if message is part of a thread
             if (!data.message_id) return
+
             await queryClient.cancelQueries('emailThreads')
 
-            const thread = response.pages.flat().find(
-                thread => thread.emails.find(
-                    email => email.message_id === data.message_id
-                ) !== null
-            )
-            if (!thread) return
+            const response = queryClient.getQueryData<TEmailThreadResponse>('emailThreads')
+            if (!response) return
 
             const tempEmail: TEmail = {
                 message_id: DEFAULT_MESSAGE_ID,
@@ -657,9 +651,20 @@ export const useComposeMessage = () => {
                 recipients: data.recipients,
                 num_attachments: 0
             }
-            thread.emails.push(tempEmail)
 
-            queryClient.setQueryData('emailThreads', response)
+            const newResponse = produce(response, draft => {
+                const thread = draft.pages.flat().find(
+                    thread => thread.emails.find(
+                        email => email.message_id === data.message_id
+                    ) !== null
+                )
+                if (!thread) return
+
+                thread.emails.push(tempEmail)
+            })
+
+
+            queryClient.setQueryData('emailThreads', newResponse)
         },
         onSettled: async () => {
             await fetchMessages()
@@ -710,7 +715,7 @@ export const useCreateEvent = () => {
                 const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]
 
-                const events: TEvent[] | undefined = queryClient.getQueryData([
+                const events = queryClient.getQueryData<TEvent[]>([
                     'events',
                     'calendar',
                     block.start.toISO(),
@@ -727,11 +732,15 @@ export const useCreateEvent = () => {
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
                 }
+
+                const newEvents = produce(events, draft => {
+                    draft.push(newEvent)
+                })
                 queryClient.setQueryData([
                     'events',
                     'calendar',
                     block.start.toISO(),
-                ], [...events, newEvent])
+                ], newEvents)
             },
             onSettled: () => {
                 queryClient.invalidateQueries('events')
