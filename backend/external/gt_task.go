@@ -45,8 +45,9 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 		}},
 	)
 	var tasks []*database.Item
+	logger := logging.GetSentryLogger()
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch general task tasks")
+		logger.Error().Err(err).Msg("failed to fetch general task tasks")
 		result <- emptyTaskResult(err)
 		return
 	}

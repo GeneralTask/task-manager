@@ -179,8 +179,9 @@ func (asanaTask AsanaTaskSource) ModifyTask(userID primitive.ObjectID, accountID
 		return err
 	}
 	err = requestJSON(client, "PUT", taskUpdateURL, string(bodyJson), EmptyResponsePlaceholder)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to update asana task")
+		logger.Error().Err(err).Msg("failed to update asana task")
 		return err
 	}
 	return nil

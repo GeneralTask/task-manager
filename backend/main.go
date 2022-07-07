@@ -16,8 +16,9 @@ func main() {
 	// TODO: Validate .env/config at server startup
 
 	err := migrations.RunMigrations("migrations")
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("error running migrations")
+		logger.Error().Err(err).Msg("error running migrations")
 	}
 	api.GetRouter(api.GetAPI()).Run()
 }

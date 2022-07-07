@@ -48,8 +48,9 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("unable to load calendar events")
+		logger.Error().Err(err).Msg("unable to load calendar events")
 		result <- emptyCalendarResult(err)
 		return
 	}
@@ -180,8 +181,9 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
 		ConferenceDataVersion(1).
 		Do()
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("unable to create event")
+		logger.Error().Err(err).Msg("unable to create event")
 		return err
 	}
 	log.Info().Msgf("Event created: %s\n", gcalEvent.HtmlLink)

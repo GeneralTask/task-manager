@@ -503,8 +503,9 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 		dbCtx,
 		bson.M{"_id": userID},
 	).Decode(&userObject)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to load user")
+		logger.Error().Err(err).Msg("failed to load user")
 		return nil, err
 	}
 	return &userObject, nil
@@ -519,8 +520,9 @@ func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplin
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := GetStateTokenCollection(db).InsertOne(dbCtx, stateToken)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to create new state token")
+		logger.Error().Err(err).Msg("failed to create new state token")
 		return nil, err
 	}
 	stateTokenStr := cursor.InsertedID.(primitive.ObjectID).Hex()
@@ -539,8 +541,9 @@ func GetStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userID *
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err := GetStateTokenCollection(db).FindOne(dbCtx, query).Decode(&token)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to get state token")
+		logger.Error().Err(err).Msg("failed to get state token")
 		return nil, err
 	}
 	return &token, nil
@@ -557,8 +560,9 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("Failed to delete state token")
+		logger.Error().Err(err).Msg("Failed to delete state token")
 		return err
 	}
 	if result.DeletedCount != 1 {
@@ -592,8 +596,9 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 			},
 		},
 	).Decode(&externalAPIToken)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to load external api token")
+		logger.Error().Err(err).Msg("failed to load external api token")
 		return nil, err
 	}
 	return &externalAPIToken, nil
@@ -684,8 +689,9 @@ func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
 
 func FlattenStruct(s interface{}) (map[string]interface{}, error) {
 	flattened, err := flatbson.Flatten(s)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msgf("Could not flatten %+v", s)
+		logger.Error().Err(err).Msgf("Could not flatten %+v", s)
 		return nil, err
 	}
 	return flattened, nil

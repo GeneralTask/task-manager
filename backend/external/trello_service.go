@@ -118,7 +118,7 @@ func (trello TrelloService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil

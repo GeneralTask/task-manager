@@ -28,9 +28,10 @@ func requestJSON(client *http.Client, method string, url string, body string, da
 		return err
 	}
 	responseBody, bodyErr := ioutil.ReadAll(response.Body)
+	logger := logging.GetSentryLogger()
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		if err == nil {
-			logging.GetSentryLogger().Error().Str("responseBody", string(responseBody)).Msg("bad response body")
+			logger.Error().Str("responseBody", string(responseBody)).Msg("bad response body")
 		}
 		return fmt.Errorf("bad status code: %d", response.StatusCode)
 	}

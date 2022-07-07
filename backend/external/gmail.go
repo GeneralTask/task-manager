@@ -340,12 +340,13 @@ func threadWorker(jobs <-chan *GmailThreadRequest, results chan<- *gmail.Thread)
 }
 
 func getThreadFromGmail(gmailService *gmail.Service, threadID string, result chan<- *gmail.Thread) {
+	logger := logging.GetSentryLogger()
 	getThreadCall := func() error {
 		thread, err := gmailService.Users.Threads.Get("me", threadID).Do()
 		if err != nil {
 			// short circuit retry with nil return on 404, trying again will not fix the issue
 			if strings.Contains(err.Error(), "Error 404") {
-				logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch thread from gmail: 404")
+				logger.Error().Err(err).Msg("failed to fetch thread from gmail: 404")
 				result <- nil
 				return nil
 			}
@@ -369,8 +370,9 @@ func getThreadFromGmail(gmailService *gmail.Service, threadID string, result cha
 	}
 	expBackoff.Reset()
 	err := backoff.RetryNotify(getThreadCall, expBackoff, notify)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
+		logger.Error().Err(err).Msgf("permanently failed to load threadID %s", threadID)
 		result <- nil
 		return
 	}
@@ -687,8 +689,9 @@ func (gmailSource GmailSource) ModifyMessage(userID primitive.ObjectID, accountI
 			option.WithEndpoint(*gmailSource.Google.OverrideURLs.GmailModifyURL))
 	}
 
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("unable to create Gmail service")
+		logger.Error().Err(err).Msg("unable to create Gmail service")
 		return err
 	}
 

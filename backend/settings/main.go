@@ -90,7 +90,8 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 			return &setting.DefaultChoice, nil
 		}
 	}
-	logging.GetSentryLogger().Error().Msgf("invalid setting: %s", fieldKey)
+	logger := logging.GetSentryLogger()
+	logger.Error().Msgf("invalid setting: %s", fieldKey)
 	return nil, fmt.Errorf("invalid setting: %s", fieldKey)
 }
 
@@ -131,8 +132,9 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		}},
 		options.Update().SetUpsert(true),
 	)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to update user setting")
+		logger.Error().Err(err).Msg("failed to update user setting")
 		return errors.New("internal server error")
 	}
 	return nil

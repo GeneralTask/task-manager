@@ -284,8 +284,9 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID})
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch local priorities")
+		logger.Error().Err(err).Msg("failed to fetch local priorities")
 		return nil
 	}
 	var priorities []database.JIRAPriority

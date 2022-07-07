@@ -100,7 +100,7 @@ func (linear LinearService) HandleLinkCallback(params CallbackParams, userID pri
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 
@@ -118,8 +118,9 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 		}
 	}
 	err := client.Query(context.Background(), &query, nil)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Interface("query", query).Msg("could not execute query")
+		logger.Error().Err(err).Interface("query", query).Msg("could not execute query")
 		return "", err
 	}
 	log.Debug().Interface("query", query).Send()
@@ -144,12 +145,13 @@ func getLinearClientFromToken(token *oauth2.Token, overrideURL *string) *graphql
 func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphql.Client, error) {
 	var client *graphql.Client
 	var err error
+	logger := logging.GetSentryLogger()
 	if overrideURL != nil {
 		client = graphql.NewClient(*overrideURL, nil)
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
-			logging.GetSentryLogger().Error().Msg("could not create linear client")
+			logger.Error().Msg("could not create linear client")
 			return nil, errors.New("could not create linear client")
 		}
 		client = graphql.NewClient(LinearGraphqlEndpoint, httpClient)
@@ -164,12 +166,13 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 func getBasicLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphqlBasic.Client, error) {
 	var client *graphqlBasic.Client
 	var err error
+	logger := logging.GetSentryLogger()
 	if overrideURL != nil {
 		client = graphqlBasic.NewClient(*overrideURL)
 	} else {
 		httpClient := getLinearHttpClient(db, userID, accountID)
 		if httpClient == nil {
-			logging.GetSentryLogger().Error().Msg("could not create linear client")
+			logger.Error().Msg("could not create linear client")
 			return nil, errors.New("could not create linear client")
 		}
 		client = graphqlBasic.NewClient(LinearGraphqlEndpoint, graphqlBasic.WithHTTPClient(httpClient))
@@ -305,8 +308,9 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	}
 
 	var query linearUpdateIssueQuery
+	logger := logging.GetSentryLogger()
 	if err := client.Run(context.Background(), req, &query); err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to update linear issue")
+		logger.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
 	return &query, nil
@@ -315,8 +319,9 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {
 	var query linearUserInfoQuery
 	err := client.Query(context.Background(), &query, nil)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch user info")
+		logger.Error().Err(err).Msg("failed to fetch user info")
 		return nil, err
 	}
 	return &query, nil
@@ -328,8 +333,9 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 	}
 	var query linearAssignedIssuesQuery
 	err := client.Query(context.Background(), &query, variables)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch issues assigned to user")
+		logger.Error().Err(err).Msg("failed to fetch issues assigned to user")
 		return nil, err
 	}
 	return &query, nil
