@@ -26,8 +26,8 @@ import (
 )
 
 const (
-	MESSAGE    = "message_action"
-	SUBMISSION = "view_submission"
+	SLACK_MESSAGE_ACTION  = "message_action"
+	SLACK_VIEW_SUBMISSION = "view_submission"
 )
 
 type TaskCreateParams struct {
@@ -137,7 +137,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	}
 
 	// if message_action, this means that the modal must be created
-	if requestParams.Type == MESSAGE {
+	if requestParams.Type == SLACK_MESSAGE_ACTION {
 		// encoding body to put into request
 		// we do this as the form submission does not return the same values
 
@@ -173,7 +173,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		}
 		c.JSON(200, gin.H{})
 		return
-	} else if requestParams.Type == SUBMISSION {
+	} else if requestParams.Type == SLACK_VIEW_SUBMISSION {
 		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
 		if err != nil {
 			logger.Error().Err(err).Msg("no Slack source result found")
