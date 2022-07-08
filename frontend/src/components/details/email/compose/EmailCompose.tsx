@@ -124,13 +124,20 @@ const EmailCompose = (props: EmailComposeProps) => {
         [sendEmail]
     )
 
+    // allow Cmd/Ctrl+Enter KB shortcut to be propagated
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if ((e.metaKey || e.ctrlKey) && e.key !== 'Enter') {
             e.stopPropagation()
         }
     }
 
-    useKeyboardShortcut('send', () => startSendEmail(recipients, subject, body))
+    const onSend = () => {
+        if (recipients.to.length !== 0) {
+            startSendEmail(recipients, subject, body)
+        }
+    }
+
+    useKeyboardShortcut('send', onSend)
 
     if (props.isPending) {
         return null
