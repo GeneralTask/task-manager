@@ -94,6 +94,15 @@ heroku login
 git push heroku master
 ```
 
+## Documentation updates
+
+We are in the process of migrating our documentation over to Swagger. In order to use Swagger, simply run the go server (via air or otherwise), and access [localhost:8080/swagger](localhost:8080/swagger). This will redirect you to the correct page.
+
+If you are updating the documentation in any way, you should run:
+`swag init`
+
+This will update the documentation, and generate the required files to get the UI to update as well.
+
 ## Debugging backend
 
 In development, we run Mongo Express at http://localhost:8081/ . Mongo Express is a web GUI which makes the local MongoDB instance available to explore and can be useful for debugging. Backend logs are available in the terminal window running the local go server.
