@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { TOverviewView } from '../../../utils/types'
+import { TOverviewView, TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 
 interface LinearViewItemsProps {
@@ -17,7 +17,7 @@ const LinearViewItems = ({ view }: LinearViewItemsProps) => {
             {view.view_items.map((item) => (
                 <Task
                     key={item.id}
-                    task={item}
+                    task={item as TTask}
                     dragDisabled={true}
                     sectionScrollingRef={scrollingRef}
                     isSelected={overviewItem === item.id}
