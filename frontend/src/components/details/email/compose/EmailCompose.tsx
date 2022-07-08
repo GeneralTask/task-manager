@@ -88,6 +88,9 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     const startSendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
+            if (recipients.to.length === 0) {
+                return
+            }
             const timeout = setTimeout(() => {
                 // insert breaks to ensure email is properly formatted on other clients
                 sendEmail(recipients, subject, body.replace(/\n/g, '<br/>'))
