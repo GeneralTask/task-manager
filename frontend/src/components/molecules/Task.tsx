@@ -26,8 +26,8 @@ const Title = styled.span`
 interface TaskProps {
     task: TTask
     dragDisabled: boolean
-    index: number
-    sectionId: string
+    index?: number
+    sectionId?: string
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
@@ -99,12 +99,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
-                <CompleteButton
-                    sectionId={sectionId}
-                    taskId={task.id}
-                    isComplete={task.is_done}
-                    isSelected={isSelected}
-                />
+                <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
                 <IconContainer>
                     <Icon source={icon} size="small" />
                 </IconContainer>

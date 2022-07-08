@@ -26,7 +26,6 @@ const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
                         onReorder={emptyFunction} // TODO: add reordering
                     >
                         <Task
-                            key={item.id}
                             task={item}
                             dragDisabled={false}
                             index={index}

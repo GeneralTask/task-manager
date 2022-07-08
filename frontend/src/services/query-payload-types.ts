@@ -49,7 +49,6 @@ interface TModifyTaskData {
 }
 interface TMarkTaskDoneData {
     taskId: string
-    sectionId: string
     isCompleted: boolean
 }
 interface TReorderTaskData {
