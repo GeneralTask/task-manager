@@ -1,6 +1,6 @@
 import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
 import { Colors, Spacing } from '../../styles'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarEvents from '../calendar/CalendarEvents'
@@ -43,6 +43,10 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         dispatch(setExpandedCalendar(false))
         setIsCalendarCollapsed(true)
     }
+
+    useEffect(() => {
+        dispatch(setExpandedCalendar(false))
+    }, [])
 
     useInterval(
         () => {
