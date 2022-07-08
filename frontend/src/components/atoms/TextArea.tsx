@@ -38,7 +38,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>((props, ref) => 
             onChange={onChange}
             // allow Cmd/Ctrl+Enter KB shortcut to be propagated
             onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key !== 'Enter') {
+                if ((!e.metaKey || !e.ctrlKey) && e.key !== 'Enter') {
                     e.stopPropagation()
                 }
             }}
