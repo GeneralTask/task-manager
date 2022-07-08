@@ -3,18 +3,24 @@ module github.com/GeneralTask/task-manager/backend
 go 1.18
 
 require (
+	github.com/archdx/zerolog-sentry v1.0.1
 	github.com/cenkalti/backoff/v4 v4.0.2
 	github.com/chidiwilliams/flatbson v0.3.0
 	github.com/dghubble/oauth1 v0.7.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/golang-migrate/migrate/v4 v4.14.1
 	github.com/google/go-github/v39 v39.2.0
+	github.com/google/go-github/v45 v45.1.0
 	github.com/google/uuid v1.2.0
 	github.com/joho/godotenv v1.3.0
+	github.com/machinebox/graphql v0.2.2
 	github.com/rs/zerolog v1.26.1
 	github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a
 	github.com/slack-go/slack v0.10.3
 	github.com/stretchr/testify v1.7.1
+	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe
+	github.com/swaggo/gin-swagger v1.5.0
+	github.com/swaggo/swag v1.8.3
 	go.mongodb.org/mongo-driver v1.9.1
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	google.golang.org/api v0.51.0
@@ -30,7 +36,6 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/alexflint/go-arg v1.4.2 // indirect
 	github.com/alexflint/go-scalar v1.0.0 // indirect
-	github.com/archdx/zerolog-sentry v1.0.1 // indirect
 	github.com/buger/jsonparser v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -50,7 +55,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/google/go-github/v45 v45.1.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -61,7 +65,6 @@ require (
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
-	github.com/machinebox/graphql v0.2.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -74,9 +77,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
-	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
-	github.com/swaggo/gin-swagger v1.5.0 // indirect
-	github.com/swaggo/swag v1.8.3 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/urfave/cli/v2 v2.10.3 // indirect
 	github.com/vektah/gqlparser/v2 v2.3.1 // indirect
