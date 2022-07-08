@@ -365,6 +365,136 @@ const dummyOverviewViews: TOverviewView[] = [
             },
         ],
     },
+    {
+        id: '5',
+        name: 'Slack',
+        type: 'slack',
+        is_paginated: false,
+        is_reorderable: false,
+        logo: 'slack',
+        view_items: [
+            {
+                id: '13',
+                id_ordering: 1,
+                title: 'Boop beep slack message here',
+                body: 'no description, unless??',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'Slack',
+                    logo: '',
+                    logo_v2: 'slack',
+                    is_completable: true,
+                    is_replyable: false,
+                },
+                slack_message_params: {
+                    channel: {
+                        id: 'D029MQVASHL',
+                        name: 'directmessage'
+                    },
+                    user: {
+                        id: 'U02A0P4D61J',
+                        name: 'christensen_julian'
+                    },
+                    team: {
+                        id: 'T01ML9H5LJD',
+                        domain: 'generaltask'
+                    },
+                    message: {
+                        type: 'message',
+                        user: 'U025FVDFA91',
+                        ts: 1656029353.050629,
+                        text: 'good stuff thanks :+1:'
+                    },
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '14',
+                id_ordering: 2,
+                title: 'Boop beep slack message here 2',
+                body: 'no description, unless??',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'Slack',
+                    logo: '',
+                    logo_v2: 'slack',
+                    is_completable: true,
+                    is_replyable: false,
+                },
+                slack_message_params: {
+                    channel: {
+                        id: 'D029MQVASHL',
+                        name: 'directmessage'
+                    },
+                    user: {
+                        id: 'U02A0P4D61J',
+                        name: 'christensen_julian'
+                    },
+                    team: {
+                        id: 'T01ML9H5LJD',
+                        domain: 'generaltask'
+                    },
+                    message: {
+                        type: 'message',
+                        user: 'U025FVDFA91',
+                        ts: 1656029353.050629,
+                        text: 'good stuff thanks :+1:'
+                    },
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+            {
+                id: '15',
+                id_ordering: 3,
+                title: 'Boop beep slack message here 3',
+                body: 'no description, unless??',
+                deeplink: '',
+                sent_at: '',
+                time_allocated: 0,
+                due_date: '',
+                source: {
+                    name: 'Slack',
+                    logo: '',
+                    logo_v2: 'slack',
+                    is_completable: true,
+                    is_replyable: false,
+                },
+                slack_message_params: {
+                    channel: {
+                        id: 'D029MQVASHL',
+                        name: 'directmessage'
+                    },
+                    user: {
+                        id: 'U02A0P4D61J',
+                        name: 'christensen_julian'
+                    },
+                    team: {
+                        id: 'T01ML9H5LJD',
+                        domain: 'generaltask'
+                    },
+                    message: {
+                        type: 'message',
+                        user: 'U025FVDFA91',
+                        ts: 1656029353.050629,
+                        text: 'good stuff thanks :+1:'
+                    },
+                },
+                sender: '',
+                is_done: false,
+                recipients: { to: [], cc: [], bcc: [] },
+            },
+        ],
+    },
 ]
 
 const dummySupportedViews = [

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { DropType, TOverviewView } from '../../../utils/types'
+import { DropType, TOverviewView, TTask } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import Task from '../../molecules/Task'
@@ -26,7 +26,7 @@ const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
                         onReorder={emptyFunction} // TODO: add reordering
                     >
                         <Task
-                            task={item}
+                            task={item as TTask}
                             dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
