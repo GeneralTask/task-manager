@@ -65,13 +65,13 @@ func TestGetOverviewResults(t *testing.T) {
 	api := GetAPI()
 
 	t.Run("NoViews", func(t *testing.T) {
-		result, err := GetOverviewResults(db, parentCtx, api, []database.View{}, primitive.NewObjectID())
+		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID())
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 0, len(result))
 	})
 	t.Run("InvalidViewType", func(t *testing.T) {
-		result, err := GetOverviewResults(db, parentCtx, api, []database.View{{
+		result, err := api.GetOverviewResults(db, parentCtx, []database.View{{
 			Type: "invalid",
 		}}, primitive.NewObjectID())
 		assert.Error(t, err)
@@ -113,7 +113,7 @@ func TestGetOverviewResults(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		result, err := GetOverviewResults(db, parentCtx, api, views, userID)
+		result, err := api.GetOverviewResults(db, parentCtx, views, userID)
 		expectedViewResult := OverviewResult[[]*TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
@@ -175,7 +175,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 
 	t.Run("EmptyViewItems", func(t *testing.T) {
 		api := GetAPI()
-		result, err := GetTaskSectionOverviewResult(db, parentCtx, api, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
@@ -197,7 +197,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		taskID := taskResult.InsertedID.(primitive.ObjectID)
 		api := GetAPI()
-		result, err := GetTaskSectionOverviewResult(db, parentCtx, api, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{
@@ -209,7 +209,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
 		api := GetAPI()
-		result, err := GetTaskSectionOverviewResult(db, parentCtx, api, view, primitive.NewObjectID())
+		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
@@ -217,7 +217,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	t.Run("InvalidSectionID", func(t *testing.T) {
 		view.TaskSectionID = primitive.NewObjectID()
 		api := GetAPI()
-		result, err := GetTaskSectionOverviewResult(db, parentCtx, api, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.Error(t, err)
 		assert.Equal(t, "mongo: no documents in result", err.Error())
 		assert.Nil(t, result)
