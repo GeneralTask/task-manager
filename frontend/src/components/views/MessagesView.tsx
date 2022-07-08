@@ -33,7 +33,7 @@ const MessageDivider = styled.div<{ transparent?: boolean }>`
 const MessagesView = () => {
     const navigate = useNavigate()
     const params = useParams()
-    const { refetch: refetchMessages, isFetching: isRefetchingMessages } = useFetchMessages()
+    const { refetch: refetchMessages, isFetching: isFetchingMessages } = useFetchMessages()
     const {
         data,
         isLoading: isLoadingThreads,
@@ -99,7 +99,7 @@ const MessagesView = () => {
                         refetchMessages()
                         getThreads()
                     }}
-                    isRefetching={isRefetchingMessages || isFetchingThreads}
+                    isRefreshing={isFetchingMessages || isFetchingThreads}
                 />
                 <MessagesContainer>
                     {threads.map(

@@ -11,7 +11,6 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const IconContainer = styled.div`
     margin-left: ${Spacing.margin._8};
@@ -93,7 +92,6 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         [task.id, index, sectionId]
     )
 
-    useKeyboardShortcut('select', onClick, !isSelected)
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
 

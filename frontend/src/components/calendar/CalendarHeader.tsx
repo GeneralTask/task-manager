@@ -2,13 +2,13 @@ import { Colors, Spacing } from '../../styles'
 import React, { useCallback } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
+import { useKeyboardShortcut } from '../../hooks'
 
 export const PaddedContainer = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
@@ -60,6 +60,15 @@ export const ArrowButton = styled(ButtonStyles)`
         background-color: ${Colors.gray._200};
     }
 `
+
+export const CaretButton = styled(ButtonStyles)`
+    background-color: inherit;
+    padding: ${Spacing.padding._4};
+    &:hover {
+        background-color: ${Colors.gray._200};
+    }
+`
+
 const HeaderIconsContainer = styled.div`
     display: flex;
     align-items: center;
@@ -92,6 +101,9 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
         setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
     }
 
+    useKeyboardShortcut('nextDate', selectNext)
+    useKeyboardShortcut('previousDate', selectPrevious)
+
     return (
         <div>
             <PaddedContainer>
@@ -105,9 +117,9 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                                 <Icon source={icons.arrows_out} size="small" />
                             )}
                         </ArrowButton>
-                        <CursorPointerDiv onClick={() => collapseCalendar()}>
+                        <CaretButton onClick={() => collapseCalendar()}>
                             <Icon source={icons.caret_right} size="small" />
-                        </CursorPointerDiv>
+                        </CaretButton>
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
@@ -127,12 +139,12 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                         >
                             Today
                         </HoverButton>
-                        <ArrowButton onClick={selectPrevious}>
+                        <CaretButton onClick={selectPrevious}>
                             <Icon source={icons.caret_left} size="small" />
-                        </ArrowButton>
-                        <ArrowButton onClick={selectNext}>
+                        </CaretButton>
+                        <CaretButton onClick={selectNext}>
                             <Icon source={icons.caret_right} size="small" />
-                        </ArrowButton>
+                        </CaretButton>
                     </ButtonContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>

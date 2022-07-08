@@ -12,6 +12,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/google/go-github/v45/github"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -94,15 +95,16 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := githubService.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch token from Github")
+		logger.Error().Err(err).Msg("failed to fetch token from Github")
 		return errors.New("internal server error")
 	}
 
 	tokenString, err := json.Marshal(&token)
 	log.Info().Msgf("token string: %s", string(tokenString))
 	if err != nil {
-		log.Error().Err(err).Msg("error parsing token")
+		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
 	}
 
@@ -131,7 +133,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		log.Error().Err(err).Msg("error saving token")
+		logger.Error().Err(err).Msg("error saving token")
 		return errors.New("internal server error")
 	}
 	return nil

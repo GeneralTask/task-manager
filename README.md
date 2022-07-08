@@ -106,6 +106,8 @@ The Slack integration has some nuances which prevent local linking from the same
 
 ### How to link to local Slack App
 
+First, make sure you have the correct environment variables set. You will need both the `SLACK_OAUTH_CLIENT_SECRET` and `SLACK_SIGNING_SECRET` secrets. You can find both of these in the Basic Information section in the [Slack developer console](https://api.slack.com).
+
 Linking to the local Slack App requires a number of additional steps, as Slack does not allow for interactions with localhost addresses. Thus, we must take the following steps:
 
 - Use ngrok to allow forwarding of our localhost to the internet: `ngrok http 8080`

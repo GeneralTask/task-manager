@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/logging"
+	"github.com/rs/zerolog/log"
 	"github.com/slack-go/slack"
 	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/database"
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -51,8 +52,9 @@ func (slackTask SlackSavedTaskSource) GetEvents(userID primitive.ObjectID, accou
 func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to connect to db")
+		logger.Error().Err(err).Msg("failed to connect to db")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
 	}
 	defer dbCleanup()
@@ -72,7 +74,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	)
 	var tasks []*database.Item
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
-		log.Error().Err(err).Msg("failed to fetch slack tasks")
+		logger.Error().Err(err).Msg("failed to fetch slack tasks")
 		result <- emptyTaskResult(err)
 		return
 	}
@@ -109,8 +111,9 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 	}
 
 	slackAdditionalInformation, err := GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("failed to fetch Slack message params")
+		logger.Error().Err(err).Msg("failed to fetch Slack message params")
 	}
 
 	newTask := database.Item{

@@ -8,11 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/google/go-github/v45/github"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -96,15 +97,16 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
 
+	logger := logging.GetSentryLogger()
 	if err != nil || githubUser == nil {
-		log.Error().Msg("failed to fetch Github user")
+		logger.Error().Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
-		log.Error().Msg("failed to fetch Github repos for user")
+		logger.Error().Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
@@ -201,7 +203,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			nil,
 			false)
 		if err != nil {
-			log.Error().Err(err).Msg("failed to update or create pull request")
+			logger.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
 			return
 		}
@@ -249,6 +251,9 @@ func getGithubPullRequests(ctx context.Context, githubClient *github.Client, rep
 	if err != nil {
 		return nil, err
 	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
 	fetchedPullRequests, _, err := githubClient.PullRequests.List(ctx, *repository.Owner.Login, *repository.Name, nil)
 	return fetchedPullRequests, err
 }
@@ -257,6 +262,12 @@ func listReviewers(ctx context.Context, githubClient *github.Client, repository 
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
+	}
+	if repository == nil || repository.Owner == nil || repository.Owner.Login == nil {
+		return nil, errors.New("repository is nil")
+	}
+	if pullRequest == nil || pullRequest.Number == nil {
+		return nil, errors.New("pull request is nil")
 	}
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
@@ -272,7 +283,7 @@ func listComments(context context.Context, githubClient *github.Client, reposito
 	return comments, err
 }
 
-func listCheckRunsForRef(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
+func listCheckRunsForCommit(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
@@ -288,6 +299,9 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+	if pullRequest == nil || githubUser == nil {
+		return false
+	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
@@ -352,7 +366,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 }
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
-	checkRuns, err := listCheckRunsForRef(context, githubClient, repository, pullRequest, overrideURL)
+	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return false, err
 	}

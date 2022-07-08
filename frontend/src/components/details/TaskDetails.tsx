@@ -8,7 +8,7 @@ import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api-query-hooks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
@@ -16,6 +16,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import SlackMessage from './slack/SlackMessage'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -40,16 +41,19 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     display: block;
     background-color: inherit;
     border: 1px solid transparent;
+    border-radius: ${Border.radius.large};
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing.padding._12};
     font: inherit;
     color: ${Colors.gray._600};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
-    :focus {
-        border: 1px solid ${Colors.gray._500};
+    :focus,
+    :hover {
+        border: 1px solid ${Colors.gray._400};
+        box-shadow: ${Shadows.medium};
     }
 `
 const TitleInput = styled.textarea`
@@ -147,7 +151,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     }, [titleInput])
 
     useLayoutEffect(() => {
-        if (bodyRef.current && thread) {
+        if (bodyRef.current && (thread || task.slack_message_params)) {
             bodyRef.current.style.height = '0px'
             bodyRef.current.style.height =
                 bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
@@ -192,6 +196,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
 
     // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
     const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
+    const deeplinkLabel = task.linked_email_thread ? 'Gmail' : task.source.name
 
     const status = task.external_status ? task.external_status.state : ''
 
@@ -215,7 +220,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
                                     <RoundedGeneralButton
                                         textStyle="dark"
-                                        value={task.source.name}
+                                        value={deeplinkLabel}
                                         hasBorder
                                         iconSource="external_link"
                                     />
@@ -249,7 +254,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                         ref={bodyRef}
                         data-testid="task-body-input"
                         placeholder="Add task details"
-                        isFullHeight={!thread}
+                        isFullHeight={!(thread || task.slack_message_params)}
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
@@ -259,6 +264,9 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
                     />
                     {thread && <EmailList thread={thread} />}
                     {task.comments && <LinearCommentList comments={task.comments} />}
+                    {task.slack_message_params && (
+                        <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
+                    )}
                 </>
             )}
         </DetailsViewContainer>

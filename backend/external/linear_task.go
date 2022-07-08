@@ -2,9 +2,11 @@ package external
 
 import (
 	"errors"
-	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/logging"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -43,27 +45,28 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	defer dbCleanup()
 
 	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create linear client")
+		logger.Error().Err(err).Msg("unable to create linear client")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
 	meQuery, err := getLinearUserInfoStruct(client)
 	if err != nil {
-		log.Error().Err(err).Msg("unable to get linear user details")
+		logger.Error().Err(err).Msg("unable to get linear user details")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
 
 	client, err = getLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create linear client")
+		logger.Error().Err(err).Msg("unable to create linear client")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
 	issuesQuery, err := getLinearAssignedIssues(client, meQuery.Viewer.Email)
 	if err != nil {
-		log.Error().Err(err).Msg("unable to get linear issues assigned to user")
+		logger.Error().Err(err).Msg("unable to get linear issues assigned to user")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
@@ -138,7 +141,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			true,
 		)
 		if err != nil {
-			log.Error().Err(err).Msg("could not create task")
+			logger.Error().Err(err).Msg("could not create task")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 			return
 		}
@@ -164,18 +167,19 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 	defer dbCleanup()
 
 	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	logger := logging.GetSentryLogger()
 	if err != nil {
-		log.Error().Err(err).Msg("unable to create linear client")
+		logger.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
 	issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
 	if err != nil {
-		log.Error().Err(err).Msg("unable to update linear issue")
+		logger.Error().Err(err).Msg("unable to update linear issue")
 		return err
 	}
 	log.Debug().Interface("issueUpdate", issueUpdate)
 	if !issueUpdate.IssueUpdate.Success {
-		log.Error().Msg("linear mutation failed to update issue")
+		logger.Error().Msg("linear mutation failed to update issue")
 		return errors.New("linear mutation failed to update issue")
 	}
 	return nil

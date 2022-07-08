@@ -35,4 +35,6 @@ export default function useItemSelectionController(items: TTask[] | TEmailThread
 
     useKeyboardShortcut('down', () => onUpDown('down'))
     useKeyboardShortcut('up', () => onUpDown('up'))
+    useKeyboardShortcut('arrowDown', () => onUpDown('down'))
+    useKeyboardShortcut('arrowUp', () => onUpDown('up'))
 }
