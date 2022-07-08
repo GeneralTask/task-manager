@@ -24,6 +24,11 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	MESSAGE    = "message_action"
+	SUBMISSION = "view_submission"
+)
+
 type TaskCreateParams struct {
 	AccountID     string     `json:"account_id"`
 	Title         string     `json:"title" binding:"required"`
@@ -31,6 +36,38 @@ type TaskCreateParams struct {
 	DueDate       *time.Time `json:"due_date"`
 	TimeDuration  *int       `json:"time_duration"`
 	IDTaskSection *string    `json:"id_task_section"`
+}
+
+type SlackRequestParams struct {
+	Type      string    `json:"type"`
+	TriggerID string    `json:"trigger_id"`
+	View      SlackView `json:"view"`
+}
+
+type SlackView struct {
+	PrivateMetadata string           `json:"private_metadata"`
+	State           SlackStateValues `json:"state"`
+}
+
+type SlackStateValues struct {
+	Values SlackBlockValues `json:"values"`
+}
+
+type SlackBlockValues struct {
+	TaskTitle   SlackTaskTitle   `json:"task_title"`
+	TaskDetails SlackTaskDetails `json:"task_details"`
+}
+
+type SlackTaskTitle struct {
+	TitleInput SlackInputValue `json:"task_title_input"`
+}
+
+type SlackTaskDetails struct {
+	DetailsInput SlackInputValue `json:"task_details_input"`
+}
+
+type SlackInputValue struct {
+	Value string `json:"value"`
 }
 
 func (api *API) SlackTaskCreate(c *gin.Context) {
@@ -72,7 +109,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	}
 
 	// unmarshal into request params for type and trigger id
-	var requestParams external.SlackRequestParams
+	var requestParams SlackRequestParams
 	err = json.Unmarshal(formData, &requestParams)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "unable to process request payload"})
@@ -96,7 +133,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	}
 
 	// if message_action, this means that the modal must be created
-	if requestParams.Type == "message_action" {
+	if requestParams.Type == MESSAGE {
 		var oauthToken oauth2.Token
 		json.Unmarshal([]byte(externalToken.Token), &oauthToken)
 
@@ -126,7 +163,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		}
 		c.JSON(200, gin.H{})
 		return
-	} else if requestParams.Type == "view_submission" {
+	} else if requestParams.Type == SUBMISSION {
 		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
 		if err != nil {
 			Handle404(c)

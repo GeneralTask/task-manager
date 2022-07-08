@@ -40,38 +40,6 @@ type SlackAdditionalInformation struct {
 	Deeplink string
 }
 
-type SlackRequestParams struct {
-	Type      string    `json:"type"`
-	TriggerID string    `json:"trigger_id"`
-	View      SlackView `json:"view"`
-}
-
-type SlackView struct {
-	PrivateMetadata string           `json:"private_metadata"`
-	State           SlackStateValues `json:"state"`
-}
-
-type SlackStateValues struct {
-	Values SlackBlockValues `json:"values"`
-}
-
-type SlackBlockValues struct {
-	TaskTitle   SlackTaskTitle   `json:"task_title"`
-	TaskDetails SlackTaskDetails `json:"task_details"`
-}
-
-type SlackTaskTitle struct {
-	TitleInput SlackInputValue `json:"task_title_input"`
-}
-
-type SlackTaskDetails struct {
-	DetailsInput SlackInputValue `json:"task_details_input"`
-}
-
-type SlackInputValue struct {
-	Value string `json:"value"`
-}
-
 func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
 	result <- emptyEmailResult(nil)
 }
