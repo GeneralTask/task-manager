@@ -76,7 +76,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := GetOverviewResults(db, parentCtx, api, views, userID)
+	result, err := api.GetOverviewResults(db, parentCtx, views, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)
@@ -86,11 +86,11 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func GetOverviewResults(db *mongo.Database, ctx context.Context, api *API, views []database.View, userID primitive.ObjectID) ([]interface{}, error) {
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]interface{}, error) {
 	result := []interface{}{}
 	for _, view := range views {
 		if view.Type == string(ViewTaskSection) {
-			overviewResult, err := GetTaskSectionOverviewResult(db, ctx, api, view, userID)
+			overviewResult, err := api.GetTaskSectionOverviewResult(db, ctx, view, userID)
 			if err != nil {
 				return nil, err
 			}
@@ -102,7 +102,7 @@ func GetOverviewResults(db *mongo.Database, ctx context.Context, api *API, views
 	return result, nil
 }
 
-func GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, api *API, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
