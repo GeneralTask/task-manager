@@ -17,6 +17,7 @@ type ViewType string
 
 const (
 	ViewTaskSection ViewType = "task_section"
+	ViewLinear      ViewType = "linear"
 )
 
 type SourcesResult struct {
@@ -95,6 +96,12 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 				return nil, err
 			}
 			result = append(result, overviewResult)
+		} else if view.Type == string(ViewLinear) {
+			overviewResult, err := api.GetLinearOverviewResult(db, ctx, view, userID)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, overviewResult)
 		} else {
 			return nil, errors.New("invalid view type")
 		}
@@ -157,6 +164,37 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	linearTasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_task": true},
+			{"source_id": external.TASK_SOURCE_ID_LINEAR},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	var taskResults []*TaskResult
+	for _, task := range *linearTasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+	return &OverviewResult[[]*TaskResult]{
+		ID:            view.ID,
+		Name:          "Linear",
+		Logo:          external.TaskServiceGeneralTask.LogoV2,
+		Type:          ViewTaskSection,
+		IsLinked:      view.IsLinked,
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     taskResults,
+	}, nil
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
