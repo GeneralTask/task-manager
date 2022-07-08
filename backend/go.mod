@@ -1,6 +1,6 @@
 module github.com/GeneralTask/task-manager/backend
 
-go 1.17
+go 1.18
 
 require (
 	github.com/cenkalti/backoff/v4 v4.0.2
