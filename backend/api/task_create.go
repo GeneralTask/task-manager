@@ -16,6 +16,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/slack-go/slack"
 	"go.mongodb.org/mongo-driver/bson"
@@ -85,6 +86,8 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	// the Form in the body is required for payload extraction
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
+	logger := logging.GetSentryLogger()
+
 	// verification for security
 	slackSigningSecret := config.GetConfigValue("SLACK_SIGNING_SECRET")
 	timestamp := c.Request.Header.Get("X-Slack-Request-Timestamp")
@@ -128,15 +131,13 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	externalID := external.GenerateSlackUserID(slackParams.Team.ID, slackParams.User.ID)
 	externalToken, err := database.GetExternalToken(db, externalID, sourceID)
 	if err != nil {
+		logger.Error().Err(err).Msg("error getting external token")
 		Handle500(c)
 		return
 	}
 
 	// if message_action, this means that the modal must be created
 	if requestParams.Type == MESSAGE {
-		var oauthToken oauth2.Token
-		json.Unmarshal([]byte(externalToken.Token), &oauthToken)
-
 		// encoding body to put into request
 		// we do this as the form submission does not return the same values
 
@@ -144,11 +145,19 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		// we must marshal, store in string, and unmarshal on return
 		jsonBytes, err := json.Marshal(string(formData))
 		if err != nil {
+			logger.Error().Err(err).Msg("error marshaling Slack message data")
 			Handle500(c)
 			return
 		}
-
 		modalJSON := external.GetSlackModal(requestParams.TriggerID, string(jsonBytes), slackParams.Message.Text)
+
+		var oauthToken oauth2.Token
+		err = json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+		if err != nil {
+			logger.Error().Err(err).Msg("error unmarshaling external token")
+			Handle500(c)
+			return
+		}
 
 		// Golang Slack API cannot handle optional fields for modals
 		// thus we make this request manually
@@ -158,6 +167,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		client := &http.Client{}
 		_, err = client.Do(request)
 		if err != nil {
+			logger.Error().Err(err).Msg("error sending Slack modal request")
 			Handle500(c)
 			return
 		}
@@ -166,6 +176,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	} else if requestParams.Type == SUBMISSION {
 		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
 		if err != nil {
+			logger.Error().Err(err).Msg("no Slack source result found")
 			Handle404(c)
 			return
 		}
@@ -174,6 +185,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		var slackMetadataParams database.SlackMessageParams
 		err = json.Unmarshal([]byte(requestParams.View.PrivateMetadata), &slackMetadataParams)
 		if err != nil {
+			logger.Error().Err(err).Msg("error unmarshaling Slack message data")
 			Handle500(c)
 			return
 		}
@@ -202,6 +214,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		return
 	}
 
+	logger.Error().Err(err).Msg("message type not recognized")
 	c.JSON(501, gin.H{"detail": "method not recognized"})
 }
 
