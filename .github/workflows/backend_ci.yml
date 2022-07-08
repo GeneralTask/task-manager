@@ -57,6 +57,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+
       # Runs a single command using the runners shell
       - name: Spin up db
         run: docker-compose up -d
@@ -81,6 +85,10 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
 
       # Runs a single command using the runners shell
       - name: Spin up db
@@ -107,6 +115,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+
       # Runs a single command using the runners shell
       - name: Spin up db
         run: docker-compose up -d
@@ -131,6 +143,10 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
 
       # Runs a single command using the runners shell
       - name: Spin up db
