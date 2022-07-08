@@ -1,8 +1,16 @@
 package api
 
 import (
+	"context"
+	"errors"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type ViewType string
@@ -17,129 +25,117 @@ type SourcesResult struct {
 }
 
 type OverviewResult struct {
-	ID            primitive.ObjectID  `json:"id"`
-	Name          string              `json:"name"`
-	Type          ViewType            `json:"type"`
-	Logo          string              `json:"logo"`
-	IsLinked      bool                `json:"is_linked"`
-	Sources       []SourcesResult     `json:"sources"`
-	TaskSectionId *primitive.ObjectID `json:"task_section_id"`
-	IsPaginated   bool                `json:"is_paginated"`
-	IsReorderable bool                `json:"is_reorderable"`
-	IDOrdering    int                 `json:"ordering_id"`
-	ViewItems     []*TaskResult       `json:"view_items"`
+	ID            primitive.ObjectID `json:"id"`
+	Name          string             `json:"name"`
+	Type          ViewType           `json:"type"`
+	Logo          string             `json:"logo"`
+	IsLinked      bool               `json:"is_linked"`
+	Sources       []SourcesResult    `json:"sources"`
+	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	IsReorderable bool               `json:"is_reorderable"`
+	IDOrdering    int                `json:"ordering_id"`
+	ViewItems     interface{}        `json:"view_items"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	c.JSON(200, []*OverviewResult{
-		{
-			ID:       primitive.NewObjectID(),
-			Name:     "Tasks",
-			Type:     ViewTaskSection,
-			Logo:     "generaltask",
-			IsLinked: false,
-			Sources: []SourcesResult{
-				{
-					Name: "GeneralTask",
-				},
-			},
-			IsPaginated:   false,
-			IsReorderable: true,
-			IDOrdering:    0,
-			ViewItems: []*TaskResult{
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 1,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://shorturl.at/lpKMU",
-					Title:          "Film total rickall",
-					Body:           "Ooo wee look at this task body",
-					Sender:         "Professor PB",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 2,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://en.wikipedia.org/wiki/Battle_of_Waterloo",
-					Title:          "Ban black cherry waterloo",
-					Body:           "Have Scott follow through with this",
-					Sender:         "Nolan",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 3,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://www.generaltask.com/",
-					Title:          "Task 3",
-					Body:           "Wow look at this task body",
-					Sender:         "Scott",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 4,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://www.generaltask.com/",
-					Title:          "Task 4",
-					Body:           "Wow look at this task body",
-					Sender:         "Scott",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-				{
-					ID:         primitive.NewObjectID(),
-					IDOrdering: 5,
-					Source: TaskSource{
-						Name:          "Tasks",
-						Logo:          "generaltask",
-						IsCompletable: true,
-						IsReplyable:   false,
-					},
-					Deeplink:       "https://www.generaltask.com/",
-					Title:          "Task 5",
-					Body:           "Wow look at this task body",
-					Sender:         "Jack",
-					DueDate:        "2020-01-01",
-					TimeAllocation: 0,
-					SentAt:         "2020-01-01",
-					IsDone:         false,
-				},
-			},
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	_, err = database.GetUser(db, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := database.GetViewCollection(db).Find(
+		dbCtx,
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find views")
+		Handle500(c)
+		return
+	}
+
+	var views []database.View
+	err = cursor.All(dbCtx, &views)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find views")
+		Handle500(c)
+		return
+	}
+
+	results, err := api.GetOverviewResults(db, dbCtx, views, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to load views with view items")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, results)
+}
+
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]*OverviewResult, error) {
+	overviewResults := []*OverviewResult{}
+	for _, view := range views {
+		var result *OverviewResult
+		var err error
+		if view.Type == string(ViewTaskSection) {
+			result, err = api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+		} else {
+			err = errors.New("invalid view type")
+			return nil, err
+		}
+		if err != nil {
+			return nil, err
+		}
+		overviewResults = append(overviewResults, result)
+	}
+	return overviewResults, nil
+}
+
+func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	name, err := database.GetTaskSectionName(db, view.TaskSectionID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_task": true},
+			{"id_task_section": view.TaskSectionID},
 		},
-	})
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var taskResults []*TaskResult
+	for _, task := range *tasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+	return &OverviewResult{
+		ID:            view.ID,
+		Name:          name,
+		Logo:          external.TaskServiceGeneralTask.LogoV2,
+		Type:          ViewTaskSection,
+		IsLinked:      view.IsLinked,
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     taskResults,
+	}, nil
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
