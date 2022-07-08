@@ -23,6 +23,7 @@ import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
 import { useComposeMessage } from '../../../../services/api-query-hooks'
+import { useKeyboardShortcut } from '../../../../hooks'
 
 interface EmailComposeProps {
     email: TEmail
@@ -123,6 +124,14 @@ const EmailCompose = (props: EmailComposeProps) => {
         [sendEmail]
     )
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if ((e.metaKey || e.ctrlKey) && e.key !== 'Enter') {
+            e.stopPropagation()
+        }
+    }
+
+    useKeyboardShortcut('send', () => startSendEmail(recipients, subject, body))
+
     if (props.isPending) {
         return null
     }
@@ -139,9 +148,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                         placeholder="Subject"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        onKeyDown={(e) => {
-                            e.stopPropagation()
-                        }}
+                        onKeyDown={(e) => handleKeyDown(e)}
                     />
                 </EmailFieldContainer>
                 <Divider color={Colors.gray._200} />

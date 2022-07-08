@@ -36,7 +36,11 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>((props, ref) => 
             value={props.value}
             placeholder={props.placeholder || ''}
             onChange={onChange}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key !== 'Enter') {
+                    e.stopPropagation()
+                }
+            }}
         />
     )
 })
