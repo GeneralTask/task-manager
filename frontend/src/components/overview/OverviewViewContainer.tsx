@@ -4,7 +4,7 @@ import { OverviewViewType, TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, RemoveButton } from './styles'
-import LinearViewItems from './viewItems/LinearViewItems'
+import ExternalViewItems from './viewItems/ExternalViewItems'
 
 interface OverviewViewProps {
     view: TOverviewView
@@ -15,7 +15,8 @@ const OverviewView = ({ view }: OverviewViewProps) => {
             case OverviewViewType.TASK_SECTION:
                 return <TaskSectionViewItems view={view} />
             case OverviewViewType.LINEAR:
-                return <LinearViewItems view={view} />
+            case OverviewViewType.SLACK:
+                return <ExternalViewItems view={view} />
             default:
                 return <div>[WIP]List of items for type {view.type}</div>
         }
