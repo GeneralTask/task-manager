@@ -3,10 +3,10 @@ import { useParams } from 'react-router-dom'
 import { TOverviewView, TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 
-interface LinearViewItemsProps {
+interface ExternalViewItemsProps {
     view: TOverviewView
 }
-const LinearViewItems = ({ view }: LinearViewItemsProps) => {
+const ExternalViewItems = ({ view }: ExternalViewItemsProps) => {
     const { overviewItem } = useParams()
 
     // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
@@ -28,4 +28,4 @@ const LinearViewItems = ({ view }: LinearViewItemsProps) => {
     )
 }
 
-export default LinearViewItems
+export default ExternalViewItems
