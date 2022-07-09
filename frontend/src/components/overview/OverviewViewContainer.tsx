@@ -10,17 +10,17 @@ interface OverviewViewProps {
     view: TOverviewView
 }
 const OverviewView = ({ view }: OverviewViewProps) => {
-    const viewItems = useMemo(() => {
+    const ViewItems = useMemo(() => {
         switch (view.type) {
             case OverviewViewType.TASK_SECTION:
-                return <TaskSectionViewItems view={view} />
+                return TaskSectionViewItems
             case OverviewViewType.LINEAR:
             case OverviewViewType.SLACK:
-                return <ExternalViewItems view={view} />
+                return ExternalViewItems
             default:
-                return <div>[WIP]List of items for type {view.type}</div>
+                return () => <div>[WIP]List of items for type {view.type}</div>
         }
-    }, [view])
+    }, [view.type])
 
     return (
         <ViewContainer>
@@ -30,7 +30,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                     <Icon source={icons.x_thin} size="xSmall" />
                 </RemoveButton>
             </ViewHeader>
-            {viewItems}
+            <ViewItems view={view} visibleItemsCount={5} />
         </ViewContainer>
     )
 }

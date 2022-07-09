@@ -1,14 +1,12 @@
 import React, { useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { DropType, TOverviewView, TTask } from '../../../utils/types'
+import { DropType, TTask } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import Task from '../../molecules/Task'
+import { ViewItemsProps } from './viewItems.types'
 
-interface TaskSectionViewItemsProps {
-    view: TOverviewView
-}
-const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
+const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { section_id: sectionId } = view
     const { overviewItem } = useParams()
 
@@ -18,7 +16,7 @@ const TaskSectionViewItems = ({ view }: TaskSectionViewItemsProps) => {
     return (
         <div ref={scrollingRef}>
             {sectionId &&
-                view.view_items.map((item, index) => (
+                view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                     <ReorderDropContainer
                         key={item.id}
                         index={index}
