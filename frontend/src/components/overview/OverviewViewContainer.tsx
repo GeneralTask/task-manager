@@ -3,13 +3,19 @@ import { icons } from '../../styles/images'
 import { OverviewViewType, TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
-import { ViewHeader, ViewContainer, RemoveButton } from './styles'
+import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
+
+const PAGE_SIZE = 5
 
 interface OverviewViewProps {
     view: TOverviewView
 }
 const OverviewView = ({ view }: OverviewViewProps) => {
+    const [visibleItemsCount, setVisibleItemsCount] = React.useState(PAGE_SIZE)
+
+    const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
+
     const ViewItems = useMemo(() => {
         switch (view.type) {
             case OverviewViewType.TASK_SECTION:
@@ -30,7 +36,12 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                     <Icon source={icons.x_thin} size="xSmall" />
                 </RemoveButton>
             </ViewHeader>
-            <ViewItems view={view} visibleItemsCount={5} />
+            <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
+            {visibleItemsCount < view.view_items.length && (
+                <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
+                    View more ({nextPageLength})
+                </PaginateTextButton>
+            )}
         </ViewContainer>
     )
 }
