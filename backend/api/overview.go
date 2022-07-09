@@ -24,7 +24,10 @@ type SourcesResult struct {
 	AuthorizationURL *string `json:"authorization_url"`
 }
 
-type OverviewResult struct {
+type ViewItems interface {
+	[]*TaskResult
+}
+type OverviewResult[T ViewItems] struct {
 	ID            primitive.ObjectID `json:"id"`
 	Name          string             `json:"name"`
 	Type          ViewType           `json:"type"`
@@ -34,7 +37,7 @@ type OverviewResult struct {
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	IsReorderable bool               `json:"is_reorderable"`
 	IDOrdering    int                `json:"ordering_id"`
-	ViewItems     interface{}        `json:"view_items"`
+	ViewItems     T                  `json:"view_items"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
@@ -73,35 +76,33 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	results, err := api.GetOverviewResults(db, dbCtx, views, userID)
+	result, err := api.GetOverviewResults(db, parentCtx, views, userID)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to load views with view items")
+		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)
 		return
 	}
-	c.JSON(200, results)
+
+	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]*OverviewResult, error) {
-	overviewResults := []*OverviewResult{}
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]interface{}, error) {
+	result := []interface{}{}
 	for _, view := range views {
-		var result *OverviewResult
-		var err error
 		if view.Type == string(ViewTaskSection) {
-			result, err = api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+			overviewResult, err := api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, overviewResult)
 		} else {
-			err = errors.New("invalid view type")
-			return nil, err
+			return nil, errors.New("invalid view type")
 		}
-		if err != nil {
-			return nil, err
-		}
-		overviewResults = append(overviewResults, result)
 	}
-	return overviewResults, nil
+	return result, nil
 }
 
-func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult, error) {
+func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -125,7 +126,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	for _, task := range *tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
-	return &OverviewResult{
+	return &OverviewResult[[]*TaskResult]{
 		ID:            view.ID,
 		Name:          name,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
