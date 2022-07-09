@@ -132,7 +132,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
             allGroups.push(findCollisionGroups(eventList ?? []))
         }
         return allGroups
-    }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth])
+    }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numDays])
 
     useInterval(
         () => {
