@@ -330,10 +330,10 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 
 func getCommentCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURLPRComments *string, overrideURLIssueComments *string) (int, error) {
 	if repository == nil {
-		return 0, errors.New("failed: repository is nil")
+		return 0, errors.New("repository is nil")
 	}
 	if pullRequest == nil {
-		return 0, errors.New("failed: pull request is nil")
+		return 0, errors.New("pull request is nil")
 	}
 	comments, err := listComments(context, githubClient, repository, pullRequest, overrideURLPRComments)
 	if err != nil {
@@ -354,10 +354,10 @@ func getCommentCount(context context.Context, githubClient *github.Client, repos
 
 func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
 	if repository == nil {
-		return 0, errors.New("failed: repository is nil")
+		return 0, errors.New("repository is nil")
 	}
 	if pullRequest == nil {
-		return 0, errors.New("failed: pull request is nil")
+		return 0, errors.New("pull request is nil")
 	}
 	reviewers, err := listReviewers(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
@@ -388,10 +388,10 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
 	if repository == nil {
-		return false, errors.New("failed: repository is nil")
+		return false, errors.New("repository is nil")
 	}
 	if pullRequest == nil {
-		return false, errors.New("failed: pull request is nil")
+		return false, errors.New("pull request is nil")
 	}
 	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
