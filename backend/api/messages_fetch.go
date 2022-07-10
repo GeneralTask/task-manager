@@ -196,10 +196,10 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		}, badTokenMessages...)
 	}
 
-	// // TODO work with frontend to use the shaped response
-	// response := MessageRefreshResponse{
-	// 	BadTokenMessages:          badTokenMessages,
-	// 	AdditionalRefreshRequired: needAdditionalRefresh,
-	// }
-	c.JSON(200, badTokenMessages)
+	// TODO work with frontend to use the shaped response
+	response := MessageRefreshResponse{
+		BadTokenMessages:          badTokenMessages,
+		AdditionalRefreshRequired: needAdditionalRefresh,
+	}
+	c.JSON(200, response)
 }
