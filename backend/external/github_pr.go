@@ -319,12 +319,18 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 	return false
 }
 
-func getCommentCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
-	comments, err := listComments(context, githubClient, repository, pullRequest, overrideURL)
+func getCommentCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURLPRComments *string, overrideURLIssueComments *string) (int, error) {
+	if repository == nil {
+		return 0, errors.New("failed: repository is nil")
+	}
+	if pullRequest == nil {
+		return 0, errors.New("failed: pull request is nil")
+	}
+	comments, err := listComments(context, githubClient, repository, pullRequest, overrideURLPRComments)
 	if err != nil {
 		return 0, err
 	}
-	issueComments, _, err := githubClient.Issues.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	issueComments, err := listIssueComments(context, githubClient, repository, pullRequest, overrideURLIssueComments)
 	if err != nil {
 		return 0, err
 	}
@@ -338,6 +344,12 @@ func getCommentCount(context context.Context, githubClient *github.Client, repos
 }
 
 func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
+	if repository == nil {
+		return 0, errors.New("failed: repository is nil")
+	}
+	if pullRequest == nil {
+		return 0, errors.New("failed: pull request is nil")
+	}
 	reviewers, err := listReviewers(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return 0, err
@@ -366,7 +378,13 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 }
 
 func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
-	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
+	if repository == nil {
+		return false, errors.New("failed: repository is nil")
+	}
+	if pullRequest == nil {
+		return false, errors.New("failed: pull request is nil")
+	}
+	checkRuns, err := listCheckRunsForRef(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return false, err
 	}

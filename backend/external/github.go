@@ -29,6 +29,7 @@ type GithubConfigValues struct {
 	ListPullRequestReviewersURL *string
 	ListCheckRunsForRefURL      *string
 	ListPullRequestCommentsURL  *string
+	ListIssueCommentsURL        *string
 	ListRepositoriesURL         *string
 }
 
@@ -105,6 +106,12 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	log.Info().Msgf("token string: %s", string(tokenString))
 	if err != nil {
 		logger.Error().Err(err).Msg("error parsing token")
+		return errors.New("internal server error")
+	}
+
+	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.GetUserURL)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to fetch Github user")
 		return errors.New("internal server error")
 	}
 
