@@ -712,25 +712,26 @@ func TestCommentCount(t *testing.T) {
 }
 
 func TestGetReviewerCount(t *testing.T) {
+	context := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+		Head: &github.PullRequestBranch{
+			SHA: github.String("abc123"),
+		},
+	}
 	t.Run("SingleListReview", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
 		reviewersURL := &githubReviewersServer.URL
 		defer githubReviewersServer.Close()
-		context := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
-			},
-		}
 		reviews := []*github.PullRequestReview{}
 		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
 
@@ -741,21 +742,7 @@ func TestGetReviewerCount(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, `{}`)
 		reviewersURL := &githubReviewersServer.URL
 		defer githubReviewersServer.Close()
-		context := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
-			},
-		}
 		reviews := []*github.PullRequestReview{{
 			User: &github.User{
 				ID: github.Int64(1),
@@ -767,15 +754,47 @@ func TestGetReviewerCount(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, reviewerCount)
 	})
-	t.Run("RepositoryIsNil", func(t *testing.T) {
-		context := context.Background()
-		githubClient := github.NewClient(nil)
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
+	t.Run("ComboReviews", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			User: &github.User{
+				ID: github.Int64(1),
 			},
-		}
+			State: github.String("APPROVED"),
+		}}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 2, reviewerCount)
+	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 503, "{}")
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/pulls/1/requested_reviewers: 503  []", *reviewersURL), err.Error())
+		assert.Zero(t, reviewerCount)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Zero(t, reviewerCount)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
 		reviews := []*github.PullRequestReview{}
 		reviewerCount, err := getReviewerCount(context, githubClient, nil, pullRequest, reviews, nil)
 
@@ -784,14 +803,6 @@ func TestGetReviewerCount(t *testing.T) {
 		assert.Equal(t, 0, reviewerCount)
 	})
 	t.Run("PullRequestIsNil", func(t *testing.T) {
-		context := context.Background()
-		githubClient := github.NewClient(nil)
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
 		reviews := []*github.PullRequestReview{}
 		reviewerCount, err := getReviewerCount(context, githubClient, repository, nil, reviews, nil)
 
@@ -881,25 +892,26 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 }
 
 func TestChecksDidFail(t *testing.T) {
+	context := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+		Head: &github.PullRequestBranch{
+			SHA: github.String("abc123"),
+		},
+	}
 	t.Run("ChecksPass", func(t *testing.T) {
 		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
 		checkRunsURL := &githubCheckRunsServer.URL
 		defer githubCheckRunsServer.Close()
-		context := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
-			},
-		}
 		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
 		assert.NoError(t, err)
 		assert.False(t, conclusion)
@@ -908,48 +920,38 @@ func TestChecksDidFail(t *testing.T) {
 		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefFailPayload)
 		checkRunsURL := &githubCheckRunsServer.URL
 		defer githubCheckRunsServer.Close()
-		context := context.Background()
-		githubClient := github.NewClient(nil)
 
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
-			},
-		}
 		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
 		assert.NoError(t, err)
 		assert.True(t, conclusion)
 	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 503, "[]")
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/commits/abc123/check-runs: 503  []", *checkRunsURL), err.Error())
+		assert.False(t, conclusion)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.False(t, conclusion)
+	})
 	t.Run("RepositoryIsNil", func(t *testing.T) {
-		context := context.Background()
-		githubClient := github.NewClient(nil)
-		pullRequest := &github.PullRequest{
-			Number: github.Int(1),
-			Head: &github.PullRequestBranch{
-				SHA: github.String("abc123"),
-			},
-		}
 		conclusion, err := checksDidFail(context, githubClient, nil, pullRequest, nil)
 		assert.Error(t, err)
 		assert.Equal(t, "repository is nil", err.Error())
 		assert.False(t, conclusion)
 	})
 	t.Run("PullRequestIsNil", func(t *testing.T) {
-		context := context.Background()
-		githubClient := github.NewClient(nil)
-		repository := &github.Repository{
-			Name: github.String("ExampleRepository"),
-			Owner: &github.User{
-				Login: github.String("chad1616"),
-			},
-		}
 		conclusion, err := checksDidFail(context, githubClient, repository, nil, nil)
 
 		assert.Error(t, err)
