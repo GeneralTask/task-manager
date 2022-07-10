@@ -114,7 +114,7 @@ func TestGetOverviewResults(t *testing.T) {
 		assert.NoError(t, err)
 
 		result, err := api.GetOverviewResults(db, parentCtx, views, userID)
-		expectedViewResult := OverviewResult[[]*TaskResult]{
+		expectedViewResult := OverviewResult{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
 			Type:          ViewTaskSection,
@@ -129,9 +129,7 @@ func TestGetOverviewResults(t *testing.T) {
 		}
 		assert.NoError(t, err)
 		assert.Len(t, result, 1)
-		overviewResult, ok := result[0].(*OverviewResult[[]*TaskResult])
-		assert.True(t, ok)
-		assertOverviewViewResultEqual(t, expectedViewResult, *overviewResult)
+		assertOverviewViewResultEqual(t, expectedViewResult, result[0])
 	})
 }
 
@@ -162,7 +160,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
 
-	expectedViewResult := OverviewResult[[]*TaskResult]{
+	expectedViewResult := OverviewResult{
 		ID:            view.ID,
 		Name:          taskSectionName,
 		Type:          ViewTaskSection,
@@ -179,7 +177,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+		assertOverviewViewResultEqual(t, expectedViewResult, result)
 	})
 	t.Run("SingleTaskViewItem", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(db)
@@ -205,7 +203,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 				ID: taskID,
 			},
 		}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+		assertOverviewViewResultEqual(t, expectedViewResult, result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
 		api := GetAPI()
@@ -224,7 +222,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 }
 
-func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
+func assertOverviewViewResultEqual(t *testing.T, expected OverviewResult, actual *OverviewResult) {
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Type, actual.Type)
 	assert.Equal(t, expected.Logo, actual.Logo)
@@ -233,8 +231,12 @@ func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewR
 	assert.Equal(t, expected.TaskSectionID, actual.TaskSectionID)
 	assert.Equal(t, expected.IsReorderable, actual.IsReorderable)
 	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
-	assert.Equal(t, len(expected.ViewItems), len(actual.ViewItems))
-	for i := range expected.ViewItems {
-		assert.Equal(t, expected.ViewItems[i].ID, actual.ViewItems[i].ID)
+	actualItems, ok := actual.ViewItems.([]*TaskResult)
+	assert.True(t, ok)
+	expectedItems, ok := expected.ViewItems.([]*TaskResult)
+	assert.True(t, ok)
+	assert.Equal(t, len(expectedItems), len(actualItems))
+	for i := range expectedItems {
+		assert.Equal(t, expectedItems[i].ID, actualItems[i].ID)
 	}
 }
