@@ -145,7 +145,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR check runs"))
 				return
 			}
-			commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL)
+			commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 			if err != nil {
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR comments"))
 				return
@@ -283,6 +283,15 @@ func listComments(context context.Context, githubClient *github.Client, reposito
 	return comments, err
 }
 
+func listIssueComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) ([]*github.IssueComment, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	issueComments, _, err := githubClient.Issues.ListComments(context, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
+	return issueComments, err
+}
+
 func listCheckRunsForCommit(ctx context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (*github.ListCheckRunsResults, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
@@ -384,7 +393,7 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 	if pullRequest == nil {
 		return false, errors.New("failed: pull request is nil")
 	}
-	checkRuns, err := listCheckRunsForRef(context, githubClient, repository, pullRequest, overrideURL)
+	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
 	if err != nil {
 		return false, err
 	}

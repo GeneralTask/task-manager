@@ -577,6 +577,7 @@ func TestPullRequestIsApproved(t *testing.T) {
 			{State: github.String("COMMENTED")},
 			{State: nil},
 		}))
+	})
 }
 
 func TestCommentCount(t *testing.T) {
