@@ -408,14 +408,14 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 }
 
 func getPullRequestRequiredAction(data GithubPRData) string {
-	if data.RequestedReviewers == 0 {
-		return ActionAddReviewers
-	}
 	if !data.IsMergeable {
 		return ActionFixMergeConflicts
 	}
 	if data.ChecksDidFail {
 		return ActionFixFailedCI
+	}
+	if data.RequestedReviewers == 0 {
+		return ActionAddReviewers
 	}
 	if data.HaveRequestedChanges {
 		return ActionAddressRequested
