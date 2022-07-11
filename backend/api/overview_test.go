@@ -228,24 +228,31 @@ func TestIsServiceLinked(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	api := GetAPI()
+
+	userID := primitive.NewObjectID()
 	testServiceID := "testID"
-
-	t.Run("ServiceNotLinked", func(t *testing.T) {
-		result, err := api.IsServiceLinked(db, parentCtx, primitive.NewObjectID(), testServiceID)
-		assert.NoError(t, err)
-		assert.False(t, result)
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+		UserID:    userID,
+		ServiceID: testServiceID,
 	})
-	t.Run("ServiceLinked", func(t *testing.T) {
-		userID := primitive.NewObjectID()
-		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
-			UserID:    userID,
-			ServiceID: testServiceID,
-		})
 
+	t.Run("ServiceLinked", func(t *testing.T) {
 		result, err := api.IsServiceLinked(db, parentCtx, userID, testServiceID)
 		assert.NoError(t, err)
 		assert.True(t, result)
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		result, err := api.IsServiceLinked(db, parentCtx, primitive.NewObjectID(), testServiceID)
+		assert.Error(t, err)
+		assert.Equal(t, "mongo: no documents in result", err.Error())
+		assert.False(t, result)
+	})
+	t.Run("InvalidServiceID", func(t *testing.T) {
+		result, err := api.IsServiceLinked(db, parentCtx, userID, "invalidServiceID")
+		assert.Error(t, err)
+		assert.Equal(t, "mongo: no documents in result", err.Error())
+		assert.False(t, result)
 	})
 }
 
