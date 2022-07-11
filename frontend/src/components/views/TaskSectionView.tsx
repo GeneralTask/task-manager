@@ -150,7 +150,7 @@ const TaskSectionView = () => {
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {task && section && <TaskDetails task={task} />}
+            {task && section && <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />}
             <ScheduleGapFiller />
         </>
     )

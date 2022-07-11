@@ -41,7 +41,7 @@ const OverviewView = () => {
                     if (view.type === 'message') {
                         return <ThreadDetails thread={item as TEmailThread} />
                     } else {
-                        return <TaskDetails task={item as TTask} />
+                        return <TaskDetails task={item as TTask} link={`/overview/${item.id}`} />
                     }
                 }
             }
