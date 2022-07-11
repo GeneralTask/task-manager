@@ -356,5 +356,7 @@ type View struct {
 	Type          string             `bson:"type"`
 	IsReorderable bool               `bson:"is_reorderable"`
 	IsLinked      bool               `bson:"is_linked"`
+	GithubID      string             `bson:"github_id"`
+	MessagesID    string             `bson:"messages_id"`
 	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
 }
