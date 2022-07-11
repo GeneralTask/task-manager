@@ -57,6 +57,8 @@ const SentAtContainer = styled.span`
 interface ThreadProps {
     thread: TEmailThread
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
+    link: string
+    isSelected: boolean
 }
 
 const cleanPreviewText = (html: string) => {
@@ -65,10 +67,9 @@ const cleanPreviewText = (html: string) => {
     return spacedText
 }
 
-const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
+const Thread = ({ thread, sectionScrollingRef, link, isSelected }: ThreadProps) => {
     const navigate = useNavigate()
     const params = useParams()
-    const isSelected = params.thread === thread.id
 
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -112,7 +113,7 @@ const Thread = ({ thread, sectionScrollingRef }: ThreadProps) => {
     )
 
     const onClickHandler = useCallback(() => {
-        navigate(`/messages/${params.mailbox}/${thread.id}`)
+        navigate(link)
     }, [params, thread])
 
     const senders = thread.emails[0]?.sender.name
