@@ -43,10 +43,24 @@ func getSlackConfig() SlackConfig {
 			ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
 			ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
 			RedirectURL:  config.GetConfigValue("SERVER_URL") + "link/slack/callback/",
-			Scopes:       []string{"commands"},
+			Scopes:       []string{"commands", "users:read"},
 			Endpoint: oauth2.Endpoint{
 				AuthURL:  "https://slack.com/oauth/authorize",
 				TokenURL: "https://slack.com/api/oauth.access",
+			},
+		}}}
+}
+
+func GetSlackAppConfig() SlackConfig {
+	return SlackConfig{
+		OauthConfig: &OauthConfig{Config: &oauth2.Config{
+			ClientID:     config.GetConfigValue("SLACK_OAUTH_CLIENT_ID"),
+			ClientSecret: config.GetConfigValue("SLACK_OAUTH_CLIENT_SECRET"),
+			RedirectURL:  config.GetConfigValue("SERVER_URL") + "link_app/slack/",
+			Scopes:       []string{"commands", "users:read"},
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  "https://slack.com/oauth/authorize",
+				TokenURL: "https://slack.com/api/oauth.v2.access",
 			},
 		}}}
 }

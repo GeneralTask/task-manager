@@ -37,6 +37,9 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/waitlist/", handlers.WaitlistAdd)
 	router.POST("/tasks/create_external/slack/", handlers.SlackTaskCreate)
 
+	// Slack App specific oauth endpoint
+	router.GET("/link_app/slack/", handlers.LinkSlackApp)
+
 	// logout needs to use the token directly rather than the user so no need to run token middleware
 	router.POST("/logout/", handlers.Logout)
 

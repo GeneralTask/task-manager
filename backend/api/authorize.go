@@ -1,8 +1,11 @@
 package api
 
 import (
+	"context"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -115,5 +118,22 @@ func (api *API) LinkCallback(c *gin.Context) {
 	}
 
 	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
+	c.Status(200)
+}
+
+func (api *API) LinkSlackApp(c *gin.Context) {
+	logger := logging.GetSentryLogger()
+	parentCtx := context.Background()
+	slackConfig := external.GetSlackAppConfig()
+
+	var redirectParams Oauth2RedirectParams
+	if c.ShouldBind(&redirectParams) != nil || redirectParams.Code == "" {
+		_, err := slackConfig.OauthConfig.Exchange(parentCtx, redirectParams.Code)
+		if err != nil {
+			logger.Error().Err(err).Msg("unable to exchange Slack app oauth keys")
+			c.JSON(500, gin.H{"detail": err.Error()})
+		}
+	}
+
 	c.Status(200)
 }
