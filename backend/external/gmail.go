@@ -140,22 +140,6 @@ func updateOrCreateThreads(userID primitive.ObjectID, accountID string, db *mong
 				return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
 			}
 
-			dbEmail, err := database.UpdateOrCreateItem(
-				db, userID, emailItem.IDExternal, emailItem.SourceID,
-				emailItem, database.EmailItemToChangeable(emailItem),
-				&[]bson.M{{"task_type.is_message": true}},
-				true,
-			)
-			if err != nil {
-				logger.Error().Err(err).Msgf("could not update or create %+v", emailItem)
-				return emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
-			}
-
-			emailItem.HasBeenReordered = dbEmail.HasBeenReordered
-			emailItem.ID = dbEmail.ID
-			emailItem.IDOrdering = dbEmail.IDOrdering
-			emailItem.IDTaskSection = dbEmail.IDTaskSection
-
 			timeSent := emailItem.Email.SentAt
 			if timeSent > mostRecentEmailTimestamp {
 				mostRecentEmailTimestamp = timeSent
