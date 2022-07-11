@@ -1558,7 +1558,7 @@ export const useGetOverviewViews = () => {
         setViews(newViews)
     }
 
-    return { data: views, temporaryReorderViews }
+    return { data: views, isLoading: false, temporaryReorderViews }
 }
 
 

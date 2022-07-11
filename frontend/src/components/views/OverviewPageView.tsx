@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Spacing, Colors, Typography } from '../../styles'
@@ -20,19 +20,21 @@ const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
 `
-// placeholder for details view
-const DetailsViewContainer = styled.div`
-    background-color: ${Colors.white};
-    padding-top: 50vh;
-    min-width: 400px;
-`
 
 const OverviewView = () => {
-    const { data: views } = useGetOverviewViews()
+    const { data: views, isLoading } = useGetOverviewViews()
     const { overviewItem } = useParams()
+    const navigate = useNavigate()
+
+    const selectFirstItem = () => {
+        const firstNonEmptyView = views.find((view) => view.view_items.length > 0)
+        if (firstNonEmptyView) {
+            navigate(`/overview/${firstNonEmptyView.view_items[0].id}`)
+        }
+    }
 
     const detailsView = useMemo(() => {
-        if (!views) {
+        if (!views || !overviewItem) {
             return null
         }
         for (const view of views) {
@@ -47,7 +49,14 @@ const OverviewView = () => {
             }
         }
         return null
-    }, [overviewItem])
+    }, [overviewItem, views])
+
+    // select first item if none is selected or invalid item is selected in url
+    useEffect(() => {
+        if (!isLoading && (!overviewItem || !detailsView)) {
+            selectFirstItem()
+        }
+    }, [])
 
     return (
         <>
