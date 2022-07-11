@@ -244,14 +244,12 @@ func TestIsServiceLinked(t *testing.T) {
 	})
 	t.Run("InvalidUserID", func(t *testing.T) {
 		result, err := api.IsServiceLinked(db, parentCtx, primitive.NewObjectID(), testServiceID)
-		assert.Error(t, err)
-		assert.Equal(t, "mongo: no documents in result", err.Error())
+		assert.NoError(t, err)
 		assert.False(t, result)
 	})
 	t.Run("InvalidServiceID", func(t *testing.T) {
 		result, err := api.IsServiceLinked(db, parentCtx, userID, "invalidServiceID")
-		assert.Error(t, err)
-		assert.Equal(t, "mongo: no documents in result", err.Error())
+		assert.NoError(t, err)
 		assert.False(t, result)
 	})
 }
