@@ -138,6 +138,42 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	}, nil
 }
 
+func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, serviceID string) (bool, error) {
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	var tokens []database.ExternalAPIToken
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := externalAPITokenCollection.Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"service_id": serviceID},
+			},
+		},
+
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
+		return false, err
+	}
+
+	dbCtx, cancel = context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &tokens)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
+		return false, err
+	}
+
+	for _, token := range tokens {
+		if token.ServiceID == serviceID {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (api *API) OverviewViewAdd(c *gin.Context) {
 	c.JSON(200, nil)
 }
