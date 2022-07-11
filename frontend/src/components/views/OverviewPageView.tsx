@@ -1,11 +1,14 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Spacing, Colors, Typography } from '../../styles'
+import TaskDetails from '../details/TaskDetails'
 import EditViewsButton from '../overview/EditViewsButton'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
+import ThreadDetails from '../details/ThreadDetails'
+import { TEmailThread, TTask } from '../../utils/types'
 
 const PageHeader = styled.div`
     padding: ${Spacing.padding._16};
@@ -27,6 +30,25 @@ const DetailsViewContainer = styled.div`
 const OverviewView = () => {
     const { data: views } = useGetOverviewViews()
     const { overviewItem } = useParams()
+
+    const detailsView = useMemo(() => {
+        if (!views) {
+            return null
+        }
+        for (const view of views) {
+            for (const item of view.view_items) {
+                if (item.id === overviewItem) {
+                    if (view.type === 'message') {
+                        return <ThreadDetails thread={item as TEmailThread} />
+                    } else {
+                        return <TaskDetails task={item as TTask} />
+                    }
+                }
+            }
+        }
+        return null
+    }, [overviewItem])
+
     return (
         <>
             <ScrollableListTemplate noTopPadding>
@@ -38,10 +60,7 @@ const OverviewView = () => {
                     <OverviewViewContainer view={view} key={view.id} />
                 ))}
             </ScrollableListTemplate>
-            <DetailsViewContainer>
-                These be the deets
-                {overviewItem && ' for item with id: ' + overviewItem}
-            </DetailsViewContainer>
+            {detailsView}
         </>
     )
 }

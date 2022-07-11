@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { icons } from '../../styles/images'
-import { OverviewViewType, TOverviewView } from '../../utils/types'
+import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton } from './styles'
@@ -18,10 +18,10 @@ const OverviewView = ({ view }: OverviewViewProps) => {
 
     const ViewItems = useMemo(() => {
         switch (view.type) {
-            case OverviewViewType.TASK_SECTION:
+            case 'task_section':
                 return TaskSectionViewItems
-            case OverviewViewType.LINEAR:
-            case OverviewViewType.SLACK:
+            case 'linear':
+            case 'slack':
                 return ExternalViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
