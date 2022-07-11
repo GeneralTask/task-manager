@@ -1,26 +1,32 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { icons } from '../../styles/images'
 import { OverviewViewType, TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
-import { ViewHeader, ViewContainer, RemoveButton } from './styles'
+import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
+
+const PAGE_SIZE = 5
 
 interface OverviewViewProps {
     view: TOverviewView
 }
 const OverviewView = ({ view }: OverviewViewProps) => {
-    const viewItems = useMemo(() => {
+    const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
+
+    const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
+
+    const ViewItems = useMemo(() => {
         switch (view.type) {
             case OverviewViewType.TASK_SECTION:
-                return <TaskSectionViewItems view={view} />
+                return TaskSectionViewItems
             case OverviewViewType.LINEAR:
             case OverviewViewType.SLACK:
-                return <ExternalViewItems view={view} />
+                return ExternalViewItems
             default:
-                return <div>[WIP]List of items for type {view.type}</div>
+                return () => <div>[WIP]List of items for type {view.type}</div>
         }
-    }, [view])
+    }, [view.type])
 
     return (
         <ViewContainer>
@@ -30,7 +36,12 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                     <Icon source={icons.x_thin} size="xSmall" />
                 </RemoveButton>
             </ViewHeader>
-            {viewItems}
+            <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
+            {visibleItemsCount < view.view_items.length && (
+                <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
+                    View more ({nextPageLength})
+                </PaginateTextButton>
+            )}
         </ViewContainer>
     )
 }

@@ -43,3 +43,11 @@ export const SelectedView = styled.div`
 export const EditViewsDeleteButton = styled(RemoveButton)`
     margin-left: auto;
 `
+export const PaginateTextButton = styled(NoStyleButton)`
+    color: #069;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: ${Typography.xSmall.fontSize};
+    line-height: ${Typography.xSmall.lineHeight};
+    margin: ${Spacing.margin._4} ${Spacing.margin._8} 0;
+`
