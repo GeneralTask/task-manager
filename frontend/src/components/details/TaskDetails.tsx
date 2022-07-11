@@ -118,7 +118,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const navigate = useNavigate()
     const location = useLocation()
-    console.log({ location })
 
     useEffect(() => {
         if (isEditing || isLoading) {
