@@ -452,6 +452,27 @@ func TestModifyLinearTask(t *testing.T) {
 		}, nil)
 		assert.NoError(t, err)
 	})
+	t.Run("UpdateEmptyDescriptionSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		newName := "New Title"
+		newBody := ""
+
+		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+		}, nil)
+		assert.NoError(t, err)
+	})
 	t.Run("UpdateEmptyTitleFails", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": true}}}`)
 		defer taskUpdateServer.Close()
@@ -559,14 +580,5 @@ func TestModifyLinearTask(t *testing.T) {
 		}, &expectedTask)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "decoding response: EOF", err.Error())
-	})
-	t.Run("GetTaskUpdateBodyEmpty", func(t *testing.T) {
-		updateFields := &database.TaskItemChangeableFields{}
-		expected := AsanaTasksUpdateBody{
-			Data: AsanaTasksUpdateFields{},
-		}
-		asanaTask := AsanaTaskSource{}
-		body := asanaTask.GetTaskUpdateBody(updateFields)
-		assert.Equal(t, expected, *body)
 	})
 }
