@@ -256,6 +256,82 @@ func TestIsServiceLinked(t *testing.T) {
 	})
 }
 
+func TestGetLinearOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+		UserID:    userID,
+		Token:     "testtoken",
+		ServiceID: external.TaskServiceLinear.ID,
+	})
+	assert.NoError(t, err)
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "linear",
+		IsLinked:   true,
+	}
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	assert.NoError(t, err)
+	api := GetAPI()
+
+	expectedViewResult := OverviewResult[[]*TaskResult]{
+		ID:            view.ID,
+		Name:          "Linear",
+		Type:          ViewLinear,
+		Logo:          "linear",
+		IsLinked:      true,
+		IsReorderable: false,
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("SingleLinearViewItem", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+		taskID := taskResult.InsertedID.(primitive.ObjectID)
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{
+			{
+				ID: taskID,
+			},
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		api := GetAPI()
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+}
+
 func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Type, actual.Type)
