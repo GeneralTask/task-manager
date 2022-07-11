@@ -107,7 +107,12 @@ const MessagesView = () => {
                             (params.mailbox === 'archive' || (params.mailbox === 'inbox' && !thread.is_archived)) && (
                                 <div key={thread.id}>
                                     <ThreadTemplate ref={index === threads.length - 1 ? lastElementRef : undefined}>
-                                        <Thread thread={thread} sectionScrollingRef={sectionScrollingRef} />
+                                        <Thread
+                                            thread={thread}
+                                            sectionScrollingRef={sectionScrollingRef}
+                                            link={`/messages/${params.mailbox}/${thread.id}`}
+                                            isSelected={params.thread === thread.id}
+                                        />
                                     </ThreadTemplate>
                                     {index !== threads.length - 1 && (
                                         <MessageDivider
