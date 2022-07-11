@@ -151,7 +151,6 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 				{"service_id": serviceID},
 			},
 		},
-
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")

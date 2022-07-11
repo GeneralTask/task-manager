@@ -239,7 +239,7 @@ func TestIsServiceLinked(t *testing.T) {
 		userID := primitive.NewObjectID()
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
 		externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
-			UserID: userID,
+			UserID:    userID,
 			ServiceID: testServiceID,
 		})
 
@@ -247,7 +247,6 @@ func TestIsServiceLinked(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, result)
 	})
-
 }
 
 func assertOverviewViewResultEqual(t *testing.T, expected OverviewResult, actual *OverviewResult) {
