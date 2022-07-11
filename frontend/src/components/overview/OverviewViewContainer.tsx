@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { icons } from '../../styles/images'
 import { OverviewViewType, TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -12,7 +12,7 @@ interface OverviewViewProps {
     view: TOverviewView
 }
 const OverviewView = ({ view }: OverviewViewProps) => {
-    const [visibleItemsCount, setVisibleItemsCount] = React.useState(PAGE_SIZE)
+    const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
 
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
