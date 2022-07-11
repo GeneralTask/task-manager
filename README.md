@@ -5,7 +5,11 @@
   - [Backend testing](#backend-testing)
     - [Running Tests in IDE](#running-tests-in-ide)
   - [Deploying backend](#deploying-backend)
+  - [Documentation updates](#documentation-updates)
   - [Debugging backend](#debugging-backend)
+  - [Working with Slack](#working-with-slack)
+    - [How to link to local Slack App](#how-to-link-to-local-slack-app)
+    - [How to get new Slack tasks to local server](#how-to-get-new-slack-tasks-to-local-server)
   - [Useful links](#useful-links)
 
 # task-manager
