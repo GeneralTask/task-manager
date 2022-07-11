@@ -138,6 +138,26 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	}, nil
 }
 
+func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, serviceID string) (bool, error) {
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	count, err := externalAPITokenCollection.CountDocuments(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"service_id": serviceID},
+			},
+		}, nil,
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to count api tokens")
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (api *API) OverviewViewAdd(c *gin.Context) {
 	c.JSON(200, nil)
 }
