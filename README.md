@@ -5,6 +5,9 @@
   - [Backend testing](#backend-testing)
     - [Running Tests in IDE](#running-tests-in-ide)
   - [Deploying backend](#deploying-backend)
+    - [One-time Kubernetes setup](#one-time-kubernetes-setup)
+    - [Interacting with the Kubernetes clusters](#interacting-with-the-kubernetes-clusters)
+      - [Common Commands](#common-commands)
   - [Documentation updates](#documentation-updates)
   - [Debugging backend](#debugging-backend)
   - [Working with Slack](#working-with-slack)
@@ -89,14 +92,81 @@ To run tests through VS Code, put the following snippet in your `settings.json`:
 To run tests through GoLand, go to `Run | Edit Configurations` and then add a new `Go Test` configuration with `DB_NAME=test`
 
 ## Deploying backend
-
+Our backend is currently on AWS EKS in us-west-1 region. These are the steps to setup access
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
 
+### One-time Kubernetes setup
+
+Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have an admin apply the changes to the prod k8s cluster.
+
+Now, locally on your laptop, run:
+
 ```
-# get on latest master branch
-heroku login
-git push heroku master
+aws --profile kube-config eks update-kubeconfig --region us-west-1 --name prd-gtsk-uswest1-backend
 ```
+
+which will add the the profile to your `~/.kube/config`. You can also change the alias for this context/cluster by modifying the relevant part in the file after you run this command to:
+```
+contexts:
+- context:
+    cluster: arn:aws:eks:us-west-1:257821106339:cluster/prd-gtsk-uswest1-backend
+    namespace: prd-gtsk-uswest1
+    user: arn:aws:eks:us-west-1:257821106339:cluster/prd-gtsk-uswest1-backend
+  name: prod
+```
+
+### Interacting with the Kubernetes clusters
+
+You can run this snippet (save it to your bashrc/zshrc):
+
+```
+klogin () {
+        export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+    $(aws sts assume-role \
+    --role-arn arn:aws:iam::257821106339:role/glb-gtsk-eks-full-access \
+    --role-session-name glb-gtsk-eks-full-access \
+    --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
+    --output text))
+}
+```
+
+which will generate temporary credentials to access EKS resources for 12 hours after running `klogin` (you may have to run this command twice to work).
+
+To test your configuration, run the following command to make sure your access permissions are correct and to verify the cluster connectivity: `kubectl get svc`, and you should see something like:
+
+```
+➜ kubectl get svc                                        09:26:00
+Alias tip: k get svc
+NAME           TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+core-service   NodePort   172.19.64.51   <none>        8080:31254/TCP   21d
+```
+
+#### Common Commands
+Here's a list of nice k8s commands to add to your shell file:
+```
+alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
+alias kroll="kubectl rollout restart deployment/core-deployment"
+ksh() {
+    # kubectl exec -it "$1" /bin/sh
+    # kubectl exec -it "$1" -- "/bin/sh"
+    kubectl exec -it $1 -- "/bin/sh"
+}
+alias kgp="kubectl get pods"
+kdlogs() {
+    kubectl logs -f deployment/core-deployment --all-containers=true --since=10m
+}
+kdl() {
+    stern core-deployment -t --since 10m
+}
+```
+
+Here are a few common interactions:
+* Select context & namespace, run `kp`
+* List pods, run `kgp`
+* SSH to a pod, run `ksh <pod name>`, for example: `ksh core-deployment-756d697659-hqgk4`
+* View logs for a specific pod `k logs core-deployment-756d697659-hqgk4`
+* View collated logs for the whole deployment `kdlogs`
+
 
 ## Documentation updates
 
