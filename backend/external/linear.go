@@ -272,6 +272,25 @@ const linearUpdateIssueQueryStr = `
 		  }
 		}`
 
+const linearUpdateIssueWithProsemirrorQueryStr = `
+		mutation IssueUpdate (
+			$title: String
+			, $id: String!
+			, $stateId: String
+			, $descriptionData: JSON
+		) {
+		  issueUpdate(
+			id: $id,
+			input: {
+			  title: $title
+			  stateId: $stateId,
+			  descriptionData: $descriptionData
+			}
+		  ) {
+			success
+		  }
+		}`
+
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
@@ -279,21 +298,29 @@ type linearUpdateIssueQuery struct {
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
-	req := graphqlBasic.NewRequest(linearUpdateIssueQueryStr)
-	req.Var("id", issueID)
+	updateIssueQueryStr := linearUpdateIssueQueryStr
+	if updateFields.Body != nil && *updateFields.Body == "" {
+		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
+	}
+	request := graphqlBasic.NewRequest(updateIssueQueryStr)
 
+	request.Var("id", issueID)
 	if updateFields.Title != nil {
 		if *updateFields.Title == "" {
 			return nil, errors.New("cannot set linear issue title to empty string")
 		}
-		req.Var("title", *updateFields.Title)
+		request.Var("title", *updateFields.Title)
 	}
 	if updateFields.Body != nil {
-		req.Var("description", *updateFields.Body) // empty string is ok but will be a NOOP
+		if *updateFields.Body == "" {
+			request.Var("descriptionData", `{"type":"doc","content":[{"type":"paragraph"}]}`)
+		} else {
+			request.Var("description", *updateFields.Body)
+		}
 	}
 	if updateFields.IsCompleted != nil {
 		if *updateFields.IsCompleted {
-			req.Var("stateId", task.CompletedStatus.ExternalID)
+			request.Var("stateId", task.CompletedStatus.ExternalID)
 		} else {
 			logger := logging.GetSentryLogger()
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
@@ -303,13 +330,14 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 				logger.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 			}
-			req.Var("stateId", task.PreviousStatus.ExternalID)
+			request.Var("stateId", task.PreviousStatus.ExternalID)
 		}
 	}
 
+	log.Debug().Msgf("sending request to Linear: %+v", request)
 	var query linearUpdateIssueQuery
 	logger := logging.GetSentryLogger()
-	if err := client.Run(context.Background(), req, &query); err != nil {
+	if err := client.Run(context.Background(), request, &query); err != nil {
 		logger.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}

@@ -85,7 +85,7 @@ func TestGetPullRequests(t *testing.T) {
 			Number:         420,
 			Author:         "chad1616",
 			Branch:         "ExampleBranch",
-			RequiredAction: "Add Reviewers",
+			RequiredAction: "Fix Merge Conflicts",
 			CommentCount:   0,
 		}
 		assert.NoError(t, result.Error)
@@ -577,5 +577,503 @@ func TestPullRequestIsApproved(t *testing.T) {
 			{State: github.String("COMMENTED")},
 			{State: nil},
 		}))
+	})
+}
+
+func TestCommentCount(t *testing.T) {
+	context := context.Background()
+	githubClient := github.NewClient(nil)
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+	}
+
+	t.Run("SingleListComment", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, count)
+	})
+	t.Run("SingleIssueComment", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.IssueCommentPayload)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, count)
+	})
+	t.Run("SingleReviewComment", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			Body: github.String("This is a review comment"),
+		}}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, count)
+	})
+	t.Run("ComboComments", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.IssueCommentPayload)
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			Body: github.String("This is a review comment"),
+		}}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 3, count)
+	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 503, "[]")
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 503, "[]")
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			Body: github.String("This is a review comment"),
+		}}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/pulls/1/comments: 503  []", *commentsURL), err.Error())
+		assert.Zero(t, count)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubCommentsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		commentsURL := &githubCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		githubIssueCommentsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		issueCommentsURL := &githubIssueCommentsServer.URL
+		defer githubCommentsServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			Body: github.String("This is a review comment"),
+		}}
+		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Zero(t, count)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(context, githubClient, nil, pullRequest, reviews, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "repository is nil", err.Error())
+		assert.Equal(t, 0, count)
+	})
+	t.Run("PullRequestIsNil", func(t *testing.T) {
+		reviews := []*github.PullRequestReview{}
+		count, err := getCommentCount(context, githubClient, repository, nil, reviews, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "pull request is nil", err.Error())
+		assert.Equal(t, 0, count)
+	})
+}
+
+func TestGetReviewerCount(t *testing.T) {
+	context := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+		Head: &github.PullRequestBranch{
+			SHA: github.String("abc123"),
+		},
+	}
+	t.Run("SingleListReview", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, reviewerCount)
+	})
+	t.Run("SingleSubmittedReview", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, `{}`)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			User: &github.User{
+				ID: github.Int64(1),
+			},
+			State: github.String("APPROVED"),
+		}}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, reviewerCount)
+	})
+	t.Run("ComboReviews", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{{
+			User: &github.User{
+				ID: github.Int64(1),
+			},
+			State: github.String("APPROVED"),
+		}}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 2, reviewerCount)
+	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 503, "{}")
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/pulls/1/requested_reviewers: 503  []", *reviewersURL), err.Error())
+		assert.Zero(t, reviewerCount)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.Zero(t, reviewerCount)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, nil, pullRequest, reviews, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "repository is nil", err.Error())
+		assert.Equal(t, 0, reviewerCount)
+	})
+	t.Run("PullRequestIsNil", func(t *testing.T) {
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, nil, reviews, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "pull request is nil", err.Error())
+		assert.Equal(t, 0, reviewerCount)
+	})
+}
+
+func TestReviewersHaveRequestedChanges(t *testing.T) {
+	t.Run("NoReviews", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.False(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("SingleApprovalReview", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("APPROVED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.False(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("PreviousRequestedChanges", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("REQUESTED_CHANGES"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("APPROVED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.False(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("RequestedChanges", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("APPROVED"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("CHANGES_REQUESTED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.True(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("MultupleUserStates", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser2"),
+				},
+				State: github.String("CHANGES_REQUESTED"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser1"),
+				},
+				State: github.String("APPROVED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+
+		assert.True(t, reviewersHaveRequestedChanges)
+	})
+}
+
+func TestChecksDidFail(t *testing.T) {
+	context := context.Background()
+	githubClient := github.NewClient(nil)
+
+	repository := &github.Repository{
+		Name: github.String("ExampleRepository"),
+		Owner: &github.User{
+			Login: github.String("chad1616"),
+		},
+	}
+	pullRequest := &github.PullRequest{
+		Number: github.Int(1),
+		Head: &github.PullRequestBranch{
+			SHA: github.String("abc123"),
+		},
+	}
+	t.Run("ChecksPass", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.NoError(t, err)
+		assert.False(t, conclusion)
+	})
+	t.Run("ChecksFail", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefFailPayload)
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.NoError(t, err)
+		assert.True(t, conclusion)
+	})
+	t.Run("BadStatusCode", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 503, "[]")
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.Error(t, err)
+		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/commits/abc123/check-runs: 503  []", *checkRunsURL), err.Error())
+		assert.False(t, conclusion)
+	})
+	t.Run("BadResponse", func(t *testing.T) {
+		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
+		checkRunsURL := &githubCheckRunsServer.URL
+		defer githubCheckRunsServer.Close()
+
+		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
+		assert.False(t, conclusion)
+	})
+	t.Run("RepositoryIsNil", func(t *testing.T) {
+		conclusion, err := checksDidFail(context, githubClient, nil, pullRequest, nil)
+		assert.Error(t, err)
+		assert.Equal(t, "repository is nil", err.Error())
+		assert.False(t, conclusion)
+	})
+	t.Run("PullRequestIsNil", func(t *testing.T) {
+		conclusion, err := checksDidFail(context, githubClient, repository, nil, nil)
+
+		assert.Error(t, err)
+		assert.Equal(t, "pull request is nil", err.Error())
+		assert.False(t, conclusion)
+	})
+}
+
+func TestGetPullRequestRequiredAction(t *testing.T) {
+	t.Run("AddReviewers", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 0,
+			IsMergeable:        true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Add Reviewers", action)
+	})
+	t.Run("FixMergeConflicts", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        false,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Fix Merge Conflicts", action)
+	})
+	t.Run("FixFailedCI", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        true,
+			ChecksDidFail:      true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Fix Failed CI", action)
+	})
+	t.Run("AddressRequestedChanges", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Address Requested Changes", action)
+	})
+	t.Run("MergePR", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Merge PR", action)
+	})
+	t.Run("WaitingOnReview", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           false,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Waiting on Review", action)
+	})
+	t.Run("FixMergeConflictsIsTopPriority", func(t *testing.T) {
+		// make all lower priority conditions true to verify proper priority
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   0,
+			IsMergeable:          false,
+			ChecksDidFail:        true,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Fix Merge Conflicts", action)
+	})
+	t.Run("ChecksDidFailIsSecondPriority", func(t *testing.T) {
+		// make all lower priority conditions true to verify proper priority
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   0,
+			IsMergeable:          true,
+			ChecksDidFail:        true,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Fix Failed CI", action)
+	})
+	t.Run("AddReviewersIsThirdPriority", func(t *testing.T) {
+		// make all lower priority conditions true to verify proper priority
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   0,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Add Reviewers", action)
+	})
+	t.Run("AddressRequestedChangesIsFourthPriority", func(t *testing.T) {
+		// make all lower priority conditions true to verify proper priority
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+
+		assert.Equal(t, "Address Requested Changes", action)
 	})
 }
