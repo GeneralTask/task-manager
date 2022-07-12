@@ -9,6 +9,7 @@ import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import ThreadDetails from '../details/ThreadDetails'
 import { TEmailThread, TTask } from '../../utils/types'
+import Spinner from '../atoms/Spinner'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -23,9 +24,6 @@ const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
 `
-const DetailsViewContainer = styled.div`
-    flex-basis: 400px;
-`
 
 const OverviewView = () => {
     const { data: views, isLoading } = useGetOverviewViews()
@@ -33,7 +31,7 @@ const OverviewView = () => {
     const navigate = useNavigate()
 
     const selectFirstItem = () => {
-        const firstNonEmptyView = views.find((view) => view.view_items.length > 0)
+        const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
         if (firstNonEmptyView) {
             navigate(`/overview/${firstNonEmptyView.view_items[0].id}`)
         }
@@ -64,6 +62,14 @@ const OverviewView = () => {
         }
     }, [])
 
+    if (!views) {
+        if (isLoading) {
+            return <Spinner />
+        } else {
+            return <div>No views yet</div>
+        }
+    }
+
     return (
         <>
             <OverviewPageContainer>
@@ -77,7 +83,7 @@ const OverviewView = () => {
                     ))}
                 </ScrollableListTemplate>
             </OverviewPageContainer>
-            <DetailsViewContainer>{detailsView}</DetailsViewContainer>
+            {detailsView}
         </>
     )
 }

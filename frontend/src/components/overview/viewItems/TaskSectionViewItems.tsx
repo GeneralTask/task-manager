@@ -7,8 +7,10 @@ import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
 
 const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
-    const { section_id: sectionId } = view
+    const { task_section_id: sectionId } = view
     const { overviewItem } = useParams()
+
+    console.log({ view })
 
     // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
     const scrollingRef = useRef<HTMLDivElement>(null)
