@@ -76,6 +76,12 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	err = api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to update views")
+		Handle500(c)
+		return
+	}
 
 	result, err := api.GetOverviewResults(db, parentCtx, views, userID)
 	if err != nil {
@@ -166,6 +172,50 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 	return count > 0, nil
 }
 
+func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context, views *[]database.View, userID primitive.ObjectID) error {
+	for _, v := range *views {
+		if v.UserID != userID {
+			return errors.New("invalid user")
+		}
+		var serviceID string
+		if v.Type == string(ViewTaskSection) {
+			continue
+		} else if v.Type == string(ViewLinear) {
+			serviceID = external.TaskServiceLinear.ID
+		}
+		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+		defer cancel()
+		if v.IsLinked {
+			// If view is linked but service does not exist, update view to unlinked
+			if isLinked, _ := api.IsServiceLinked(db, ctx, userID, serviceID); !isLinked {
+				_, err := database.GetViewCollection(db).UpdateOne(
+					dbCtx,
+					bson.M{"_id": v.ID},
+					bson.M{"$set": bson.M{"is_linked": false}},
+				)
+				if err != nil {
+					api.Logger.Error().Err(err).Msg("failed to update view")
+					return err
+				}
+			}
+		} else {
+			// If view is unlinked but service does exist, update view to linked
+			if isLinked, _ := api.IsServiceLinked(db, ctx, userID, serviceID); isLinked {
+				_, err := database.GetViewCollection(db).UpdateOne(
+					dbCtx,
+					bson.M{"_id": v.ID},
+					bson.M{"$set": bson.M{"is_linked": true}},
+				)
+				if err != nil {
+					api.Logger.Error().Err(err).Msg("failed to update view")
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
@@ -175,7 +225,31 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 		return nil, errors.New("failed to check if service is linked")
 	}
 	if !isLinearLinked {
-		return nil, errors.New("service is not linked")
+		// remove unlinked accounts
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
+
+		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err = externalAPITokenCollection.DeleteMany(
+			dbCtx,
+			bson.M{"user_id": userID, "service_id": external.TASK_SERVICE_ID_LINEAR},
+		)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to delete external api token")
+			return nil, err
+		}
+
+		return &OverviewResult[[]*TaskResult]{
+			ID:            view.ID,
+			Name:          "Linear",
+			Logo:          external.TaskServiceLinear.LogoV2,
+			Type:          ViewLinear,
+			IsLinked:      view.IsLinked,
+			TaskSectionID: primitive.NilObjectID,
+			IsReorderable: view.IsReorderable,
+			IDOrdering:    view.IDOrdering,
+			ViewItems:     nil,
+		}, nil
 	}
 
 	linearTasks, err := database.GetItems(db, userID,
