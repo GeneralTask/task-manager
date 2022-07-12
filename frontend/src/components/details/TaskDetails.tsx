@@ -27,7 +27,6 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     min-width: 300px;
-    border-left: 1px solid ${Colors.gray._300};
     padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
 const DetailsTopContainer = styled.div`
