@@ -15,7 +15,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/settings"
-	"github.com/GeneralTask/task-manager/backend/templating"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/cenkalti/backoff/v4"
 	"go.mongodb.org/mongo-driver/bson"
@@ -439,15 +438,15 @@ func parseMessagePartBody(mimeType string, body *gmail.MessagePartBody) (*string
 
 	bodyString := string(bodyData)
 
-	if mimeType == "text/plain" {
-		formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
-		if err != nil {
-			logger.Error().Err(err).Msg("failed to decode email body")
-			return nil, err
-		} else {
-			bodyString = formattedBody
-		}
-	}
+	//if mimeType == "text/plain" {
+	//	formattedBody, err := templating.FormatPlainTextAsHTML(bodyString)
+	//	if err != nil {
+	//		logger.Error().Err(err).Msg("failed to decode email body")
+	//		return nil, err
+	//	} else {
+	//		bodyString = formattedBody
+	//	}
+	//}
 
 	return &bodyString, nil
 }
