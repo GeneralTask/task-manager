@@ -10,6 +10,9 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import ThreadDetails from '../details/ThreadDetails'
 import { TEmailThread, TTask } from '../../utils/types'
 
+const OverviewPageContainer = styled.div`
+    display: flex;
+`
 const PageHeader = styled.div`
     padding: ${Spacing.padding._16};
     color: ${Colors.gray._500};
@@ -60,15 +63,17 @@ const OverviewView = () => {
 
     return (
         <>
-            <ScrollableListTemplate noTopPadding>
-                <PageHeader>Overview</PageHeader>
-                <ActionsContainer>
-                    <EditViewsButton />
-                </ActionsContainer>
-                {views.map((view) => (
-                    <OverviewViewContainer view={view} key={view.id} />
-                ))}
-            </ScrollableListTemplate>
+            <OverviewPageContainer>
+                <ScrollableListTemplate noTopPadding>
+                    <PageHeader>Overview</PageHeader>
+                    <ActionsContainer>
+                        <EditViewsButton />
+                    </ActionsContainer>
+                    {views.map((view) => (
+                        <OverviewViewContainer view={view} key={view.id} />
+                    ))}
+                </ScrollableListTemplate>
+            </OverviewPageContainer>
             {detailsView}
         </>
     )
