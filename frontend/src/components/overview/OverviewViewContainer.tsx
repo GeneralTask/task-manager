@@ -24,7 +24,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
             case 'linear':
             case 'slack':
                 return ExternalViewItems
-            case OverviewViewType.MESSAGE:
+            case 'message':
                 return MessagesViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
