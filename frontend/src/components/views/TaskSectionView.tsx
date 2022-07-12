@@ -20,6 +20,7 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 const BannerAndSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
+    border-right: 1px solid ${Colors.gray._300};
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
