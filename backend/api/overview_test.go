@@ -162,6 +162,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
+	api := GetAPI()
 
 	expectedViewResult := OverviewResult[[]*TaskResult]{
 		ID:            view.ID,
@@ -217,7 +218,6 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 	t.Run("InvalidSectionID", func(t *testing.T) {
 		view.TaskSectionID = primitive.NewObjectID()
-		api := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.Error(t, err)
 		assert.Equal(t, "mongo: no documents in result", err.Error())

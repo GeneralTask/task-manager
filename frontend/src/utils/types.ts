@@ -265,17 +265,13 @@ export interface TEmailComposeState {
 export type TMailbox = 'inbox' | 'archive'
 
 export type TOverviewItem = TTask | TEmailThread // TODO: change this to more general type
-export enum OverviewViewType {
-    GITHUB = 'github',
-    TASK_SECTION = 'task_section',
-    LINEAR = 'linear',
-    MESSAGE = 'message',
-    SLACK = 'slack',
-}
+
+export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'message' | 'slack'
+
 export interface TOverviewView {
     id: string
     name: string
-    type: 'github' | 'task_section' | 'linear' | 'message' | 'slack'
+    type: TOverviewViewType
     section_id?: string
     is_paginated: boolean
     is_reorderable: boolean
