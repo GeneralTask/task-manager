@@ -187,7 +187,10 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	defer cancel()
 	deleteResult, err := database.GetViewCollection(db).DeleteOne(
 		dbCtx,
-		bson.M{"user_id": userID},
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"view_id": c.Param("view_id")},
+		}},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to delete view")
