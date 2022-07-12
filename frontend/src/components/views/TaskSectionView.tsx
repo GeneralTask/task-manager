@@ -30,6 +30,7 @@ const ScrollViewMimic = styled.div`
     padding-right: 10px;
     overflow-y: auto;
     flex: 1;
+    width: ${DEFAULT_VIEW_WIDTH};
 `
 const TaskSectionViewContainer = styled.div`
     flex: 1;
@@ -38,7 +39,6 @@ const TaskSectionViewContainer = styled.div`
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
-    width: ${DEFAULT_VIEW_WIDTH};
 `
 const TasksContainer = styled.div`
     display: flex;
@@ -150,7 +150,7 @@ const TaskSectionView = () => {
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {task && section && <TaskDetails task={task} />}
+            {task && section && <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />}
             <ScheduleGapFiller />
         </>
     )
