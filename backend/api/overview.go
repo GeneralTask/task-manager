@@ -179,7 +179,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	viewID, err := primitive.ObjectIDFromHex(c.Param("view_id"))
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to parse view id")
-		Handle500(c)
+		Handle404(c)
 		return
 	}
 	_, err = database.GetUser(db, userID)
