@@ -259,7 +259,6 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		IDOrdering:    1,
 		TaskSectionID: primitive.NilObjectID,
 	}
-
 	t.Run("EmptyViewItems", func(t *testing.T) {
 		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
@@ -293,11 +292,27 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		api := GetAPI()
 		result, err := api.GetLinearOverviewResult(db, parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
+	})
+	t.Run("ViewNotLinked", func(t *testing.T) {
+		view.IsLinked = false
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult := OverviewResult[[]*TaskResult]{
+			ID:            view.ID,
+			Name:          "Linear",
+			Type:          ViewLinear,
+			Logo:          "linear",
+			IsLinked:      false,
+			IsReorderable: false,
+			IDOrdering:    1,
+			TaskSectionID: primitive.NilObjectID,
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 }
 
