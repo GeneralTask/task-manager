@@ -86,7 +86,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			log.Debug().Str("taskServiceID", taskServiceResult.Details.ID).Str("taskSourceID", taskSourceResult.Details.ID).
 				Str("tokenAccountID", token.AccountID).Send()
 			var emails = make(chan external.EmailResult)
-			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, token.LatestRefreshTimestamp, token.CurrentRefreshTimestamp, token.NextPageToken, emails)
+			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, token, emails)
 			emailChannels = append(emailChannels, emails)
 			emailChannelToToken[emails] = token
 		}
@@ -118,12 +118,13 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			// update historyID for token, in order to facilitate next update
 			var validToken database.ExternalAPIToken
 			var historyChangeable database.ExternalAPITokenChangeable
-			if emailResult.RefreshState.NextPageToken != "" {
+			if emailResult.RefreshState.NextRefreshPageToken != "" || emailResult.RefreshState.NextHistoryPageToken != "" {
 				// this means that the refresh is still in progress
 				validToken = emailChannelToToken[emailChannel]
 				historyChangeable = database.ExternalAPITokenChangeable{
 					CurrentRefreshTimestamp: emailResult.RefreshState.CurrentRefreshTimestamp,
-					NextPageToken:           emailResult.RefreshState.NextPageToken,
+					NextRefreshPageToken:    emailResult.RefreshState.NextRefreshPageToken,
+					NextHistoryPageToken:    emailResult.RefreshState.NextHistoryPageToken,
 				}
 				needAdditionalRefresh = true
 			} else {
@@ -132,7 +133,9 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				historyChangeable = database.ExternalAPITokenChangeable{
 					LatestRefreshTimestamp:  emailResult.RefreshState.CurrentRefreshTimestamp,
 					CurrentRefreshTimestamp: "",
-					NextPageToken:           "",
+					NextRefreshPageToken:    "",
+					NextHistoryPageToken:    "",
+					LatestHistoryID:         emailResult.RefreshState.HistoryID,
 				}
 			}
 
