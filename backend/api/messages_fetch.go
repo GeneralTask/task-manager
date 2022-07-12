@@ -17,6 +17,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type MessageRefreshResponse struct {
+	BadTokenMessages          []*message `json:"bad_token_messages"`
+	AdditionalRefreshRequired bool       `json:"refresh_required"`
+}
+
 func (api *API) MessagesFetch(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -66,7 +71,6 @@ func (api *API) MessagesFetch(c *gin.Context) {
 		return
 	}
 
-	_, fullRefresh := c.GetQuery("fullRefresh")
 	emailChannels := []chan external.EmailResult{}
 	emailChannelToToken := make(map[chan external.EmailResult]database.ExternalAPIToken)
 	// Loop through linked accounts and fetch relevant items
@@ -82,7 +86,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			log.Debug().Str("taskServiceID", taskServiceResult.Details.ID).Str("taskSourceID", taskSourceResult.Details.ID).
 				Str("tokenAccountID", token.AccountID).Send()
 			var emails = make(chan external.EmailResult)
-			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, token.LatestHistoryID, emails, fullRefresh)
+			go taskSourceResult.Source.GetEmails(userID.(primitive.ObjectID), token.AccountID, token.LatestRefreshTimestamp, token.CurrentRefreshTimestamp, token.NextPageToken, emails)
 			emailChannels = append(emailChannels, emails)
 			emailChannelToToken[emails] = token
 		}
@@ -91,6 +95,7 @@ func (api *API) MessagesFetch(c *gin.Context) {
 	fetchedEmails := []*database.Item{}
 	badTokens := []database.ExternalAPIToken{}
 	failedFetchSources := make(map[string]bool)
+	needAdditionalRefresh := false
 	for _, emailChannel := range emailChannels {
 		emailResult := <-emailChannel
 		if emailResult.Error != nil {
@@ -109,10 +114,28 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			continue
 		}
 
-		// update historyID for token, in order to facilitate next update
-		if emailResult.HistoryID != 0 {
-			validToken := emailChannelToToken[emailChannel]
-			historyChangeable := database.ExternalAPITokenChangeable{LatestHistoryID: emailResult.HistoryID}
+		if (emailResult.RefreshState != external.GmailRefreshState{}) {
+			// update historyID for token, in order to facilitate next update
+			var validToken database.ExternalAPIToken
+			var historyChangeable database.ExternalAPITokenChangeable
+			if emailResult.RefreshState.NextPageToken != "" {
+				// this means that the refresh is still in progress
+				validToken = emailChannelToToken[emailChannel]
+				historyChangeable = database.ExternalAPITokenChangeable{
+					CurrentRefreshTimestamp: emailResult.RefreshState.CurrentRefreshTimestamp,
+					NextPageToken:           emailResult.RefreshState.NextPageToken,
+				}
+				needAdditionalRefresh = true
+			} else {
+				// this means a full refresh was completed, we can update the latest refresh timestamp and remove the during refresh state
+				validToken = emailChannelToToken[emailChannel]
+				historyChangeable = database.ExternalAPITokenChangeable{
+					LatestRefreshTimestamp:  emailResult.RefreshState.CurrentRefreshTimestamp,
+					CurrentRefreshTimestamp: "",
+					NextPageToken:           "",
+				}
+			}
+
 			dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 			defer cancel()
 			res := externalAPITokenCollection.FindOneAndUpdate(dbCtx, bson.M{"_id": validToken.ID}, bson.M{"$set": historyChangeable})
@@ -172,5 +195,11 @@ func (api *API) MessagesFetch(c *gin.Context) {
 			},
 		}, badTokenMessages...)
 	}
-	c.JSON(200, badTokenMessages)
+
+	// TODO work with frontend to use the shaped response
+	response := MessageRefreshResponse{
+		BadTokenMessages:          badTokenMessages,
+		AdditionalRefreshRequired: needAdditionalRefresh,
+	}
+	c.JSON(200, response)
 }

@@ -33,21 +33,26 @@ type InternalAPIToken struct {
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
-	ID              primitive.ObjectID `bson:"_id,omitempty"`
-	ServiceID       string             `bson:"service_id"`
-	Token           string             `bson:"token"`
-	UserID          primitive.ObjectID `bson:"user_id"`
-	AccountID       string             `bson:"account_id"`
-	DisplayID       string             `bson:"display_id"`
-	LatestHistoryID uint64             `bson:"history_id"`
-	IsUnlinkable    bool               `bson:"is_unlinkable"`
-	IsPrimaryLogin  bool               `bson:"is_primary_login"`
-	IsBadToken      bool               `bson:"is_bad_token"`
+	ID             primitive.ObjectID `bson:"_id,omitempty"`
+	ServiceID      string             `bson:"service_id"`
+	Token          string             `bson:"token"`
+	UserID         primitive.ObjectID `bson:"user_id"`
+	AccountID      string             `bson:"account_id"`
+	DisplayID      string             `bson:"display_id"`
+	IsUnlinkable   bool               `bson:"is_unlinkable"`
+	IsPrimaryLogin bool               `bson:"is_primary_login"`
+	IsBadToken     bool               `bson:"is_bad_token"`
+	// For paginated refreshes
+	LatestRefreshTimestamp  string `bson:"latest_refresh"`
+	CurrentRefreshTimestamp string `bson:"current_refresh"`
+	NextPageToken           string `bson:"next_page"`
 }
 
 type ExternalAPITokenChangeable struct {
-	IsBadToken      bool   `bson:"is_bad_token,omitempty"`
-	LatestHistoryID uint64 `bson:"history_id,omitempty"`
+	IsBadToken              bool   `bson:"is_bad_token,omitempty"`
+	LatestRefreshTimestamp  string `bson:"latest_refresh,omitempty"`
+	CurrentRefreshTimestamp string `bson:"current_refresh"`
+	NextPageToken           string `bson:"next_page"`
 }
 
 type AtlassianSiteConfiguration struct {
