@@ -133,6 +133,9 @@ func (api *API) LinkSlackApp(c *gin.Context) {
 			logger.Error().Err(err).Msg("unable to exchange Slack app oauth keys")
 			c.JSON(500, gin.H{"detail": err.Error()})
 		}
+	} else {
+		logger.Error().Msg("invalid oauth params")
+		c.JSON(500, gin.H{"detail": "invalid oauth params"})
 	}
 
 	c.Status(200)
