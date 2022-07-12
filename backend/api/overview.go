@@ -222,37 +222,6 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	isLinearLinked, err := api.IsServiceLinked(db, ctx, userID, external.TASK_SERVICE_ID_LINEAR)
-	if err != nil {
-		return nil, errors.New("failed to check if service is linked")
-	}
-	if !isLinearLinked {
-		// remove unlinked accounts
-		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-
-		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err = externalAPITokenCollection.DeleteMany(
-			dbCtx,
-			bson.M{"user_id": userID, "service_id": external.TASK_SERVICE_ID_LINEAR},
-		)
-		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to delete external api token")
-			return nil, err
-		}
-
-		return &OverviewResult[[]*TaskResult]{
-			ID:            view.ID,
-			Name:          "Linear",
-			Logo:          external.TaskServiceLinear.LogoV2,
-			Type:          ViewLinear,
-			IsLinked:      view.IsLinked,
-			TaskSectionID: primitive.NilObjectID,
-			IsReorderable: view.IsReorderable,
-			IDOrdering:    view.IDOrdering,
-			ViewItems:     nil,
-		}, nil
-	}
 
 	linearTasks, err := database.GetItems(db, userID,
 		&[]bson.M{
