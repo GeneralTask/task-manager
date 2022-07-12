@@ -256,6 +256,18 @@ func TestIsServiceLinked(t *testing.T) {
 	})
 }
 
+func TestOverviewViewDelete(t *testing.T) {
+	api := GetAPI()
+	router := GetRouter(api)
+	t.Run("UnauthorizedViewDelete", func(t *testing.T) {
+		request, _ := http.NewRequest("DELETE", "/overview/views/1", nil)
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusUnauthorized, response.Code)
+	})
+
+}
+
 func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Type, actual.Type)
