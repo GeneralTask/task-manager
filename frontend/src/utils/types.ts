@@ -186,7 +186,7 @@ export interface TPullRequest {
     num_comments: number
     created_at: string
     branch: string
-    link: string
+    deeplink: string
 }
 
 export interface TRepository {

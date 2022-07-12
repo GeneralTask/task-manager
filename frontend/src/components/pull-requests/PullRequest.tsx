@@ -12,7 +12,7 @@ interface PullRequestProps {
     pullRequest: TPullRequest
 }
 const PullRequest = ({ pullRequest }: PullRequestProps) => {
-    const { title, number, status, author, num_comments, created_at, branch, link } = pullRequest
+    const { title, number, status, author, num_comments, created_at, branch, deeplink } = pullRequest
 
     const formattedTime = getHumanDateTime(DateTime.fromISO(created_at))
     return (
@@ -38,7 +38,7 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
                 <BranchName name={branch} />
             </Column>
             <Column type="link">
-                <LinkButton href={link} target="_blank">
+                <LinkButton href={deeplink} target="_blank">
                     <Icon source={icons.external_link} size="small" />
                 </LinkButton>
             </Column>

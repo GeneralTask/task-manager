@@ -5,87 +5,16 @@ import PullRequest from '../pull-requests/PullRequest'
 import React from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
-import { TRepository } from '../../utils/types'
-
-export const dummyRepositories: TRepository[] = [
-    {
-        id: 'repo-1',
-        name: 'Task Manager',
-        pull_requests: [
-            {
-                id: 'pr-1',
-                title: 'Pull Request 1',
-                number: 1069,
-                status: {
-                    text: 'All tests failing',
-                    color: 'red',
-                },
-                author: 'Scott Mai',
-                num_comments: 3,
-                created_at: '2020-04-01T00:00:00.000Z',
-                branch: 'scott/fro-193-implementation-of-new-pr-view',
-                link: 'https://github.com/octocat/Hello-World/pull/1347',
-            },
-            {
-                id: 'pr-2',
-                title: 'Pull Request 1',
-                number: 1420,
-                status: {
-                    text: 'Ready to Merge',
-                    color: 'green',
-                },
-                author: 'Nolan',
-                num_comments: 4,
-                created_at: '2020-04-01T00:00:00.000Z',
-                branch: 'scott/fro-193-implementation-of-new-pr-view',
-                link: 'https://github.com/octocat/Hello-World/pull/1347',
-            },
-        ],
-    },
-    {
-        id: 'repo-2',
-        name: 'Repository 2',
-        pull_requests: [
-            {
-                id: 'pr-1',
-                title: 'Pull Request 1',
-                number: 1069,
-                status: {
-                    text: 'All tests failing',
-                    color: 'yellow',
-                },
-                author: 'Scott Mai',
-                num_comments: 6,
-                created_at: '2020-04-01T00:00:00.000Z',
-                branch: 'scott/fro-193-implementation-of-new-pr-view',
-                link: 'https://github.com/octocat/Hello-World/pull/1347',
-            },
-            {
-                id: 'pr-2',
-                title: 'Pull Request 1',
-                number: 1420,
-                status: {
-                    text: 'Ready to Merge',
-                    color: 'gray',
-                },
-                author: 'Nolan',
-                num_comments: 9,
-                created_at: '2020-04-01T00:00:00.000Z',
-                branch: 'scott/fro-193-implementation-of-new-pr-view',
-                link: 'https://github.com/octocat/Hello-World/pull/1347',
-            },
-        ],
-    },
-]
+import { useGetPullRequests } from '../../services/api-query-hooks'
 
 const PullRequestsView = () => {
-    const repositories = dummyRepositories
+    const { data: repositories } = useGetPullRequests()
 
     return (
         <ScrollableListTemplate>
             <SectionHeader sectionName="Pull Requests" allowRefresh={false} />
             <PullRequestViewContainer>
-                {repositories.map((repository) => (
+                {repositories?.map((repository) => (
                     <Repository key={repository.id}>
                         <RepositoryName>{repository.name}</RepositoryName>
 
