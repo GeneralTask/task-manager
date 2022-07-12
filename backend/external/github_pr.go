@@ -90,18 +90,15 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 
 		githubClient = getGithubClientFromToken(extCtx, token)
-		fmt.Println("got client from token")
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 	} else {
-		fmt.Println("oh no blank client")
 		githubClient = github.NewClient(nil)
 	}
 	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
 
 	logger := logging.GetSentryLogger()
 	if err != nil || githubUser == nil {
-		fmt.Println("oh no 1")
 		logger.Error().Err(err).Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
