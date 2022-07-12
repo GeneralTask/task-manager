@@ -63,6 +63,7 @@ export const KEYBOARD_SHORTCUTS = Object.freeze({
     reply: 'R',
     replyAll: 'Shift+R',
     select: 'Enter',
+    send: CMD_CTRL_KEY + '+Enter',
     showDatePicker: 'S',
     showLabelEditor: 'L',
     showTimeEstimationPicker: 'F',

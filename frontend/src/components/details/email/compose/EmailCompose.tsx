@@ -23,6 +23,7 @@ import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
 import { useComposeMessage } from '../../../../services/api-query-hooks'
+import { useKeyboardShortcut } from '../../../../hooks'
 
 interface EmailComposeProps {
     email: TEmail
@@ -87,6 +88,9 @@ const EmailCompose = (props: EmailComposeProps) => {
 
     const startSendEmail = useCallback(
         (recipients: TRecipients, subject: string, body: string) => {
+            if (recipients.to.length === 0) {
+                return
+            }
             const timeout = setTimeout(() => {
                 // insert breaks to ensure email is properly formatted on other clients
                 sendEmail(recipients, subject, body.replace(/\n/g, '<br/>'))
@@ -123,6 +127,21 @@ const EmailCompose = (props: EmailComposeProps) => {
         [sendEmail]
     )
 
+    // allow Cmd/Ctrl+Enter KB shortcut to be propagated
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if ((e.metaKey || e.ctrlKey) && e.key !== 'Enter') {
+            e.stopPropagation()
+        }
+    }
+
+    const onSend = () => {
+        if (recipients.to.length !== 0) {
+            startSendEmail(recipients, subject, body)
+        }
+    }
+
+    useKeyboardShortcut('send', onSend)
+
     if (props.isPending) {
         return null
     }
@@ -139,9 +158,7 @@ const EmailCompose = (props: EmailComposeProps) => {
                         placeholder="Subject"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
-                        onKeyDown={(e) => {
-                            e.stopPropagation()
-                        }}
+                        onKeyDown={(e) => handleKeyDown(e)}
                     />
                 </EmailFieldContainer>
                 <Divider color={Colors.gray._200} />

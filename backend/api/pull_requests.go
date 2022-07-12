@@ -18,6 +18,12 @@ const (
 	PR_COLOR_GRAY   = "gray"
 )
 
+type RepositoryResult struct {
+	ID           string              `json:"id"`
+	Name         string              `json:"name"`
+	PullRequests []PullRequestResult `json:"pull_requests"`
+}
+
 type PullRequestResult struct {
 	ID          string            `json:"id"`
 	Title       string            `json:"title"`
@@ -54,9 +60,16 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	pullRequestResults := []PullRequestResult{}
+	repositoryIDToResult := make(map[string]RepositoryResult)
+	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
 	for _, pullRequest := range *pullRequests {
-		pullRequestResults = append(pullRequestResults, PullRequestResult{
+		repositoryID := pullRequest.RepositoryId
+		repositoryResult := RepositoryResult{
+			ID:   repositoryID,
+			Name: pullRequest.RepositoryName,
+		}
+		repositoryIDToResult[repositoryID] = repositoryResult
+		pullRequestResult := PullRequestResult{
 			ID:     pullRequest.ID.Hex(),
 			Title:  pullRequest.Title,
 			Number: pullRequest.Number,
@@ -69,9 +82,18 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			CreatedAt:   pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
 			Branch:      pullRequest.Branch,
 			Deeplink:    pullRequest.Deeplink,
+		}
+		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
+	}
+	repositoryResults := []RepositoryResult{}
+	for repositoryID, repositoryResult := range repositoryIDToResult {
+		repositoryResults = append(repositoryResults, RepositoryResult{
+			ID:           repositoryID,
+			Name:         repositoryResult.Name,
+			PullRequests: repositoryIDToPullRequests[repositoryID],
 		})
 	}
-	c.JSON(200, pullRequestResults)
+	c.JSON(200, repositoryResults)
 }
 
 func getColorFromRequiredAction(requiredAction string) string {

@@ -20,6 +20,7 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 const BannerAndSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
+    border-right: 1px solid ${Colors.gray._300};
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
@@ -30,6 +31,7 @@ const ScrollViewMimic = styled.div`
     padding-right: 10px;
     overflow-y: auto;
     flex: 1;
+    width: ${DEFAULT_VIEW_WIDTH};
 `
 const TaskSectionViewContainer = styled.div`
     flex: 1;
@@ -38,7 +40,6 @@ const TaskSectionViewContainer = styled.div`
     flex-direction: column;
     padding-top: 0;
     background-color: ${Colors.gray._50};
-    width: ${DEFAULT_VIEW_WIDTH};
 `
 const TasksContainer = styled.div`
     display: flex;
@@ -150,7 +151,7 @@ const TaskSectionView = () => {
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {task && section && <TaskDetails task={task} />}
+            {task && section && <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />}
             <ScheduleGapFiller />
         </>
     )

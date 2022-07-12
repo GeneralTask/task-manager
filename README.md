@@ -147,8 +147,6 @@ Here's a list of nice k8s commands to add to your shell file:
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
 alias kroll="kubectl rollout restart deployment/core-deployment"
 ksh() {
-    # kubectl exec -it "$1" /bin/sh
-    # kubectl exec -it "$1" -- "/bin/sh"
     kubectl exec -it $1 -- "/bin/sh"
 }
 alias kgp="kubectl get pods"
@@ -165,7 +163,7 @@ Here are a few common interactions:
 * List pods, run `kgp`
 * SSH to a pod, run `ksh <pod name>`, for example: `ksh core-deployment-756d697659-hqgk4`
 * View logs for a specific pod `k logs core-deployment-756d697659-hqgk4`
-* View collated logs for the whole deployment `kdlogs`
+* View collated logs for the whole deployment with `kdlogs` or `kdl` (for the latter, you need to install `stern`)
 
 
 ## Documentation updates

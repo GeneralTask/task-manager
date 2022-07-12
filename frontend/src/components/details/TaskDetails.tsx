@@ -12,7 +12,7 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
@@ -27,7 +27,6 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.gray._50};
     min-width: 300px;
-    border-left: 1px solid ${Colors.gray._300};
     padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
 const DetailsTopContainer = styled.div`
@@ -100,8 +99,9 @@ const SYNC_MESSAGES = {
 
 interface TaskDetailsProps {
     task: TTask
+    link: string
 }
-const TaskDetails = ({ task }: TaskDetailsProps) => {
+const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -116,7 +116,7 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
-    const params = useParams()
+    const location = useLocation()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -137,10 +137,10 @@ const TaskDetails = ({ task }: TaskDetailsProps) => {
     /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
     so we can then navigate to the correct link */
     useEffect(() => {
-        if (!task.isOptimistic) {
-            navigate(`/tasks/${params.section}/${task.id}`)
+        if (!task.isOptimistic && location.pathname !== link) {
+            navigate(link)
         }
-    }, [task.isOptimistic])
+    }, [task.isOptimistic, location, link])
 
     useLayoutEffect(() => {
         if (titleRef.current) {
