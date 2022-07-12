@@ -164,18 +164,13 @@ const NavigationSectionLinks = ({
                     isCurrentPage={mailbox === 'archive'}
                 />
             </NavigationLinkDropdown>
-            {isDevelopmentMode && (
-                <NavigationLink
-                    link="/pull-requests"
-                    title="Pull Requests"
-                    icon={icons.repository}
-                    count={pullRequestRepositories.reduce<number>(
-                        (total, repo) => total + repo.pull_requests.length,
-                        0
-                    )}
-                    isCurrentPage={pathName === 'pull-requests'}
-                />
-            )}
+            <NavigationLink
+                link="/pull-requests"
+                title="Pull Requests"
+                icon={icons.repository}
+                count={pullRequestRepositories.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
+                isCurrentPage={pathName === 'pull-requests'}
+            />
             <NavigationLink
                 link="/settings"
                 title="Settings"
