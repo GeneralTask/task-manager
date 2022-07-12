@@ -170,6 +170,14 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	isLinearLinked, err := api.IsServiceLinked(db, ctx, userID, external.TASK_SERVICE_ID_LINEAR)
+	if err != nil {
+		return nil, errors.New("failed to check if service is linked")
+	}
+	if !isLinearLinked {
+		return nil, errors.New("service is not linked")
+	}
+
 	linearTasks, err := database.GetItems(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
