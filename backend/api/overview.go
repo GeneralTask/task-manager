@@ -176,6 +176,12 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
+	viewID, err := primitive.ObjectIDFromHex(c.Param("view_id"))
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to parse view id")
+		Handle500(c)
+		return
+	}
 	_, err = database.GetUser(db, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -187,10 +193,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	defer cancel()
 	deleteResult, err := database.GetViewCollection(db).DeleteOne(
 		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-			{"view_id": c.Param("view_id")},
-		}},
+		bson.M{"$and": []bson.M{{"_id": viewID}, {"user_id": userID}}},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to delete view")
@@ -198,6 +201,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 		return
 	}
 	if deleteResult.DeletedCount != 1 {
+		api.Logger.Error().Msgf("count: %v", deleteResult.DeletedCount)
 		api.Logger.Error().Msgf("failed to delete view with id: %s", c.Param("view_id"))
 		Handle404(c)
 		return

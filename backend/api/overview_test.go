@@ -257,15 +257,46 @@ func TestIsServiceLinked(t *testing.T) {
 }
 
 func TestOverviewViewDelete(t *testing.T) {
+	parentCtx := context.Background()
 	api := GetAPI()
 	router := GetRouter(api)
-	t.Run("UnauthorizedViewDelete", func(t *testing.T) {
+	t.Run("DeleteUnauthorizedView", func(t *testing.T) {
 		request, _ := http.NewRequest("DELETE", "/overview/views/1", nil)
 		response := httptest.NewRecorder()
 		router.ServeHTTP(response, request)
 		assert.Equal(t, http.StatusUnauthorized, response.Code)
 	})
+	t.Run("DeleteInvalidURL", func(t *testing.T) {
+		authToken := login("approved@generaltask.com", "")
+		request, _ := http.NewRequest("DELETE", "/overview/views/1", nil)
+		request.Header.Set("Authorization", "Bearer "+authToken)
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusNotFound, response.Code)
+	})
+	t.Run("Success", func(t *testing.T) {
+		authToken := login("test_sections@generaltask.com", "Tester")
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
 
+		viewCollection := database.GetViewCollection(db)
+		userID := getUserIDFromAuthToken(t, db, authToken)
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		viewID := view.InsertedID.(primitive.ObjectID)
+
+		request, _ := http.NewRequest("DELETE", "/overview/views/"+viewID.Hex()+"/", nil)
+		request.Header.Set("Authorization", "Bearer "+authToken)
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, request)
+		assert.Equal(t, http.StatusOK, response.Code)
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
 }
 
 func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
