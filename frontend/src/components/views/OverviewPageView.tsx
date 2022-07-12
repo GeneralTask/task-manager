@@ -20,8 +20,11 @@ const ActionsContainer = styled.div`
 // placeholder for details view
 const DetailsViewContainer = styled.div`
     background-color: ${Colors.white};
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding-top: 50vh;
-    min-width: 400px;
+    min-width: 300px;
 `
 
 const OverviewView = () => {
