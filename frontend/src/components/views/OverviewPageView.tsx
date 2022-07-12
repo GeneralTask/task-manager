@@ -23,6 +23,9 @@ const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
 `
+const DetailsViewContainer = styled.div`
+    flex-basis: 400px;
+`
 
 const OverviewView = () => {
     const { data: views, isLoading } = useGetOverviewViews()
@@ -74,7 +77,7 @@ const OverviewView = () => {
                     ))}
                 </ScrollableListTemplate>
             </OverviewPageContainer>
-            {detailsView}
+            <DetailsViewContainer>{detailsView}</DetailsViewContainer>
         </>
     )
 }

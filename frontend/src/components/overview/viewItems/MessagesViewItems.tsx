@@ -21,7 +21,7 @@ const ExternalViewItems = ({ view }: ExternalViewItemsProps) => {
     const scrollingRef = useRef<HTMLDivElement>(null)
 
     return (
-        <div ref={scrollingRef}>
+        <div style={{ width: '100%' }} ref={scrollingRef}>
             {view.view_items.map((item, index) => (
                 <Fragment key={item.id}>
                     <ThreadTemplate>
