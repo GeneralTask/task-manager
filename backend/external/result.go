@@ -8,11 +8,16 @@ type CalendarResult struct {
 }
 
 type EmailResult struct {
-	Emails     []*database.Item
-	Error      error
-	IsBadToken bool
-	SourceID   string
-	HistoryID  uint64
+	Emails       []*database.Item
+	Error        error
+	IsBadToken   bool
+	SourceID     string
+	RefreshState GmailRefreshState
+}
+
+type GmailRefreshState struct {
+	CurrentRefreshTimestamp string
+	NextPageToken           string
 }
 
 type TaskResult struct {

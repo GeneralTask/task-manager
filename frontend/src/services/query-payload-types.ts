@@ -95,6 +95,10 @@ interface TThreadQueryData {
     pageParams: unknown[]
 }
 
+interface TMessageFetchData {
+    refresh_required: boolean
+}
+
 export {
     TCreateEventPayload,
     TEmailThreadResponse,
@@ -113,4 +117,5 @@ export {
     TCreateTaskFromThreadData,
     TModifyThreadData,
     TThreadQueryData,
+    TMessageFetchData,
 }

@@ -51,7 +51,7 @@ type GithubPRData struct {
 	ChecksDidFail        bool
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
+func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, fromTimestamp string, toTimestamp string, nextPageToken string, result chan<- EmailResult) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -99,14 +99,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	logger := logging.GetSentryLogger()
 	if err != nil || githubUser == nil {
-		logger.Error().Msg("failed to fetch Github user")
+		logger.Error().Err(err).Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
 
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
-		logger.Error().Msg("failed to fetch Github repos for user")
+		logger.Error().Err(err).Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}

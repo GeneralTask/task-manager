@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,8 +26,8 @@ import (
 )
 
 const (
-	fullFetchMaxResults = int64(100)
-	concurrencyLimit    = 15
+	fetchSize        = int64(30)
+	concurrencyLimit = 15
 )
 
 type GmailThreadResponse struct {
@@ -51,7 +52,7 @@ type GmailThreadRequest struct {
 	Result       chan *gmail.Thread
 }
 
-func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool) {
+func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID string, fromTimestamp string, toTimestamp string, nextPageToken string, result chan<- EmailResult) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -69,10 +70,26 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	}
 
 	threads := []*gmail.Thread{}
-	var recentHistoryID uint64
+	// this means this is the initial refresh under this method
+	// we will grab all emails for the last week as the initial refresh
+	if fromTimestamp == "" {
+		refreshTime := time.Now().Add(-time.Hour * 24 * 7)
+		fromTimestamp = strconv.FormatInt(refreshTime.Unix(), 10)
+	}
 
-	// TODO: for a full refresh, we probably want to paginate through this request until we've fetched all threads in the DB
-	threadsResponse, err := gmailService.Users.Threads.List("me").MaxResults(fullFetchMaxResults).Do()
+	// we will only get fetch size per call. This means that we will
+	// have to do a number of calls to this endpoint in order to fully load the results
+	threadCall := gmailService.Users.Threads.List("me").MaxResults(fetchSize).Q("after:" + fromTimestamp)
+
+	// if next page token nil, this is a first refresh in the batch
+	// we should save the current time so we can use it in the update
+	if nextPageToken == "" {
+		toTimestamp = strconv.FormatInt(time.Now().Unix(), 10)
+	} else {
+		threadCall.PageToken(nextPageToken)
+	}
+
+	threadsResponse, err := threadCall.Do()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load Gmail threads for user")
 		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
@@ -87,13 +104,17 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 	for _, thread := range threadsResponse.Threads {
 		threadIds = append(threadIds, thread.Id)
 	}
-	threads = runThreadWorkers(gmailService, threadIds)
-	if len(threadsResponse.Threads) > 0 {
-		recentHistoryID = threadsResponse.Threads[0].HistoryId
-	}
 
+	threads = runThreadWorkers(gmailService, threadIds)
 	emailResult := updateOrCreateThreads(userID, accountID, db, threads)
-	emailResult.HistoryID = recentHistoryID
+
+	// send the refresh state back to the original method that calls this
+	// we will persist the information in the DB to continue this request if
+	// we are not able to fully process the refresh in this request
+	emailResult.RefreshState = GmailRefreshState{
+		CurrentRefreshTimestamp: toTimestamp,
+		NextPageToken:           threadsResponse.NextPageToken,
+	}
 	result <- emailResult
 }
 

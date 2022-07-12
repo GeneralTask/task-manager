@@ -8,7 +8,7 @@ import (
 )
 
 type TaskSource interface {
-	GetEmails(userID primitive.ObjectID, accountID string, latestHistoryID uint64, result chan<- EmailResult, fullRefresh bool)
+	GetEmails(userID primitive.ObjectID, accountID string, fromTimestamp string, toTimestamp string, nextPageToken string, result chan<- EmailResult)
 	GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)

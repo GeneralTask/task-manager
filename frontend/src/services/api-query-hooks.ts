@@ -17,6 +17,7 @@ import {
     TReorderTaskData,
     TTaskModifyRequestBody,
     TThreadQueryData,
+    TMessageFetchData,
 } from './query-payload-types'
 import {
     TEmail,
@@ -578,8 +579,12 @@ const getInfiniteMessages = async ({ pageParam = 1 }) => {
 
 export const useFetchMessages = () => {
     const queryClient = useGTQueryClient()
-    return useQuery([], () => fetchMessages(), {
-        onSettled: () => {
+    return useQuery<TMessageFetchData>('messagesFetch', () => fetchMessages(), {
+        onSettled: (data) => {
+            if (data?.refresh_required) {
+                queryClient.invalidateQueries('messagesFetch')
+            }
+
             queryClient.invalidateQueries('emailThreads')
         },
     })

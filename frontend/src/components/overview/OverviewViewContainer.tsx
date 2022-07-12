@@ -5,6 +5,7 @@ import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
+import MessagesViewItems from './viewItems/MessagesViewItems'
 
 const PAGE_SIZE = 5
 
@@ -23,6 +24,8 @@ const OverviewView = ({ view }: OverviewViewProps) => {
             case 'linear':
             case 'slack':
                 return ExternalViewItems
+            case OverviewViewType.MESSAGE:
+                return MessagesViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }
