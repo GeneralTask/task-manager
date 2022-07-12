@@ -173,7 +173,7 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 }
 
 func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context, views *[]database.View, userID primitive.ObjectID) error {
-	for _, v := range *views {
+	for index, v := range *views {
 		if v.UserID != userID {
 			return errors.New("invalid user")
 		}
@@ -197,6 +197,7 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 					api.Logger.Error().Err(err).Msg("failed to update view")
 					return err
 				}
+				(*views)[index].IsLinked = false
 			}
 		} else {
 			// If view is unlinked but service does exist, update view to linked
@@ -210,6 +211,7 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 					api.Logger.Error().Err(err).Msg("failed to update view")
 					return err
 				}
+				(*views)[index].IsLinked = true
 			}
 		}
 	}

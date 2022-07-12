@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -224,38 +225,6 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 }
 
-func TestIsServiceLinked(t *testing.T) {
-	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	api := GetAPI()
-
-	userID := primitive.NewObjectID()
-	testServiceID := "testID"
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
-		UserID:    userID,
-		ServiceID: testServiceID,
-	})
-
-	t.Run("ServiceLinked", func(t *testing.T) {
-		result, err := api.IsServiceLinked(db, parentCtx, userID, testServiceID)
-		assert.NoError(t, err)
-		assert.True(t, result)
-	})
-	t.Run("InvalidUserID", func(t *testing.T) {
-		result, err := api.IsServiceLinked(db, parentCtx, primitive.NewObjectID(), testServiceID)
-		assert.NoError(t, err)
-		assert.False(t, result)
-	})
-	t.Run("InvalidServiceID", func(t *testing.T) {
-		result, err := api.IsServiceLinked(db, parentCtx, userID, "invalidServiceID")
-		assert.NoError(t, err)
-		assert.False(t, result)
-	})
-}
-
 func TestGetLinearOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -329,6 +298,98 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
+	})
+}
+
+func TestUpdateViewsLinkedStatus(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	api := GetAPI()
+	userID := primitive.NewObjectID()
+
+	t.Run("InvalidUserID", func(t *testing.T) {
+		views := []database.View{
+			{
+				UserID: userID,
+			},
+		}
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+	})
+	t.Run("NoViews", func(t *testing.T) {
+		views := []database.View{}
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, primitive.NewObjectID())
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(views))
+	})
+	t.Run("UpdateSingleLinkedView", func(t *testing.T) {
+		views := []database.View{
+			{
+				UserID:   userID,
+				IsLinked: true,
+				Type:     "linear",
+			},
+		}
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(views))
+		assert.False(t, views[0].IsLinked)
+	})
+	t.Run("UpdateSingleUnlinkedView", func(t *testing.T) {
+		views := []database.View{
+			{
+				UserID:   userID,
+				IsLinked: false,
+				Type:     "linear",
+			},
+		}
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		externalAPITokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
+			UserID:    userID,
+			ServiceID: external.TaskServiceLinear.ID,
+		})
+
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(views))
+		assert.True(t, views[0].IsLinked)
+	})
+}
+
+func TestIsServiceLinked(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	api := GetAPI()
+
+	userID := primitive.NewObjectID()
+	testServiceID := "testID"
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+		UserID:    userID,
+		ServiceID: testServiceID,
+	})
+
+	t.Run("ServiceLinked", func(t *testing.T) {
+		result, err := api.IsServiceLinked(db, parentCtx, userID, testServiceID)
+		assert.NoError(t, err)
+		assert.True(t, result)
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		result, err := api.IsServiceLinked(db, parentCtx, primitive.NewObjectID(), testServiceID)
+		assert.NoError(t, err)
+		assert.False(t, result)
+	})
+	t.Run("InvalidServiceID", func(t *testing.T) {
+		result, err := api.IsServiceLinked(db, parentCtx, userID, "invalidServiceID")
+		assert.NoError(t, err)
+		assert.False(t, result)
 	})
 }
 
