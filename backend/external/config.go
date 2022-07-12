@@ -39,10 +39,11 @@ type Config struct {
 }
 
 func GetConfig() Config {
+	fetchToken := true
 	return Config{
 		GoogleLoginConfig:     getGoogleLoginConfig(),
 		GoogleAuthorizeConfig: getGoogleLinkConfig(),
-		Github:                GithubConfig{OauthConfig: getGithubConfig()},
+		Github:                GithubConfig{OauthConfig: getGithubConfig(), ConfigValues: GithubConfigValues{FetchExternalAPIToken: &fetchToken}},
 		Slack:                 getSlackConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
