@@ -2,11 +2,13 @@ package api
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLinkSlack(t *testing.T) {
@@ -72,5 +74,45 @@ func TestLinkSlackCallback(t *testing.T) {
 		userInfoURL := userInfoServer.URL + "/"
 		api.ExternalConfig.Slack.ConfigValues.UserInfoURL = &userInfoURL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/slack/callback/", external.TASK_SERVICE_ID_SLACK)
+	})
+}
+
+func TestLinkSlackApp(t *testing.T) {
+	t.Run("FailedNoCode", func(t *testing.T) {
+		api := GetAPI()
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+	t.Run("FailedNoAccessToken", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":""}`)
+		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=123abc&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+	t.Run("Success", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
+		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=123abc&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
 	})
 }

@@ -14,6 +14,7 @@ const (
 	TASK_SERVICE_ID_GOOGLE    = "google"
 	TASK_SERVICE_ID_LINEAR    = "linear"
 	TASK_SERVICE_ID_SLACK     = "slack"
+	TASK_SERVICE_ID_SLACK_APP = "slack_app"
 	TASK_SERVICE_ID_TRELLO    = "trello"
 
 	TASK_SOURCE_ID_ASANA       = "asana_task"
@@ -31,6 +32,7 @@ type Config struct {
 	GoogleLoginConfig     OauthConfigWrapper
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 SlackConfig
+	SlackApp              SlackConfig
 	Trello                *oauth1.Config
 	Asana                 OauthConfigWrapper
 	GoogleOverrideURLs    GoogleURLOverrides
@@ -44,6 +46,7 @@ func GetConfig() Config {
 		GoogleAuthorizeConfig: getGoogleLinkConfig(),
 		Github:                GithubConfig{OauthConfig: getGithubConfig()},
 		Slack:                 getSlackConfig(),
+		SlackApp:              GetSlackAppConfig(),
 		Trello:                getTrelloConfig(),
 		Asana:                 getAsanaConfig(),
 		Linear:                LinearConfig{OauthConfig: getLinearOauthConfig()},
@@ -163,6 +166,11 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 			Service: SlackService{Config: config.Slack},
 			Details: TaskServiceSlack,
 			Sources: []TaskSourceResult{{Source: SlackSavedTaskSource{Slack: slackService}, Details: TaskSourceSlackSaved}},
+		},
+		TASK_SERVICE_ID_SLACK_APP: {
+			Service: SlackService{Config: config.SlackApp},
+			Details: TaskServiceSlack,
+			Sources: []TaskSourceResult{},
 		},
 		TASK_SERVICE_ID_GITHUB: {
 			Service: githubService,
