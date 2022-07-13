@@ -87,6 +87,7 @@ func TestGetPullRequests(t *testing.T) {
 			Branch:         "ExampleBranch",
 			RequiredAction: "Fix Merge Conflicts",
 			CommentCount:   0,
+			LastUpdatedAt:  1296068472000,
 		}
 		assert.NoError(t, result.Error)
 		assert.Equal(t, len(result.PullRequests), 1)
