@@ -36,12 +36,10 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
         [reorderViews]
     )
 
-    if (!views) {
-        if (isLoading) {
-            return <Spinner />
-        } else {
-            return <div>No views yet</div>
-        }
+    if (isLoading) {
+        return <Spinner />
+    } else if (!views) {
+        return <div>No views yet</div>
     }
 
     return (
