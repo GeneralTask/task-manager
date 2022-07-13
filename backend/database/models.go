@@ -43,16 +43,21 @@ type ExternalAPIToken struct {
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
 	IsBadToken     bool               `bson:"is_bad_token"`
 	// For paginated refreshes
+	LatestHistoryID         uint64 `bson:"history_id"`
+	NextHistoryPageToken    string `bson:"next_history_page"`
 	LatestRefreshTimestamp  string `bson:"latest_refresh"`
 	CurrentRefreshTimestamp string `bson:"current_refresh"`
-	NextPageToken           string `bson:"next_page"`
+	NextRefreshPageToken    string `bson:"next_refresh_page"`
 }
 
 type ExternalAPITokenChangeable struct {
-	IsBadToken              bool   `bson:"is_bad_token,omitempty"`
+	IsBadToken bool `bson:"is_bad_token,omitempty"`
+	// For paginated refreshes
+	LatestHistoryID         uint64 `bson:"history_id,omitempty"`
+	NextHistoryPageToken    string `bson:"next_history_page"`
 	LatestRefreshTimestamp  string `bson:"latest_refresh,omitempty"`
 	CurrentRefreshTimestamp string `bson:"current_refresh"`
-	NextPageToken           string `bson:"next_page"`
+	NextRefreshPageToken    string `bson:"next_refresh_page"`
 }
 
 type AtlassianSiteConfiguration struct {

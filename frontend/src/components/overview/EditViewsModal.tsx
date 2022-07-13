@@ -7,9 +7,10 @@ import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import EditViewsSelectedView from './EditViewsSelectedView'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { useGetOverviewViews, useReorderViews } from '../../services/api/overview.hooks'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import Spinner from '../atoms/Spinner'
 
 const AddViewsButton = styled(NoStyleButton)`
     border: 1px solid ${Colors.gray._500};
@@ -27,12 +28,19 @@ interface EditViewsModalProps {
     goToAddViewsView: () => void
 }
 const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalProps) => {
-    const { data: views, temporaryReorderViews } = useGetOverviewViews()
+    const { data: views, isLoading } = useGetOverviewViews()
+    const { mutate: reorderViews } = useReorderViews()
 
     const handleReorder = useCallback(
-        (item: DropItem, dropIndex: number) => temporaryReorderViews(item.id, dropIndex),
-        [temporaryReorderViews]
+        (item: DropItem, dropIndex: number) => reorderViews({ viewId: item.id, idOrdering: dropIndex }),
+        [reorderViews]
     )
+
+    if (isLoading) {
+        return <Spinner />
+    } else if (!views) {
+        return <div>No views yet</div>
+    }
 
     return (
         <GTModal
