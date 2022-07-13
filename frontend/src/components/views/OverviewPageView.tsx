@@ -13,6 +13,7 @@ import Spinner from '../atoms/Spinner'
 
 const OverviewPageContainer = styled.div`
     display: flex;
+    border-right: 1px solid ${Colors.gray._300};
 `
 const PageHeader = styled.div`
     padding: ${Spacing.padding._16};
