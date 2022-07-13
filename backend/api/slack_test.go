@@ -102,6 +102,19 @@ func TestLinkSlackApp(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	})
+	t.Run("FailedExchangeFailure", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, "")
+		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=123abc&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
 	t.Run("Success", func(t *testing.T) {
 		api := GetAPI()
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
