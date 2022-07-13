@@ -51,16 +51,14 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <OverflowContainer>
-                {taskSections && threadsInbox && pullRequestRepositories && (
-                    <NavigationSectionLinks
-                        taskSections={taskSections}
-                        threadsInbox={threadsInbox}
-                        pullRequestRepositories={pullRequestRepositories}
-                        sectionId={sectionIdParam || ''}
-                        mailbox={mailbox === 'inbox' || mailbox === 'archive' ? mailbox : undefined}
-                        pathName={pathname.split('/')[1]}
-                    />
-                )}
+                <NavigationSectionLinks
+                    taskSections={taskSections}
+                    threadsInbox={threadsInbox}
+                    pullRequestRepositories={pullRequestRepositories}
+                    sectionId={sectionIdParam || ''}
+                    mailbox={mailbox === 'inbox' || mailbox === 'archive' ? mailbox : undefined}
+                    pathName={pathname.split('/')[1]}
+                />
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />
