@@ -41,13 +41,13 @@ type OverviewResult[T ViewItems] struct {
 }
 
 type SupportedViewItem struct {
-	Name            string             `json:"name"`
-	IsLinked        bool               `json:"is_linked"`
-	GithubID        primitive.ObjectID `json:"github_id"`
-	MessagesID      primitive.ObjectID `json:"messages_id"`
-	SlackMessagesID primitive.ObjectID `json:"slack_messaged_id"`
-	TaskSectionID   primitive.ObjectID `json:"task_section_id"`
-	LinearID        primitive.ObjectID `json:"linear_id"`
+	Name          string             `json:"name"`
+	IsLinked      bool               `json:"is_linked"`
+	GithubID      primitive.ObjectID `json:"github_id"`
+	MessagesID    primitive.ObjectID `json:"messages_id"`
+	SlackID       primitive.ObjectID `json:"slack_messaged_id"`
+	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	LinearID      primitive.ObjectID `json:"linear_id"`
 }
 
 type SupportedView struct {
