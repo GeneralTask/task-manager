@@ -302,16 +302,29 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		expectedViewResult := OverviewResult[[]*TaskResult]{
-			ID:            view.ID,
-			Name:          "Linear",
-			Type:          ViewLinear,
-			Logo:          "linear",
-			IsLinked:      false,
-			IsReorderable: false,
-			IDOrdering:    1,
-			TaskSectionID: primitive.NilObjectID,
-		}
+		expectedViewResult.IsLinked = false
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("TaskWithDifferentSource", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		_, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      "randomSource",
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.IsLinked = false
+		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 }
