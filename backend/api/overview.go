@@ -122,7 +122,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		return nil, err
 	}
 
-	var taskResults []*TaskResult
+	taskResults := []*TaskResult{}
 	for _, task := range *tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
