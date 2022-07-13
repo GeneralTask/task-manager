@@ -16,6 +16,10 @@ import (
 type ViewType string
 
 const (
+	ViewLinearName = "Linear"
+)
+
+const (
 	ViewTaskSection ViewType = "task_section"
 	ViewLinear      ViewType = "linear"
 )
@@ -216,7 +220,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if !view.IsLinked {
 		return &OverviewResult[[]*TaskResult]{
 			ID:            view.ID,
-			Name:          "Linear",
+			Name:          ViewLinearName,
 			Logo:          external.TaskServiceLinear.LogoV2,
 			Type:          ViewLinear,
 			IsLinked:      view.IsLinked,
