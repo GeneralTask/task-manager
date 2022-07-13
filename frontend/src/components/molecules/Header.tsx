@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Colors, Spacing, Typography } from '../../styles'
-import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api-query-hooks'
+import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { Icon } from '../atoms/Icon'
 import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'

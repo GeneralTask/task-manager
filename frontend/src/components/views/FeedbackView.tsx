@@ -9,7 +9,7 @@ import TextArea from '../atoms/TextArea'
 import { setShowModal } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useAppDispatch } from '../../redux/hooks'
-import { usePostFeedback } from '../../services/api-query-hooks'
+import { usePostFeedback } from '../../services/api/feedback.hooks'
 
 const FeedbackViewContainer = styled.div`
     display: flex;

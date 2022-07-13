@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react'
 import { margin, padding } from '../../styles/spacing'
-import { useGetInfiniteThreads, useGetPullRequests, useGetTasks } from '../../services/api-query-hooks'
+import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
+import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useLocation, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { useCreateTask } from '../../services/api-query-hooks'
+import { useCreateTask } from '../../services/api/tasks.hooks'
 import { Colors, Images, Typography } from '../../styles'
 import { radius } from '../../styles/border'
 import { padding } from '../../styles/spacing'
