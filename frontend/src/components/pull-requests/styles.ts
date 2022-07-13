@@ -109,9 +109,12 @@ export const BranchNameContainer = styled.div`
 `
 
 export const LinkButton = styled(NoStyleAnchor)`
-    margin: auto;
-    padding: ${Spacing.padding._8};
-    background-color: ${Colors.gray._100};
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: ${Colors.white};
+    border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.large};
     cursor: pointer;
 `
