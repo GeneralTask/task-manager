@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -258,8 +259,6 @@ func TestIsServiceLinked(t *testing.T) {
 
 func TestOverviewViewDelete(t *testing.T) {
 	parentCtx := context.Background()
-	api := GetAPI()
-	router := GetRouter(api)
 	authToken := login("testDeleteView@generaltask.com", "")
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -275,34 +274,24 @@ func TestOverviewViewDelete(t *testing.T) {
 	viewID := view.InsertedID.(primitive.ObjectID)
 
 	t.Run("InvalidViewID", func(t *testing.T) {
-		request, _ := http.NewRequest("DELETE", "/overview/views/1/", nil)
-		request.Header.Set("Authorization", "Bearer "+authToken)
-		response := httptest.NewRecorder()
-		router.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusNotFound, response.Code)
-
+		ServeRequest(t, authToken, "DELETE", "/overview/views/1/", nil, http.StatusNotFound)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
 	t.Run("InvalidUserID", func(t *testing.T) {
-		invalidToken := "invalidToken"
-		request, _ := http.NewRequest("DELETE", "/overview/views/"+viewID.Hex()+"/", nil)
-		request.Header.Set("Authorization", "Bearer "+invalidToken)
-		response := httptest.NewRecorder()
-		router.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusUnauthorized, response.Code)
+		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
+		authToken := "invalidAuthToken"
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusUnauthorized)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
 	t.Run("Success", func(t *testing.T) {
-		request, _ := http.NewRequest("DELETE", "/overview/views/"+viewID.Hex()+"/", nil)
-		request.Header.Set("Authorization", "Bearer "+authToken)
-		response := httptest.NewRecorder()
-		router.ServeHTTP(response, request)
-		assert.Equal(t, http.StatusOK, response.Code)
+		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusOK)
+
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
