@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components'
 import { Colors } from '../../styles'
 
 const isLastStyle = css`
+    overflow: hidden;
     flex: 1;
 `
 const DropOverlay = styled.div<{ isLast?: boolean }>`
