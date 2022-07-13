@@ -65,10 +65,10 @@ export const Repository = styled.div`
     gap: ${Spacing.margin._16};
 `
 
-export const PullRequestRow = styled.div`
+export const PullRequestRow = styled.div<{ highlight: boolean }>`
     display: flex;
     padding: ${Spacing.padding._8};
-    background-color: ${Colors.white};
+    background-color: ${props => props.highlight ? Colors.gray._100 : Colors.white};
     border-radius: ${Border.radius.large};
 `
 

@@ -5,20 +5,28 @@ import { Icon } from '../atoms/Icon'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { Column, CommentsCountContainer, LinkButton, PullRequestRow, Status, TruncatedText } from './styles'
 import { DateTime } from 'luxon'
-import React from 'react'
+import React, { useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 interface PullRequestProps {
     pullRequest: TPullRequest
+    link: string
+    isSelected: boolean
 }
-const PullRequest = ({ pullRequest }: PullRequestProps) => {
-    const { title, number, status, author, num_comments, created_at, deeplink } = pullRequest
-    const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(created_at))
-    const formattedSubtitle = `#${number} opened ${formattedTimeSince} by ${author}`
+const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
+    const params = useParams()
+    const navigate = useNavigate()
 
-    // TODO: change time to last_updated_at when we have backend support for that field
+    const { title, number, status, author, num_comments, last_updated_at, deeplink } = pullRequest
+    const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
+    const formattedSubtitle = `#${number} updated ${formattedTimeSince} by ${author}`
+
+    const onClickHandler = useCallback(() => {
+        navigate(link)
+    }, [params, pullRequest])
 
     return (
-        <PullRequestRow>
+        <PullRequestRow onClick={onClickHandler} highlight={isSelected}>
             <Column type="link">
                 <LinkButton href={deeplink} target="_blank">
                     <Icon source={icons.external_link} size="small" />
