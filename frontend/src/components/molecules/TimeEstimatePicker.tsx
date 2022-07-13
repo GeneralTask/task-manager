@@ -8,7 +8,7 @@ import { icons } from '../../styles/images'
 import { padding } from '../../styles/spacing'
 import { radius } from '../../styles/border'
 import styled from 'styled-components'
-import { useModifyTask } from '../../services/api-query-hooks'
+import { useModifyTask } from '../../services/api/tasks.hooks'
 
 export const TimeEstimateContainer = styled.div`
     display: flex;

@@ -5,7 +5,7 @@ import PullRequest from '../pull-requests/PullRequest'
 import React from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
-import { useGetPullRequests } from '../../services/api-query-hooks'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import Spinner from '../atoms/Spinner'
 
 const PullRequestsView = () => {

@@ -25,7 +25,7 @@ import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
-import { useCreateEvent, useGetEvents } from '../../services/api-query-hooks'
+import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
 import useInterval from '../../hooks/useInterval'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 

@@ -22,7 +22,7 @@ import EmailWithQuote from './EmailWithQuote'
 import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
 import TextArea from '../../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
-import { useComposeMessage } from '../../../../services/api-query-hooks'
+import { useComposeMessage } from '../../../../services/api/messages.hooks'
 import { useKeyboardShortcut } from '../../../../hooks'
 
 interface EmailComposeProps {
