@@ -1,6 +1,5 @@
 import { PullRequestViewContainer, Repository, RepositoryName } from '../pull-requests/styles'
 
-import Header from '../pull-requests/Header'
 import PullRequest from '../pull-requests/PullRequest'
 import React from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -31,7 +30,6 @@ const PullRequestsView = () => {
                             'No pull requests'
                         ) : (
                             <>
-                                <Header />
                                 {repository.pull_requests.map((pr) => (
                                     <PullRequest key={pr.id} pullRequest={pr} />
                                 ))}

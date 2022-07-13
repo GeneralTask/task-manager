@@ -4,12 +4,10 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import styled from 'styled-components'
 
 export const ColumnWidths = {
-    title: '30%',
-    status: '20%',
-    author: '15%',
+    link: '20%',
+    title: '40%',
+    status: '30%',
     comments: '10%',
-    branch: '15%',
-    link: '10%',
 }
 
 type TColumnWidths = keyof typeof ColumnWidths
