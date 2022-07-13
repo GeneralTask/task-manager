@@ -193,29 +193,17 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			return err
 		}
 		// If view is linked but service does not exist, update view to unlinked
-		if view.IsLinked && !isLinked {
+		if view.IsLinked != isLinked {
 			_, err := database.GetViewCollection(db).UpdateOne(
 				dbCtx,
 				bson.M{"_id": view.ID},
-				bson.M{"$set": bson.M{"is_linked": false}},
+				bson.M{"$set": bson.M{"is_linked": isLinked}},
 			)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to update view")
 				return err
 			}
-			(*views)[index].IsLinked = false
-		} else if !view.IsLinked && isLinked {
-			// If view is unlinked but service does exist, update view to linked
-			_, err := database.GetViewCollection(db).UpdateOne(
-				dbCtx,
-				bson.M{"_id": view.ID},
-				bson.M{"$set": bson.M{"is_linked": true}},
-			)
-			if err != nil {
-				api.Logger.Error().Err(err).Msg("failed to update view")
-				return err
-			}
-			(*views)[index].IsLinked = true
+			(*views)[index].IsLinked = isLinked
 		}
 	}
 	return nil
