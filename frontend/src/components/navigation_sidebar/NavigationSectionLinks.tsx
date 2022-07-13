@@ -32,9 +32,9 @@ const IconContainer = styled.div`
 `
 
 interface SectionLinksProps {
-    taskSections: TTaskSection[]
-    threadsInbox: TEmailThread[]
-    pullRequestRepositories: TRepository[]
+    taskSections?: TTaskSection[]
+    threadsInbox?: TEmailThread[]
+    pullRequestRepositories?: TRepository[]
     sectionId: string
     mailbox?: TMailbox
     pathName: string
@@ -102,7 +102,7 @@ const NavigationSectionLinks = ({
             )}
             <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
-                    .filter((section) => !section.is_done)
+                    ?.filter((section) => !section.is_done)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
@@ -134,7 +134,7 @@ const NavigationSectionLinks = ({
                     </NavigationLinkTemplate>
                 )}
                 {taskSections
-                    .filter((section) => section.is_done)
+                    ?.filter((section) => section.is_done)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
@@ -154,7 +154,7 @@ const NavigationSectionLinks = ({
                     link="/messages/inbox"
                     title="Inbox"
                     icon={icons.inbox}
-                    count={threadsInbox.filter((t) => t.emails.find((e) => e.is_unread)).length}
+                    count={threadsInbox?.filter((t) => t.emails.find((e) => e.is_unread)).length}
                     isCurrentPage={mailbox === 'inbox'}
                 />
                 <NavigationLink
@@ -168,7 +168,7 @@ const NavigationSectionLinks = ({
                 link="/pull-requests"
                 title="Pull Requests"
                 icon={icons.repository}
-                count={pullRequestRepositories.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
+                count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathName === 'pull-requests'}
             />
             <NavigationLink
