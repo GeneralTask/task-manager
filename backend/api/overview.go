@@ -182,6 +182,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			continue
 		} else if view.Type == string(ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
+		} else {
+			return errors.New("invalid view type")
 		}
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
