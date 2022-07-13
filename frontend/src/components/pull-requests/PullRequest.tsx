@@ -12,9 +12,11 @@ interface PullRequestProps {
 }
 const PullRequest = ({ pullRequest }: PullRequestProps) => {
     const { title, number, status, author, num_comments, created_at, deeplink } = pullRequest
+    const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(created_at))
+    const formattedSubtitle = `#${number} opened ${formattedTimeSince} by ${author}`
 
-    const formattedTime = getHumanTimeSinceDateTime(DateTime.fromISO(created_at))
-    const formattedSubtitle = `#${number} opened ${formattedTime} by ${author}`
+    // TODO: change time to last_updated_at when we have backend support for that field
+
     return (
         <PullRequestRow>
             <Column type="link">
@@ -29,19 +31,12 @@ const PullRequest = ({ pullRequest }: PullRequestProps) => {
             <Column type="status">
                 <Status type={status.color}>{status.text}</Status>
             </Column>
-            {/* <Column type="author">
-                <SubtitleSmall>{formattedTime}</SubtitleSmall>
-                <TruncatedText>{author}</TruncatedText>
-            </Column> */}
             <Column type="comments">
                 <CommentsCountContainer>
                     <Icon source={icons.speechBubble} size="small" />
                     {num_comments}
                 </CommentsCountContainer>
             </Column>
-            {/* <Column type="branch">
-                <BranchName name={branch} />
-            </Column> */}
         </PullRequestRow>
     )
 }
