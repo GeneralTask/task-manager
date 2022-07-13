@@ -186,7 +186,7 @@ export interface TPullRequest {
     num_comments: number
     created_at: string
     branch: string
-    link: string
+    deeplink: string
 }
 
 export interface TRepository {
@@ -272,7 +272,7 @@ export interface TOverviewView {
     id: string
     name: string
     type: TOverviewViewType
-    section_id?: string
+    task_section_id?: string
     is_paginated: boolean
     is_reorderable: boolean
     logo: TLogoImage
