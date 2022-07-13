@@ -53,8 +53,8 @@ type SupportedViewItem struct {
 type SupportedView struct {
 	Type     ViewType            `json:"type"`
 	Logo     string              `json:"logo"`
-	Views    []SupportedViewItem `json:"views"`
 	IsNested bool                `json:"is_nested"`
+	Views    []SupportedViewItem `json:"views"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
@@ -187,8 +187,9 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 	c.JSON(200, []SupportedView{
 		{
-			Type: ViewTaskSection,
-			Logo: external.TaskServiceGeneralTask.LogoV2,
+			Type:     ViewTaskSection,
+			Logo:     external.TaskServiceGeneralTask.LogoV2,
+			IsNested: true,
 			Views: []SupportedViewItem{
 				{
 					Name:          "Things to do in St. Louis",
@@ -201,11 +202,11 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 					TaskSectionID: primitive.NewObjectID(),
 				},
 			},
-			IsNested: true,
 		},
 		{
-			Type: "linear",
-			Logo: "linear",
+			Type:     "linear",
+			Logo:     "linear",
+			IsNested: true,
 			Views: []SupportedViewItem{
 				{
 					Name:     "Linear View",
@@ -213,18 +214,17 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 					LinearID: primitive.NewObjectID(),
 				},
 			},
-			IsNested: true,
 		},
 		{
-			Type: "github",
-			Logo: "github",
+			Type:     "github",
+			Logo:     "github",
+			IsNested: true,
 			Views: []SupportedViewItem{
 				{
 					Name:     "Github View",
 					IsLinked: false,
 				},
 			},
-			IsNested: true,
 		},
 	})
 }
