@@ -19,27 +19,29 @@ const PullRequestsView = () => {
     }
 
     return (
-        <ScrollableListTemplate>
-            <SectionHeader sectionName="Pull Requests" allowRefresh={false} />
-            <PullRequestViewContainer>
-                {repositories.map((repository) => (
-                    <Repository key={repository.id}>
-                        <RepositoryName>{repository.name}</RepositoryName>
+        <>
+            <ScrollableListTemplate>
+                <SectionHeader sectionName="Pull Requests" allowRefresh={false} />
+                <PullRequestViewContainer>
+                    {repositories.map((repository) => (
+                        <Repository key={repository.id}>
+                            <RepositoryName>{repository.name}</RepositoryName>
 
-                        {repository.pull_requests.length === 0 ? (
-                            'No pull requests'
-                        ) : (
-                            <>
-                                {repository.pull_requests.map((pr) => (
-                                    <PullRequest key={pr.id} pullRequest={pr} />
-                                ))}
-                            </>
-                        )}
-                        <br />
-                    </Repository>
-                ))}
-            </PullRequestViewContainer>
-        </ScrollableListTemplate>
+                            {repository.pull_requests.length === 0 ? (
+                                'No pull requests'
+                            ) : (
+                                <>
+                                    {repository.pull_requests.map((pr) => (
+                                        <PullRequest key={pr.id} pullRequest={pr} />
+                                    ))}
+                                </>
+                            )}
+                            <br />
+                        </Repository>
+                    ))}
+                </PullRequestViewContainer>
+            </ScrollableListTemplate>
+        </>
     )
 }
 
