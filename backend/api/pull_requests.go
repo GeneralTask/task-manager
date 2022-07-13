@@ -25,15 +25,16 @@ type RepositoryResult struct {
 }
 
 type PullRequestResult struct {
-	ID          string            `json:"id"`
-	Title       string            `json:"title"`
-	Number      int               `json:"number"`
-	Status      PullRequestStatus `json:"status"`
-	Author      string            `json:"author"`
-	NumComments int               `json:"num_comments"`
-	CreatedAt   string            `json:"created_at"`
-	Branch      string            `json:"branch"`
-	Deeplink    string            `json:"deeplink"`
+	ID            string            `json:"id"`
+	Title         string            `json:"title"`
+	Number        int               `json:"number"`
+	Status        PullRequestStatus `json:"status"`
+	Author        string            `json:"author"`
+	NumComments   int               `json:"num_comments"`
+	CreatedAt     string            `json:"created_at"`
+	Branch        string            `json:"branch"`
+	Deeplink      string            `json:"deeplink"`
+	LastUpdatedAt string            `json:"last_updated_at"`
 }
 
 type PullRequestStatus struct {
@@ -77,11 +78,12 @@ func (api *API) PullRequestsList(c *gin.Context) {
 				Text:  pullRequest.RequiredAction,
 				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
 			},
-			Author:      pullRequest.Author,
-			NumComments: pullRequest.CommentCount,
-			CreatedAt:   pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
-			Branch:      pullRequest.Branch,
-			Deeplink:    pullRequest.Deeplink,
+			Author:        pullRequest.Author,
+			NumComments:   pullRequest.CommentCount,
+			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
+			Branch:        pullRequest.Branch,
+			Deeplink:      pullRequest.Deeplink,
+			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 		}
 		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
 	}

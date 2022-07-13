@@ -168,13 +168,14 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	RepositoryId   string `bson:"repository_id"`
-	RepositoryName string `bson:"repository_name"`
-	Number         int    `bson:"number"`
-	Author         string `bson:"author"`
-	Branch         string `bson:"branch"`
-	RequiredAction string `bson:"required_action"`
-	CommentCount   int    `bson:"comment_count"`
+	RepositoryId   string             `bson:"repository_id"`
+	RepositoryName string             `bson:"repository_name"`
+	Number         int                `bson:"number"`
+	Author         string             `bson:"author"`
+	Branch         string             `bson:"branch"`
+	RequiredAction string             `bson:"required_action"`
+	CommentCount   int                `bson:"comment_count"`
+	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
 }
 
 type PullRequestChangeableFields struct {
