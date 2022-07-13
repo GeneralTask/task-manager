@@ -323,6 +323,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 	defer dbCleanup()
 	api := GetAPI()
 	userID := primitive.NewObjectID()
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	t.Run("InvalidUserID", func(t *testing.T) {
 		views := []database.View{
@@ -361,7 +362,6 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 				Type:     "linear",
 			},
 		}
-		externalAPITokenCollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		externalAPITokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
@@ -373,6 +373,52 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(views))
 		assert.True(t, views[0].IsLinked)
+	})
+	t.Run("LinkedViewStaysLinked", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		views := []database.View{
+			{
+				UserID:   userID,
+				IsLinked: true,
+				Type:     "linear",
+			},
+		}
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		externalAPITokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
+			UserID:    userID,
+			ServiceID: external.TaskServiceLinear.ID,
+		})
+
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(views))
+		assert.True(t, views[0].IsLinked)
+	})
+	t.Run("UnlinkedViewStaysUnlinked", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		views := []database.View{
+			{
+				UserID:   userID,
+				IsLinked: false,
+				Type:     "linear",
+			},
+		}
+
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(views))
+		assert.False(t, views[0].IsLinked)
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		views := []database.View{
+			{
+				UserID: userID,
+			},
+		}
+		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
 	})
 }
 
