@@ -173,14 +173,14 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 }
 
 func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context, views *[]database.View, userID primitive.ObjectID) error {
-	for index, v := range *views {
-		if v.UserID != userID {
+	for index, view := range *views {
+		if view.UserID != userID {
 			return errors.New("invalid user")
 		}
 		var serviceID string
-		if v.Type == string(ViewTaskSection) {
+		if view.Type == string(ViewTaskSection) {
 			continue
-		} else if v.Type == string(ViewLinear) {
+		} else if view.Type == string(ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
 		}
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
@@ -191,10 +191,10 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			return err
 		}
 		// If view is linked but service does not exist, update view to unlinked
-		if v.IsLinked && !isLinked {
+		if view.IsLinked && !isLinked {
 			_, err := database.GetViewCollection(db).UpdateOne(
 				dbCtx,
-				bson.M{"_id": v.ID},
+				bson.M{"_id": view.ID},
 				bson.M{"$set": bson.M{"is_linked": false}},
 			)
 			if err != nil {
@@ -202,11 +202,11 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 				return err
 			}
 			(*views)[index].IsLinked = false
-		} else if !v.IsLinked && isLinked {
+		} else if !view.IsLinked && isLinked {
 			// If view is unlinked but service does exist, update view to linked
 			_, err := database.GetViewCollection(db).UpdateOne(
 				dbCtx,
-				bson.M{"_id": v.ID},
+				bson.M{"_id": view.ID},
 				bson.M{"$set": bson.M{"is_linked": true}},
 			)
 			if err != nil {
