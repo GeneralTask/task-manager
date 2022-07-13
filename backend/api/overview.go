@@ -40,6 +40,21 @@ type OverviewResult[T ViewItems] struct {
 	ViewItems     T                  `json:"view_items"`
 }
 
+type SupportedViewItem struct {
+	Name          string             `json:"name"`
+	IsLinked      bool               `json:"is_linked"`
+	GithubID      primitive.ObjectID `json:"github_id"`
+	MessagesID    primitive.ObjectID `json:"messages_id"`
+	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	LinearID      primitive.ObjectID `json:"linear_id"`
+}
+
+type SupportedView struct {
+	Type  ViewType            `json:"type"`
+	Logo  string              `json:"logo"`
+	Views []SupportedViewItem `json:"views"`
+}
+
 func (api *API) OverviewViewsList(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -165,4 +180,46 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 
 func (api *API) OverviewViewModify(c *gin.Context) {
 	c.JSON(200, nil)
+}
+
+func (api *API) OverviewSupportedViewsList(c *gin.Context) {
+	c.JSON(200, []SupportedView{
+		{
+			Type: ViewTaskSection,
+			Logo: external.TaskServiceGeneralTask.LogoV2,
+			Views: []SupportedViewItem{
+				{
+					Name:          "Things to do in St. Louis",
+					IsLinked:      true,
+					TaskSectionID: primitive.NewObjectID(),
+				},
+				{
+					Name:          "Thing to not do in St. Louis",
+					IsLinked:      true,
+					TaskSectionID: primitive.NewObjectID(),
+				},
+			},
+		},
+		{
+			Type: "linear",
+			Logo: "linear",
+			Views: []SupportedViewItem{
+				{
+					Name:     "Linear View",
+					IsLinked: true,
+					LinearID: primitive.NewObjectID(),
+				},
+			},
+		},
+		{
+			Type: "github",
+			Logo: "github",
+			Views: []SupportedViewItem{
+				{
+					Name:     "Github View",
+					IsLinked: false,
+				},
+			},
+		},
+	})
 }
