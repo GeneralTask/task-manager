@@ -279,6 +279,15 @@ func TestOverviewViewDelete(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
+	t.Run("IncorrectViewID", func(t *testing.T) {
+		viewID := primitive.NewObjectID()
+		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusNotFound)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
 	t.Run("InvalidUserID", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
 		authToken := "invalidAuthToken"
