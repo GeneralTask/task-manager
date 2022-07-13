@@ -43,16 +43,21 @@ type ExternalAPIToken struct {
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
 	IsBadToken     bool               `bson:"is_bad_token"`
 	// For paginated refreshes
+	LatestHistoryID         uint64 `bson:"history_id"`
+	NextHistoryPageToken    string `bson:"next_history_page"`
 	LatestRefreshTimestamp  string `bson:"latest_refresh"`
 	CurrentRefreshTimestamp string `bson:"current_refresh"`
-	NextPageToken           string `bson:"next_page"`
+	NextRefreshPageToken    string `bson:"next_refresh_page"`
 }
 
 type ExternalAPITokenChangeable struct {
-	IsBadToken              bool   `bson:"is_bad_token,omitempty"`
+	IsBadToken bool `bson:"is_bad_token,omitempty"`
+	// For paginated refreshes
+	LatestHistoryID         uint64 `bson:"history_id,omitempty"`
+	NextHistoryPageToken    string `bson:"next_history_page"`
 	LatestRefreshTimestamp  string `bson:"latest_refresh,omitempty"`
 	CurrentRefreshTimestamp string `bson:"current_refresh"`
-	NextPageToken           string `bson:"next_page"`
+	NextRefreshPageToken    string `bson:"next_refresh_page"`
 }
 
 type AtlassianSiteConfiguration struct {
@@ -163,13 +168,14 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	RepositoryId   string `bson:"repository_id"`
-	RepositoryName string `bson:"repository_name"`
-	Number         int    `bson:"number"`
-	Author         string `bson:"author"`
-	Branch         string `bson:"branch"`
-	RequiredAction string `bson:"required_action"`
-	CommentCount   int    `bson:"comment_count"`
+	RepositoryId   string             `bson:"repository_id"`
+	RepositoryName string             `bson:"repository_name"`
+	Number         int                `bson:"number"`
+	Author         string             `bson:"author"`
+	Branch         string             `bson:"branch"`
+	RequiredAction string             `bson:"required_action"`
+	CommentCount   int                `bson:"comment_count"`
+	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
 }
 
 type PullRequestChangeableFields struct {

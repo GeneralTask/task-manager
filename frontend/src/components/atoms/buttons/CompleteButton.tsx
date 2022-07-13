@@ -1,6 +1,6 @@
 import React from 'react'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
-import { useMarkTaskDone } from '../../../services/api-query-hooks'
+import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
 import GTCheckbox from '../GTCheckbox'
 
 interface CompleteButtonProps {

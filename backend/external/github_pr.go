@@ -51,7 +51,7 @@ type GithubPRData struct {
 	ChecksDidFail        bool
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, fromTimestamp string, toTimestamp string, nextPageToken string, result chan<- EmailResult) {
+func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
 	result <- emptyEmailResult(nil)
 }
 
@@ -177,6 +177,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Branch:         *pullRequest.Head.Ref,
 					RequiredAction: getPullRequestRequiredAction(pullRequestData),
 					CommentCount:   commentCount,
+					LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 				},
 				TaskType: database.TaskType{
 					IsTask:        false,

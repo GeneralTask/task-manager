@@ -17,7 +17,9 @@ type EmailResult struct {
 
 type GmailRefreshState struct {
 	CurrentRefreshTimestamp string
-	NextPageToken           string
+	NextRefreshPageToken    string
+	HistoryID               uint64
+	NextHistoryPageToken    string
 }
 
 type TaskResult struct {

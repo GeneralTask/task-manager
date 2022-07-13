@@ -3,14 +3,10 @@ import 'animate.css'
 
 import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
 import { Navigate, useLocation } from 'react-router-dom'
-import {
-    useFetchExternalTasks,
-    useFetchMessages,
-    useGetInfiniteThreads,
-    useGetTasks,
-    useGetUserInfo,
-} from '../../services/api-query-hooks'
-
+import { useFetchMessages } from '../../services/api/messages.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
+import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
+import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'

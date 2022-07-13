@@ -121,7 +121,7 @@ You can run this snippet (save it to your bashrc/zshrc):
 
 ```
 klogin () {
-        export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
+    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
     $(aws sts assume-role \
     --role-arn arn:aws:iam::257821106339:role/glb-gtsk-eks-full-access \
     --role-session-name glb-gtsk-eks-full-access \

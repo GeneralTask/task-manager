@@ -40,6 +40,23 @@ type OverviewResult[T ViewItems] struct {
 	ViewItems     T                  `json:"view_items"`
 }
 
+type SupportedViewItem struct {
+	Name          string             `json:"name"`
+	IsLinked      bool               `json:"is_linked"`
+	GithubID      primitive.ObjectID `json:"github_id"`
+	MessagesID    primitive.ObjectID `json:"messages_id"`
+	SlackID       primitive.ObjectID `json:"slack_messaged_id"`
+	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	LinearID      primitive.ObjectID `json:"linear_id"`
+}
+
+type SupportedView struct {
+	Type     ViewType            `json:"type"`
+	Logo     string              `json:"logo"`
+	IsNested bool                `json:"is_nested"`
+	Views    []SupportedViewItem `json:"views"`
+}
+
 func (api *API) OverviewViewsList(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
@@ -122,7 +139,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		return nil, err
 	}
 
-	var taskResults []*TaskResult
+	taskResults := []*TaskResult{}
 	for _, task := range *tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
@@ -165,4 +182,90 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 
 func (api *API) OverviewViewModify(c *gin.Context) {
 	c.JSON(200, nil)
+}
+
+func (api *API) OverviewViewDelete(c *gin.Context) {
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	viewID, err := getViewIDFromContext(c)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to parse view id")
+		Handle404(c)
+		return
+	}
+	_, err = database.GetUser(db, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	deleteResult, err := database.GetViewCollection(db).DeleteOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{{"_id": viewID}, {"user_id": userID}}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to delete view")
+		Handle500(c)
+		return
+	}
+	if deleteResult.DeletedCount != 1 {
+		api.Logger.Error().Msgf("failed to delete view with id: %s", c.Param("view_id"))
+		Handle404(c)
+		return
+	}
+
+	c.JSON(200, gin.H{})
+}
+func (api *API) OverviewSupportedViewsList(c *gin.Context) {
+	c.JSON(200, []SupportedView{
+		{
+			Type:     ViewTaskSection,
+			Logo:     external.TaskServiceGeneralTask.LogoV2,
+			IsNested: true,
+			Views: []SupportedViewItem{
+				{
+					Name:          "Things to do in St. Louis",
+					IsLinked:      true,
+					TaskSectionID: primitive.NewObjectID(),
+				},
+				{
+					Name:          "Thing to not do in St. Louis",
+					IsLinked:      true,
+					TaskSectionID: primitive.NewObjectID(),
+				},
+			},
+		},
+		{
+			Type:     "linear",
+			Logo:     "linear",
+			IsNested: true,
+			Views: []SupportedViewItem{
+				{
+					Name:     "Linear View",
+					IsLinked: true,
+					LinearID: primitive.NewObjectID(),
+				},
+			},
+		},
+		{
+			Type:     "github",
+			Logo:     "github",
+			IsNested: true,
+			Views: []SupportedViewItem{
+				{
+					Name:     "Github View",
+					IsLinked: false,
+				},
+			},
+		},
+	})
 }

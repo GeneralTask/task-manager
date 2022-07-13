@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react'
 import { margin, padding } from '../../styles/spacing'
-import { useGetInfiniteThreads, useGetTasks } from '../../services/api-query-hooks'
+import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
+import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useLocation, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'
@@ -9,7 +11,6 @@ import { Icon } from '../atoms/Icon'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import { authSignOut } from '../../utils/auth'
-import { dummyRepositories } from './PullRequestsView'
 import styled from 'styled-components'
 
 const NavigationViewContainer = styled.div`
@@ -40,7 +41,7 @@ const GapView = styled.div`
 const NavigationView = () => {
     const { data: taskSections } = useGetTasks()
     const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
-    const pullRequestRepositories = dummyRepositories
+    const { data: pullRequestRepositories } = useGetPullRequests()
     const { section: sectionIdParam, mailbox: mailbox } = useParams()
     const { pathname } = useLocation()
 
@@ -52,16 +53,14 @@ const NavigationView = () => {
                 <Icon size="medium" />
             </NavigationViewHeader>
             <OverflowContainer>
-                {taskSections && threadsInbox && (
-                    <NavigationSectionLinks
-                        taskSections={taskSections}
-                        threadsInbox={threadsInbox}
-                        pullRequestRepositories={pullRequestRepositories}
-                        sectionId={sectionIdParam || ''}
-                        mailbox={mailbox === 'inbox' || mailbox === 'archive' ? mailbox : undefined}
-                        pathName={pathname.split('/')[1]}
-                    />
-                )}
+                <NavigationSectionLinks
+                    taskSections={taskSections}
+                    threadsInbox={threadsInbox}
+                    pullRequestRepositories={pullRequestRepositories}
+                    sectionId={sectionIdParam || ''}
+                    mailbox={mailbox === 'inbox' || mailbox === 'archive' ? mailbox : undefined}
+                    pathName={pathname.split('/')[1]}
+                />
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />
