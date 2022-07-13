@@ -217,18 +217,19 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	result := OverviewResult[[]*TaskResult]{
+		ID:            view.ID,
+		Name:          ViewLinearName,
+		Logo:          external.TaskServiceLinear.LogoV2,
+		Type:          ViewLinear,
+		IsLinked:      view.IsLinked,
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+	}
 	if !view.IsLinked {
-		return &OverviewResult[[]*TaskResult]{
-			ID:            view.ID,
-			Name:          ViewLinearName,
-			Logo:          external.TaskServiceLinear.LogoV2,
-			Type:          ViewLinear,
-			IsLinked:      view.IsLinked,
-			TaskSectionID: view.TaskSectionID,
-			IsReorderable: view.IsReorderable,
-			IDOrdering:    view.IDOrdering,
-			ViewItems:     []*TaskResult{},
-		}, nil
+		return &result, nil
 	}
 
 	linearTasks, err := database.GetItems(db, userID,
@@ -245,17 +246,9 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	for _, task := range *linearTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
-	return &OverviewResult[[]*TaskResult]{
-		ID:            view.ID,
-		Name:          "Linear",
-		Logo:          external.TaskServiceLinear.LogoV2,
-		Type:          ViewLinear,
-		IsLinked:      view.IsLinked,
-		TaskSectionID: primitive.NilObjectID,
-		IsReorderable: view.IsReorderable,
-		IDOrdering:    view.IDOrdering,
-		ViewItems:     taskResults,
-	}, nil
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	return &result, nil
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
