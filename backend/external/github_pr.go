@@ -177,7 +177,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Branch:         *pullRequest.Head.Ref,
 					RequiredAction: getPullRequestRequiredAction(pullRequestData),
 					CommentCount:   commentCount,
-					LastUpdatedAt: primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),,
+					LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 				},
 				TaskType: database.TaskType{
 					IsTask:        false,
