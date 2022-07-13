@@ -201,7 +201,6 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 		return
 	}
 	if deleteResult.DeletedCount != 1 {
-		api.Logger.Error().Msgf("count: %v", deleteResult.DeletedCount)
 		api.Logger.Error().Msgf("failed to delete view with id: %s", c.Param("view_id"))
 		Handle404(c)
 		return
