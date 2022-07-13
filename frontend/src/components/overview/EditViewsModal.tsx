@@ -32,10 +32,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
     const { mutate: reorderViews } = useReorderViews()
 
     const handleReorder = useCallback(
-        (item: DropItem, dropIndex: number) => {
-            console.log({ viewId: item.id, idOrdering: dropIndex })
-            reorderViews({ viewId: item.id, idOrdering: dropIndex })
-        },
+        (item: DropItem, dropIndex: number) => reorderViews({ viewId: item.id, idOrdering: dropIndex }),
         [reorderViews]
     )
 
