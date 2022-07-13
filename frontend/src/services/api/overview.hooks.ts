@@ -1,9 +1,10 @@
 import produce, { castImmutable } from "immer"
 import { useState } from "react"
-import { useQuery } from "react-query"
+import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { TOverviewView, TSupportedOverviewView } from "../../utils/types"
-// import { arrayMoveInPlace } from "../../utils/utils"
+import { useGTQueryClient } from "../queryUtils"
+import { arrayMoveInPlace } from "../../utils/utils"
 
 const dummySupportedViews = [
     {
@@ -56,32 +57,56 @@ export const useGetOverviewViews = () => {
 const getOverviewViews = async () => {
     try {
         const res = await apiClient.get('/overview/views/')
-        console.log({ d: res.data })
         return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
     }
 }
 
-// export const useGetOverviewViews = () => {
-//     const [views, setViews] = useState(dummyOverviewViews)
 
-//     const temporaryReorderViews = (viewId: string, idOrdering: number) => {
-//         const newViews = produce(views, draft => {
-//             const startIndex = draft.findIndex(view => view.id === viewId)
-//             let endIndex = idOrdering - 1
-//             if (startIndex < endIndex) {
-//                 endIndex -= 1
-//             }
-//             if (startIndex === -1 || endIndex === -1) return
-//             arrayMoveInPlace(draft, startIndex, endIndex)
-//         })
-//         setViews(newViews)
-//     }
+interface TReorderViewData {
+    viewId: string
+    idOrdering: number
+}
+export const useReorderViews = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation(
+        (data: TReorderViewData) => reorderView(data),
+        {
+            onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
+                await queryClient.cancelQueries('overview')
 
-//     return { data: views, isLoading: false, temporaryReorderViews }
-// }
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (!views) return
 
+                const newViews = produce(views, draft => {
+                    const startIndex = draft.findIndex(view => view.id === viewId)
+                    let endIndex = idOrdering - 1
+                    if (startIndex < endIndex) {
+                        endIndex -= 1
+                    }
+                    if (startIndex === -1 || endIndex === -1) return
+                    arrayMoveInPlace(draft, startIndex, endIndex)
+                })
+
+                queryClient.setQueryData('overview', newViews)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('overview')
+            },
+        }
+    )
+}
+const reorderView = async (data: TReorderViewData) => {
+    try {
+        const res = await apiClient.patch(`/overview/views/${data.viewId}/`, {
+            id_ordering: data.idOrdering,
+        })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('reorderView failed')
+    }
+}
 
 export const useGetSupportedViews = () => {
     const [supportedViews, setSupportedViews] = useState<TSupportedOverviewView[]>(dummySupportedViews)

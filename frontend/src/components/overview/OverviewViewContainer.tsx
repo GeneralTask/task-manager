@@ -17,8 +17,6 @@ const OverviewView = ({ view }: OverviewViewProps) => {
 
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
-    console.log({ view })
-
     const ViewItems = useMemo(() => {
         switch (view.type) {
             case 'task_section':
