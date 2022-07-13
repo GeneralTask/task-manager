@@ -132,10 +132,10 @@ func (api *API) MessagesFetch(c *gin.Context) {
 				validToken = emailChannelToToken[emailChannel]
 				historyChangeable = database.ExternalAPITokenChangeable{
 					LatestRefreshTimestamp:  emailResult.RefreshState.CurrentRefreshTimestamp,
+					LatestHistoryID:         emailResult.RefreshState.HistoryID,
 					CurrentRefreshTimestamp: "",
 					NextRefreshPageToken:    "",
 					NextHistoryPageToken:    "",
-					LatestHistoryID:         emailResult.RefreshState.HistoryID,
 				}
 			}
 

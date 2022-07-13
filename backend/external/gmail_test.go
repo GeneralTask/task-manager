@@ -145,33 +145,44 @@ func TestGetEmails(t *testing.T) {
 
 		////////////////////////////////////////////////////////////////////////////////
 		// (1) Arrange: setup testing objects and mock data
-		messageWithAttachment := createTestGmailMessage("gmail_thread_1_email_1", true, false,
+		messageWithAttachment := createTestGmailMessage("gmail_thread_1_email_1", "gmail_thread_1", true, false,
 			"test subject", "2001-04-20")
 		messageWithAttachment.Payload.Filename = "gigachad.png"
 		messageWithAttachment.Payload.Parts = []*gmail.MessagePart{{Filename: "baijushair.png", MimeType: "image/jpeg", Body: &gmail.MessagePartBody{Data: ""}}}
+		messagesList := []*gmail.Message{
+			messageWithAttachment,
+			createTestGmailMessage("gmail_thread_1_email_2", "gmail_thread_1", false, false,
+				"test subject", "2020-04-20"),
+			createTestGmailMessage("gmail_thread_1_email_3", "gmail_thread_1", true, false,
+				"test subject", "2001-04-20"),
+			createTestGmailMessage("gmail_thread_1_email_4", "gmail_thread_1", false, false,
+				"test subject", "2020-04-20"),
+			createTestGmailMessage("gmail_thread_2_email_1", "gmail_thread_2", false, true,
+				"test subject", "2019-04-20"),
+		}
 		threadsMap := map[string]*gmail.Thread{
 			"gmail_thread_1": {
 				Id: "gmail_thread_1",
 				Messages: []*gmail.Message{
 					messageWithAttachment,
-					createTestGmailMessage("gmail_thread_1_email_2", false, false,
+					createTestGmailMessage("gmail_thread_1_email_2", "gmail_thread_1", false, false,
 						"test subject", "2020-04-20"),
-					createTestGmailMessage("gmail_thread_1_email_3", true, false,
+					createTestGmailMessage("gmail_thread_1_email_3", "gmail_thread_1", true, false,
 						"test subject", "2001-04-20"),
-					createTestGmailMessage("gmail_thread_1_email_4", false, false,
+					createTestGmailMessage("gmail_thread_1_email_4", "gmail_thread_1", false, false,
 						"test subject", "2020-04-20"),
 				},
 			},
 			"gmail_thread_2": {
 				Id: "gmail_thread_2",
 				Messages: []*gmail.Message{
-					createTestGmailMessage("gmail_thread_2_email_1", false, true,
+					createTestGmailMessage("gmail_thread_2_email_1", "gmail_thread_2", false, true,
 						"test subject", "2019-04-20"),
 				},
 			},
 		}
 
-		server := getGinGmailFetchServer(t, threadsMap)
+		server := getGinGmailFetchServer(t, threadsMap, messagesList)
 		defer server.Close()
 		mockGmailSource := GmailSource{
 			Google: GoogleService{
@@ -274,7 +285,7 @@ func assertThreadItemsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	}
 }
 
-func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *httptest.Server {
+func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread, messages []*gmail.Message) *httptest.Server {
 	return httptest.NewServer(func() *gin.Engine {
 		w := httptest.NewRecorder()
 		_, r := gin.CreateTestContext(w)
@@ -289,6 +300,14 @@ func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *
 				response := &gmail.ListThreadsResponse{Threads: threads}
 				c.JSON(200, response)
 			})
+			v1.GET("/messages", func(c *gin.Context) {
+				threads := make([]*gmail.Message, 0, len(messages))
+				for _, value := range messages {
+					threads = append(threads, value)
+				}
+				response := &gmail.ListMessagesResponse{Messages: messages}
+				c.JSON(200, response)
+			})
 			v1.GET("/threads/:threadID", func(c *gin.Context) {
 				response := threadsMap[c.Param("threadID")]
 				c.JSON(200, response)
@@ -300,6 +319,7 @@ func getGinGmailFetchServer(t *testing.T, threadsMap map[string]*gmail.Thread) *
 
 func createTestGmailMessage(
 	externalMessageID string,
+	threadID string,
 	isUnread bool,
 	isArchived bool,
 	subject string,
@@ -308,6 +328,7 @@ func createTestGmailMessage(
 
 	res := gmail.Message{
 		Id:           externalMessageID,
+		ThreadId:     threadID,
 		InternalDate: testutils.CreateTimestamp(dt).Unix() * 1000,
 		Payload: &gmail.MessagePart{
 			Body: &gmail.MessagePartBody{
