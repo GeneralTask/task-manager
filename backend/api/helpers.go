@@ -10,3 +10,8 @@ func getUserIDFromContext(c *gin.Context) primitive.ObjectID {
 	userID := userIDRaw.(primitive.ObjectID)
 	return userID
 }
+
+func getViewIDFromContext(c *gin.Context) (primitive.ObjectID, error) {
+	viewID := c.Param("view_id")
+	return primitive.ObjectIDFromHex(viewID)
+}

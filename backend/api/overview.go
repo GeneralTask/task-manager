@@ -184,6 +184,47 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 	c.JSON(200, nil)
 }
 
+func (api *API) OverviewViewDelete(c *gin.Context) {
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	viewID, err := getViewIDFromContext(c)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to parse view id")
+		Handle404(c)
+		return
+	}
+	_, err = database.GetUser(db, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	deleteResult, err := database.GetViewCollection(db).DeleteOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{{"_id": viewID}, {"user_id": userID}}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to delete view")
+		Handle500(c)
+		return
+	}
+	if deleteResult.DeletedCount != 1 {
+		api.Logger.Error().Msgf("failed to delete view with id: %s", c.Param("view_id"))
+		Handle404(c)
+		return
+	}
+
+	c.JSON(200, gin.H{})
+}
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 	c.JSON(200, []SupportedView{
 		{

@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -253,6 +254,56 @@ func TestIsServiceLinked(t *testing.T) {
 		result, err := api.IsServiceLinked(db, parentCtx, userID, "invalidServiceID")
 		assert.NoError(t, err)
 		assert.False(t, result)
+	})
+}
+
+func TestOverviewViewDelete(t *testing.T) {
+	parentCtx := context.Background()
+	authToken := login("testDeleteView@generaltask.com", "")
+
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	viewCollection := database.GetViewCollection(db)
+	userID := getUserIDFromAuthToken(t, db, authToken)
+	view, err := viewCollection.InsertOne(parentCtx, database.View{
+		UserID: userID,
+	})
+	assert.NoError(t, err)
+	viewID := view.InsertedID.(primitive.ObjectID)
+
+	t.Run("InvalidViewID", func(t *testing.T) {
+		ServeRequest(t, authToken, "DELETE", "/overview/views/1/", nil, http.StatusNotFound)
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("IncorrectViewID", func(t *testing.T) {
+		incorrectViewID := primitive.NewObjectID()
+		url := fmt.Sprintf("/overview/views/%s/", incorrectViewID.Hex())
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusNotFound)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
+		authToken := "invalidAuthToken"
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusUnauthorized)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("Success", func(t *testing.T) {
+		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusOK)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
 	})
 }
 
