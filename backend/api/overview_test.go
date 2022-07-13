@@ -347,6 +347,46 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
+	t.Run("ItemNotATask", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		_, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
+			},
+			TaskType: database.TaskType{
+				IsTask: false,
+			},
+		})
+		assert.NoError(t, err)
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("IncorrectUserID", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		_, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        primitive.NewObjectID(),
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
 }
 
 func TestUpdateViewsLinkedStatus(t *testing.T) {
