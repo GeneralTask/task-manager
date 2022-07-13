@@ -176,7 +176,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
-	viewID, err := primitive.ObjectIDFromHex(c.Param("view_id"))
+	viewID, err := getViewIDFromContext(c)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to parse view id")
 		Handle404(c)
