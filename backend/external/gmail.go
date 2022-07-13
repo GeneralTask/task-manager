@@ -81,10 +81,10 @@ func (gmailSource GmailSource) GetEmails(userID primitive.ObjectID, accountID st
 
 	response := getThreadIDsToFetch(gmailService, token)
 	if response.Error != nil {
-		logger.Error().Err(err).Msg("unable to fetch thread updates from Gmail")
-		isBadToken := strings.Contains(err.Error(), "invalid_grant") ||
-			strings.Contains(err.Error(), "authError")
-		threadOutput := emptyEmailResultWithSource(err, TASK_SOURCE_ID_GMAIL)
+		logger.Error().Err(response.Error).Msg("unable to fetch thread updates from Gmail")
+		isBadToken := strings.Contains(response.Error.Error(), "invalid_grant") ||
+			strings.Contains(response.Error.Error(), "authError")
+		threadOutput := emptyEmailResultWithSource(response.Error, TASK_SOURCE_ID_GMAIL)
 		threadOutput.IsBadToken = isBadToken
 		result <- threadOutput
 		return
