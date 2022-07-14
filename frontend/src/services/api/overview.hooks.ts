@@ -142,7 +142,7 @@ export const useAddView = () => {
 }
 const addView = async (data: TAddViewPayload) => {
     try {
-        const res = await apiClient.post('/overview/supported_views/', data)
+        const res = await apiClient.post('/overview/views/', data)
         return castImmutable(res.data)
     } catch {
         throw new Error('addView failed')
