@@ -4,8 +4,8 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import styled from 'styled-components'
 
 export const ColumnWidths = {
-    link: '20%',
-    title: '40%',
+    link: '10%',
+    title: '50%',
     status: '30%',
     comments: '10%',
 }
@@ -70,6 +70,7 @@ export const PullRequestRow = styled.div<{ highlight: boolean }>`
     padding: ${Spacing.padding._8};
     background-color: ${props => props.highlight ? Colors.gray._100 : Colors.white};
     border-radius: ${Border.radius.large};
+    cursor: pointer;
 `
 
 export const HeaderContainer = styled.div`
