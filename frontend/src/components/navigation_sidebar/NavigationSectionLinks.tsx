@@ -9,7 +9,7 @@ import NoStyleInput from '../atoms/NoStyleInput'
 import { icons } from '../../styles/images'
 import { isDevelopmentMode } from '../../environment'
 import styled from 'styled-components'
-import { useAddTaskSection } from '../../services/api-query-hooks'
+import { useAddTaskSection } from '../../services/api/task-section.hooks'
 import { weight } from '../../styles/typography'
 
 const AddSectionInputContainer = styled.div`

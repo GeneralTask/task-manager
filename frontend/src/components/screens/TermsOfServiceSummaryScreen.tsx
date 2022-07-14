@@ -6,7 +6,7 @@ import ModalView from '../views/ModalView'
 import TermsOfServiceView from '../views/TermsOfServiceSummaryView'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
-import { useGetUserInfo } from '../../services/api-query-hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { ModalEnum } from '../../utils/enums'
 
 const TermsOfServiceSummaryScreen = () => {

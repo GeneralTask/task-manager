@@ -14,8 +14,15 @@ var StarterViews = []StarterView{
 	{
 		Type:          "task_section",
 		TaskSectionID: IDTaskSectionDefault,
-		IsLinked:      false,
+		IsLinked:      true,
 		IsPaginated:   false,
 		IsReorderable: true,
+	},
+	{
+		Type:          "linear",
+		TaskSectionID: primitive.NilObjectID,
+		IsLinked:      false,
+		IsPaginated:   false,
+		IsReorderable: false,
 	},
 }

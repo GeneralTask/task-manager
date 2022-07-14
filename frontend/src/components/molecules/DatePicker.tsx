@@ -18,7 +18,7 @@ import React, { useCallback, useState } from 'react'
 
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-import { useModifyTask } from '../../services/api-query-hooks'
+import { useModifyTask } from '../../services/api/tasks.hooks'
 
 interface DatePickerProps {
     task_id: string

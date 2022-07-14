@@ -1,5 +1,5 @@
 import React from 'react'
-import { useGetTasks, useReorderTask } from '../../services/api-query-hooks'
+import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import { radius } from '../../styles/border'
