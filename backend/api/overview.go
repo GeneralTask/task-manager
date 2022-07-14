@@ -267,9 +267,9 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 }
 
 type ViewCreateParams struct {
-	Type          string             `json:"type" binding:"required"`
-	MessagesID    primitive.ObjectID `json:"messages_id"`
-	TaskSectionID *string            `json:"task_section_id"`
+	Type          string  `json:"type" binding:"required"`
+	MessagesID    *string `json:"messages_id"`
+	TaskSectionID *string `json:"task_section_id"`
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
