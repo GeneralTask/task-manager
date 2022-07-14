@@ -56,7 +56,7 @@ const AddViewsModalContent = () => {
                     <SupportedView>
                         <SupportedViewContent>
                             <Icon source={logos[supportedView.logo]} size="small" />
-                            {supportedView.type}
+                            {supportedView.name}
                         </SupportedViewContent>
                         {!supportedView.is_nested && supportedView.views.length === 1 && (
                             <GTCheckbox
@@ -65,7 +65,11 @@ const AddViewsModalContent = () => {
                             />
                         )}
                     </SupportedView>
-                    {viewIndex !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
+                    {/* Do not show divider if this is the last item in the list */}
+                    {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
+                        (supportedView.is_nested && supportedView.views.length > 0)) && (
+                        <Divider color={Colors.gray._100} />
+                    )}
                     {supportedView.is_nested &&
                         supportedView.views.map((supportedViewItem, viewItemIndex) => (
                             <Fragment key={viewItemIndex}>
@@ -79,10 +83,10 @@ const AddViewsModalContent = () => {
                                         onChange={() => handleAddRemoveView(supportedView, supportedViewItem)}
                                     />
                                 </SupportedView>
-                                {viewIndex !== supportedViews.length - 1 &&
-                                    viewItemIndex !== supportedView.views.length - 1 && (
-                                        <Divider color={Colors.gray._100} />
-                                    )}
+                                {(viewIndex !== supportedViews.length - 1 ||
+                                    viewItemIndex !== supportedView.views.length - 1) && (
+                                    <Divider color={Colors.gray._100} />
+                                )}
                             </Fragment>
                         ))}
                 </Fragment>
