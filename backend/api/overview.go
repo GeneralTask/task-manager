@@ -211,7 +211,7 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			api.Logger.Error().Err(err).Msg("failed to check if service is linked")
 			return err
 		}
-		// If view is linked but service does not exist, update view to unlinked
+		// If view is linked but service does not exist, update view to unlinked and vice versa
 		if view.IsLinked != isLinked {
 			_, err := database.GetViewCollection(db).UpdateOne(
 				dbCtx,
@@ -342,8 +342,8 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			IsNested: false,
 			Views: []SupportedViewItem{
 				{
-					Name:     "Linear View",
-					IsAdded:  true,
+					Name:    "Linear View",
+					IsAdded: true,
 				},
 			},
 		},
