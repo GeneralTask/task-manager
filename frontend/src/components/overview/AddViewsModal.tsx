@@ -1,13 +1,15 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import { useGetSupportedViews } from '../../services/api/overview.hooks'
+import { useAddView, useGetSupportedViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
+import { TSupportedView, TSupportedViewItem } from '../../utils/types'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import Spinner from '../atoms/Spinner'
 
 const SupportedView = styled.div`
     display: flex;
@@ -28,8 +30,58 @@ interface AddViewsModalProps {
     onClose: () => void
     goToEditViewsView: () => void
 }
+
+const AddViewsModalContent = () => {
+    const { data: supportedViews } = useGetSupportedViews()
+    const { mutate: addView } = useAddView()
+
+    const handleAddRemoveView = (
+        supportedView: TSupportedView,
+        supportedViewItem: TSupportedViewItem,
+        isAdded: boolean
+    ) => {
+        if (isAdded) {
+            addView({
+                type: supportedView.type,
+                logo: supportedView.logo,
+                supportedViewItem,
+            })
+        }
+    }
+
+    if (!supportedViews) {
+        return <Spinner />
+    }
+    return (
+        <>
+            {supportedViews.map((supportedView, index) => (
+                <>
+                    <SupportedView key={index}>
+                        <SupportedViewContent>
+                            <Icon source={logos[supportedView.logo]} size="small" />
+                            {supportedView.type}
+                        </SupportedViewContent>
+                        {supportedView.views.map((supportedViewItem, index) => (
+                            <SupportedView key={index}>
+                                <SupportedViewContent>
+                                    <Icon source={logos[supportedView.logo]} size="small" />
+                                    {supportedViewItem.name}
+                                </SupportedViewContent>
+                                <GTCheckbox
+                                    isChecked={false}
+                                    onChange={() => handleAddRemoveView(supportedView, supportedViewItem, true)}
+                                />
+                            </SupportedView>
+                        ))}
+                    </SupportedView>
+                    {index !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
+                </>
+            ))}
+        </>
+    )
+}
+
 const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProps) => {
-    const { data: supportedViews, temporaryAddOrRemoveViewFunc } = useGetSupportedViews()
     return (
         <GTModal
             isOpen={isOpen}
@@ -37,23 +89,7 @@ const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProp
             onClose={onClose}
             leftButtons={<RoundedGeneralButton value="Back" color={Colors.purple._1} onClick={goToEditViewsView} />}
         >
-            <>
-                {supportedViews.map((supportedView, index) => (
-                    <Fragment key={supportedView.id}>
-                        <SupportedView>
-                            <SupportedViewContent>
-                                <Icon source={logos[supportedView.logo]} size="small" />
-                                {supportedView.name}
-                            </SupportedViewContent>
-                            <GTCheckbox
-                                isChecked={supportedView.is_added}
-                                onChange={() => temporaryAddOrRemoveViewFunc(supportedView.id, !supportedView.is_added)}
-                            />
-                        </SupportedView>
-                        {index !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
-                    </Fragment>
-                ))}
-            </>
+            <AddViewsModalContent />
         </GTModal>
     )
 }

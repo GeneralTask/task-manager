@@ -273,15 +273,25 @@ export interface TOverviewView {
     name: string
     type: TOverviewViewType
     task_section_id?: string
-    is_paginated: boolean
     is_reorderable: boolean
     logo: TLogoImage
     view_items: TOverviewItem[]
+    isOptimistic?: boolean
 }
 
-export interface TSupportedOverviewView {
-    id: string
+export interface TSupportedViewItem {
     name: string
+    is_linked: boolean
+    github_id: string
+    messages_id: string
+    task_section_id: string
+    slack_id: string
     logo: TLogoImage
     is_added: boolean
+}
+
+export interface TSupportedView {
+    type: TOverviewViewType
+    logo: TLogoImage
+    views: TSupportedViewItem[]
 }
