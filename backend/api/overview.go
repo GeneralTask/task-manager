@@ -320,7 +320,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(200, nil)
+	c.JSON(200, gin.H{})
 }
 
 func (api *API) OverviewViewModify(c *gin.Context) {
