@@ -263,6 +263,7 @@ export const useMarkTaskDone = () => {
                         const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
                         if (taskIndex === undefined || sectionIndex === undefined) return
                         draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        queryClient.invalidateQueries('tasks')
                     })
 
                     queryClient.setQueryData('tasks', newSections)
