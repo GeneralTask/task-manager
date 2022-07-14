@@ -48,11 +48,8 @@ type OverviewResult[T ViewItems] struct {
 type SupportedViewItem struct {
 	Name          string             `json:"name"`
 	IsAdded       bool               `json:"is_added"`
-	GithubID      primitive.ObjectID `json:"github_id"`
 	MessagesID    primitive.ObjectID `json:"messages_id"`
-	SlackID       primitive.ObjectID `json:"slack_messaged_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
-	LinearID      primitive.ObjectID `json:"linear_id"`
 }
 
 type SupportedView struct {
@@ -347,7 +344,6 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 				{
 					Name:     "Linear View",
 					IsAdded:  true,
-					LinearID: primitive.NewObjectID(),
 				},
 			},
 		},
