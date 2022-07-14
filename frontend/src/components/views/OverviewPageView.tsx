@@ -25,14 +25,6 @@ const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
 `
-const DetailsViewContainer = styled.div`
-    background-color: ${Colors.white};
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding-top: 50vh;
-    flex-basis: 400px;
-`
 
 const OverviewView = () => {
     const { data: views, isLoading } = useGetOverviewViews()
