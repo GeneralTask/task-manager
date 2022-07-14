@@ -135,6 +135,7 @@ export const useAddView = () => {
                 }
             },
             onSettled: () => {
+                queryClient.invalidateQueries('overview')
                 queryClient.invalidateQueries('overview-supported-views')
             },
         },
