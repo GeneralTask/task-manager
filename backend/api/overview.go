@@ -57,6 +57,7 @@ type SupportedViewItem struct {
 
 type SupportedView struct {
 	Type     ViewType            `json:"type"`
+	Name     string              `json:"name"`
 	Logo     string              `json:"logo"`
 	IsNested bool                `json:"is_nested"`
 	Views    []SupportedViewItem `json:"views"`
@@ -321,6 +322,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 	c.JSON(200, []SupportedView{
 		{
 			Type:     ViewTaskSection,
+			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
 			Views: []SupportedViewItem{
@@ -338,8 +340,9 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		},
 		{
 			Type:     "linear",
+			Name:     "Linear",
 			Logo:     "linear",
-			IsNested: true,
+			IsNested: false,
 			Views: []SupportedViewItem{
 				{
 					Name:     "Linear View",
@@ -350,6 +353,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		},
 		{
 			Type:     "github",
+			Name:     "GitHub",
 			Logo:     "github",
 			IsNested: true,
 			Views: []SupportedViewItem{
