@@ -47,7 +47,7 @@ type OverviewResult[T ViewItems] struct {
 
 type SupportedViewItem struct {
 	Name          string             `json:"name"`
-	IsLinked      bool               `json:"is_linked"`
+	IsAdded       bool               `json:"is_added"`
 	GithubID      primitive.ObjectID `json:"github_id"`
 	MessagesID    primitive.ObjectID `json:"messages_id"`
 	SlackID       primitive.ObjectID `json:"slack_messaged_id"`
@@ -326,12 +326,12 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views: []SupportedViewItem{
 				{
 					Name:          "Things to do in St. Louis",
-					IsLinked:      true,
+					IsAdded:       true,
 					TaskSectionID: primitive.NewObjectID(),
 				},
 				{
 					Name:          "Thing to not do in St. Louis",
-					IsLinked:      true,
+					IsAdded:       true,
 					TaskSectionID: primitive.NewObjectID(),
 				},
 			},
@@ -343,7 +343,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views: []SupportedViewItem{
 				{
 					Name:     "Linear View",
-					IsLinked: true,
+					IsAdded:  true,
 					LinearID: primitive.NewObjectID(),
 				},
 			},
@@ -354,8 +354,8 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			IsNested: true,
 			Views: []SupportedViewItem{
 				{
-					Name:     "Github View",
-					IsLinked: false,
+					Name:    "Github View",
+					IsAdded: false,
 				},
 			},
 		},
