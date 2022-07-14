@@ -289,8 +289,10 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
+	var serviceID string
 	taskSectionID := primitive.NilObjectID
 	if viewCreateParams.Type == string(ViewTaskSection) {
+		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
 			return
@@ -300,16 +302,25 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
+	} else if viewCreateParams.Type == string(ViewLinear) {
+		serviceID = external.TASK_SERVICE_ID_LINEAR
 	} else if viewCreateParams.Type != string(ViewLinear) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
 
+	isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	view := database.View{
 		UserID:        userID,
 		IDOrdering:    1,
 		Type:          viewCreateParams.Type,
-		IsLinked:      false,
+		IsLinked:      isLinked,
 		TaskSectionID: taskSectionID,
 	}
 
