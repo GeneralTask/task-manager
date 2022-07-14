@@ -59,7 +59,7 @@ const NavigationLinkDropdown = ({ children, title, icon, openAddSectionInput }: 
     return (
         <>
             <DropdownContainer onClick={onClickHandler}>
-                <Icon size="xSmall" source={isOpen ? icons.chevron_down : icons.caret_right} />
+                <Icon size="xSmall" source={isOpen ? icons.chevron_down : icons.caret_right_sidebar} />
                 <Icon size="small" source={icons[icon]} />
                 <SectionTitle>{title}</SectionTitle>
                 {openAddSectionInput && (
