@@ -14,6 +14,49 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
+func TestLoadGmailTasks(t *testing.T) {
+	userID := primitive.NewObjectID()
+	task := createTestTask(userID)
+	task.SourceID = TASK_SOURCE_ID_GMAIL
+	taskWrongSource := createTestTask(userID)
+	taskWrongSource.SourceID = TASK_SOURCE_ID_GCAL
+	taskCompleted := createTestTask(userID)
+	taskCompleted.IsCompleted = true
+	insertTestTasks(
+		t,
+		userID,
+		[]*database.Item{
+			task,
+			taskWrongSource,
+			taskCompleted,
+		},
+	)
+
+	t.Run("Success", func(t *testing.T) {
+		var tasks = make(chan TaskResult)
+		go GmailSource{}.GetTasks(userID, GeneralTaskDefaultAccountID, tasks)
+		result := <-tasks
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.Tasks))
+		// check IDExternal because ID is set upon db insertion
+		assert.Equal(t, task.IDExternal, result.Tasks[0].IDExternal)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		var tasks = make(chan TaskResult)
+		go GmailSource{}.GetTasks(primitive.NewObjectID(), GeneralTaskDefaultAccountID, tasks)
+		result := <-tasks
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+	t.Run("WrongSourceAccountID", func(t *testing.T) {
+		var tasks = make(chan TaskResult)
+		go GmailSource{}.GetTasks(userID, "other_account_id", tasks)
+		result := <-tasks
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 0, len(result.Tasks))
+	})
+}
+
 func TestGetRecipients(t *testing.T) {
 	emptyRecipients := make([]database.Recipient, 0)
 

@@ -104,6 +104,9 @@ func createTestTask(userID primitive.ObjectID) *database.Item {
 			UserID:          userID,
 			SourceAccountID: GeneralTaskDefaultAccountID,
 		},
+		TaskType: database.TaskType{
+			IsTask: true,
+		},
 	}
 }
 
