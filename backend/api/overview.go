@@ -415,24 +415,32 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
 	c.JSON(200, []SupportedView{
 		{
 			Type:     ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
-			Views: []SupportedViewItem{
-				{
-					Name:          "Things to do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-				{
-					Name:          "Thing to not do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-			},
+			// Views: []SupportedViewItem{
+			// 	{
+			// 		Name:          "Things to do in St. Louis",
+			// 		IsAdded:       true,
+			// 		TaskSectionID: primitive.NewObjectID(),
+			// 	},
+			// 	{
+			// 		Name:          "Thing to not do in St. Louis",
+			// 		IsAdded:       true,
+			// 		TaskSectionID: primitive.NewObjectID(),
+			// 	},
+			// },
+			Views: getSupportedTaskSectionViews(db, userID),
 		},
 		{
 			Type:     "linear",
@@ -459,4 +467,8 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 	})
+}
+
+func getSupportedTaskSectionViews(db *mongo.Database, userID primitive.ObjectID) []SupportedViewItem {
+	return []SupportedViewItem{}
 }
