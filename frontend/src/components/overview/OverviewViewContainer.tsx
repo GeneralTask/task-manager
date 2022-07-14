@@ -3,9 +3,10 @@ import { icons } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
-import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton } from './styles'
+import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton, OptimisticItemsContainer } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MessagesViewItems from './viewItems/MessagesViewItems'
+import Spinner from '../atoms/Spinner'
 
 const PAGE_SIZE = 5
 
@@ -18,6 +19,13 @@ const OverviewView = ({ view }: OverviewViewProps) => {
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
+        if (view.isOptimistic) {
+            return () => (
+                <OptimisticItemsContainer>
+                    <Spinner />
+                </OptimisticItemsContainer>
+            )
+        }
         switch (view.type) {
             case 'task_section':
                 return TaskSectionViewItems
