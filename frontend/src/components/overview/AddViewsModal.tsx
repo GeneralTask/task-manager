@@ -55,7 +55,7 @@ const AddViewsModalContent = () => {
     return (
         <>
             {supportedViews.map((supportedView, index) => (
-                <>
+                <Fragment key={index}>
                     <SupportedView key={index}>
                         <SupportedViewContent>
                             <Icon source={logos[supportedView.logo]} size="small" />
@@ -75,7 +75,7 @@ const AddViewsModalContent = () => {
                         ))}
                     </SupportedView>
                     {index !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
-                </>
+                </Fragment>
             ))}
         </>
     )
