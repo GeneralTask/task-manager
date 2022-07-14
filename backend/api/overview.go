@@ -266,7 +266,60 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
+type ViewCreateParams struct {
+	Type          string             `json:"type" binding:"required"`
+	MessagesID    primitive.ObjectID `json:"messages_id"`
+	TaskSectionID *string            `json:"task_section_id"`
+}
+
 func (api *API) OverviewViewAdd(c *gin.Context) {
+	parentCtx := c.Request.Context()
+	var viewCreateParams ViewCreateParams
+	err := c.BindJSON(&viewCreateParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	taskSectionID := primitive.NilObjectID
+	if viewCreateParams.Type == string(ViewTaskSection) {
+		if viewCreateParams.TaskSectionID == nil {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			return
+		}
+		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			return
+		}
+	} else if viewCreateParams.Type != string(ViewLinear) {
+		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
+		return
+	}
+
+	view := database.View{
+		UserID:        userID,
+		IDOrdering:    1,
+		Type:          viewCreateParams.Type,
+		IsLinked:      false,
+		TaskSectionID: taskSectionID,
+	}
+
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to create view")
+		Handle500(c)
+		return
+	}
 	c.JSON(200, nil)
 }
 
@@ -342,8 +395,8 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			IsNested: false,
 			Views: []SupportedViewItem{
 				{
-					Name:     "Linear View",
-					IsAdded:  true,
+					Name:    "Linear View",
+					IsAdded: true,
 				},
 			},
 		},
