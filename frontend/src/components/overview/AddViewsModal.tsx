@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import { useAddView, useGetSupportedViews } from '../../services/api/overview.hooks'
+import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
-import { TSupportedView, TSupportedViewItem } from '../../utils/types'
+import { emptyFunction } from '../../utils/utils'
 import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
@@ -34,17 +34,6 @@ interface AddViewsModalProps {
 
 const AddViewsModalContent = () => {
     const { data: supportedViews } = useGetSupportedViews()
-    const { mutate: addView } = useAddView()
-
-    const handleAddRemoveView = (supportedView: TSupportedView, supportedViewItem: TSupportedViewItem) => {
-        if (supportedViewItem.is_added) {
-            addView({
-                type: supportedView.type,
-                logo: supportedView.logo,
-                supportedViewItem,
-            })
-        }
-    }
 
     if (!supportedViews) {
         return <Spinner />
@@ -59,10 +48,7 @@ const AddViewsModalContent = () => {
                             {supportedView.name}
                         </SupportedViewContent>
                         {!supportedView.is_nested && supportedView.views.length === 1 && (
-                            <GTCheckbox
-                                isChecked={supportedView.views[0].is_added}
-                                onChange={() => handleAddRemoveView(supportedView, supportedView.views[0])}
-                            />
+                            <GTCheckbox isChecked={supportedView.views[0].is_added} onChange={emptyFunction} />
                         )}
                     </SupportedView>
                     {/* Do not show divider if this is the last item in the list */}
@@ -78,10 +64,7 @@ const AddViewsModalContent = () => {
                                         <Icon source={logos[supportedView.logo]} size="small" />
                                         {supportedViewItem.name}
                                     </SupportedViewContent>
-                                    <GTCheckbox
-                                        isChecked={supportedViewItem.is_added}
-                                        onChange={() => handleAddRemoveView(supportedView, supportedViewItem)}
-                                    />
+                                    <GTCheckbox isChecked={supportedViewItem.is_added} onChange={emptyFunction} />
                                 </SupportedView>
                                 {(viewIndex !== supportedViews.length - 1 ||
                                     viewItemIndex !== supportedView.views.length - 1) && (
