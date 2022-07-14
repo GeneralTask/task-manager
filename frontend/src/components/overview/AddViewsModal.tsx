@@ -11,11 +11,12 @@ import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 
-const SupportedView = styled.div`
+const SupportedView = styled.div<{ isIndented?: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: ${Spacing.padding._8};
+    ${(props) => props.isIndented && `padding-left: ${Spacing.padding._40}`}
 `
 const SupportedViewContent = styled.div`
     display: flex;
@@ -35,12 +36,8 @@ const AddViewsModalContent = () => {
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
 
-    const handleAddRemoveView = (
-        supportedView: TSupportedView,
-        supportedViewItem: TSupportedViewItem,
-        isAdded: boolean
-    ) => {
-        if (isAdded) {
+    const handleAddRemoveView = (supportedView: TSupportedView, supportedViewItem: TSupportedViewItem) => {
+        if (supportedViewItem.is_added) {
             addView({
                 type: supportedView.type,
                 logo: supportedView.logo,
@@ -54,27 +51,40 @@ const AddViewsModalContent = () => {
     }
     return (
         <>
-            {supportedViews.map((supportedView, index) => (
-                <Fragment key={index}>
-                    <SupportedView key={index}>
+            {supportedViews.map((supportedView, viewIndex) => (
+                <Fragment key={viewIndex}>
+                    <SupportedView>
                         <SupportedViewContent>
                             <Icon source={logos[supportedView.logo]} size="small" />
                             {supportedView.type}
                         </SupportedViewContent>
-                        {supportedView.views.map((supportedViewItem, index) => (
-                            <SupportedView key={index}>
-                                <SupportedViewContent>
-                                    <Icon source={logos[supportedView.logo]} size="small" />
-                                    {supportedViewItem.name}
-                                </SupportedViewContent>
-                                <GTCheckbox
-                                    isChecked={false}
-                                    onChange={() => handleAddRemoveView(supportedView, supportedViewItem, true)}
-                                />
-                            </SupportedView>
-                        ))}
+                        {!supportedView.is_nested && supportedView.views.length === 1 && (
+                            <GTCheckbox
+                                isChecked={supportedView.views[0].is_added}
+                                onChange={() => handleAddRemoveView(supportedView, supportedView.views[0])}
+                            />
+                        )}
                     </SupportedView>
-                    {index !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
+                    {viewIndex !== supportedViews.length - 1 && <Divider color={Colors.gray._100} />}
+                    {supportedView.is_nested &&
+                        supportedView.views.map((supportedViewItem, viewItemIndex) => (
+                            <Fragment key={viewItemIndex}>
+                                <SupportedView isIndented>
+                                    <SupportedViewContent>
+                                        <Icon source={logos[supportedView.logo]} size="small" />
+                                        {supportedViewItem.name}
+                                    </SupportedViewContent>
+                                    <GTCheckbox
+                                        isChecked={supportedViewItem.is_added}
+                                        onChange={() => handleAddRemoveView(supportedView, supportedViewItem)}
+                                    />
+                                </SupportedView>
+                                {viewIndex !== supportedViews.length - 1 &&
+                                    viewItemIndex !== supportedView.views.length - 1 && (
+                                        <Divider color={Colors.gray._100} />
+                                    )}
+                            </Fragment>
+                        ))}
                 </Fragment>
             ))}
         </>

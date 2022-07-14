@@ -293,5 +293,6 @@ export interface TSupportedViewItem {
 export interface TSupportedView {
     type: TOverviewViewType
     logo: TLogoImage
+    is_nested: boolean
     views: TSupportedViewItem[]
 }

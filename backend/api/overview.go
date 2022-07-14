@@ -339,7 +339,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		{
 			Type:     "linear",
 			Logo:     "linear",
-			IsNested: true,
+			IsNested: false,
 			Views: []SupportedViewItem{
 				{
 					Name:     "Linear View",
