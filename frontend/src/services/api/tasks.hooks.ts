@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "react-query"
 import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskFromSections, resetOrderingIds } from "../../utils/utils"
+import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 import { TTaskSection, TEmailThread, TTask, TRecipients } from "../../utils/types"
 import { TCreateTaskData, TCreateTaskResponse, TCreateTaskFromThreadData, TModifyTaskData, TTaskModifyRequestBody, TMarkTaskDoneData, TReorderTaskData } from "../query-payload-types"
@@ -260,8 +260,9 @@ export const useMarkTaskDone = () => {
                     if (!sections) return
 
                     const newSections = produce(sections, (draft) => {
-                        const task = getTaskFromSections(draft, data.taskId)
-                        if (task) task.is_done = data.isCompleted
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
+                        if (taskIndex === undefined || sectionIndex === undefined) return
+                        draft[sectionIndex].tasks.splice(taskIndex, 1)
                     })
 
                     queryClient.setQueryData('tasks', newSections)
