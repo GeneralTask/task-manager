@@ -1,55 +1,9 @@
 import produce, { castImmutable } from "immer"
-import { useState } from "react"
 import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
-import { TOverviewView, TSupportedOverviewView } from "../../utils/types"
+import { TOverviewView, TSupportedView } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace } from "../../utils/utils"
-
-const dummySupportedViews = [
-    {
-        id: 'default tasks',
-        name: 'Default tasks',
-        logo: 'generaltask',
-        is_added: true,
-    },
-    {
-        id: 'Work',
-        name: 'Work',
-        logo: 'generaltask',
-        is_added: false,
-    },
-    {
-        id: 'Home',
-        name: 'Home',
-        logo: 'generaltask',
-        is_added: false,
-    },
-    {
-        id: 'Github',
-        name: 'Github',
-        logo: 'github',
-        is_added: true,
-    },
-    {
-        id: 'Gmail',
-        name: 'Gmail',
-        logo: 'gmail',
-        is_added: true,
-    },
-    {
-        id: 'Linear',
-        name: 'Linear',
-        logo: 'linear',
-        is_added: true,
-    },
-    {
-        id: 'Slack',
-        name: 'Slack',
-        logo: 'slack',
-        is_added: false,
-    },
-]
 
 export const useGetOverviewViews = () => {
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
@@ -109,18 +63,13 @@ const reorderView = async (data: TReorderViewData) => {
 }
 
 export const useGetSupportedViews = () => {
-    const [supportedViews, setSupportedViews] = useState<TSupportedOverviewView[]>(dummySupportedViews)
-
-    const temporaryAddOrRemoveViewFunc = (viewId: string, isAdded: boolean) => {
-        const newSupportedViews = produce(supportedViews, draft => {
-            const view = draft.find(view => view.id === viewId)
-            if (view) {
-                view.is_added = isAdded
-            }
-        })
-        setSupportedViews(newSupportedViews)
-    }
-
-    return { data: supportedViews, temporaryAddOrRemoveViewFunc }
+    return useQuery<TSupportedView[], void>('overview-supported-views', getSupportedViews)
 }
-
+const getSupportedViews = async () => {
+    try {
+        const res = await apiClient.get('/overview/supported_views/')
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getSupportedViews failed')
+    }
+}

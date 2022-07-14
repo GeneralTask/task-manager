@@ -185,6 +185,7 @@ export interface TPullRequest {
     author: string
     num_comments: number
     created_at: string
+    last_updated_at: string
     branch: string
     deeplink: string
 }
@@ -273,15 +274,27 @@ export interface TOverviewView {
     name: string
     type: TOverviewViewType
     task_section_id?: string
-    is_paginated: boolean
     is_reorderable: boolean
     logo: TLogoImage
     view_items: TOverviewItem[]
+    isOptimistic?: boolean
 }
 
-export interface TSupportedOverviewView {
-    id: string
+export interface TSupportedViewItem {
     name: string
+    is_linked: boolean
+    github_id: string
+    messages_id: string
+    task_section_id: string
+    slack_id: string
     logo: TLogoImage
     is_added: boolean
+}
+
+export interface TSupportedView {
+    type: TOverviewViewType
+    name: string
+    logo: TLogoImage
+    is_nested: boolean
+    views: TSupportedViewItem[]
 }
