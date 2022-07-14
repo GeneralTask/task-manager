@@ -2,11 +2,13 @@ package api
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLinkSlack(t *testing.T) {
@@ -18,7 +20,7 @@ func TestLinkSlack(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		TestAuthorizeSuccess(t, GetAPI(), "/link/slack/", func(stateToken string) string {
-			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fslack%2Fcallback%2F&amp;response_type=code&amp;scope=commands&amp;state=" + stateToken + "\">Found</a>.\n\n"
+			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fslack%2Fcallback%2F&amp;response_type=code&amp;scope=commands+users%3Aread&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
 }
@@ -72,5 +74,58 @@ func TestLinkSlackCallback(t *testing.T) {
 		userInfoURL := userInfoServer.URL + "/"
 		api.ExternalConfig.Slack.ConfigValues.UserInfoURL = &userInfoURL
 		TestAuthorizeCallbackSuccessfulResponse(t, api, "/link/slack/callback/", external.TASK_SERVICE_ID_SLACK)
+	})
+}
+
+func TestLinkSlackApp(t *testing.T) {
+	t.Run("FailedNoCode", func(t *testing.T) {
+		api := GetAPI()
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+	t.Run("FailedNoAccessToken", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":""}`)
+		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=123abc&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+	t.Run("FailedExchangeFailure", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, "")
+		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=123abc&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+	t.Run("Success", func(t *testing.T) {
+		api := GetAPI()
+		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
+		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/link_app/slack/?code=123abc&state=", nil)
+		authToken := login("authorize_success@generaltask.com", "")
+		request.AddCookie(&http.Cookie{Name: "authToken", Value: authToken})
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusFound, recorder.Code)
 	})
 }

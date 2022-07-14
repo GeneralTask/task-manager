@@ -1,8 +1,12 @@
 package api
 
 import (
+	"context"
+
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -116,4 +120,33 @@ func (api *API) LinkCallback(c *gin.Context) {
 
 	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
 	c.Status(200)
+}
+
+func (api *API) LinkSlackApp(c *gin.Context) {
+	logger := logging.GetSentryLogger()
+	parentCtx := context.Background()
+	taskService, err := api.ExternalConfig.GetTaskServiceResult("slack_app")
+	if err != nil {
+		Handle404(c)
+		return
+	}
+
+	var redirectParams Oauth2RedirectParams
+	_ = c.ShouldBind(&redirectParams)
+	// don't need to check for errors on the bind because state will not be included (which will throw error)
+	if redirectParams.Code == "" {
+		logger.Error().Msg("invalid oauth params")
+		c.JSON(500, gin.H{"detail": "invalid oauth params"})
+		return
+	}
+
+	slackService := taskService.Service.(external.SlackService)
+	_, err = slackService.Config.OauthConfig.Exchange(parentCtx, redirectParams.Code)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to exchange Slack app oauth keys")
+		c.JSON(500, gin.H{"detail": err.Error()})
+		return
+	}
+
+	c.Redirect(302, config.GetConfigValue("HOME_URL"))
 }
