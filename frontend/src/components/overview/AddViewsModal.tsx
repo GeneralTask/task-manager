@@ -48,7 +48,7 @@ const AddViewsModalContent = () => {
                             {supportedView.name}
                         </SupportedViewContent>
                         {!supportedView.is_nested && supportedView.views.length === 1 && (
-                            <GTCheckbox isChecked={supportedView.views[0].is_added} onChange={emptyFunction} />
+                            <GTCheckbox isChecked={supportedView.views[0].is_added} onChange={emptyFunction} /> // TODO: handle add and remove
                         )}
                     </SupportedView>
                     {/* Do not show divider if this is the last item in the list */}
@@ -64,6 +64,7 @@ const AddViewsModalContent = () => {
                                         <Icon source={logos[supportedView.logo]} size="small" />
                                         {supportedViewItem.name}
                                     </SupportedViewContent>
+                                    {/* TODO: handle add and remove */}
                                     <GTCheckbox isChecked={supportedViewItem.is_added} onChange={emptyFunction} />
                                 </SupportedView>
                                 {(viewIndex !== supportedViews.length - 1 ||

@@ -1,11 +1,9 @@
 import produce, { castImmutable } from "immer"
-import { v4 as uuidv4 } from 'uuid'
 import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
-import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
+import { TOverviewView, TSupportedView } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace } from "../../utils/utils"
-import { TLogoImage } from "../../styles/images"
 
 export const useGetOverviewViews = () => {
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
