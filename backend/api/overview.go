@@ -478,10 +478,10 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
 		return []SupportedViewItem{}, err
 	}
-	supportedViewItems := []SupportedViewItem{
+	supportedViewItems := []SupportedViewItem{{
 		Name:          TaskSectionNameDefault,
 		TaskSectionID: constants.IDTaskSectionDefault,
-	}
+	}}
 	for _, section := range *sections {
 		supportedViewItems = append(supportedViewItems, SupportedViewItem{
 			Name:          section.Name,
