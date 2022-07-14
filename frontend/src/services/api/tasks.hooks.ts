@@ -256,6 +256,7 @@ export const useMarkTaskDone = () => {
 
             if (data.isCompleted) {
                 setTimeout(() => {
+                    console.log('here')
                     const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                     if (!sections) return
 
