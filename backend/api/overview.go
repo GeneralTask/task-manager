@@ -172,6 +172,9 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 }
 
 func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, serviceID string) (bool, error) {
+	if serviceID == external.TASK_SERVICE_ID_GT {
+		return true, nil
+	}
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
