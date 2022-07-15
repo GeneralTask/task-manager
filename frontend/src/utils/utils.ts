@@ -71,18 +71,35 @@ export const countWithOverflow = (count: number, max = 99) => {
     return `${count}`
 }
 
-export const getTaskFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TTask | undefined => {
+interface TGetTaskIndexFromSectionsReturnType {
+    taskIndex?: number
+    sectionIndex?: number
+}
+export const getTaskIndexFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
+    const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
     if (sectionId) {
-        return sections.find(section => section.id === sectionId)?.tasks.find(task => task.id === taskId)
+        const sectionIndex = sections.findIndex(section => section.id === sectionId)
+        if (sectionIndex === -1) return invalidResult
+        const taskIndex = sections[sectionIndex].tasks.findIndex(task => task.id === taskId)
+        if (taskIndex === -1) return invalidResult
+        return { taskIndex, sectionIndex }
     }
     else {
-        for (const section of sections) {
-            for (const task of section.tasks) {
+        for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+            const section = sections[sectionIndex]
+            for (let taskIndex = 0; taskIndex < section.tasks.length; taskIndex++) {
+                const task = section.tasks[taskIndex]
                 if (task.id === taskId) {
-                    return task
+                    return { taskIndex, sectionIndex }
                 }
             }
         }
     }
-    return undefined
+    return invalidResult
+}
+
+export const getTaskFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TTask | undefined => {
+    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId, sectionId)
+    if (taskIndex === undefined || sectionIndex === undefined) return undefined
+    return sections[sectionIndex].tasks[taskIndex]
 }
