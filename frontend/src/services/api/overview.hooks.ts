@@ -4,8 +4,8 @@ import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskIndexFromSections } from "../../utils/utils"
-import { markTaskDone, TMarkTaskDoneData } from "./tasks.hooks"
+import { arrayMoveInPlace, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
+import { markTaskDone, reorderTask, TMarkTaskDoneData, TReorderTaskData } from "./tasks.hooks"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 
 export const useGetOverviewViews = () => {
@@ -262,4 +262,64 @@ export const useMarkTaskDone = () => {
             }
         },
     })
+}
+export const useReorderTask = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation(
+        (data: TReorderTaskData) =>
+            reorderTask(data),
+        {
+            onMutate: async (data: TReorderTaskData) => {
+                // cancel all current getTasks queries
+                await queryClient.cancelQueries('tasks')
+
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (!views) return
+
+                // const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                // if (!sections) return
+
+                const newViews = produce(views, (draft) => {
+                    // move within the existing section
+                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                        const section = draft.find(view => view.task_section_id === data.dropSectionId)
+                        if (section == null) return
+                        const startIndex = section.view_items.findIndex((t) => t.id === data.taskId)
+                        if (startIndex === -1) return
+                        let endIndex = data.orderingId - 1
+                        if (startIndex < endIndex) {
+                            endIndex -= 1
+                        }
+                        arrayMoveInPlace(section.view_items, startIndex, endIndex)
+
+                        // update ordering ids
+                        resetOrderingIds(section.view_items)
+                    }
+                    // move task from one section to the other
+                    else {
+                        // remove task from old location
+                        const dragSection = draft.find((section) => section.id === data.dragSectionId)
+                        if (dragSection == null) return
+                        const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.taskId)
+                        if (dragTaskIndex === -1) return
+                        const dragTask = dragSection.view_items[dragTaskIndex]
+                        dragSection.view_items.splice(dragTaskIndex, 1)
+
+                        // add task to new location
+                        const dropSection = draft.find((section) => section.id === data.dropSectionId)
+                        if (dropSection == null) return
+                        dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
+
+                        // update ordering ids
+                        resetOrderingIds(dropSection.view_items)
+                        resetOrderingIds(dragSection.view_items)
+                    }
+                })
+                queryClient.setQueryData('overview', newViews)
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('overview')
+            },
+        }
+    )
 }
