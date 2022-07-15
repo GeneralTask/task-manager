@@ -292,6 +292,15 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
+	viewExists, err := api.ViewDoesExist(db, parentCtx, userID, viewCreateParams)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	if viewExists {
+		c.JSON(400, gin.H{"detail": "view already exists"})
+		return
+	}
 	var serviceID string
 	taskSectionID := primitive.NilObjectID
 	if viewCreateParams.Type == string(ViewTaskSection) {
@@ -335,6 +344,29 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{})
+}
+
+func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
+	viewCollection := database.GetViewCollection(db)
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": params.Type},
+		},
+	}
+	if params.Type == string(ViewTaskSection) {
+		if params.TaskSectionID == nil {
+			return false, errors.New("'id_task_section' is required for task section type views")
+		}
+		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": *params.TaskSectionID})
+	} else {
+		return false, errors.New("unsupported view type")
+	}
+	count, err := viewCollection.CountDocuments(ctx, dbQuery)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (api *API) OverviewViewModify(c *gin.Context) {
