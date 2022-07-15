@@ -656,6 +656,11 @@ func TestIsServiceLinked(t *testing.T) {
 		assert.NoError(t, err)
 		assert.False(t, result)
 	})
+	t.Run("TaskServiceIsTrue", func(t *testing.T) {
+		result, err := api.IsServiceLinked(db, parentCtx, userID, external.TASK_SERVICE_ID_GT)
+		assert.NoError(t, err)
+		assert.True(t, result)
+	})
 }
 
 func TestOverviewViewDelete(t *testing.T) {

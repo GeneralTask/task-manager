@@ -180,6 +180,9 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 }
 
 func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, serviceID string) (bool, error) {
+	if serviceID == external.TASK_SERVICE_ID_GT {
+		return true, nil
+	}
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
@@ -221,7 +224,7 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			api.Logger.Error().Err(err).Msg("failed to check if service is linked")
 			return err
 		}
-		// If view is linked but service does not exist, update view to unlinked
+		// If view is linked but service does not exist, update view to unlinked and vice versa
 		if view.IsLinked != isLinked {
 			_, err := database.GetViewCollection(db).UpdateOne(
 				dbCtx,
@@ -314,8 +317,104 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	return &result, nil
 }
 
+type ViewCreateParams struct {
+	Type          string  `json:"type" binding:"required"`
+	MessagesID    *string `json:"messages_id"`
+	TaskSectionID *string `json:"task_section_id"`
+}
+
 func (api *API) OverviewViewAdd(c *gin.Context) {
-	c.JSON(200, nil)
+	parentCtx := c.Request.Context()
+	var viewCreateParams ViewCreateParams
+	err := c.BindJSON(&viewCreateParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	viewExists, err := api.ViewDoesExist(db, parentCtx, userID, viewCreateParams)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	if viewExists {
+		c.JSON(400, gin.H{"detail": "view already exists"})
+		return
+	}
+	var serviceID string
+	taskSectionID := primitive.NilObjectID
+	if viewCreateParams.Type == string(ViewTaskSection) {
+		serviceID = external.TASK_SERVICE_ID_GT
+		if viewCreateParams.TaskSectionID == nil {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			return
+		}
+		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			return
+		}
+	} else if viewCreateParams.Type == string(ViewLinear) {
+		serviceID = external.TASK_SERVICE_ID_LINEAR
+	} else if viewCreateParams.Type != string(ViewLinear) {
+		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
+		return
+	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	view := database.View{
+		UserID:        userID,
+		IDOrdering:    1,
+		Type:          viewCreateParams.Type,
+		IsLinked:      isLinked,
+		TaskSectionID: taskSectionID,
+	}
+
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to create view")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
+}
+
+func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
+	viewCollection := database.GetViewCollection(db)
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": params.Type},
+		},
+	}
+	if params.Type == string(ViewTaskSection) {
+		if params.TaskSectionID == nil {
+			return false, errors.New("'id_task_section' is required for task section type views")
+		}
+		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": *params.TaskSectionID})
+	} else {
+		return false, errors.New("unsupported view type")
+	}
+	count, err := viewCollection.CountDocuments(ctx, dbQuery)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (api *API) OverviewViewModify(c *gin.Context) {
