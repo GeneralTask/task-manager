@@ -65,6 +65,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
+		return
 	}
 	defer dbCleanup()
 
@@ -378,6 +379,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
+		return
 	}
 	defer dbCleanup()
 
@@ -415,24 +417,26 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
-	c.JSON(200, []SupportedView{
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(db, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	supportedViews := []SupportedView{
 		{
 			Type:     ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
-			Views: []SupportedViewItem{
-				{
-					Name:          "Things to do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-				{
-					Name:          "Thing to not do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-			},
+			Views:    supportedTaskSectionViews,
 		},
 		{
 			Type:     "linear",
@@ -458,5 +462,85 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 				},
 			},
 		},
-	})
+	}
+	err = api.updateIsAddedForSupportedViews(db, userID, &supportedViews)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to updated isAdded")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, supportedViews)
+}
+
+func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
+	sections, err := database.GetTaskSections(db, userID)
+	if err != nil || sections == nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
+		return []SupportedViewItem{}, err
+	}
+	supportedViewItems := []SupportedViewItem{{
+		Name:          TaskSectionNameDefault,
+		TaskSectionID: constants.IDTaskSectionDefault,
+	}}
+	for _, section := range *sections {
+		supportedViewItems = append(supportedViewItems, SupportedViewItem{
+			Name:          section.Name,
+			TaskSectionID: section.ID,
+		})
+	}
+	return supportedViewItems, nil
+}
+
+func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primitive.ObjectID, supportedViews *[]SupportedView) error {
+	if supportedViews == nil {
+		return errors.New("supportedViews must not be nil")
+	}
+	for _, supportedView := range *supportedViews {
+		for index, view := range supportedView.Views {
+			isAdded, err := api.viewIsAdded(db, userID, supportedView.Type, view)
+			if err != nil {
+				return err
+			}
+			supportedView.Views[index].IsAdded = isAdded
+		}
+	}
+	return nil
+}
+
+func (api *API) viewIsAdded(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (bool, error) {
+	if viewType == ViewTaskSection {
+		return api.viewExists(db, userID, viewType, &[]bson.M{
+			{"task_section_id": view.TaskSectionID},
+		})
+	} else if viewType == ViewLinear {
+		return api.viewExists(db, userID, viewType, nil)
+	}
+	return false, errors.New("invalid view type")
+}
+
+func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (bool, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": string(viewType)},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+
+	count, err := database.GetViewCollection(db).CountDocuments(
+		dbCtx,
+		filter,
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to check if view exists")
+		return false, err
+	}
+	return count > int64(0), nil
 }
