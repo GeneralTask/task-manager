@@ -22,6 +22,9 @@ func TestLoadGmailTasks(t *testing.T) {
 	taskWrongSource.SourceID = TASK_SOURCE_ID_GCAL
 	taskCompleted := createTestTask(userID)
 	taskCompleted.IsCompleted = true
+	taskNotTaskType := createTestTask(userID)
+	taskNotTaskType.TaskType.IsTask = false
+
 	insertTestTasks(
 		t,
 		userID,
@@ -29,6 +32,7 @@ func TestLoadGmailTasks(t *testing.T) {
 			task,
 			taskWrongSource,
 			taskCompleted,
+			taskNotTaskType,
 		},
 	)
 
