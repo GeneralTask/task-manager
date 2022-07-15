@@ -213,6 +213,36 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	return &tasks, nil
 }
 
+func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := GetTaskCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_completed": false},
+				{"task_type.is_pull_request": true},
+			},
+		},
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		return nil, err
+	}
+	var tasks []Item
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		return nil, err
+	}
+	return &tasks, nil
+}
+
 func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
