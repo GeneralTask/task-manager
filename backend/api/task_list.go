@@ -76,8 +76,6 @@ const (
 	ScheduledTask          TaskGroupType = "scheduled_task"
 	UnscheduledGroup       TaskGroupType = "unscheduled_group"
 	TaskSectionNameDefault string        = "Default"
-	TaskSectionNameBlocked string        = "Blocked"
-	TaskSectionNameBacklog string        = "Backlog"
 	TaskSectionNameDone    string        = "Done"
 )
 
