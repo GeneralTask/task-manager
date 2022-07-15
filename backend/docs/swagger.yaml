@@ -1,4 +1,91 @@
 basePath: /
+definitions:
+  api.SlackBlockValues:
+    properties:
+      task_details:
+        $ref: '#/definitions/api.SlackTaskDetails'
+      task_title:
+        $ref: '#/definitions/api.SlackTaskTitle'
+    type: object
+  api.SlackInputValue:
+    properties:
+      value:
+        type: string
+    type: object
+  api.SlackRequestParams:
+    properties:
+      trigger_id:
+        type: string
+      type:
+        type: string
+      view:
+        $ref: '#/definitions/api.SlackView'
+    type: object
+  api.SlackStateValues:
+    properties:
+      values:
+        $ref: '#/definitions/api.SlackBlockValues'
+    type: object
+  api.SlackTaskDetails:
+    properties:
+      task_details_input:
+        $ref: '#/definitions/api.SlackInputValue'
+    type: object
+  api.SlackTaskTitle:
+    properties:
+      task_title_input:
+        $ref: '#/definitions/api.SlackInputValue'
+    type: object
+  api.SlackView:
+    properties:
+      private_metadata:
+        type: string
+      state:
+        $ref: '#/definitions/api.SlackStateValues'
+    type: object
+  database.SlackChannel:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  database.SlackMessage:
+    properties:
+      text:
+        type: string
+      ts:
+        type: string
+      type:
+        type: string
+      user:
+        type: string
+    type: object
+  database.SlackMessageParams:
+    properties:
+      channel:
+        $ref: '#/definitions/database.SlackChannel'
+      message:
+        $ref: '#/definitions/database.SlackMessage'
+      team:
+        $ref: '#/definitions/database.SlackTeam'
+      user:
+        $ref: '#/definitions/database.SlackUser'
+    type: object
+  database.SlackTeam:
+    properties:
+      domain:
+        type: string
+      id:
+        type: string
+    type: object
+  database.SlackUser:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -9,7 +96,7 @@ info:
   title: General Task API
   version: "0.1"
 paths:
-  /link/{sourceID}/:
+  /link/{service_name}/:
     get:
       consumes:
       - application/json
@@ -17,7 +104,7 @@ paths:
       parameters:
       - description: Source ID
         in: path
-        name: sourceID
+        name: service_name
         required: true
         type: string
       produces:
@@ -38,6 +125,119 @@ paths:
       summary: Redirects to link callback for that service
       tags:
       - auth
+  /link/{service_name}/callback/:
+    get:
+      consumes:
+      - application/json
+      description: Callback for initial /link/ call
+      parameters:
+      - description: Source ID
+        in: path
+        name: service_name
+        required: true
+        type: string
+      - description: OAuth Code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: OAuth State
+        in: query
+        name: state
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: invalid params
+          schema:
+            type: string
+        "404":
+          description: service not found
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Exchanges Oauth tokens using state and code
+      tags:
+      - auth
+  /login/:
+    get:
+      consumes:
+      - application/json
+      description: Required for getting authToken to use authenticated endpoints
+      parameters:
+      - description: should use prompt
+        in: query
+        name: force_prompt
+        type: string
+      - description: should use deeplink
+        in: query
+        name: use_deeplink
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: URL redirect
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Begins General Task login process
+      tags:
+      - auth
+  /login/callback/:
+    get:
+      consumes:
+      - application/json
+      description: Finished the logging in process
+      parameters:
+      - description: OAuth Code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: OAuth State
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: OAuth Scope
+        in: query
+        name: scope
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: URL redirect
+          schema:
+            type: string
+        "400":
+          description: invalid params
+          schema:
+            type: string
+        "403":
+          description: user not approved for use
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Begins General Task login process
+      tags:
+      - auth
   /ping/:
     get:
       description: used to determine if server online
@@ -47,6 +247,94 @@ paths:
           schema:
             type: string
       summary: Returns success
+      tags:
+      - utils
+  /tasks/create_external/slack/:
+    post:
+      consumes:
+      - application/json
+      description: Payload specifies the type of request
+      parameters:
+      - description: Source ID
+        in: header
+        name: X-Slack-Request-Timestamp
+        required: true
+        type: string
+      - description: OAuth Code
+        in: header
+        name: X-Slack-Signature
+        required: true
+        type: string
+      - description: Slack message payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/api.SlackRequestParams'
+      - description: Slack message payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/database.SlackMessageParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "400":
+          description: invalid params
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+        "501":
+          description: invalid method
+          schema:
+            type: string
+        "503":
+          description: unable to create task
+          schema:
+            type: string
+      summary: Creates task from Slack message
+      tags:
+      - users
+  /waitlist_add/:
+    post:
+      consumes:
+      - application/json
+      description: Used to keep track of interested parties
+      parameters:
+      - description: email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: success
+          schema:
+            type: string
+        "302":
+          description: email already added
+          schema:
+            type: string
+        "400":
+          description: invalid params
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Adds email to our waitlist
       tags:
       - utils
 swagger: "2.0"

@@ -17,6 +17,18 @@ type WaitlistParams struct {
 	Email string `json:"email"`
 }
 
+// WaitlistAdd   godoc
+// @Summary      Adds email to our waitlist
+// @Description  Used to keep track of interested parties
+// @Tags         utils
+// @Accept       json
+// @Produce      json
+// @Param        email      body      string  true  "email"
+// @Success      201 {object} string "success"
+// @Failure      302 {object} string "email already added"
+// @Failure      400 {object} string "invalid params"
+// @Failure      500 {object} string "internal server error"
+// @Router       /waitlist_add/ [post]
 func (api *API) WaitlistAdd(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	var params WaitlistParams
