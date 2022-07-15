@@ -27,6 +27,9 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.2",
+    "@sentry/react": "^7.7.0",
+    "@sentry/tracing": "^7.7.0",
+    "@sentry/types": "^7.7.0",
     "animate.css": "^4.1.1",
     "axios": "^0.26.1",
     "he": "^1.2.0",
