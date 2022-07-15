@@ -162,3 +162,58 @@ const addView = async (data: TAddViewPayload) => {
         throw new Error('addView failed')
     }
 }
+
+export const useRemoveView = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation(
+        (viewId: string) => removeView(viewId),
+        {
+            onMutate: async (viewId: string) => {
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview')
+                ])
+
+                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                if (supportedViews) {
+                    const newSupportedViews = produce(supportedViews, draft => {
+                        let found = false
+                        console.log('hi')
+                        for (const view of draft) {
+                            for (const viewItem of view.views) {
+                                if (viewItem.id === viewId) {
+                                    viewItem.is_added = false
+                                    viewItem.is_add_disabled = false
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (found) break
+                        }
+                    })
+                    queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                }
+
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (views) {
+                    const newViews = produce(views, draft => {
+                        for (const view of draft) {
+                            if (view.id === viewId) {
+                                draft.splice(draft.indexOf(view), 1)
+                                break
+                            }
+                        }
+                    })
+                    queryClient.setQueryData('overview', newViews)
+                }
+            }
+        }
+    )
+}
+const removeView = async (viewId: string) => {
+    try {
+        await apiClient.delete(`/overview/views/${viewId}/`)
+    } catch {
+        throw new Error('removeView failed')
+    }
+}
