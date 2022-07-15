@@ -56,6 +56,7 @@ const AddViewsModalContent = () => {
                         {!supportedView.is_nested && supportedView.views.length === 1 && (
                             <GTCheckbox
                                 isChecked={supportedView.views[0].is_added}
+                                disabled={supportedView.views[0].is_add_disabled}
                                 onChange={() =>
                                     handleAddRemoveView({
                                         supportedView,
@@ -82,6 +83,7 @@ const AddViewsModalContent = () => {
                                     </SupportedViewContent>
                                     <GTCheckbox
                                         isChecked={supportedViewItem.is_added}
+                                        disabled={supportedViewItem.is_add_disabled}
                                         onChange={() =>
                                             handleAddRemoveView({
                                                 supportedView,

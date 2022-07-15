@@ -88,9 +88,12 @@ interface TAddViewPayload {
     task_section_id?: string
     slack_id?: string
 }
+interface TAddViewReponse {
+    id: string
+}
 export const useAddView = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(
+    return useMutation<TAddViewReponse, unknown, TAddViewData, unknown>(
         ({ supportedView, supportedViewItem }: TAddViewData) => {
             const payload: TAddViewPayload = {
                 type: supportedView.type,
@@ -102,7 +105,7 @@ export const useAddView = () => {
             return addView(payload)
         },
         {
-            onMutate: async ({ supportedView, supportedViewIndex, supportedViewItem, supportedViewItemIndex }: TAddViewData) => {
+            onMutate: async ({ supportedView, supportedViewIndex, supportedViewItem, supportedViewItemIndex }) => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview')
@@ -112,6 +115,7 @@ export const useAddView = () => {
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, draft => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].is_added = true
+                        draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = true
                     })
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
@@ -134,9 +138,18 @@ export const useAddView = () => {
                     queryClient.setQueryData('overview', newViews)
                 }
             },
-            onSettled: () => {
+            onSettled: (data, _, { supportedViewIndex, supportedViewItemIndex }) => {
                 queryClient.invalidateQueries('overview')
                 queryClient.invalidateQueries('overview-supported-views')
+                if (data) {
+                    const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                    if (supportedViews) {
+                        const newSupportedViews = produce(supportedViews, draft => {
+                            draft[supportedViewIndex].views[supportedViewItemIndex].id = data.id
+                        })
+                        queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                    }
+                }
             },
         },
     )

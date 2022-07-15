@@ -8,15 +8,16 @@ interface GTCheckboxProps {
     isChecked: boolean
     onChange: (checked: boolean) => void
     size?: TIconSize
+    disabled?: boolean
 }
-const GTCheckbox = ({ isChecked, onChange, size }: GTCheckboxProps) => {
+const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) => {
     const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
         onChange(!isChecked)
     }
     size = size || 'small'
     return (
-        <NoStyleButton onClick={onClickHandler}>
+        <NoStyleButton onClick={onClickHandler} disabled={disabled}>
             <Icon size={size} source={isChecked ? icons.task_complete : icons.task_incomplete} />
         </NoStyleButton>
     )
