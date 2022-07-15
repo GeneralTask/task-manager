@@ -518,37 +518,6 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
-	t.Run("TaskWithDifferentSource", func(t *testing.T) {
-		// a little confused about the logic here, how are we testing the different source here
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.IsLinked = false
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("SlackTaskIsCompleted", func(t *testing.T) {
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("ItemNotATask", func(t *testing.T) {
-		assert.NoError(t, err)
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("IncorrectUserID", func(t *testing.T) {
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
 }
 
 func TestUpdateViewsLinkedStatus(t *testing.T) {
