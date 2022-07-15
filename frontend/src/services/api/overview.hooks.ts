@@ -227,7 +227,7 @@ export const useMarkTaskDone = () => {
             if (!views) return
 
             const newViews = produce(views, (draft) => {
-                const sections = draft.map(view => ({
+                const sections = views.map(view => ({
                     id: view.task_section_id,
                     tasks: view.view_items
                 }))
