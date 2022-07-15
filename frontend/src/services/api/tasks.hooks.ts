@@ -338,7 +338,7 @@ export const useReorderTask = () => {
         }
     )
 }
-const reorderTask = async (data: TReorderTaskData) => {
+export const reorderTask = async (data: TReorderTaskData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
             id_task_section: data.dropSectionId,

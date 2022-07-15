@@ -1,7 +1,7 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { DropType, TTask } from '../../../utils/types'
-import { emptyFunction } from '../../../utils/utils'
+import { useReorderTask } from '../../../services/api/overview.hooks'
+import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
@@ -9,6 +9,19 @@ import { ViewItemsProps } from './viewItems.types'
 const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
     const { overviewItem } = useParams()
+    const { mutate: reorderTask } = useReorderTask()
+
+    const handleReorderTask = useCallback(
+        (item: DropItem, dropIndex: number) => {
+            if (!view.task_section_id) return
+            reorderTask({
+                taskId: item.id,
+                orderingId: dropIndex,
+                dropSectionId: view.task_section_id,
+            })
+        },
+        [view.task_section_id]
+    )
 
     // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
     const scrollingRef = useRef<HTMLDivElement>(null)
@@ -21,7 +34,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                         key={item.id}
                         index={index}
                         acceptDropType={DropType.TASK}
-                        onReorder={emptyFunction} // TODO: add reordering
+                        onReorder={handleReorderTask}
                     >
                         <Task
                             task={item as TTask}
