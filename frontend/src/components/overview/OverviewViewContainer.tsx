@@ -7,6 +7,7 @@ import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton, Optimistic
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MessagesViewItems from './viewItems/MessagesViewItems'
 import Spinner from '../atoms/Spinner'
+import { useRemoveView } from '../../services/api/overview.hooks'
 
 const PAGE_SIZE = 5
 
@@ -15,6 +16,7 @@ interface OverviewViewProps {
 }
 const OverviewView = ({ view }: OverviewViewProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
+    const { mutate: removeView } = useRemoveView()
 
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
@@ -43,7 +45,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
         <ViewContainer>
             <ViewHeader>
                 {view.name}
-                <RemoveButton>
+                <RemoveButton onClick={() => removeView(view.id)}>
                     <Icon source={icons.x_thin} size="xSmall" />
                 </RemoveButton>
             </ViewHeader>
