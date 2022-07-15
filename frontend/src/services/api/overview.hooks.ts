@@ -276,9 +276,6 @@ export const useReorderTask = () => {
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!views) return
 
-                // const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                // if (!sections) return
-
                 const newViews = produce(views, (draft) => {
                     // move within the existing section
                     if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
