@@ -4,7 +4,7 @@ import PullRequest from '../pull-requests/PullRequest'
 import React, { useEffect, useMemo } from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
-import { useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import Spinner from '../atoms/Spinner'
 import PullRequestDetails from '../details/PullRequestDetails'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -23,6 +23,7 @@ const PullRequestsView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
+    const { refetch: refetchPullRequests, isFetching: isFetchingPullRequests } = useFetchPullRequests()
 
     const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
     useItemSelectionController(pullRequests, (itemId: string) => navigate(`/pull-requests/${itemId}`))
@@ -49,7 +50,12 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Pull Requests" allowRefresh={false} />
+                    <SectionHeader
+                        sectionName="Pull Requests"
+                        allowRefresh={true}
+                        refetch={refetchPullRequests}
+                        isRefreshing={isFetchingPullRequests}
+                    />
                     <PullRequestViewContainer>
                         {repositories.map((repository) => (
                             <Repository key={repository.id}>
