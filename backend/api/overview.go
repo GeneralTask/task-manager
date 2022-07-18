@@ -57,7 +57,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	MessagesID    primitive.ObjectID `json:"messages_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
-	GithubID      primitive.ObjectID `json:"github_id"`
+	GithubID      string `json:"github_id"`
 }
 
 type SupportedView struct {
@@ -628,14 +628,13 @@ func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.Obj
 	}
 	repositoryIDToSupportedViewItems := map[string]SupportedViewItem{}
 	for _, pullRequest := range *pullRequests {
-		githubID, err := primitive.ObjectIDFromHex(pullRequest.PullRequest.RepositoryID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to parse pull request id")
 			return []SupportedViewItem{}, err
 		}
 		repositoryIDToSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
 			Name:     pullRequest.RepositoryName,
-			GithubID: githubID,
+			GithubID: pullRequest.PullRequest.RepositoryID,
 		}
 	}
 	supportedViewItems := []SupportedViewItem{}
