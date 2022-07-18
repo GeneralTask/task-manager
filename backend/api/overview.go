@@ -621,11 +621,7 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 
 func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
 	database.GetPullRequestCollection(db)
-	pullRequests, err := database.GetItems(db, userID,
-		&[]bson.M{
-			{"task_type.is_pull_request": true},
-		},
-	)
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
 		return []SupportedViewItem{}, err
