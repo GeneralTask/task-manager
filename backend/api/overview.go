@@ -487,7 +487,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views:    supportedTaskSectionViews,
 		},
 		{
-			Type:     "linear",
+			Type:     ViewLinear,
 			Name:     "Linear",
 			Logo:     "linear",
 			IsNested: false,
@@ -499,7 +499,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     "slack",
+			Type:     ViewSlack,
 			Name:     "Slack",
 			Logo:     "slack",
 			IsNested: false,
