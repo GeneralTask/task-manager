@@ -29,3 +29,14 @@ export const background = {
     primary: white,
     modalOverlay: '#D9D9D980',
 }
+
+export const button = {
+    primary: {
+        default: '#5C31D7',
+        hover: '#452AA5',
+    },
+    secondary: {
+        default: '#FFFFFF',
+        hover: '#F2F2F2',
+    },
+}

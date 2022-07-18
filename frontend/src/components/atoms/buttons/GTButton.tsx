@@ -11,13 +11,14 @@ const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapTe
     justify-content: center;
     align-items: center;
     gap: ${Spacing.margin._4};
-    border-radius: ${Border.radius.large};
-    background-color: ${(props) => props.color};
+    border-radius: ${Border.radius.small};
+    background-color: ${(props) =>
+        props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default};
     padding: ${Spacing.padding._8} ${Spacing.padding._12};
     text-align: center;
     height: 100%;
     color: ${(props) => (props.styleType === 'primary' ? Colors.white : Colors.black)};
-    box-shadow: ${Shadows.buttonShadow};
+    box-shadow: ${Shadows.button.default};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
@@ -25,29 +26,30 @@ const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapTe
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    transition: background 0.05s;
+    transition: box-shadow 0.25s;
     &:hover {
         box-shadow: ${(props) =>
-            props.styleType === 'primary' ? Shadows.buttonShadowPrimaryHover : Shadows.buttonShadowSecondaryHover};
+            props.styleType === 'primary' ? Shadows.button.primary.hover : Shadows.button.secondary.hover};
+        background-color: ${(props) =>
+            props.styleType === 'primary' ? Colors.button.primary.hover : Colors.button.secondary.hover};
     }
     &:active {
         box-shadow: ${(props) =>
-            props.styleType === 'primary' ? Shadows.buttonShadowPrimaryActive : Shadows.buttonShadowSecondaryActive};
+            props.styleType === 'primary' ? Shadows.button.primary.active : Shadows.button.secondary.active};
     }
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    color?: string
     styleType?: 'primary' | 'secondary'
     wrapText?: boolean
     iconSource?: TIconImage
 }
 const GTButton = (props: GTButtonProps) => {
-    const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
     return (
         <RoundedButton
             disabled={props.disabled}
             onClick={props.onClick}
-            color={color}
             styleType={props.styleType || 'primary'}
             wrapText={props.wrapText}
         >
