@@ -533,11 +533,13 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		ServiceID: external.TaskServiceGithub.ID,
 	})
 	assert.NoError(t, err)
+	githubID := primitive.NewObjectID()
 	view := database.View{
 		UserID:     userID,
 		IDOrdering: 1,
 		Type:       "github",
 		IsLinked:   true,
+		GithubID:   githubID.Hex(),
 	}
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
@@ -569,6 +571,9 @@ func TestGetGithubOverviewResult(t *testing.T) {
 				IsCompleted:   false,
 				IDTaskSection: primitive.NilObjectID,
 				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			PullRequest: database.PullRequest{
+				RepositoryId: githubID.Hex(),
 			},
 			TaskType: database.TaskType{
 				IsPullRequest: true,

@@ -354,6 +354,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		&[]bson.M{
 			{"is_completed": false},
 			{"task_type.is_pull_request": true},
+			{"pull_request.repository_id": view.GithubID},
 		},
 	)
 	if err != nil {
