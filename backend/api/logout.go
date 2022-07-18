@@ -9,6 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+// Logout godoc
+// @Summary      Logs a user out of General Task
+// @Description  Removes the internal token associated with the session
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        Authorization     header     string  true  "General Task auth token"
+// @Success      200 {object} string "success"
+// @Failure      401 {object} string "unauthorized"
+// @Failure      500 {object} string "internal server error"
+// @Router       /logout/ [post]
 func (api *API) Logout(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	token, err := getToken(c)
