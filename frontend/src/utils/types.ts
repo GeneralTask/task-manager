@@ -185,6 +185,7 @@ export interface TPullRequest {
     author: string
     num_comments: number
     created_at: string
+    last_updated_at: string
     branch: string
     deeplink: string
 }

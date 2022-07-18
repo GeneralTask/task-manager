@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { TEmailThread, TTask } from '../utils/types'
+import { TEmailThread, TPullRequest, TTask } from '../utils/types'
 import useKeyboardShortcut from './useKeyboardShortcut'
 
 
-export default function useItemSelectionController(items: TTask[] | TEmailThread[], selectItem: (itemId: string) => void) {
+export default function useItemSelectionController(items: TTask[] | TEmailThread[] | TPullRequest[], selectItem: (itemId: string) => void) {
     const params = useParams()
-    const selectedItemId = params.task ?? params.thread
+    const selectedItemId = params.task ?? params.thread ?? params.pullRequest
 
     // on press DOWN -> select first item
     const onUpDown = useCallback(

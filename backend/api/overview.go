@@ -17,11 +17,13 @@ type ViewType string
 
 const (
 	ViewLinearName = "Linear"
+	ViewSlackName  = "Slack"
 )
 
 const (
 	ViewTaskSection ViewType = "task_section"
 	ViewLinear      ViewType = "linear"
+	ViewSlack       ViewType = "slack"
 )
 
 type SourcesResult struct {
@@ -65,6 +67,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
+		return
 	}
 	defer dbCleanup()
 
@@ -127,6 +130,12 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 				return nil, err
 			}
 			result = append(result, overviewResult)
+		} else if view.Type == string(ViewSlack) {
+			overviewResult, err := api.GetSlackOverviewResult(db, ctx, view, userID)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, overviewResult)
 		} else {
 			return nil, errors.New("invalid view type")
 		}
@@ -172,6 +181,9 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 }
 
 func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, serviceID string) (bool, error) {
+	if serviceID == external.TASK_SERVICE_ID_GT {
+		return true, nil
+	}
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
@@ -201,6 +213,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			continue
 		} else if view.Type == string(ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
+		} else if view.Type == string(ViewSlack) {
+			serviceID = external.TaskServiceSlack.ID
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -211,7 +225,7 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			api.Logger.Error().Err(err).Msg("failed to check if service is linked")
 			return err
 		}
-		// If view is linked but service does not exist, update view to unlinked
+		// If view is linked but service does not exist, update view to unlinked and vice versa
 		if view.IsLinked != isLinked {
 			_, err := database.GetViewCollection(db).UpdateOne(
 				dbCtx,
@@ -266,8 +280,142 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
+func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	result := OverviewResult[[]*TaskResult]{
+		ID:            view.ID,
+		Name:          ViewSlackName,
+		Logo:          external.TaskServiceSlack.LogoV2,
+		Type:          ViewSlack,
+		IsLinked:      view.IsLinked,
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	slackTasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_task": true},
+			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	var taskResults []*TaskResult
+	for _, task := range *slackTasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	return &result, nil
+}
+
+type ViewCreateParams struct {
+	Type          string  `json:"type" binding:"required"`
+	MessagesID    *string `json:"messages_id"`
+	TaskSectionID *string `json:"task_section_id"`
+}
+
 func (api *API) OverviewViewAdd(c *gin.Context) {
-	c.JSON(200, nil)
+	parentCtx := c.Request.Context()
+	var viewCreateParams ViewCreateParams
+	err := c.BindJSON(&viewCreateParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	viewExists, err := api.ViewDoesExist(db, parentCtx, userID, viewCreateParams)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	if viewExists {
+		c.JSON(400, gin.H{"detail": "view already exists"})
+		return
+	}
+	var serviceID string
+	taskSectionID := primitive.NilObjectID
+	if viewCreateParams.Type == string(ViewTaskSection) {
+		serviceID = external.TASK_SERVICE_ID_GT
+		if viewCreateParams.TaskSectionID == nil {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			return
+		}
+		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			return
+		}
+	} else if viewCreateParams.Type == string(ViewLinear) {
+		serviceID = external.TASK_SERVICE_ID_LINEAR
+	} else if viewCreateParams.Type != string(ViewLinear) {
+		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
+		return
+	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	view := database.View{
+		UserID:        userID,
+		IDOrdering:    1,
+		Type:          viewCreateParams.Type,
+		IsLinked:      isLinked,
+		TaskSectionID: taskSectionID,
+	}
+
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to create view")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, gin.H{})
+}
+
+func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
+	viewCollection := database.GetViewCollection(db)
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": params.Type},
+		},
+	}
+	if params.Type == string(ViewTaskSection) {
+		if params.TaskSectionID == nil {
+			return false, errors.New("'id_task_section' is required for task section type views")
+		}
+		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": *params.TaskSectionID})
+	} else {
+		return false, errors.New("unsupported view type")
+	}
+	count, err := viewCollection.CountDocuments(ctx, dbQuery)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 
 func (api *API) OverviewViewModify(c *gin.Context) {
@@ -279,6 +427,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
+		return
 	}
 	defer dbCleanup()
 
@@ -316,24 +465,26 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
-	c.JSON(200, []SupportedView{
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	userID := getUserIDFromContext(c)
+	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(db, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	supportedViews := []SupportedView{
 		{
 			Type:     ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
-			Views: []SupportedViewItem{
-				{
-					Name:          "Things to do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-				{
-					Name:          "Thing to not do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-			},
+			Views:    supportedTaskSectionViews,
 		},
 		{
 			Type:     "linear",
@@ -342,8 +493,20 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			IsNested: false,
 			Views: []SupportedViewItem{
 				{
-					Name:     "Linear View",
-					IsAdded:  true,
+					Name:    "Linear View",
+					IsAdded: true,
+				},
+			},
+		},
+		{
+			Type:     "slack",
+			Name:     "Slack",
+			Logo:     "slack",
+			IsNested: false,
+			Views: []SupportedViewItem{
+				{
+					Name:    "Slack View",
+					IsAdded: true,
 				},
 			},
 		},
@@ -359,5 +522,85 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 				},
 			},
 		},
-	})
+	}
+	err = api.updateIsAddedForSupportedViews(db, userID, &supportedViews)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to updated isAdded")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, supportedViews)
+}
+
+func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
+	sections, err := database.GetTaskSections(db, userID)
+	if err != nil || sections == nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
+		return []SupportedViewItem{}, err
+	}
+	supportedViewItems := []SupportedViewItem{{
+		Name:          TaskSectionNameDefault,
+		TaskSectionID: constants.IDTaskSectionDefault,
+	}}
+	for _, section := range *sections {
+		supportedViewItems = append(supportedViewItems, SupportedViewItem{
+			Name:          section.Name,
+			TaskSectionID: section.ID,
+		})
+	}
+	return supportedViewItems, nil
+}
+
+func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primitive.ObjectID, supportedViews *[]SupportedView) error {
+	if supportedViews == nil {
+		return errors.New("supportedViews must not be nil")
+	}
+	for _, supportedView := range *supportedViews {
+		for index, view := range supportedView.Views {
+			isAdded, err := api.viewIsAdded(db, userID, supportedView.Type, view)
+			if err != nil {
+				return err
+			}
+			supportedView.Views[index].IsAdded = isAdded
+		}
+	}
+	return nil
+}
+
+func (api *API) viewIsAdded(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (bool, error) {
+	if viewType == ViewTaskSection {
+		return api.viewExists(db, userID, viewType, &[]bson.M{
+			{"task_section_id": view.TaskSectionID},
+		})
+	} else if viewType == ViewLinear {
+		return api.viewExists(db, userID, viewType, nil)
+	}
+	return false, errors.New("invalid view type")
+}
+
+func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (bool, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": string(viewType)},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+
+	count, err := database.GetViewCollection(db).CountDocuments(
+		dbCtx,
+		filter,
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to check if view exists")
+		return false, err
+	}
+	return count > int64(0), nil
 }
