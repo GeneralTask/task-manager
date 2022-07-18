@@ -1,7 +1,7 @@
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 
-import { MESSAGES_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
+import { MESSAGES_REFETCH_INTERVAL, PR_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useFetchMessages } from '../../services/api/messages.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -21,6 +21,7 @@ import { cssTransition } from 'react-toastify'
 import { useAppSelector } from '../../redux/hooks'
 import { useInterval } from '../../hooks'
 import OverviewPageView from '../views/OverviewPageView'
+import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 
 const toastAnimation = cssTransition({
     enter: 'animate__animated animate__fadeInRight',
@@ -41,6 +42,8 @@ const MainScreen = () => {
     useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
     const { refetch: refetchMessages } = useFetchMessages()
     useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
+    const { refetch: refetchPullRequests } = useFetchPullRequests()
+    useInterval(refetchPullRequests, PR_REFETCH_INTERVAL)
     useInterval(getInfiniteThreadsInbox, MESSAGES_REFETCH_INTERVAL)
     useInterval(getInfiniteThreadsArchive, MESSAGES_REFETCH_INTERVAL)
 
