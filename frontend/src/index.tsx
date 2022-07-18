@@ -6,7 +6,9 @@ import { BrowserTracing } from '@sentry/tracing'
 
 Sentry.init({
     dsn: 'https://fac9999515c14cf7a15fbe9b4eddcd3d@o1302719.ingest.sentry.io/6577051',
-    integrations: [new BrowserTracing()],
+    integrations: [
+        new BrowserTracing({ tracingOrigins: ['http://localhost:8080/*', 'https://api.generaltask.com/*'] }),
+    ],
 
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
