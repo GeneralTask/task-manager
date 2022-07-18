@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -641,6 +642,9 @@ func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.Obj
 	for _, supportedViewItem := range repositoryIDToSupportedViewItems {
 		supportedViewItems = append(supportedViewItems, supportedViewItem)
 	}
+	sort.Slice(supportedViewItems, func(i, j int) bool {
+		return supportedViewItems[i].Name < supportedViewItems[j].Name
+	})
 	return supportedViewItems, nil
 }
 
