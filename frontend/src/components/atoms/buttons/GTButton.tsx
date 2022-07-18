@@ -5,13 +5,13 @@ import { Icon } from '../Icon'
 import { icons, TIconImage } from '../../../styles/images'
 
 const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
+    all: unset;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: ${Spacing.margin._4};
     border-radius: ${Border.radius.large};
-    border: none;
     background-color: ${(props) => props.color};
     padding: ${Spacing.padding._8} ${Spacing.padding._12};
     text-align: center;
