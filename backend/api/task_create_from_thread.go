@@ -68,15 +68,13 @@ func (api *API) createTaskFromEmailThread(
 	taskSection := constants.IDTaskSectionDefault
 	accountID := external.GeneralTaskDefaultAccountID
 
-	// TODO: we should inherit source ID  from the thread, but any sources besides GT will cause the task to be marked as done
-	//  next time tasks/fetch is called, so we hardcode to GT for now
 	newTask := database.Item{
 		TaskBase: database.TaskBase{
 			ID:              primitive.NewObjectID(),
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
 			IDTaskSection:   taskSection,
-			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
+			SourceID:        external.TASK_SOURCE_ID_GMAIL,
 			Title:           params.Title,
 			Body:            params.Body,
 			SourceAccountID: accountID,
@@ -117,5 +115,4 @@ func (api *API) createTaskFromEmailThread(
 		Str("newTaskID", newTask.ID.String()).
 		Msg("Created new task from thread")
 	return err
-
 }

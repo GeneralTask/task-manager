@@ -614,7 +614,35 @@ func (gmailSource GmailSource) GetEvents(userID primitive.ObjectID, accountID st
 }
 
 func (gmailSource GmailSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	result <- emptyTaskResult(nil)
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		result <- emptyTaskResult(err)
+		return
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	cursor, err := taskCollection.Find(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"source_id": TASK_SOURCE_ID_GMAIL},
+			{"source_account_id": accountID},
+			{"task_type.is_task": true},
+			{"is_completed": false},
+		}},
+	)
+	var tasks []*database.Item
+	logger := logging.GetSentryLogger()
+	if err != nil || cursor.All(dbCtx, &tasks) != nil {
+		logger.Error().Err(err).Msg("failed to fetch gmail tasks")
+		result <- emptyTaskResult(err)
+		return
+	}
+	result <- TaskResult{Tasks: tasks, Error: nil}
 }
 
 func (gmailSource GmailSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
