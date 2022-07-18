@@ -1,7 +1,6 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmailThread, TMailbox, TRepository, TTaskSection } from '../../utils/types'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
@@ -11,6 +10,11 @@ import { isDevelopmentMode } from '../../environment'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api/task-section.hooks'
 import { weight } from '../../styles/typography'
+
+import { useParams, useLocation } from 'react-router-dom'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
 
 const AddSectionInputContainer = styled.div`
     display: flex;
@@ -31,26 +35,18 @@ const IconContainer = styled.div`
     margin-left: 10px;
 `
 
-interface SectionLinksProps {
-    taskSections?: TTaskSection[]
-    threadsInbox?: TEmailThread[]
-    pullRequestRepositories?: TRepository[]
-    sectionId: string
-    mailbox?: TMailbox
-    pathName: string
-}
-
-const NavigationSectionLinks = ({
-    taskSections,
-    threadsInbox,
-    pullRequestRepositories,
-    sectionId,
-    mailbox,
-    pathName,
-}: SectionLinksProps) => {
+const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
+
+    const { data: taskSections } = useGetTasks()
+    const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
+    const { data: pullRequestRepositories } = useGetPullRequests()
+    const { section: sectionId, mailbox: mailbox } = useParams()
+    const { pathname } = useLocation()
+
+    const threadsInbox = useMemo(() => threadDataInbox?.pages.flat().filter((t) => t != null) ?? [], [threadDataInbox])
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSectionName(e.target.value)
@@ -97,7 +93,7 @@ const NavigationSectionLinks = ({
                     link="/overview"
                     title="Overview"
                     icon={icons.list}
-                    isCurrentPage={pathName === 'overview'}
+                    isCurrentPage={pathname.split('/')[1] === 'overview'}
                 />
             )}
             <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
@@ -109,7 +105,7 @@ const NavigationSectionLinks = ({
                             link={`/tasks/${section.id}`}
                             title={section.name}
                             icon={icons.label}
-                            isCurrentPage={sectionId === section.id}
+                            isCurrentPage={(sectionId || '') === section.id}
                             taskSection={section}
                             count={section.tasks.length}
                             droppable
@@ -141,7 +137,7 @@ const NavigationSectionLinks = ({
                             link={`/tasks/${section.id}`}
                             title={section.name}
                             icon={icons.label}
-                            isCurrentPage={sectionId === section.id}
+                            isCurrentPage={(sectionId || '') === section.id}
                             taskSection={section}
                             count={section.tasks.length}
                             droppable={false}
@@ -155,13 +151,13 @@ const NavigationSectionLinks = ({
                     title="Inbox"
                     icon={icons.inbox}
                     count={threadsInbox?.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                    isCurrentPage={mailbox === 'inbox'}
+                    isCurrentPage={(mailbox || undefined) === 'inbox'}
                 />
                 <NavigationLink
                     link="/messages/archive"
                     title="Archive"
                     icon={icons.archive}
-                    isCurrentPage={mailbox === 'archive'}
+                    isCurrentPage={(mailbox || undefined) === 'archive'}
                 />
             </NavigationLinkDropdown>
             <NavigationLink
@@ -169,13 +165,13 @@ const NavigationSectionLinks = ({
                 title="Pull Requests"
                 icon={icons.repository}
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
-                isCurrentPage={pathName === 'pull-requests'}
+                isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
             <NavigationLink
                 link="/settings"
                 title="Settings"
                 icon={icons.gear}
-                isCurrentPage={pathName === 'settings'}
+                isCurrentPage={pathname.split('/')[1] === 'settings'}
             />
         </>
     )
