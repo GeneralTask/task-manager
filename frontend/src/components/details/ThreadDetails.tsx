@@ -136,18 +136,22 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 <ActionsContainer>
                     <TooltipWrapper inline dataTip="Mark as Task" tooltipId="tooltip">
                         <NoStyleButton onClick={onClickMarkAsTask}>
-                            <Icon source={icons.message_to_task} size="small" />
+                            <Icon source={icons.message_to_task} size="small" padding_top="3px" />
                         </NoStyleButton>
                     </TooltipWrapper>
                     <TooltipWrapper inline dataTip={isUnread ? MARK_AS_READ : MARK_AS_UNREAD} tooltipId="tooltip">
                         <NoStyleButton onClick={onClickMarkAsRead}>
-                            <Icon source={isUnread ? icons.mark_read : icons.mark_unread} size="small" />
+                            <Icon
+                                source={isUnread ? icons.mark_read : icons.mark_unread}
+                                size="small"
+                                padding_top="0px"
+                            />
                         </NoStyleButton>
                     </TooltipWrapper>
                     {params.mailbox !== 'archive' && (
                         <TooltipWrapper inline dataTip="Archive" tooltipId="tooltip">
                             <NoStyleButton onClick={onClickArchive}>
-                                <Icon source={icons.archive_purple} size="small" />
+                                <Icon source={icons.archive_purple} size="small" padding_top="0px" />
                             </NoStyleButton>
                         </TooltipWrapper>
                     )}
@@ -166,7 +170,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                 </ActionsContainer>
                 <TitleContainer>
                     <LogoContainer>
-                        <Icon size="medium" source={logos.gmail} />
+                        <Icon size="medium" source={logos.gmail} padding_top="0px" />
                     </LogoContainer>
                     <HeaderTitleContainer>
                         <Title>{title}</Title>

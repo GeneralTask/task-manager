@@ -3,9 +3,10 @@ import { TIconSize } from '../../styles/dimensions'
 import React from 'react'
 import styled from 'styled-components'
 
-const IconContainer = styled.div<{ width: string; height: string }>`
+const IconContainer = styled.div<{ width: string; height: string; padding: string }>`
     width: ${(props) => props.width};
     height: ${(props) => props.height};
+    padding-top: ${(props) => props.padding};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -20,14 +21,17 @@ interface IconProps {
     size: TIconSize
     uri?: string
     source?: string
+    padding_top: string
 }
 export const Icon = (props: IconProps) => {
     const image = props.uri != undefined ? props.uri : props.source ? props.source : Images.logos.generaltask
 
     const dimension = Dimensions.iconSize[props.size]
 
+    const padding_top = props.padding_top
+
     return (
-        <IconContainer width={dimension} height={dimension}>
+        <IconContainer width={dimension} height={dimension} padding={padding_top}>
             <ImageContainer src={image} />
         </IconContainer>
     )
