@@ -20,6 +20,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/create_test_user/": {
+            "post": {
+                "description": "Only works in the dev environment (will not work in prod)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "test"
+                ],
+                "summary": "Creates a test user for use in local testing",
+                "parameters": [
+                    {
+                        "description": "test user params",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.createTestUserParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "auth token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "non-dev environment",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/link/{service_name}/": {
             "get": {
                 "description": "First step in oauth verification",
@@ -108,6 +154,56 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "service not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/link_app/slack/": {
+            "get": {
+                "description": "Used because we treat this access_token differently to the others",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Links a Slack workspace to be able to use General Task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OAuth Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OAuth State",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "URL Redirect",
                         "schema": {
                             "type": "string"
                         }
@@ -234,6 +330,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/logout/": {
+            "post": {
+                "description": "Removes the internal token associated with the session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logs a user out of General Task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "General Task auth token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/ping/": {
             "get": {
                 "description": "used to determine if server online",
@@ -274,7 +414,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "OAuth Code",
+                        "description": "Oauth Code",
                         "name": "X-Slack-Signature",
                         "in": "header",
                         "required": true
@@ -332,7 +472,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/waitlist_add/": {
+        "/waitlist/": {
             "post": {
                 "description": "Used to keep track of interested parties",
                 "consumes": [
@@ -451,6 +591,21 @@ const docTemplate = `{
                 },
                 "state": {
                     "$ref": "#/definitions/api.SlackStateValues"
+                }
+            }
+        },
+        "api.createTestUserParams": {
+            "type": "object",
+            "required": [
+                "email",
+                "name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

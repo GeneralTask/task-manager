@@ -28,7 +28,7 @@ type WaitlistParams struct {
 // @Failure      302 {object} string "email already added"
 // @Failure      400 {object} string "invalid params"
 // @Failure      500 {object} string "internal server error"
-// @Router       /waitlist_add/ [post]
+// @Router       /waitlist/ [post]
 func (api *API) WaitlistAdd(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	var params WaitlistParams

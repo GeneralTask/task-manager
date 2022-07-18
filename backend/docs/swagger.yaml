@@ -43,6 +43,16 @@ definitions:
       state:
         $ref: '#/definitions/api.SlackStateValues'
     type: object
+  api.createTestUserParams:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    required:
+    - email
+    - name
+    type: object
   database.SlackChannel:
     properties:
       id:
@@ -96,6 +106,36 @@ info:
   title: General Task API
   version: "0.1"
 paths:
+  /create_test_user/:
+    post:
+      consumes:
+      - application/json
+      description: Only works in the dev environment (will not work in prod)
+      parameters:
+      - description: test user params
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/api.createTestUserParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: auth token
+          schema:
+            type: string
+        "400":
+          description: invalid params
+          schema:
+            type: string
+        "401":
+          description: non-dev environment
+          schema:
+            type: string
+      summary: Creates a test user for use in local testing
+      tags:
+      - test
   /link/{service_name}/:
     get:
       consumes:
@@ -165,6 +205,39 @@ paths:
           schema:
             type: string
       summary: Exchanges Oauth tokens using state and code
+      tags:
+      - auth
+  /link_app/slack/:
+    get:
+      consumes:
+      - application/json
+      description: Used because we treat this access_token differently to the others
+      parameters:
+      - description: OAuth Code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: OAuth State
+        in: query
+        name: state
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: URL Redirect
+          schema:
+            type: string
+        "404":
+          description: service not found
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Links a Slack workspace to be able to use General Task
       tags:
       - auth
   /login/:
@@ -238,6 +311,35 @@ paths:
       summary: Begins General Task login process
       tags:
       - auth
+  /logout/:
+    post:
+      consumes:
+      - application/json
+      description: Removes the internal token associated with the session
+      parameters:
+      - description: General Task auth token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            type: string
+        "401":
+          description: unauthorized
+          schema:
+            type: string
+        "500":
+          description: internal server error
+          schema:
+            type: string
+      summary: Logs a user out of General Task
+      tags:
+      - auth
   /ping/:
     get:
       description: used to determine if server online
@@ -260,7 +362,7 @@ paths:
         name: X-Slack-Request-Timestamp
         required: true
         type: string
-      - description: OAuth Code
+      - description: Oauth Code
         in: header
         name: X-Slack-Signature
         required: true
@@ -303,7 +405,7 @@ paths:
       summary: Creates task from Slack message
       tags:
       - users
-  /waitlist_add/:
+  /waitlist/:
     post:
       consumes:
       - application/json

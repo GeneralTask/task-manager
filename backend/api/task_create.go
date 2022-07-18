@@ -78,7 +78,7 @@ type SlackInputValue struct {
 // @Accept       json
 // @Produce      json
 // @Param        X-Slack-Request-Timestamp   header     string  true  "Source ID"
-// @Param        X-Slack-Signature   	     header     string  true  "OAuth Code"
+// @Param        X-Slack-Signature   	     header     string  true  "Oauth Code"
 // @Param        payload  				     body       SlackRequestParams 			 true "Slack message payload"
 // @Param        payload  				     body       database.SlackMessageParams  true "Slack message payload"
 // @Success      200 {object} string "success"
