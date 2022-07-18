@@ -27,11 +27,6 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
 
     return (
         <PullRequestRow onClick={onClickHandler} highlight={isSelected}>
-            <Column type="link">
-                <LinkButton href={deeplink} target="_blank">
-                    <Icon source={icons.external_link} size="small" />
-                </LinkButton>
-            </Column>
             <Column type="title">
                 <TruncatedText>{title}</TruncatedText>
                 <SubtitleSmall>{formattedSubtitle}</SubtitleSmall>
@@ -44,6 +39,11 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
                     <Icon source={icons.speechBubble} size="small" />
                     {num_comments}
                 </CommentsCountContainer>
+            </Column>
+            <Column type="link">
+                <LinkButton href={deeplink} target="_blank">
+                    <Icon source={icons.external_link} size="small" />
+                </LinkButton>
             </Column>
         </PullRequestRow>
     )
