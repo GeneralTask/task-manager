@@ -17,11 +17,13 @@ type ViewType string
 
 const (
 	ViewLinearName = "Linear"
+	ViewSlackName  = "Slack"
 )
 
 const (
 	ViewTaskSection ViewType = "task_section"
 	ViewLinear      ViewType = "linear"
+	ViewSlack       ViewType = "slack"
 )
 
 type SourcesResult struct {
@@ -128,6 +130,12 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 				return nil, err
 			}
 			result = append(result, overviewResult)
+		} else if view.Type == string(ViewSlack) {
+			overviewResult, err := api.GetSlackOverviewResult(db, ctx, view, userID)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, overviewResult)
 		} else {
 			return nil, errors.New("invalid view type")
 		}
@@ -205,6 +213,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			continue
 		} else if view.Type == string(ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
+		} else if view.Type == string(ViewSlack) {
+			serviceID = external.TaskServiceSlack.ID
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -263,6 +273,44 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	}
 	var taskResults []*TaskResult
 	for _, task := range *linearTasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	return &result, nil
+}
+
+func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	result := OverviewResult[[]*TaskResult]{
+		ID:            view.ID,
+		Name:          ViewSlackName,
+		Logo:          external.TaskServiceSlack.LogoV2,
+		Type:          ViewSlack,
+		IsLinked:      view.IsLinked,
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	slackTasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_task": true},
+			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	var taskResults []*TaskResult
+	for _, task := range *slackTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	result.IsLinked = view.IsLinked
@@ -446,6 +494,18 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views: []SupportedViewItem{
 				{
 					Name:    "Linear View",
+					IsAdded: true,
+				},
+			},
+		},
+		{
+			Type:     "slack",
+			Name:     "Slack",
+			Logo:     "slack",
+			IsNested: false,
+			Views: []SupportedViewItem{
+				{
+					Name:    "Slack View",
 					IsAdded: true,
 				},
 			},

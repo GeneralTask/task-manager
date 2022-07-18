@@ -36,7 +36,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":true,"sources":null,"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]},{"id":"[a-z0-9]{24}","name":"Linear","type":"linear","logo":"linear","is_linked":false,"sources":null,"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":true,"sources":null,"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]},{"id":"[a-z0-9]{24}","name":"Linear","type":"linear","logo":"linear","is_linked":false,"sources":null,"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack","type":"slack","logo":"slack","is_linked":false,"sources":null,"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -383,6 +383,138 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+}
+
+func TestGetSlackOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+		UserID:    userID,
+		Token:     "testtoken",
+		ServiceID: external.TaskServiceSlack.ID,
+	})
+	assert.NoError(t, err)
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "slack",
+		IsLinked:   true,
+	}
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	assert.NoError(t, err)
+	api := GetAPI()
+
+	expectedViewResult := OverviewResult[[]*TaskResult]{
+		ID:            view.ID,
+		Name:          "Slack",
+		Type:          ViewSlack,
+		Logo:          "slack",
+		IsLinked:      true,
+		IsReorderable: false,
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("SingleSlackViewItem", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   true,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      "randomSource",
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+			},
+			TaskType: database.TaskType{
+				IsTask: false,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        primitive.NewObjectID(),
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+			},
+			TaskType: database.TaskType{
+				IsTask: true,
+			},
+		})
+		assert.NoError(t, err)
+
+		taskID := taskResult.InsertedID.(primitive.ObjectID)
+		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{
+			{
+				ID: taskID,
+			},
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		result, err := api.GetSlackOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+	t.Run("ViewNotLinked", func(t *testing.T) {
+		view.IsLinked = false
+		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.IsLinked = false
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
