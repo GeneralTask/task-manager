@@ -28,11 +28,11 @@ type Oauth2RedirectParams struct {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        sourceID   path      string  true  "Source ID"
+// @Param        service_name   path      string  true  "Source ID"
 // @Success      302 {object} string "URL redirect"
 // @Failure      404 {object} string "service not found"
-// @Success      500 {object} string "internal server error"
-// @Router       /link/{sourceID}/ [get]
+// @Failure      500 {object} string "internal server error"
+// @Router       /link/{service_name}/ [get]
 func (api *API) Link(c *gin.Context) {
 	taskService, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {
@@ -70,6 +70,20 @@ func (api *API) Link(c *gin.Context) {
 	c.Redirect(302, *authURL)
 }
 
+// LinkCallback godoc
+// @Summary      Exchanges Oauth tokens using state and code
+// @Description  Callback for initial /link/ call
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        service_name   path      string  true  "Source ID"
+// @Param        code   	query     string  true  "OAuth Code"
+// @Param        state  	query     string  false "OAuth State"
+// @Success      200 {object} string "success"
+// @Failure      400 {object} string "invalid params"
+// @Failure      404 {object} string "service not found"
+// @Failure      500 {object} string "internal server error"
+// @Router       /link/{service_name}/callback/ [get]
 func (api *API) LinkCallback(c *gin.Context) {
 	taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(c.Param("service_name"))
 	if err != nil {
@@ -122,6 +136,18 @@ func (api *API) LinkCallback(c *gin.Context) {
 	c.Status(200)
 }
 
+// LinkSlackApp godoc
+// @Summary      Links a Slack workspace to be able to use General Task
+// @Description  Used because we treat this access_token differently to the others
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        code   	query     string  true  "OAuth Code"
+// @Param        state  	query     string  false "OAuth State"
+// @Success      302 {object} string "URL Redirect"
+// @Failure      404 {object} string "service not found"
+// @Failure      500 {object} string "internal server error"
+// @Router       /link_app/slack/ [get]
 func (api *API) LinkSlackApp(c *gin.Context) {
 	logger := logging.GetSentryLogger()
 	parentCtx := context.Background()

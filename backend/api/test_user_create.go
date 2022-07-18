@@ -1,11 +1,12 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
-	"net/http"
 )
 
 type createTestUserParams struct {
@@ -13,6 +14,17 @@ type createTestUserParams struct {
 	Name  string `json:"name" binding:"required"`
 }
 
+// CreateTestUser godoc
+// @Summary      Creates a test user for use in local testing
+// @Description  Only works in the dev environment (will not work in prod)
+// @Tags         test
+// @Accept       json
+// @Produce      json
+// @Param        payload  	  body       createTestUserParams 	 true   "test user params"
+// @Success      201 {object} string "auth token"
+// @Failure      400 {object} string "invalid params"
+// @Failure      401 {object} string "non-dev environment"
+// @Router       /create_test_user/ [post]
 func (api *API) CreateTestUser(c *gin.Context) {
 	if config.GetEnvironment() != config.Dev {
 		log.Error().Msg("CreateTestUser called in non-`dev` environment!")

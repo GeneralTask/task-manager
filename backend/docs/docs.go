@@ -20,7 +20,53 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/link/{sourceID}/": {
+        "/create_test_user/": {
+            "post": {
+                "description": "Only works in the dev environment (will not work in prod)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "test"
+                ],
+                "summary": "Creates a test user for use in local testing",
+                "parameters": [
+                    {
+                        "description": "test user params",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.createTestUserParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "auth token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "non-dev environment",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/link/{service_name}/": {
             "get": {
                 "description": "First step in oauth verification",
                 "consumes": [
@@ -37,7 +83,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Source ID",
-                        "name": "sourceID",
+                        "name": "service_name",
                         "in": "path",
                         "required": true
                     }
@@ -51,6 +97,270 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "service not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/link/{service_name}/callback/": {
+            "get": {
+                "description": "Callback for initial /link/ call",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Exchanges Oauth tokens using state and code",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Source ID",
+                        "name": "service_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OAuth Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OAuth State",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "service not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/link_app/slack/": {
+            "get": {
+                "description": "Used because we treat this access_token differently to the others",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Links a Slack workspace to be able to use General Task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OAuth Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OAuth State",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "URL Redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "service not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/login/": {
+            "get": {
+                "description": "Required for getting authToken to use authenticated endpoints",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Begins General Task login process",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "should use prompt",
+                        "name": "force_prompt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "should use deeplink",
+                        "name": "use_deeplink",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "URL redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/login/callback/": {
+            "get": {
+                "description": "Finished the logging in process",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Begins General Task login process",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "OAuth Code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OAuth State",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "OAuth Scope",
+                        "name": "scope",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "URL redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "user not approved for use",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout/": {
+            "post": {
+                "description": "Removes the internal token associated with the session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logs a user out of General Task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "General Task auth token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
                         "schema": {
                             "type": "string"
                         }
@@ -78,6 +388,291 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            }
+        },
+        "/tasks/create_external/slack/": {
+            "post": {
+                "description": "Payload specifies the type of request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Creates task from Slack message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Source ID",
+                        "name": "X-Slack-Request-Timestamp",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Oauth Code",
+                        "name": "X-Slack-Signature",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Slack message payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.SlackRequestParams"
+                        }
+                    },
+                    {
+                        "description": "Slack message payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/database.SlackMessageParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "501": {
+                        "description": "invalid method",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "503": {
+                        "description": "unable to create task",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/waitlist/": {
+            "post": {
+                "description": "Used to keep track of interested parties",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "utils"
+                ],
+                "summary": "Adds email to our waitlist",
+                "parameters": [
+                    {
+                        "description": "email",
+                        "name": "email",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "success",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "302": {
+                        "description": "email already added",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid params",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.SlackBlockValues": {
+            "type": "object",
+            "properties": {
+                "task_details": {
+                    "$ref": "#/definitions/api.SlackTaskDetails"
+                },
+                "task_title": {
+                    "$ref": "#/definitions/api.SlackTaskTitle"
+                }
+            }
+        },
+        "api.SlackInputValue": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.SlackRequestParams": {
+            "type": "object",
+            "properties": {
+                "trigger_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "view": {
+                    "$ref": "#/definitions/api.SlackView"
+                }
+            }
+        },
+        "api.SlackStateValues": {
+            "type": "object",
+            "properties": {
+                "values": {
+                    "$ref": "#/definitions/api.SlackBlockValues"
+                }
+            }
+        },
+        "api.SlackTaskDetails": {
+            "type": "object",
+            "properties": {
+                "task_details_input": {
+                    "$ref": "#/definitions/api.SlackInputValue"
+                }
+            }
+        },
+        "api.SlackTaskTitle": {
+            "type": "object",
+            "properties": {
+                "task_title_input": {
+                    "$ref": "#/definitions/api.SlackInputValue"
+                }
+            }
+        },
+        "api.SlackView": {
+            "type": "object",
+            "properties": {
+                "private_metadata": {
+                    "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/api.SlackStateValues"
+                }
+            }
+        },
+        "api.createTestUserParams": {
+            "type": "object",
+            "required": [
+                "email",
+                "name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.SlackChannel": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.SlackMessage": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.SlackMessageParams": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "$ref": "#/definitions/database.SlackChannel"
+                },
+                "message": {
+                    "$ref": "#/definitions/database.SlackMessage"
+                },
+                "team": {
+                    "$ref": "#/definitions/database.SlackTeam"
+                },
+                "user": {
+                    "$ref": "#/definitions/database.SlackUser"
+                }
+            }
+        },
+        "database.SlackTeam": {
+            "type": "object",
+            "properties": {
+                "domain": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "database.SlackUser": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         }

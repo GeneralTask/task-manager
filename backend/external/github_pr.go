@@ -170,7 +170,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
 				},
 				PullRequest: database.PullRequest{
-					RepositoryId:   fmt.Sprint(*repository.ID),
+					RepositoryID:   fmt.Sprint(*repository.ID),
 					RepositoryName: *repository.Name,
 					Number:         *pullRequest.Number,
 					Author:         *pullRequest.User.Login,
