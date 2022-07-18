@@ -28,6 +28,7 @@ const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapTe
     cursor: pointer;
     transition: background 0.05s;
     transition: box-shadow 0.25s;
+    user-select: none;
     &:hover {
         box-shadow: ${(props) =>
             props.styleType === 'primary' ? Shadows.button.primary.hover : Shadows.button.secondary.hover};
