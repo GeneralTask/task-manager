@@ -520,6 +520,126 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	})
 }
 
+func TestGetGithubOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+		UserID:    userID,
+		Token:     "testtoken",
+		ServiceID: external.TaskServiceGithub.ID,
+	})
+	assert.NoError(t, err)
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "github",
+		IsLinked:   true,
+	}
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	assert.NoError(t, err)
+	api := GetAPI()
+
+	expectedViewResult := OverviewResult[PullRequestResult]{
+		ID:            view.ID,
+		Name:          "Github",
+		Type:          ViewGithub,
+		Logo:          "github",
+		IsLinked:      true,
+		IsReorderable: false,
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*PullRequestResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("SingleGithubViewItem", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		pullResult, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   true,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: false,
+			},
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        primitive.NewObjectID(),
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+
+		pullRequestID := pullResult.InsertedID.(primitive.ObjectID)
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*PullRequestResult{
+			{
+				ID: pullRequestID.Hex(),
+			},
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+	t.Run("ViewNotLinked", func(t *testing.T) {
+		view.IsLinked = false
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.IsLinked = false
+		expectedViewResult.ViewItems = []*PullRequestResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+}
+
 func TestUpdateViewsLinkedStatus(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
