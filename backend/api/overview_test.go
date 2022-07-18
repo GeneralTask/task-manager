@@ -281,6 +281,8 @@ func TestGetLinearOverviewResult(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
+
+		// Insert completed Linear task. This task should not be in the view result.
 		_, err = taskCollection.InsertOne(parentCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:        userID,
@@ -293,6 +295,8 @@ func TestGetLinearOverviewResult(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
+
+		// Insert task with different source. This task should not be in the view result.
 		_, err = taskCollection.InsertOne(parentCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:        userID,
@@ -305,6 +309,8 @@ func TestGetLinearOverviewResult(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
+
+		// Insert item that is not a task. This item should not be in the view result.
 		_, err = taskCollection.InsertOne(parentCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:        userID,
@@ -317,6 +323,8 @@ func TestGetLinearOverviewResult(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
+
+		// Insert Linear task with different UserID. This task should not be in the view result.
 		_, err = taskCollection.InsertOne(parentCtx, database.Item{
 			TaskBase: database.TaskBase{
 				UserID:        primitive.NewObjectID(),
@@ -353,36 +361,6 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("TaskWithDifferentSource", func(t *testing.T) {
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.IsLinked = false
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("LinearTaskIsCompleted", func(t *testing.T) {
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("ItemNotATask", func(t *testing.T) {
-		assert.NoError(t, err)
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
-		expectedViewResult.ViewItems = []*TaskResult{}
-		assertOverviewViewResultEqual(t, expectedViewResult, *result)
-	})
-	t.Run("IncorrectUserID", func(t *testing.T) {
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
-		assert.NoError(t, err)
-		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
