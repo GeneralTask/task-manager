@@ -4,7 +4,7 @@ import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { emptyFunction } from '../../utils/utils'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
@@ -85,7 +85,7 @@ const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProp
             isOpen={isOpen}
             title="Add views"
             onClose={onClose}
-            leftButtons={<RoundedGeneralButton value="Back" color={Colors.purple._1} onClick={goToEditViewsView} />}
+            leftButtons={<GTButton value="Back" color={Colors.purple._1} onClick={goToEditViewsView} />}
         >
             <AddViewsModalContent />
         </GTModal>

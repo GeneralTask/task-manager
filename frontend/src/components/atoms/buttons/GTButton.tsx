@@ -1,23 +1,23 @@
-import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from '../Icon'
 import { icons, TIconImage } from '../../../styles/images'
 
-const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | 'dark'; wrapText?: boolean }>`
+const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: ${Spacing.margin._4};
     border-radius: ${Border.radius.large};
-    border: ${(props) => (props.hasBorder ? `2px solid ${Colors.gray._100}` : 'none')};
+    border: none;
     background-color: ${(props) => props.color};
     padding: ${Spacing.padding._8} ${Spacing.padding._12};
     text-align: center;
-    border-radius: ${Border.radius.large};
     height: 100%;
-    color: ${(props) => (props.textStyle === 'light' ? Colors.white : Colors.black)};
+    color: ${(props) => (props.styleType === 'primary' ? Colors.white : Colors.black)};
+    box-shadow: ${Shadows.buttonShadow};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
@@ -25,24 +25,30 @@ const RoundedButton = styled.button<{ hasBorder: boolean; textStyle: 'light' | '
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
+    &:hover {
+        box-shadow: ${(props) =>
+            props.styleType === 'primary' ? Shadows.buttonShadowPrimaryHover : Shadows.buttonShadowSecondaryHover};
+    }
+    &:active {
+        box-shadow: ${(props) =>
+            props.styleType === 'primary' ? Shadows.buttonShadowPrimaryActive : Shadows.buttonShadowSecondaryActive};
+    }
 `
 
-interface RoundedGeneralButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     color?: string
-    textStyle?: 'light' | 'dark'
+    styleType?: 'primary' | 'secondary'
     wrapText?: boolean
-    hasBorder?: boolean
     iconSource?: TIconImage
 }
-const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
+const GTButton = (props: GTButtonProps) => {
     const color = props.disabled ? Colors.gray._400 : props.color || Colors.white
     return (
         <RoundedButton
             disabled={props.disabled}
             onClick={props.onClick}
-            hasBorder={!!props.hasBorder}
             color={color}
-            textStyle={props.textStyle || 'light'}
+            styleType={props.styleType || 'primary'}
             wrapText={props.wrapText}
         >
             {props.iconSource && <Icon size="small" source={icons[props.iconSource]} />}
@@ -51,4 +57,4 @@ const RoundedGeneralButton = (props: RoundedGeneralButtonProps) => {
     )
 }
 
-export default RoundedGeneralButton
+export default GTButton
