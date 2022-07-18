@@ -105,7 +105,7 @@ const NavigationSectionLinks = () => {
                             link={`/tasks/${section.id}`}
                             title={section.name}
                             icon={icons.label}
-                            isCurrentPage={(sectionId || '') === section.id}
+                            isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
                             droppable
@@ -137,7 +137,7 @@ const NavigationSectionLinks = () => {
                             link={`/tasks/${section.id}`}
                             title={section.name}
                             icon={icons.label}
-                            isCurrentPage={(sectionId || '') === section.id}
+                            isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
                             droppable={false}
@@ -151,13 +151,13 @@ const NavigationSectionLinks = () => {
                     title="Inbox"
                     icon={icons.inbox}
                     count={threadsInbox?.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                    isCurrentPage={(mailbox || undefined) === 'inbox'}
+                    isCurrentPage={mailbox === 'inbox'}
                 />
                 <NavigationLink
                     link="/messages/archive"
                     title="Archive"
                     icon={icons.archive}
-                    isCurrentPage={(mailbox || undefined) === 'archive'}
+                    isCurrentPage={mailbox === 'archive'}
                 />
             </NavigationLinkDropdown>
             <NavigationLink

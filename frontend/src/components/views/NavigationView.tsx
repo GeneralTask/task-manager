@@ -33,21 +33,19 @@ const GapView = styled.div`
     margin-top: auto;
 `
 
-const NavigationView = () => {
-    return (
-        <NavigationViewContainer>
-            <NavigationViewHeader>
-                <Icon size="medium" />
-            </NavigationViewHeader>
-            <OverflowContainer>
-                <NavigationSectionLinks />
-            </OverflowContainer>
-            <GapView>
-                <FeedbackButton />
-                <RoundedGeneralButton value="Sign Out" textStyle="dark" onClick={authSignOut} />
-            </GapView>
-        </NavigationViewContainer>
-    )
-}
+const NavigationView = () => (
+    <NavigationViewContainer>
+        <NavigationViewHeader>
+            <Icon size="medium" />
+        </NavigationViewHeader>
+        <OverflowContainer>
+            <NavigationSectionLinks />
+        </OverflowContainer>
+        <GapView>
+            <FeedbackButton />
+            <RoundedGeneralButton value="Sign Out" textStyle="dark" onClick={authSignOut} />
+        </GapView>
+    </NavigationViewContainer>
+)
 
 export default NavigationView
