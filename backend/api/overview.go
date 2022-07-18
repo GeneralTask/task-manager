@@ -381,7 +381,6 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		}
 		pullResults = append(pullResults, &pullRequestResult)
 	}
-	result.IsLinked = view.IsLinked
 	result.ViewItems = pullResults
 	return &result, nil
 }
