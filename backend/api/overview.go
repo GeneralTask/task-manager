@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -259,12 +260,20 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_LINEAR + "/"
+
 	result := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewLinearName,
-		Logo:          external.TaskServiceLinear.LogoV2,
-		Type:          ViewLinear,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewLinearName,
+		Logo:     external.TaskServiceLinear.LogoV2,
+		Type:     ViewLinear,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewLinearName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
