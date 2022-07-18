@@ -487,7 +487,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views:    supportedTaskSectionViews,
 		},
 		{
-			Type:     ViewLinear,
+			Type:     "linear",
 			Name:     "Linear",
 			Logo:     "linear",
 			IsNested: false,
@@ -499,7 +499,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     ViewSlack,
+			Type:     "slack",
 			Name:     "Slack",
 			Logo:     "slack",
 			IsNested: false,
@@ -507,6 +507,18 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 				{
 					Name:    "Slack View",
 					IsAdded: true,
+				},
+			},
+		},
+		{
+			Type:     "github",
+			Name:     "GitHub",
+			Logo:     "github",
+			IsNested: true,
+			Views: []SupportedViewItem{
+				{
+					Name:    "Github View",
+					IsAdded: false,
 				},
 			},
 		},
@@ -560,7 +572,7 @@ func (api *API) viewIsAdded(db *mongo.Database, userID primitive.ObjectID, viewT
 		return api.viewExists(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == ViewLinear || viewType == ViewSlack {
+	} else if viewType == ViewLinear {
 		return api.viewExists(db, userID, viewType, nil)
 	}
 	return false, errors.New("invalid view type")
