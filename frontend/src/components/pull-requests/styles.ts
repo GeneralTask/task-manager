@@ -62,12 +62,12 @@ export const PullRequestViewContainer = styled.div`
 export const Repository = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.margin._16};
+    gap: ${Spacing.margin._8};
 `
 
 export const PullRequestRow = styled.div<{ highlight: boolean }>`
     display: flex;
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing.padding._4};
     background-color: ${props => props.highlight ? Colors.gray._100 : Colors.white};
     border-radius: ${Border.radius.large};
     cursor: pointer;
