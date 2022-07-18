@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -18,12 +19,14 @@ type ViewType string
 const (
 	ViewLinearName = "Linear"
 	ViewSlackName  = "Slack"
+	ViewGithubName = "Github"
 )
 
 const (
 	ViewTaskSection ViewType = "task_section"
 	ViewLinear      ViewType = "linear"
 	ViewSlack       ViewType = "slack"
+	ViewGithub      ViewType = "github"
 )
 
 type SourcesResult struct {
@@ -31,10 +34,12 @@ type SourcesResult struct {
 	AuthorizationURL *string `json:"authorization_url"`
 }
 
-type ViewItems interface {
-	[]*TaskResult
+type ViewItem interface {
+	TaskResult | PullRequestResult
+	GetID() string
 }
-type OverviewResult[T ViewItems] struct {
+
+type OverviewResult[T ViewItem] struct {
 	ID            primitive.ObjectID `json:"id"`
 	Name          string             `json:"name"`
 	Type          ViewType           `json:"type"`
@@ -44,7 +49,7 @@ type OverviewResult[T ViewItems] struct {
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	IsReorderable bool               `json:"is_reorderable"`
 	IDOrdering    int                `json:"ordering_id"`
-	ViewItems     T                  `json:"view_items"`
+	ViewItems     []*T               `json:"view_items"`
 }
 
 type SupportedViewItem struct {
@@ -136,6 +141,12 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 				return nil, err
 			}
 			result = append(result, overviewResult)
+		} else if view.Type == string(ViewGithub) {
+			overviewResult, err := api.GetGithubOverviewResult(db, ctx, view, userID)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, overviewResult)
 		} else {
 			return nil, errors.New("invalid view type")
 		}
@@ -143,7 +154,7 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 	return result, nil
 }
 
-func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -167,7 +178,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	for _, task := range *tasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
-	return &OverviewResult[[]*TaskResult]{
+	return &OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          name,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
@@ -215,6 +226,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			serviceID = external.TaskServiceLinear.ID
 		} else if view.Type == string(ViewSlack) {
 			serviceID = external.TaskServiceSlack.ID
+		} else if view.Type == string(ViewGithub) {
+			serviceID = external.TaskServiceGithub.ID
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -242,11 +255,11 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 	return nil
 }
 
-func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	result := OverviewResult[[]*TaskResult]{
+	result := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          ViewLinearName,
 		Logo:          external.TaskServiceLinear.LogoV2,
@@ -280,11 +293,11 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
-func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	result := OverviewResult[[]*TaskResult]{
+	result := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          ViewSlackName,
 		Logo:          external.TaskServiceSlack.LogoV2,
@@ -315,6 +328,60 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	}
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	return &result, nil
+}
+
+func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[PullRequestResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	result := OverviewResult[PullRequestResult]{
+		ID:            view.ID,
+		Name:          ViewGithubName,
+		Logo:          external.TaskServiceGithub.LogoV2,
+		Type:          ViewGithub,
+		IsLinked:      view.IsLinked,
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*PullRequestResult{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	githubPRs, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_pull_request": true},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	var pullResults []*PullRequestResult
+	// TODO we should change our Github logic to include all a user's repos in a DB
+	// then we should split the Github into per repo (this is currently all the user's repo PRs)
+	for _, pullRequest := range *githubPRs {
+		pullRequestResult := PullRequestResult{
+			ID:     pullRequest.ID.Hex(),
+			Title:  pullRequest.Title,
+			Number: pullRequest.Number,
+			Status: PullRequestStatus{
+				Text:  pullRequest.RequiredAction,
+				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
+			},
+			Author:        pullRequest.Author,
+			NumComments:   pullRequest.CommentCount,
+			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
+			Branch:        pullRequest.Branch,
+			Deeplink:      pullRequest.Deeplink,
+			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+		}
+		pullResults = append(pullResults, &pullRequestResult)
+	}
+	result.IsLinked = view.IsLinked
+	result.ViewItems = pullResults
 	return &result, nil
 }
 
