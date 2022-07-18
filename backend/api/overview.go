@@ -626,20 +626,20 @@ func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.Obj
 		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
 		return []SupportedViewItem{}, err
 	}
-	repositoryIDtoSupportedViewItems := map[string]SupportedViewItem{}
+	repositoryIDToSupportedViewItems := map[string]SupportedViewItem{}
 	for _, pullRequest := range *pullRequests {
 		githubID, err := primitive.ObjectIDFromHex(pullRequest.PullRequest.RepositoryID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to parse pull request id")
 			return []SupportedViewItem{}, err
 		}
-		repositoryIDtoSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
+		repositoryIDToSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
 			Name:     pullRequest.RepositoryName,
 			GithubID: githubID,
 		}
 	}
 	supportedViewItems := []SupportedViewItem{}
-	for _, supportedViewItem := range repositoryIDtoSupportedViewItems {
+	for _, supportedViewItem := range repositoryIDToSupportedViewItems {
 		supportedViewItems = append(supportedViewItems, supportedViewItem)
 	}
 	return supportedViewItems, nil
