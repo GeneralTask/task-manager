@@ -11,7 +11,7 @@ import { openAuthWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -84,13 +84,13 @@ const SettingsView = () => {
                 <AccountsContainer>
                     <FullWidth>
                         <ShowLinkAccountsButtonContainer ref={showLinkAccountsButtonContainerRef}>
-                            <RoundedGeneralButton
+                            <GTButton
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
                                 }}
                                 value="Add new Account"
-                                textStyle="dark"
+                                styleType="secondary"
                             />
                             {showLinkAccountsDropdown && (
                                 <GTSelect

@@ -4,7 +4,7 @@ import { Colors } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { authSignOut } from '../../utils/auth'
 import styled from 'styled-components'
 
@@ -43,7 +43,7 @@ const NavigationView = () => (
         </OverflowContainer>
         <GapView>
             <FeedbackButton />
-            <RoundedGeneralButton value="Sign Out" textStyle="dark" onClick={authSignOut} />
+            <GTButton value="Sign Out" styleType="secondary" onClick={authSignOut} />
         </GapView>
     </NavigationViewContainer>
 )
