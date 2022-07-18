@@ -168,7 +168,7 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	RepositoryId   string             `bson:"repository_id"`
+	RepositoryID   string             `bson:"repository_id"`
 	RepositoryName string             `bson:"repository_name"`
 	Number         int                `bson:"number"`
 	Author         string             `bson:"author"`

@@ -15,3 +15,11 @@ func getViewIDFromContext(c *gin.Context) (primitive.ObjectID, error) {
 	viewID := c.Param("view_id")
 	return primitive.ObjectIDFromHex(viewID)
 }
+
+func (t TaskResult) GetID() string {
+	return t.ID.Hex()
+}
+
+func (p PullRequestResult) GetID() string {
+	return p.ID
+}

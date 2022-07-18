@@ -1,10 +1,5 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { margin, padding } from '../../styles/spacing'
-import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
-import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useLocation, useParams } from 'react-router-dom'
-
 import { Colors } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
@@ -38,36 +33,19 @@ const GapView = styled.div`
     margin-top: auto;
 `
 
-const NavigationView = () => {
-    const { data: taskSections } = useGetTasks()
-    const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
-    const { data: pullRequestRepositories } = useGetPullRequests()
-    const { section: sectionIdParam, mailbox: mailbox } = useParams()
-    const { pathname } = useLocation()
-
-    const threadsInbox = useMemo(() => threadDataInbox?.pages.flat().filter((t) => t != null) ?? [], [threadDataInbox])
-
-    return (
-        <NavigationViewContainer>
-            <NavigationViewHeader>
-                <Icon size="medium" />
-            </NavigationViewHeader>
-            <OverflowContainer>
-                <NavigationSectionLinks
-                    taskSections={taskSections}
-                    threadsInbox={threadsInbox}
-                    pullRequestRepositories={pullRequestRepositories}
-                    sectionId={sectionIdParam || ''}
-                    mailbox={mailbox === 'inbox' || mailbox === 'archive' ? mailbox : undefined}
-                    pathName={pathname.split('/')[1]}
-                />
-            </OverflowContainer>
-            <GapView>
-                <FeedbackButton />
-                <RoundedGeneralButton value="Sign Out" textStyle="dark" onClick={authSignOut} />
-            </GapView>
-        </NavigationViewContainer>
-    )
-}
+const NavigationView = () => (
+    <NavigationViewContainer>
+        <NavigationViewHeader>
+            <Icon size="medium" />
+        </NavigationViewHeader>
+        <OverflowContainer>
+            <NavigationSectionLinks />
+        </OverflowContainer>
+        <GapView>
+            <FeedbackButton />
+            <RoundedGeneralButton value="Sign Out" textStyle="dark" onClick={authSignOut} />
+        </GapView>
+    </NavigationViewContainer>
+)
 
 export default NavigationView

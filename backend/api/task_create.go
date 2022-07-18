@@ -71,6 +71,22 @@ type SlackInputValue struct {
 	Value string `json:"value"`
 }
 
+// SlackTaskCreate   godoc
+// @Summary      Creates task from Slack message
+// @Description  Payload specifies the type of request
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        X-Slack-Request-Timestamp   header     string  true  "Source ID"
+// @Param        X-Slack-Signature   	     header     string  true  "Oauth Code"
+// @Param        payload  				     body       SlackRequestParams 			 true "Slack message payload"
+// @Param        payload  				     body       database.SlackMessageParams  true "Slack message payload"
+// @Success      200 {object} string "success"
+// @Failure      400 {object} string "invalid params"
+// @Failure      500 {object} string "internal server error"
+// @Failure      501 {object} string "invalid method"
+// @Failure      503 {object} string "unable to create task"
+// @Router       /tasks/create_external/slack/ [post]
 func (api *API) SlackTaskCreate(c *gin.Context) {
 	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
 	db, dbCleanup, err := database.GetDBConnection()
