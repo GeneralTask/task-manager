@@ -551,7 +551,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
 			},
 			PullRequest: database.PullRequest{
-				RepositoryId: githubID.Hex(),
+				RepositoryID: githubID.Hex(),
 			},
 			TaskType: database.TaskType{
 				IsPullRequest: true,
@@ -606,7 +606,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
 			},
 			PullRequest: database.PullRequest{
-				RepositoryId: primitive.NewObjectID().Hex(),
+				RepositoryID: primitive.NewObjectID().Hex(),
 			},
 			TaskType: database.TaskType{
 				IsPullRequest: true,
