@@ -116,7 +116,7 @@ func TestGetOverviewResults(t *testing.T) {
 		assert.NoError(t, err)
 
 		result, err := api.GetOverviewResults(db, parentCtx, views, userID)
-		expectedViewResult := OverviewResult[[]*TaskResult]{
+		expectedViewResult := OverviewResult[TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
 			Type:          ViewTaskSection,
@@ -131,7 +131,7 @@ func TestGetOverviewResults(t *testing.T) {
 		}
 		assert.NoError(t, err)
 		assert.Len(t, result, 1)
-		overviewResult, ok := result[0].(*OverviewResult[[]*TaskResult])
+		overviewResult, ok := result[0].(*OverviewResult[TaskResult])
 		assert.True(t, ok)
 		assertOverviewViewResultEqual(t, expectedViewResult, *overviewResult)
 	})
@@ -165,7 +165,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	assert.NoError(t, err)
 	api := GetAPI()
 
-	expectedViewResult := OverviewResult[[]*TaskResult]{
+	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          taskSectionName,
 		Type:          ViewTaskSection,
@@ -250,7 +250,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 	assert.NoError(t, err)
 	api := GetAPI()
 
-	expectedViewResult := OverviewResult[[]*TaskResult]{
+	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          "Linear",
 		Type:          ViewLinear,
@@ -390,7 +390,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	assert.NoError(t, err)
 	api := GetAPI()
 
-	expectedViewResult := OverviewResult[[]*TaskResult]{
+	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          "Slack",
 		Type:          ViewSlack,
@@ -494,6 +494,150 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
 		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+}
+
+func TestGetGithubOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+		UserID:    userID,
+		Token:     "testtoken",
+		ServiceID: external.TaskServiceGithub.ID,
+	})
+	assert.NoError(t, err)
+	githubID := primitive.NewObjectID()
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "github",
+		IsLinked:   true,
+		GithubID:   githubID.Hex(),
+	}
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	assert.NoError(t, err)
+	api := GetAPI()
+
+	expectedViewResult := OverviewResult[PullRequestResult]{
+		ID:            view.ID,
+		Name:          "Github",
+		Type:          ViewGithub,
+		Logo:          "github",
+		IsLinked:      true,
+		IsReorderable: false,
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*PullRequestResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("SingleGithubViewItem", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		pullResult, err := taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			PullRequest: database.PullRequest{
+				RepositoryID: githubID.Hex(),
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+		// Insert completed Github PR. This PR should not be in the view result.
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   true,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+		// Insert Item that is not type PullRequest. This should not be in the view result.
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: false,
+			},
+		})
+		assert.NoError(t, err)
+		// Insert Github PR with different UserID. This PR should not be in the view result.
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        primitive.NewObjectID(),
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+		// Insert Github PR with different RepositoryID. This PR should not be in the view result.
+		_, err = taskCollection.InsertOne(parentCtx, database.Item{
+			TaskBase: database.TaskBase{
+				UserID:        userID,
+				IsCompleted:   false,
+				IDTaskSection: primitive.NilObjectID,
+				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
+			},
+			PullRequest: database.PullRequest{
+				RepositoryID: primitive.NewObjectID().Hex(),
+			},
+			TaskType: database.TaskType{
+				IsPullRequest: true,
+			},
+		})
+		assert.NoError(t, err)
+
+		pullRequestID := pullResult.InsertedID.(primitive.ObjectID)
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*PullRequestResult{
+			{
+				ID: pullRequestID.Hex(),
+			},
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+	t.Run("ViewNotLinked", func(t *testing.T) {
+		view.IsLinked = false
+		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.IsLinked = false
+		expectedViewResult.ViewItems = []*PullRequestResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 }
@@ -691,7 +835,7 @@ func TestOverviewViewDelete(t *testing.T) {
 	})
 }
 
-func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
+func assertOverviewViewResultEqual[T ViewItem](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Type, actual.Type)
 	assert.Equal(t, expected.Logo, actual.Logo)
@@ -702,6 +846,8 @@ func assertOverviewViewResultEqual[T ViewItems](t *testing.T, expected OverviewR
 	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
 	assert.Equal(t, len(expected.ViewItems), len(actual.ViewItems))
 	for i := range expected.ViewItems {
-		assert.Equal(t, expected.ViewItems[i].ID, actual.ViewItems[i].ID)
+		expectedViewItem := *(expected.ViewItems[i])
+		actualViewItem := *(actual.ViewItems[i])
+		assert.Equal(t, expectedViewItem.GetID(), actualViewItem.GetID())
 	}
 }
