@@ -359,7 +359,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	var pullResults []*PullRequestResult
+	pullResults := []*PullRequestResult{}
 	// TODO we should change our Github logic to include all a user's repos in a DB
 	// then we should split the Github into per repo (this is currently all the user's repo PRs)
 	for _, pullRequest := range *githubPRs {
