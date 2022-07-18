@@ -11,6 +11,7 @@ export const MESSAGE_TYPE_DM = 'directmessage'
 // Time constants (in seconds)
 export const TASK_REFETCH_INTERVAL = 30
 export const MESSAGES_REFETCH_INTERVAL = 60
+export const PR_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
 export const TASK_MARK_AS_DONE_TIMEOUT = 2
@@ -47,9 +48,9 @@ export const NO_EVENT_TITLE = '(no title)'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 export const KEYBOARD_SHORTCUTS = Object.freeze({
-    arrowUp: 'ArrowUp', 
-    arrowDown: 'ArrowDown', 
-    calendar: 'C', 
+    arrowUp: 'ArrowUp',
+    arrowDown: 'ArrowDown',
+    calendar: 'C',
     close: 'Escape',
     createTask: 'T',
     down: 'K',
