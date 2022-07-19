@@ -80,7 +80,7 @@ func TestGetPullRequests(t *testing.T) {
 		result := <-pullRequests
 
 		expectedPullRequest := database.PullRequest{
-			RepositoryId:   "1234",
+			RepositoryID:   "1234",
 			RepositoryName: "ExampleRepository",
 			Number:         420,
 			Author:         "chad1616",

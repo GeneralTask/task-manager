@@ -64,7 +64,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	repositoryIDToResult := make(map[string]RepositoryResult)
 	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
 	for _, pullRequest := range *pullRequests {
-		repositoryID := pullRequest.RepositoryId
+		repositoryID := pullRequest.RepositoryID
 		repositoryResult := RepositoryResult{
 			ID:   repositoryID,
 			Name: pullRequest.RepositoryName,

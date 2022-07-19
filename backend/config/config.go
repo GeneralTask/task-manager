@@ -52,3 +52,7 @@ func GetConfigValue(key string) string {
 	}
 	return os.Getenv(key)
 }
+
+func GetAuthorizationURL(serviceID string) string {
+	return GetConfigValue("SERVER_URL") + "link/" + serviceID + "/"
+}

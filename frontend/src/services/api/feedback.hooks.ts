@@ -1,7 +1,10 @@
 import { castImmutable } from "immer"
 import { useMutation } from "react-query"
 import apiClient from "../../utils/api"
-import { TPostFeedbackData } from "../query-payload-types"
+
+interface TPostFeedbackData {
+    feedback: string
+}
 
 export const usePostFeedback = () => {
     return useMutation(postFeedback)

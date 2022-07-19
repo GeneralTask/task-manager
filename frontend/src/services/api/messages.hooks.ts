@@ -3,9 +3,30 @@ import { useInfiniteQuery, useMutation, useQuery } from "react-query"
 import { MESSAGES_PER_PAGE } from "../../constants"
 import { DEFAULT_MESSAGE_ID, DEFAULT_SUBJECT, DEFAULT_SENDER } from "../../constants/emailConstants"
 import apiClient from "../../utils/api"
-import { TMessage, TMeetingBanner, TEmail } from "../../utils/types"
-import { TMessageFetchData, TMarkMessageReadData, TComposeMessageData, TEmailThreadResponse } from "../query-payload-types"
+import { TMessage, TMeetingBanner, TEmail, TRecipients, TEmailThread } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
+
+interface TMessageFetchData {
+    refresh_required: boolean
+}
+
+interface TMarkMessageReadData {
+    id: string
+    isRead: boolean
+}
+
+interface TComposeMessageData {
+    message_id?: string
+    subject?: string
+    body: string
+    recipients: TRecipients
+    source_id: string
+    source_account_id: string
+}
+
+interface TEmailThreadResponse {
+    pages: TEmailThread[][]
+}
 
 export const useGetInfiniteMessages = () => {
     return useInfiniteQuery<TMessage[], void>('messages', getInfiniteMessages, {
