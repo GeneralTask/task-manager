@@ -246,7 +246,7 @@ export const useModifyTask = () => {
             modifyTask(data),
         {
             onMutate: async (data: TModifyTaskData) => {
-                // cancel all current getTasks queries
+                await queryClient.cancelQueries('overview')
                 await queryClient.cancelQueries('tasks')
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -265,6 +265,7 @@ export const useModifyTask = () => {
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
+                queryClient.invalidateQueries('overview')
             },
         }
     )

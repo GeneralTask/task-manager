@@ -81,6 +81,7 @@ export const useMarkTaskDone = () => {
     return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
         onMutate: async (data: TMarkTaskDoneData) => {
             await queryClient.cancelQueries('overview')
+            await queryClient.cancelQueries('tasks')
 
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
@@ -116,6 +117,7 @@ export const useMarkTaskDone = () => {
 
                     queryClient.setQueryData('overview', newViews)
                     queryClient.invalidateQueries('overview')
+                    queryClient.invalidateQueries('tasks')
                 }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
         },
