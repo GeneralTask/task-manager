@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -58,7 +59,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	MessagesID    primitive.ObjectID `json:"messages_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
-	GithubID      string `json:"github_id"`
+	GithubID      string             `json:"github_id"`
 }
 
 type SupportedView struct {
@@ -186,6 +187,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
+		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -261,12 +263,19 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
 	result := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewLinearName,
-		Logo:          external.TaskServiceLinear.LogoV2,
-		Type:          ViewLinear,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewLinearName,
+		Logo:     external.TaskServiceLinear.LogoV2,
+		Type:     ViewLinear,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewLinearName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -299,12 +308,19 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
 	result := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewSlackName,
-		Logo:          external.TaskServiceSlack.LogoV2,
-		Type:          ViewSlack,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewSlackName,
+		Logo:     external.TaskServiceSlack.LogoV2,
+		Type:     ViewSlack,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewSlackName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -337,12 +353,19 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	result := OverviewResult[PullRequestResult]{
-		ID:            view.ID,
-		Name:          ViewGithubName,
-		Logo:          external.TaskServiceGithub.LogoV2,
-		Type:          ViewGithub,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewGithubName,
+		Logo:     external.TaskServiceGithub.LogoV2,
+		Type:     ViewGithub,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewGithubName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
