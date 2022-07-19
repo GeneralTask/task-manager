@@ -14,6 +14,7 @@ const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapTe
     background-color: ${(props) =>
         props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default};
     padding: ${Spacing.padding._8} ${Spacing.padding._12};
+    border: none;
     text-align: center;
     height: 100%;
     color: ${(props) => (props.styleType === 'primary' ? Colors.white : Colors.black)};
