@@ -3,7 +3,10 @@ import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { TOverviewView, TSupportedView } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace } from "../../utils/utils"
+import { arrayMoveInPlace, getTaskIndexFromSections } from "../../utils/utils"
+import { TMarkTaskDoneData } from "../query-payload-types"
+import { markTaskDone } from "./tasks.hooks"
+import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 
 export const useGetOverviewViews = () => {
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
@@ -72,4 +75,48 @@ const getSupportedViews = async () => {
     } catch {
         throw new Error('getSupportedViews failed')
     }
+}
+
+export const useMarkTaskDone = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
+        onMutate: async (data: TMarkTaskDoneData) => {
+            await queryClient.cancelQueries('overview')
+
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            if (!views) return
+
+            const newViews = produce(views, (draft) => {
+                const sections = draft.map(view => ({
+                    id: view.task_section_id,
+                    tasks: view.view_items
+                }))
+                const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
+                if (sectionIndex === undefined || taskIndex === undefined) return
+                draft[sectionIndex].view_items[taskIndex].is_done = data.isCompleted
+            })
+
+            queryClient.setQueryData('overview', newViews)
+
+            if (data.isCompleted) {
+                setTimeout(() => {
+                    const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                    if (!views) return
+
+                    const newViews = produce(views, (draft) => {
+                        const sections = views.map(view => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items
+                        }))
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
+                        if (sectionIndex === undefined || taskIndex === undefined) return
+                        draft[sectionIndex].view_items.splice(taskIndex, 1)
+                    })
+
+                    queryClient.setQueryData('overview', newViews)
+                    queryClient.invalidateQueries('overview')
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
+            }
+        },
+    })
 }

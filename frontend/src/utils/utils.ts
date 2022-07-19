@@ -1,7 +1,8 @@
 import { DateTime } from 'luxon';
-import { TTask, TTaskSection } from './types'
+import { TOverviewView, TTask, TTaskSection } from './types'
 import sanitizeHtml from 'sanitize-html'
 import he from 'he'
+import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -75,7 +76,7 @@ interface TGetTaskIndexFromSectionsReturnType {
     taskIndex?: number
     sectionIndex?: number
 }
-export const getTaskIndexFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
+export const getTaskIndexFromSections = (sections: Immutable<{ id?: string, tasks: TTask[] }[]>, taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
     const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
     if (sectionId) {
         const sectionIndex = sections.findIndex(section => section.id === sectionId)
@@ -103,3 +104,16 @@ export const getTaskFromSections = (sections: TTaskSection[], taskId: string, se
     if (taskIndex === undefined || sectionIndex === undefined) return undefined
     return sections[sectionIndex].tasks[taskIndex]
 }
+
+export const getTasksFromSectionOrView = (section: TTaskSection | TOverviewView, sectionType: 'task_section' | 'overview') => {
+    if (sectionType === 'task_section') {
+        const t = section as TTaskSection
+        return t.tasks
+    }
+    else if (sectionType === 'overview') {
+        const o = section as TOverviewView
+        return o.view_items
+    }
+    else return undefined
+}
+
