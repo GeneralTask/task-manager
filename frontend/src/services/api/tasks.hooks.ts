@@ -3,10 +3,55 @@ import { useMutation, useQuery } from "react-query"
 import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskFromSections, resetOrderingIds } from "../../utils/utils"
+import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 import { TTaskSection, TEmailThread, TTask, TRecipients } from "../../utils/types"
-import { TCreateTaskData, TCreateTaskResponse, TCreateTaskFromThreadData, TModifyTaskData, TTaskModifyRequestBody, TMarkTaskDoneData, TReorderTaskData } from "../query-payload-types"
+
+interface TCreateTaskData {
+    title: string
+    body: string
+    id_task_section: string
+}
+
+interface TCreateTaskResponse {
+    task_id: string
+}
+
+interface TCreateTaskFromThreadData {
+    thread_id: string
+    title: string
+    body: string
+    email_id?: string
+}
+
+interface TModifyTaskData {
+    id: string
+    title?: string
+    dueDate?: string
+    timeAllocated?: number
+    body?: string
+}
+
+interface TTaskModifyRequestBody {
+    id_task_section?: string
+    id_ordering?: number
+    title?: string
+    due_date?: string
+    time_duration?: number
+    body?: string
+}
+
+interface TMarkTaskDoneData {
+    taskId: string
+    isCompleted: boolean
+}
+
+interface TReorderTaskData {
+    taskId: string
+    dropSectionId: string
+    orderingId: number
+    dragSectionId?: string
+}
 
 export const useGetTasks = () => {
     return useQuery<TTaskSection[], void>('tasks', getTasks)
@@ -260,8 +305,10 @@ export const useMarkTaskDone = () => {
                     if (!sections) return
 
                     const newSections = produce(sections, (draft) => {
-                        const task = getTaskFromSections(draft, data.taskId)
-                        if (task) task.is_done = data.isCompleted
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
+                        if (taskIndex === undefined || sectionIndex === undefined) return
+                        draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        queryClient.invalidateQueries('tasks')
                     })
 
                     queryClient.setQueryData('tasks', newSections)

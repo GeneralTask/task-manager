@@ -3,9 +3,18 @@ import { useInfiniteQuery, useMutation, useQuery } from "react-query"
 import { MESSAGES_PER_PAGE } from "../../constants"
 import apiClient from "../../utils/api"
 import { TEmailThread } from "../../utils/types"
-import { TModifyThreadData, TThreadQueryData } from "../query-payload-types"
 import { useGTQueryClient } from "../queryUtils"
 
+interface TModifyThreadData {
+    thread_id: string
+    is_unread?: boolean
+    is_archived?: boolean
+}
+
+interface TThreadQueryData {
+    pages: TEmailThread[][]
+    pageParams: unknown[]
+}
 
 export const useGetInfiniteThreads = (data: { isArchived: boolean }) => {
     return useInfiniteQuery<TEmailThread[]>(['emailThreads', { isArchived: data.isArchived }], ({ pageParam = 1 }) => getInfiniteThreads(pageParam, data.isArchived), {

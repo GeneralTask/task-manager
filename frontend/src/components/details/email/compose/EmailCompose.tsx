@@ -19,7 +19,7 @@ import { EmailComposeType } from '../../../../utils/enums'
 import EmailComposeTypeSelector from './ComposeTypeSelector'
 import EmailRecipientsForm from './RecipientsForm'
 import EmailWithQuote from './EmailWithQuote'
-import RoundedGeneralButton from '../../../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../../../atoms/buttons/GTButton'
 import TextArea from '../../../atoms/TextArea'
 import { renderToString } from 'react-dom/server'
 import { useComposeMessage } from '../../../../services/api/messages.hooks'
@@ -173,13 +173,13 @@ const EmailCompose = (props: EmailComposeProps) => {
                     />
                 </BodyContainer>
                 <ButtonsContainer>
-                    <RoundedGeneralButton
+                    <GTButton
                         onClick={() => startSendEmail(recipients, subject, body)}
                         value="Send"
                         color={Colors.purple._1}
                         disabled={recipients.to.length === 0}
                     />
-                    <RoundedGeneralButton onClick={onClose} value="Cancel" textStyle="dark" />
+                    <GTButton onClick={onClose} value="Cancel" styleType="secondary" />
                     {isLoading && 'Sending...'}
                 </ButtonsContainer>
             </FlexExpand>

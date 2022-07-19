@@ -3,8 +3,16 @@ import { useMutation } from "react-query"
 import { TASK_SECTION_DEFAULT_ID } from "../../constants"
 import apiClient from "../../utils/api"
 import { TTaskSection } from "../../utils/types"
-import { TAddTaskSectionData, TModifyTaskSectionData } from "../query-payload-types"
 import { useGTQueryClient } from "../queryUtils"
+
+interface TAddTaskSectionData {
+    name: string
+}
+
+interface TModifyTaskSectionData {
+    sectionId: string
+    name: string
+}
 
 export const useAddTaskSection = () => {
     const queryClient = useGTQueryClient()

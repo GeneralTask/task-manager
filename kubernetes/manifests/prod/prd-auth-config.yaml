@@ -30,6 +30,10 @@ data:
       username: maz
       groups:
         - prd-gtsk-uswest1-full-access-group
+    - userarn: arn:aws:iam::257821106339:user/julian@generaltask.com
+      username: julian
+      groups:
+        - prd-gtsk-uswest1-full-access-group
 kind: ConfigMap
 metadata:
   name: aws-auth

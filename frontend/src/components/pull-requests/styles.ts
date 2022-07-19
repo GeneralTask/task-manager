@@ -4,12 +4,10 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import styled from 'styled-components'
 
 export const ColumnWidths = {
-    title: '30%',
-    status: '20%',
-    author: '15%',
-    comments: '10%',
-    branch: '15%',
     link: '10%',
+    title: '50%',
+    status: '30%',
+    comments: '10%',
 }
 
 type TColumnWidths = keyof typeof ColumnWidths
@@ -64,14 +62,15 @@ export const PullRequestViewContainer = styled.div`
 export const Repository = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.margin._16};
+    gap: ${Spacing.margin._8};
 `
 
-export const PullRequestRow = styled.div`
+export const PullRequestRow = styled.div<{ highlight: boolean }>`
     display: flex;
-    padding: ${Spacing.padding._8};
-    background-color: ${Colors.white};
+    padding: ${Spacing.padding._4};
+    background-color: ${props => props.highlight ? Colors.gray._100 : Colors.white};
     border-radius: ${Border.radius.large};
+    cursor: pointer;
 `
 
 export const HeaderContainer = styled.div`
@@ -111,9 +110,12 @@ export const BranchNameContainer = styled.div`
 `
 
 export const LinkButton = styled(NoStyleAnchor)`
-    margin: auto;
-    padding: ${Spacing.padding._8};
-    background-color: ${Colors.gray._100};
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: ${Colors.white};
+    border: 1px solid ${Colors.gray._200};
     border-radius: ${Border.radius.large};
     cursor: pointer;
 `
