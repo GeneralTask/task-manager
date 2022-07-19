@@ -38,6 +38,8 @@ const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapTe
     &:active {
         box-shadow: ${(props) =>
             props.styleType === 'primary' ? Shadows.button.primary.active : Shadows.button.secondary.active};
+        color: ${(props) =>
+            props.styleType === 'primary' ? Colors.button.primary.active_text : Colors.button.secondary.active_text};
     }
 `
 

@@ -34,9 +34,11 @@ export const button = {
     primary: {
         default: '#5C31D7',
         hover: '#452AA5',
+        active_text: '#DBD7EE',
     },
     secondary: {
         default: '#FFFFFF',
         hover: '#F2F2F2',
+        active_text: '#000000',
     },
 }
