@@ -110,7 +110,9 @@ export const useMarkTaskDone = () => {
                         }))
                         const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                         if (sectionIndex === undefined || taskIndex === undefined) return
-                        draft[sectionIndex].view_items.splice(taskIndex, 1)
+                        if (draft[sectionIndex].view_items[taskIndex].is_done) {
+                            draft[sectionIndex].view_items.splice(taskIndex, 1)
+                        }
                     })
 
                     queryClient.setQueryData('overview', newViews)

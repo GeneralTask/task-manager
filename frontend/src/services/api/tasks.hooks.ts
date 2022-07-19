@@ -308,7 +308,9 @@ export const useMarkTaskDone = () => {
                     const newSections = produce(sections, (draft) => {
                         const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
                         if (taskIndex === undefined || sectionIndex === undefined) return
-                        draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        if (draft[sectionIndex].tasks[taskIndex].is_done) {
+                            draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        }
                     })
 
                     queryClient.setQueryData('tasks', newSections)
