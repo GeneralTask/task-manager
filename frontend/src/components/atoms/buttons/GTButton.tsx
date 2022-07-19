@@ -5,7 +5,6 @@ import { Icon } from '../Icon'
 import { icons, TIconImage } from '../../../styles/images'
 
 const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
-    all: unset;
     display: flex;
     flex-direction: row;
     justify-content: center;
