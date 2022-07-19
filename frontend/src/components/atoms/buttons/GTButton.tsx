@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Icon } from '../Icon'
 import { icons, TIconImage } from '../../../styles/images'
 
-const RoundedButton = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
+const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -50,15 +50,10 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 const GTButton = (props: GTButtonProps) => {
     return (
-        <RoundedButton
-            disabled={props.disabled}
-            onClick={props.onClick}
-            styleType={props.styleType || 'primary'}
-            wrapText={props.wrapText}
-        >
+        <Button styleType={props.styleType || 'primary'} wrapText={props.wrapText} {...props}>
             {props.iconSource && <Icon size="small" source={icons[props.iconSource]} />}
             {props.value}
-        </RoundedButton>
+        </Button>
     )
 }
 
