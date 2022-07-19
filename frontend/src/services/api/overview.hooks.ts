@@ -4,8 +4,7 @@ import apiClient from "../../utils/api"
 import { TOverviewView, TSupportedView } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskIndexFromSections } from "../../utils/utils"
-import { TMarkTaskDoneData } from "../query-payload-types"
-import { markTaskDone } from "./tasks.hooks"
+import { markTaskDone, TMarkTaskDoneData } from "./tasks.hooks"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 
 export const useGetOverviewViews = () => {

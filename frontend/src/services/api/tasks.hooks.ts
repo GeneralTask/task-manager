@@ -41,7 +41,7 @@ interface TTaskModifyRequestBody {
     body?: string
 }
 
-interface TMarkTaskDoneData {
+export interface TMarkTaskDoneData {
     taskId: string
     sectionId?: string
     isCompleted: boolean
