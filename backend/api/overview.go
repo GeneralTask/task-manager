@@ -350,12 +350,19 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_GITHUB + "/"
 	result := OverviewResult[PullRequestResult]{
-		ID:            view.ID,
-		Name:          ViewGithubName,
-		Logo:          external.TaskServiceGithub.LogoV2,
-		Type:          ViewGithub,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewGithubName,
+		Logo:     external.TaskServiceGithub.LogoV2,
+		Type:     ViewGithub,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewGithubName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
