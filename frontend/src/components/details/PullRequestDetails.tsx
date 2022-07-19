@@ -2,7 +2,7 @@ import React from 'react'
 import { Icon } from '../atoms/Icon'
 import { TPullRequest } from '../../utils/types'
 import { logos } from '../../styles/images'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
@@ -73,12 +73,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 </MarginRight8>
                 <MarginLeftAuto>
                     <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <RoundedGeneralButton
-                            textStyle="dark"
-                            value="Open in GitHub"
-                            hasBorder
-                            iconSource="external_link"
-                        />
+                        <GTButton styleType="secondary" value="Open in GitHub" iconSource="external_link" />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
             </DetailsTopContainer>
