@@ -9,8 +9,9 @@ interface CompleteButtonProps {
     isSelected: boolean
 }
 const CompleteButton = ({ isComplete, onMarkComplete, taskId, isSelected }: CompleteButtonProps) => {
-    useKeyboardShortcut('markComplete', () => onMarkComplete(taskId, !isComplete), !isSelected)
-    return <GTCheckbox isChecked={isComplete} onChange={() => onMarkComplete(taskId, !isComplete)} />
+    const markComplete = () => onMarkComplete(taskId, !isComplete)
+    useKeyboardShortcut('markComplete', markComplete, !isSelected)
+    return <GTCheckbox isChecked={isComplete} onChange={markComplete} />
 }
 
 export default CompleteButton
