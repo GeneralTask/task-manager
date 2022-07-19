@@ -105,14 +105,15 @@ export const getTaskFromSections = (sections: TTaskSection[], taskId: string, se
     return sections[sectionIndex].tasks[taskIndex]
 }
 
+// slightly hacky - we trust section is either a TTaskSection or TOverviewView based on sectionType
 export const getTasksFromSectionOrView = (section: TTaskSection | TOverviewView, sectionType: 'task_section' | 'overview') => {
     if (sectionType === 'task_section') {
-        const t = section as TTaskSection
-        return t.tasks
+        const taskSection = section as TTaskSection
+        return taskSection.tasks
     }
     else if (sectionType === 'overview') {
-        const o = section as TOverviewView
-        return o.view_items
+        const view = section as TOverviewView
+        return view.view_items
     }
     else return undefined
 }
