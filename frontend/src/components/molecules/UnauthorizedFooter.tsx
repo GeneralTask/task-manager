@@ -30,7 +30,8 @@ const FooterText = styled.span`
     color: ${Colors.white};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.xxSmall.fontSize};
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Arial, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol';
 `
 const UnauthorizedFooter = () => {
     const navigate = useNavigate()

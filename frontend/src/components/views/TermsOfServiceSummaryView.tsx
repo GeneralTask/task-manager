@@ -58,7 +58,8 @@ const HorizontalFlex = styled.div`
 `
 const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin._8};
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Arial, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol';
     font-size: ${Typography.xSmall.fontSize};
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
