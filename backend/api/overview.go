@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"errors"
+	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -57,6 +59,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	MessagesID    primitive.ObjectID `json:"messages_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	GithubID      string             `json:"github_id"`
 }
 
 type SupportedView struct {
@@ -184,6 +187,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
+		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -259,12 +263,19 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
 	result := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewLinearName,
-		Logo:          external.TaskServiceLinear.LogoV2,
-		Type:          ViewLinear,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewLinearName,
+		Logo:     external.TaskServiceLinear.LogoV2,
+		Type:     ViewLinear,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewLinearName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -297,12 +308,19 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
 	result := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewSlackName,
-		Logo:          external.TaskServiceSlack.LogoV2,
-		Type:          ViewSlack,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewSlackName,
+		Logo:     external.TaskServiceSlack.LogoV2,
+		Type:     ViewSlack,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewSlackName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -335,12 +353,19 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	result := OverviewResult[PullRequestResult]{
-		ID:            view.ID,
-		Name:          ViewGithubName,
-		Logo:          external.TaskServiceGithub.LogoV2,
-		Type:          ViewGithub,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewGithubName,
+		Logo:     external.TaskServiceGithub.LogoV2,
+		Type:     ViewGithub,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewGithubName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -545,6 +570,11 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	supportedGithubViews, err := api.getSupportedGithubViews(db, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 	supportedViews := []SupportedView{
 		{
 			Type:     ViewTaskSection,
@@ -554,7 +584,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views:    supportedTaskSectionViews,
 		},
 		{
-			Type:     "linear",
+			Type:     ViewLinear,
 			Name:     "Linear",
 			Logo:     "linear",
 			IsNested: false,
@@ -566,7 +596,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     "slack",
+			Type:     ViewSlack,
 			Name:     "Slack",
 			Logo:     "slack",
 			IsNested: false,
@@ -578,16 +608,11 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     "github",
+			Type:     ViewGithub,
 			Name:     "GitHub",
 			Logo:     "github",
 			IsNested: true,
-			Views: []SupportedViewItem{
-				{
-					Name:    "Github View",
-					IsAdded: false,
-				},
-			},
+			Views:    supportedGithubViews,
 		},
 	}
 	err = api.updateIsAddedForSupportedViews(db, userID, &supportedViews)
@@ -618,6 +643,34 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 	return supportedViewItems, nil
 }
 
+func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
+	database.GetPullRequestCollection(db)
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
+		return []SupportedViewItem{}, err
+	}
+	repositoryIDToSupportedViewItems := map[string]SupportedViewItem{}
+	for _, pullRequest := range *pullRequests {
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to parse pull request id")
+			return []SupportedViewItem{}, err
+		}
+		repositoryIDToSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
+			Name:     pullRequest.RepositoryName,
+			GithubID: pullRequest.PullRequest.RepositoryID,
+		}
+	}
+	supportedViewItems := []SupportedViewItem{}
+	for _, supportedViewItem := range repositoryIDToSupportedViewItems {
+		supportedViewItems = append(supportedViewItems, supportedViewItem)
+	}
+	sort.Slice(supportedViewItems, func(i, j int) bool {
+		return supportedViewItems[i].Name < supportedViewItems[j].Name
+	})
+	return supportedViewItems, nil
+}
+
 func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primitive.ObjectID, supportedViews *[]SupportedView) error {
 	if supportedViews == nil {
 		return errors.New("supportedViews must not be nil")
@@ -639,8 +692,12 @@ func (api *API) viewIsAdded(db *mongo.Database, userID primitive.ObjectID, viewT
 		return api.viewExists(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == ViewLinear {
+	} else if viewType == ViewLinear || viewType == ViewSlack {
 		return api.viewExists(db, userID, viewType, nil)
+	} else if viewType == ViewGithub {
+		return api.viewExists(db, userID, viewType, &[]bson.M{
+			{"github_id": view.GithubID},
+		})
 	}
 	return false, errors.New("invalid view type")
 }

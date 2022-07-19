@@ -8,7 +8,7 @@ import { Icon } from '../atoms/Icon'
 import { ModalEnum } from '../../utils/enums'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { TitleLarge } from '../atoms/title/Title'
@@ -145,14 +145,9 @@ const TermsOfServiceSummaryView = () => {
             </VerticalFlex>
             <SubmitButtonContainer>
                 <div data-testid="terms-submit-button">
-                    <RoundedGeneralButton
-                        onClick={onSubmit}
-                        value="Continue"
-                        color={Colors.purple._1}
-                        disabled={!termsCheck}
-                    />
+                    <GTButton onClick={onSubmit} value="Continue" color={Colors.purple._1} disabled={!termsCheck} />
                 </div>
-                <RoundedGeneralButton onClick={onCancel} textStyle="dark" value="Cancel" hasBorder />
+                <GTButton onClick={onCancel} styleType="secondary" value="Cancel" />
             </SubmitButtonContainer>
         </TermsOfServiceContainer>
     )

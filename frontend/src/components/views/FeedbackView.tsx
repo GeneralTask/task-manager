@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 
 import { ModalEnum } from '../../utils/enums'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import TextArea from '../atoms/TextArea'
 import { setShowModal } from '../../redux/tasksPageSlice'
@@ -58,8 +58,8 @@ const FeedbackView = () => {
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </TextAreaContainer>
             <ButtonContainer>
-                <RoundedGeneralButton onClick={submitFeedback} value="Send feedback" color={Colors.purple._1} />
-                <RoundedGeneralButton onClick={closeModal} value="Cancel" hasBorder textStyle="dark" />
+                <GTButton onClick={submitFeedback} value="Send feedback" color={Colors.purple._1} />
+                <GTButton onClick={closeModal} value="Cancel" styleType="secondary" />
             </ButtonContainer>
         </FeedbackViewContainer>
     )

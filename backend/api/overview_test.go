@@ -36,7 +36,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":true,"sources":null,"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]},{"id":"[a-z0-9]{24}","name":"Linear","type":"linear","logo":"linear","is_linked":false,"sources":null,"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack","type":"slack","logo":"slack","is_linked":false,"sources":null,"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]},{"id":"[a-z0-9]{24}","name":"Linear","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -122,6 +122,7 @@ func TestGetOverviewResults(t *testing.T) {
 			Type:          ViewTaskSection,
 			Logo:          "generaltask",
 			IsLinked:      false,
+			Sources:       []SourcesResult{},
 			IsReorderable: false,
 			IDOrdering:    1,
 			TaskSectionID: taskSectionID,
@@ -171,6 +172,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		Type:          ViewTaskSection,
 		Logo:          "generaltask",
 		IsLinked:      false,
+		Sources:       []SourcesResult{},
 		IsReorderable: false,
 		IDOrdering:    1,
 		TaskSectionID: taskSectionID,
@@ -249,7 +251,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
 	api := GetAPI()
-
+	authURL := "http://localhost:8080/link/linear/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          "Linear",
@@ -257,6 +259,12 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		Logo:          "linear",
 		IsLinked:      true,
 		IsReorderable: false,
+		Sources: []SourcesResult{
+			{
+				Name:             "Linear",
+				AuthorizationURL: &authURL,
+			},
+		},
 		IDOrdering:    1,
 		TaskSectionID: primitive.NilObjectID,
 	}
@@ -389,13 +397,19 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
 	api := GetAPI()
-
+	authURL := "http://localhost:8080/link/slack/"
 	expectedViewResult := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          "Slack",
-		Type:          ViewSlack,
-		Logo:          "slack",
-		IsLinked:      true,
+		ID:       view.ID,
+		Name:     "Slack",
+		Type:     ViewSlack,
+		Logo:     "slack",
+		IsLinked: true,
+		Sources: []SourcesResult{
+			{
+				Name:             "Slack",
+				AuthorizationURL: &authURL,
+			},
+		},
 		IsReorderable: false,
 		IDOrdering:    1,
 		TaskSectionID: primitive.NilObjectID,
@@ -523,13 +537,19 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
 	api := GetAPI()
-
+	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
-		ID:            view.ID,
-		Name:          "Github",
-		Type:          ViewGithub,
-		Logo:          "github",
-		IsLinked:      true,
+		ID:       view.ID,
+		Name:     "Github",
+		Type:     ViewGithub,
+		Logo:     "github",
+		IsLinked: true,
+		Sources: []SourcesResult{
+			{
+				Name:             "Github",
+				AuthorizationURL: &authURL,
+			},
+		},
 		IsReorderable: false,
 		IDOrdering:    1,
 		TaskSectionID: primitive.NilObjectID,

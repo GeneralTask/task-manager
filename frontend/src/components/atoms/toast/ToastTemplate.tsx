@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
-import RoundedGeneralButton from '../buttons/RoundedGeneralButton'
+import GTButton from '../buttons/GTButton'
 
 const ToastContainer = styled.div`
     display: flex;
@@ -48,15 +48,15 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
             <MessageSpan>{message}</MessageSpan>
             <ButtonsContainer>
                 {leftAction && (
-                    <RoundedGeneralButton
-                        textStyle="dark"
+                    <GTButton
+                        styleType="secondary"
                         onClick={stopPropogationWrapper(leftAction.onClick)}
                         value={leftAction.label}
                     />
                 )}
                 {rightAction && (
-                    <RoundedGeneralButton
-                        textStyle="light"
+                    <GTButton
+                        styleType="primary"
                         color={Colors.purple._2}
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
