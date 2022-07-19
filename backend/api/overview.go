@@ -59,7 +59,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	MessagesID    primitive.ObjectID `json:"messages_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
-	GithubID      string `json:"github_id"`
+	GithubID      string             `json:"github_id"`
 }
 
 type SupportedView struct {
@@ -187,6 +187,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
+		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
