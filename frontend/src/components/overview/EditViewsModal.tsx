@@ -3,7 +3,7 @@ import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Border, Colors, Spacing } from '../../styles'
 import GTModal from '../atoms/GTModal'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import EditViewsSelectedView from './EditViewsSelectedView'
@@ -47,7 +47,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            leftButtons={<RoundedGeneralButton value="Done" color={Colors.purple._1} onClick={onClose} />}
+            leftButtons={<GTButton value="Done" color={Colors.purple._1} onClick={onClose} />}
             rightButtons={
                 <AddViewsButton onClick={goToAddViewsView}>
                     <Icon source={icons.plus} size="small" />

@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { EmailList } from './email/EmailList'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import ReactTooltip from 'react-tooltip'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 const MARK_AS_READ = 'Mark as Read'
@@ -154,12 +154,7 @@ const ThreadDetails = ({ thread }: ThreadDetailsProps) => {
                     <DeeplinkContainer>
                         {thread.deeplink && (
                             <NoStyleAnchor href={thread.deeplink} target="_blank" rel="noreferrer">
-                                <RoundedGeneralButton
-                                    textStyle="dark"
-                                    value={thread.source.name}
-                                    hasBorder
-                                    iconSource="external_link"
-                                />
+                                <GTButton styleType="secondary" value={thread.source.name} iconSource="external_link" />
                             </NoStyleAnchor>
                         )}
                     </DeeplinkContainer>

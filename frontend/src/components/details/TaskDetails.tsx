@@ -6,7 +6,7 @@ import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -218,12 +218,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             />
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <RoundedGeneralButton
-                                        textStyle="dark"
-                                        value={deeplinkLabel}
-                                        hasBorder
-                                        iconSource="external_link"
-                                    />
+                                    <GTButton styleType="secondary" value={deeplinkLabel} iconSource="external_link" />
                                 </NoStyleAnchor>
                             )}
                         </MarginLeftAuto>
