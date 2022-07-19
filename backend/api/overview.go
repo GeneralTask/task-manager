@@ -263,7 +263,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_LINEAR + "/"
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
 	result := OverviewResult[TaskResult]{
 		ID:       view.ID,
 		Name:     ViewLinearName,
@@ -308,7 +308,7 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_SLACK + "/"
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
 	result := OverviewResult[TaskResult]{
 		ID:       view.ID,
 		Name:     ViewSlackName,
@@ -353,7 +353,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_GITHUB + "/"
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	result := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
 		Name:     ViewGithubName,
