@@ -39,7 +39,7 @@ const HeaderTextEditable = styled.input`
     width: 100%;
 `
 
-const immutableSectionIds = ['000000000000000000000000', '000000000000000000000001', '000000000000000000000004']
+const immutableSectionIds = ['000000000000000000000001', '000000000000000000000004']
 const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
@@ -52,6 +52,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const { mutate: deleteTaskSection } = useDeleteTaskSection()
     const { mutate: modifyTaskSection } = useModifyTaskSection()
     const [isEditingTitle, setIsEditingTitle] = useState(false)
+    const [isHovering, setIsHovering] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
     const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
@@ -97,9 +98,9 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     )
 
     return (
-        <SectionHeaderContainer>
+        <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
             {headerText}
-            {props.allowRefresh && (
+            {props.allowRefresh && (isHovering || props.isRefreshing) && (
                 <RefreshButton onClick={props.refetch} isRefreshing={props.isRefreshing}>
                     <Icon size={'small'} source={icons.spinner} />
                 </RefreshButton>
