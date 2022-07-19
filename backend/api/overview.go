@@ -260,8 +260,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_LINEAR + "/"
-
+	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_SLACK + "/"
 	result := OverviewResult[TaskResult]{
 		ID:       view.ID,
 		Name:     ViewLinearName,
@@ -306,12 +305,19 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+	authURL := config.GetConfigValue("SERVER_URL") + "link/" + external.TASK_SERVICE_ID_LINEAR + "/"
 	result := OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewSlackName,
-		Logo:          external.TaskServiceSlack.LogoV2,
-		Type:          ViewSlack,
-		IsLinked:      view.IsLinked,
+		ID:       view.ID,
+		Name:     ViewSlackName,
+		Logo:     external.TaskServiceSlack.LogoV2,
+		Type:     ViewSlack,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewSlackName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
