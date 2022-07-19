@@ -1,6 +1,6 @@
 .tooltip {
     border-radius: 10px !important;
-    font-family: 'Switzer-Variable' !important;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
     font-size: 14px !important;
     font-weight: 500 !important;
     padding: 7.5px !important;

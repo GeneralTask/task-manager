@@ -58,7 +58,7 @@ const HorizontalFlex = styled.div`
 `
 const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin._8};
-    font-family: 'Switzer-Variable';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: ${Typography.xSmall.fontSize};
     font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};

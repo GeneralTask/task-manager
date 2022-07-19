@@ -6,7 +6,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: 'Switzer-Variable'
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .__react_component_tooltip.show {

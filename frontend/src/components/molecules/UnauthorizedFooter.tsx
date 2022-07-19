@@ -30,7 +30,7 @@ const FooterText = styled.span`
     color: ${Colors.white};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.xxSmall.fontSize};
-    font-family: 'Switzer-Variable';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 `
 const UnauthorizedFooter = () => {
     const navigate = useNavigate()

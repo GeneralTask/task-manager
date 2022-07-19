@@ -6,19 +6,19 @@ const TitleSmallStyle = styled.span`
     color: ${Colors.gray._500};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.small.fontSize};
-    font-family: 'Switzer-Variable';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 `
 const TitleMediumStyle = styled.span`
     color: ${Colors.gray._700};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.medium.fontSize};
-    font-family: 'Switzer-Variable';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 `
 const TitleLargeStyle = styled.span`
     color: ${Colors.gray._700};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.large.fontSize};
-    font-family: 'Switzer-Variable';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
 `
 
 interface TitleProps {
