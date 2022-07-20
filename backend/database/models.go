@@ -179,9 +179,10 @@ type PullRequest struct {
 }
 
 type PullRequestChangeableFields struct {
-	Title       string `bson:"title,omitempty"`
-	Body        string `bson:"body,omitempty"`
-	IsCompleted *bool  `bson:"is_completed,omitempty"`
+	Title         string             `bson:"title,omitempty"`
+	Body          string             `bson:"body,omitempty"`
+	IsCompleted   *bool              `bson:"is_completed,omitempty"`
+	LastUpdatedAt primitive.DateTime `bson:"last_updated_at"`
 }
 
 type CalendarEvent struct {
