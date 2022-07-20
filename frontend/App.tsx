@@ -9,7 +9,6 @@ import LandingScreen from './src/components/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
-import { isDevelopmentMode } from './src/environment'
 import store from './src/redux/store'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
