@@ -64,7 +64,6 @@ module.exports = {
         new SentryCliPlugin({
             // Must be the last running plugin
             include: '.',
-            ignoreFile: '.sentrycliignore',
             ignore: ['node_modules', 'webpack.dev.js', 'webpack.prod.js', 'webpack.common.js'],
             configFile: 'sentry.config.js',
         }),
