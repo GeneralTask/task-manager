@@ -159,6 +159,18 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				ChecksDidFail:        checksDidFail,
 			}
 
+			additions := 0
+			if pullRequest.Additions != nil {
+				additions = *pullRequest.Additions
+			}
+			deletions := 0
+			if pullRequest.Deletions != nil {
+				deletions = *pullRequest.Deletions
+			}
+			summary := ""
+			if pullRequest.Body != nil {
+				summary = *pullRequest.Body
+			}
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
 					UserID:            userID,
@@ -166,6 +178,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					Deeplink:          *pullRequest.HTMLURL,
 					SourceID:          TASK_SOURCE_ID_GITHUB_PR,
 					Title:             *pullRequest.Title,
+					Body:              summary,
 					SourceAccountID:   accountID,
 					CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
 				},
@@ -178,6 +191,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					RequiredAction: getPullRequestRequiredAction(pullRequestData),
 					CommentCount:   commentCount,
 					LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
+					NumAdditions:   additions,
+					NumDeletions:   deletions,
 				},
 				TaskType: database.TaskType{
 					IsTask:        false,
@@ -197,9 +212,10 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest.SourceID,
 			pullRequest,
 			database.PullRequestChangeableFields{
-				Title:       pullRequest.Title,
-				Body:        pullRequest.TaskBase.Body,
-				IsCompleted: &isCompleted,
+				Title:         pullRequest.Title,
+				Body:          pullRequest.TaskBase.Body,
+				IsCompleted:   &isCompleted,
+				LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt,
 			},
 			nil,
 			false)

@@ -27,14 +27,17 @@ type RepositoryResult struct {
 type PullRequestResult struct {
 	ID            string            `json:"id"`
 	Title         string            `json:"title"`
+	Summary       string            `json:"summary"`
 	Number        int               `json:"number"`
 	Status        PullRequestStatus `json:"status"`
 	Author        string            `json:"author"`
 	NumComments   int               `json:"num_comments"`
 	CreatedAt     string            `json:"created_at"`
+	LastUpdatedAt string            `json:"last_updated_at"`
 	Branch        string            `json:"branch"`
 	Deeplink      string            `json:"deeplink"`
-	LastUpdatedAt string            `json:"last_updated_at"`
+	NumAdditions  int               `json:"num_additions"`
+	NumDeletions  int               `json:"num_deletions"`
 }
 
 type PullRequestStatus struct {
@@ -71,9 +74,10 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		}
 		repositoryIDToResult[repositoryID] = repositoryResult
 		pullRequestResult := PullRequestResult{
-			ID:     pullRequest.ID.Hex(),
-			Title:  pullRequest.Title,
-			Number: pullRequest.Number,
+			ID:      pullRequest.ID.Hex(),
+			Title:   pullRequest.Title,
+			Summary: pullRequest.Summary,
+			Number:  pullRequest.Number,
 			Status: PullRequestStatus{
 				Text:  pullRequest.RequiredAction,
 				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
@@ -84,6 +88,8 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			Branch:        pullRequest.Branch,
 			Deeplink:      pullRequest.Deeplink,
 			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+			NumAdditions:  pullRequest.NumAdditions,
+			NumDeletions:  pullRequest.NumDeletions,
 		}
 		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
 	}
