@@ -17,7 +17,7 @@ const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
     const { overviewItem } = useParams()
 
     return (
-        <div>
+        <>
             {view.view_items.map((item, index) => (
                 <Fragment key={item.id}>
                     <PullRequest
@@ -32,7 +32,7 @@ const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
                     )}
                 </Fragment>
             ))}
-        </div>
+        </>
     )
 }
 
