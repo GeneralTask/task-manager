@@ -8,8 +8,9 @@ import EditViewsButton from '../overview/EditViewsButton'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import ThreadDetails from '../details/ThreadDetails'
-import { TEmailThread, TTask } from '../../utils/types'
+import { TEmailThread, TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
+import PullRequestDetails from '../details/PullRequestDetails'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -47,6 +48,8 @@ const OverviewView = () => {
                 if (item.id === overviewItem) {
                     if (view.type === 'message') {
                         return <ThreadDetails thread={item as TEmailThread} />
+                    } else if (view.type === 'github') {
+                        return <PullRequestDetails pullRequest={item as TPullRequest} />
                     } else {
                         return <TaskDetails task={item as TTask} link={`/overview/${item.id}`} />
                     }

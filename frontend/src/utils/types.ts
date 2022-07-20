@@ -265,7 +265,7 @@ export interface TEmailComposeState {
 
 export type TMailbox = 'inbox' | 'archive'
 
-export type TOverviewItem = TTask & TEmailThread // TODO: change this to more general type
+export type TOverviewItem = TTask & TEmailThread & TPullRequest // TODO: change this to more general type
 
 export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'message' | 'slack'
 

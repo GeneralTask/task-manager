@@ -11,10 +11,10 @@ const DividerMargin = styled.div`
     margin: 0 ${Spacing.margin._16};
 `
 
-interface ExternalViewItemsProps {
+interface MessagesViewItemsProps {
     view: TOverviewView
 }
-const ExternalViewItems = ({ view }: ExternalViewItemsProps) => {
+const MessagesViewItems = ({ view }: MessagesViewItemsProps) => {
     const { overviewItem } = useParams()
 
     // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
@@ -43,4 +43,4 @@ const ExternalViewItems = ({ view }: ExternalViewItemsProps) => {
     )
 }
 
-export default ExternalViewItems
+export default MessagesViewItems
