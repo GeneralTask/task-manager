@@ -1,9 +1,15 @@
 import React, { Fragment, useRef } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
+import { Spacing } from '../../../styles'
 import { TEmailThread, TOverviewView } from '../../../utils/types'
+import { Divider } from '../../atoms/SectionDivider'
 import ThreadTemplate from '../../atoms/ThreadTemplate'
 import Thread from '../../molecules/Thread'
-import { DividerMargin } from '../styles'
+
+const DividerMargin = styled(Divider)`
+    margin: 0 ${Spacing.margin._16};
+`
 
 interface MessagesViewItemsProps {
     view: TOverviewView
