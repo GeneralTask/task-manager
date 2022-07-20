@@ -1,15 +1,9 @@
 import React, { Fragment, useRef } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { Spacing } from '../../../styles'
 import { TEmailThread, TOverviewView } from '../../../utils/types'
-import { Divider } from '../../atoms/SectionDivider'
 import ThreadTemplate from '../../atoms/ThreadTemplate'
 import Thread from '../../molecules/Thread'
-
-const DividerMargin = styled.div`
-    margin: 0 ${Spacing.margin._16};
-`
+import { DividerMargin } from '../styles'
 
 interface MessagesViewItemsProps {
     view: TOverviewView
@@ -32,11 +26,7 @@ const MessagesViewItems = ({ view }: MessagesViewItemsProps) => {
                             link={`/overview/${item.id}`}
                         />
                     </ThreadTemplate>
-                    {index !== view.view_items.length - 1 && (
-                        <DividerMargin>
-                            <Divider />
-                        </DividerMargin>
-                    )}
+                    {index !== view.view_items.length - 1 && <DividerMargin />}
                 </Fragment>
             ))}
         </div>

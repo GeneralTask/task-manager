@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { Divider } from '../atoms/SectionDivider'
 
 export const ViewContainer = styled.div`
     padding: ${Spacing.padding._12};
@@ -54,4 +55,7 @@ export const PaginateTextButton = styled(NoStyleButton)`
 export const OptimisticItemsContainer = styled.div`
     height: 100px;
     display: flex;
+`
+export const DividerMargin = styled(Divider)`
+    margin: 0 ${Spacing.margin._16};
 `
