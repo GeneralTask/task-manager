@@ -297,7 +297,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	var taskResults []*TaskResult
+	taskResults := []*TaskResult{}
 	for _, task := range *linearTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
@@ -342,7 +342,7 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
-	var taskResults []*TaskResult
+	taskResults := []*TaskResult{}
 	for _, task := range *slackTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
