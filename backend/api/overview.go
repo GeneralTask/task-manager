@@ -455,7 +455,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 	var serviceID string
 	taskSectionID := primitive.NilObjectID
-	githubID := ""
+	var githubID string
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
@@ -475,7 +475,11 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "'id_github' is required for github type views"})
 			return
 		}
-		githubID = *viewCreateParams.GithubID
+		isValidGithubRepository := api.IsValidGithubRepository(db, userID, *viewCreateParams.GithubID)
+		if isValidGithubRepository {
+			githubID = *viewCreateParams.GithubID
+			api.Logger.Error().Err(err).Msg(githubID)
+		}
 	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
@@ -495,7 +499,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		Type:          viewCreateParams.Type,
 		IsLinked:      isLinked,
 		TaskSectionID: taskSectionID,
-		GithubID: 	githubID,
+		GithubID: 	   githubID,
 	}
 
 	viewCollection := database.GetViewCollection(db)
@@ -795,4 +799,18 @@ func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewTy
 		return false, err
 	}
 	return count > int64(0), nil
+}
+
+func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryId string) bool {
+	database.GetPullRequestCollection(db)
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
+	if err != nil {
+		return false
+	}
+	for _, pullRequest := range *pullRequests {
+		if pullRequest.PullRequest.RepositoryID == repositoryId {
+			return true
+		}
+	}
+	return false
 }
