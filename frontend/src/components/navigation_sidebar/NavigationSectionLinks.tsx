@@ -93,6 +93,13 @@ const NavigationSectionLinks = () => {
                 icon={icons.list}
                 isCurrentPage={pathname.split('/')[1] === 'overview'}
             />
+            <NavigationLink
+                link="/pull-requests"
+                title="Pull Requests"
+                icon={icons.repository}
+                count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
+                isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
+            />
             <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     ?.filter((section) => !section.is_done)
@@ -157,13 +164,6 @@ const NavigationSectionLinks = () => {
                     isCurrentPage={mailbox === 'archive'}
                 />
             </NavigationLinkDropdown>
-            <NavigationLink
-                link="/pull-requests"
-                title="Pull Requests"
-                icon={icons.repository}
-                count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
-                isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
-            />
             <NavigationLink
                 link="/settings"
                 title="Settings"
