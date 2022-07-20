@@ -88,14 +88,12 @@ const NavigationSectionLinks = () => {
 
     return (
         <>
-            {isDevelopmentMode && (
-                <NavigationLink
-                    link="/overview"
-                    title="Overview"
-                    icon={icons.list}
-                    isCurrentPage={pathname.split('/')[1] === 'overview'}
-                />
-            )}
+            <NavigationLink
+                link="/overview"
+                title="Overview"
+                icon={icons.list}
+                isCurrentPage={pathname.split('/')[1] === 'overview'}
+            />
             <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     ?.filter((section) => !section.is_done)
