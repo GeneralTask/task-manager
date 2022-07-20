@@ -41,8 +41,9 @@ interface TTaskModifyRequestBody {
     body?: string
 }
 
-interface TMarkTaskDoneData {
+export interface TMarkTaskDoneData {
     taskId: string
+    sectionId?: string
     isCompleted: boolean
 }
 
@@ -245,7 +246,7 @@ export const useModifyTask = () => {
             modifyTask(data),
         {
             onMutate: async (data: TModifyTaskData) => {
-                // cancel all current getTasks queries
+                await queryClient.cancelQueries('overview')
                 await queryClient.cancelQueries('tasks')
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -264,6 +265,7 @@ export const useModifyTask = () => {
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
+                queryClient.invalidateQueries('overview')
             },
         }
     )
@@ -293,7 +295,7 @@ export const useMarkTaskDone = () => {
             if (!sections) return
 
             const newSections = produce(sections, (draft) => {
-                const task = getTaskFromSections(draft, data.taskId)
+                const task = getTaskFromSections(draft, data.taskId, data.sectionId)
                 if (task) task.is_done = data.isCompleted
             })
 
@@ -307,17 +309,19 @@ export const useMarkTaskDone = () => {
                     const newSections = produce(sections, (draft) => {
                         const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
                         if (taskIndex === undefined || sectionIndex === undefined) return
-                        draft[sectionIndex].tasks.splice(taskIndex, 1)
-                        queryClient.invalidateQueries('tasks')
+                        if (draft[sectionIndex].tasks[taskIndex].is_done) {
+                            draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        }
                     })
 
                     queryClient.setQueryData('tasks', newSections)
+                    queryClient.invalidateQueries('tasks')
                 }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
         },
     })
 }
-const markTaskDone = async (data: TMarkTaskDoneData) => {
+export const markTaskDone = async (data: TMarkTaskDoneData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
         return castImmutable(res.data)
