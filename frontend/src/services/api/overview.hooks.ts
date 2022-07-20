@@ -178,7 +178,6 @@ export const useRemoveView = () => {
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, draft => {
                         let found = false
-                        console.log('hi')
                         for (const view of draft) {
                             for (const viewItem of view.views) {
                                 if (viewItem.id === viewId) {
