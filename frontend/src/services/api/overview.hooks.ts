@@ -107,7 +107,7 @@ export const useAddView = () => {
             return addView(payload)
         },
         {
-            onMutate: async ({ supportedView, supportedViewIndex, supportedViewItem, supportedViewItemIndex }) => {
+            onMutate: async ({ supportedView, supportedViewIndex, supportedViewItem, supportedViewItemIndex }: TAddViewData) => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview')
