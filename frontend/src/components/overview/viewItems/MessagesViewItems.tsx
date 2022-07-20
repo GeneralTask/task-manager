@@ -7,7 +7,7 @@ import { Divider } from '../../atoms/SectionDivider'
 import ThreadTemplate from '../../atoms/ThreadTemplate'
 import Thread from '../../molecules/Thread'
 
-const DividerMargin = styled(Divider)`
+const DividerMargin = styled.div`
     margin: 0 ${Spacing.margin._16};
 `
 
@@ -32,7 +32,11 @@ const MessagesViewItems = ({ view }: MessagesViewItemsProps) => {
                             link={`/overview/${item.id}`}
                         />
                     </ThreadTemplate>
-                    {index !== view.view_items.length - 1 && <DividerMargin />}
+                    {index !== view.view_items.length - 1 && (
+                        <DividerMargin>
+                            <Divider />
+                        </DividerMargin>
+                    )}
                 </Fragment>
             ))}
         </div>
