@@ -60,7 +60,7 @@ const MainScreen = () => {
             case 'settings':
                 return <Settings />
             default:
-                return <TaskSection />
+                return <OverviewPageView />
         }
     })()
 
