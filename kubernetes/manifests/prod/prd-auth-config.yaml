@@ -31,7 +31,7 @@ data:
       groups:
         - prd-gtsk-uswest1-full-access-group
     - userarn: arn:aws:iam::257821106339:user/nolan@generaltask.com
-      username: maz
+      username: nolan
       groups:
         - prd-gtsk-uswest1-full-access-group
     - userarn: arn:aws:iam::257821106339:user/julian@generaltask.com
