@@ -39,12 +39,9 @@ const NavigationSectionLinks = () => {
     const { mutate: addTaskSection } = useAddTaskSection()
 
     const { data: taskSections } = useGetTasks()
-    // const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { section: sectionId } = useParams()
     const { pathname } = useLocation()
-
-    // const threadsInbox = useMemo(() => threadDataInbox?.pages.flat().filter((t) => t != null) ?? [], [threadDataInbox])
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSectionName(e.target.value)
@@ -148,21 +145,6 @@ const NavigationSectionLinks = () => {
                         />
                     ))}
             </NavigationLinkDropdown>
-            {/* <NavigationLinkDropdown title="Messages" icon="label">
-                <NavigationLink
-                    link="/messages/inbox"
-                    title="Inbox"
-                    icon={icons.inbox}
-                    count={threadsInbox?.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                    isCurrentPage={mailbox === 'inbox'}
-                />
-                <NavigationLink
-                    link="/messages/archive"
-                    title="Archive"
-                    icon={icons.archive}
-                    isCurrentPage={mailbox === 'archive'}
-                />
-            </NavigationLinkDropdown> */}
             <NavigationLink
                 link="/settings"
                 title="Settings"
