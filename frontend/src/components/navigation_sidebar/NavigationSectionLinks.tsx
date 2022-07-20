@@ -6,7 +6,6 @@ import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 import NoStyleInput from '../atoms/NoStyleInput'
 import { icons } from '../../styles/images'
-import { isDevelopmentMode } from '../../environment'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api/task-section.hooks'
 import { weight } from '../../styles/typography'
@@ -88,14 +87,12 @@ const NavigationSectionLinks = () => {
 
     return (
         <>
-            {isDevelopmentMode && (
-                <NavigationLink
-                    link="/overview"
-                    title="Overview"
-                    icon={icons.list}
-                    isCurrentPage={pathname.split('/')[1] === 'overview'}
-                />
-            )}
+            <NavigationLink
+                link="/overview"
+                title="Overview"
+                icon={icons.list}
+                isCurrentPage={pathname.split('/')[1] === 'overview'}
+            />
             <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     ?.filter((section) => !section.is_done)
