@@ -465,7 +465,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
-	} else if viewCreateParams.Type != string(ViewLinear) {
+	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -513,7 +513,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(ViewLinear) && params.Type != string(ViewTaskSection) {
+	} else if params.Type != string(ViewLinear) && params.Type != string(ViewSlack) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
