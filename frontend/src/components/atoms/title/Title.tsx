@@ -6,22 +6,22 @@ const TitleSmallStyle = styled.span`
     color: ${Colors.gray._500};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.small.fontSize};
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Arial, 'Apple Color Emoji',
-        'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
+        Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 `
 const TitleMediumStyle = styled.span`
     color: ${Colors.gray._700};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.medium.fontSize};
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Arial, 'Apple Color Emoji',
-        'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
+        Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 `
 const TitleLargeStyle = styled.span`
     color: ${Colors.gray._700};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.large.fontSize};
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Arial, 'Apple Color Emoji',
-        'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
+        Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 `
 
 interface TitleProps {
