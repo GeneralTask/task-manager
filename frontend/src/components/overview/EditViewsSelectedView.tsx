@@ -1,5 +1,6 @@
 import React from 'react'
 import { useDrag } from 'react-dnd'
+import { useRemoveView } from '../../services/api/overview.hooks'
 import { logos, icons } from '../../styles/images'
 import { DropItem, DropType, TOverviewView } from '../../utils/types'
 import Domino from '../atoms/Domino'
@@ -21,6 +22,8 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
         [view.id]
     )
 
+    const { mutate: removeView } = useRemoveView()
+
     return (
         <ReorderDropContainer
             key={view.id}
@@ -32,7 +35,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
                 <Domino ref={drag} />
                 <Icon source={logos[view.logo]} size="small" />
                 {view.name}
-                <EditViewsDeleteButton>
+                <EditViewsDeleteButton onClick={() => removeView(view.id)}>
                     <Icon source={icons.x_thin} size="small" />
                 </EditViewsDeleteButton>
             </SelectedView>

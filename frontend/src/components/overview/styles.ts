@@ -51,3 +51,7 @@ export const PaginateTextButton = styled(NoStyleButton)`
     line-height: ${Typography.xSmall.lineHeight};
     margin: ${Spacing.margin._4} ${Spacing.margin._8} 0;
 `
+export const OptimisticItemsContainer = styled.div`
+    height: 100px;
+    display: flex;
+`
