@@ -57,7 +57,6 @@ type OverviewResult[T ViewItem] struct {
 type SupportedViewItem struct {
 	Name          string             `json:"name"`
 	IsAdded       bool               `json:"is_added"`
-	MessagesID    primitive.ObjectID `json:"messages_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	GithubID      string             `json:"github_id"`
 }
@@ -414,7 +413,6 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 
 type ViewCreateParams struct {
 	Type          string  `json:"type" binding:"required"`
-	MessagesID    *string `json:"messages_id"`
 	TaskSectionID *string `json:"task_section_id"`
 	GithubID      *string `json:"github_id"`
 }
