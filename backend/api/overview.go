@@ -443,6 +443,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 	viewExists, err := api.ViewDoesExist(db, parentCtx, userID, viewCreateParams)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("error checking that view does not exist")
 		Handle500(c)
 		return
 	}
