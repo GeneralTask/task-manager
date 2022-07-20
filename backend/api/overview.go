@@ -414,7 +414,6 @@ type ViewCreateParams struct {
 	Type          string  `json:"type" binding:"required"`
 	MessagesID    *string `json:"messages_id"`
 	TaskSectionID *string `json:"task_section_id"`
-	GithubID      *string `json:"github_id"`
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
@@ -422,13 +421,6 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	var viewCreateParams ViewCreateParams
 	err := c.BindJSON(&viewCreateParams)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
-		return
-	}
-	if viewCreateParams.Type == string(ViewTaskSection) && viewCreateParams.TaskSectionID == nil {
-		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
-		return
-	} else if viewCreateParams.Type == string(ViewGithub) && viewCreateParams.GithubID == nil {
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
 	}
@@ -508,12 +500,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			return false, errors.New("'id_task_section' is required for task section type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": *params.TaskSectionID})
-	} else if params.Type == string(ViewGithub) {
-		if params.GithubID == nil {
-			return false, errors.New("'github_id' is required for github type views")
-		}
-		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(ViewLinear) && params.Type != string(ViewTaskSection) {
+	} else {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
