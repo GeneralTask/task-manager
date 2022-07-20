@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import styled from 'styled-components'
-import { useAddView, useGetSupportedViews, TAddViewData } from '../../services/api/overview.hooks'
+import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
@@ -34,12 +34,7 @@ interface AddViewsModalProps {
 const AddViewsModalContent = () => {
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
-
-    const handleAddRemoveView = (addViewData: TAddViewData) => {
-        if (!addViewData.supportedViewItem.is_added) {
-            addView(addViewData)
-        }
-    }
+    const { mutate: removeView } = useRemoveView()
 
     if (!supportedViews) {
         return <Spinner />
@@ -56,14 +51,20 @@ const AddViewsModalContent = () => {
                         {!supportedView.is_nested && supportedView.views.length === 1 && (
                             <GTCheckbox
                                 isChecked={supportedView.views[0].is_added}
-                                onChange={() =>
-                                    handleAddRemoveView({
-                                        supportedView,
-                                        supportedViewIndex: viewIndex,
-                                        supportedViewItem: supportedView.views[0],
-                                        supportedViewItemIndex: 0,
-                                    })
-                                }
+                                disabled={supportedView.views[0].is_add_disabled}
+                                onChange={() => {
+                                    const supportedViewItem = supportedView.views[0]
+                                    if (supportedViewItem.is_added && supportedViewItem.id) {
+                                        removeView(supportedViewItem.id)
+                                    } else {
+                                        addView({
+                                            supportedView,
+                                            supportedViewIndex: viewIndex,
+                                            supportedViewItem,
+                                            supportedViewItemIndex: 0,
+                                        })
+                                    }
+                                }}
                             />
                         )}
                     </SupportedView>
@@ -82,14 +83,19 @@ const AddViewsModalContent = () => {
                                     </SupportedViewContent>
                                     <GTCheckbox
                                         isChecked={supportedViewItem.is_added}
-                                        onChange={() =>
-                                            handleAddRemoveView({
-                                                supportedView,
-                                                supportedViewIndex: viewIndex,
-                                                supportedViewItem,
-                                                supportedViewItemIndex: viewItemIndex,
-                                            })
-                                        }
+                                        disabled={supportedViewItem.is_add_disabled}
+                                        onChange={() => {
+                                            if (supportedViewItem.is_added && supportedViewItem.id) {
+                                                removeView(supportedViewItem.id)
+                                            } else {
+                                                addView({
+                                                    supportedView,
+                                                    supportedViewIndex: viewIndex,
+                                                    supportedViewItem,
+                                                    supportedViewItemIndex: viewItemIndex,
+                                                })
+                                            }
+                                        }}
                                     />
                                 </SupportedView>
                                 {(viewIndex !== supportedViews.length - 1 ||

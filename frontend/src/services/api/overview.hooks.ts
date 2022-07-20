@@ -90,9 +90,12 @@ interface TAddViewPayload {
     task_section_id?: string
     slack_id?: string
 }
+interface TAddViewReponse {
+    id: string
+}
 export const useAddView = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(
+    return useMutation<TAddViewReponse, unknown, TAddViewData, unknown>(
         ({ supportedView, supportedViewItem }: TAddViewData) => {
             const payload: TAddViewPayload = {
                 type: supportedView.type,
@@ -114,6 +117,7 @@ export const useAddView = () => {
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, draft => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].is_added = true
+                        draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = true
                     })
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
@@ -136,9 +140,18 @@ export const useAddView = () => {
                     queryClient.setQueryData('overview', newViews)
                 }
             },
-            onSettled: () => {
+            onSettled: (data, _, { supportedViewIndex, supportedViewItemIndex }) => {
                 queryClient.invalidateQueries('overview')
                 queryClient.invalidateQueries('overview-supported-views')
+                if (data) {
+                    const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                    if (supportedViews) {
+                        const newSupportedViews = produce(supportedViews, draft => {
+                            draft[supportedViewIndex].views[supportedViewItemIndex].id = data.id
+                        })
+                        queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                    }
+                }
             },
         },
     )
@@ -152,6 +165,59 @@ const addView = async (data: TAddViewPayload) => {
     }
 }
 
+export const useRemoveView = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation(
+        (viewId: string) => removeView(viewId),
+        {
+            onMutate: async (viewId: string) => {
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview')
+                ])
+
+                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                if (supportedViews) {
+                    const newSupportedViews = produce(supportedViews, draft => {
+                        let found = false
+                        for (const view of draft) {
+                            for (const viewItem of view.views) {
+                                if (viewItem.id === viewId) {
+                                    viewItem.is_added = false
+                                    viewItem.is_add_disabled = false
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (found) break
+                        }
+                    })
+                    queryClient.setQueryData('overview-supported-views', newSupportedViews)
+                }
+
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (views) {
+                    const newViews = produce(views, draft => {
+                        for (const view of draft) {
+                            if (view.id === viewId) {
+                                draft.splice(draft.indexOf(view), 1)
+                                break
+                            }
+                        }
+                    })
+                    queryClient.setQueryData('overview', newViews)
+                }
+            }
+        }
+    )
+}
+const removeView = async (viewId: string) => {
+    try {
+        await apiClient.delete(`/overview/views/${viewId}/`)
+    } catch {
+        throw new Error('removeView failed')
+    }
+}
 export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
