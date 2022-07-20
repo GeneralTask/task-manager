@@ -197,10 +197,12 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest.SourceID,
 			pullRequest,
 			database.PullRequestChangeableFields{
-				Title:         pullRequest.Title,
-				Body:          pullRequest.TaskBase.Body,
-				IsCompleted:   &isCompleted,
-				LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt,
+				Title:          pullRequest.Title,
+				Body:           pullRequest.TaskBase.Body,
+				IsCompleted:    &isCompleted,
+				LastUpdatedAt:  pullRequest.PullRequest.LastUpdatedAt,
+				CommentCount:   pullRequest.CommentCount,
+				RequiredAction: pullRequest.RequiredAction,
 			},
 			nil,
 			false)
