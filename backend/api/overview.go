@@ -505,9 +505,13 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 	}
 	if params.Type == string(ViewTaskSection) {
 		if params.TaskSectionID == nil {
-			return false, errors.New("'id_task_section' is required for task section type views")
+			return false, errors.New("'task_section_id' is required for task section type views")
 		}
-		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": *params.TaskSectionID})
+		taskSectionObjectID, err := primitive.ObjectIDFromHex(*params.TaskSectionID)
+		if err != nil {
+			return false, errors.New("'task_section_id' is not a valid ObjectID")
+		}
+		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": taskSectionObjectID})
 	} else if params.Type == string(ViewGithub) {
 		if params.GithubID == nil {
 			return false, errors.New("'github_id' is required for github type views")
