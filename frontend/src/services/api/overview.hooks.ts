@@ -150,6 +150,7 @@ const addView = async (data: TAddViewPayload) => {
     } catch {
         throw new Error('addView failed')
     }
+}
 
 export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
