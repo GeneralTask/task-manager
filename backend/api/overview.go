@@ -455,7 +455,6 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 	var serviceID string
 	taskSectionID := primitive.NilObjectID
-	githubID := ""
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
@@ -469,13 +468,6 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
-	} else if viewCreateParams.Type == string(ViewGithub) {
-		serviceID = external.TASK_SERVICE_ID_GITHUB
-		if viewCreateParams.GithubID == nil {
-			c.JSON(400, gin.H{"detail": "'id_github' is required for github type views"})
-			return
-		}
-		githubID = *viewCreateParams.GithubID
 	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
@@ -495,7 +487,6 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		Type:          viewCreateParams.Type,
 		IsLinked:      isLinked,
 		TaskSectionID: taskSectionID,
-		GithubID: 	githubID,
 	}
 
 	viewCollection := database.GetViewCollection(db)
