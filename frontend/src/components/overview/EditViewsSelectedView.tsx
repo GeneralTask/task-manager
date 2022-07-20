@@ -14,6 +14,7 @@ interface EditViewsSelectedViewProps {
     onReorder: (item: DropItem, dropIndex: number) => void
 }
 const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelectedViewProps) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [, _drag, dragPreview] = useDrag(
         () => ({
             type: DropType.OVERVIEW_VIEW,
