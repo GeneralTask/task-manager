@@ -32,7 +32,7 @@ const MainScreen = () => {
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
-    // Refetch tasksand pull requests independent of current page
+    // Refetch tasks and pull requests independent of current page
     const { refetch: refetchExternalTasks } = useFetchExternalTasks()
     useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
     const { refetch: refetchPullRequests } = useFetchPullRequests()
