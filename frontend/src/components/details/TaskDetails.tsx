@@ -13,7 +13,6 @@ import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { EmailList } from './email/EmailList'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
@@ -107,7 +106,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
-    const thread = task.linked_email_thread?.email_thread
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
@@ -151,7 +149,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     }, [titleInput])
 
     useLayoutEffect(() => {
-        if (bodyRef.current && (thread || task.slack_message_params)) {
+        if (bodyRef.current && task.slack_message_params) {
             bodyRef.current.style.height = '0px'
             bodyRef.current.style.height =
                 bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
@@ -194,17 +192,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         e.stopPropagation()
     }
 
-    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
-    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
-    const deeplinkLabel = task.linked_email_thread ? 'Gmail' : task.source.name
-
     const status = task.external_status ? task.external_status.state : ''
 
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
-                    <Icon source={icon} size="small" />
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </MarginRight8>
                 {!task.isOptimistic && (
                     <>
@@ -218,7 +212,11 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             />
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <GTButton styleType="secondary" value={deeplinkLabel} iconSource="external_link" />
+                                    <GTButton
+                                        styleType="secondary"
+                                        value={task.source.name}
+                                        iconSource="external_link"
+                                    />
                                 </NoStyleAnchor>
                             )}
                         </MarginLeftAuto>
@@ -249,7 +247,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         ref={bodyRef}
                         data-testid="task-body-input"
                         placeholder="Add task details"
-                        isFullHeight={!(thread || task.slack_message_params)}
+                        isFullHeight={!task.slack_message_params}
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
@@ -257,7 +255,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
-                    {thread && <EmailList thread={thread} />}
                     {task.comments && <LinearCommentList comments={task.comments} />}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
