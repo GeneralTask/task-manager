@@ -63,11 +63,13 @@ type SupportedViewItem struct {
 }
 
 type SupportedView struct {
-	Type     ViewType            `json:"type"`
-	Name     string              `json:"name"`
-	Logo     string              `json:"logo"`
-	IsNested bool                `json:"is_nested"`
-	Views    []SupportedViewItem `json:"views"`
+	Type             ViewType            `json:"type"`
+	Name             string              `json:"name"`
+	Logo             string              `json:"logo"`
+	IsNested         bool                `json:"is_nested"`
+	IsLinked         bool                `json:"is_linked"`
+	AuthorizationURL *string             `json:"authorization_url"`
+	Views            []SupportedViewItem `json:"views"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
@@ -582,6 +584,8 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
+	dbCtx, cancel := context.WithTimeout(c, constants.DatabaseTimeout)
+	defer cancel()
 
 	userID := getUserIDFromContext(c)
 	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(db, userID)
@@ -594,19 +598,53 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	isGithubLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_GITHUB)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	isLinearLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_LINEAR)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	isSlackLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_SLACK)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	var githubAuthURL *string
+	var linearAuthURL *string
+	var slackAuthURL *string
+	if !isGithubLinked {
+		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
+		githubAuthURL = &authURL
+	}
+	if !isLinearLinked {
+		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
+		linearAuthURL = &authURL
+	}
+	if !isSlackLinked {
+		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
+		slackAuthURL = &authURL
+	}
+
 	supportedViews := []SupportedView{
 		{
 			Type:     ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
+			IsLinked: true,
 			Views:    supportedTaskSectionViews,
 		},
 		{
-			Type:     ViewLinear,
-			Name:     "Linear",
-			Logo:     "linear",
-			IsNested: false,
+			Type:             ViewLinear,
+			Name:             "Linear",
+			Logo:             "linear",
+			IsNested:         false,
+			AuthorizationURL: linearAuthURL,
 			Views: []SupportedViewItem{
 				{
 					Name:    "Linear View",
@@ -615,10 +653,11 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     ViewSlack,
-			Name:     "Slack",
-			Logo:     "slack",
-			IsNested: false,
+			Type:             ViewSlack,
+			Name:             "Slack",
+			Logo:             "slack",
+			IsNested:         false,
+			AuthorizationURL: slackAuthURL,
 			Views: []SupportedViewItem{
 				{
 					Name:    "Slack View",
@@ -627,11 +666,12 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     ViewGithub,
-			Name:     "GitHub",
-			Logo:     "github",
-			IsNested: true,
-			Views:    supportedGithubViews,
+			Type:             ViewGithub,
+			Name:             "GitHub",
+			Logo:             "github",
+			IsNested:         true,
+			AuthorizationURL: githubAuthURL,
+			Views:            supportedGithubViews,
 		},
 	}
 	err = api.updateIsAddedForSupportedViews(db, userID, &supportedViews)
