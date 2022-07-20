@@ -10,7 +10,7 @@ export const ViewContainer = styled.div`
     box-shadow: ${Shadows.small};
 `
 export const ViewHeader = styled.div`
-    margin: ${Spacing.margin._8} 0;
+    margin-bottom: ${Spacing.margin._8};
     display: flex;
     justify-content: space-between;
     align-items: center;
