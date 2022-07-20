@@ -65,7 +65,6 @@ module.exports = {
             // Must be the last running plugin
             include: '.',
             ignore: ['node_modules', 'webpack.dev.js', 'webpack.prod.js', 'webpack.common.js'],
-            configFile: 'sentry.config.js',
         }),
     ],
 }
