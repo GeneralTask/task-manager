@@ -31,9 +31,19 @@ interface TaskProps {
     sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
+    onMarkComplete: (taskId: string, isComplete: boolean) => void
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
+const Task = ({
+    task,
+    dragDisabled,
+    index,
+    sectionId,
+    sectionScrollingRef,
+    isSelected,
+    link,
+    onMarkComplete,
+}: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -99,7 +109,12 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
-                <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
+                <CompleteButton
+                    taskId={task.id}
+                    isComplete={task.is_done}
+                    onMarkComplete={onMarkComplete}
+                    isSelected={isSelected}
+                />
                 <IconContainer>
                     <Icon source={icon} size="small" />
                 </IconContainer>

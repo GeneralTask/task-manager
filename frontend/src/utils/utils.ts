@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { TTask, TTaskSection } from './types'
 import sanitizeHtml from 'sanitize-html'
 import he from 'he'
+import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -75,7 +76,7 @@ interface TGetTaskIndexFromSectionsReturnType {
     taskIndex?: number
     sectionIndex?: number
 }
-export const getTaskIndexFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
+export const getTaskIndexFromSections = (sections: Immutable<{ id?: string, tasks: TTask[] }[]>, taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
     const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
     if (sectionId) {
         const sectionIndex = sections.findIndex(section => section.id === sectionId)
