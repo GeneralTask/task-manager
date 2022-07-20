@@ -475,6 +475,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 
 	isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("error checking that service is linked")
 		Handle500(c)
 		return
 	}
