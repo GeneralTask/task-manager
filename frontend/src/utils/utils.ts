@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { TOverviewView, TTask, TTaskSection } from './types'
+import { TTask, TTaskSection } from './types'
 import sanitizeHtml from 'sanitize-html'
 import he from 'he'
 import { Immutable } from 'immer';
