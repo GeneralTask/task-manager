@@ -1,7 +1,5 @@
 import { DateTime } from 'luxon';
 import { TTask, TTaskSection } from './types'
-import sanitizeHtml from 'sanitize-html'
-import he from 'he'
 import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
@@ -20,14 +18,6 @@ export function resetOrderingIds(tasks: TTask[]) {
     for (let i = 1; i < tasks.length; i++) {
         tasks[i].id_ordering = i
     }
-}
-
-export const removeHTMLTags = (dirtyHTML: string) => {
-    const sanitized = sanitizeHtml(dirtyHTML, {
-        allowedTags: [],
-        allowedAttributes: {},
-    })
-    return he.decode(sanitized)
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
