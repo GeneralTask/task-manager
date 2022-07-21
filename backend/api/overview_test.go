@@ -915,7 +915,7 @@ func TestOverviewModify(t *testing.T) {
 		assert.Equal(t, 3, view.IDOrdering)
 	})
 	t.Run("SuccessInsertFirst", func(t *testing.T) {
-		// Result: [3, 1, 2]
+		// Expected Result: [3, 1, 2]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusOK)
 
