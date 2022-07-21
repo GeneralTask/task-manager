@@ -20,7 +20,7 @@ describe('selecting a task open the details view', () => {
         // iterate over the tasks and click on each one
         cy.findAllByTestId('list-item').each(($el) => {
             cy.wrap($el).click()
-            cy.wrap($el).should('have.css', 'border-color', hexToRGBString(Colors.gray._500))
+            cy.wrap($el).should('have.css', 'border-color', hexToRGBString(Colors.background.dark))
         })
     })
 })

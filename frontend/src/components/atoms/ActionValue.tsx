@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 const ActionValueContainer = styled.div`
     padding: ${Spacing.padding._8};
-    background-color: ${Colors.gray._300};
+    background-color: ${Colors.background.dark};
     border-radius: ${Border.radius.regular};
 `
 interface ActionValueProps {

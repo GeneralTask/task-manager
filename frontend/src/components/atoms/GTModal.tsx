@@ -23,7 +23,7 @@ const ModalContainer = styled.div`
     justify-content: space-between;
 `
 const Header = styled.div`
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     font-size: ${Typography.xLarge.fontSize};
     line-height: ${Typography.xLarge.lineHeight};
     font-weight: ${Typography.weight._600};
@@ -47,7 +47,7 @@ const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: ${Border.radius.small};
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
 `
 const ButtonsGroup = styled.div`

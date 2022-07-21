@@ -24,7 +24,7 @@ const DetailsViewContainer = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
     min-width: 300px;
     padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
@@ -45,18 +45,18 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     overflow: auto;
     padding: ${Spacing.padding._12};
     font: inherit;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
     :focus,
     :hover {
-        border: 1px solid ${Colors.gray._400};
+        border: 1px solid ${Colors.background.dark};
         box-shadow: ${Shadows.medium};
     }
 `
 const TitleInput = styled.textarea`
     background-color: inherit;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     font: inherit;
     font-size: ${Typography.large.fontSize};
     font-weight: ${Typography.weight._600};
@@ -66,7 +66,7 @@ const TitleInput = styled.textarea`
     overflow: hidden;
     margin-bottom: ${Spacing.margin._16};
     :focus {
-        outline: 1px solid ${Colors.gray._500};
+        outline: 1px solid ${Colors.background.dark};
     }
 `
 const MarginLeftAuto = styled.div`
@@ -86,7 +86,7 @@ const StatusContainer = styled.div`
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
     font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     margin-bottom: ${Spacing.margin._8};
 `
 

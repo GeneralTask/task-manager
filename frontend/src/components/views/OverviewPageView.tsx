@@ -13,13 +13,13 @@ import PullRequestDetails from '../details/PullRequestDetails'
 
 const OverviewPageContainer = styled.div`
     display: flex;
-    border-right: 1px solid ${Colors.gray._300};
+    border-right: 1px solid ${Colors.background.dark};
 `
 const PageHeader = styled.div`
     padding: ${Spacing.padding._16};
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     font-size: ${Typography.small.fontSize};
-    border-bottom: 2px solid ${Colors.gray._200};
+    border-bottom: 2px solid ${Colors.background.dark};
 `
 const ActionsContainer = styled.div`
     display: flex;

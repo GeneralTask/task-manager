@@ -15,7 +15,7 @@ import styled from 'styled-components'
 const PullRequestsContainer = styled.div`
     display: flex;
     flex: 1 0;
-    border-right: 1px solid ${Colors.gray._300};
+    border-right: 1px solid ${Colors.background.dark};
     user-select: none;
 `
 

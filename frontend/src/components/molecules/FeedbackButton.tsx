@@ -14,7 +14,7 @@ const FeedbackButton = () => {
     }
     return (
         <>
-            <GTButton value="Share your feedback?" color={Colors.purple._1} onClick={openModal} />
+            <GTButton value="Share your feedback?" color={Colors.gtColor.primary} onClick={openModal} />
             <ModalView>
                 <FeedbackView />
             </ModalView>

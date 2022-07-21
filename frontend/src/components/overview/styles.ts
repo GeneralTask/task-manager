@@ -4,14 +4,14 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 export const ViewContainer = styled.div`
     padding: ${Spacing.padding._12};
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     margin: 0 ${Spacing.margin._24} ${Spacing.margin._16};
     box-shadow: ${Shadows.small};
 `
 export const ViewHeader = styled.div`
     margin-bottom: ${Spacing.margin._8};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
     font-weight: ${Typography.weight._600};
@@ -20,7 +20,7 @@ export const RemoveButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: ${Border.radius.small};
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
 `
 export const SelectedView = styled.div`
@@ -29,13 +29,13 @@ export const SelectedView = styled.div`
     width: 100%;
     box-sizing: border-box;
     border-radius: ${Border.radius.large};
-    border: 1px solid ${Colors.purple._3};
+    border: 1px solid ${Colors.gtColor.secondary};
     padding: ${Spacing.padding._12};
     margin: ${Spacing.margin._4} 0;
     gap: ${Spacing.margin._12};
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
 `
 export const EditViewsDeleteButton = styled(RemoveButton)`
     margin-left: auto;
