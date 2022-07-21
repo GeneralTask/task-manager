@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestOverview(t *testing.T) {
@@ -848,143 +849,47 @@ func TestOverviewModify(t *testing.T) {
 	t.Run("MissingIDOrdering", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", firstViewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, nil, http.StatusBadRequest)
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-
-		var view database.View
-		err := viewCollection.FindOne(dbCtx, bson.M{"_id": firstViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": secondViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": thirdViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, view.IDOrdering)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
 	})
 	t.Run("InvalidViewID", func(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
-
-		var view database.View
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err := viewCollection.FindOne(dbCtx, bson.M{"_id": firstViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": secondViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": thirdViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, view.IDOrdering)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
 	})
 	t.Run("IncorrectViewID", func(t *testing.T) {
 		viewID := primitive.NewObjectID()
 		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
-
-		var view database.View
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err := viewCollection.FindOne(dbCtx, bson.M{"_id": firstViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": secondViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": thirdViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, view.IDOrdering)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
 	})
 	t.Run("SuccessInsertFirst", func(t *testing.T) {
 		// Expected Result: [3, 1, 2]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusOK)
-
-		var view database.View
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err := viewCollection.FindOne(dbCtx, bson.M{"_id": firstViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": secondViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": thirdViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, view.IDOrdering)
+		checkViewPosition(t, viewCollection, firstViewID, 2)
+		checkViewPosition(t, viewCollection, secondViewID, 3)
+		checkViewPosition(t, viewCollection, thirdViewID, 1)
 	})
 	t.Run("SuccessInsertSecond", func(t *testing.T) {
 		// Expected Result: [1, 3, 2]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 3}`)), http.StatusOK)
-
-		var view database.View
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err := viewCollection.FindOne(dbCtx, bson.M{"_id": firstViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": secondViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": thirdViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, view.IDOrdering)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 3)
+		checkViewPosition(t, viewCollection, thirdViewID, 2)
 	})
 	t.Run("SuccessInsertThird", func(t *testing.T) {
 		// Expected Result: [1, 2, 3]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
 		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 4}`)), http.StatusOK)
-
-		var view database.View
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err := viewCollection.FindOne(dbCtx, bson.M{"_id": firstViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": secondViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 2, view.IDOrdering)
-
-		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		err = viewCollection.FindOne(dbCtx, bson.M{"_id": thirdViewID}).Decode(&view)
-		assert.NoError(t, err)
-		assert.Equal(t, 3, view.IDOrdering)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
 	})
 }
 
@@ -1053,4 +958,13 @@ func assertOverviewViewResultEqual[T ViewItem](t *testing.T, expected OverviewRe
 		actualViewItem := *(actual.ViewItems[i])
 		assert.Equal(t, expectedViewItem.GetID(), actualViewItem.GetID())
 	}
+}
+
+func checkViewPosition(t *testing.T, viewCollection *mongo.Collection, viewID primitive.ObjectID, position int) {
+	var view database.View
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	err := viewCollection.FindOne(dbCtx, bson.M{"_id": viewID}).Decode(&view)
+	assert.NoError(t, err)
+	assert.Equal(t, position, view.IDOrdering)
 }
