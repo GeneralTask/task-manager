@@ -97,7 +97,7 @@ We currently perform backend deploys using the Heroku CLI. Assuming you have the
 
 ### One-time Kubernetes setup
 
-Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have an admin apply the changes to the prod k8s cluster.
+Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have a General Task admin apply the changes to the prod k8s cluster.
 
 Now, locally on your laptop, run:
 
