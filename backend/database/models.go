@@ -177,6 +177,7 @@ type PullRequest struct {
 	CommentCount   int                `bson:"comment_count"`
 	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
 	Additions      int                `bson:"additions"`
+	Deletions      int                `bson:"deletions"`
 }
 
 type PullRequestChangeableFields struct {

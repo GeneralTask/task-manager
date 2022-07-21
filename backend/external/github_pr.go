@@ -50,6 +50,7 @@ type GithubPRData struct {
 	HaveRequestedChanges bool
 	ChecksDidFail        bool
 	Additions            int
+	Deletions            int
 }
 
 func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
@@ -151,11 +152,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR comments"))
 				return
 			}
-			additions, err := getAdditions(extCtx, githubClient, repository, pullRequest, nil)
-			if err != nil {
-				result <- emptyPullRequestResult(errors.New("failed to fetch Github PR additions"))
-				return
-			}
 
 			pullRequestData := GithubPRData{
 				RequestedReviewers:   requestedReviewers,
@@ -163,7 +159,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				IsApproved:           pullRequestIsApproved(reviews),
 				HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 				ChecksDidFail:        checksDidFail,
-				Additions:            additions,
+				Additions:            pullRequest.GetAdditions(),
+				Deletions:            pullRequestFetch.GetDeletions(),
 			}
 
 			pullRequest := &database.Item{
@@ -185,6 +182,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					RequiredAction: getPullRequestRequiredAction(pullRequestData),
 					CommentCount:   commentCount,
 					LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
+					Additions:      pullRequestData.Additions,
 				},
 				TaskType: database.TaskType{
 					IsTask:        false,
@@ -416,22 +414,6 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 		}
 	}
 	return false, nil
-}
-
-func getAdditions(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (int, error) {
-	err := setOverrideURL(githubClient, overrideURL)
-	if err != nil {
-		return 0, err
-	}
-	commit, _, err := githubClient.Repositories.GetCommit(context, *repository.Owner.Login, *repository.Name, *pullRequest.Head.SHA, nil)
-	if err != nil {
-		return 0, errors.New("failed to get additions for commit")
-	}
-	additions := commit.GetStats().Additions
-	if additions == nil {
-		return 0, errors.New("failed to get additions for commit")
-	}
-	return *additions, nil
 }
 
 func getPullRequestRequiredAction(data GithubPRData) string {

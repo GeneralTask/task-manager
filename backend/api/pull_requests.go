@@ -35,6 +35,8 @@ type PullRequestResult struct {
 	Branch        string            `json:"branch"`
 	Deeplink      string            `json:"deeplink"`
 	LastUpdatedAt string            `json:"last_updated_at"`
+	Additions     int               `json:"additions"`
+	Deletions     int               `json:"deletions"`
 }
 
 type PullRequestStatus struct {
@@ -84,6 +86,8 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			Branch:        pullRequest.Branch,
 			Deeplink:      pullRequest.Deeplink,
 			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+			Additions:     pullRequest.PullRequest.Additions,
+			Deletions:     pullRequest.PullRequest.Deletions,
 		}
 		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
 	}
