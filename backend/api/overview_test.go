@@ -869,7 +869,7 @@ func TestOverviewModify(t *testing.T) {
 		assert.Equal(t, 3, view.IDOrdering)
 	})
 	t.Run("InvalidViewID", func(t *testing.T) {
-		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusBadRequest)
+		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
 
 		var view database.View
 		dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
