@@ -1,13 +1,14 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { icons } from '../../styles/images'
-import { TOverviewView } from '../../utils/types'
+import { TOverviewView, TSourcesResult } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton, OptimisticItemsContainer } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MessagesViewItems from './viewItems/MessagesViewItems'
 import Spinner from '../atoms/Spinner'
-import { useRemoveView } from '../../services/api/overview.hooks'
+import { useGetOverviewViews, useRemoveView } from '../../services/api/overview.hooks'
+import AuthBanner from '../molecules/AuthBanner'
 
 const PAGE_SIZE = 5
 
@@ -17,8 +18,13 @@ interface OverviewViewProps {
 const OverviewView = ({ view }: OverviewViewProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
     const { mutate: removeView } = useRemoveView()
+    const { isFetching } = useGetOverviewViews()
 
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
+
+    useEffect(() => {
+        console.log('hello!!!')
+    })
 
     const ViewItems = useMemo(() => {
         if (view.isOptimistic) {
@@ -41,6 +47,15 @@ const OverviewView = ({ view }: OverviewViewProps) => {
         }
     }, [view.type])
 
+    useEffect(() => {
+        setVisibleItemsCount(Math.min(view.view_items.length, PAGE_SIZE))
+        console.log('view items updated')
+        console.log(view.view_items)
+    }, [view.view_items])
+    useEffect(() => {
+        console.log('is fetching: ', isFetching)
+    }, [isFetching])
+
     return (
         <ViewContainer>
             <ViewHeader>
@@ -49,6 +64,12 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                     <Icon source={icons.x_thin} size="xSmall" />
                 </RemoveButton>
             </ViewHeader>
+            {view.sources.map((source: TSourcesResult) => {
+                // console.log(view.isOptimistic);
+                if (!view.is_linked) {
+                    return <AuthBanner name={source.name} authorization_url={source.authorization_url} />
+                }
+            })}
             <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
             {visibleItemsCount < view.view_items.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
