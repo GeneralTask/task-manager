@@ -86,7 +86,6 @@ export interface TAddViewData {
 interface TAddViewPayload {
     type: TOverviewViewType
     github_id?: string
-    messages_id?: string
     task_section_id?: string
     slack_id?: string
 }
@@ -100,7 +99,6 @@ export const useAddView = () => {
             const payload: TAddViewPayload = {
                 type: supportedView.type,
                 github_id: supportedViewItem.github_id || undefined,
-                messages_id: supportedViewItem.messages_id || undefined,
                 task_section_id: supportedViewItem.task_section_id || undefined,
                 slack_id: supportedViewItem.slack_id || undefined,
             }

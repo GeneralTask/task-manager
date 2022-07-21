@@ -5,7 +5,6 @@ import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton, OptimisticItemsContainer } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
-import MessagesViewItems from './viewItems/MessagesViewItems'
 import Spinner from '../atoms/Spinner'
 import { useRemoveView } from '../../services/api/overview.hooks'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
@@ -35,8 +34,6 @@ const OverviewView = ({ view }: OverviewViewProps) => {
             case 'linear':
             case 'slack':
                 return ExternalViewItems
-            case 'message':
-                return MessagesViewItems
             case 'github':
                 return PullRequestViewItems
             default:

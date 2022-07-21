@@ -48,12 +48,6 @@ const App = () => {
                                         <Route path=":task" element={<MainScreen />} />
                                     </Route>
                                 </Route>
-                                <Route path="messages" element={<PrivateOutlet />}>
-                                    <Route index element={<MainScreen />} />
-                                    <Route path=":mailbox" element={<MainScreen />}>
-                                        <Route path=":thread" element={<MainScreen />} />
-                                    </Route>
-                                </Route>
                                 <Route path="pull-requests" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                     <Route path=":pullRequest" element={<MainScreen />} />

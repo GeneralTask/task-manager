@@ -4,8 +4,7 @@ export const logos: { [key: string]: string } = {
     asana: '/images/asana.svg',
     asana_gray: '/images/asana_gray.svg',
     github: '/images/github.svg',
-    gmail: '/images/gmail.svg',
-    gmail_gray: '/images/gmail_gray.svg',
+    gmail: '/images/gmail.svg', // TODO: remove when backend sends "google" instead of "gmail" for linked google accounts
     gcal: '/images/gcal.png', //missing svg
     gcal_gray: '/images/gcal_gray.svg',
     google_meet: '/images/google-meet.svg',
@@ -14,11 +13,8 @@ export const logos: { [key: string]: string } = {
 }
 
 export const icons = Object.freeze({
-    archive_purple: '/images/archive_purple.svg',
-    archive: '/images/archive.png', //missing svg
     arrows_in: '/images/arrows_in.svg',
     arrows_out: '/images/arrows_out.svg',
-    attachment: '/images/attachment.svg',
     calendar_blank: '/images/calendar_blank.svg',
     caret_down: '/images/caret_down.svg',
     caret_left: '/images/caret_left.svg',
@@ -32,20 +28,13 @@ export const icons = Object.freeze({
     copy: '/images/copy.svg',
     dot: '/images/dot.svg',
     external_link: '/images/external_link.svg',
-    forward: '/images/forward.svg',
     gear: '/images/gear.svg',
     inbox: '/images/inbox.svg',
     inbox_purple: '/images/inbox_purple.svg',
     label: '/images/label.svg',
     list: '/images/list.svg',
-    mark_read: '/images/mark_read.svg',
-    mark_unread: '/images/mark_unread.svg',
-    message_to_task: '/images/message_to_task.svg',
-    messages: '/images/messages.svg',
     plus: '/images/plus.svg',
-    pencil: '/images/pencil.svg', 
-    reply: '/images/reply.svg',
-    replyAll: '/images/reply-all.svg',
+    pencil: '/images/pencil.svg',
     repository: '/images/repository.svg',
     skinnyHamburger: '/images/skinny_hamburger.svg',
     speechBubble: '/images/speech_bubble.svg',

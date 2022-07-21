@@ -102,9 +102,6 @@ const Task = ({
         [task.id, index, sectionId]
     )
 
-    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
-    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
-
     return (
         <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
@@ -116,7 +113,7 @@ const Task = ({
                     isSelected={isSelected}
                 />
                 <IconContainer>
-                    <Icon source={icon} size="small" />
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
                 <Title data-testid="task-title">{task.title}</Title>
             </ItemContainer>
