@@ -1,3 +1,3 @@
 package constants
 
-var MAX_COMPLETED_TASKS = 100
+const MAX_COMPLETED_TASKS = 100
