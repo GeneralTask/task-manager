@@ -84,7 +84,7 @@ const LandingScreen = () => {
             email: '',
         },
     })
-    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/tasks" />
+    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" />
 
     const onWaitlistSubmit = (data: { email: string }) => {
         joinWaitlist(data.email)
