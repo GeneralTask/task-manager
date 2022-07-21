@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestOverview(t *testing.T) {
@@ -805,6 +807,104 @@ func TestIsServiceLinked(t *testing.T) {
 	})
 }
 
+func TestOverviewModify(t *testing.T) {
+	authToken := login("testModifyOverview@generaltask.com", "")
+
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	viewCollection := database.GetViewCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+
+	// Remove starter views
+	viewCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
+
+	dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	insertViews := []interface{}{
+		database.View{
+			UserID:     userID,
+			IDOrdering: 1,
+		},
+		database.View{
+			UserID:     userID,
+			IDOrdering: 2,
+		},
+		database.View{
+			UserID:     userID,
+			IDOrdering: 3,
+		},
+		// Note: this view uses a different user ID
+		database.View{
+			UserID:     primitive.NewObjectID(),
+			IDOrdering: 1,
+		},
+	}
+	result, err := viewCollection.InsertMany(dbCtx, insertViews)
+	assert.NoError(t, err)
+	assert.Equal(t, 4, len(result.InsertedIDs))
+
+	firstViewID := result.InsertedIDs[0].(primitive.ObjectID)
+	secondViewID := result.InsertedIDs[1].(primitive.ObjectID)
+	thirdViewID := result.InsertedIDs[2].(primitive.ObjectID)
+	fourthViewID := result.InsertedIDs[3].(primitive.ObjectID)
+
+	t.Run("MissingIDOrdering", func(t *testing.T) {
+		url := fmt.Sprintf("/overview/views/%s/", firstViewID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, nil, http.StatusBadRequest)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("InvalidViewID", func(t *testing.T) {
+		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("IncorrectViewID", func(t *testing.T) {
+		viewID := primitive.NewObjectID()
+		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("SuccessInsertFirst", func(t *testing.T) {
+		// Expected Result: [3, 1, 2]
+		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusOK)
+		checkViewPosition(t, viewCollection, firstViewID, 2)
+		checkViewPosition(t, viewCollection, secondViewID, 3)
+		checkViewPosition(t, viewCollection, thirdViewID, 1)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("SuccessInsertSecond", func(t *testing.T) {
+		// Expected Result: [1, 3, 2]
+		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 3}`)), http.StatusOK)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 3)
+		checkViewPosition(t, viewCollection, thirdViewID, 2)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("SuccessInsertThird", func(t *testing.T) {
+		// Expected Result: [1, 2, 3]
+		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 4}`)), http.StatusOK)
+		checkViewPosition(t, viewCollection, firstViewID, 1)
+		checkViewPosition(t, viewCollection, secondViewID, 2)
+		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+}
+
 func TestOverviewViewDelete(t *testing.T) {
 	parentCtx := context.Background()
 	authToken := login("testDeleteView@generaltask.com", "")
@@ -870,4 +970,13 @@ func assertOverviewViewResultEqual[T ViewItem](t *testing.T, expected OverviewRe
 		actualViewItem := *(actual.ViewItems[i])
 		assert.Equal(t, expectedViewItem.GetID(), actualViewItem.GetID())
 	}
+}
+
+func checkViewPosition(t *testing.T, viewCollection *mongo.Collection, viewID primitive.ObjectID, position int) {
+	var view database.View
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	err := viewCollection.FindOne(dbCtx, bson.M{"_id": viewID}).Decode(&view)
+	assert.NoError(t, err)
+	assert.Equal(t, position, view.IDOrdering)
 }

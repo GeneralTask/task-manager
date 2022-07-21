@@ -7,8 +7,7 @@ import TaskDetails from '../details/TaskDetails'
 import EditViewsButton from '../overview/EditViewsButton'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import ThreadDetails from '../details/ThreadDetails'
-import { TEmailThread, TPullRequest, TTask } from '../../utils/types'
+import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import PullRequestDetails from '../details/PullRequestDetails'
 
@@ -46,9 +45,7 @@ const OverviewView = () => {
         for (const view of views) {
             for (const item of view.view_items) {
                 if (item.id === overviewItem) {
-                    if (view.type === 'message') {
-                        return <ThreadDetails thread={item as TEmailThread} />
-                    } else if (view.type === 'github') {
+                    if (view.type === 'github') {
                         return <PullRequestDetails pullRequest={item as TPullRequest} />
                     } else {
                         return <TaskDetails task={item as TTask} link={`/overview/${item.id}`} />
