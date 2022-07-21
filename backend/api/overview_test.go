@@ -837,14 +837,20 @@ func TestOverviewModify(t *testing.T) {
 			UserID:     userID,
 			IDOrdering: 3,
 		},
+		// Note: this view uses a different user ID
+		database.View{
+			UserID:     primitive.NewObjectID(),
+			IDOrdering: 1,
+		},
 	}
 	result, err := viewCollection.InsertMany(dbCtx, insertViews)
 	assert.NoError(t, err)
-	assert.Equal(t, 3, len(result.InsertedIDs))
+	assert.Equal(t, 4, len(result.InsertedIDs))
 
 	firstViewID := result.InsertedIDs[0].(primitive.ObjectID)
 	secondViewID := result.InsertedIDs[1].(primitive.ObjectID)
 	thirdViewID := result.InsertedIDs[2].(primitive.ObjectID)
+	fourthViewID := result.InsertedIDs[3].(primitive.ObjectID)
 
 	t.Run("MissingIDOrdering", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", firstViewID.Hex())
@@ -852,12 +858,14 @@ func TestOverviewModify(t *testing.T) {
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 	t.Run("InvalidViewID", func(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 	t.Run("IncorrectViewID", func(t *testing.T) {
 		viewID := primitive.NewObjectID()
@@ -866,6 +874,7 @@ func TestOverviewModify(t *testing.T) {
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 	t.Run("SuccessInsertFirst", func(t *testing.T) {
 		// Expected Result: [3, 1, 2]
@@ -874,6 +883,7 @@ func TestOverviewModify(t *testing.T) {
 		checkViewPosition(t, viewCollection, firstViewID, 2)
 		checkViewPosition(t, viewCollection, secondViewID, 3)
 		checkViewPosition(t, viewCollection, thirdViewID, 1)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 	t.Run("SuccessInsertSecond", func(t *testing.T) {
 		// Expected Result: [1, 3, 2]
@@ -882,6 +892,7 @@ func TestOverviewModify(t *testing.T) {
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 3)
 		checkViewPosition(t, viewCollection, thirdViewID, 2)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 	t.Run("SuccessInsertThird", func(t *testing.T) {
 		// Expected Result: [1, 2, 3]
@@ -890,6 +901,7 @@ func TestOverviewModify(t *testing.T) {
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 }
 
