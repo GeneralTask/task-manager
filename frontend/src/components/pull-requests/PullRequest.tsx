@@ -21,8 +21,6 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
     const formattedSubtitle = `#${number} updated ${formattedTimeSince} by ${author}`
 
-    console.log(status.color)
-
     const onClickHandler = useCallback(() => {
         navigate(link)
     }, [params, pullRequest])
