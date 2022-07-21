@@ -477,7 +477,6 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		isValidGithubRepository := api.IsValidGithubRepository(db, userID, *viewCreateParams.GithubID)
 		if isValidGithubRepository {
 			githubID = *viewCreateParams.GithubID
-			api.Logger.Error().Err(err).Msg(githubID)
 		}
 	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
@@ -498,7 +497,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		Type:          viewCreateParams.Type,
 		IsLinked:      isLinked,
 		TaskSectionID: taskSectionID,
-		GithubID: 	   githubID,
+		GithubID:      githubID,
 	}
 
 	viewCollection := database.GetViewCollection(db)
@@ -899,7 +898,6 @@ func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewTy
 }
 
 func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryId string) bool {
-	database.GetPullRequestCollection(db)
 	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
 	if err != nil {
 		return false
