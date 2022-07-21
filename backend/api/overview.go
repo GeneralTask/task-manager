@@ -535,16 +535,13 @@ type ViewModifyParams struct {
 }
 
 func (api *API) OverviewViewModify(c *gin.Context) {
-	var viewModifyParams ViewModifyParams
-	err := c.BindJSON(&viewModifyParams)
+	viewID, err := getViewIDFromContext(c)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		Handle404(c)
 		return
 	}
-
-	parentCtx := c.Request.Context()
-	userID := getUserIDFromContext(c)
-	viewID, err := getViewIDFromContext(c)
+	var viewModifyParams ViewModifyParams
+	err = c.BindJSON(&viewModifyParams)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
@@ -556,9 +553,11 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
+	parentCtx := c.Request.Context()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	viewCollection := database.GetViewCollection(db)
+	userID := getUserIDFromContext(c)
 	result, err := viewCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
