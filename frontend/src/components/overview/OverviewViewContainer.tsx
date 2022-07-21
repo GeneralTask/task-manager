@@ -8,6 +8,7 @@ import ExternalViewItems from './viewItems/ExternalViewItems'
 import MessagesViewItems from './viewItems/MessagesViewItems'
 import Spinner from '../atoms/Spinner'
 import { useRemoveView } from '../../services/api/overview.hooks'
+import PullRequestViewItems from './viewItems/PullRequestViewItems'
 
 const PAGE_SIZE = 5
 
@@ -36,6 +37,8 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                 return ExternalViewItems
             case 'message':
                 return MessagesViewItems
+            case 'github':
+                return PullRequestViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }
