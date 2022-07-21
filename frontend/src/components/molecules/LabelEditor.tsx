@@ -28,7 +28,7 @@ const OptionsContainer = styled.div`
 `
 const TopNav = styled.div`
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.background.mid};
+    border-bottom: 1px solid ${Colors.background.medium};
 `
 const Header = styled.div`
     color: ${Colors.text.light};
@@ -38,9 +38,9 @@ const ListItem = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.background.mid};
+    border-bottom: 1px solid ${Colors.background.medium};
     &:hover {
-        background-color: ${Colors.background.mid};
+        background-color: ${Colors.background.medium};
     }
     cursor: pointer;
 `

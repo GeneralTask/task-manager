@@ -12,7 +12,7 @@ const CreateNewTaskContainer = styled.div`
     flex-shrink: 0;
     flex-direction: row;
     gap: ${padding._8};
-    background-color: ${Colors.background.mid};
+    background-color: ${Colors.background.medium};
     height: 45px;
     align-items: center;
     padding: 0px ${padding._8};

@@ -24,7 +24,7 @@ const OptionsContainer = styled.div`
 `
 const TitleContainer = styled.div`
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.background.mid};
+    border-bottom: 1px solid ${Colors.background.medium};
     color: ${Colors.text.light};
 `
 const ListItem = styled.div<{ hasPadding: boolean }>`
@@ -33,7 +33,7 @@ const ListItem = styled.div<{ hasPadding: boolean }>`
     align-items: center;
     ${({ hasPadding }) => (hasPadding ? `padding: ${Spacing.padding._8} ${Spacing.padding._16};` : '')}
     &:hover {
-        background-color: ${Colors.background.mid};
+        background-color: ${Colors.background.medium};
     }
     overflow: hidden;
     cursor: pointer;

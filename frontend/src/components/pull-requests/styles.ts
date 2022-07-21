@@ -50,14 +50,14 @@ export const Repository = styled.div`
 export const PullRequestRow = styled.div<{ highlight: boolean }>`
     display: flex;
     padding: ${Spacing.padding._4};
-    background-color: ${props => props.highlight ? Colors.background.mid : Colors.background.white};
+    background-color: ${props => props.highlight ? Colors.background.medium : Colors.background.white};
     border-radius: ${Border.radius.large};
     cursor: pointer;
 `
 
 export const HeaderContainer = styled.div`
     display: flex;
-    background-color: ${Colors.background.mid};
+    background-color: ${Colors.background.medium};
     border-radius: ${Border.radius.large};
     color: ${Colors.text.light};
     padding: ${Spacing.padding._16} ${Spacing.padding._8};

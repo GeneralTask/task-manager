@@ -47,7 +47,7 @@ const Button = styled.button`
     width: 100%;
     cursor: pointer;
     &:hover {
-        background-color: ${Colors.background.mid};
+        background-color: ${Colors.background.medium};
     }
 `
 const ExpandButton = styled(NoStyleButton)`

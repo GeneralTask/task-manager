@@ -11,6 +11,6 @@ interface DividerProps {
     color?: string
 }
 export const Divider = ({ color }: DividerProps) => {
-    const backgroundColor = color ?? Colors.background.mid
+    const backgroundColor = color ?? Colors.background.medium
     return <DividerView color={backgroundColor} />
 }

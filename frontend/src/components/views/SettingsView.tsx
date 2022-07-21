@@ -40,8 +40,8 @@ const IconContainer = styled.div`
 `
 const AccountButtonContainer = styled.div<{ important?: boolean }>`
     margin-right: ${Spacing.margin._16};
-    background-color: ${(props) => (props.important ? Colors.status.red.light : Colors.background.mid)};
-    outline: 1px solid ${(props) => (props.important ? Colors.status.red.default : Colors.background.mid)};
+    background-color: ${(props) => (props.important ? Colors.status.red.light : Colors.background.medium)};
+    outline: 1px solid ${(props) => (props.important ? Colors.status.red.default : Colors.background.medium)};
     color: ${Colors.text.black};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4} ${Spacing.padding._8};

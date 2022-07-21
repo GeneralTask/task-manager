@@ -153,7 +153,7 @@ export const CalendarDayHeader = styled.div`
     justify-content: center;
     height: 40px;
     position: sticky;
-    background-color: ${Colors.background.mid};
+    background-color: ${Colors.background.medium};
     top: 0;
     z-index: 2;
 `
@@ -164,13 +164,13 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
-    background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.mid)};
+    background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;
     height: 100vh;
     flex: ${(props) => (props.expanded ? '1' : '0')};
-    background-color: ${Colors.background.mid};
+    background-color: ${Colors.background.medium};
     display: flex;
     flex-direction: column;
 `

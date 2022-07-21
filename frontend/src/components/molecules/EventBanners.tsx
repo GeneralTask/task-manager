@@ -35,7 +35,7 @@ const BannerView = styled.div<{ center: boolean }>`
     box-shadow: ${Shadows.large};
 `
 const BannerTitleView = styled.div`
-    background-color: ${Colors.background.mid};
+    background-color: ${Colors.background.medium};
     border-radius: ${Border.radius.xSmall};
     margin-left: 6px;
     margin-right: 6px;
