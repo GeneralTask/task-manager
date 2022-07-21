@@ -617,14 +617,15 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	for index, view := range views {
-		if view.IDOrdering != index+1 {
+		newIDOrdering := index + 1
+		if view.IDOrdering != newIDOrdering {
 			viewCollection.UpdateOne(
 				dbCtx,
 				bson.M{"$and": []bson.M{
 					{"_id": view.ID},
 					{"user_id": userID}},
 				},
-				bson.M{"$set": bson.M{"id_ordering": index + 1}},
+				bson.M{"$set": bson.M{"id_ordering": newIDOrdering}},
 			)
 		}
 	}
