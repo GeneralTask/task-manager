@@ -45,6 +45,7 @@ type PullRequestStatus struct {
 }
 
 func (api *API) PullRequestsList(c *gin.Context) {
+	api.Logger.Debug().Msg("make it to pull requests list")
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)

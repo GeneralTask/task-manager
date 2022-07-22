@@ -66,6 +66,7 @@ func (gitPR GithubPRSource) GetTasks(userID primitive.ObjectID, accountID string
 }
 
 func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	fmt.Print("made it to GetPullRequests")
 	parentCtx := context.Background()
 
 	var githubClient *github.Client
@@ -159,9 +160,10 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				IsApproved:           pullRequestIsApproved(reviews),
 				HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 				ChecksDidFail:        checksDidFail,
-				Additions:            pullRequest.GetAdditions(),
+				Additions:            pullRequestFetch.GetAdditions(),
 				Deletions:            pullRequestFetch.GetDeletions(),
 			}
+			fmt.Printf("data: %v", pullRequestData)
 
 			pullRequest := &database.Item{
 				TaskBase: database.TaskBase{
@@ -183,6 +185,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 					CommentCount:   commentCount,
 					LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 					Additions:      pullRequestData.Additions,
+					Deletions:      pullRequestData.Deletions,
 				},
 				TaskType: database.TaskType{
 					IsTask:        false,
