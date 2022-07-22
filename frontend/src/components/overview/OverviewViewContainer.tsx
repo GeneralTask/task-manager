@@ -44,8 +44,6 @@ const OverviewView = ({ view }: OverviewViewProps) => {
 
     useEffect(() => {
         setVisibleItemsCount(Math.min(view.view_items.length, PAGE_SIZE))
-        console.log('view items updated')
-        console.log(view.view_items)
     }, [view.view_items])
 
     return (
