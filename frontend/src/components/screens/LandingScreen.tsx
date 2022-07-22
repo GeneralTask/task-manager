@@ -29,14 +29,14 @@ const Header = styled.div`
     max-width: 700px;
     margin: auto;
     margin-bottom: 40px;
-    font-size: ${Typography.landingScreen.header};
     text-align: center;
+    ${Typography.header};
 `
 const Subheader = styled.div`
     max-width: 725px;
     margin: auto;
-    font-size: ${Typography.landingScreen.subheader};
     text-align: center;
+    ${Typography.title};
 `
 const WaitlistContainer = styled.div`
     display: flex;
@@ -64,8 +64,8 @@ const FAQHeader = styled.div`
     margin: auto;
     margin-bottom: 20px;
     margin-top: 100px;
-    font-size: ${Typography.landingScreen.faqHeader};
     text-align: center;
+    ${Typography.title};
 `
 
 const FAQItem = styled.div`
@@ -73,8 +73,8 @@ const FAQItem = styled.div`
     margin: auto;
     margin-top: 10px;
     margin-bottom: 30px;
-    font-size: ${Typography.landingScreen.faqItem};
     text-align: center;
+    ${Typography.body};
 `
 
 const LandingScreen = () => {
