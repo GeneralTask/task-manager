@@ -46,7 +46,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
             <ViewHeader>{view.name}</ViewHeader>
             {!view.is_linked &&
                 view.sources.map((source) => (
-                    <AuthBanner name={source.name} authorization_url={source.authorization_url} />
+                    <AuthBanner key={view.id} name={source.name} authorization_url={source.authorization_url} />
                 ))}
             <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
             {visibleItemsCount < view.view_items.length && (

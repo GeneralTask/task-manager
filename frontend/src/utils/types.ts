@@ -205,7 +205,7 @@ export interface TOverviewView {
     view_items: TOverviewItem[]
     isOptimistic?: boolean
     sources: TSourcesResult[]
-    is_linked?: boolean
+    is_linked: boolean
 }
 
 export interface TSupportedViewItem {

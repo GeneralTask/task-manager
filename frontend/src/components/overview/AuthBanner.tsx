@@ -1,5 +1,5 @@
 import React from 'react'
-import { Colors } from '../../styles'
+import { Colors, Spacing, Typography, Border } from '../../styles'
 import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
@@ -10,33 +10,33 @@ import { useGetOverviewViews } from '../../services/api/overview.hooks'
 const BannerContainer = styled.div`
     box-sizing: border-box;
     border: 1px solid ${Colors.purple._3};
-    border-radius: 8px;
+    border-radius: ${Border.radius.small};
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 18px;
+    padding: ${Spacing.padding._12} ${Spacing.padding._16};
 `
 const IconContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: ${Spacing.padding._12};
 `
 const AuthButtonContainer = styled.div`
     display: flex;
     align-items: center;
     flex-direction: row;
     justify-content: flex-end;
-    padding: 4px 8px;
-    gap: 4px;
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    gap: ${Spacing.padding._4};
 
     width: 74px;
     height: 28px;
 `
 const Title = styled.span`
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 18px;
+    font-size: ${Typography.xSmall.fontSize};
+    font-weight: ${Typography.weight._400};
+    line-height: ${Typography.xSmall.lineHeight};
 `
 
 interface AuthBannerProps {
