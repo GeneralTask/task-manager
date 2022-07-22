@@ -2,8 +2,6 @@ package external
 
 import (
 	"fmt"
-
-	"github.com/dghubble/oauth1"
 )
 
 const (
@@ -14,7 +12,6 @@ const (
 	TASK_SERVICE_ID_LINEAR    = "linear"
 	TASK_SERVICE_ID_SLACK     = "slack"
 	TASK_SERVICE_ID_SLACK_APP = "slack_app"
-	TASK_SERVICE_ID_TRELLO    = "trello"
 
 	TASK_SOURCE_ID_GCAL        = "gcal"
 	TASK_SOURCE_ID_GITHUB_PR   = "github_pr"
@@ -31,7 +28,6 @@ type Config struct {
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 SlackConfig
 	SlackApp              SlackConfig
-	Trello                *oauth1.Config
 	GoogleOverrideURLs    GoogleURLOverrides
 	Linear                LinearConfig
 	Atlassian             AtlassianConfig
@@ -45,7 +41,6 @@ func GetConfig() Config {
 		Github:                GithubConfig{OauthConfig: getGithubConfig(), ConfigValues: GithubConfigValues{FetchExternalAPIToken: &fetchToken}},
 		Slack:                 getSlackConfig(),
 		SlackApp:              GetSlackAppConfig(),
-		Trello:                getTrelloConfig(),
 		Linear:                LinearConfig{OauthConfig: getLinearOauthConfig()},
 		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
@@ -168,11 +163,6 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 			Details: TaskServiceGithub,
 			Sources: []TaskSourceResult{{Source: GithubPRSource{Github: githubService}, Details: TaskSourceGithubPR}},
 		},
-		TASK_SERVICE_ID_TRELLO: {
-			Service: TrelloService{Config: config.Trello},
-			Details: TaskServiceTrello,
-			Sources: []TaskSourceResult{},
-		},
 		TASK_SERVICE_ID_LINEAR: {
 			Service: linearService,
 			Details: TaskServiceLinear,
@@ -239,15 +229,6 @@ var TaskServiceSlack = TaskServiceDetails{
 	LogoV2:       "slack",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   true,
-	IsSignupable: false,
-}
-var TaskServiceTrello = TaskServiceDetails{
-	ID:           TASK_SERVICE_ID_TRELLO,
-	Name:         "Trello",
-	Logo:         "/images/trello.svg",
-	LogoV2:       "trello",
-	AuthType:     AuthTypeOauth1,
-	IsLinkable:   false,
 	IsSignupable: false,
 }
 var TaskServiceLinear = TaskServiceDetails{
