@@ -19,9 +19,6 @@ const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: bo
     height: 100%;
     color: ${(props) => (props.styleType === 'primary' ? Colors.white : Colors.black)};
     box-shadow: ${Shadows.button.default};
-    font-weight: ${Typography.weight._600};
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -29,6 +26,7 @@ const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: bo
     transition: background 0.05s;
     transition: box-shadow 0.25s;
     user-select: none;
+    ${Typography.body};
     &:hover {
         box-shadow: ${(props) =>
             props.styleType === 'primary' ? Shadows.button.primary.hover : Shadows.button.secondary.hover};

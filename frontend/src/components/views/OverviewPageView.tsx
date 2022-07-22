@@ -18,8 +18,8 @@ const OverviewPageContainer = styled.div`
 const PageHeader = styled.div`
     padding: ${Spacing.padding._16};
     color: ${Colors.gray._500};
-    font-size: ${Typography.small.fontSize};
     border-bottom: 2px solid ${Colors.gray._200};
+    ${Typography.subtitle};
 `
 const ActionsContainer = styled.div`
     display: flex;

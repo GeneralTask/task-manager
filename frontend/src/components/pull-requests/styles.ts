@@ -52,7 +52,7 @@ export const Status = styled.div<{ type: TPullRequestStatusColors }>`
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: fit-content;
-    font-weight: ${Typography.weight._500};
+    ${Typography.bodySmall};
 `
 
 export const PullRequestViewContainer = styled.div`
@@ -82,8 +82,8 @@ export const HeaderContainer = styled.div`
 `
 
 export const RepositoryName = styled.div`
-    font-size: ${Typography.medium.fontSize};
     color: ${Colors.gray._700};
+    ${Typography.subtitle};
 `
 
 export const TruncatedText = styled.span`

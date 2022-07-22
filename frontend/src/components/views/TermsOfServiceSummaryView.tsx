@@ -60,13 +60,12 @@ const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin._8};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: ${Typography.xSmall.fontSize};
-    font-weight: ${Typography.weight._500};
     color: ${Colors.gray._600};
+    ${Typography.label};
 `
 const RedAsterisk = styled.span`
     color: ${Colors.red._1};
-    font-weight: ${Typography.weight._500};
+    ${Typography.label};
 `
 const SubmitButtonContainer = styled.div`
     display: flex;

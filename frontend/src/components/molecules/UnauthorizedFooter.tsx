@@ -28,10 +28,9 @@ const FooderDiv = styled.div`
 `
 const FooterText = styled.span`
     color: ${Colors.white};
-    font-weight: ${Typography.weight._600};
-    font-size: ${Typography.xxSmall.fontSize};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    ${Typography.label};
 `
 const UnauthorizedFooter = () => {
     const navigate = useNavigate()

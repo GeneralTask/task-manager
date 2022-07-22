@@ -7,9 +7,9 @@ const WaitlistButtonStyled = styled.button`
     background-color: ${Colors.purple._1};
     border: none;
     color: ${Colors.white};
-    font-size: ${Typography.small.fontSize};
     padding: 0px ${Spacing.padding._8};
     cursor: pointer;
+    ${Typography.bodySmall};
 `
 interface JointWaitlistButtonProps {
     onSubmit: () => void

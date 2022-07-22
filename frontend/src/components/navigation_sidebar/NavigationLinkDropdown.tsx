@@ -23,14 +23,13 @@ const LinksContainer = styled.div`
     margin-left: ${Spacing.margin._24};
 `
 const SectionTitle = styled.span`
-    font-weight: ${Typography.weight._500};
-    font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.gray._500};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
     user-select: none;
+    ${Typography.bodySmall};
 `
 const AddSectionContainer = styled.div`
     padding: ${Spacing.padding._4};
