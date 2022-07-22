@@ -9,6 +9,8 @@ import (
 	"github.com/GeneralTask/task-manager/backend/testutils"
 )
 
+const DefaultTokenPayload string = `{"access_token":"sample-access-token", "data": {"email": "moon@dogecoin.tesla"}}`
+
 func TestLinkGithub(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
 		TestAuthorizeCookieMissing(t, GetAPI(), "/link/github/")

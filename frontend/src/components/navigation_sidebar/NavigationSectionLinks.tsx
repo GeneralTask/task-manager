@@ -1,6 +1,6 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
@@ -13,7 +13,6 @@ import { weight } from '../../styles/typography'
 import { useParams, useLocation } from 'react-router-dom'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
-import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
 
 const AddSectionInputContainer = styled.div`
     display: flex;
@@ -40,12 +39,9 @@ const NavigationSectionLinks = () => {
     const { mutate: addTaskSection } = useAddTaskSection()
 
     const { data: taskSections } = useGetTasks()
-    const { data: threadDataInbox } = useGetInfiniteThreads({ isArchived: false })
     const { data: pullRequestRepositories } = useGetPullRequests()
-    const { section: sectionId, mailbox: mailbox } = useParams()
+    const { section: sectionId } = useParams()
     const { pathname } = useLocation()
-
-    const threadsInbox = useMemo(() => threadDataInbox?.pages.flat().filter((t) => t != null) ?? [], [threadDataInbox])
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSectionName(e.target.value)
@@ -148,21 +144,6 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
-            </NavigationLinkDropdown>
-            <NavigationLinkDropdown title="Messages" icon="label">
-                <NavigationLink
-                    link="/messages/inbox"
-                    title="Inbox"
-                    icon={icons.inbox}
-                    count={threadsInbox?.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                    isCurrentPage={mailbox === 'inbox'}
-                />
-                <NavigationLink
-                    link="/messages/archive"
-                    title="Archive"
-                    icon={icons.archive}
-                    isCurrentPage={mailbox === 'archive'}
-                />
             </NavigationLinkDropdown>
             <NavigationLink
                 link="/settings"
