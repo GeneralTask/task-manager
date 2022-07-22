@@ -11,9 +11,6 @@ export const ViewContainer = styled.div`
 `
 export const ViewHeader = styled.div`
     margin-bottom: ${Spacing.margin._8};
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     color: ${Colors.gray._700};
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
