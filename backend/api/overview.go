@@ -121,12 +121,15 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].GetOrderingID() < result[j].GetOrderingID()
+	})
 
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]interface{}, error) {
-	result := []interface{}{}
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]OrderingIDGetter, error) {
+	result := []OrderingIDGetter{}
 	for _, view := range views {
 		if view.Type == string(ViewTaskSection) {
 			overviewResult, err := api.GetTaskSectionOverviewResult(db, ctx, view, userID)
