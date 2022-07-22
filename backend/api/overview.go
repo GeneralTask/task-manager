@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ViewType string
@@ -529,8 +530,106 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 	return count > 0, nil
 }
 
+type ViewModifyParams struct {
+	IDOrdering int `json:"id_ordering" binding:"required"`
+}
+
 func (api *API) OverviewViewModify(c *gin.Context) {
-	c.JSON(200, nil)
+	viewID, err := getViewIDFromContext(c)
+	if err != nil {
+		Handle404(c)
+		return
+	}
+	var viewModifyParams ViewModifyParams
+	err = c.BindJSON(&viewModifyParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	parentCtx := c.Request.Context()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	viewCollection := database.GetViewCollection(db)
+	userID := getUserIDFromContext(c)
+	result, err := viewCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"_id": viewID},
+		}},
+		bson.M{"$set": bson.M{"id_ordering": viewModifyParams.IDOrdering}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to modify view id_ordering")
+		Handle500(c)
+		return
+	}
+	if result.ModifiedCount != 1 {
+		Handle404(c)
+		return
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = viewCollection.UpdateMany(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": bson.M{"$ne": viewID}},
+			{"user_id": userID},
+			{"id_ordering": bson.M{"$gte": viewModifyParams.IDOrdering}},
+		}},
+		bson.M{"$inc": bson.M{"id_ordering": 1}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to modify view id_orderings")
+		Handle500(c)
+		return
+	}
+
+	// Normalize ordering IDs
+	var views []database.View
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	options := options.Find().SetSort(bson.M{"id_ordering": 1})
+	cursor, err := viewCollection.Find(dbCtx, bson.M{"user_id": userID}, options)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to get views")
+		Handle500(c)
+		return
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &views)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to get views")
+		Handle500(c)
+		return
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	for index, view := range views {
+		newIDOrdering := index + 1
+		if view.IDOrdering != newIDOrdering {
+			viewCollection.UpdateOne(
+				dbCtx,
+				bson.M{"$and": []bson.M{
+					{"_id": view.ID},
+					{"user_id": userID}},
+				},
+				bson.M{"$set": bson.M{"id_ordering": newIDOrdering}},
+			)
+		}
+	}
+	c.JSON(200, gin.H{})
 }
 
 func (api *API) OverviewViewDelete(c *gin.Context) {

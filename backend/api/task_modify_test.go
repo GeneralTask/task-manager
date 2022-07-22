@@ -346,7 +346,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    2,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -360,7 +360,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -375,7 +375,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    1,
 				IDTaskSection: customTaskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -389,7 +389,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    2,
 				IDTaskSection: customTaskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -402,7 +402,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -545,7 +545,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -582,7 +582,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
