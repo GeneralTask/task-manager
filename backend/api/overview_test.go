@@ -977,7 +977,6 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"task_section_id": taskSection1IDHex}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"view_id":"%s"}`, addedView.ID.Hex()), string(body))
-
 		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection2ID))), http.StatusOK)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": "task_section"})
 		assert.NoError(t, err)
