@@ -495,7 +495,9 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"view_id": view.ID,
+	})
 }
 
 func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
