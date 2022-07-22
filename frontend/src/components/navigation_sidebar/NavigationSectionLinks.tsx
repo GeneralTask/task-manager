@@ -32,7 +32,6 @@ const InputContainer = styled.div`
         width: 100%;
     }
 `
-const IconContainer = styled.div``
 
 const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
@@ -116,9 +115,9 @@ const NavigationSectionLinks = () => {
                 {isAddSectionInputVisible && (
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
-                            <IconContainer>
+                            <div>
                                 <Icon size="xSmall" source={icons.inbox} />
-                            </IconContainer>
+                            </div>
                             <InputContainer>
                                 <NoStyleInput
                                     ref={inputRef}
