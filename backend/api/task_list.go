@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
@@ -21,12 +19,6 @@ type TaskSource struct {
 	LogoV2        string `json:"logo_v2"`
 	IsCompletable bool   `json:"is_completable"`
 	IsReplyable   bool   `json:"is_replyable"`
-}
-
-type linkedEmailThread struct {
-	LinkedThreadID *primitive.ObjectID    `json:"linked_thread_id,omitempty"`
-	LinkedEmailID  *primitive.ObjectID    `json:"linked_email_id,omitempty"`
-	EmailThread    *ThreadDetailsResponse `bson:"email_thread,omitempty" json:"email_thread,omitempty"`
 }
 
 type externalStatus struct {
@@ -46,7 +38,6 @@ type TaskResult struct {
 	TimeAllocation     int64                        `json:"time_allocated"`
 	SentAt             string                       `json:"sent_at"`
 	IsDone             bool                         `json:"is_done"`
-	LinkedEmailThread  *linkedEmailThread           `json:"linked_email_thread,omitempty"`
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
@@ -256,21 +247,6 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 			User:    t.SlackMessageParams.User,
 			Team:    t.SlackMessageParams.Team,
 			Message: t.SlackMessageParams.Message,
-		}
-	}
-
-	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
-	if t.LinkedMessage.ThreadID != nil {
-		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
-		if err != nil {
-			api.Logger.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
-			return taskResult
-		}
-
-		taskResult.LinkedEmailThread = &linkedEmailThread{
-			EmailThread:    api.createThreadResponse(thread),
-			LinkedThreadID: &thread.ID,
-			LinkedEmailID:  t.LinkedMessage.EmailID,
 		}
 	}
 
