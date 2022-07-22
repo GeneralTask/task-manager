@@ -39,8 +39,16 @@ func TestMarkAsComplete(t *testing.T) {
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_jira_id",
-			SourceID:   external.TASK_SOURCE_ID_JIRA,
+			SourceID:   external.TASK_SOURCE_ID_LINEAR,
 		},
+		Task: database.Task{
+			PreviousStatus: database.ExternalTaskStatus{
+				ExternalID: "previous-status-id",
+				State:      "In Progress",
+				Type:       "in-progress",
+			},
+		},
+
 		TaskType: database.TaskType{IsTask: true},
 	})
 	assert.NoError(t, err)
@@ -75,9 +83,9 @@ func TestMarkAsComplete(t *testing.T) {
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
 		dbCtx,
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceJIRA.Name}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceLinear.Name}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			ServiceID: external.TASK_SERVICE_ID_ATLASSIAN,
+			ServiceID: external.TASK_SERVICE_ID_LINEAR,
 			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID:    userID,
 		}},
@@ -86,9 +94,21 @@ func TestMarkAsComplete(t *testing.T) {
 	assert.NoError(t, err)
 
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
+	response := `{"data": {"issueUpdate": {
+				"success": true,
+					"issue": {
+					"id": "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315",
+						"title": "test title",
+						"description": "test description",
+						"state": {
+						"id": "39e87303-2b42-4c71-bfbe-4afb7bb7eecb",
+							"name": "Todo"
+					}}}}}`
+	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 
 	api := GetAPI()
 	api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &inboxGmailModifyServer.URL
+	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
 	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
