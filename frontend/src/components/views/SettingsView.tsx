@@ -49,7 +49,7 @@ const AccountButtonContainer = styled.div<{ important?: boolean }>`
 `
 const AccountNameSpan = styled.span`
     margin-right: auto;
-    ${Typography.body};
+    ${Typography.bodySmall};
 `
 const FullWidth = styled.div`
     display: flex;
