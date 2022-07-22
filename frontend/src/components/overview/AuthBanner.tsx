@@ -3,9 +3,10 @@ import { Colors, Spacing, Typography, Border } from '../../styles'
 import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
-import { logos } from '../../styles/images'
+import { logos, TLogoImage } from '../../styles/images'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { TSourcesResult } from '../../utils/types'
 
 const BannerContainer = styled.div`
     box-sizing: border-box;
@@ -15,6 +16,7 @@ const BannerContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
+    height: 60px;
 `
 const IconContainer = styled.div`
     display: flex;
@@ -22,15 +24,7 @@ const IconContainer = styled.div`
     align-items: center;
     gap: ${Spacing.padding._12};
 `
-const AuthButtonContainer = styled.div`
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    justify-content: flex-end;
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
-    gap: ${Spacing.padding._4};
-
-    width: 74px;
+const ConnectButton = styled(GTButton)`
     height: 28px;
 `
 const Title = styled.span`
@@ -40,8 +34,8 @@ const Title = styled.span`
 `
 
 interface AuthBannerProps {
-    name: string
-    authorization_url: string
+    source: TSourcesResult
+    logo: TLogoImage
 }
 
 const openAuthWindow = (
@@ -73,23 +67,21 @@ const openAuthWindow = (
     }
 }
 
-const AuthBanner = (props: AuthBannerProps) => {
+const AuthBanner = ({ source, logo }: AuthBannerProps) => {
     const { refetch } = useGetLinkedAccounts()
     const { refetch: refetchViews } = useGetOverviewViews()
 
     return (
         <BannerContainer>
             <IconContainer>
-                <Icon size="small" source={logos[props.name.toLocaleLowerCase()]} />
-                <Title>{`Connect ${props.name} to General Task`}</Title>
+                <Icon size="small" source={logos[logo]} />
+                <Title>{`Connect ${source.name} to General Task`}</Title>
             </IconContainer>
-            <AuthButtonContainer>
-                <GTButton
-                    value="Connect"
-                    color={Colors.purple._1}
-                    onClick={() => openAuthWindow(props.authorization_url, props.name, refetch, refetchViews)}
-                />
-            </AuthButtonContainer>
+            <ConnectButton
+                value="Connect"
+                color={Colors.purple._1}
+                onClick={() => openAuthWindow(source.authorization_url, source.name, refetch, refetchViews)}
+            />
         </BannerContainer>
     )
 }
