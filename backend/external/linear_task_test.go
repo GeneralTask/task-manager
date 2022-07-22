@@ -582,3 +582,27 @@ func TestModifyLinearTask(t *testing.T) {
 		assert.Equal(t, "decoding response: EOF", err.Error())
 	})
 }
+
+func assertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
+	assert.Equal(t, a.Deeplink, b.Deeplink)
+	assert.Equal(t, a.IDExternal, b.IDExternal)
+	assert.Equal(t, a.IDOrdering, b.IDOrdering)
+	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
+	assert.Equal(t, a.Title, b.Title)
+	assert.Equal(t, a.TaskBase.Body, b.TaskBase.Body)
+	assert.Equal(t, a.SourceID, b.SourceID)
+	assert.Equal(t, a.TaskType, b.TaskType)
+	assert.Equal(t, a.DueDate, b.DueDate)
+	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
+	assert.Equal(t, a.Status, b.Status)
+	assert.Equal(t, a.CompletedStatus, b.CompletedStatus)
+	assert.True(t, (a.Comments == nil) == (b.Comments == nil))
+	if (a.Comments != nil) && (b.Comments != nil) {
+		expectedComments := *a.Comments
+		actualComments := *b.Comments
+		assert.Equal(t, len(expectedComments), len(actualComments))
+		if len(*a.Comments) == len(*b.Comments) {
+			assert.Equal(t, expectedComments, actualComments)
+		}
+	}
+}
