@@ -22,7 +22,6 @@ const IconContainer = styled.div`
     align-items: center;
     gap: 12px;
 `
-
 const AuthButtonContainer = styled.div`
     display: flex;
     align-items: center;
@@ -34,7 +33,6 @@ const AuthButtonContainer = styled.div`
     width: 74px;
     height: 28px;
 `
-
 const Title = styled.span`
     font-size: 14px;
     font-weight: 400;
@@ -46,33 +44,38 @@ interface AuthBannerProps {
     authorization_url: string
 }
 
+const openAuthWindow = (
+    authorizationUrl: string,
+    sourceName: string,
+    refetch: () => void,
+    refetchViews: () => void
+) => {
+    const AUTH_WINDOW_WIDTH = 960
+    const AUTH_WINDOW_HEIGHT = 640
+
+    const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
+    const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
+
+    const win = window.open(
+        authorizationUrl,
+        sourceName,
+        `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
+    )
+
+    if (win != null) {
+        const timer = setInterval(() => {
+            if (win.closed) {
+                clearInterval(timer)
+                refetch()
+                refetchViews()
+            }
+        }, 10)
+    }
+}
+
 const AuthBanner = (props: AuthBannerProps) => {
     const { refetch } = useGetLinkedAccounts()
     const { refetch: refetchViews } = useGetOverviewViews()
-
-    function openAuthWindow() {
-        const AUTH_WINDOW_WIDTH = 960
-        const AUTH_WINDOW_HEIGHT = 640
-
-        const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
-        const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
-
-        const win = window.open(
-            props.authorization_url,
-            props.name,
-            `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
-        )
-
-        if (win != null) {
-            const timer = setInterval(() => {
-                if (win.closed) {
-                    clearInterval(timer)
-                    refetch()
-                    refetchViews()
-                }
-            }, 10)
-        }
-    }
 
     return (
         <BannerContainer>
@@ -81,7 +84,11 @@ const AuthBanner = (props: AuthBannerProps) => {
                 <Title>{`Connect ${props.name} to General Task`}</Title>
             </IconContainer>
             <AuthButtonContainer>
-                <GTButton value="Connect" color={Colors.purple._1} onClick={() => openAuthWindow()} />
+                <GTButton
+                    value="Connect"
+                    color={Colors.purple._1}
+                    onClick={() => openAuthWindow(props.authorization_url, props.name, refetch, refetchViews)}
+                />
             </AuthButtonContainer>
         </BannerContainer>
     )

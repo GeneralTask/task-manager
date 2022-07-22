@@ -17,23 +17,6 @@ export interface TConferenceCall {
     url: string
 }
 
-export interface TSender {
-    name: string
-    email: string
-    reply_to: string
-}
-
-export interface TRecipients {
-    to: TRecipient[]
-    cc: TRecipient[]
-    bcc: TRecipient[]
-}
-
-export interface TRecipient {
-    name: string
-    email: string
-}
-
 export interface TSourcesResult {
     name: string
     authorization_url: string
