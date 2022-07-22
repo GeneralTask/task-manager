@@ -35,6 +35,7 @@ const AddSectionContainer = styled.div`
     &:hover {
         background-color: ${Colors.gray._200};
     }
+    cursor: pointer;
 `
 
 interface NavigationLinkDropdownProps {
