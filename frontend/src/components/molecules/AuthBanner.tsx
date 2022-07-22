@@ -69,7 +69,6 @@ const AuthBanner = (props: AuthBannerProps) => {
                     clearInterval(timer)
                     refetch()
                     refetchViews()
-                    alert('this happened')
                 }
             }, 10)
         }

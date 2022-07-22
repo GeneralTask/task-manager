@@ -7,7 +7,7 @@ import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton, Optimistic
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MessagesViewItems from './viewItems/MessagesViewItems'
 import Spinner from '../atoms/Spinner'
-import { useGetOverviewViews, useRemoveView } from '../../services/api/overview.hooks'
+import { useRemoveView } from '../../services/api/overview.hooks'
 import AuthBanner from '../molecules/AuthBanner'
 
 const PAGE_SIZE = 5
@@ -18,13 +18,8 @@ interface OverviewViewProps {
 const OverviewView = ({ view }: OverviewViewProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
     const { mutate: removeView } = useRemoveView()
-    const { isFetching } = useGetOverviewViews()
 
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
-
-    useEffect(() => {
-        console.log('hello!!!')
-    })
 
     const ViewItems = useMemo(() => {
         if (view.isOptimistic) {
@@ -52,9 +47,6 @@ const OverviewView = ({ view }: OverviewViewProps) => {
         console.log('view items updated')
         console.log(view.view_items)
     }, [view.view_items])
-    useEffect(() => {
-        console.log('is fetching: ', isFetching)
-    }, [isFetching])
 
     return (
         <ViewContainer>
@@ -65,7 +57,6 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                 </RemoveButton>
             </ViewHeader>
             {view.sources.map((source: TSourcesResult) => {
-                // console.log(view.isOptimistic);
                 if (!view.is_linked) {
                     return <AuthBanner name={source.name} authorization_url={source.authorization_url} />
                 }
