@@ -99,7 +99,7 @@ func TestComposeEmail(t *testing.T) {
 				UserID:     userID,
 				IDExternal: "sample_task_id",
 				Title:      "Sample Task",
-				SourceID:   external.TASK_SOURCE_ID_JIRA,
+				SourceID:   external.TASK_SOURCE_ID_LINEAR,
 			},
 		})
 
@@ -116,7 +116,7 @@ func TestComposeEmail(t *testing.T) {
 				"message_id": "`+taskID+`",
 				"body": "`+"test body"+`",
 				"recipients": {"to": [{"name": "Sample Recipient", "email": "sample@generaltask.com"}]},
-				"source_id": "jira",
+				"source_id": "linear_task",
 				"source_account_id": "approved@generaltask.com"
 			}`)))
 

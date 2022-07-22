@@ -35,7 +35,7 @@ func TestTaskDetail(t *testing.T) {
 		TaskBase: database.TaskBase{
 			UserID:      userID,
 			IDExternal:  "sample_jira_id_details",
-			SourceID:    external.TASK_SOURCE_ID_JIRA,
+			SourceID:    external.TASK_SOURCE_ID_LINEAR,
 			IsCompleted: true,
 		},
 		TaskType: database.TaskType{IsTask: true},
@@ -60,7 +60,7 @@ func TestTaskDetail(t *testing.T) {
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
 			IDExternal: "sample_jira_id_details_2",
-			SourceID:   external.TASK_SOURCE_ID_JIRA,
+			SourceID:   external.TASK_SOURCE_ID_LINEAR,
 		},
 		TaskType: database.TaskType{IsTask: true},
 	})
@@ -153,7 +153,7 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Jira","logo":"/images/jira.svg","logo_v2":"jira","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, jiraTaskIDHex),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, jiraTaskIDHex),
 			string(body))
 	})
 	t.Run("SuccessLinear", func(t *testing.T) {
