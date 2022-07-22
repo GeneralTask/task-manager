@@ -5,7 +5,6 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import NoStyleButton from './buttons/NoStyleButton'
 import { Icon } from './Icon'
-import { background } from '../../styles/colors'
 
 const MODAL_MAX_HEIGHT = '75vh'
 const MODAL_MIN_HEIGHT = '50vh'
@@ -56,9 +55,6 @@ const ButtonsGroup = styled.div`
 `
 
 const modalStyles = {
-    overlay: {
-        background: background.modalOverlay,
-    },
     content: {
         margin: 'auto',
         border: 'none',
