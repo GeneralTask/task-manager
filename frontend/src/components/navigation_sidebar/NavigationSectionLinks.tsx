@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 import NoStyleInput from '../atoms/NoStyleInput'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api/task-section.hooks'
 
@@ -13,23 +13,26 @@ import { useParams, useLocation } from 'react-router-dom'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 
-const AddSectionInputContainer = styled.div`
+const AddSectionContainer = styled.div`
     display: flex;
+    flex-direction: row;
     align-items: center;
-    overflow: clip;
-    margin-left: ${Spacing.margin._8};
-    flex: 1;
-    min-width: 0;
+    padding: ${Spacing.padding._4} ${Spacing.padding._12};
+    width: 100%;
+    box-sizing: border-box;
+    gap: ${Spacing.margin._8};
+    ${Typography.bodySmall};
+`
+const InputContainer = styled.div`
     & input {
         color: ${Colors.gray._500};
         border: none;
         font-family: inherit;
+        box-sizing: border-box;
+        width: 100%;
     }
-    ${Typography.bodySmall};
 `
-const IconContainer = styled.div`
-    margin-left: 10px;
-`
+const IconContainer = styled.div``
 
 const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
@@ -90,11 +93,11 @@ const NavigationSectionLinks = () => {
             <NavigationLink
                 link="/pull-requests"
                 title="Pull Requests"
-                icon={icons.repository}
+                icon={logos.github_gray}
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
-            <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     ?.filter((section) => !section.is_done)
                     .map((section) => (
@@ -102,7 +105,7 @@ const NavigationSectionLinks = () => {
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.label}
+                            icon={icons.inbox}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
@@ -112,19 +115,21 @@ const NavigationSectionLinks = () => {
                     ))}
                 {isAddSectionInputVisible && (
                     <NavigationLinkTemplate>
-                        <IconContainer>
-                            <Icon size="small" source={icons.label} />
-                        </IconContainer>
-                        <AddSectionInputContainer>
-                            <NoStyleInput
-                                ref={inputRef}
-                                value={sectionName}
-                                onChange={onKeyChangeHandler}
-                                onKeyDown={onKeyDownHandler}
-                                placeholder="Add Section"
-                                data-testid="add-section-input"
-                            />
-                        </AddSectionInputContainer>
+                        <AddSectionContainer>
+                            <IconContainer>
+                                <Icon size="xSmall" source={icons.inbox} />
+                            </IconContainer>
+                            <InputContainer>
+                                <NoStyleInput
+                                    ref={inputRef}
+                                    value={sectionName}
+                                    onChange={onKeyChangeHandler}
+                                    onKeyDown={onKeyDownHandler}
+                                    placeholder="Add Section"
+                                    data-testid="add-section-input"
+                                />
+                            </InputContainer>
+                        </AddSectionContainer>
                     </NavigationLinkTemplate>
                 )}
                 {taskSections
@@ -134,7 +139,7 @@ const NavigationSectionLinks = () => {
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.label}
+                            icon={icons.inbox}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
