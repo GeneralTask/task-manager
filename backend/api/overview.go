@@ -571,7 +571,7 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	if result.ModifiedCount != 1 {
+	if result.MatchedCount != 1 {
 		Handle404(c)
 		return
 	}
