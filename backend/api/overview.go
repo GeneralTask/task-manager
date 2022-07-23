@@ -499,7 +499,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"view_id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
+		"id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
 	})
 }
 
