@@ -12,7 +12,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -908,7 +907,7 @@ func TestOverviewModify(t *testing.T) {
 
 func TestOverviewAdd(t *testing.T) {
 	parentCtx := context.Background()
-	authToken := login("testDeleteView@generaltask.com", "")
+	authToken := login("testAddView@generaltask.com", "")
 
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
@@ -933,54 +932,94 @@ func TestOverviewAdd(t *testing.T) {
 	assert.NoError(t, err)
 	taskSection2ID := taskSection2.InsertedID.(primitive.ObjectID).Hex()
 
-	// t.Cleanup(func() {
-	// 	// db, dbCleanup, err := database.GetDBConnection()
-	// 	// assert.NoError(t, err)
-	// 	// defer dbCleanup()
-	// 	// viewCollection := database.GetViewCollection(db)
-	// 	col, err := viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-	// 	assert.NoError(t, err)
-	// 	log.Debug().Msgf("Deleted %d views", col.DeletedCount)
-	// })
-	// viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-
-	// t.Run("MissingAllParams", func(t *testing.T) {
-	// 	ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(``)), http.StatusBadRequest)
-	// 	count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": "task_section"})
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, int64(1), count)
-	// })
-	// t.Run("MissingType", func(t *testing.T) {
-	// 	ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
-	// 	count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": "task_section"})
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, int64(1), count)
-	// })
-	// t.Run("MissingTaskSectionId", func(t *testing.T) {
-	// 	ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section"}`)), http.StatusBadRequest)
-	// 	count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": "task_section"})
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, int64(1), count)
-	// })
-	// t.Run("BadTaskSectionId", func(t *testing.T) {
-	// 	ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section", "task_section_id": "bruh"}`)), http.StatusInternalServerError)
-	// 	count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": "task_section"})
-	// 	assert.NoError(t, err)
-	// 	assert.Equal(t, int64(1), count)
-	// })
-	t.Run("AddTaskSectionsSuccess", func(t *testing.T) {
+	t.Run("MissingAllParams", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(``)), http.StatusBadRequest)
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("MissingType", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("MissingTaskSectionId", func(t *testing.T) {
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section"}`)), http.StatusBadRequest)
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("BadTaskSectionId", func(t *testing.T) {
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section", "task_section_id": "bruh"}`)), http.StatusInternalServerError)
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("AddDuplicateView", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
+
 		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
 		taskSection1IDHex, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
-		log.Debug().Msgf("taskSection1IDHex: %s", taskSection1IDHex)
 		err = viewCollection.FindOne(parentCtx, bson.M{"task_section_id": taskSection1IDHex}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"view_id":"%s"}`, addedView.ID.Hex()), string(body))
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection2ID))), http.StatusOK)
-		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": "task_section"})
+
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
-		assert.Equal(t, int64(3), count)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("AddTaskSectionsSuccess", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		var addedView database.View
+
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
+		taskSection1IDHex, err := primitive.ObjectIDFromHex(taskSection1ID)
+		assert.NoError(t, err)
+		err = viewCollection.FindOne(parentCtx, bson.M{"task_section_id": taskSection1IDHex}).Decode(&addedView)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprintf(`{"view_id":"%s"}`, addedView.ID.Hex()), string(body))
+
+		body = ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection2ID))), http.StatusOK)
+		taskSection2IDHex, err := primitive.ObjectIDFromHex(taskSection2ID)
+		assert.NoError(t, err)
+		err = viewCollection.FindOne(parentCtx, bson.M{"task_section_id": taskSection2IDHex}).Decode(&addedView)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprintf(`{"view_id":"%s"}`, addedView.ID.Hex()), string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(2), count)
+	})
+	t.Run("AddLinearViewSuccess", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		var addedView database.View
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "linear"}`)), http.StatusOK)
+		err = viewCollection.FindOne(parentCtx, bson.M{"type": "linear"}).Decode(&addedView)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprintf(`{"view_id":"%s"}`, addedView.ID.Hex()), string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("AddSlackViewSuccess", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		var addedView database.View
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "slack"}`)), http.StatusOK)
+		err = viewCollection.FindOne(parentCtx, bson.M{"type": "slack"}).Decode(&addedView)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprintf(`{"view_id":"%s"}`, addedView.ID.Hex()), string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
 	})
 }
 

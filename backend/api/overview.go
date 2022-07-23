@@ -489,14 +489,14 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 
 	viewCollection := database.GetViewCollection(db)
-	_, err = viewCollection.InsertOne(parentCtx, view)
+	insertedView, err := viewCollection.InsertOne(parentCtx, view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
 		Handle500(c)
 		return
 	}
 	c.JSON(200, gin.H{
-		"view_id": view.ID,
+		"view_id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
 	})
 }
 
