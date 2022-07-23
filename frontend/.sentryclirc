@@ -1,7 +1,0 @@
-[defaults]
-url = https://sentry.io/
-org = general-task
-project = frontend
-
-[auth]
-token = 66f37e25eb904a4ea1560e0b7ab5594c510f0b342b5d4ea3ad7a2e7538ab9acf
