@@ -23,3 +23,11 @@ func (t TaskResult) GetID() string {
 func (p PullRequestResult) GetID() string {
 	return p.ID
 }
+
+type OrderingIDGetter interface {
+	GetOrderingID() int
+}
+
+func (result OverviewResult[T]) GetOrderingID() int {
+	return result.IDOrdering
+}
