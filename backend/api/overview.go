@@ -460,12 +460,12 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is required for task section type views"})
 			return
 		}
 		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
