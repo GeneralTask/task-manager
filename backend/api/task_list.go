@@ -159,7 +159,7 @@ func (api *API) adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK || currentTask.SourceID == external.TASK_SOURCE_ID_GMAIL {
+		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK {
 			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}

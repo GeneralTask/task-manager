@@ -15,7 +15,6 @@ const (
 	TASK_SOURCE_ID_GCAL        = "gcal"
 	TASK_SOURCE_ID_GITHUB_PR   = "github_pr"
 	TASK_SOURCE_ID_GT_TASK     = "gt_task"
-	TASK_SOURCE_ID_GMAIL       = "gmail"
 	TASK_SOURCE_ID_LINEAR      = "linear_task"
 	TASK_SOURCE_ID_SLACK_SAVED = "slack"
 )
@@ -90,10 +89,6 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 			Details: TaskSourceGeneralTask,
 			Source:  GeneralTaskTaskSource{},
 		},
-		TASK_SOURCE_ID_GMAIL: {
-			Details: TaskSourceGmail,
-			Source:  GmailSource{Google: googleService},
-		},
 		TASK_SOURCE_ID_LINEAR: {
 			Details: TaskSourceLinear,
 			Source:  LinearTaskSource{Linear: linearService},
@@ -129,7 +124,6 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 			Service: googleService,
 			Details: TaskServiceGoogle,
 			Sources: []TaskSourceResult{
-				{Source: GmailSource{Google: googleService}, Details: TaskSourceGmail},
 				{Source: GoogleCalendarSource{Google: googleService}, Details: TaskSourceGoogleCalendar},
 			},
 		},
@@ -256,16 +250,6 @@ var TaskSourceGithubPR = TaskSourceDetails{
 	IsCompletable:          true,
 	CanCreateTask:          false,
 	IsReplyable:            false,
-	CanCreateCalendarEvent: false,
-}
-var TaskSourceGmail = TaskSourceDetails{
-	ID:                     TASK_SOURCE_ID_GMAIL,
-	Name:                   "Gmail",
-	Logo:                   "/images/gmail.svg",
-	LogoV2:                 "gmail",
-	IsCompletable:          true,
-	CanCreateTask:          false,
-	IsReplyable:            true,
 	CanCreateCalendarEvent: false,
 }
 var TaskSourceLinear = TaskSourceDetails{

@@ -430,14 +430,6 @@ func getPullRequestRequiredAction(data GithubPRData) string {
 	return ActionWaitingOnReview
 }
 
-func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("cannot reply to a PR")
-}
-
-func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return errors.New("cannot send email for github pr")
-}
-
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
@@ -448,13 +440,5 @@ func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID 
 
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
-	return nil
-}
-
-func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

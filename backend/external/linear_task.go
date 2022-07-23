@@ -190,26 +190,10 @@ func (linearTask LinearTaskSource) GetTaskUpdateBody(updateFields *database.Task
 	return &LinearTasksUpdateBody{}
 }
 
-func (linearTask LinearTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("cannot reply to an linear task")
-}
-
-func (linearTask LinearTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return errors.New("cannot send email for linear source")
-}
-
 func (linearTask LinearTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (linearTask LinearTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
-}
-
-func (linearTask LinearTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (linearTask LinearTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
-	return nil
 }
