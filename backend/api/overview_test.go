@@ -975,7 +975,7 @@ func TestOverviewAdd(t *testing.T) {
 		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
-		err = viewCollection.FindOne(parentCtx, bson.M{"task_section_id": taskSection1ObjectID}).Decode(&addedView)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 
@@ -1000,7 +1000,7 @@ func TestOverviewAdd(t *testing.T) {
 		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
-		err = viewCollection.FindOne(parentCtx, bson.M{"task_section_id": taskSection1ObjectID}).Decode(&addedView)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 
@@ -1012,7 +1012,7 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "linear"}`)), http.StatusOK)
-		err = viewCollection.FindOne(parentCtx, bson.M{"type": "linear"}).Decode(&addedView)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "linear"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 
@@ -1024,7 +1024,7 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "slack"}`)), http.StatusOK)
-		err = viewCollection.FindOne(parentCtx, bson.M{"type": "slack"}).Decode(&addedView)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "slack"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 
