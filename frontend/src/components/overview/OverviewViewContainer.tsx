@@ -39,7 +39,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
 
     useEffect(() => {
         setVisibleItemsCount(Math.min(view.view_items.length, PAGE_SIZE))
-    }, [view.view_items])
+    }, [view.is_linked])
 
     return (
         <ViewContainer>
