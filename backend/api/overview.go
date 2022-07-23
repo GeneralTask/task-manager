@@ -460,12 +460,12 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is required for task section type views"})
 			return
 		}
 		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
@@ -492,13 +492,15 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 
 	viewCollection := database.GetViewCollection(db)
-	_, err = viewCollection.InsertOne(parentCtx, view)
+	insertedView, err := viewCollection.InsertOne(parentCtx, view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
 		Handle500(c)
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
+	})
 }
 
 func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
