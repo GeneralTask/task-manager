@@ -139,7 +139,6 @@ export const useAddView = () => {
                 }
             },
             onSettled: (data, _, { supportedViewIndex, supportedViewItemIndex }) => {
-                console.log({ viewId: data?.id })
                 queryClient.invalidateQueries('overview')
                 queryClient.invalidateQueries('overview-supported-views')
                 if (data) {
@@ -171,12 +170,10 @@ export const useRemoveView = () => {
         (viewId: string) => removeView(viewId),
         {
             onMutate: async (viewId: string) => {
-                await Promise.all([
-                    queryClient.cancelQueries('overview-supported-views'),
-                    queryClient.cancelQueries('overview')
-                ])
-
                 const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                queryClient.cancelQueries('overview-supported-views')
+                queryClient.cancelQueries('overview')
+
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, draft => {
                         let found = false
@@ -185,6 +182,7 @@ export const useRemoveView = () => {
                                 if (viewItem.view_id === viewId) {
                                     viewItem.is_added = false
                                     viewItem.is_add_disabled = false
+                                    viewItem.view_id = null
                                     found = true
                                     break
                                 }
@@ -207,6 +205,10 @@ export const useRemoveView = () => {
                     })
                     queryClient.setQueryData('overview', newViews)
                 }
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('overview')
+                queryClient.invalidateQueries('overview-supported-views')
             }
         }
     )

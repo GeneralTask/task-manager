@@ -84,17 +84,10 @@ const AddViewsModalContent = () => {
                                     <GTCheckbox
                                         isChecked={supportedViewItem.is_added}
                                         disabled={supportedViewItem.is_add_disabled}
-                                        onChange={(shouldAdd) => {
-                                            console.log({ shouldAdd, supportedViewItem })
-                                            if (!shouldAdd && supportedViewItem.is_added && supportedViewItem.view_id) {
-                                                console.log('remove')
+                                        onChange={() => {
+                                            if (supportedViewItem.is_added && supportedViewItem.view_id) {
                                                 removeView(supportedViewItem.view_id)
-                                            } else if (
-                                                shouldAdd &&
-                                                !supportedViewItem.is_added &&
-                                                supportedViewItem.view_id
-                                            ) {
-                                                console.log('add')
+                                            } else {
                                                 addView({
                                                     supportedView,
                                                     supportedViewIndex: viewIndex,
