@@ -146,7 +146,7 @@ export const useAddView = () => {
                     const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
                     if (supportedViews) {
                         const newSupportedViews = produce(supportedViews, draft => {
-                            draft[supportedViewIndex].views[supportedViewItemIndex].id = data.id
+                            draft[supportedViewIndex].views[supportedViewItemIndex].view_id = data.id
                             draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = false
                         })
                         queryClient.setQueryData('overview-supported-views', newSupportedViews)
@@ -182,7 +182,7 @@ export const useRemoveView = () => {
                         let found = false
                         for (const view of draft) {
                             for (const viewItem of view.views) {
-                                if (viewItem.id === viewId) {
+                                if (viewItem.view_id === viewId) {
                                     viewItem.is_added = false
                                     viewItem.is_add_disabled = false
                                     found = true

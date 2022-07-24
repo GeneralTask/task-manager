@@ -54,8 +54,8 @@ const AddViewsModalContent = () => {
                                 disabled={supportedView.views[0].is_add_disabled}
                                 onChange={() => {
                                     const supportedViewItem = supportedView.views[0]
-                                    if (supportedViewItem.is_added && supportedViewItem.id) {
-                                        removeView(supportedViewItem.id)
+                                    if (supportedViewItem.is_added && supportedViewItem.view_id) {
+                                        removeView(supportedViewItem.view_id)
                                     } else {
                                         addView({
                                             supportedView,
@@ -86,13 +86,13 @@ const AddViewsModalContent = () => {
                                         disabled={supportedViewItem.is_add_disabled}
                                         onChange={(shouldAdd) => {
                                             console.log({ shouldAdd, supportedViewItem })
-                                            if (!shouldAdd && supportedViewItem.is_added && supportedViewItem.id) {
+                                            if (!shouldAdd && supportedViewItem.is_added && supportedViewItem.view_id) {
                                                 console.log('remove')
-                                                removeView(supportedViewItem.id)
+                                                removeView(supportedViewItem.view_id)
                                             } else if (
                                                 shouldAdd &&
                                                 !supportedViewItem.is_added &&
-                                                supportedViewItem.id
+                                                supportedViewItem.view_id
                                             ) {
                                                 console.log('add')
                                                 addView({
