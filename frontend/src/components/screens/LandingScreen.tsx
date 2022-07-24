@@ -164,7 +164,7 @@ const LandingScreen = () => {
                     <Subheader>How does your app enhance Google user functionality?</Subheader>
                     <FAQItem>
                         Our app enhances user functionality by allowing you to track everything on your plate at work in
-                        one unified place. You can view your Google calendar in-app and will soon be able to modify and
+                        one unified place. You can view your Google calendar in-app and can also modify and
                         create events.
                     </FAQItem>
                 </FlexColumn>
