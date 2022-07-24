@@ -171,6 +171,7 @@ export const useRemoveView = () => {
         {
             onMutate: async (viewId: string) => {
                 const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 queryClient.cancelQueries('overview-supported-views')
                 queryClient.cancelQueries('overview')
 
@@ -193,7 +194,6 @@ export const useRemoveView = () => {
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
 
-                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (views) {
                     const newViews = produce(views, draft => {
                         for (const view of draft) {
