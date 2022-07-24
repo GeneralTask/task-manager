@@ -139,6 +139,7 @@ export const useAddView = () => {
                 }
             },
             onSettled: (data, _, { supportedViewIndex, supportedViewItemIndex }) => {
+                console.log({ viewId: data?.id })
                 queryClient.invalidateQueries('overview')
                 queryClient.invalidateQueries('overview-supported-views')
                 if (data) {
@@ -146,6 +147,7 @@ export const useAddView = () => {
                     if (supportedViews) {
                         const newSupportedViews = produce(supportedViews, draft => {
                             draft[supportedViewIndex].views[supportedViewItemIndex].id = data.id
+                            draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = false
                         })
                         queryClient.setQueryData('overview-supported-views', newSupportedViews)
                     }
