@@ -60,6 +60,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	GithubID      string             `json:"github_id"`
+	ViewID        *string            `json:"view_id"`
 }
 
 type SupportedView struct {
@@ -791,6 +792,7 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
 		return []SupportedViewItem{}, err
 	}
+
 	supportedViewItems := []SupportedViewItem{{
 		Name:          TaskSectionNameDefault,
 		TaskSectionID: constants.IDTaskSectionDefault,
@@ -838,32 +840,36 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 	}
 	for _, supportedView := range *supportedViews {
 		for index, view := range supportedView.Views {
-			isAdded, err := api.viewIsAdded(db, userID, supportedView.Type, view)
+			addedView, err := api.getAddedViewFromSupportedView(db, userID, supportedView.Type, view)
 			if err != nil {
 				return err
 			}
-			supportedView.Views[index].IsAdded = isAdded
+			if addedView != nil {
+				supportedView.Views[index].IsAdded = true
+				addedViewId := addedView.ID.Hex()
+				supportedView.Views[index].ViewID = &addedViewId
+			}
 		}
 	}
 	return nil
 }
 
-func (api *API) viewIsAdded(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (bool, error) {
+func (api *API) getAddedViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (*database.View, error) {
 	if viewType == ViewTaskSection {
-		return api.viewExists(db, userID, viewType, &[]bson.M{
+		return api.getViewFromSupportedView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
 	} else if viewType == ViewLinear || viewType == ViewSlack {
-		return api.viewExists(db, userID, viewType, nil)
+		return api.getViewFromSupportedView(db, userID, viewType, nil)
 	} else if viewType == ViewGithub {
-		return api.viewExists(db, userID, viewType, &[]bson.M{
+		return api.getViewFromSupportedView(db, userID, viewType, &[]bson.M{
 			{"github_id": view.GithubID},
 		})
 	}
-	return false, errors.New("invalid view type")
+	return nil, errors.New("invalid view type")
 }
 
-func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (bool, error) {
+func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (*database.View, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -879,13 +885,19 @@ func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewTy
 		}
 	}
 
-	count, err := database.GetViewCollection(db).CountDocuments(
+	var view database.View
+	err := database.GetViewCollection(db).FindOne(
 		dbCtx,
 		filter,
-	)
+	).Decode(&view)
+
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to check if view exists")
-		return false, err
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // view has not been added
+		} else {
+			api.Logger.Error().Err(err).Msg("failed to check if view exists")
+			return nil, err
+		}
 	}
-	return count > int64(0), nil
+	return &view, nil
 }
