@@ -10,16 +10,16 @@ const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid ${Colors.gray._200};
+    border: 2px solid ${Colors.background.dark};
     border-radius: 8px;
-    outline: ${(props) => (props.valid ? 'none' : `1px solid ${Colors.red._1}`)};
+    outline: ${(props) => (props.valid ? 'none' : `1px solid ${Colors.status.red.default}`)};
     margin-bottom: 4px;
 `
 const Input = styled.input`
     width: 100%;
     background: transparent;
     border: none;
-    color: ${Colors.gray._800};
+    color: ${Colors.text.light};
     font-size: 16px;
     font-weight: 500;
     padding: 6px 0;
@@ -29,7 +29,7 @@ const Dropdown = styled.div`
     display: flex;
     border-radius: 8px;
     flex-direction: column;
-    background: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: 8px;
     height: 200px;
     padding: 6px;
@@ -40,14 +40,14 @@ const Button = styled.button`
     text-align: left;
     border: none;
     border-radius: 6px;
-    color: ${Colors.gray._800};
+    color: ${Colors.text.light};
     font-size: 16px;
     font-weight: 500;
     padding: 6px 8px;
     width: 100%;
     cursor: pointer;
     &:hover {
-        background-color: ${Colors.gray._100};
+        background-color: ${Colors.background.medium};
     }
 `
 const ExpandButton = styled(NoStyleButton)`

@@ -21,7 +21,7 @@ const LinksContainer = styled.div`
     flex-direction: column;
 `
 const SectionTitle = styled.span`
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -33,7 +33,7 @@ const AddSectionContainer = styled.div`
     padding: ${Spacing.padding._4};
     border-radius: 50%;
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
     cursor: pointer;
 `

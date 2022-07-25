@@ -12,7 +12,7 @@ interface TimeIndicatorContainerProps {
 }
 const TimeIndicatorContainer = styled.div<TimeIndicatorContainerProps>`
     width: 100%;
-    background-color: ${Colors.purple._1};
+    background-color: ${Colors.gtColor.primary};
     height: 1px;
     position: absolute;
     top: ${(props) => props.topOffset}px;

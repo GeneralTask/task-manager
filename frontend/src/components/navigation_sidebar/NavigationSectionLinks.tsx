@@ -25,12 +25,13 @@ const AddSectionContainer = styled.div`
 `
 const InputContainer = styled.div`
     & input {
-        color: ${Colors.gray._500};
+        color: ${Colors.text.light};
         border: none;
         font-family: inherit;
         box-sizing: border-box;
         width: 100%;
     }
+    ${Typography.bodySmall};
 `
 
 const NavigationSectionLinks = () => {

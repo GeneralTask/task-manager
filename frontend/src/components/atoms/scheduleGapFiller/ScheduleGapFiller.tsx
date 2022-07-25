@@ -18,7 +18,7 @@ const FooterView = styled.div`
     justify-content: center;
     align-items: right;
     height: 170px;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     width: 100%;
 `
 const FooterTextView = styled.div`
@@ -41,7 +41,7 @@ const FooterText = styled.div`
     display: flex;
     flex-direction: row;
     white-space: nowrap;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     justify-content: space-between;
     margin-top: ${Spacing.margin._12};
     margin-left: ${Spacing.margin._12};
@@ -53,7 +53,7 @@ const FooterText = styled.div`
 `
 const HeaderText = styled.div`
     margin-right: ${Spacing.margin._8};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     padding-left: ${Spacing.padding._4};
     border: 2px solid transparent;
     overflow: hidden;
@@ -64,7 +64,7 @@ const HeaderText = styled.div`
 const BodyTextArea = styled.div`
     overflow: auto;
     padding: ${Spacing.margin._8};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -80,7 +80,7 @@ const RecommendationText = styled.span`
     padding: ${Spacing.margin._12};
     font: inherit;
     cursor: pointer;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     text-decoration: none;
     margin-left: ${Spacing.margin._4};
     ${Typography.bodySmall};
@@ -93,7 +93,7 @@ const CursorText = styled.div`
     display: flex;
     overflow: auto;
     font: inherit;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     text-decoration: none;
     align-items: center;
     ${Typography.bodySmall};

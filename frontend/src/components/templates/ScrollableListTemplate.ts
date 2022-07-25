@@ -7,7 +7,7 @@ const ScrollableListTemplate = styled.div<{ noTopPadding?: boolean }>`
     overflow-y: auto;
     flex: 1 0;
     min-width: ${DEFAULT_VIEW_WIDTH};
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
     width: ${DEFAULT_VIEW_WIDTH};
 `
 

@@ -18,12 +18,12 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     padding: ${Spacing.padding._4} ${Spacing.padding._12};
     width: 100%;
     border-radius: ${Border.radius.small};
-    background-color: ${(props) => props.isSelected && `${Colors.gray._200};`};
+    background-color: ${(props) => props.isSelected && `${Colors.background.dark};`};
     box-sizing: border-box;
     gap: ${Spacing.margin._8};
 `
 const SectionTitle = styled.span`
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -32,7 +32,7 @@ const SectionTitle = styled.span`
     ${Typography.bodySmall};
 `
 const SectionTitleItemCount = styled.span`
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     margin-left: auto;
     user-select: none;
     ${Typography.bodySmall};

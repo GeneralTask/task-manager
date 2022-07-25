@@ -19,7 +19,7 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const CollapsedCalendarView = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
-    background-color: ${Colors.gray._100};
+    background-color: ${Colors.background.medium};
     display: flex;
     justify-content: center;
     cursor: pointer;

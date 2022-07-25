@@ -26,7 +26,7 @@ const FeedbackHeader = styled.div`
 const TextAreaContainer = styled.div`
     flex: 1;
     margin-top: ${Spacing.margin._4};
-    border: 1px solid ${Colors.gray._200};
+    border: 1px solid ${Colors.background.dark};
     border-radius: ${Border.radius.small};
 `
 const ButtonContainer = styled.div`
@@ -58,7 +58,7 @@ const FeedbackView = () => {
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </TextAreaContainer>
             <ButtonContainer>
-                <GTButton onClick={submitFeedback} value="Send feedback" color={Colors.purple._1} />
+                <GTButton onClick={submitFeedback} value="Send feedback" color={Colors.gtColor.primary} />
                 <GTButton onClick={closeModal} value="Cancel" styleType="secondary" />
             </ButtonContainer>
         </FeedbackViewContainer>
