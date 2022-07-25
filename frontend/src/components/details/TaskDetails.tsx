@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
+import { useUnload } from '../../hooks/useUnload'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -111,6 +112,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const navigate = useNavigate()
     const location = useLocation()
+
+    useUnload((e) => {
+        confirm('You have unsaved changes. Please save or cancel before leaving this page.')
+        console.log('unload')
+        e.preventDefault()
+        e.returnValue = ''
+    })
 
     useEffect(() => {
         if (isEditing || isLoading) {
