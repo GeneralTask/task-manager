@@ -188,28 +188,64 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
-	t.Run("SingleTaskViewItem", func(t *testing.T) {
+	t.Run("SuccessTaskViewItems", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(db)
-		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: taskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-		})
+		items := []interface{}{
+			database.Item{
+				TaskBase: database.TaskBase{
+					UserID:        userID,
+					IsCompleted:   false,
+					IDTaskSection: taskSectionID,
+					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+					IDOrdering:    3,
+				},
+				TaskType: database.TaskType{
+					IsTask: true,
+				}},
+			database.Item{
+				TaskBase: database.TaskBase{
+					UserID:        userID,
+					IsCompleted:   false,
+					IDTaskSection: taskSectionID,
+					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+					IDOrdering:    1,
+				},
+				TaskType: database.TaskType{
+					IsTask: true,
+				}},
+			database.Item{
+				TaskBase: database.TaskBase{
+					UserID:        userID,
+					IsCompleted:   false,
+					IDTaskSection: taskSectionID,
+					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+					IDOrdering:    2,
+				},
+				TaskType: database.TaskType{
+					IsTask: true,
+				}},
+		}
+		taskResult, err := taskCollection.InsertMany(parentCtx, items)
 		assert.NoError(t, err)
-		taskID := taskResult.InsertedID.(primitive.ObjectID)
+		assert.Equal(t, 3, len(taskResult.InsertedIDs))
+		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
+		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
+		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
+
 		api := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		// Check result and also check that the order is correct
 		expectedViewResult.ViewItems = []*TaskResult{
 			{
-				ID: taskID,
+				ID: secondTaskID,
+			},
+			{
+				ID: thirdTaskID,
+			},
+			{
+				ID: firstTaskID,
 			},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
