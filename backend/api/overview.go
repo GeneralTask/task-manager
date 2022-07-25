@@ -264,6 +264,33 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 	return nil
 }
 
+func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	var token database.ExternalAPIToken
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+
+	cursor, err := externalAPITokenCollection.Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"_id": view.EventSourceID},
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	err = cursor.All(dbCtx, &token)
+	if err != nil {
+		return nil, err
+	}
+}
+
 func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
