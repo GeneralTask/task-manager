@@ -20,7 +20,6 @@ const AddSectionContainer = styled.div`
     padding: ${Spacing.padding._4} ${Spacing.padding._12};
     width: 100%;
     box-sizing: border-box;
-    gap: ${Spacing.margin._8};
     ${Typography.bodySmall};
 `
 const InputContainer = styled.div`
@@ -31,6 +30,7 @@ const InputContainer = styled.div`
         box-sizing: border-box;
         width: 100%;
     }
+    margin-left: ${Spacing.margin._8};
     ${Typography.bodySmall};
 `
 
