@@ -145,11 +145,11 @@ core-service   NodePort   172.19.64.51   <none>        8080:31254/TCP   21d
 Here's a list of nice k8s commands to add to your shell file:
 ```
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
+alias kgp="kubectl get pods"
 alias kroll="kubectl rollout restart deployment/core-deployment"
 ksh() {
     kubectl exec -it $1 -- "/bin/sh"
 }
-alias kgp="kubectl get pods"
 kdlogs() {
     kubectl logs -f deployment/core-deployment --all-containers=true --since=10m
 }
