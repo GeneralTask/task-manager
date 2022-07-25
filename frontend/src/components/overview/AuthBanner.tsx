@@ -38,18 +38,18 @@ interface AuthBannerProps {
     logo: TLogoImage
 }
 
+const AUTH_WINDOW_WIDTH = 960
+const AUTH_WINDOW_HEIGHT = 640
+
+const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
+const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
+
 const openAuthWindow = (
     authorizationUrl: string,
     sourceName: string,
     refetch: () => void,
     refetchViews: () => void
 ) => {
-    const AUTH_WINDOW_WIDTH = 960
-    const AUTH_WINDOW_HEIGHT = 640
-
-    const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
-    const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
-
     const win = window.open(
         authorizationUrl,
         sourceName,
