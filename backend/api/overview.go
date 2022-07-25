@@ -185,8 +185,27 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		return (*tasks)[i].IDOrdering < (*tasks)[j].IDOrdering
 	})
 
+	// Reset ID orderings to begin at 1
 	taskResults := []*TaskResult{}
+	taskCollection := database.GetTaskCollection(db)
+	orderingID := 1
 	for _, task := range *tasks {
+		task.IDOrdering = orderingID
+		orderingID++
+		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+		defer cancel()
+		res, err := taskCollection.UpdateOne(
+			dbCtx,
+			bson.M{"_id": task.ID},
+			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
+		)
+		if err != nil {
+			return nil, err
+		}
+		if res.MatchedCount != 1 {
+			api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+			return nil, errors.New("failed to update task ordering")
+		}
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
