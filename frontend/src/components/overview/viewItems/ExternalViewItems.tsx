@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { TTask } from '../../../utils/types'
