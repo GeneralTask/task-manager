@@ -146,6 +146,7 @@ Here's a list of nice k8s commands to add to your shell file:
 ```
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
 alias kgp="kubectl get pods"
+alias kgd="kubectl get deployments"
 alias kroll="kubectl rollout restart deployment/core-deployment"
 ksh() {
     kubectl exec -it $1 -- "/bin/sh"
