@@ -27,7 +27,12 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
 
     return (
         <div ref={scrollingRef}>
-            {sectionId && <CreateNewTask onCreateTask={(title) => createTask({ title, taskSectionId: sectionId })} />}
+            {sectionId && (
+                <CreateNewTask
+                    disableKeyboardShortcut
+                    onCreateTask={(title) => createTask({ title, taskSectionId: sectionId })}
+                />
+            )}
             {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                 <ReorderDropContainer
                     key={item.id}

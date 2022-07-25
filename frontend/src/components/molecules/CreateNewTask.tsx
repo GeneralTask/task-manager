@@ -28,8 +28,9 @@ const TaskInput = styled.input`
 
 interface CreateNewTaskProps {
     onCreateTask: (title: string) => void
+    disableKeyboardShortcut?: boolean
 }
-const CreateNewTask = ({ onCreateTask }: CreateNewTaskProps) => {
+const CreateNewTask = ({ onCreateTask, disableKeyboardShortcut }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -56,7 +57,9 @@ const CreateNewTask = ({ onCreateTask }: CreateNewTaskProps) => {
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setText(e.target.value)}
             />
-            <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
+            {!disableKeyboardShortcut && (
+                <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
+            )}
         </CreateNewTaskContainer>
     )
 }
