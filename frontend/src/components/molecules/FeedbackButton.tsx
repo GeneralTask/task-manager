@@ -1,7 +1,6 @@
 import React from 'react'
 import { useAppDispatch } from '../../redux/hooks'
 import { setShowModal } from '../../redux/tasksPageSlice'
-import { Colors } from '../../styles'
 import { ModalEnum } from '../../utils/enums'
 import GTButton from '../atoms/buttons/GTButton'
 import FeedbackView from '../views/FeedbackView'
@@ -14,7 +13,7 @@ const FeedbackButton = () => {
     }
     return (
         <>
-            <GTButton value="Share feedback" color={Colors.gtColor.primary} onClick={openModal} />
+            <GTButton value="Share feedback" styleType="secondary" onClick={openModal} />
             <ModalView>
                 <FeedbackView />
             </ModalView>
