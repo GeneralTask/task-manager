@@ -27,7 +27,7 @@ const BannerView = styled.div<{ center: boolean }>`
     padding-left: 12px;
     padding-right: 6px;
     margin-bottom: 8px;
-    width: 500px;
+    max-width: 450px;
     height: 50px;
     background-color: ${Colors.background.white};
     opacity: 0.97;
@@ -72,7 +72,7 @@ interface EventBannerProps {
 }
 const EventBanner = ({ event }: EventBannerProps) => {
     const timeUntilEvent = Math.ceil((new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60)
-    const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
+    const timeUntilEventMessage = timeUntilEvent > 0 ? `is in ${timeUntilEvent} minutes.` : 'is now.'
     const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
     return (
         <BannerView key={event.id} center={event.conference_call == null}>
