@@ -372,4 +372,5 @@ type View struct {
 	IsLinked      bool               `bson:"is_linked"`
 	GithubID      string             `bson:"github_id"`
 	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
+	EventSourceID primitive.ObjectID `bson:"event_source_id"`
 }
