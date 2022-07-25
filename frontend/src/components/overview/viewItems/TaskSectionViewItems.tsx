@@ -48,7 +48,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                     >
                         <Task
                             task={item as TTask}
-                            dragDisabled={true}
+                            dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
                             sectionScrollingRef={scrollingRef}
