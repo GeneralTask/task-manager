@@ -32,9 +32,7 @@ export const Status = styled.div<{ type: TStatusColors }>`
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: fit-content;
-    font-weight: ${Typography.weight._500};
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
+    ${Typography.bodySmall};
 `
 
 export const PullRequestViewContainer = styled.div`
@@ -64,8 +62,8 @@ export const HeaderContainer = styled.div`
 `
 
 export const RepositoryName = styled.div`
-    font-size: ${Typography.medium.fontSize};
     color: ${Colors.text.light};
+    ${Typography.subtitle};
 `
 
 export const TruncatedText = styled.span`

@@ -12,9 +12,7 @@ export const ViewContainer = styled.div`
 export const ViewHeader = styled.div`
     margin-bottom: ${Spacing.margin._8};
     color: ${Colors.text.light};
-    font-size: ${Typography.medium.fontSize};
-    line-height: ${Typography.medium.lineHeight};
-    font-weight: ${Typography.weight._600};
+    ${Typography.subtitle};
 `
 export const RemoveButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
@@ -33,9 +31,8 @@ export const SelectedView = styled.div`
     padding: ${Spacing.padding._12};
     margin: ${Spacing.margin._4} 0;
     gap: ${Spacing.margin._12};
-    font-size: ${Typography.medium.fontSize};
-    line-height: ${Typography.medium.lineHeight};
     color: ${Colors.text.light};
+    ${Typography.body};
 `
 export const EditViewsDeleteButton = styled(RemoveButton)`
     margin-left: auto;
@@ -44,9 +41,8 @@ export const PaginateTextButton = styled(NoStyleButton)`
     color: #069;
     text-decoration: underline;
     cursor: pointer;
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
     margin: ${Spacing.margin._4} ${Spacing.margin._8} 0;
+    ${Typography.bodySmall};
 `
 export const OptimisticItemsContainer = styled.div`
     height: 100px;

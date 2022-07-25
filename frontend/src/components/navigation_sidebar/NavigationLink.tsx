@@ -8,7 +8,6 @@ import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { margin } from '../../styles/spacing'
-import { weight } from '../../styles/typography'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -29,8 +28,6 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     box-sizing: border-box;
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
-    font-size: ${Typography.xSmall.fontSize};
     color: ${Colors.text.light};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -38,13 +35,14 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
     margin-left: ${margin._8};
     flex: 1;
     user-select: none;
+    ${Typography.bodySmall};
 `
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
-    font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     color: ${Colors.text.light};
     margin-right: ${margin._8};
     margin-left: auto;
     user-select: none;
+    ${Typography.bodySmall};
 `
 export const NavigationLinkTemplate = styled.div`
     height: ${LINK_TEMPLATE_HEIGHT}px;

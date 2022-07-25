@@ -46,8 +46,7 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     padding: ${Spacing.padding._12};
     font: inherit;
     color: ${Colors.text.light};
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
+    ${Typography.bodySmall};
     :focus,
     :hover {
         border: 1px solid ${Colors.background.dark};
@@ -58,8 +57,6 @@ const TitleInput = styled.textarea`
     background-color: inherit;
     color: ${Colors.text.light};
     font: inherit;
-    font-size: ${Typography.large.fontSize};
-    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
@@ -68,6 +65,7 @@ const TitleInput = styled.textarea`
     :focus {
         outline: 1px solid ${Colors.background.dark};
     }
+    ${Typography.subtitle};
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -83,11 +81,9 @@ const StatusContainer = styled.div`
     flex-direction: row;
     gap: ${Spacing.margin._8};
     align-items: center;
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
-    font-weight: ${Typography.weight._500};
     color: ${Colors.text.light};
     margin-bottom: ${Spacing.margin._8};
+    ${Typography.bodySmall};
 `
 
 const SYNC_MESSAGES = {

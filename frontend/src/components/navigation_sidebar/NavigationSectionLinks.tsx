@@ -8,7 +8,6 @@ import NoStyleInput from '../atoms/NoStyleInput'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api/task-section.hooks'
-import { weight } from '../../styles/typography'
 
 import { useParams, useLocation } from 'react-router-dom'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
@@ -22,12 +21,11 @@ const AddSectionInputContainer = styled.div`
     flex: 1;
     min-width: 0;
     & input {
-        font-weight: ${weight._500};
-        font-size: ${Typography.xSmall.fontSize};
         color: ${Colors.text.light};
         border: none;
         font-family: inherit;
     }
+    ${Typography.bodySmall};
 `
 const IconContainer = styled.div`
     margin-left: 10px;

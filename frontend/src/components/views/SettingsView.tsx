@@ -47,9 +47,9 @@ const AccountButtonContainer = styled.div<{ important?: boolean }>`
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     min-width: fit-content;
 `
-const XSmallFontSpan = styled.span`
-    font-size: ${Typography.xSmall.fontSize};
+const AccountNameSpan = styled.span`
     margin-right: auto;
+    ${Typography.bodySmall};
 `
 const FullWidth = styled.div`
     display: flex;
@@ -121,18 +121,18 @@ const SettingsView = () => {
                                 <IconContainer>
                                     <Icon size="small" source={logos[account.logo_v2]}></Icon>
                                 </IconContainer>
-                                <XSmallFontSpan>{account.display_id}</XSmallFontSpan>
+                                <AccountNameSpan>{account.display_id}</AccountNameSpan>
                                 {account.has_bad_token && (
                                     <AccountButtonContainer important>
                                         <NoStyleButton onClick={() => onRelink(account.name)}>
-                                            <XSmallFontSpan>Re-link Account</XSmallFontSpan>
+                                            <AccountNameSpan>Re-link Account</AccountNameSpan>
                                         </NoStyleButton>
                                     </AccountButtonContainer>
                                 )}
                                 {account.is_unlinkable && (
                                     <AccountButtonContainer>
                                         <NoStyleButton onClick={() => onUnlink(account.id)}>
-                                            <XSmallFontSpan>Remove link</XSmallFontSpan>
+                                            <AccountNameSpan>Remove link</AccountNameSpan>
                                         </NoStyleButton>
                                     </AccountButtonContainer>
                                 )}

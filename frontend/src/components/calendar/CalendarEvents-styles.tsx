@@ -159,12 +159,11 @@ export const CalendarDayHeader = styled.div`
 `
 
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
-    font-size: ${Typography.small.fontSize};
-    font-weight: ${Typography.weight._600};
     border-radius: 50vh;
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
+    ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;

@@ -11,12 +11,12 @@ import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 const EventBannerContainer = styled.div`
     display: flex;
     flex-direction: column;
-    font-size: ${Typography.xSmall.fontSize};
     position: relative;
     width: 100%;
     display: flex;
     align-items: center;
     margin-top: 22px;
+    ${Typography.bodySmall};
 `
 const BannerView = styled.div<{ center: boolean }>`
     position: relative;
@@ -56,15 +56,15 @@ const MessageView = styled.div`
 `
 const MessageText = styled.span`
     white-space: nowrap;
-    font-weight: ${Typography.weight._500};
     color: ${Colors.text.light};
+    ${Typography.bodySmall};
 `
 const OverflowText = styled.span`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    font-weight: ${Typography.weight._500};
     color: ${Colors.text.light};
+    ${Typography.bodySmall};
 `
 
 interface EventBannerProps {

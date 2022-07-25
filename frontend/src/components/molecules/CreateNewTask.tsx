@@ -23,8 +23,8 @@ const TaskInput = styled.input`
     border: none;
     outline: none;
     background-color: transparent;
-    font-size: ${Typography.medium.fontSize};
     flex: 1;
+    ${Typography.body};
 `
 
 interface CreateNewTaskProps {

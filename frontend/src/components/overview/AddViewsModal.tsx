@@ -22,8 +22,7 @@ const SupportedViewContent = styled.div`
     align-items: center;
     color: ${Colors.text.light};
     gap: ${Spacing.margin._8};
-    font-size: ${Typography.small.fontSize};
-    line-height: ${Typography.small.lineHeight};
+    ${Typography.bodySmall};
 `
 interface AddViewsModalProps {
     isOpen: boolean

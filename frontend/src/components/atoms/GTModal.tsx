@@ -23,13 +23,11 @@ const ModalContainer = styled.div`
 `
 const Header = styled.div`
     color: ${Colors.text.light};
-    font-size: ${Typography.xLarge.fontSize};
-    line-height: ${Typography.xLarge.lineHeight};
-    font-weight: ${Typography.weight._600};
     margin-bottom: ${Spacing.margin._16};
     display: flex;
     justify-content: space-between;
     align-items: center;
+    ${Typography.title};
 `
 const Body = styled.div`
     overflow: auto;

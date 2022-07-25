@@ -20,7 +20,7 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: ${Typography.xSmall.fontSize};
+    ${Typography.bodySmall};
 `
 
 interface TaskProps {
