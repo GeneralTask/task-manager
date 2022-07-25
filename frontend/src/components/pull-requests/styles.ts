@@ -24,7 +24,7 @@ export const Column = styled.div<{ type: TColumnWidths }>`
 `
 
 export const Status = styled.div<{ type: TStatusColors }>`
-    color: ${props => Colors.status[props.type].default};
+    color: ${Colors.text.black};
     background: ${props => Colors.status[props.type].light};
     border-radius: ${Border.radius.large};
     padding: ${Spacing.margin._4} ${Spacing.margin._8};
@@ -83,8 +83,8 @@ export const BranchNameContainer = styled.div`
     display: flex;
     align-items: center;
     color: ${Colors.gtColor.primary};
-    border: 0.5px solid ${Colors.background.dark};
-    border-radius: ${Border.radius.regular};
+    border: ${Border.stroke.small} solid ${Colors.background.dark};
+    border-radius: ${Border.radius.medium};
     padding: ${Spacing.padding._4} ${Spacing.padding._4};
     cursor: pointer;
 `
@@ -95,7 +95,7 @@ export const LinkButton = styled(NoStyleAnchor)`
     align-items: center;
     justify-content: center;
     background-color: ${Colors.background.white};
-    border: 1px solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
     cursor: pointer;
 `

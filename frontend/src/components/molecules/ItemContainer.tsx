@@ -9,9 +9,10 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     align-items: center;
     height: 100%;
     background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.large};
+    border-radius: ${Border.radius.medium};
     padding: 0 ${Spacing.padding._8};
-    border: 1px solid ${(props) => (props.isSelected ? Colors.background.dark : Colors.background.medium)};
+    border: ${Border.stroke.medium} solid
+        ${(props) => (props.isSelected ? Colors.border.gray : Colors.background.medium)};
     cursor: pointer;
 `
 

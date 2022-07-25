@@ -32,11 +32,11 @@ const BannerView = styled.div<{ center: boolean }>`
     background-color: ${Colors.background.white};
     opacity: 0.97;
     border-radius: ${Border.radius.small};
-    box-shadow: ${Shadows.large};
+    box-shadow: ${Shadows.medium};
 `
 const BannerTitleView = styled.div`
     background-color: ${Colors.background.medium};
-    border-radius: ${Border.radius.xSmall};
+    border-radius: ${Border.radius.small};
     margin-left: 6px;
     margin-right: 6px;
     padding: 2px 7px;
