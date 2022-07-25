@@ -5,7 +5,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import AddViewsModal from './AddViewsModal'
 import EditViewsModal from './EditViewsModal'
 
-const ButtonMarginBottom = styled.div`
+const GTButtonMarginBottom = styled(GTButton)`
     margin-bottom: ${Spacing.margin._8};
 `
 type TPageState = 'NONE' | 'EDIT' | 'ADD'
@@ -18,9 +18,7 @@ const EditViewsButton = () => {
     const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
     return (
         <>
-            <ButtonMarginBottom>
-                <GTButton styleType="secondary" iconSource="gear" onClick={openModal} value="Edit Views" />
-            </ButtonMarginBottom>
+            <GTButtonMarginBottom styleType="secondary" iconSource="gear" onClick={openModal} value="Edit Views" />
             <EditViewsModal
                 isOpen={pageState === 'EDIT'}
                 onClose={handleClose}
