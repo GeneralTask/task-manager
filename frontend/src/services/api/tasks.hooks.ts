@@ -134,7 +134,11 @@ export const useCreateTask = () => {
 }
 export const createTask = async (data: TCreateTaskData) => {
     try {
-        const res = await apiClient.post('/tasks/create/gt_task/', data)
+        const res = await apiClient.post('/tasks/create/gt_task/', {
+            title: data.title,
+            body: data.body ?? '',
+            id_task_section: data.taskSectionId,
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('createTask failed')
