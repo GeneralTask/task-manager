@@ -60,7 +60,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	GithubID      string             `json:"github_id"`
-	ViewID        *string            `json:"view_id"`
+	ViewID        primitive.ObjectID `json:"view_id"`
 }
 
 type SupportedView struct {
@@ -846,8 +846,7 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 			}
 			supportedView.Views[index].IsAdded = addedView != nil
 			if addedView != nil {
-				addedViewId := addedView.ID.Hex()
-				supportedView.Views[index].ViewID = &addedViewId
+				supportedView.Views[index].ViewID = addedView.ID
 			}
 		}
 	}
