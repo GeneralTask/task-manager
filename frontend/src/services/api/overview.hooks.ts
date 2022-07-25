@@ -132,8 +132,8 @@ export const useAddView = () => {
                             logo: supportedView.logo,
                             view_items: [],
                             isOptimistic: true,
-                            sources: [], 
-                            is_linked: true 
+                            sources: [],
+                            is_linked: true
                         }
                         draft.push(optimisticView)
                     })
@@ -231,7 +231,6 @@ export const useCreateTask = () => {
 
             const newViews = produce(views, (draft) => {
                 const section = draft.find(view => view.task_section_id === data.taskSectionId)
-                console.log({ section, sectionId: data.taskSectionId })
                 if (!section) return
                 const newTask = <TOverviewItem>{
                     id: optimisticId,
