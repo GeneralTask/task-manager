@@ -230,13 +230,14 @@ export const useCreateTask = () => {
             await queryClient.cancelQueries('tasks')
 
             const newViews = produce(views, (draft) => {
-                const section = draft.find((section) => section.task_section_id === data.id_task_section)
+                const section = draft.find(view => view.task_section_id === data.taskSectionId)
+                console.log({ section, sectionId: data.taskSectionId })
                 if (!section) return
                 const newTask = <TOverviewItem>{
                     id: optimisticId,
                     id_ordering: 0,
                     title: data.title,
-                    body: data.body,
+                    body: data.body ?? '',
                     deeplink: '',
                     sent_at: '',
                     time_allocated: 0,
@@ -261,7 +262,7 @@ export const useCreateTask = () => {
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
             const newViews = produce(views, (draft) => {
-                const section = draft.find((section) => section.task_section_id === createData.id_task_section)
+                const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
                 const task = section?.view_items.find((task) => task.id === optimisticId)
                 if (!task) return
 

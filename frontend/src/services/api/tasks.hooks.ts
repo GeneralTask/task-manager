@@ -9,8 +9,8 @@ import { TTaskSection, TTask } from "../../utils/types"
 
 export interface TCreateTaskData {
     title: string
-    body: string
-    id_task_section: string
+    body?: string
+    taskSectionId: string
 }
 
 export interface TCreateTaskResponse {
@@ -88,13 +88,13 @@ export const useCreateTask = () => {
             if (!sections) return
 
             const newSections = produce(sections, (draft) => {
-                const section = draft.find((section) => section.id === data.id_task_section)
+                const section = draft.find((section) => section.id === data.taskSectionId)
                 if (!section) return
                 const newTask: TTask = {
                     id: optimisticId,
                     id_ordering: 0,
                     title: data.title,
-                    body: data.body,
+                    body: data.body ?? '',
                     deeplink: '',
                     sent_at: '',
                     time_allocated: 0,
@@ -119,7 +119,7 @@ export const useCreateTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             const newSections = produce(sections, (draft) => {
-                const task = getTaskFromSections(draft, optimisticId, createData.id_task_section)
+                const task = getTaskFromSections(draft, optimisticId, createData.taskSectionId)
                 if (!task) return
 
                 task.id = response.task_id
