@@ -15,9 +15,9 @@ export const TimeEstimateContainer = styled.div`
     flex-direction: column;
     width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: ${radius.small};
-    box-shadow: 0 0 5px ${Colors.gray._100};
+    box-shadow: 0 0 5px ${Colors.background.light};
     z-index: 1;
     top: 100%;
     right: 0;
@@ -31,7 +31,7 @@ export const Header = styled.div`
     line-height: ${xxSmall.lineHeight};
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: ${Colors.gray._400};
+    color: ${Colors.text.light};
 `
 
 interface TimeEstimateProps {

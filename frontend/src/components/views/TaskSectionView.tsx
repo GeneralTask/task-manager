@@ -20,7 +20,7 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 const BannerAndSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    border-right: 1px solid ${Colors.gray._300};
+    border-right: 1px solid ${Colors.background.dark};
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
@@ -39,7 +39,7 @@ const TaskSectionViewContainer = styled.div`
     height: 100%;
     flex-direction: column;
     padding-top: 0;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
 `
 const TasksContainer = styled.div`
     display: flex;

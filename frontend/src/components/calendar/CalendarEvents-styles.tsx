@@ -8,12 +8,12 @@ export const TABLE_WIDTH_PERCENTAGE = '100%'
 export const CELL_TIME_WIDTH = '43px'
 export const CELL_BORDER_WIDTH = '3px'
 export const CELL_LEFT_MARGIN = '6px'
-export const EVENT_CONTAINER_COLOR = Colors.gray._50
-export const EVENT_TITLE_TEXT_COLOR = Colors.gray._700
-export const EVENT_TIME_TEXT_COLOR = Colors.gray._500
-export const CALENDAR_TD_COLOR = Colors.gray._200
-export const CALENDAR_TIME_COLOR = Colors.gray._400
-export const CALENDAR_INDICATOR_COLOR = Colors.red._1
+export const EVENT_CONTAINER_COLOR = Colors.background.light
+export const EVENT_TITLE_TEXT_COLOR = Colors.text.light
+export const EVENT_TIME_TEXT_COLOR = Colors.text.light
+export const CALENDAR_TD_COLOR = Colors.background.dark
+export const CALENDAR_TIME_COLOR = Colors.text.light
+export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = '2.5px'
 
@@ -125,7 +125,7 @@ export const EventTime = styled.div`
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }>`
     width: 100%;
     height: 100%;
-    background: ${Colors.white};
+    background: ${Colors.background.white};
     border: 1px solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
     box-shadow: ${Shadows.small};
@@ -153,7 +153,7 @@ export const CalendarDayHeader = styled.div`
     justify-content: center;
     height: 40px;
     position: sticky;
-    background-color: ${Colors.gray._100};
+    background-color: ${Colors.background.medium};
     top: 0;
     z-index: 2;
 `
@@ -163,14 +163,14 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     font-weight: ${Typography.weight._600};
     border-radius: 50vh;
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
-    color: ${(props) => (props.isToday ? Colors.white : Colors.gray._800)};
-    background-color: ${(props) => (props.isToday ? Colors.purple._1 : Colors.gray._100)};
+    color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
+    background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;
     height: 100vh;
     flex: ${(props) => (props.expanded ? '1' : '0')};
-    background-color: ${Colors.gray._100};
+    background-color: ${Colors.background.medium};
     display: flex;
     flex-direction: column;
 `

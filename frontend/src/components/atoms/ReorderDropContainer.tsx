@@ -18,7 +18,7 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     width: 100%;
-    background-color: ${Colors.gray._800};
+    background-color: ${Colors.background.dark};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: absolute;
     height: 2px;

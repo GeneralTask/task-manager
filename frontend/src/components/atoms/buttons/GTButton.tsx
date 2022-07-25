@@ -17,7 +17,7 @@ const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: bo
     border: none;
     text-align: center;
     height: 100%;
-    color: ${(props) => (props.styleType === 'primary' ? Colors.white : Colors.black)};
+    color: ${(props) => (props.styleType === 'primary' ? Colors.text.white : Colors.text.black)};
     box-shadow: ${Shadows.button.default};
     font-weight: ${Typography.weight._600};
     font-size: ${Typography.xSmall.fontSize};

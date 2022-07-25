@@ -8,7 +8,7 @@ export const PickerContainer = styled.div`
     width: fit-content;
     height: fit-content;
     position: absolute;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: 12px;
     box-shadow: ${Shadows.medium};
     z-index: 1;
@@ -32,12 +32,12 @@ export const MonthContainer = styled.div`
 export const WeekDayTable = styled.table`
     width: 100%;
     padding-bottom: 6px;
-    border-bottom: 1px solid ${Colors.gray._50};
+    border-bottom: 1px solid ${Colors.background.light};
 `
 export const DayTable = styled.table`
     width: 100%;
     padding-bottom: 6px;
-    border-bottom: 1px solid ${Colors.gray._50};
+    border-bottom: 1px solid ${Colors.background.light};
 `
 export const WeekDay = styled.th`
     position: static;
@@ -45,7 +45,7 @@ export const WeekDay = styled.th`
     font-weight: ${weight._500};
     font-size: ${xxSmall.fontSize};
     line-height: ${xxSmall.lineHeight};
-    color: ${Colors.gray._400};
+    color: ${Colors.text.light};
 `
 export const BottomBar = styled.div`
     display: flex;
@@ -57,7 +57,7 @@ export const MonthYearHeader = styled.div`
     font-weight: ${weight._500};
     font-size: ${xSmall.fontSize};
     line-height: ${xSmall.lineHeight};
-    color: ${Colors.gray._800};
+    color: ${Colors.text.light};
 `
 export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean }>`
     height: 30px;
@@ -71,9 +71,14 @@ export const HoverButton = styled.button<{ isToday: boolean; isSelected: boolean
     display: flex;
     &:hover {
         background: ${(props) =>
-            props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : Colors.gray._100};
+            props.isSelected
+                ? Colors.gtColor.secondary
+                : props.isToday
+                ? Colors.status.red.light
+                : Colors.background.medium};
     }
-    background: ${(props) => (props.isSelected ? Colors.purple._1 : props.isToday ? Colors.red._2 : 'transparent')};
+    background: ${(props) =>
+        props.isSelected ? Colors.gtColor.secondary : props.isToday ? Colors.status.red.light : 'transparent'};
 `
 export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     position: static;
@@ -91,14 +96,14 @@ export const DayLabel = styled.span<{ grayed: boolean; isSelected: boolean }>`
     text-align: center;
     justify-content: center;
 
-    color: ${(props) => (props.isSelected ? Colors.white : props.grayed ? Colors.gray._400 : Colors.gray._800)};
+    color: ${(props) => (props.isSelected ? Colors.text.light : props.grayed ? Colors.text.light : Colors.text.light)};
 `
 export const BottomDateView = styled.div`
     display: flex;
     justify-content: space-between;
     width: 90%;
     align-items: center;
-    border: 1px solid ${Colors.gray._50};
+    border: 1px solid ${Colors.background.light};
     border-radius: 10px;
 `
 export const CurrentDateText = styled.span`
@@ -106,7 +111,7 @@ export const CurrentDateText = styled.span`
     font-size: ${xSmall.fontSize};
     line-height: ${xSmall.lineHeight};
     width: 100%;
-    color: ${Colors.gray._800};
+    color: ${Colors.text.light};
 `
 export const IconContainer = styled.div`
     padding: ${Spacing.padding._8};

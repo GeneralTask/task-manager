@@ -24,14 +24,14 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     border-radius: ${Border.radius.small};
     border-width: 2px;
     border-style: solid;
-    border-color: ${(props) => (props.isOver ? Colors.gray._300 : 'transparent')};
-    ${(props) => props.isSelected && `background-color: ${Colors.gray._50};`};
+    border-color: ${(props) => (props.isOver ? Colors.background.dark : 'transparent')};
+    ${(props) => props.isSelected && `background-color: ${Colors.background.light};`};
     box-sizing: border-box;
 `
 const SectionTitle = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
     font-size: ${Typography.xSmall.fontSize};
-    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
+    color: ${Colors.text.light};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -41,7 +41,7 @@ const SectionTitle = styled.span<{ isSelected: boolean }>`
 `
 const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
     font-weight: ${(props) => (props.isSelected ? weight._600 : weight._500)};
-    color: ${(props) => (props.isSelected ? Colors.gray._600 : Colors.gray._500)};
+    color: ${Colors.text.light};
     margin-right: ${margin._8};
     margin-left: auto;
     user-select: none;

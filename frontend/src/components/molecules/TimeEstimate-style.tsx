@@ -10,7 +10,7 @@ export const TimeEstimateContainer = styled.div`
     flex-direction: column;
     width: ${TIME_ESTIMATOR_WIDTH}px;
     position: absolute;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: 10px;
     box-shadow: ${Shadows.medium};
     z-index: 1;
@@ -26,6 +26,6 @@ export const Header = styled.div`
     line-height: ${xxSmall.lineHeight};
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: ${Colors.gray._400};
+    color: ${Colors.text.light};
     padding: 5px;
 `

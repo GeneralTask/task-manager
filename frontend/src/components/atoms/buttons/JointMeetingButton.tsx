@@ -13,11 +13,11 @@ const JoinMeetingButtonContainer = styled(NoStyleButton)`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: ${Colors.gray._700};
+    background-color: ${Colors.background.dark};
     border-radius: ${Border.radius.regular};
 `
 const ButtonText = styled.span`
-    color: ${Colors.white};
+    color: ${Colors.text.white};
     margin-right: 5px;
 `
 

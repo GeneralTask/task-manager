@@ -24,7 +24,7 @@ const AddSectionInputContainer = styled.div`
     & input {
         font-weight: ${weight._500};
         font-size: ${Typography.xSmall.fontSize};
-        color: ${Colors.gray._500};
+        color: ${Colors.text.light};
         border: none;
         font-family: inherit;
     }

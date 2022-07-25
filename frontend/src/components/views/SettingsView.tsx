@@ -30,7 +30,7 @@ const AccountContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: ${Border.radius.large};
     height: 100%;
 `
@@ -40,9 +40,9 @@ const IconContainer = styled.div`
 `
 const AccountButtonContainer = styled.div<{ important?: boolean }>`
     margin-right: ${Spacing.margin._16};
-    background-color: ${(props) => (props.important ? Colors.red._2 : Colors.gray._100)};
-    outline: 1px solid ${(props) => (props.important ? Colors.red._1 : Colors.gray._100)};
-    color: ${Colors.black};
+    background-color: ${(props) => (props.important ? Colors.status.red.light : Colors.background.medium)};
+    outline: 1px solid ${(props) => (props.important ? Colors.status.red.default : Colors.background.medium)};
+    color: ${Colors.text.black};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     min-width: fit-content;

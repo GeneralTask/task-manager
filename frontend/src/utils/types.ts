@@ -1,4 +1,4 @@
-import { TPullRequestStatusColors } from "../components/pull-requests/styles"
+import { TStatusColors } from "../styles/colors"
 import { TLogoImage } from "../styles/images"
 
 export type Datestring = string
@@ -109,7 +109,7 @@ export interface TPullRequest {
     number: number
     status: {
         text: string
-        color: TPullRequestStatusColors
+        color: TStatusColors
     }
     author: string
     num_comments: number
