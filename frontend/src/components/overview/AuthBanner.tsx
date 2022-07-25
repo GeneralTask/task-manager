@@ -10,7 +10,7 @@ import { TSourcesResult } from '../../utils/types'
 
 const BannerContainer = styled.div`
     box-sizing: border-box;
-    border: 1px solid ${Colors.purple._3};
+    border: 1px solid ${Colors.gtColor.secondary};
     border-radius: ${Border.radius.small};
     display: flex;
     justify-content: space-between;
@@ -28,9 +28,7 @@ const ConnectButton = styled(GTButton)`
     height: 28px;
 `
 const Title = styled.span`
-    font-size: ${Typography.xSmall.fontSize};
-    font-weight: ${Typography.weight._400};
-    line-height: ${Typography.xSmall.lineHeight};
+    ${Typography.bodySmall};
 `
 
 interface AuthBannerProps {
@@ -79,7 +77,7 @@ const AuthBanner = ({ source, logo }: AuthBannerProps) => {
             </IconContainer>
             <ConnectButton
                 value="Connect"
-                color={Colors.purple._1}
+                color={Colors.gtColor.primary}
                 onClick={() => openAuthWindow(source.authorization_url, source.name, refetch, refetchViews)}
             />
         </BannerContainer>
