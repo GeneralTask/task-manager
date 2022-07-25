@@ -4,9 +4,9 @@ import React from 'react'
 import styled from 'styled-components'
 
 const WaitlistButtonStyled = styled.button`
-    background-color: ${Colors.purple._1};
+    background-color: ${Colors.gtColor.primary};
     border: none;
-    color: ${Colors.white};
+    color: ${Colors.text.white};
     padding: 0px ${Spacing.padding._8};
     cursor: pointer;
     ${Typography.bodySmall};

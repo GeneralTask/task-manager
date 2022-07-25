@@ -3,11 +3,11 @@ import styled from 'styled-components'
 import { Colors, Typography } from '../../../styles'
 
 const SubtitleStyled = styled.span`
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     ${Typography.body};
 `
 const SubtitleSmallStyles = styled.span`
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     ${Typography.bodySmall};
 `
 

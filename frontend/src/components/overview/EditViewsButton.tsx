@@ -11,9 +11,9 @@ const Button = styled(NoStyleButton)`
     display: flex;
     align-items: center;
     gap: ${Spacing.margin._4};
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     box-shadow: ${Shadows.small};
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     padding: ${Spacing.padding._8};
     border-radius: ${Border.radius.small};
     margin: ${Spacing.margin._16} 0;

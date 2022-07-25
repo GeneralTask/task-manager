@@ -32,7 +32,7 @@ const HeaderTextEditable = styled.input`
     border: none;
     outline: none;
     &:focus {
-        border: 2px solid ${Colors.gray._400};
+        border: 2px solid ${Colors.background.dark};
     }
     background-color: transparent;
     width: 100%;

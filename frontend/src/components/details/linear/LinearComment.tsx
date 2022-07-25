@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 
 const CommentContainer = styled.div`
-    border: 1px solid ${Colors.gray._200};
+    border: 1px solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
     padding: ${Spacing.padding._8};
 `
@@ -20,11 +20,11 @@ const BodyContainer = styled.div`
     padding: ${Spacing.padding._4};
 `
 const BlackText = styled.span`
-    color: ${Colors.gray._700};
+    color: ${Colors.text.black};
     ${Typography.bodySmall};
 `
 const GrayText = styled(BlackText)`
-    color: ${Colors.gray._400};
+    color: ${Colors.text.light};
 `
 
 interface LinearCommentProps {

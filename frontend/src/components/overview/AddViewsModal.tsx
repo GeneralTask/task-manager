@@ -20,7 +20,7 @@ const SupportedView = styled.div<{ isIndented?: boolean }>`
 const SupportedViewContent = styled.div`
     display: flex;
     align-items: center;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     gap: ${Spacing.margin._8};
     ${Typography.bodySmall};
 `
@@ -69,9 +69,7 @@ const AddViewsModalContent = () => {
                     </SupportedView>
                     {/* Do not show divider if this is the last item in the list */}
                     {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
-                        (supportedView.is_nested && supportedView.views.length > 0)) && (
-                        <Divider color={Colors.gray._100} />
-                    )}
+                        (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />}
                     {supportedView.is_nested &&
                         supportedView.views.map((supportedViewItem, viewItemIndex) => (
                             <Fragment key={viewItemIndex}>
@@ -98,9 +96,7 @@ const AddViewsModalContent = () => {
                                     />
                                 </SupportedView>
                                 {(viewIndex !== supportedViews.length - 1 ||
-                                    viewItemIndex !== supportedView.views.length - 1) && (
-                                    <Divider color={Colors.gray._100} />
-                                )}
+                                    viewItemIndex !== supportedView.views.length - 1) && <Divider />}
                             </Fragment>
                         ))}
                 </Fragment>
@@ -115,7 +111,7 @@ const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProp
             isOpen={isOpen}
             title="Add views"
             onClose={onClose}
-            leftButtons={<GTButton value="Back" color={Colors.purple._1} onClick={goToEditViewsView} />}
+            leftButtons={<GTButton value="Back" color={Colors.gtColor.primary} onClick={goToEditViewsView} />}
         >
             <AddViewsModalContent />
         </GTModal>

@@ -3,19 +3,19 @@ import styled from 'styled-components'
 import { Colors, Typography } from '../../../styles'
 
 const TitleSmallStyle = styled.span`
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     ${Typography.body};
 `
 const TitleMediumStyle = styled.span`
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     ${Typography.subtitle};
 `
 const TitleLargeStyle = styled.span`
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     ${Typography.title};

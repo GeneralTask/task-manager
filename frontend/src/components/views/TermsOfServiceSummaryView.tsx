@@ -60,11 +60,11 @@ const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin._8};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     ${Typography.label};
 `
 const RedAsterisk = styled.span`
-    color: ${Colors.red._1};
+    color: ${Colors.status.red.default};
     ${Typography.label};
 `
 const SubmitButtonContainer = styled.div`
@@ -145,7 +145,7 @@ const TermsOfServiceSummaryView = () => {
             </VerticalFlex>
             <SubmitButtonContainer>
                 <div data-testid="terms-submit-button">
-                    <GTButton onClick={onSubmit} value="Continue" color={Colors.purple._1} disabled={!termsCheck} />
+                    <GTButton onClick={onSubmit} value="Continue" styleType="primary" disabled={!termsCheck} />
                 </div>
                 <GTButton onClick={onCancel} styleType="secondary" value="Cancel" />
             </SubmitButtonContainer>

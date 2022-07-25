@@ -10,7 +10,7 @@ const NoDecorationLink = styled(Link)`
     text-decoration: none;
 `
 const PurpleText = styled.span`
-    color: ${Colors.purple._1};
+    color: ${Colors.gtColor.primary};
     margin-right: ${Spacing.margin._4};
     ${Typography.bodySmall};
 `

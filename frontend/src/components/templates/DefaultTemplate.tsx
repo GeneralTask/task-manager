@@ -16,11 +16,11 @@ const DefaultTemplateContainer = styled.div`
     grid-auto-flow: column;
     grid-template-rows: 1fr;
     height: 100vh;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
     position: relative;
     min-width: ${WINDOW_MIN_WIDTH};
     a {
-        color: ${Colors.purple._1};
+        color: ${Colors.gtColor.primary};
     }
 `
 
@@ -50,8 +50,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 delayHide={250}
                 delayUpdate={500}
                 className="recipients-tooltip"
-                backgroundColor={Colors.white}
-                textColor={Colors.black}
+                backgroundColor={Colors.background.white}
+                textColor={Colors.text.black}
             />
             <ReactTooltip
                 id="tooltip"
@@ -59,8 +59,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 delayShow={250}
                 delayUpdate={500}
                 className="tooltip"
-                backgroundColor={Colors.white}
-                textColor={Colors.black}
+                backgroundColor={Colors.background.white}
+                textColor={Colors.text.black}
             />
             <NavigationView />
             {!isCalendarExpanded && <TasksandDetails>{children}</TasksandDetails>}

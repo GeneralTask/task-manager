@@ -1,12 +1,9 @@
 import React, { useMemo, useState } from 'react'
-import { icons } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
-import { ViewHeader, ViewContainer, RemoveButton, PaginateTextButton, OptimisticItemsContainer } from './styles'
+import { ViewHeader, ViewContainer, PaginateTextButton, OptimisticItemsContainer } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import Spinner from '../atoms/Spinner'
-import { useRemoveView } from '../../services/api/overview.hooks'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
 
 const PAGE_SIZE = 5
@@ -16,8 +13,6 @@ interface OverviewViewProps {
 }
 const OverviewView = ({ view }: OverviewViewProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
-    const { mutate: removeView } = useRemoveView()
-
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
@@ -43,12 +38,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
 
     return (
         <ViewContainer>
-            <ViewHeader>
-                {view.name}
-                <RemoveButton onClick={() => removeView(view.id)}>
-                    <Icon source={icons.x_thin} size="xSmall" />
-                </RemoveButton>
-            </ViewHeader>
+            <ViewHeader>{view.name}</ViewHeader>
             <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
             {visibleItemsCount < view.view_items.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>

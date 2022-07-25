@@ -29,13 +29,13 @@ const BannerView = styled.div<{ center: boolean }>`
     margin-bottom: 8px;
     width: 500px;
     height: 50px;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     opacity: 0.97;
     border-radius: ${Border.radius.small};
     box-shadow: ${Shadows.large};
 `
 const BannerTitleView = styled.div`
-    background-color: ${Colors.gray._100};
+    background-color: ${Colors.background.medium};
     border-radius: ${Border.radius.xSmall};
     margin-left: 6px;
     margin-right: 6px;
@@ -56,14 +56,14 @@ const MessageView = styled.div`
 `
 const MessageText = styled.span`
     white-space: nowrap;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     ${Typography.bodySmall};
 `
 const OverflowText = styled.span`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     ${Typography.bodySmall};
 `
 

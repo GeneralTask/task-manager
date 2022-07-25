@@ -31,7 +31,7 @@ export const CursorPointerDiv = styled.div`
     height: fit-content;
     padding: ${Spacing.padding._4};
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
 `
 const ButtonStyles = styled.button`
@@ -46,18 +46,18 @@ const ButtonStyles = styled.button`
     justify-content: center;
 `
 export const HoverButton = styled(ButtonStyles)`
-    color: ${Colors.white};
-    background-color: ${Colors.purple._1};
+    color: ${Colors.text.white};
+    background-color: ${Colors.gtColor.primary};
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     &:hover {
-        background-color: ${Colors.purple._2};
+        background-color: ${Colors.gtColor.secondary};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
     padding: ${Spacing.padding._4};
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
 `
 
@@ -65,7 +65,7 @@ export const CaretButton = styled(ButtonStyles)`
     background-color: inherit;
     padding: ${Spacing.padding._4};
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
 `
 
@@ -123,7 +123,7 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
-            <Divider color={Colors.gray._200} />
+            <Divider />
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>

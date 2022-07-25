@@ -23,10 +23,10 @@ const StyledToastContainer = styled(ToastContainer).attrs({
 })`
     --toastify-toast-width: fit-content;
     .toast {
-        background-color: ${Colors.black};
+        background-color: ${Colors.background.black};
     }
     .toast-body {
-        color: white;
+        color: ${Colors.text.white};
         position: relative;
         padding: 0;
         min-width: 100%;
