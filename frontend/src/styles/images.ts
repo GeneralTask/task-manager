@@ -4,6 +4,7 @@ export const logos: { [key: string]: string } = {
     asana: '/images/asana.svg',
     asana_gray: '/images/asana_gray.svg',
     github: '/images/github.svg',
+    github_gray: '/images/github_gray.svg',
     gmail: '/images/gmail.svg', // TODO: remove when backend sends "google" instead of "gmail" for linked google accounts
     gcal: '/images/gcal.png', //missing svg
     gcal_gray: '/images/gcal_gray.svg',
