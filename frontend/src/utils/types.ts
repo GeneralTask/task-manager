@@ -17,6 +17,11 @@ export interface TConferenceCall {
     url: string
 }
 
+export interface TSourcesResult {
+    name: string
+    authorization_url: string
+}
+
 export interface TTask {
     id: string
     id_ordering: number
@@ -199,6 +204,8 @@ export interface TOverviewView {
     logo: TLogoImage
     view_items: TOverviewItem[]
     isOptimistic?: boolean
+    sources: TSourcesResult[]
+    is_linked: boolean
 }
 
 export interface TSupportedViewItem {

@@ -132,6 +132,8 @@ export const useAddView = () => {
                             logo: supportedView.logo,
                             view_items: [],
                             isOptimistic: true,
+                            sources: [], 
+                            is_linked: true 
                         }
                         draft.push(optimisticView)
                     })
