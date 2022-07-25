@@ -181,6 +181,9 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(*tasks, func(i, j int) bool {
+		return (*tasks)[i].IDOrdering < (*tasks)[j].IDOrdering
+	})
 
 	taskResults := []*TaskResult{}
 	for _, task := range *tasks {
