@@ -39,8 +39,16 @@ func TestMarkAsComplete(t *testing.T) {
 		TaskBase: database.TaskBase{
 			UserID:     userID,
 			IDExternal: "sample_jira_id",
-			SourceID:   external.TASK_SOURCE_ID_JIRA,
+			SourceID:   external.TASK_SOURCE_ID_LINEAR,
 		},
+		Task: database.Task{
+			PreviousStatus: database.ExternalTaskStatus{
+				ExternalID: "previous-status-id",
+				State:      "In Progress",
+				Type:       "in-progress",
+			},
+		},
+
 		TaskType: database.TaskType{IsTask: true},
 	})
 	assert.NoError(t, err)
@@ -75,9 +83,9 @@ func TestMarkAsComplete(t *testing.T) {
 	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
 		dbCtx,
-		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceJIRA.Name}}},
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceLinear.Name}}},
 		bson.M{"$set": &database.ExternalAPIToken{
-			ServiceID: external.TASK_SERVICE_ID_ATLASSIAN,
+			ServiceID: external.TASK_SERVICE_ID_LINEAR,
 			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
 			UserID:    userID,
 		}},
@@ -85,31 +93,22 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	AtlassianSiteCollection := database.GetJiraSitesCollection(db)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = AtlassianSiteCollection.UpdateOne(
-		dbCtx,
-		bson.M{"user_id": userID},
-
-		bson.M{"$set": &database.AtlassianSiteConfiguration{
-			UserID:  userID,
-			CloudID: "sample_cloud_id",
-			SiteURL: "https://generaltasktester.atlassian.com",
-		}},
-		options.Update().SetUpsert(true),
-	)
-	assert.NoError(t, err)
-
-	jiraTransitionServer := getTransitionIDServerForJIRA(t)
-	tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-
 	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
+	response := `{"data": {"issueUpdate": {
+				"success": true,
+					"issue": {
+					"id": "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315",
+						"title": "test title",
+						"description": "test description",
+						"state": {
+						"id": "39e87303-2b42-4c71-bfbe-4afb7bb7eecb",
+							"name": "Todo"
+					}}}}}`
+	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 
 	api := GetAPI()
-	api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &tokenServer.URL
-	api.ExternalConfig.Atlassian.ConfigValues.TransitionURL = &jiraTransitionServer.URL
 	api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &inboxGmailModifyServer.URL
+	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
 	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
@@ -168,82 +167,6 @@ func TestMarkAsComplete(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
-	})
-
-	t.Run("JIRASuccessInbox", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		assert.NoError(t, err)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+jiraTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
-		var task database.TaskBase
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
-		assert.Equal(t, false, task.IsCompleted)
-
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-
-		assert.NoError(t, err)
-
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
-		assert.Equal(t, true, task.IsCompleted)
-
-		assert.NoError(t, err)
-	})
-
-	t.Run("JIRASuccessUnread", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		insertResult, err = taskCollection.InsertOne(dbCtx, database.TaskBase{
-			UserID:     userID,
-			IDExternal: "sample_jira_id",
-			SourceID:   external.TASK_SOURCE_ID_JIRA,
-		})
-		assert.NoError(t, err)
-		jiraTaskID = insertResult.InsertedID.(primitive.ObjectID)
-		jiraTaskIDHex = jiraTaskID.Hex()
-
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
-
-		unreadGmailModifyServer := getGmailArchiveServer(t, "UNREAD")
-
-		api := GetAPI()
-		api.ExternalConfig.Atlassian.ConfigValues.TokenURL = &tokenServer.URL
-		api.ExternalConfig.Atlassian.ConfigValues.TransitionURL = &jiraTransitionServer.URL
-		api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &unreadGmailModifyServer.URL
-		unreadRouter := GetRouter(api)
-
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/tasks/modify/"+jiraTaskIDHex+"/",
-			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
-
-		var task database.TaskBase
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
-		assert.Equal(t, false, task.IsCompleted)
-
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-
-		assert.NoError(t, err)
-
-		unreadRouter.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
-		assert.Equal(t, true, task.IsCompleted)
 	})
 
 	t.Run("GmailSuccess", func(t *testing.T) {
@@ -346,7 +269,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    2,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -360,7 +283,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        primitive.NewObjectID(),
 				IDOrdering:    3,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -375,7 +298,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    1,
 				IDTaskSection: customTaskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -389,7 +312,7 @@ func TestTaskReorder(t *testing.T) {
 				UserID:        userID,
 				IDOrdering:    2,
 				IDTaskSection: customTaskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -402,7 +325,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -545,7 +468,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -582,7 +505,7 @@ func TestTaskReorder(t *testing.T) {
 			database.TaskBase{
 				UserID:        userID,
 				IDTaskSection: constants.IDTaskSectionDefault,
-				SourceID:      external.TASK_SOURCE_ID_ASANA,
+				SourceID:      external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -658,80 +581,6 @@ func TestEditFields(t *testing.T) {
 			TaskNumber:         3,
 		},
 	}
-
-	t.Run("Edit Title Success on Task from Thread", func(t *testing.T) {
-		firstEmailID := primitive.NewObjectID()
-		threadIDHex := insertTestItem(t, userID, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:     userID,
-				IDExternal: "sample_gmail_thread_id",
-				SourceID:   external.TASK_SOURCE_ID_GMAIL,
-			},
-			EmailThread: database.EmailThread{
-				ThreadID:      "sample_gmail_thread_id",
-				LastUpdatedAt: 0,
-				Emails: []database.Email{
-					{
-						MessageID:    firstEmailID,
-						SMTPID:       "sample_smtp_1",
-						EmailID:      "sample_gmail_thread_id",
-						Subject:      "test subject 1",
-						Body:         "test body 1",
-						SenderDomain: "gmail",
-						SenderEmail:  "test@generaltask.com",
-						SenderName:   "test",
-						ReplyTo:      "test-reply@generaltask.com",
-						IsUnread:     true,
-						Recipients: database.Recipients{
-							To:  []database.Recipient{{Name: "p1", Email: "p1@gmail.com"}},
-							Cc:  []database.Recipient{{Name: "p2", Email: "p2@gmail.com"}},
-							Bcc: []database.Recipient{{Name: "p3", Email: "p3@gmail.com"}},
-						},
-						SentAt: *testutils.CreateDateTime("2019-04-20"),
-					},
-					{
-						SMTPID:       "sample_smtp_1",
-						EmailID:      "sample_gmail_thread_id",
-						Subject:      "test subject 2",
-						Body:         "test body 2",
-						SenderDomain: "gmail",
-						SenderEmail:  "test@generaltask.com",
-						SenderName:   "test",
-						IsUnread:     true,
-						SentAt:       *testutils.CreateDateTime("2018-04-20"),
-					},
-				},
-			},
-			TaskType: database.TaskType{IsThread: true},
-		})
-		threadID, _ := primitive.ObjectIDFromHex(threadIDHex)
-
-		ServeRequest(t, authToken, "POST", "/create_task_from_thread/"+threadIDHex+"/",
-			bytes.NewBuffer([]byte(`{
-				"title": "sample title from thread",
-				"body": "sample body",
-				"email_id": "`+firstEmailID.Hex()+`"
-			}`)), http.StatusOK)
-		var task database.Item
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = database.GetTaskCollection(db).FindOne(dbCtx, bson.M{"title": "sample title from thread", "user_id": userID}).Decode(&task)
-		assert.NoError(t, err)
-		assert.True(t, task.IsTask)
-		assert.Equal(t, threadID, *task.LinkedMessage.ThreadID)
-		assert.Equal(t, firstEmailID, *task.LinkedMessage.EmailID)
-
-		ServeRequest(t, authToken, "PATCH", "/tasks/modify/"+task.ID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "New title from thread"}`)), http.StatusOK)
-
-		var taskAfterModify database.Item
-		err = database.GetTaskCollection(db).FindOne(dbCtx, bson.M{"title": "New title from thread", "user_id": userID}).Decode(&taskAfterModify)
-		assert.NoError(t, err)
-		assert.True(t, taskAfterModify.IsTask)
-		assert.Equal(t, threadID, *taskAfterModify.LinkedMessage.ThreadID)
-		assert.Equal(t, firstEmailID, *taskAfterModify.LinkedMessage.EmailID)
-		assert.Equal(t, task.ID, taskAfterModify.ID)
-	})
 
 	t.Run("Edit Title Success", func(t *testing.T) {
 		expectedTask := sampleTask

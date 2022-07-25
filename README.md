@@ -97,7 +97,7 @@ We currently perform backend deploys using the Heroku CLI. Assuming you have the
 
 ### One-time Kubernetes setup
 
-Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have an admin apply the changes to the prod k8s cluster.
+Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have a General Task admin apply the changes to the prod k8s cluster (these changes should also be applied by the AWS CodeBuild CI after landing the change).
 
 Now, locally on your laptop, run:
 
@@ -145,11 +145,12 @@ core-service   NodePort   172.19.64.51   <none>        8080:31254/TCP   21d
 Here's a list of nice k8s commands to add to your shell file:
 ```
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
+alias kgp="kubectl get pods"
+alias kgd="kubectl get deployments"
 alias kroll="kubectl rollout restart deployment/core-deployment"
 ksh() {
     kubectl exec -it $1 -- "/bin/sh"
 }
-alias kgp="kubectl get pods"
 kdlogs() {
     kubectl logs -f deployment/core-deployment --all-containers=true --since=10m
 }
@@ -160,10 +161,10 @@ kdl() {
 
 Here are a few common interactions:
 * Select context & namespace, run `kp`
-* List pods, run `kgp`
+* List pods, run `kgp`; list deployments, run `kgd`
 * SSH to a pod, run `ksh <pod name>` - for example: `ksh core-deployment-756d697659-hqgk4`
 * View logs for a specific pod `k logs core-deployment-756d697659-hqgk4`
-* View collated logs for the whole deployment with `kdlogs` or `kdl` (for the latter, you need to install `stern`)
+* View collated logs for the whole deployment with `kdlogs` or `kdl` (for the latter, you need to install [`stern`](https://github.com/wercker/stern))
 
 
 ## Documentation updates

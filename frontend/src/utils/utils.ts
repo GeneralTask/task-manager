@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import { TTask, TTaskSection } from './types'
-import sanitizeHtml from 'sanitize-html'
-import he from 'he'
+import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -19,14 +18,6 @@ export function resetOrderingIds(tasks: TTask[]) {
     for (let i = 1; i < tasks.length; i++) {
         tasks[i].id_ordering = i
     }
-}
-
-export const removeHTMLTags = (dirtyHTML: string) => {
-    const sanitized = sanitizeHtml(dirtyHTML, {
-        allowedTags: [],
-        allowedAttributes: {},
-    })
-    return he.decode(sanitized)
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
@@ -60,10 +51,6 @@ export const getHumanDateTime = (date: DateTime) => {
 // to avoid creating empty placeholder functions across the app
 export const emptyFunction = () => void 0
 
-// https://stackoverflow.com/a/46181/12679075
-export const isValidEmail = (email: string): boolean =>
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email.toLowerCase())
-
 export const countWithOverflow = (count: number, max = 99) => {
     if (count > max) {
         return `${max}+`
@@ -75,7 +62,7 @@ interface TGetTaskIndexFromSectionsReturnType {
     taskIndex?: number
     sectionIndex?: number
 }
-export const getTaskIndexFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
+export const getTaskIndexFromSections = (sections: Immutable<{ id?: string, tasks: TTask[] }[]>, taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
     const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
     if (sectionId) {
         const sectionIndex = sections.findIndex(section => section.id === sectionId)

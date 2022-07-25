@@ -10,10 +10,7 @@ export const ViewContainer = styled.div`
     box-shadow: ${Shadows.small};
 `
 export const ViewHeader = styled.div`
-    margin: ${Spacing.margin._8} 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    margin-bottom: ${Spacing.margin._8};
     color: ${Colors.gray._700};
     font-size: ${Typography.medium.fontSize};
     line-height: ${Typography.medium.lineHeight};
@@ -50,4 +47,8 @@ export const PaginateTextButton = styled(NoStyleButton)`
     font-size: ${Typography.xSmall.fontSize};
     line-height: ${Typography.xSmall.lineHeight};
     margin: ${Spacing.margin._4} ${Spacing.margin._8} 0;
+`
+export const OptimisticItemsContainer = styled.div`
+    height: 100px;
+    display: flex;
 `

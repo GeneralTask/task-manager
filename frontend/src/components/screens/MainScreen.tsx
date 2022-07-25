@@ -1,17 +1,14 @@
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 
-import { MESSAGES_REFETCH_INTERVAL, PR_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
+import { PR_REFETCH_INTERVAL, TASK_REFETCH_INTERVAL } from '../../constants'
 import { Navigate, useLocation } from 'react-router-dom'
-import { useFetchMessages } from '../../services/api/messages.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { useGetInfiniteThreads } from '../../services/api/threads.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import Loading from '../atoms/Loading'
-import MessagesView from '../views/MessagesView'
 import PullRequestsView from '../views/PullRequestsView'
 import React from 'react'
 import Settings from '../views/SettingsView'
@@ -34,18 +31,12 @@ const MainScreen = () => {
 
     const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
-    const { refetch: getInfiniteThreadsInbox } = useGetInfiniteThreads({ isArchived: false })
-    const { refetch: getInfiniteThreadsArchive } = useGetInfiniteThreads({ isArchived: true })
 
-    // Refetch tasks and messages independent of current page
+    // Refetch tasks and pull requests independent of current page
     const { refetch: refetchExternalTasks } = useFetchExternalTasks()
     useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
-    const { refetch: refetchMessages } = useFetchMessages()
-    useInterval(refetchMessages, MESSAGES_REFETCH_INTERVAL)
     const { refetch: refetchPullRequests } = useFetchPullRequests()
     useInterval(refetchPullRequests, PR_REFETCH_INTERVAL)
-    useInterval(getInfiniteThreadsInbox, MESSAGES_REFETCH_INTERVAL)
-    useInterval(getInfiniteThreadsArchive, MESSAGES_REFETCH_INTERVAL)
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
@@ -53,14 +44,12 @@ const MainScreen = () => {
                 return <OverviewPageView />
             case 'tasks':
                 return <TaskSection />
-            case 'messages':
-                return <MessagesView />
             case 'pull-requests':
                 return <PullRequestsView />
             case 'settings':
                 return <Settings />
             default:
-                return <TaskSection />
+                return <OverviewPageView />
         }
     })()
 
