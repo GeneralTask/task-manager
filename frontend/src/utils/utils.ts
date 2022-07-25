@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { TOverviewItem, TTask, TTaskSection } from './types'
+import { TTask, TTaskSection } from './types'
 import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
@@ -14,7 +14,7 @@ export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex:
     }
 }
 
-export function resetOrderingIds(tasks: TTask[] | TOverviewItem[]) {
+export function resetOrderingIds(tasks: { id_ordering: number }[]) {
     for (let i = 1; i < tasks.length; i++) {
         tasks[i].id_ordering = i
     }
