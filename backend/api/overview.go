@@ -844,8 +844,8 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 			if err != nil {
 				return err
 			}
+			supportedView.Views[index].IsAdded = addedView != nil
 			if addedView != nil {
-				supportedView.Views[index].IsAdded = true
 				addedViewId := addedView.ID.Hex()
 				supportedView.Views[index].ViewID = &addedViewId
 			}
