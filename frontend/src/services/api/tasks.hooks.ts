@@ -7,13 +7,13 @@ import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetO
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 import { TTaskSection, TTask } from "../../utils/types"
 
-interface TCreateTaskData {
+export interface TCreateTaskData {
     title: string
     body: string
     id_task_section: string
 }
 
-interface TCreateTaskResponse {
+export interface TCreateTaskResponse {
     task_id: string
 }
 
@@ -132,7 +132,7 @@ export const useCreateTask = () => {
         },
     })
 }
-const createTask = async (data: TCreateTaskData) => {
+export const createTask = async (data: TCreateTaskData) => {
     try {
         const res = await apiClient.post('/tasks/create/gt_task/', data)
         return castImmutable(res.data)
