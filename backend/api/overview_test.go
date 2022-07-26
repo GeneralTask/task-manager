@@ -1093,11 +1093,8 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 	defer dbCleanup()
 
 	userID := getUserIDFromAuthToken(t, db, authToken)
-
 	viewCollection := database.GetViewCollection(db)
-
 	taskSectionCollection := database.GetTaskSectionCollection(db)
-
 	taskSection, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
 		UserID: userID,
 		Name:   "Duck section",
