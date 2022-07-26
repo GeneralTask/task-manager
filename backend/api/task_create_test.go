@@ -129,9 +129,14 @@ func TestCreateTask(t *testing.T) {
 }
 
 func TestSlackTaskCreate(t *testing.T) {
-	router := GetRouter(GetAPI())
+	parentCtx := context.Background()
 
-	t.Run("BadSourceID", func(t *testing.T) {
+	router := GetRouter(GetAPI())
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	t.Run("InvalidData", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
 			"/tasks/create_external/slack/",
@@ -145,5 +150,96 @@ func TestSlackTaskCreate(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"signing secret invalid\"}", string(body))
+	})
+
+	t.Run("PayloadInvalid", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create_external/slack/",
+			bytes.NewBuffer([]byte(`{"payload": []}`)))
+
+		request.Header.Add("X-Slack-Request-Timestamp", "1355517523.000005")
+		request.Header.Add("X-Slack-Signature", "v0=217eb7b584f4aacbc0298cce54aee21618f8c0dcf7be7304ea1c8e6b02d131ce")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"payload not included in request\"}", string(body))
+	})
+
+	t.Run("TeamInvalid", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create_external/slack/",
+			bytes.NewBuffer([]byte(`payload=%7B%22type%22%3A%22message_action%22%2C%22team%22%3A%7B%22id%22%3A%22invalid-team%22%2C%22domain%22%3A%22generaltask%22%7D%2C%22user%22%3A%7B%22id%22%3A%22invalid-user%22%2C%22username%22%3A%22invalid-user%22%2C%22team_id%22%3A%22uhoh%22%2C%22name%22%3A%22invalid-team%22%7D%2C%22channel%22%3A%7B%22id%22%3A%22channel%22%2C%22name%22%3A%22directmessage%22%7D%2C%22is_enterprise_install%22%3Afalse%2C%22enterprise%22%3Anull%2C%22callback_id%22%3A%22create_task%22%2C%22trigger_id%22%3A%223874062481760.1734323190625.501316e39308b13eaaf3d8366810ff0d%22%2C%22message_ts%22%3A%221658791396.156309%22%2C%22message%22%3A%7B%22client_msg_id%22%3A%22client_msg_id%22%2C%22type%22%3A%22message%22%2C%22text%22%3A%22sounds%2Bgood%2C%2Bwill%2Btake%2Ba%2Blook%22%2C%22user%22%3A%22U02A0P4D61J%22%2C%22ts%22%3A%221658791396.156309%22%2C%22team%22%3A%22invalid-team%22%2C%22blocks%22%3A%5B%7B%22type%22%3A%22rich_text%22%2C%22block_id%22%3A%22ajF%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22rich_text_section%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22text%22%2C%22text%22%3A%22sounds%2Bgood%2C%2Bwill%2Btake%2Ba%2Blook%22%7D%5D%7D%5D%7D%5D%7D%7D`)))
+
+		request.Header.Add("X-Slack-Request-Timestamp", "1355517523.000005")
+		request.Header.Add("X-Slack-Signature", "v0=8291ef6ca981ccf5521fc4e6e6d724d0b5eb5467b3a2e716913575b677754e85")
+		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"internal server error\"}", string(body))
+	})
+
+	t.Run("InvalidOauthToken", func(t *testing.T) {
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		database.GetExternalTokenCollection(db).InsertOne(
+			dbCtx,
+			&database.ExternalAPIToken{
+				ServiceID: external.TASK_SERVICE_ID_SLACK,
+				AccountID: "valid-team-valid-user",
+			},
+		)
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create_external/slack/",
+			bytes.NewBuffer([]byte(`payload=%7B%22type%22%3A%22message_action%22%2C%22team%22%3A%7B%22id%22%3A%22valid-team%22%2C%22domain%22%3A%22generaltask%22%7D%2C%22user%22%3A%7B%22id%22%3A%22valid-user%22%2C%22username%22%3A%22invalid-user%22%2C%22team_id%22%3A%22uhoh%22%2C%22name%22%3A%22invalid-team%22%7D%2C%22channel%22%3A%7B%22id%22%3A%22channel%22%2C%22name%22%3A%22directmessage%22%7D%2C%22is_enterprise_install%22%3Afalse%2C%22enterprise%22%3Anull%2C%22callback_id%22%3A%22create_task%22%2C%22trigger_id%22%3A%223874062481760.1734323190625.501316e39308b13eaaf3d8366810ff0d%22%2C%22message_ts%22%3A%221658791396.156309%22%2C%22message%22%3A%7B%22client_msg_id%22%3A%22client_msg_id%22%2C%22type%22%3A%22message%22%2C%22text%22%3A%22sounds%2Bgood%2C%2Bwill%2Btake%2Ba%2Blook%22%2C%22user%22%3A%22U02A0P4D61J%22%2C%22ts%22%3A%221658791396.156309%22%2C%22team%22%3A%22invalid-team%22%2C%22blocks%22%3A%5B%7B%22type%22%3A%22rich_text%22%2C%22block_id%22%3A%22ajF%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22rich_text_section%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22text%22%2C%22text%22%3A%22sounds%2Bgood%2C%2Bwill%2Btake%2Ba%2Blook%22%7D%5D%7D%5D%7D%5D%7D%7D`)))
+
+		request.Header.Add("X-Slack-Request-Timestamp", "1355517523.000005")
+		request.Header.Add("X-Slack-Signature", "v0=e20b75b850ea9535b35e8958a05afb298d826932ba24bf2d85ba1d2b6ffc2033")
+		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"internal server error\"}", string(body))
+	})
+
+	t.Run("SuccessMessageAction", func(t *testing.T) {
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		database.GetExternalTokenCollection(db).InsertOne(
+			dbCtx,
+			&database.ExternalAPIToken{
+				ServiceID: external.TASK_SERVICE_ID_SLACK,
+				AccountID: "valid-team-valid-user-2",
+				Token:     `{"access_token": "hello"}`,
+			},
+		)
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create_external/slack/",
+			bytes.NewBuffer([]byte(`payload=%7B%22type%22%3A%22message_action%22%2C%22team%22%3A%7B%22id%22%3A%22valid-team%22%2C%22domain%22%3A%22generaltask%22%7D%2C%22user%22%3A%7B%22id%22%3A%22valid-user-2%22%2C%22username%22%3A%22invalid-user%22%2C%22team_id%22%3A%22uhoh%22%2C%22name%22%3A%22invalid-team%22%7D%2C%22channel%22%3A%7B%22id%22%3A%22channel%22%2C%22name%22%3A%22directmessage%22%7D%2C%22is_enterprise_install%22%3Afalse%2C%22enterprise%22%3Anull%2C%22callback_id%22%3A%22create_task%22%2C%22trigger_id%22%3A%223874062481760.1734323190625.501316e39308b13eaaf3d8366810ff0d%22%2C%22message_ts%22%3A%221658791396.156309%22%2C%22message%22%3A%7B%22client_msg_id%22%3A%22client_msg_id%22%2C%22type%22%3A%22message%22%2C%22text%22%3A%22sounds%2Bgood%2C%2Bwill%2Btake%2Ba%2Blook%22%2C%22user%22%3A%22U02A0P4D61J%22%2C%22ts%22%3A%221658791396.156309%22%2C%22team%22%3A%22invalid-team%22%2C%22blocks%22%3A%5B%7B%22type%22%3A%22rich_text%22%2C%22block_id%22%3A%22ajF%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22rich_text_section%22%2C%22elements%22%3A%5B%7B%22type%22%3A%22text%22%2C%22text%22%3A%22sounds%2Bgood%2C%2Bwill%2Btake%2Ba%2Blook%22%7D%5D%7D%5D%7D%5D%7D%7D`)))
+
+		request.Header.Add("X-Slack-Request-Timestamp", "1355517523.000005")
+		request.Header.Add("X-Slack-Signature", "v0=2450a607e549a5808f45726a54534ba3f300323baad71a1eb95d9758006cf41a")
+		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 	})
 }
