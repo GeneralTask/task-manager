@@ -315,9 +315,15 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	defer cancel()
 
 	opts := options.Update().SetUpsert(true)
-	taskCollection.UpdateMany(dbCtx, eventInterfaces, opts)
+	updateResult, err := taskCollection.UpdateMany(dbCtx, eventInterfaces, opts)
+	if err != nil {
+		return nil, err
+	}
+	api.Logger.Debug().Msgf("%d events updated", updateResult.ModifiedCount)
+	api.Logger.Debug().Msgf("%d events upserted", updateResult.UpsertedCount)
+	api.Logger.Debug().Msgf("%d events matched", updateResult.MatchedCount)
 
-	api.Logger.Debug().Msgf("events: %v", events)
+	api.Logger.Debug().Msgf("events len: %v", len(events))
 	dbCtx, cancel = context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 
@@ -332,6 +338,10 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 			},
 		},
 	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to get tasks")
+		return nil, err
+	}
 	err = newcursor.All(dbCtx, &events)
 	if err != nil {
 		return nil, err
