@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { useReorderTask } from '../../../services/api/overview.hooks'
@@ -25,9 +25,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
         [view.task_section_id]
     )
 
-    // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
-    const scrollingRef = useRef<HTMLDivElement>(null)
-
     const handleMarkTaskComplete = useCallback(
         (taskId: string, isComplete: boolean) => {
             if (!view.task_section_id) return
@@ -37,11 +34,17 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     )
 
     return (
-        <div ref={scrollingRef}>
-            {sectionId &&
-                view.view_items.slice(0, visibleItemsCount).map((item, index) => (
-                    <ReorderDropContainer
-                        key={item.id}
+        <>
+            {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
+                <ReorderDropContainer
+                    key={item.id}
+                    index={index}
+                    acceptDropType={DropType.TASK}
+                    onReorder={emptyFunction} // TODO: add reordering
+                >
+                    <Task
+                        task={item as TTask}
+                        dragDisabled={true}
                         index={index}
                         acceptDropType={DropType.TASK}
                         onReorder={handleReorderTask}

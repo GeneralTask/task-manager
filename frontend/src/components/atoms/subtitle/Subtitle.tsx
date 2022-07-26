@@ -3,14 +3,12 @@ import styled from 'styled-components'
 import { Colors, Typography } from '../../../styles'
 
 const SubtitleStyled = styled.span`
-    color: ${Colors.gray._600};
-    font-size: ${Typography.small.fontSize};
-    font-weight: ${Typography.weight._400};
+    color: ${Colors.text.light};
+    ${Typography.body};
 `
 const SubtitleSmallStyles = styled.span`
-    color: ${Colors.gray._500};
-    font-size: ${Typography.xxSmall.fontSize};
-    font-weight: ${Typography.weight._400};
+    color: ${Colors.text.light};
+    ${Typography.bodySmall};
 `
 
 interface SubtitleProps {

@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { TOverviewView } from '../../utils/types'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { ViewHeader, ViewContainer, PaginateTextButton, OptimisticItemsContainer } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import Spinner from '../atoms/Spinner'
+import AuthBanner from './AuthBanner'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
 
 const PAGE_SIZE = 5
@@ -36,9 +37,15 @@ const OverviewView = ({ view }: OverviewViewProps) => {
         }
     }, [view.type])
 
+    useEffect(() => {
+        setVisibleItemsCount(Math.min(view.view_items.length, PAGE_SIZE))
+    }, [view.is_linked])
+
     return (
         <ViewContainer>
             <ViewHeader>{view.name}</ViewHeader>
+            {!view.is_linked &&
+                view.sources.map((source, index) => <AuthBanner key={index} source={source} logo={view.logo} />)}
             <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
             {visibleItemsCount < view.view_items.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>

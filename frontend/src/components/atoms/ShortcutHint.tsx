@@ -8,12 +8,12 @@ const ShortcutHintContainer = styled.div`
     border-radius: ${Border.radius.xxSmall};
     padding: 0;
     text-align: center;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     width: 20px;
     height: 20px;
     justify-content: center;
     align-items: center;
-    font-size: ${Typography.xSmall}px;
+    ${Typography.body};
 `
 
 interface ShortcutHintProps {

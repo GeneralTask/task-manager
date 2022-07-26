@@ -5,7 +5,6 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import NoStyleButton from './buttons/NoStyleButton'
 import { Icon } from './Icon'
-import { background } from '../../styles/colors'
 
 const MODAL_MAX_HEIGHT = '75vh'
 const MODAL_MIN_HEIGHT = '50vh'
@@ -23,14 +22,12 @@ const ModalContainer = styled.div`
     justify-content: space-between;
 `
 const Header = styled.div`
-    color: ${Colors.gray._700};
-    font-size: ${Typography.xLarge.fontSize};
-    line-height: ${Typography.xLarge.lineHeight};
-    font-weight: ${Typography.weight._600};
+    color: ${Colors.text.light};
     margin-bottom: ${Spacing.margin._16};
     display: flex;
     justify-content: space-between;
     align-items: center;
+    ${Typography.title};
 `
 const Body = styled.div`
     overflow: auto;
@@ -47,7 +44,7 @@ const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: ${Border.radius.small};
     &:hover {
-        background-color: ${Colors.gray._200};
+        background-color: ${Colors.background.dark};
     }
 `
 const ButtonsGroup = styled.div`
@@ -56,9 +53,6 @@ const ButtonsGroup = styled.div`
 `
 
 const modalStyles = {
-    overlay: {
-        background: background.modalOverlay,
-    },
     content: {
         margin: 'auto',
         border: 'none',

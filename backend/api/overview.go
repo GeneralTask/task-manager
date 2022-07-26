@@ -181,9 +181,33 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(*tasks, func(i, j int) bool {
+		return (*tasks)[i].IDOrdering < (*tasks)[j].IDOrdering
+	})
 
+	// Reset ID orderings to begin at 1
 	taskResults := []*TaskResult{}
+	taskCollection := database.GetTaskCollection(db)
+	orderingID := 1
 	for _, task := range *tasks {
+		if task.IDOrdering != orderingID {
+			task.IDOrdering = orderingID
+			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+			defer cancel()
+			res, err := taskCollection.UpdateOne(
+				dbCtx,
+				bson.M{"_id": task.ID},
+				bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
+			)
+			if err != nil {
+				return nil, err
+			}
+			if res.MatchedCount != 1 {
+				api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+				return nil, errors.New("failed to update task ordering")
+			}
+		}
+		orderingID++
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
@@ -460,12 +484,12 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is required for task section type views"})
 			return
 		}
 		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
@@ -492,13 +516,15 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 
 	viewCollection := database.GetViewCollection(db)
-	_, err = viewCollection.InsertOne(parentCtx, view)
+	insertedView, err := viewCollection.InsertOne(parentCtx, view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
 		Handle500(c)
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
+	})
 }
 
 func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {

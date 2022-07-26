@@ -9,7 +9,7 @@ const SelectContainer = styled.div<{ alignment: 'left' | 'right' }>`
     display: flex;
     flex-direction: column;
     position: absolute;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: ${radius.regular};
     box-shadow: ${Shadows.medium};
     z-index: 1;
@@ -24,8 +24,8 @@ const OptionsContainer = styled.div`
 `
 const TitleContainer = styled.div`
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.gray._100};
-    color: ${Colors.gray._600};
+    border-bottom: 1px solid ${Colors.background.medium};
+    color: ${Colors.text.light};
 `
 const ListItem = styled.div<{ hasPadding: boolean }>`
     display: flex;
@@ -33,7 +33,7 @@ const ListItem = styled.div<{ hasPadding: boolean }>`
     align-items: center;
     ${({ hasPadding }) => (hasPadding ? `padding: ${Spacing.padding._8} ${Spacing.padding._16};` : '')}
     &:hover {
-        background-color: ${Colors.gray._100};
+        background-color: ${Colors.background.medium};
     }
     overflow: hidden;
     cursor: pointer;
@@ -44,7 +44,7 @@ const SectionTitleBox = styled.div`
     flex-direction: row;
     align-items: center;
     gap: ${Spacing.padding._8};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     min-width: 0;
 `
 const PositionRelative = styled.div`

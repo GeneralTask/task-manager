@@ -13,7 +13,7 @@ const DetailsViewContainer = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
     min-width: 300px;
     padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
@@ -25,15 +25,14 @@ const DetailsTopContainer = styled.div`
 `
 const TitleContainer = styled.div`
     background-color: inherit;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     font: inherit;
-    font-size: ${Typography.large.fontSize};
-    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
     overflow: hidden;
     margin-bottom: ${Spacing.margin._16};
+    ${Typography.subtitle};
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -52,11 +51,9 @@ const InfoContainer = styled.div`
     flex-direction: row;
     gap: ${Spacing.margin._8};
     align-items: center;
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     margin-bottom: ${Spacing.margin._8};
+    ${Typography.bodySmall};
 `
 
 interface PullRequestDetailsProps {

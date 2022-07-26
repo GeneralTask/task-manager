@@ -13,9 +13,9 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 
 const AddViewsButton = styled(NoStyleButton)`
-    border: 1px solid ${Colors.gray._500};
+    border: 1px solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     display: flex;
     align-items: center;
     padding: ${Spacing.padding._8};
@@ -47,7 +47,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            leftButtons={<GTButton value="Done" color={Colors.purple._1} onClick={onClose} />}
+            leftButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             rightButtons={
                 <AddViewsButton onClick={goToAddViewsView}>
                     <Icon source={icons.plus} size="small" />

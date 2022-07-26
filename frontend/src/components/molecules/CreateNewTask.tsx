@@ -12,7 +12,7 @@ const CreateNewTaskContainer = styled.div`
     flex-shrink: 0;
     flex-direction: row;
     gap: ${padding._8};
-    background-color: ${Colors.gray._100};
+    background-color: ${Colors.background.medium};
     height: 45px;
     align-items: center;
     padding: 0px ${padding._8};
@@ -23,8 +23,8 @@ const TaskInput = styled.input`
     border: none;
     outline: none;
     background-color: transparent;
-    font-size: ${Typography.medium.fontSize};
     flex: 1;
+    ${Typography.body};
 `
 
 interface CreateNewTaskProps {
