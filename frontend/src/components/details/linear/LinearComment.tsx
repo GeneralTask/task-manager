@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 
 const CommentContainer = styled.div`
-    border: 1px solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
     padding: ${Spacing.padding._8};
 `

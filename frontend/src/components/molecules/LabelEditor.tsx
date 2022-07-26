@@ -1,8 +1,7 @@
 import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
-import { radius } from '../../styles/border'
+import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
@@ -15,7 +14,7 @@ const LabelEditorContainer = styled.div`
     width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
     background-color: ${Colors.background.white};
-    border-radius: ${radius.regular};
+    border-radius: ${Border.radius.medium};
     box-shadow: ${Shadows.medium};
     z-index: 1;
     top: 100%;

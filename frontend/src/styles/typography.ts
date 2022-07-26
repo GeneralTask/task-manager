@@ -23,7 +23,7 @@ const lineHeight = {
     l: '40px',
     xl: '56px',
 }
-const weight2 = {
+const weight = {
     regular: '400',
     medium: '510',
     semibold: '590',
@@ -33,48 +33,48 @@ const weight2 = {
 export const header = css`
     font-size: ${fontSize.xxl};
     line-height: ${lineHeight.xl};
-    font-weight: ${weight2.bold};
+    font-weight: ${weight.bold};
     letter-spacing: -.02em; // -2%
 `
 export const title = css`
     font-size: ${fontSize.xl};
     line-height: ${lineHeight.l};
-    font-weight: ${weight2.semibold};
+    font-weight: ${weight.semibold};
     letter-spacing: -.01em; // -1%
 `
 export const subtitle = css`
     font-size: ${fontSize.l};
     line-height: ${lineHeight.m};
-    font-weight: ${weight2.medium};
+    font-weight: ${weight.medium};
     letter-spacing: -.01em; // -1%
 `
 export const body = css`
     font-size: ${fontSize.m};
     line-height: ${lineHeight.m};
-    font-weight: ${weight2.regular};
+    font-weight: ${weight.regular};
     letter-spacing: -.01em; // -1%
 `
 export const bodySmall = css`
     font-size: ${fontSize.s};
     line-height: ${lineHeight.m};
-    font-weight: ${weight2.regular};
+    font-weight: ${weight.regular};
     letter-spacing: -.01em; // -1%
 `
 export const label = css`
     font-size: ${fontSize.xs};
     line-height: ${lineHeight.s};
-    font-weight: ${weight2.regular};
+    font-weight: ${weight.regular};
     letter-spacing: -.01em; // -1%
 `
 export const eyebrow = css`
     font-size: ${fontSize.xs};
     line-height: ${lineHeight.s};
-    font-weight: ${weight2.regular};
+    font-weight: ${weight.regular};
     letter-spacing: .12em; // 12%
     text-transform: uppercase;
 `
 export const mini = css`
     font-size: ${fontSize.xxs};
     line-height: ${lineHeight.xs};
-    font-weight: ${weight2.regular};
+    font-weight: ${weight.regular};
 `
