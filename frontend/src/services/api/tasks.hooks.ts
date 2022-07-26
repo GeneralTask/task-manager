@@ -239,11 +239,9 @@ export const useReorderTask = () => {
             reorderTask(data),
         {
             onMutate: async (data: TReorderTaskData) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
-
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
+                await queryClient.cancelQueries('tasks')
 
                 const newSections = produce(sections, (draft) => {
                     // move within the existing section
@@ -285,6 +283,7 @@ export const useReorderTask = () => {
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
+                queryClient.invalidateQueries('overview')
             },
         }
     )

@@ -31,10 +31,10 @@ export const useReorderViews = () => {
         (data: TReorderViewData) => reorderView(data),
         {
             onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
-                await queryClient.cancelQueries('overview')
-
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!views) return
+                await queryClient.cancelQueries('overview')
+                await queryClient.cancelQueries('tasks')
 
                 const newViews = produce(views, draft => {
                     const startIndex = draft.findIndex(view => view.id === viewId)
@@ -132,8 +132,8 @@ export const useAddView = () => {
                             logo: supportedView.logo,
                             view_items: [],
                             isOptimistic: true,
-                            sources: [], 
-                            is_linked: true 
+                            sources: [],
+                            is_linked: true
                         }
                         draft.push(optimisticView)
                     })
@@ -272,11 +272,10 @@ export const useReorderTask = () => {
             reorderTask(data),
         {
             onMutate: async (data: TReorderTaskData) => {
-                // cancel all current getTasks queries
-                await queryClient.cancelQueries('tasks')
-
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!views) return
+                await queryClient.cancelQueries('tasks')
+                await queryClient.cancelQueries('overview')
 
                 const newViews = produce(views, (draft) => {
                     // move within the existing section
@@ -297,7 +296,7 @@ export const useReorderTask = () => {
                     // move task from one section to the other
                     else {
                         // remove task from old location
-                        const dragSection = draft.find((section) => section.id === data.dragSectionId)
+                        const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
                         if (dragSection == null) return
                         const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.taskId)
                         if (dragTaskIndex === -1) return
@@ -305,7 +304,7 @@ export const useReorderTask = () => {
                         dragSection.view_items.splice(dragTaskIndex, 1)
 
                         // add task to new location
-                        const dropSection = draft.find((section) => section.id === data.dropSectionId)
+                        const dropSection = draft.find((section) => section.task_section_id === data.dropSectionId)
                         if (dropSection == null) return
                         dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
 
@@ -318,6 +317,7 @@ export const useReorderTask = () => {
             },
             onSettled: () => {
                 queryClient.invalidateQueries('overview')
+                queryClient.invalidateQueries('tasks')
             },
         }
     )

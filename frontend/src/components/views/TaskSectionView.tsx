@@ -162,7 +162,7 @@ const TaskSectionView = () => {
                                     index={section.tasks.length + 1}
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
-                                    isLast
+                                    indicatorType="TOP_ONLY"
                                 >
                                     <BottomDropArea />
                                 </ReorderDropContainer>

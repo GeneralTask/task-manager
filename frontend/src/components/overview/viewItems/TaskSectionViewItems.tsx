@@ -1,11 +1,19 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { useReorderTask } from '../../../services/api/overview.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
+
+const EmptyDropContainer = styled.div`
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
 
 const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
@@ -16,17 +24,16 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
             if (!view.task_section_id) return
+            console.log({ item, dropIndex })
             reorderTask({
                 taskId: item.id,
                 orderingId: dropIndex,
                 dropSectionId: view.task_section_id,
+                dragSectionId: item.sectionId,
             })
         },
         [view.task_section_id]
     )
-
-    // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
-    const scrollingRef = useRef<HTMLDivElement>(null)
 
     const handleMarkTaskComplete = useCallback(
         (taskId: string, isComplete: boolean) => {
@@ -37,8 +44,8 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     )
 
     return (
-        <div ref={scrollingRef}>
-            {sectionId &&
+        <>
+            {view.view_items.length > 0 ? (
                 view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                     <ReorderDropContainer
                         key={item.id}
@@ -51,14 +58,23 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                             dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
-                            sectionScrollingRef={scrollingRef}
                             isSelected={overviewItem === item.id}
                             link={`/overview/${item.id}`}
                             onMarkComplete={handleMarkTaskComplete}
                         />
                     </ReorderDropContainer>
-                ))}
-        </div>
+                ))
+            ) : (
+                <ReorderDropContainer
+                    index={0}
+                    acceptDropType={DropType.TASK}
+                    onReorder={handleReorderTask}
+                    indicatorType="WHOLE"
+                >
+                    <EmptyDropContainer>No tasks</EmptyDropContainer>
+                </ReorderDropContainer>
+            )}
+        </>
     )
 }
 

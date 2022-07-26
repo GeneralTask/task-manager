@@ -63,7 +63,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
                     index={views.length}
                     acceptDropType={DropType.OVERVIEW_VIEW}
                     onReorder={handleReorder}
-                    isLast
+                    indicatorType="TOP_ONLY"
                 />
             </>
         </GTModal>
