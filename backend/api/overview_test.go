@@ -1102,6 +1102,9 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 	assert.NoError(t, err)
 	taskSectionID := taskSection.InsertedID.(primitive.ObjectID).Hex()
 
+	t.Run("TestUnauthorized", func(t *testing.T) {
+		ServeRequest(t, "badAuthToken", "GET", "/overview/supported_views/", nil, http.StatusUnauthorized)
+	})
 	t.Run("TestNoViewsAdded", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
