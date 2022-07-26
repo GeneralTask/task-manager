@@ -15,7 +15,7 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
@@ -78,6 +78,8 @@ interface WeekCalendarEventsProps {
 const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const [eventDetailsID, setEventDetailsID] = useState('')
+
     return (
         <DayAndHeaderContainer>
             {expandedCalendar && (
@@ -89,7 +91,13 @@ const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps
             )}
             <DayContainer>
                 {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={tmpDate} />
+                    <CollisionGroupColumns
+                        key={index}
+                        events={group}
+                        date={tmpDate}
+                        eventDetailId={eventDetailsID}
+                        setEventDetailId={setEventDetailsID}
+                    />
                 ))}
                 <TimeIndicator />
                 <CalendarDayTable />

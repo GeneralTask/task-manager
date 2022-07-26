@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -10,12 +10,15 @@ import {
     EventTime,
     EventTitle,
 } from './CalendarEvents-styles'
+import EventDetailPopup from '../molecules/EventDetailPopup'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 interface EventBodyProps {
     event: TEvent
+    eventDetailId: string
+    setEventDetailId: (id: string) => void
     collisionGroupSize: number
     leftOffset: number
     date: DateTime
@@ -39,6 +42,34 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
+    // const [popupVisible, setPopupVisible] = useState("")
+
+    // const togglePopup = (newEventID: string) => {
+    //     // if the user clicks on a new event
+    //     // if (popupVisible !== newEventID) {
+    //     //     setPopupVisible(newEventID);
+    //     // }
+    //     // // keep the previous state
+    //     // else {
+    //     //     setPopupVisible(popupVisible);
+    //     // }
+    //     // popupVisible ? eventID === props.event.id : eventID;
+    //     props.setEventDetailId(newEventID)
+
+    //     console.log('props event id:', newEventID)
+    //     console.log('stored event id:', props.eventDetailId)
+    // }
+
+    useEffect(() => {
+        console.log('updated event details id: ' + props.eventDetailId)
+        console.log('actual evend id: ' + props.event.id)
+    }),
+        [props.eventDetailId]
+    const helpHandleClose = () => {
+        console.log('woooo i got closed')
+        props.setEventDetailId('')
+    }
+
     return (
         <EventBodyStyle
             key={props.event.id}
@@ -48,7 +79,10 @@ function EventBody(props: EventBodyProps): JSX.Element {
             eventBodyHeight={eventBodyHeight}
             eventHasEnded={eventHasEnded}
         >
-            <EventInfoContainer>
+            <EventInfoContainer onClick={() => props.setEventDetailId(props.event.id)}>
+                {props.eventDetailId === props.event.id && (
+                    <EventDetailPopup event={props.event} date={props.date} handleClose={helpHandleClose} />
+                )}
                 <EventInfo isLongEvent={isLongEvent}>
                     <EventTitle isLongEvent={isLongEvent}>{props.event.title || '(no title)'}</EventTitle>
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
