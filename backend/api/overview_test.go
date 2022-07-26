@@ -197,18 +197,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 					IsCompleted:   false,
 					IDTaskSection: taskSectionID,
 					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-					IDOrdering:    3,
-				},
-				TaskType: database.TaskType{
-					IsTask: true,
-				}},
-			database.Item{
-				TaskBase: database.TaskBase{
-					UserID:        userID,
-					IsCompleted:   false,
-					IDTaskSection: taskSectionID,
-					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-					IDOrdering:    1,
+					IDOrdering:    4,
 				},
 				TaskType: database.TaskType{
 					IsTask: true,
@@ -220,6 +209,17 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 					IDTaskSection: taskSectionID,
 					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
 					IDOrdering:    2,
+				},
+				TaskType: database.TaskType{
+					IsTask: true,
+				}},
+			database.Item{
+				TaskBase: database.TaskBase{
+					UserID:        userID,
+					IsCompleted:   false,
+					IDTaskSection: taskSectionID,
+					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+					IDOrdering:    3,
 				},
 				TaskType: database.TaskType{
 					IsTask: true,
@@ -236,16 +236,19 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
-		// Check result and also check that the order is correct
+		// Check results are in the correct order, and the IDOrderings begin at 1
 		expectedViewResult.ViewItems = []*TaskResult{
 			{
-				ID: secondTaskID,
+				ID:         secondTaskID,
+				IDOrdering: 1,
 			},
 			{
-				ID: thirdTaskID,
+				ID:         thirdTaskID,
+				IDOrdering: 2,
 			},
 			{
-				ID: firstTaskID,
+				ID:         firstTaskID,
+				IDOrdering: 3,
 			},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
