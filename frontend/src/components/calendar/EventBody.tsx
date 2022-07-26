@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useEffect, useState } from 'react'
+import React, { MouseEvent } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -11,6 +11,7 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import EventDetailPopup from '../molecules/EventDetailPopup'
+import { CONSOLE_LEVELS } from '@sentry/utils'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -42,31 +43,14 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    // const [popupVisible, setPopupVisible] = useState("")
+    // const helpHandleClick = () => {
+    //     props.setEventDetailId(props.event.id)
 
-    // const togglePopup = (newEventID: string) => {
-    //     // if the user clicks on a new event
-    //     // if (popupVisible !== newEventID) {
-    //     //     setPopupVisible(newEventID);
-    //     // }
-    //     // // keep the previous state
-    //     // else {
-    //     //     setPopupVisible(popupVisible);
-    //     // }
-    //     // popupVisible ? eventID === props.event.id : eventID;
-    //     props.setEventDetailId(newEventID)
-
-    //     console.log('props event id:', newEventID)
-    //     console.log('stored event id:', props.eventDetailId)
+    //     console.log('wooo i made it here')
     // }
 
-    useEffect(() => {
-        console.log('updated event details id: ' + props.eventDetailId)
-        console.log('actual evend id: ' + props.event.id)
-    }),
-        [props.eventDetailId]
-    const helpHandleClose = () => {
-        console.log('woooo i got closed')
+    const helpHandleClose = (e: MouseEvent) => {
+        e.stopPropagation()
         props.setEventDetailId('')
     }
 

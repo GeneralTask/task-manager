@@ -70,15 +70,24 @@ function CalendarTimeTable(): JSX.Element {
     )
 }
 
+// WeekCalendarEvents are the events located in each day column
+// Gets called in CalendearEvents (down below)
 interface WeekCalendarEventsProps {
     date: DateTime
     dayOffset: number
     groups: TEvent[][]
+    eventDetailId: string
+    setEventDetailId: (id: string) => void
 }
-const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps): JSX.Element => {
+const WeekCalendarEvents = ({
+    date,
+    dayOffset,
+    groups,
+    eventDetailId,
+    setEventDetailId,
+}: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
-    const [eventDetailsID, setEventDetailsID] = useState('')
 
     return (
         <DayAndHeaderContainer>
@@ -95,8 +104,8 @@ const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps
                         key={index}
                         events={group}
                         date={tmpDate}
-                        eventDetailId={eventDetailsID}
-                        setEventDetailId={setEventDetailsID}
+                        eventDetailId={eventDetailId}
+                        setEventDetailId={setEventDetailId}
                     />
                 ))}
                 <TimeIndicator />
@@ -125,6 +134,10 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
+
+    // To make sure that the eventDetailsID is being updated to all events, not just the events in the same weekday
+    // Note: Redux() could have been used to avoid the multiple passing of props across different files, but since the path is not too long, I chose not to
+    const [eventDetailsID, setEventDetailsID] = useState('')
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -212,6 +225,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         drop(eventsContainerRef)
     }, [eventsContainerRef])
 
+    // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (
         <AllDaysContainer ref={eventsContainerRef}>
             <TimeAndHeaderContainer>
@@ -222,7 +236,14 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                 </TimeContainer>
             </TimeAndHeaderContainer>
             {allGroups.map((groups, dayOffset) => (
-                <WeekCalendarEvents key={dayOffset} date={date} dayOffset={dayOffset} groups={groups} />
+                <WeekCalendarEvents
+                    key={dayOffset}
+                    date={date}
+                    dayOffset={dayOffset}
+                    groups={groups}
+                    eventDetailId={eventDetailsID}
+                    setEventDetailId={setEventDetailsID}
+                />
             ))}
         </AllDaysContainer>
     )

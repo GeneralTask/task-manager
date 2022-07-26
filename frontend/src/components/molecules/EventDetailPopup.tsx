@@ -24,7 +24,7 @@ const EventBoxStyle = styled.div`
     right: 110px;
     width: 315px;
 
-    background: ${Colors.background.white};
+    background-color: ${Colors.background.white};
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.16);
     border-radius: ${Border.radius.small};
 `
@@ -33,6 +33,7 @@ const EventBody = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    cursor: text;
 `
 // Frame 34279
 const EventHeader = styled.div`
@@ -40,7 +41,7 @@ const EventHeader = styled.div`
     flex-direction: row;
     align-items: center;
 
-    gap: 118px;
+    gap: 138px;
     width: 280px;
 `
 // Frame 34280
@@ -115,9 +116,15 @@ const ExternalLinkButton = styled.button`
     ${Typography.label};
 `
 // Button for closing popup
+// padding: ${Spacing.padding._8};
 const CloseButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
-    border-radius: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: ${Spacing.padding._4};
+    isolation: isolate;
+
+    border-radius: 30vh;
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -150,7 +157,6 @@ interface EventDetailProps {
     handleClose: React.MouseEventHandler<HTMLButtonElement>
 }
 
-// TO DO: figure out edge cases (long events)
 // TO DO: figure out exit logic
 // TO DO: figure out CSS styling for where popup goes (for expanded and collapsed)
 

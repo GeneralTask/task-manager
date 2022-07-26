@@ -97,6 +97,10 @@ export const EventInfoContainer = styled.div`
     width: 100%;
     position: absolute;
     z-index: 1;
+    &:hover {
+        border: 1px solid #717179;
+        border-radius: ;
+    }
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
