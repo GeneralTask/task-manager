@@ -840,7 +840,7 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 	}
 	for _, supportedView := range *supportedViews {
 		for index, view := range supportedView.Views {
-			addedView, err := api.getAddedViewFromSupportedView(db, userID, supportedView.Type, view)
+			addedView, err := api.getViewFromSupportedView(db, userID, supportedView.Type, view)
 			if err != nil {
 				return err
 			}
@@ -853,22 +853,22 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 	return nil
 }
 
-func (api *API) getAddedViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (*database.View, error) {
+func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (*database.View, error) {
 	if viewType == ViewTaskSection {
-		return api.getViewFromSupportedView(db, userID, viewType, &[]bson.M{
+		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
 	} else if viewType == ViewLinear || viewType == ViewSlack {
-		return api.getViewFromSupportedView(db, userID, viewType, nil)
+		return api.getView(db, userID, viewType, nil)
 	} else if viewType == ViewGithub {
-		return api.getViewFromSupportedView(db, userID, viewType, &[]bson.M{
+		return api.getView(db, userID, viewType, &[]bson.M{
 			{"github_id": view.GithubID},
 		})
 	}
 	return nil, errors.New("invalid view type")
 }
 
-func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (*database.View, error) {
+func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (*database.View, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
