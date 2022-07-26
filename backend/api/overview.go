@@ -26,10 +26,11 @@ const (
 )
 
 const (
-	ViewTaskSection ViewType = "task_section"
-	ViewLinear      ViewType = "linear"
-	ViewSlack       ViewType = "slack"
-	ViewGithub      ViewType = "github"
+	ViewTaskSection    ViewType = "task_section"
+	ViewLinear         ViewType = "linear"
+	ViewSlack          ViewType = "slack"
+	ViewGithub         ViewType = "github"
+	ViewPrepareMeeting ViewType = "prepare_meeting"
 )
 
 type SourcesResult struct {
@@ -155,6 +156,12 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 				return nil, err
 			}
 			result = append(result, overviewResult)
+		} else if view.Type == string(ViewPrepareMeeting) {
+			overviewResult, err := api.GetMeetingPreparationOverviewResult(db, ctx, view, userID)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, overviewResult)
 		} else {
 			return nil, errors.New("invalid view type")
 		}
@@ -234,6 +241,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 		var serviceID string
 		if view.Type == string(ViewTaskSection) {
 			continue
+		} else if view.Type == string(ViewPrepareMeeting) {
+			continue
 		} else if view.Type == string(ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
 		} else if view.Type == string(ViewSlack) {
@@ -271,27 +280,66 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	var token database.ExternalAPIToken
+	var events []database.Item
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	taskCollection := database.GetTaskCollection(db)
 
-	cursor, err := externalAPITokenCollection.Find(
+	endOfDay := primitive.NewDateTimeFromTime(time.Now().AddDate(0, 0, 1))
+
+	cursor, err := taskCollection.Find(
 		dbCtx,
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
-				{"_id": view.EventSourceID},
+				{"task_type.is_event": true},
+				{"calendar_event.datetime_start": bson.M{"$lte": endOfDay}},
 			},
 		},
 	)
+
 	if err != nil {
 		return nil, err
 	}
-	err = cursor.All(dbCtx, &token)
+	err = cursor.All(dbCtx, &events)
 	if err != nil {
 		return nil, err
 	}
+	eventInterfaces := []interface{}{}
+	for _, event := range events {
+		event.TaskType = database.TaskType{IsEvent: true, IsTask: true}
+		eventInterfaces = append(eventInterfaces, event)
+	}
+
+	dbCtx, cancel = context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+
+	opts := options.Update().SetUpsert(true)
+	taskCollection.UpdateMany(dbCtx, eventInterfaces, opts)
+
+	api.Logger.Debug().Msgf("events: %v", events)
+	dbCtx, cancel = context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+
+	newcursor, err := taskCollection.Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"task_type.is_event": true},
+				{"task_type.is_task": true},
+				{"calendar_event.datetime_start": bson.M{"$lte": endOfDay}},
+			},
+		},
+	)
+	err = newcursor.All(dbCtx, &events)
+	if err != nil {
+		return nil, err
+	}
+	api.Logger.Debug().Msgf("event tasks: %v", events)
+
+	result := OverviewResult[TaskResult]{}
+	return &result, nil
 }
 
 func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
