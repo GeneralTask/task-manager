@@ -69,7 +69,7 @@ type SupportedView struct {
 	Logo             string              `json:"logo"`
 	IsNested         bool                `json:"is_nested"`
 	IsLinked         bool                `json:"is_linked"`
-	AuthorizationURL *string             `json:"authorization_url"`
+	AuthorizationURL string              `json:"authorization_url"`
 	Views            []SupportedViewItem `json:"views"`
 }
 
@@ -717,20 +717,17 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		return
 	}
 
-	var githubAuthURL *string
-	var linearAuthURL *string
-	var slackAuthURL *string
+	var githubAuthURL string
+	var linearAuthURL string
+	var slackAuthURL string
 	if !isGithubLinked {
-		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
-		githubAuthURL = &authURL
+		githubAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	}
 	if !isLinearLinked {
-		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
-		linearAuthURL = &authURL
+		linearAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
 	}
 	if !isSlackLinked {
-		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
-		slackAuthURL = &authURL
+		slackAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
 	}
 
 	supportedViews := []SupportedView{
