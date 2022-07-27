@@ -14,7 +14,7 @@ const CreateNewTaskContainer = styled.div`
     height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
     padding: 0px ${Spacing.padding._8};
-    border-radius: ${Border.radius.regular};
+    border-radius: ${Border.radius.medium};
     margin-bottom: ${Spacing.padding._8};
 `
 const TaskInput = styled.input`

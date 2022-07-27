@@ -1,11 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import {
-    useCreateTask,
-    useFetchExternalTasks,
-    useGetTasks,
-    useMarkTaskDone,
-    useReorderTask,
-} from '../../services/api/tasks.hooks'
+import { useFetchExternalTasks, useGetTasks, useMarkTaskDone, useReorderTask } from '../../services/api/tasks.hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'
@@ -68,7 +62,6 @@ const TaskSectionView = () => {
     } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDone } = useMarkTaskDone()
-    const { mutate: createTask } = useCreateTask()
     const { refetch: fetchExternal, isFetching: isFetchingExternal } = useFetchExternalTasks()
 
     const navigate = useNavigate()
@@ -143,11 +136,7 @@ const TaskSectionView = () => {
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
-                                {!section.is_done && (
-                                    <CreateNewTask
-                                        onCreateTask={(title) => createTask({ title, taskSectionId: section.id })}
-                                    />
-                                )}
+                                {!section.is_done && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
                                         <ReorderDropContainer
