@@ -1,4 +1,4 @@
-import { Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 import styled from 'styled-components'
 
@@ -126,9 +126,9 @@ export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }
     width: 100%;
     height: 100%;
     background: ${Colors.background.white};
-    border: 1px solid ${EVENT_CONTAINER_COLOR};
+    border: ${Border.stroke.medium} solid ${EVENT_CONTAINER_COLOR};
     box-sizing: border-box;
-    box-shadow: ${Shadows.small};
+    box-shadow: ${Shadows.light};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : '10px')};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : '10px')};

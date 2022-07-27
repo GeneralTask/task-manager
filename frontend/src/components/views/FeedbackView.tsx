@@ -26,7 +26,7 @@ const FeedbackHeader = styled.div`
 const TextAreaContainer = styled.div`
     flex: 1;
     margin-top: ${Spacing.margin._4};
-    border: 1px solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.small};
 `
 const ButtonContainer = styled.div`

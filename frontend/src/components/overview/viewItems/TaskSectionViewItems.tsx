@@ -1,7 +1,6 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMarkTaskDone } from '../../../services/api/overview.hooks'
-import { useCreateTask } from '../../../services/api/tasks.hooks'
 import { DropType, TTask } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
@@ -12,11 +11,7 @@ import { ViewItemsProps } from './viewItems.types'
 const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
     const { mutate: markTaskDone } = useMarkTaskDone()
-    const { mutate: createTask } = useCreateTask()
     const { overviewItem } = useParams()
-
-    // TODO: either change Task to make this optional or add better support for scrolling. Unused for now.
-    const scrollingRef = useRef<HTMLDivElement>(null)
 
     const handleMarkTaskComplete = useCallback(
         (taskId: string, isComplete: boolean) => {
@@ -27,11 +22,11 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     )
 
     return (
-        <div ref={scrollingRef}>
+        <>
             {sectionId && (
                 <CreateNewTask
                     disableKeyboardShortcut
-                    onCreateTask={(title) => createTask({ title, taskSectionId: sectionId })}
+                    sectionId={sectionId}
                 />
             )}
             {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
@@ -46,14 +41,13 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                         dragDisabled={true}
                         index={index}
                         sectionId={sectionId}
-                        sectionScrollingRef={scrollingRef}
                         isSelected={overviewItem === item.id}
                         link={`/overview/${item.id}`}
                         onMarkComplete={handleMarkTaskComplete}
                     />
                 </ReorderDropContainer>
             ))}
-        </div>
+        </>
     )
 }
 

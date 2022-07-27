@@ -6,8 +6,8 @@ import styled from 'styled-components'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 export const KeyboardShortcutContainer = styled.div<{ isPressed: boolean }>`
-    border-radius: ${Border.radius.xSmall};
-    border: 2px solid ${({ isPressed }) => (isPressed ? Colors.background.dark : Colors.background.light)};
+    border-radius: ${Border.radius.small};
+    border: ${Border.stroke.large} solid ${(props) => (props.isPressed ? Colors.border.gray : 'transparent')};
     display: flex;
     justify-content: center;
     align-items: center;

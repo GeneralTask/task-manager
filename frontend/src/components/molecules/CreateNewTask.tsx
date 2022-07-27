@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Colors, Dimensions, Images, Typography, Border, Spacing } from '../../styles'
+import { useCreateTask } from '../../services/api/tasks.hooks'
+import { Border, Colors, Images, Spacing, Typography, Dimensions } from '../../styles'
 import { Icon } from '../atoms/Icon'
 import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
@@ -13,7 +14,7 @@ const CreateNewTaskContainer = styled.div`
     height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
     padding: 0px ${Spacing.padding._8};
-    border-radius: ${Border.radius.large};
+    border-radius: ${Border.radius.regular};
     margin-bottom: ${Spacing.padding._8};
 `
 const TaskInput = styled.input`
@@ -25,18 +26,19 @@ const TaskInput = styled.input`
 `
 
 interface CreateNewTaskProps {
-    onCreateTask: (title: string) => void
+    sectionId: string
     disableKeyboardShortcut?: boolean
 }
-const CreateNewTask = ({ onCreateTask, disableKeyboardShortcut }: CreateNewTaskProps) => {
+const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
+    const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
 
     const submitNewTask = async () => {
         if (!text) return
         else {
             setText('')
-            onCreateTask(text)
+            createTask({ title: text, taskSectionId: sectionId })
         }
     }
     const handleKeyDown = (e: React.KeyboardEvent) => {

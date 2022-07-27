@@ -10,7 +10,7 @@ import { TSourcesResult } from '../../utils/types'
 
 const BannerContainer = styled.div`
     box-sizing: border-box;
-    border: 1px solid ${Colors.gtColor.secondary};
+    border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
     border-radius: ${Border.radius.small};
     display: flex;
     justify-content: space-between;

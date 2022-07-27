@@ -1,4 +1,4 @@
-import { Colors, Spacing } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
@@ -10,7 +10,7 @@ const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid ${Colors.background.dark};
+    border: ${Border.stroke.large} solid ${Colors.background.dark};
     border-radius: 8px;
     outline: ${(props) => (props.valid ? 'none' : `1px solid ${Colors.status.red.default}`)};
     margin-bottom: 4px;

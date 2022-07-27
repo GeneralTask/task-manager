@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { NO_EVENT_TITLE } from '../../../constants'
-import { Colors, Spacing, Typography } from '../../../styles'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { useMeetingBanner } from '../../../services/api/banner.hooks'
 import { icons, logos } from '../../../styles/images'
 import { Icon } from '../Icon'
@@ -55,7 +55,7 @@ const HeaderText = styled.div`
     margin-right: ${Spacing.margin._8};
     color: ${Colors.text.light};
     padding-left: ${Spacing.padding._4};
-    border: 2px solid transparent;
+    border: ${Border.stroke.large} solid transparent;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
