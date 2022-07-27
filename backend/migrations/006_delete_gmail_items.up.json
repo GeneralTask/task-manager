@@ -1,0 +1,11 @@
+[
+    {
+        "delete": "tasks",
+        "deletes": [
+            {
+                "q" : {"source_id": "gmail"},
+                "limit": 0
+            }
+        ]
+    }
+]
