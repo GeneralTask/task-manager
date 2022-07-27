@@ -80,7 +80,7 @@ func TestMigrate005(t *testing.T) {
 		}
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
-		err = migrate.Steps(-1)
+		err = migrate.Down()
 		assert.NoError(t, err)
 
 		var tasks []database.Item
