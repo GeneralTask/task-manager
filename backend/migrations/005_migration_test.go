@@ -80,6 +80,9 @@ func TestMigrate005(t *testing.T) {
 		}
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
+		err = migrate.Steps(-1)
+		assert.NoError(t, err)
+
 		var tasks []database.Item
 		cursor, err := tasksCollection.Find(dbCtx, bson.M{
 			"$and": []bson.M{
