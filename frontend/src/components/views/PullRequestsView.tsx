@@ -16,7 +16,6 @@ const PullRequestsContainer = styled.div`
     display: flex;
     flex: 1 0;
     border-right: 1px solid ${Colors.background.dark};
-    user-select: none;
 `
 
 const PullRequestsView = () => {
