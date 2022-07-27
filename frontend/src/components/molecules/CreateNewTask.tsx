@@ -1,8 +1,6 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Colors, Images, Typography } from '../../styles'
-import { radius } from '../../styles/border'
-import { padding } from '../../styles/spacing'
+import { Colors, Dimensions, Images, Typography, Border, Spacing } from '../../styles'
 import { Icon } from '../atoms/Icon'
 import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
@@ -10,13 +8,13 @@ const CreateNewTaskContainer = styled.div`
     display: flex;
     flex-shrink: 0;
     flex-direction: row;
-    gap: ${padding._8};
+    gap: ${Spacing.padding._8};
     background-color: ${Colors.background.medium};
-    height: 36px;
+    height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
-    padding: 0px ${padding._8};
-    border-radius: ${radius.large};
-    margin-bottom: ${padding._8};
+    padding: 0px ${Spacing.padding._8};
+    border-radius: ${Border.radius.large};
+    margin-bottom: ${Spacing.padding._8};
 `
 const TaskInput = styled.input`
     border: none;
