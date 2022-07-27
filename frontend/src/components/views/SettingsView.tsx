@@ -7,11 +7,12 @@ import { Icon } from '../atoms/Icon'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
-import { authSignOut, openAuthWindow } from '../../utils/auth'
+import { openAuthWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
+import SignOutButton from '../molecules/SignOutButton'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -118,7 +119,7 @@ const SettingsView = () => {
                                     />
                                 )}
                             </ShowLinkAccountsButtonContainer>
-                            <GTButton value="Sign Out" styleType="secondary" onClick={authSignOut} />
+                            <SignOutButton />
                         </GapView>
                     </FullWidth>
                 </AccountsContainer>
