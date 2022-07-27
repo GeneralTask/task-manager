@@ -1,6 +1,5 @@
 import Cookie from 'js-cookie'
 import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
-import { TSupportedType } from './types';
 
 const AUTH_WINDOW_WIDTH = 960
 const AUTH_WINDOW_HEIGHT = 640
@@ -13,7 +12,13 @@ export const authSignOut = () => {
     window.location.replace('/')
 }
 
-export const openAuthWindow = (authorizationType: string, supportedTypes: TSupportedType[], refetch: () => void) => {
+interface TSupportedSources {
+    name: string
+    authorization_url: string
+}
+
+export const openAuthWindow = (authorizationType: string, supportedTypes: TSupportedSources[] | undefined, refetch: () => void, refetchViews: () => void) => {
+    if (!supportedTypes) return
     for (const type of supportedTypes) {
         if (type.name === authorizationType) {
             const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
@@ -28,6 +33,7 @@ export const openAuthWindow = (authorizationType: string, supportedTypes: TSuppo
                     if (win.closed) {
                         clearInterval(timer)
                         refetch()
+                        refetchViews()
                     }
                 }, 10)
             }

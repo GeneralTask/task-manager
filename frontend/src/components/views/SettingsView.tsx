@@ -12,6 +12,7 @@ import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -72,10 +73,12 @@ const SettingsView = () => {
 
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
+    const { refetch: refetchViews } = useGetOverviewViews()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
-    const onRelink = (accountType: string) => supportedTypes && openAuthWindow(accountType, supportedTypes, refetch)
+    const onRelink = (accountType: string) =>
+        supportedTypes && openAuthWindow(accountType, supportedTypes, refetch, refetchViews)
 
     return (
         <ScrollViewMimic>
@@ -102,7 +105,8 @@ const SettingsView = () => {
                                                 ) : (
                                                     <TextAlignCenter>{type.name}</TextAlignCenter>
                                                 ),
-                                            onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
+                                            onClick: () =>
+                                                openAuthWindow(type.name, supportedTypes, refetch, refetchViews),
                                             hasPadding: type.name !== 'Google',
                                         })) ?? []
                                     }

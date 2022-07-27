@@ -44,8 +44,9 @@ const OverviewView = ({ view }: OverviewViewProps) => {
     return (
         <ViewContainer>
             <ViewHeader>{view.name}</ViewHeader>
-            {!view.is_linked &&
-                view.sources.map((source, index) => <AuthBanner key={index} source={source} logo={view.logo} />)}
+            {!view.is_linked && view.name !== 'Default' && (
+                <AuthBanner sources={view.sources} sourceName={view.name} logo={view.logo} />
+            )}
             <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
             {visibleItemsCount < view.view_items.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
