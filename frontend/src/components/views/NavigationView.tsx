@@ -1,6 +1,5 @@
 import React from 'react'
-import { margin, padding } from '../../styles/spacing'
-import { Colors } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
@@ -13,13 +12,13 @@ const NavigationViewContainer = styled.div`
     flex-direction: column;
     min-width: 0px;
     background-color: ${Colors.background.medium};
-    padding: ${padding._8};
+    padding: ${Spacing.padding._12};
     box-sizing: border-box;
 `
 const NavigationViewHeader = styled.div`
     flex-basis: 24px;
     width: 100%;
-    margin-bottom: ${margin._16};
+    margin-bottom: ${Spacing.margin._16};
 `
 const OverflowContainer = styled.div`
     flex: 1;
@@ -28,8 +27,8 @@ const OverflowContainer = styled.div`
 const GapView = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${margin._8};
-    padding-bottom: ${padding._8};
+    gap: ${Spacing.margin._8};
+    padding-bottom: ${Spacing.padding._8};
     margin-top: auto;
 `
 

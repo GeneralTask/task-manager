@@ -7,45 +7,37 @@ import { useAppDispatch } from '../../redux/hooks'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { margin } from '../../styles/spacing'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-
-const LINK_TEMPLATE_HEIGHT = 32
 
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing.padding._4} ${Spacing.padding._12};
     width: 100%;
     border-radius: ${Border.radius.small};
-    border-width: 2px;
-    border-style: solid;
-    border-color: ${(props) => (props.isOver ? Colors.background.dark : 'transparent')};
-    ${(props) => props.isSelected && `background-color: ${Colors.background.light};`};
+    background-color: ${(props) => props.isSelected && `${Colors.background.dark};`};
     box-sizing: border-box;
+    gap: ${Spacing.margin._8};
 `
-const SectionTitle = styled.span<{ isSelected: boolean }>`
+const SectionTitle = styled.span`
     color: ${Colors.text.light};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-left: ${margin._8};
     flex: 1;
     user-select: none;
     ${Typography.bodySmall};
 `
-const SectionTitleItemCount = styled.span<{ isSelected: boolean }>`
+const SectionTitleItemCount = styled.span`
     color: ${Colors.text.light};
-    margin-right: ${margin._8};
     margin-left: auto;
     user-select: none;
     ${Typography.bodySmall};
 `
 export const NavigationLinkTemplate = styled.div`
-    height: ${LINK_TEMPLATE_HEIGHT}px;
     width: 100%;
     cursor: pointer;
     display: flex;
@@ -112,11 +104,9 @@ const NavigationLink = ({
     return (
         <NavigationLinkTemplate onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
-                <Icon size="small" source={icon} />
-                <SectionTitle isSelected={isCurrentPage}>{title}</SectionTitle>
-                <SectionTitleItemCount isSelected={isCurrentPage}>
-                    {count && countWithOverflow(count)}
-                </SectionTitleItemCount>
+                <Icon size="xSmall" source={icon} />
+                <SectionTitle>{title}</SectionTitle>
+                <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>
     )

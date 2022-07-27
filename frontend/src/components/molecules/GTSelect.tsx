@@ -1,7 +1,5 @@
-import { Colors, Shadows, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../styles'
 import React, { ReactNode, useRef } from 'react'
-
-import { radius } from '../../styles/border'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 
@@ -10,7 +8,7 @@ const SelectContainer = styled.div<{ alignment: 'left' | 'right' }>`
     flex-direction: column;
     position: absolute;
     background-color: ${Colors.background.white};
-    border-radius: ${radius.regular};
+    border-radius: ${Border.radius.medium};
     box-shadow: ${Shadows.medium};
     z-index: 1;
     ${({ alignment }) => alignment === 'left' && 'right: 0;'}

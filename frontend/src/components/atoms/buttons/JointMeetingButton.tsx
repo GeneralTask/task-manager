@@ -14,7 +14,7 @@ const JoinMeetingButtonContainer = styled(NoStyleButton)`
     align-items: center;
     justify-content: center;
     background-color: ${Colors.background.dark};
-    border-radius: ${Border.radius.regular};
+    border-radius: ${Border.radius.medium};
 `
 const ButtonText = styled.span`
     color: ${Colors.text.white};

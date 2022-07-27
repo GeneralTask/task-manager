@@ -7,7 +7,7 @@ export const ViewContainer = styled.div`
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     margin: 0 ${Spacing.margin._24} ${Spacing.margin._16};
-    box-shadow: ${Shadows.small};
+    box-shadow: ${Shadows.light};
 `
 export const ViewHeader = styled.div`
     margin-bottom: ${Spacing.margin._8};
@@ -27,7 +27,7 @@ export const SelectedView = styled.div`
     width: 100%;
     box-sizing: border-box;
     border-radius: ${Border.radius.large};
-    border: 1px solid ${Colors.gtColor.secondary};
+    border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
     padding: ${Spacing.padding._12};
     margin: ${Spacing.margin._4} 0;
     gap: ${Spacing.margin._12};

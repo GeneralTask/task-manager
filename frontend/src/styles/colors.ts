@@ -45,6 +45,10 @@ export const background = {
     black: BLACK,
 }
 
+export const border = {
+    gray: GRAY._500,
+}
+
 export const text = {
     black: BLACK,
     light: GRAY._500,
