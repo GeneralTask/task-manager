@@ -183,7 +183,7 @@ export const useRemoveView = () => {
                                 if (viewItem.view_id === viewId) {
                                     viewItem.is_added = false
                                     viewItem.is_add_disabled = false
-                                    viewItem.view_id = null
+                                    viewItem.view_id = ''
                                     found = true
                                     break
                                 }
