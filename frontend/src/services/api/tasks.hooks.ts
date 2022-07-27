@@ -90,7 +90,7 @@ export const useCreateTask = () => {
                 const updatedSections = produce(sections, (draft) => {
                     const section = draft.find((section) => section.id === data.taskSectionId)
                     if (!section) return
-                    const orderingId = section.tasks.length > 0 ? section.tasks[section.tasks.length - 1].id_ordering - 1 : 1
+                    const orderingId = section.tasks.length > 0 ? section.tasks[0].id_ordering - 1 : 1
                     const newTask: TTask = {
                         id: optimisticId,
                         id_ordering: orderingId,
@@ -119,7 +119,7 @@ export const useCreateTask = () => {
                 const updatedViews = produce(views, (draft) => {
                     const section = draft.find(view => view.task_section_id === data.taskSectionId)
                     if (!section) return
-                    const orderingId = section.view_items.length > 0 ? section.view_items[section.view_items.length - 1].id_ordering - 1 : 1
+                    const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
                     const newTask = <TOverviewItem>{
                         id: optimisticId,
                         id_ordering: orderingId,
