@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { MouseEvent } from 'react'
+import React, { MouseEvent, useState } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -11,7 +11,6 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import EventDetailPopup from '../molecules/EventDetailPopup'
-import { CONSOLE_LEVELS } from '@sentry/utils'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -42,16 +41,18 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
-
-    // const helpHandleClick = () => {
-    //     props.setEventDetailId(props.event.id)
-
-    //     console.log('wooo i made it here')
-    // }
+    const [isSelected, setIsSelected] = useState(false)
 
     const helpHandleClose = (e: MouseEvent) => {
         e.stopPropagation()
         props.setEventDetailId('')
+        setIsSelected(false)
+    }
+
+    const onClick = () => {
+        setIsSelected(!isSelected)
+        props.setEventDetailId(props.event.id)
+        console.log('is this event selected:', !isSelected)
     }
 
     return (
@@ -63,7 +64,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             eventBodyHeight={eventBodyHeight}
             eventHasEnded={eventHasEnded}
         >
-            <EventInfoContainer onClick={() => props.setEventDetailId(props.event.id)}>
+            <EventInfoContainer onClick={onClick} isSelected={isSelected}>
                 {props.eventDetailId === props.event.id && (
                     <EventDetailPopup event={props.event} date={props.date} handleClose={helpHandleClose} />
                 )}

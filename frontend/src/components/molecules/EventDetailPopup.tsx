@@ -25,7 +25,7 @@ const EventBoxStyle = styled.div`
     width: 315px;
 
     background-color: ${Colors.background.white};
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.16);
+    box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
 `
 // Frame 34281
@@ -108,8 +108,8 @@ const ExternalLinkButton = styled.button`
 
     background: ${Colors.background.white};
     border: 1px solid ${Colors.button.secondary.hover};
-    box-shadow: ${Shadows.xSmall};
-    border-radius: ${Border.radius.regular};
+    box-shadow: ${Shadows.button.default};
+    border-radius: ${Border.radius.medium};
     cursor: pointer;
 
     color: ${Colors.text.black};
@@ -146,7 +146,7 @@ const EventDate = styled.span`
 // Event Description
 const Description = styled.span`
     ${Typography.label};
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     padding: 0px 18px;
 `
 

@@ -78,6 +78,7 @@ interface EventBodyStyleProps {
     leftOffset: number
     eventHasEnded: boolean
 }
+//border color not showing up when user clicks on event for popup
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
@@ -89,18 +90,18 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
         100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
     );
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
+    cursor: pointer;
 `
-export const EventInfoContainer = styled.div`
+export const EventInfoContainer = styled.div<{ isSelected: boolean }>`
     display: flex;
     align-items: center;
     height: 100%;
     width: 100%;
     position: absolute;
     z-index: 1;
-    &:hover {
-        border: 1px solid #717179;
-        border-radius: ;
-    }
+    border: ${Border.stroke.large} solid 
+        ${(props) => (props.isSelected ? Colors.border.gray : Colors.background.medium)}
+    border-radius: ${Border.radius.medium};
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
@@ -126,6 +127,7 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
+//EVENT_CONTAINER_COLOR
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }>`
     width: 100%;
     height: 100%;
