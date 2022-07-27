@@ -1100,7 +1100,8 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		Name:   "Duck section",
 	})
 	assert.NoError(t, err)
-	taskSectionID := taskSection.InsertedID.(primitive.ObjectID).Hex()
+	taskSectionObjectID := taskSection.InsertedID.(primitive.ObjectID)
+	taskSectionID := taskSectionObjectID.Hex()
 
 	t.Run("TestUnauthorized", func(t *testing.T) {
 		ServeRequest(t, "badAuthToken", "GET", "/overview/supported_views/", nil, http.StatusUnauthorized)
@@ -1114,25 +1115,41 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 	})
 	t.Run("TestTaskSectionIsAdded", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSectionID))), http.StatusOK)
-		addedViewId := body[7:31]
-		body = ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:        userID,
+			Type:          "task_section",
+			IsLinked:      false,
+			TaskSectionID: taskSectionObjectID,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":null,\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":true,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestLinearIsAdded", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "linear"}`)), http.StatusOK)
-		addedViewId := body[7:31]
-		body = ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:   userID,
+			Type:     "linear",
+			IsLinked: false,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":null,\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
 	t.Run("TestSlackIsAdded", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "slack"}`)), http.StatusOK)
-		addedViewId := body[7:31]
-		body = ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:   userID,
+			Type:     "slack",
+			IsLinked: false,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":null,\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
