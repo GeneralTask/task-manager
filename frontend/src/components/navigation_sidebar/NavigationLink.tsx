@@ -18,7 +18,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     padding: ${Spacing.padding._4} ${Spacing.padding._12};
     width: 100%;
     border-radius: ${Border.radius.small};
-    background-color: ${(props) => (props.isSelected || props.isOver ? Colors.background.dark : 'transparent')};
+    background-color: ${(props) => (props.isSelected || props.isOver ? Colors.background.dark : 'inherit')};
     box-sizing: border-box;
     gap: ${Spacing.margin._8};
 `
