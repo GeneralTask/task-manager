@@ -19,8 +19,6 @@ func TestMigrate006(t *testing.T) {
 	defer dbCleanup()
 	migrate, err := getMigrate("")
 	assert.NoError(t, err)
-	err = migrate.Steps(1)
-	assert.NoError(t, err)
 	userID := primitive.NewObjectID()
 
 	t.Run("MigrateUp", func(t *testing.T) {
