@@ -3,9 +3,8 @@ import { Colors, Spacing } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import GTButton from '../atoms/buttons/GTButton'
-import { authSignOut } from '../../utils/auth'
 import styled from 'styled-components'
+import SettingsButton from '../molecules/SettingsButton'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -42,7 +41,7 @@ const NavigationView = () => (
         </OverflowContainer>
         <GapView>
             <FeedbackButton />
-            <GTButton value="Sign Out" styleType="secondary" onClick={authSignOut} />
+            <SettingsButton />
         </GapView>
     </NavigationViewContainer>
 )
