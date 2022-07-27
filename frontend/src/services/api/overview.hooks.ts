@@ -2,10 +2,10 @@ import produce, { castImmutable } from "immer"
 import { v4 as uuidv4 } from 'uuid'
 import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
-import { TOverviewItem, TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
+import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskIndexFromSections } from "../../utils/utils"
-import { createTask, markTaskDone, TCreateTaskData, TCreateTaskResponse, TMarkTaskDoneData } from "./tasks.hooks"
+import { markTaskDone, TMarkTaskDoneData } from "./tasks.hooks"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 
 export const useGetOverviewViews = () => {
@@ -217,64 +217,6 @@ const removeView = async (viewId: string) => {
     } catch {
         throw new Error('removeView failed')
     }
-}
-
-export const useCreateTask = () => {
-    const queryClient = useGTQueryClient()
-    const optimisticId = uuidv4()
-    return useMutation((data: TCreateTaskData) => createTask(data), {
-        onMutate: async (data: TCreateTaskData) => {
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            if (!views) return
-            await queryClient.cancelQueries('overview')
-            await queryClient.cancelQueries('tasks')
-
-            const newViews = produce(views, (draft) => {
-                const section = draft.find(view => view.task_section_id === data.taskSectionId)
-                if (!section) return
-                const newTask = <TOverviewItem>{
-                    id: optimisticId,
-                    id_ordering: 0,
-                    title: data.title,
-                    body: data.body ?? '',
-                    deeplink: '',
-                    sent_at: '',
-                    time_allocated: 0,
-                    due_date: '',
-                    source: {
-                        name: 'General Task',
-                        logo: '',
-                        logo_v2: 'generaltask',
-                        is_completable: false,
-                        is_replyable: false,
-                    },
-                    sender: '',
-                    is_done: false,
-                    isOptimistic: true,
-                }
-                section.view_items = [newTask, ...section.view_items]
-            })
-
-            queryClient.setQueryData('overview', newViews)
-        },
-        onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            if (!views) return
-            const newViews = produce(views, (draft) => {
-                const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
-                const task = section?.view_items.find((task) => task.id === optimisticId)
-                if (!task) return
-
-                task.id = response.task_id
-                task.isOptimistic = false
-            })
-            queryClient.setQueryData('overview', newViews)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('overview')
-            queryClient.invalidateQueries('tasks')
-        },
-    })
 }
 
 export const useMarkTaskDone = () => {
