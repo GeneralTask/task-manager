@@ -4,6 +4,7 @@ import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { DropType, TTask } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
+import CreateNewTask from '../../molecules/CreateNewTask'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
 
@@ -22,6 +23,12 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
 
     return (
         <>
+            {sectionId && (
+                <CreateNewTask
+                    disableKeyboardShortcut
+                    sectionId={sectionId}
+                />
+            )}
             {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                 <ReorderDropContainer
                     key={item.id}

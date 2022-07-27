@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useCreateTask } from '../../services/api/tasks.hooks'
-import { Border, Colors, Images, Spacing, Typography } from '../../styles'
+import { Border, Colors, Images, Spacing, Typography, Dimensions } from '../../styles'
 import { Icon } from '../atoms/Icon'
 import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
@@ -11,7 +11,7 @@ const CreateNewTaskContainer = styled.div`
     flex-direction: row;
     gap: ${Spacing.padding._8};
     background-color: ${Colors.background.medium};
-    height: 45px;
+    height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
     padding: 0px ${Spacing.padding._8};
     border-radius: ${Border.radius.medium};
@@ -22,13 +22,14 @@ const TaskInput = styled.input`
     outline: none;
     background-color: transparent;
     flex: 1;
-    ${Typography.body};
+    ${Typography.bodySmall};
 `
 
 interface CreateNewTaskProps {
-    section: string
+    sectionId: string
+    disableKeyboardShortcut?: boolean
 }
-const CreateNewTask = (props: CreateNewTaskProps) => {
+const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
@@ -37,11 +38,7 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
         if (!text) return
         else {
             setText('')
-            createTask({
-                title: text,
-                body: '',
-                id_task_section: props.section,
-            })
+            createTask({ title: text, taskSectionId: sectionId })
         }
     }
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -60,7 +57,9 @@ const CreateNewTask = (props: CreateNewTaskProps) => {
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setText(e.target.value)}
             />
-            <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
+            {!disableKeyboardShortcut && (
+                <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
+            )}
         </CreateNewTaskContainer>
     )
 }

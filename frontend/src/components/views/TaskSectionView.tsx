@@ -136,7 +136,7 @@ const TaskSectionView = () => {
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
-                                {!section.is_done && <CreateNewTask section={section.id} />}
+                                {!section.is_done && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
                                         <ReorderDropContainer
