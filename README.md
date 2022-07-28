@@ -97,28 +97,17 @@ We currently perform backend deploys using the Heroku CLI. Assuming you have the
 
 ### One-time Kubernetes setup
 
-Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have a General Task admin apply the changes to the prod k8s cluster (these changes should also be applied by the AWS CodeBuild CI after landing the change).
+Add the appropriate group (`prd-gtsk-uswest1-full-access-group`) to your iamrole: https://github.com/GeneralTask/task-manager/blob/630b25b858baeeb0e4a0f775b7e5e96a490022c9/kubernetes/manifests/prod/prd-auth-config.yaml#L29-L32 and have a General Task admin apply the changes to the prod k8s cluster. Alternatively, adding these changes to the file above, and merging those changes into master will apply these changes as well (the credentials will be automatically added by AWS CodeBuild CI after landing the change).
 
-Now, locally on your laptop, run:
+Update your AWS access credentials. You can find your AWS credentials by logging into the console, and access your profile's security credentials. Generate some Access Credentials for your account, and place them into `~/.aws/credentials`. The format will look like so:
 
 ```
-aws --profile kube-config eks update-kubeconfig --region us-west-1 --name prd-gtsk-uswest1-backend
+[default]
+aws_access_key_id=<access key>
+aws_secret_access_key=<secret>
 ```
 
-which will add the the profile to your `~/.kube/config`. You can also change the alias for this context/cluster by modifying the relevant part in the file after you run this command to:
-```
-contexts:
-- context:
-    cluster: arn:aws:eks:us-west-1:257821106339:cluster/prd-gtsk-uswest1-backend
-    namespace: prd-gtsk-uswest1
-    user: arn:aws:eks:us-west-1:257821106339:cluster/prd-gtsk-uswest1-backend
-  name: prod
-```
-
-### Interacting with the Kubernetes clusters
-
-You can run this snippet (save it to your bashrc/zshrc):
-
+Save the following snippet to your bashrc:
 ```
 klogin () {
     export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
@@ -130,7 +119,26 @@ klogin () {
 }
 ```
 
-which will generate temporary credentials to access EKS resources for 12 hours after running `klogin` (you may have to run this command twice to work).
+Run klogin, and your credentials should be updated to include the access for Kubernetes.
+
+Now, locally on your laptop, run:
+
+```
+aws --profile kube-config eks update-kubeconfig --region us-west-1 --name prd-gtsk-uswest1-backend
+```
+
+which will add the the profile to your `~/.kube/config`. You can also change the alias for this context/cluster by modifying the relevant part in `~/.kube/config` after you run this command to:
+
+```
+contexts:
+- context:
+    cluster: arn:aws:eks:us-west-1:257821106339:cluster/prd-gtsk-uswest1-backend
+    namespace: prd-gtsk-uswest1
+    user: arn:aws:eks:us-west-1:257821106339:cluster/prd-gtsk-uswest1-backend
+  name: prod
+```
+
+### Interacting with the Kubernetes clusters
 
 To test your configuration, run the following command to make sure your access permissions are correct and to verify the cluster connectivity: `kubectl get svc`, and you should see something like:
 
@@ -145,11 +153,12 @@ core-service   NodePort   172.19.64.51   <none>        8080:31254/TCP   21d
 Here's a list of nice k8s commands to add to your shell file:
 ```
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
+alias kgp="kubectl get pods"
+alias kgd="kubectl get deployments"
 alias kroll="kubectl rollout restart deployment/core-deployment"
 ksh() {
     kubectl exec -it $1 -- "/bin/sh"
 }
-alias kgp="kubectl get pods"
 kdlogs() {
     kubectl logs -f deployment/core-deployment --all-containers=true --since=10m
 }
@@ -160,10 +169,10 @@ kdl() {
 
 Here are a few common interactions:
 * Select context & namespace, run `kp`
-* List pods, run `kgp`
+* List pods, run `kgp`; list deployments, run `kgd`
 * SSH to a pod, run `ksh <pod name>` - for example: `ksh core-deployment-756d697659-hqgk4`
 * View logs for a specific pod `k logs core-deployment-756d697659-hqgk4`
-* View collated logs for the whole deployment with `kdlogs` or `kdl` (for the latter, you need to install `stern`)
+* View collated logs for the whole deployment with `kdlogs` or `kdl` (for the latter, you need to install [`stern`](https://github.com/wercker/stern))
 
 
 ## Documentation updates

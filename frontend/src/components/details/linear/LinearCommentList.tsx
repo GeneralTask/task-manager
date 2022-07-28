@@ -14,7 +14,7 @@ const CommentListContainer = styled.div`
 
 const DividerView = styled.div`
     height: 1px;
-    background-color: ${Colors.gray._300};
+    background-color: ${Colors.background.dark};
     margin: ${Spacing.margin._8};
 `
 

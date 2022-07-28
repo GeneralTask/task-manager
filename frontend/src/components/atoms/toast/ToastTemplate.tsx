@@ -57,7 +57,7 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                 {rightAction && (
                     <GTButton
                         styleType="primary"
-                        color={Colors.purple._2}
+                        color={Colors.gtColor.primary}
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
                     />

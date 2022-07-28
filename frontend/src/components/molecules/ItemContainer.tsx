@@ -8,10 +8,11 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     flex-direction: row;
     align-items: center;
     height: 100%;
-    background-color: ${Colors.white};
-    border-radius: ${Border.radius.large};
+    background-color: ${Colors.background.white};
+    border-radius: ${Border.radius.medium};
     padding: 0 ${Spacing.padding._8};
-    border: 1px solid ${(props) => (props.isSelected ? Colors.gray._500 : Colors.gray._100)};
+    border: ${Border.stroke.medium} solid
+        ${(props) => (props.isSelected ? Colors.border.gray : Colors.background.medium)};
     cursor: pointer;
 `
 

@@ -20,7 +20,7 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: ${Typography.xSmall.fontSize};
+    ${Typography.bodySmall};
 `
 
 interface TaskProps {
@@ -28,7 +28,7 @@ interface TaskProps {
     dragDisabled: boolean
     index?: number
     sectionId?: string
-    sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
+    sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
     onMarkComplete: (taskId: string, isComplete: boolean) => void
@@ -61,7 +61,7 @@ const Task = ({
 
     //If task selection changes, re-enable auto-scrolling for task section
     useEffect(() => {
-        if (sectionScrollingRef.current) {
+        if (sectionScrollingRef?.current) {
             isScrolling.current = false
         }
     }, [isSelected])

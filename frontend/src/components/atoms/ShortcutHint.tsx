@@ -5,15 +5,15 @@ import { Border, Colors, Typography } from '../../styles'
 const ShortcutHintContainer = styled.div`
     display: flex;
     flex-direction: row;
-    border-radius: ${Border.radius.xxSmall};
+    border-radius: ${Border.radius.small};
     padding: 0;
     text-align: center;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     width: 20px;
     height: 20px;
     justify-content: center;
     align-items: center;
-    font-size: ${Typography.xSmall}px;
+    ${Typography.body};
 `
 
 interface ShortcutHintProps {
