@@ -14,7 +14,7 @@ type TaskSource interface {
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error
 	CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error
-	ModifyEvent(userID primitive.ObjectID, accountID string, eventID, updateFields *database.CalendarEventChangeableFields) error
+	ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *database.CalendarEventChangeableFields) error
 	DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error
 }
 
