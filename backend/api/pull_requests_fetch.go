@@ -51,13 +51,13 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		return
 	}
 
-	currentPRs, err := api.fetchPRs(userID, tokens)
+	currentPRs, failedFetchSources, err := api.fetchPRs(userID, tokens)
 	if err != nil {
 		Handle500(c)
 		return
 	}
 
-	err = api.adjustForCompletedTasks(db, currentPRs, activePRs, map[string]bool{})
+	err = api.adjustForCompletedTasks(db, &currentPRs, activePRs, failedFetchSources)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
 		Handle500(c)
@@ -67,14 +67,14 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken) ([]external.PullRequestResult, error) {
+func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken) ([]database.Item, map[string]bool, error) {
 	pullRequestChannels := []chan external.PullRequestResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error loading task service")
-			return nil, err
+			return nil, map[string]bool{}, err
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var pullRequests = make(chan external.PullRequestResult)
@@ -83,14 +83,20 @@ func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken)
 		}
 	}
 
-	var pullResults []external.PullRequestResult
+	pullRequests := []database.Item{}
+	failedFetchSources := make(map[string]bool)
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
 			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
+			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
-		pullResults = append(pullResults, pullRequestResult)
+		for _, pullRequest := range pullRequestResult.PullRequests {
+			pullRequests = append(pullRequests, database.Item{
+				TaskBase: pullRequest.TaskBase,
+			})
+		}
 	}
-	return pullResults, nil
+	return pullRequests, failedFetchSources, nil
 }
