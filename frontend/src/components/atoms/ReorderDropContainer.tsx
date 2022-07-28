@@ -28,12 +28,12 @@ const DropIndicatorBelow = styled.div`
     bottom: -2px;
 `
 const WholeDropIndicatorStyle = css`
-    border: 2px solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.small};
 `
 const WholeDropIndicator = styled.div<{ isVisible: boolean }>`
     width: 100%;
-    border: 2px solid transparent;
+    border: ${Border.stroke.medium} solid transparent;
     ${(props) => (props.isVisible ? WholeDropIndicatorStyle : '')}
 `
 

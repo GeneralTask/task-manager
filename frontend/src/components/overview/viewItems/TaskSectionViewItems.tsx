@@ -8,9 +8,10 @@ import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewTask from '../../molecules/CreateNewTask'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
+import { TASK_HEIGHT } from '../../../styles/dimensions'
 
 const EmptyDropContainer = styled.div`
-    height: 36px;
+    height: ${TASK_HEIGHT};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,7 +26,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
             if (!view.task_section_id) return
-            console.log({ item, dropIndex })
             reorderTask({
                 taskId: item.id,
                 orderingId: dropIndex,
@@ -46,12 +46,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
 
     return (
         <>
-            {sectionId && (
-                <CreateNewTask
-                    disableKeyboardShortcut
-                    sectionId={sectionId}
-                />
-            )}
+            {sectionId && <CreateNewTask disableKeyboardShortcut sectionId={sectionId} />}
             {view.view_items.length > 0 ? (
                 view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                     <ReorderDropContainer
