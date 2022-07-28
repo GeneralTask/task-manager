@@ -785,6 +785,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Name:             "Linear",
 			Logo:             "linear",
 			IsNested:         false,
+			IsLinked:         isLinearLinked,
 			AuthorizationURL: linearAuthURL,
 			Views: []SupportedViewItem{
 				{
@@ -798,6 +799,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Name:             "Slack",
 			Logo:             "slack",
 			IsNested:         false,
+			IsLinked:         isSlackLinked,
 			AuthorizationURL: slackAuthURL,
 			Views: []SupportedViewItem{
 				{
@@ -811,6 +813,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Name:             "GitHub",
 			Logo:             "github",
 			IsNested:         true,
+			IsLinked:         isGithubLinked,
 			AuthorizationURL: githubAuthURL,
 			Views:            supportedGithubViews,
 		},
