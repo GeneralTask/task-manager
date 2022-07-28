@@ -39,12 +39,6 @@ func (api *API) TasksFetch(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	currentPRs, err := database.GetActivePRs(db, userID.(primitive.ObjectID))
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	currentTasksAndPRs := append(*currentTasks, *currentPRs...)
 
 	fetchedTasks, failedFetchSources, err := api.fetchTasks(parentCtx, db, userID)
 	if err != nil {
@@ -63,7 +57,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 		api.Logger.Error().Err(err).Msg("failed to update user last_refreshed")
 	}
 
-	err = api.adjustForCompletedTasks(db, &currentTasksAndPRs, fetchedTasks, failedFetchSources)
+	err = api.adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
 		Handle500(c)

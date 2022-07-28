@@ -22,21 +22,10 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 
 	defer dbCleanup()
 	userID, _ := c.Get("user")
-	var userObject database.User
-	userCollection := database.GetUserCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
-
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to find user")
-		Handle500(c)
-		return
-	}
 
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
 		dbCtx,
@@ -56,14 +45,36 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		return
 	}
 
+	activePRs, err := database.GetActivePRs(db, userID.(primitive.ObjectID))
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	currentPRs, err := api.fetchPRs(userID, tokens)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	err = api.adjustForCompletedTasks(db, currentPRs, activePRs, map[string]bool{})
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
+		Handle500(c)
+		return
+	}
+
+	c.JSON(200, gin.H{})
+}
+
+func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken) ([]external.PullRequestResult, error) {
 	pullRequestChannels := []chan external.PullRequestResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error loading task service")
-			Handle500(c)
-			return
+			return nil, err
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var pullRequests = make(chan external.PullRequestResult)
@@ -72,12 +83,14 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		}
 	}
 
+	var pullResults []external.PullRequestResult
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
 			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
 			continue
 		}
+		pullResults = append(pullResults, pullRequestResult)
 	}
-	c.JSON(200, gin.H{})
+	return pullResults, nil
 }
