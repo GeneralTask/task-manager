@@ -6,6 +6,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,8 +32,10 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 	serverURL := config.GetConfigValue("SERVER_URL")
 	nameToService := api.ExternalConfig.GetNameToService()
 	supportedAccountTypes := []SupportedAccountType{}
-	for _, service := range nameToService {
-		if !service.Details.IsLinkable {
+	for serviceName, service := range nameToService {
+		// need to check if Slack App (used in workflow installation)
+		// we don't want this to appear in supported account typed list
+		if !service.Details.IsLinkable || serviceName == external.TASK_SERVICE_ID_SLACK_APP {
 			continue
 		}
 		supportedAccountTypes = append(supportedAccountTypes, SupportedAccountType{
