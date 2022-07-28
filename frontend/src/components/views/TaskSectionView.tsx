@@ -24,7 +24,6 @@ const BannerAndSectionContainer = styled.div`
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
-    user-select: none;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -136,7 +135,7 @@ const TaskSectionView = () => {
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
-                                {!section.is_done && <CreateNewTask section={section.id} />}
+                                {!section.is_done && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
                                         <ReorderDropContainer

@@ -3,9 +3,10 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const SentryCliPlugin = require('@sentry/webpack-plugin');
-const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default
+const SentryCliPlugin = require('@sentry/webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
+const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default
 const styledComponentsTransformer = createStyledComponentsTransformer()
 
 module.exports = {
@@ -66,5 +67,6 @@ module.exports = {
             include: '.',
             ignore: ['node_modules', 'webpack.dev.js', 'webpack.prod.js', 'webpack.common.js'],
         }),
+        new ForkTsCheckerWebpackPlugin(),
     ],
 }

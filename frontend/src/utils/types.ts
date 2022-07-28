@@ -226,4 +226,5 @@ export interface TSupportedView {
     logo: TLogoImage
     is_nested: boolean
     views: TSupportedViewItem[]
+    authorization_url: string
 }

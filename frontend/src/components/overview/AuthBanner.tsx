@@ -6,11 +6,11 @@ import { Icon } from '../atoms/Icon'
 import { logos, TLogoImage } from '../../styles/images'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { TSourcesResult } from '../../utils/types'
+import { openPopupWindow } from '../../utils/auth'
 
 const BannerContainer = styled.div`
     box-sizing: border-box;
-    border: 1px solid ${Colors.gtColor.secondary};
+    border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
     border-radius: ${Border.radius.small};
     display: flex;
     justify-content: space-between;
@@ -32,53 +32,30 @@ const Title = styled.span`
 `
 
 interface AuthBannerProps {
-    source: TSourcesResult
+    authorizationUrl: string
+    name: string
     logo: TLogoImage
 }
 
-const AUTH_WINDOW_WIDTH = 960
-const AUTH_WINDOW_HEIGHT = 640
-
-const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
-const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
-
-const openAuthWindow = (
-    authorizationUrl: string,
-    sourceName: string,
-    refetch: () => void,
-    refetchViews: () => void
-) => {
-    const win = window.open(
-        authorizationUrl,
-        sourceName,
-        `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
-    )
-
-    if (win != null) {
-        const timer = setInterval(() => {
-            if (win.closed) {
-                clearInterval(timer)
-                refetch()
-                refetchViews()
-            }
-        }, 10)
-    }
-}
-
-const AuthBanner = ({ source, logo }: AuthBannerProps) => {
+const AuthBanner = ({ authorizationUrl, name, logo }: AuthBannerProps) => {
     const { refetch } = useGetLinkedAccounts()
     const { refetch: refetchViews } = useGetOverviewViews()
+
+    const onWindowClose = () => {
+        refetch()
+        refetchViews()
+    }
 
     return (
         <BannerContainer>
             <IconContainer>
                 <Icon size="small" source={logos[logo]} />
-                <Title>{`Connect ${source.name} to General Task`}</Title>
+                <Title>{`Connect ${name} to General Task`}</Title>
             </IconContainer>
             <ConnectButton
                 value="Connect"
                 color={Colors.gtColor.primary}
-                onClick={() => openAuthWindow(source.authorization_url, source.name, refetch, refetchViews)}
+                onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
             />
         </BannerContainer>
     )

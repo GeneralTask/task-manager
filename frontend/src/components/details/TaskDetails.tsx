@@ -38,7 +38,7 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     ${({ isFullHeight }) => isFullHeight && `flex: 1;`}
     display: block;
     background-color: inherit;
-    border: 1px solid transparent;
+    border: ${Border.stroke.medium} solid transparent;
     border-radius: ${Border.radius.large};
     resize: none;
     outline: none;
@@ -49,7 +49,7 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     ${Typography.bodySmall};
     :focus,
     :hover {
-        border: 1px solid ${Colors.background.dark};
+        border: ${Border.stroke.medium} solid ${Colors.background.dark};
         box-shadow: ${Shadows.medium};
     }
 `

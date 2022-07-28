@@ -218,6 +218,7 @@ const removeView = async (viewId: string) => {
         throw new Error('removeView failed')
     }
 }
+
 export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {

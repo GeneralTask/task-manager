@@ -5,15 +5,15 @@ import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
-import { TTaskSection, TTask } from "../../utils/types"
+import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
 
-interface TCreateTaskData {
+export interface TCreateTaskData {
     title: string
-    body: string
-    id_task_section: string
+    body?: string
+    taskSectionId: string
 }
 
-interface TCreateTaskResponse {
+export interface TCreateTaskResponse {
     task_id: string
 }
 
@@ -81,60 +81,107 @@ export const useCreateTask = () => {
     const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
-            // cancel all current getTasks queries
-            await queryClient.cancelQueries('tasks')
-
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            await queryClient.cancelQueries('tasks')
+            await queryClient.cancelQueries('overview')
 
-            const newSections = produce(sections, (draft) => {
-                const section = draft.find((section) => section.id === data.id_task_section)
-                if (!section) return
-                const newTask: TTask = {
-                    id: optimisticId,
-                    id_ordering: 0,
-                    title: data.title,
-                    body: data.body,
-                    deeplink: '',
-                    sent_at: '',
-                    time_allocated: 0,
-                    due_date: '',
-                    source: {
-                        name: 'General Task',
-                        logo: '',
-                        logo_v2: 'generaltask',
-                        is_completable: false,
-                        is_replyable: false,
-                    },
-                    sender: '',
-                    is_done: false,
-                    isOptimistic: true,
-                }
-                section.tasks = [newTask, ...section.tasks]
-            })
-
-            queryClient.setQueryData('tasks', newSections)
+            if (sections) {
+                const updatedSections = produce(sections, (draft) => {
+                    const section = draft.find((section) => section.id === data.taskSectionId)
+                    if (!section) return
+                    const orderingId = section.tasks.length > 0 ? section.tasks[0].id_ordering - 1 : 1
+                    const newTask: TTask = {
+                        id: optimisticId,
+                        id_ordering: orderingId,
+                        title: data.title,
+                        body: data.body ?? '',
+                        deeplink: '',
+                        sent_at: '',
+                        time_allocated: 0,
+                        due_date: '',
+                        source: {
+                            name: 'General Task',
+                            logo: '',
+                            logo_v2: 'generaltask',
+                            is_completable: false,
+                            is_replyable: false,
+                        },
+                        sender: '',
+                        is_done: false,
+                        isOptimistic: true,
+                    }
+                    section.tasks = [newTask, ...section.tasks]
+                })
+                queryClient.setQueryData('tasks', updatedSections)
+            }
+            if (views) {
+                const updatedViews = produce(views, (draft) => {
+                    const section = draft.find(view => view.task_section_id === data.taskSectionId)
+                    if (!section) return
+                    const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
+                    const newTask = <TOverviewItem>{
+                        id: optimisticId,
+                        id_ordering: orderingId,
+                        title: data.title,
+                        body: data.body ?? '',
+                        deeplink: '',
+                        sent_at: '',
+                        time_allocated: 0,
+                        due_date: '',
+                        source: {
+                            name: 'General Task',
+                            logo: '',
+                            logo_v2: 'generaltask',
+                            is_completable: false,
+                            is_replyable: false,
+                        },
+                        sender: '',
+                        is_done: false,
+                        isOptimistic: true,
+                    }
+                    section.view_items = [newTask, ...section.view_items]
+                })
+                queryClient.setQueryData('overview', updatedViews)
+            }
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
-            const newSections = produce(sections, (draft) => {
-                const task = getTaskFromSections(draft, optimisticId, createData.id_task_section)
-                if (!task) return
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
-                task.id = response.task_id
-                task.isOptimistic = false
-            })
-            queryClient.setQueryData('tasks', newSections)
+            if (sections) {
+                const updatedSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, optimisticId, createData.taskSectionId)
+                    if (!task) return
+                    task.id = response.task_id
+                    task.isOptimistic = false
+                })
+                queryClient.setQueryData('tasks', updatedSections)
+            }
+            if (views) {
+                const updatedViews = produce(views, (draft) => {
+                    const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
+                    const task = section?.view_items.find((task) => task.id === optimisticId)
+                    if (!task) return
+                    task.id = response.task_id
+                    task.isOptimistic = false
+                })
+                queryClient.setQueryData('overview', updatedViews)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
         },
     })
 }
-const createTask = async (data: TCreateTaskData) => {
+export const createTask = async (data: TCreateTaskData) => {
     try {
-        const res = await apiClient.post('/tasks/create/gt_task/', data)
+        const res = await apiClient.post('/tasks/create/gt_task/', {
+            title: data.title,
+            body: data.body ?? '',
+            id_task_section: data.taskSectionId,
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('createTask failed')

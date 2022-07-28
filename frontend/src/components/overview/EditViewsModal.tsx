@@ -13,7 +13,7 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 
 const AddViewsButton = styled(NoStyleButton)`
-    border: 1px solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
     color: ${Colors.text.light};
     display: flex;
