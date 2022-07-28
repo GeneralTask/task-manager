@@ -11,12 +11,12 @@ import JoinMeetingButton from '../atoms/buttons/JointMeetingButton'
 const EventBannerContainer = styled.div`
     display: flex;
     flex-direction: column;
-    font-size: ${Typography.xSmall.fontSize};
     position: relative;
     width: 100%;
     display: flex;
     align-items: center;
     margin-top: 22px;
+    ${Typography.bodySmall};
 `
 const BannerView = styled.div<{ center: boolean }>`
     position: relative;
@@ -27,16 +27,16 @@ const BannerView = styled.div<{ center: boolean }>`
     padding-left: 12px;
     padding-right: 6px;
     margin-bottom: 8px;
-    width: 500px;
+    max-width: 450px;
     height: 50px;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     opacity: 0.97;
     border-radius: ${Border.radius.small};
-    box-shadow: ${Shadows.large};
+    box-shadow: ${Shadows.medium};
 `
 const BannerTitleView = styled.div`
-    background-color: ${Colors.gray._100};
-    border-radius: ${Border.radius.xSmall};
+    background-color: ${Colors.background.medium};
+    border-radius: ${Border.radius.small};
     margin-left: 6px;
     margin-right: 6px;
     padding: 2px 7px;
@@ -56,15 +56,15 @@ const MessageView = styled.div`
 `
 const MessageText = styled.span`
     white-space: nowrap;
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
+    ${Typography.bodySmall};
 `
 const OverflowText = styled.span`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
+    ${Typography.bodySmall};
 `
 
 interface EventBannerProps {
@@ -72,7 +72,7 @@ interface EventBannerProps {
 }
 const EventBanner = ({ event }: EventBannerProps) => {
     const timeUntilEvent = Math.ceil((new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60)
-    const timeUntilEventMessage = timeUntilEvent > 0 ? `in ${timeUntilEvent} minutes.` : 'is now.'
+    const timeUntilEventMessage = timeUntilEvent > 0 ? `is in ${timeUntilEvent} minutes.` : 'is now.'
     const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
     return (
         <BannerView key={event.id} center={event.conference_call == null}>

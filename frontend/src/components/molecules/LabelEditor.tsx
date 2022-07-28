@@ -1,8 +1,7 @@
 import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Colors, Dimensions, Shadows, Spacing } from '../../styles'
-import { radius } from '../../styles/border'
+import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
@@ -14,8 +13,8 @@ const LabelEditorContainer = styled.div`
     flex-direction: column;
     width: ${Dimensions.TASK_ACTION_WIDTH};
     position: absolute;
-    background-color: ${Colors.white};
-    border-radius: ${radius.regular};
+    background-color: ${Colors.background.white};
+    border-radius: ${Border.radius.medium};
     box-shadow: ${Shadows.medium};
     z-index: 1;
     top: 100%;
@@ -28,19 +27,19 @@ const OptionsContainer = styled.div`
 `
 const TopNav = styled.div`
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.gray._100};
+    border-bottom: 1px solid ${Colors.background.medium};
 `
 const Header = styled.div`
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
 `
 const ListItem = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.gray._100};
+    border-bottom: 1px solid ${Colors.background.medium};
     &:hover {
-        background-color: ${Colors.gray._100};
+        background-color: ${Colors.background.medium};
     }
     cursor: pointer;
 `
@@ -50,7 +49,7 @@ const SectionTitleBox = styled.div<{ isSelected: boolean }>`
     flex-direction: row;
     align-items: center;
     gap: ${Spacing.padding._8};
-    color: ${(props) => (props.isSelected ? Colors.purple._1 : Colors.gray._600)};
+    color: ${(props) => (props.isSelected ? Colors.gtColor.secondary : Colors.text.light)};
     min-width: 0;
 `
 const SectionName = styled.span`

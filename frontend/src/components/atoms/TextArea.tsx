@@ -15,10 +15,9 @@ const TextAreaStyled = styled.textarea`
     outline: none;
     padding: ${Spacing.padding._8};
     font-style: normal;
-    font-weight: normal;
-    font-size: ${Typography.xSmall.fontSize};
     background-color: inherit;
     font-family: inherit;
+    ${Typography.bodySmall};
 `
 
 interface TextAreaProps {

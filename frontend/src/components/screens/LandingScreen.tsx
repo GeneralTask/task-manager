@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
 
 const LandingScreenContainer = styled.div`
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -56,7 +56,7 @@ const ResponseContainer = styled.div`
     justify-content: center;
     margin-top: 20px;
     height: 20px;
-    color: ${Colors.response.error};
+    color: ${Colors.status.red.default};
 `
 
 const FAQHeader = styled.div`
@@ -164,8 +164,8 @@ const LandingScreen = () => {
                     <Subheader>How does your app enhance Google user functionality?</Subheader>
                     <FAQItem>
                         Our app enhances user functionality by allowing you to track everything on your plate at work in
-                        one unified place. You can view your Google calendar in-app and will soon be able to modify and
-                        create events.
+                        one unified place. You can view your Google calendar in-app and can also modify and create
+                        events.
                     </FAQItem>
                 </FlexColumn>
             </FlexGrowContainer>

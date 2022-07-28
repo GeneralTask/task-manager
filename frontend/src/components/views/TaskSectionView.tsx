@@ -20,11 +20,10 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 const BannerAndSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    border-right: 1px solid ${Colors.gray._300};
+    border-right: 1px solid ${Colors.background.dark};
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
-    user-select: none;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -39,7 +38,7 @@ const TaskSectionViewContainer = styled.div`
     height: 100%;
     flex-direction: column;
     padding-top: 0;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
 `
 const TasksContainer = styled.div`
     display: flex;
@@ -136,7 +135,7 @@ const TaskSectionView = () => {
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
-                                {!section.is_done && <CreateNewTask section={section.id} />}
+                                {!section.is_done && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
                                         <ReorderDropContainer

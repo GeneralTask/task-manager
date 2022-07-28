@@ -1,4 +1,4 @@
-import { TPullRequestStatusColors } from "../components/pull-requests/styles"
+import { TStatusColors } from "../styles/colors"
 import { TLogoImage } from "../styles/images"
 
 export type Datestring = string
@@ -15,6 +15,11 @@ export interface TConferenceCall {
     platform: string
     logo: string
     url: string
+}
+
+export interface TSourcesResult {
+    name: string
+    authorization_url: string
 }
 
 export interface TTask {
@@ -109,7 +114,7 @@ export interface TPullRequest {
     number: number
     status: {
         text: string
-        color: TPullRequestStatusColors
+        color: TStatusColors
     }
     author: string
     num_comments: number
@@ -199,6 +204,8 @@ export interface TOverviewView {
     logo: TLogoImage
     view_items: TOverviewItem[]
     isOptimistic?: boolean
+    sources: TSourcesResult[]
+    is_linked: boolean
 }
 
 export interface TSupportedViewItem {

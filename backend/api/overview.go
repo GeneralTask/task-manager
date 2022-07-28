@@ -60,6 +60,7 @@ type SupportedViewItem struct {
 	IsAdded       bool               `json:"is_added"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	GithubID      string             `json:"github_id"`
+	ViewID        primitive.ObjectID `json:"view_id"`
 }
 
 type SupportedView struct {
@@ -68,7 +69,7 @@ type SupportedView struct {
 	Logo             string              `json:"logo"`
 	IsNested         bool                `json:"is_nested"`
 	IsLinked         bool                `json:"is_linked"`
-	AuthorizationURL *string             `json:"authorization_url"`
+	AuthorizationURL string              `json:"authorization_url"`
 	Views            []SupportedViewItem `json:"views"`
 }
 
@@ -121,12 +122,15 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].GetOrderingID() < result[j].GetOrderingID()
+	})
 
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]interface{}, error) {
-	result := []interface{}{}
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]OrderingIDGetter, error) {
+	result := []OrderingIDGetter{}
 	for _, view := range views {
 		if view.Type == string(ViewTaskSection) {
 			overviewResult, err := api.GetTaskSectionOverviewResult(db, ctx, view, userID)
@@ -178,9 +182,33 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(*tasks, func(i, j int) bool {
+		return (*tasks)[i].IDOrdering < (*tasks)[j].IDOrdering
+	})
 
+	// Reset ID orderings to begin at 1
 	taskResults := []*TaskResult{}
+	taskCollection := database.GetTaskCollection(db)
+	orderingID := 1
 	for _, task := range *tasks {
+		if task.IDOrdering != orderingID {
+			task.IDOrdering = orderingID
+			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+			defer cancel()
+			res, err := taskCollection.UpdateOne(
+				dbCtx,
+				bson.M{"_id": task.ID},
+				bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
+			)
+			if err != nil {
+				return nil, err
+			}
+			if res.MatchedCount != 1 {
+				api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+				return nil, errors.New("failed to update task ordering")
+			}
+		}
+		orderingID++
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
@@ -458,12 +486,12 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is required for task section type views"})
 			return
 		}
 		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
@@ -506,13 +534,15 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 
 	viewCollection := database.GetViewCollection(db)
-	_, err = viewCollection.InsertOne(parentCtx, view)
+	insertedView, err := viewCollection.InsertOne(parentCtx, view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
 		Handle500(c)
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
+	})
 }
 
 func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
@@ -588,7 +618,7 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	if result.ModifiedCount != 1 {
+	if result.MatchedCount != 1 {
 		Handle404(c)
 		return
 	}
@@ -728,20 +758,17 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		return
 	}
 
-	var githubAuthURL *string
-	var linearAuthURL *string
-	var slackAuthURL *string
+	var githubAuthURL string
+	var linearAuthURL string
+	var slackAuthURL string
 	if !isGithubLinked {
-		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
-		githubAuthURL = &authURL
+		githubAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	}
 	if !isLinearLinked {
-		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
-		linearAuthURL = &authURL
+		linearAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
 	}
 	if !isSlackLinked {
-		authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
-		slackAuthURL = &authURL
+		slackAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
 	}
 
 	supportedViews := []SupportedView{
@@ -803,6 +830,7 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
 		return []SupportedViewItem{}, err
 	}
+
 	supportedViewItems := []SupportedViewItem{{
 		Name:          TaskSectionNameDefault,
 		TaskSectionID: constants.IDTaskSectionDefault,
@@ -850,32 +878,35 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 	}
 	for _, supportedView := range *supportedViews {
 		for index, view := range supportedView.Views {
-			isAdded, err := api.viewIsAdded(db, userID, supportedView.Type, view)
+			addedView, err := api.getViewFromSupportedView(db, userID, supportedView.Type, view)
 			if err != nil {
 				return err
 			}
-			supportedView.Views[index].IsAdded = isAdded
+			supportedView.Views[index].IsAdded = addedView != nil
+			if addedView != nil {
+				supportedView.Views[index].ViewID = addedView.ID
+			}
 		}
 	}
 	return nil
 }
 
-func (api *API) viewIsAdded(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (bool, error) {
+func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (*database.View, error) {
 	if viewType == ViewTaskSection {
-		return api.viewExists(db, userID, viewType, &[]bson.M{
+		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
 	} else if viewType == ViewLinear || viewType == ViewSlack {
-		return api.viewExists(db, userID, viewType, nil)
+		return api.getView(db, userID, viewType, nil)
 	} else if viewType == ViewGithub {
-		return api.viewExists(db, userID, viewType, &[]bson.M{
+		return api.getView(db, userID, viewType, &[]bson.M{
 			{"github_id": view.GithubID},
 		})
 	}
-	return false, errors.New("invalid view type")
+	return nil, errors.New("invalid view type")
 }
 
-func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (bool, error) {
+func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (*database.View, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -891,15 +922,21 @@ func (api *API) viewExists(db *mongo.Database, userID primitive.ObjectID, viewTy
 		}
 	}
 
-	count, err := database.GetViewCollection(db).CountDocuments(
+	var view database.View
+	err := database.GetViewCollection(db).FindOne(
 		dbCtx,
 		filter,
-	)
+	).Decode(&view)
+
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to check if view exists")
-		return false, err
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // view has not been added
+		} else {
+			api.Logger.Error().Err(err).Msg("failed to check if view exists")
+			return nil, err
+		}
 	}
-	return count > int64(0), nil
+	return &view, nil
 }
 
 func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryId string) (bool, error) {

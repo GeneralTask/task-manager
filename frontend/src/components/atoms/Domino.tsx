@@ -1,6 +1,5 @@
-import { Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import React from 'react'
-import { gray } from '../../styles/colors'
 import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
@@ -21,7 +20,7 @@ const Dot = styled.div`
     width: 3px;
     height: 3px;
     border-radius: 50px;
-    background-color: ${gray._400};
+    background-color: ${Colors.background.dark};
     margin: 1px;
 `
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { Icon } from '../atoms/Icon'
 import { emptyFunction } from '../../utils/utils'
@@ -20,23 +20,23 @@ const SectionHeaderContainer = styled.div`
 `
 const HeaderText = styled.span`
     margin-right: ${Spacing.margin._8};
-    font-size: ${Typography.xLarge.fontSize};
     padding-left: 6px; /* TODO: remove margins and padding from Header */
-    border: 2px solid transparent;
+    border: ${Border.stroke.large} solid transparent;
     overflow-wrap: break-word;
     min-width: 0;
+    ${Typography.title};
 `
 const HeaderTextEditable = styled.input`
     margin-right: ${Spacing.margin._8};
-    font-size: ${Typography.xLarge.fontSize};
     padding-left: ${Spacing.padding._4};
     border: none;
     outline: none;
     &:focus {
-        border: 2px solid ${Colors.gray._400};
+        border: ${Border.stroke.large} solid ${Colors.background.dark};
     }
     background-color: transparent;
     width: 100%;
+    ${Typography.title};
 `
 
 const immutableSectionIds = ['000000000000000000000001', '000000000000000000000004']

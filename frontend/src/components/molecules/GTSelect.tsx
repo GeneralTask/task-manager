@@ -1,7 +1,5 @@
-import { Colors, Shadows, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../styles'
 import React, { ReactNode, useRef } from 'react'
-
-import { radius } from '../../styles/border'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 
@@ -9,8 +7,8 @@ const SelectContainer = styled.div<{ alignment: 'left' | 'right' }>`
     display: flex;
     flex-direction: column;
     position: absolute;
-    background-color: ${Colors.white};
-    border-radius: ${radius.regular};
+    background-color: ${Colors.background.white};
+    border-radius: ${Border.radius.medium};
     box-shadow: ${Shadows.medium};
     z-index: 1;
     ${({ alignment }) => alignment === 'left' && 'right: 0;'}
@@ -24,8 +22,8 @@ const OptionsContainer = styled.div`
 `
 const TitleContainer = styled.div`
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    border-bottom: 1px solid ${Colors.gray._100};
-    color: ${Colors.gray._600};
+    border-bottom: 1px solid ${Colors.background.medium};
+    color: ${Colors.text.light};
 `
 const ListItem = styled.div<{ hasPadding: boolean }>`
     display: flex;
@@ -33,7 +31,7 @@ const ListItem = styled.div<{ hasPadding: boolean }>`
     align-items: center;
     ${({ hasPadding }) => (hasPadding ? `padding: ${Spacing.padding._8} ${Spacing.padding._16};` : '')}
     &:hover {
-        background-color: ${Colors.gray._100};
+        background-color: ${Colors.background.medium};
     }
     overflow: hidden;
     cursor: pointer;
@@ -44,7 +42,7 @@ const SectionTitleBox = styled.div`
     flex-direction: row;
     align-items: center;
     gap: ${Spacing.padding._8};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     min-width: 0;
 `
 const PositionRelative = styled.div`
