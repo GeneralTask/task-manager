@@ -485,3 +485,7 @@ func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID stri
 	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }
+
+func (gitPR GithubPRSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID, updateFields *database.CalendarEventChangeableFields) error {
+	return errors.New("has not been implemented yet")
+}

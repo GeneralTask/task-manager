@@ -243,6 +243,10 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 	return &attendeesList
 }
 
+func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID, updateFields *database.CalendarEventChangeableFields) error {
+	return nil
+}
+
 func createConferenceCallRequest() *calendar.ConferenceData {
 	// todo - add client generated requestId
 	return &calendar.ConferenceData{

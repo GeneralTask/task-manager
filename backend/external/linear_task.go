@@ -181,3 +181,7 @@ func (linearTask LinearTaskSource) CreateNewEvent(userID primitive.ObjectID, acc
 func (linearTask LinearTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
+
+func (linearTask LinearTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID, updateFields *database.CalendarEventChangeableFields) error {
+	return errors.New("has not been implemented yet")
+}

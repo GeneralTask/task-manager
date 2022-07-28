@@ -105,3 +105,7 @@ func (generalTask GeneralTaskTaskSource) DeleteEvent(userID primitive.ObjectID, 
 func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	return nil
 }
+
+func (generalTask GeneralTaskTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID, updateFields *database.CalendarEventChangeableFields) error {
+	return errors.New("has not been implemented yet")
+}
