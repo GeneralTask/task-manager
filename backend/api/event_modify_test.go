@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"testing"
@@ -12,7 +13,7 @@ func TestEventModify(t *testing.T) {
 	// assert.NoError(t, err)
 	// defer dbCleanup()
 
-	// authToken := login("approved@generaltask.com", "")
+	authToken := login("approved@generaltask.com", "")
 	// userID := getUserIDFromAuthToken(t, db, authToken)
 
 	// taskCollection := database.GetTaskCollection(db)
@@ -24,14 +25,17 @@ func TestEventModify(t *testing.T) {
 	// router := GetRouter(api)
 
 	eventID := "duck"
+	validUrl := fmt.Sprintf("/events/modify/%s/", eventID)
+
 	t.Run("Unauthorized", func(t *testing.T) {
-		url := fmt.Sprintf("/events/modify/%s/", eventID)
-		ServeRequest(t, "badAuthToken", "PATCH", url, nil, http.StatusUnauthorized)
+		ServeRequest(t, "badAuthToken", "PATCH", validUrl, nil, http.StatusUnauthorized)
 	})
-	// t.Run("EmptyBody", func(t *testing.T) {
-	// 	url := fmt.Sprintf("/overview/views/%s/", eventID)
-	// 	body := bytes.NewBuffer([]byte(`{}`))
-	// 	ServeRequest(t, "badAuthToken", "DELETE", url, body, http.StatusUnauthorized)
-	// })
+	t.Run("NoBody", func(t *testing.T) {
+		ServeRequest(t, authToken, "PATCH", validUrl, nil, http.StatusBadRequest)
+	})
+	t.Run("EmptyBody", func(t *testing.T) {
+		body := bytes.NewBuffer([]byte(`{}`))
+		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusBadRequest)
+	})
 
 }
