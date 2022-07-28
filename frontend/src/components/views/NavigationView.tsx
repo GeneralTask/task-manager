@@ -3,9 +3,9 @@ import { Colors, Spacing } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import GTButton from '../atoms/buttons/GTButton'
-import { authSignOut } from '../../utils/auth'
 import styled from 'styled-components'
+import GTButton from '../atoms/buttons/GTButton'
+import { useNavigate } from 'react-router-dom'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -32,19 +32,23 @@ const GapView = styled.div`
     margin-top: auto;
 `
 
-const NavigationView = () => (
-    <NavigationViewContainer>
-        <NavigationViewHeader>
-            <Icon size="medium" />
-        </NavigationViewHeader>
-        <OverflowContainer>
-            <NavigationSectionLinks />
-        </OverflowContainer>
-        <GapView>
-            <FeedbackButton />
-            <GTButton value="Sign Out" styleType="secondary" onClick={authSignOut} />
-        </GapView>
-    </NavigationViewContainer>
-)
+const NavigationView = () => {
+    const navigate = useNavigate()
+
+    return (
+        <NavigationViewContainer>
+            <NavigationViewHeader>
+                <Icon size="medium" />
+            </NavigationViewHeader>
+            <OverflowContainer>
+                <NavigationSectionLinks />
+            </OverflowContainer>
+            <GapView>
+                <FeedbackButton />
+                <GTButton value="Settings" styleType="secondary" onClick={() => navigate('/settings')} />
+            </GapView>
+        </NavigationViewContainer>
+    )
+}
 
 export default NavigationView

@@ -148,12 +148,6 @@ const NavigationSectionLinks = () => {
                         />
                     ))}
             </NavigationLinkDropdown>
-            <NavigationLink
-                link="/settings"
-                title="Settings"
-                icon={icons.gear}
-                isCurrentPage={pathname.split('/')[1] === 'settings'}
-            />
         </>
     )
 }
