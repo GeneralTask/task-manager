@@ -213,7 +213,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	return &tasks, nil
 }
 
-func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]*Item, error) {
+func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -232,7 +232,7 @@ func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]*Item, erro
 		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
 		return nil, err
 	}
-	var tasks []*Item
+	var tasks []Item
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
