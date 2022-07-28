@@ -7,11 +7,9 @@ import { TEvent } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-// import { CELL_TIME_WIDTH } from "../calendar/CalendarEvents-styles"
+import ReactDOM from 'react-dom'
 
 // Calendar Modal (GCal)
-// right now, right offset is done manually to check other functionality
-// TO DO: CHANGE RIGHT OFFSET ONCE DONE WITH OTHER STYLING BUGS
 const EventBoxStyle = styled.div`
     box-sizing: border-box;
     display: flex;
@@ -19,9 +17,6 @@ const EventBoxStyle = styled.div`
     align-items: flex-start;
     padding: ${Spacing.padding._16} 0px;
     gap: 10px;
-
-    position: absolute;
-    right: 110px;
     width: 315px;
 
     background-color: ${Colors.background.white};
@@ -157,9 +152,8 @@ interface EventDetailProps {
     handleClose: React.MouseEventHandler<HTMLButtonElement>
 }
 
-// TO DO: figure out exit logic
 // TO DO: figure out CSS styling for where popup goes (for expanded and collapsed)
-
+// TO DO: create React Portal
 const EventDetailPopup = ({ event, date, handleClose }: EventDetailProps) => {
     const startTime = DateTime.fromISO(event.datetime_start)
     const endTime = DateTime.fromISO(event.datetime_end)
@@ -167,41 +161,44 @@ const EventDetailPopup = ({ event, date, handleClose }: EventDetailProps) => {
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00
     const endTimeString = endTime.toFormat('h:mm a') // ex: 3:30 PM
 
-    return (
-        <EventBoxStyle>
-            <EventBody>
-                <EventHeader>
-                    <Icon source={logos.gcal} size="xSmall" />
-                    <EventHeaderIcons>
-                        <Icon source={icons.trash_gray} size="xSmall" />
-                        <CloseButton onClick={handleClose}>
-                            <Icon source={icons.exit} size="small" />
-                        </CloseButton>
-                    </EventHeaderIcons>
-                </EventHeader>
-                <EventDetail>
-                    <EventTitleSection>
-                        <EventTitle>{event.title}</EventTitle>
-                        <EventDateContainer>
-                            <Icon source={icons.calendar_blank_darkgray} size="xSmall" />
-                            <EventDate>
-                                {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                            </EventDate>
-                            {/* <EventDateText>Thursday, June 23 · 3:00 - 3:30 pm</EventDateText> */}
-                        </EventDateContainer>
-                    </EventTitleSection>
-                    <DescriptionContainer>
-                        <Description>{event.body}</Description>
-                    </DescriptionContainer>
-                </EventDetail>
-                <NoStyleAnchor href={event.deeplink} target="_blank">
-                    <ExternalLinkButton>
-                        <Icon source={icons.external_link_darkgray} size="xSmall" />
-                        Google Calendar
-                    </ExternalLinkButton>
-                </NoStyleAnchor>
-            </EventBody>
-        </EventBoxStyle>
+    return ReactDOM.createPortal(
+        <>
+            <EventBoxStyle>
+                <EventBody>
+                    <EventHeader>
+                        <Icon source={logos.gcal} size="xSmall" />
+                        <EventHeaderIcons>
+                            <Icon source={icons.trash_gray} size="xSmall" />
+                            <CloseButton onClick={handleClose}>
+                                <Icon source={icons.exit} size="small" />
+                            </CloseButton>
+                        </EventHeaderIcons>
+                    </EventHeader>
+                    <EventDetail>
+                        <EventTitleSection>
+                            <EventTitle>{event.title}</EventTitle>
+                            <EventDateContainer>
+                                <Icon source={icons.calendar_blank_darkgray} size="xSmall" />
+                                <EventDate>
+                                    {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
+                                </EventDate>
+                                {/* <EventDateText>Thursday, June 23 · 3:00 - 3:30 pm</EventDateText> */}
+                            </EventDateContainer>
+                        </EventTitleSection>
+                        <DescriptionContainer>
+                            <Description>{event.body}</Description>
+                        </DescriptionContainer>
+                    </EventDetail>
+                    <NoStyleAnchor href={event.deeplink} target="_blank">
+                        <ExternalLinkButton>
+                            <Icon source={icons.external_link_darkgray} size="xSmall" />
+                            Google Calendar
+                        </ExternalLinkButton>
+                    </NoStyleAnchor>
+                </EventBody>
+            </EventBoxStyle>
+        </>,
+        document.getElementById('portal')!
     )
 }
 

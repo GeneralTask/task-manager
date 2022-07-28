@@ -78,7 +78,6 @@ interface EventBodyStyleProps {
     leftOffset: number
     eventHasEnded: boolean
 }
-//border color not showing up when user clicks on event for popup
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
     --left-offset: ${({ leftOffset }) => leftOffset};
@@ -92,6 +91,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
     cursor: pointer;
 `
+// border color for isSelected isn't showing >:(
 export const EventInfoContainer = styled.div<{ isSelected: boolean }>`
     display: flex;
     align-items: center;
@@ -151,7 +151,6 @@ export const DateHeader = styled.div`
     color: ${EVENT_TITLE_TEXT_COLOR};
     text-align: center;
 `
-
 export const CalendarDayHeader = styled.div`
     display: flex;
     flex-direction: row;
@@ -163,7 +162,6 @@ export const CalendarDayHeader = styled.div`
     top: 0;
     z-index: 2;
 `
-
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
