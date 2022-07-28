@@ -939,8 +939,8 @@ func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType 
 	return &view, nil
 }
 
-func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryId string) (bool, error) {
-	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}, {"pull_request.repository_id": repositoryId}})
+func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryID string) (bool, error) {
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}, {"pull_request.repository_id": repositoryID}})
 	if err != nil {
 		return false, err
 	}
