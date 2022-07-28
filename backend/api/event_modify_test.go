@@ -25,8 +25,13 @@ func TestEventModify(t *testing.T) {
 
 	eventID := "duck"
 	t.Run("Unauthorized", func(t *testing.T) {
-		url := fmt.Sprintf("/overview/views/%s/", eventID)
-		ServeRequest(t, "badAuthToken", "DELETE", url, nil, http.StatusUnauthorized)
+		url := fmt.Sprintf("/events/modify/%s/", eventID)
+		ServeRequest(t, "badAuthToken", "PATCH", url, nil, http.StatusUnauthorized)
 	})
+	// t.Run("EmptyBody", func(t *testing.T) {
+	// 	url := fmt.Sprintf("/overview/views/%s/", eventID)
+	// 	body := bytes.NewBuffer([]byte(`{}`))
+	// 	ServeRequest(t, "badAuthToken", "DELETE", url, body, http.StatusUnauthorized)
+	// })
 
 }
