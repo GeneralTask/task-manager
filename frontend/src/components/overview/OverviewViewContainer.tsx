@@ -48,7 +48,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                 view.sources.map((source, index) => (
                     <AuthBanner
                         key={index}
-                        authorization_url={source.authorization_url}
+                        authorizationUrl={source.authorization_url}
                         name={source.name}
                         logo={view.logo}
                     />

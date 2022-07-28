@@ -19,5 +19,12 @@ export const openPopupWindow = (authorizationURL: string, onWindowClose: () => v
         authorizationURL,
         `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
     )
-	{(win != null) && onWindowClose()}
+	if (win != null) {
+		const timer = setInterval(() => {
+			if (win.closed) {
+				clearInterval(timer)
+				onWindowClose()
+			}
+		})
+	}
 }

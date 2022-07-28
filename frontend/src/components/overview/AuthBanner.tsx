@@ -32,22 +32,20 @@ const Title = styled.span`
 `
 
 interface AuthBannerProps {
-    authorization_url: string
+    authorizationUrl: string
     name: string
     logo: TLogoImage
 }
 
-const AuthBanner = ({ authorization_url, name, logo }: AuthBannerProps) => {
+const AuthBanner = ({ authorizationUrl, name, logo }: AuthBannerProps) => {
     const { refetch } = useGetLinkedAccounts()
     const { refetch: refetchViews } = useGetOverviewViews()
 
     const onWindowClose = () => {
-        const timer = setInterval(() => {
-            clearInterval(timer)
-            refetch()
-            refetchViews()
-        }, 10)
+        refetch()
+        refetchViews()
     }
+
     return (
         <BannerContainer>
             <IconContainer>
@@ -57,7 +55,7 @@ const AuthBanner = ({ authorization_url, name, logo }: AuthBannerProps) => {
             <ConnectButton
                 value="Connect"
                 color={Colors.gtColor.primary}
-                onClick={() => openPopupWindow(authorization_url, onWindowClose)}
+                onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
             />
         </BannerContainer>
     )

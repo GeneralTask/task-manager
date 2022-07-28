@@ -77,11 +77,8 @@ const SettingsView = () => {
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const onWindowClose = () => {
-        const timer = setInterval(() => {
-            clearInterval(timer)
-            refetch()
-            refetchViews()
-        }, 10)
+        refetch()
+        refetchViews()
     }
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
@@ -90,6 +87,7 @@ const SettingsView = () => {
         for (const type of supportedTypes) {
             if (type.name === accountType) {
                 openPopupWindow(type.authorization_url, onWindowClose)
+                return
             }
         }
     }
