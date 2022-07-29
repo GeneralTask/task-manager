@@ -44,15 +44,7 @@ const AddViewsModalContent = () => {
         <>
             {supportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
-                    {!supportedView.is_linked ? (
-                        <AuthBanner
-                            key={viewIndex}
-                            authorizationUrl={supportedView.authorization_url}
-                            name={supportedView.name}
-                            logo={supportedView.logo}
-                            hasBorder={false}
-                        />
-                    ) : (
+                    {supportedView.is_linked ? (
                         <SupportedView>
                             <SupportedViewContent>
                                 <Icon source={logos[supportedView.logo]} size="small" />
@@ -78,6 +70,14 @@ const AddViewsModalContent = () => {
                                 />
                             )}
                         </SupportedView>
+                    ) : (
+                        <AuthBanner
+                            key={supportedView.name}
+                            authorizationUrl={supportedView.authorization_url}
+                            name={supportedView.name}
+                            logo={supportedView.logo}
+                            hasBorder={false}
+                        />
                     )}
                     {/* Do not show divider if this is the last item in the list */}
                     {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
