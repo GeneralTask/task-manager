@@ -175,6 +175,7 @@ type PullRequest struct {
 	Branch         string             `bson:"branch"`
 	RequiredAction string             `bson:"required_action"`
 	CommentCount   int                `bson:"comment_count"`
+	LastFetched    primitive.DateTime `bson:"last_fetched"`
 	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
 }
 

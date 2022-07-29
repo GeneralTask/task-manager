@@ -1,14 +1,18 @@
 package external
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
+	"github.com/slack-go/slack"
+	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -55,6 +59,7 @@ type GithubPRRequestData struct {
 	User        *github.User
 	Repository  *github.Repository
 	PullRequest *github.PullRequest
+	Token       *oauth2.Token
 }
 
 func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
@@ -83,9 +88,10 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
+	var token *oauth2.Token
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
@@ -134,6 +140,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				User:        githubUser,
 				Repository:  repository,
 				PullRequest: pullRequest,
+				Token:       token,
 			}
 			go gitPR.getPullRequestInfo(extCtx, userID, accountID, requestData, pullRequestChan)
 			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
@@ -190,11 +197,14 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 	githubUser := requestData.User
 	repository := requestData.Repository
 	pullRequest := requestData.PullRequest
+	token := requestData.Token
 
 	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
 		result <- nil
 		return
 	}
+
+	// do the check
 
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
@@ -270,6 +280,20 @@ func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
 		githubClient.BaseURL = baseURL
 	}
 	return err
+}
+
+func pullRequestHasBeenModified(ctx context.Context, pullRequest *github.PullRequest, token *oauth2.Token) (bool, error) {
+	// Github API does not support conditional requests, so this logic is required
+	request, err := http.NewRequest("POST", slack.APIURL+"views.open", bytes.NewBuffer(modalJSON))
+	request.Header.Set("Content-type", "application/json")
+	request.Header.Set("Authorization", "Bearer "+token.AccessToken)
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		logger.Error().Err(err).Msg("error sending Slack modal request")
+		Handle500(c)
+		return
+	}
 }
 
 func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {

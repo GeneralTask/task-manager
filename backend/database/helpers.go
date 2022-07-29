@@ -106,12 +106,12 @@ func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, us
 		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
 	).Decode(&thread)
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to get email with messageID: %+v", messageID)
+		logger.Error().Err(err).Msgf("failed to get email with messageID: %+v", messageID)
 		return nil, err
 	}
 
 	if len(thread.EmailThread.Emails) == 0 {
-		logger.Error().Msgf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
+		logger.Error().Msgf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 		return nil, fmt.Errorf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
 	}
 	return &thread.EmailThread.Emails[0], nil
@@ -122,7 +122,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to establish DB connection")
+		logger.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()
@@ -138,7 +138,35 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 			{"user_id": userID},
 		}}).Decode(&message)
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to get item: %+v", itemID)
+		logger.Error().Err(err).Msgf("failed to get item: %+v", itemID)
+		return nil, err
+	}
+	return &message, nil
+}
+
+func GetPullRequest(ctx context.Context, externalID primitive.ObjectID, sourceID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to establish DB connection")
+		return nil, err
+	}
+	defer dbCleanup()
+	taskCollection := GetTaskCollection(db)
+
+	var message Item
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = taskCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"id_external": externalID},
+			{"source_id": sourceID},
+			{"user_id": userID},
+		}}).Decode(&message)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
 		return nil, err
 	}
 	return &message, nil
@@ -164,7 +192,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to get or create task")
+		logger.Error().Err(err).Msg("failed to get or create task")
 		return nil, err
 	}
 
@@ -176,7 +204,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		dbQuery,
 	).Decode(&item)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to get task")
+		logger.Error().Err(err).Msg("failed to get task")
 		return nil, err
 	}
 
@@ -199,7 +227,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Item
@@ -207,7 +235,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -229,7 +257,7 @@ func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		logger.Error().Err(err).Msg("failed to fetch PRs for user")
 		return nil, err
 	}
 	var tasks []Item
@@ -237,7 +265,7 @@ func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		logger.Error().Err(err).Msg("failed to fetch PRs for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -263,7 +291,7 @@ func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	var items []Item
@@ -271,7 +299,7 @@ func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 	defer cancel()
 	err = cursor.All(dbCtx, &items)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	return &items, nil
@@ -306,7 +334,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch emails for user with pagination: %v", pagination)
+		logger.Error().Err(err).Msgf("failed to fetch emails for user with pagination: %v", pagination)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -314,7 +342,7 @@ func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, p
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch emails for user with pagination: %v", pagination)
+		logger.Error().Err(err).Msgf("failed to fetch emails for user with pagination: %v", pagination)
 		return nil, err
 	}
 	return &activeEmails, nil
@@ -361,7 +389,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch threads for user with pagination: %v", pagination)
+		logger.Error().Err(err).Msgf("failed to fetch threads for user with pagination: %v", pagination)
 		return nil, err
 	}
 	var activeEmails []Item
@@ -369,7 +397,7 @@ func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread b
 	defer cancel()
 	err = cursor.All(dbCtx, &activeEmails)
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch threads for user with pagination: %v", pagination)
+		logger.Error().Err(err).Msgf("failed to fetch threads for user with pagination: %v", pagination)
 		return nil, err
 	}
 	return &activeEmails, nil
@@ -397,7 +425,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Item
@@ -405,7 +433,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -550,7 +578,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to delete state token")
+		logger.Error().Err(err).Msg("failed to delete state token")
 		return err
 	}
 	if result.DeletedCount != 1 {
@@ -679,7 +707,7 @@ func FlattenStruct(s interface{}) (map[string]interface{}, error) {
 	flattened, err := flatbson.Flatten(s)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msgf("Could not flatten %+v", s)
+		logger.Error().Err(err).Msgf("could not flatten %+v", s)
 		return nil, err
 	}
 	return flattened, nil
