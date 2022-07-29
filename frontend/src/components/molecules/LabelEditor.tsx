@@ -1,12 +1,12 @@
 import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useReorderTaskOverview } from '../../services/api/overview.hooks'
 import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-
-const PRIORITY_SECTION_ID = '000000000000000000000000'
+import { getTaskIndexFromSections } from '../../utils/utils'
+import { useParams } from 'react-router-dom'
 
 const LabelEditorContainer = styled.div`
     display: flex;
@@ -66,26 +66,36 @@ interface LabelEditorProps {
 }
 export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorProps): JSX.Element {
     const { mutate: reorderTask } = useReorderTask()
+    const { mutate: reorderTaskOverview } = useReorderTaskOverview()
     const { data } = useGetTasks()
-
-    const navigate = useNavigate()
     const params = useParams()
-    const current_section_id = params.section || ''
+    const onOverviewPage = !!params.overviewItem
 
     const options = data?.map((section) => {
-        // Do not allow moving to the done or the priority sections
-        if (section.is_done || section.id === PRIORITY_SECTION_ID) return
-        const isCurrentSection = section.id === current_section_id
+        // Do not allow moving to the done section
+        if (section.is_done) return
+        const { sectionIndex } = getTaskIndexFromSections(data, task_id)
+        if (sectionIndex === undefined) return
+        const currentSectionId = data[sectionIndex].id
+        const isCurrentSection = section.id === currentSectionId
 
         const handleOnClick = () => {
-            reorderTask({
-                taskId: task_id,
-                dropSectionId: section.id,
-                orderingId: 1,
-                dragSectionId: current_section_id,
-            })
+            if (onOverviewPage) {
+                reorderTaskOverview({
+                    taskId: task_id,
+                    dropSectionId: section.id,
+                    orderingId: 1,
+                    dragSectionId: currentSectionId,
+                })
+            } else {
+                reorderTask({
+                    taskId: task_id,
+                    dropSectionId: section.id,
+                    orderingId: 1,
+                    dragSectionId: currentSectionId,
+                })
+            }
             closeLabelEditor()
-            navigate(`/tasks/${current_section_id}`)
         }
 
         return (
