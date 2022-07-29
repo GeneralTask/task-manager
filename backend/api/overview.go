@@ -132,33 +132,24 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
-		if view.Type == string(ViewTaskSection) {
-			overviewResult, err := api.GetTaskSectionOverviewResult(db, ctx, view, userID)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, overviewResult)
-		} else if view.Type == string(ViewLinear) {
-			overviewResult, err := api.GetLinearOverviewResult(db, ctx, view, userID)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, overviewResult)
-		} else if view.Type == string(ViewSlack) {
-			overviewResult, err := api.GetSlackOverviewResult(db, ctx, view, userID)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, overviewResult)
-		} else if view.Type == string(ViewGithub) {
-			overviewResult, err := api.GetGithubOverviewResult(db, ctx, view, userID)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, overviewResult)
-		} else {
-			return nil, errors.New("invalid view type")
+		var singleOverviewResult OrderingIDGetter
+		var err error
+		switch view.Type {
+		case string(ViewTaskSection):
+			singleOverviewResult, err = api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+		case string(ViewLinear):
+			singleOverviewResult, err = api.GetLinearOverviewResult(db, ctx, view, userID)
+		case string(ViewSlack):
+			singleOverviewResult, err = api.GetSlackOverviewResult(db, ctx, view, userID)
+		case string(ViewGithub):
+			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
+		default:
+			err = errors.New("invalid view type")
 		}
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, singleOverviewResult)
 	}
 	return result, nil
 }
