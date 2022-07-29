@@ -9,6 +9,7 @@ import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
+import AuthBanner from './AuthBanner'
 
 const SupportedView = styled.div<{ isIndented?: boolean }>`
     display: flex;
@@ -38,35 +39,47 @@ const AddViewsModalContent = () => {
     if (!supportedViews) {
         return <Spinner />
     }
+
     return (
         <>
             {supportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
-                    <SupportedView>
-                        <SupportedViewContent>
-                            <Icon source={logos[supportedView.logo]} size="small" />
-                            {supportedView.name}
-                        </SupportedViewContent>
-                        {!supportedView.is_nested && supportedView.views.length === 1 && (
-                            <GTCheckbox
-                                isChecked={supportedView.views[0].is_added}
-                                disabled={supportedView.views[0].is_add_disabled}
-                                onChange={() => {
-                                    const supportedViewItem = supportedView.views[0]
-                                    if (supportedViewItem.is_added && supportedViewItem.id) {
-                                        removeView(supportedViewItem.id)
-                                    } else {
-                                        addView({
-                                            supportedView,
-                                            supportedViewIndex: viewIndex,
-                                            supportedViewItem,
-                                            supportedViewItemIndex: 0,
-                                        })
-                                    }
-                                }}
-                            />
-                        )}
-                    </SupportedView>
+                    {!supportedView.is_linked ? (
+                        <AuthBanner
+                            key={viewIndex}
+                            authorizationUrl={supportedView.authorization_url}
+                            name={supportedView.name}
+                            logo={supportedView.logo}
+                            hasBorder={false}
+                        />
+                    ) : (
+                        <SupportedView>
+                            <SupportedViewContent>
+                                <Icon source={logos[supportedView.logo]} size="small" />
+                                {supportedView.name}
+                            </SupportedViewContent>
+                            {!supportedView.is_nested && supportedView.views.length === 1 && (
+                                <GTCheckbox
+                                    isChecked={supportedView.views[0].is_added}
+                                    disabled={supportedView.views[0].is_add_disabled}
+                                    onChange={() => {
+                                        const supportedViewItem = supportedView.views[0]
+                                        if (supportedViewItem.is_added && supportedViewItem.id) {
+                                            removeView(supportedViewItem.id)
+                                        } else {
+                                            addView({
+                                                supportedView,
+                                                supportedViewIndex: viewIndex,
+                                                supportedViewItem,
+                                                supportedViewItemIndex: 0,
+                                            })
+                                        }
+                                    }}
+                                />
+                            )}
+                        </SupportedView>
+                    )}
+                    {supportedView.name === 'Linear' && console.log('hey is linear linked:', supportedView.is_linked)}
                     {/* Do not show divider if this is the last item in the list */}
                     {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
                         (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />}

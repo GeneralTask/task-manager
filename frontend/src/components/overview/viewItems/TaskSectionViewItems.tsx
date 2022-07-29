@@ -23,12 +23,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
 
     return (
         <>
-            {sectionId && (
-                <CreateNewTask
-                    disableKeyboardShortcut
-                    sectionId={sectionId}
-                />
-            )}
+            {sectionId && <CreateNewTask disableKeyboardShortcut sectionId={sectionId} />}
             {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                 <ReorderDropContainer
                     key={item.id}
