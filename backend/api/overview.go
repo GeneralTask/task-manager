@@ -144,7 +144,7 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 		case string(ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
 		default:
-			return nil, errors.New("invalid view type")
+			err = errors.New("invalid view type")
 		}
 		if err != nil {
 			return nil, err
