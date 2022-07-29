@@ -1,6 +1,6 @@
 import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
@@ -67,6 +67,8 @@ interface LabelEditorProps {
 export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorProps): JSX.Element {
     const { mutate: reorderTask } = useReorderTask()
     const { data } = useGetTasks()
+
+    const navigate = useNavigate()
     const params = useParams()
     const current_section_id = params.section || ''
 
@@ -83,6 +85,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
                 dragSectionId: current_section_id,
             })
             closeLabelEditor()
+            navigate(`/tasks/${current_section_id}`)
         }
 
         return (
