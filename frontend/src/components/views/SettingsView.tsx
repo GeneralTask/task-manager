@@ -12,8 +12,8 @@ import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import SignOutButton from '../molecules/SignOutButton'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -112,27 +112,8 @@ const SettingsView = () => {
                                         setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
                                     }}
                                     value="Add new Account"
-                                    styleType="secondary"
+                                    styleType="primary"
                                 />
-                                {showLinkAccountsDropdown && (
-                                    <GTSelect
-                                        options={
-                                            supportedTypes?.map((type) => ({
-                                                item:
-                                                    type.name === 'Google' ? (
-                                                        GoogleSignInButtonImage
-                                                    ) : (
-                                                        <TextAlignCenter>{type.name}</TextAlignCenter>
-                                                    ),
-                                                onClick: () => openPopupWindow(type.authorization_url, onWindowClose),
-                                                hasPadding: type.name !== 'Google',
-                                            })) ?? []
-                                        }
-                                        location="left"
-                                        onClose={() => setShowLinkedAccountsDropdown(false)}
-                                        parentRef={showLinkAccountsButtonContainerRef}
-                                    />
-                                )}
                                 {showLinkAccountsDropdown && (
                                     <GTSelect
                                         options={
