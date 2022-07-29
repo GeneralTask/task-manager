@@ -144,7 +144,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &message, nil
 }
 
-func GetPullRequest(ctx context.Context, externalID primitive.ObjectID, sourceID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
+func GetPullRequest(ctx context.Context, externalID string, sourceID string, userID primitive.ObjectID) (*Item, error) {
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
