@@ -79,7 +79,6 @@ const AddViewsModalContent = () => {
                             )}
                         </SupportedView>
                     )}
-                    {supportedView.name === 'Linear' && console.log('hey is linear linked:', supportedView.is_linked)}
                     {/* Do not show divider if this is the last item in the list */}
                     {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
                         (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />}
