@@ -7,6 +7,8 @@ import { logos, TLogoImage } from '../../styles/images'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
 import { openPopupWindow } from '../../utils/auth'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 
 const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;
@@ -40,14 +42,15 @@ interface AuthBannerProps {
 }
 
 const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps) => {
-    const { refetch } = useGetLinkedAccounts()
     const { refetch: refetchViews } = useGetOverviewViews()
     const { refetch: refetchSupportedViews } = useGetSupportedViews()
+    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
+    const { refetch: fetchPullRequests } = useFetchPullRequests()
 
-    const onWindowClose = () => {
-        refetch()
-        refetchViews()
+    const onWindowClose = async () => {
         refetchSupportedViews()
+        await Promise.all([fetchExternalTasks(), fetchPullRequests()])
+        refetchViews()
     }
 
     return (
