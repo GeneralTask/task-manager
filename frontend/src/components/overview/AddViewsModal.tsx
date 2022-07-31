@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
+import { TSupportedView, TSupportedViewItem } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
@@ -40,6 +41,23 @@ const AddViewsModalContent = () => {
         return <Spinner />
     }
 
+    const onChange = (
+        supportedView: TSupportedView,
+        viewIndex: number,
+        supportedViewItem: TSupportedViewItem,
+        viewItemIndex: number
+    ) => {
+        if (supportedViewItem.is_added && supportedViewItem.id) {
+            removeView(supportedViewItem.id)
+        } else {
+            addView({
+                supportedView,
+                supportedViewIndex: viewIndex,
+                supportedViewItem,
+                supportedViewItemIndex: viewItemIndex,
+            })
+        }
+    }
     return (
         <>
             {supportedViews.map((supportedView, viewIndex) => (
@@ -56,16 +74,7 @@ const AddViewsModalContent = () => {
                                     disabled={supportedView.views[0].is_add_disabled}
                                     onChange={() => {
                                         const supportedViewItem = supportedView.views[0]
-                                        if (supportedViewItem.is_added && supportedViewItem.id) {
-                                            removeView(supportedViewItem.id)
-                                        } else {
-                                            addView({
-                                                supportedView,
-                                                supportedViewIndex: viewIndex,
-                                                supportedViewItem,
-                                                supportedViewItemIndex: 0,
-                                            })
-                                        }
+                                        onChange(supportedView, viewIndex, supportedViewItem, 0)
                                     }}
                                 />
                             )}
@@ -93,18 +102,9 @@ const AddViewsModalContent = () => {
                                     <GTCheckbox
                                         isChecked={supportedViewItem.is_added}
                                         disabled={supportedViewItem.is_add_disabled}
-                                        onChange={() => {
-                                            if (supportedViewItem.is_added && supportedViewItem.id) {
-                                                removeView(supportedViewItem.id)
-                                            } else {
-                                                addView({
-                                                    supportedView,
-                                                    supportedViewIndex: viewIndex,
-                                                    supportedViewItem,
-                                                    supportedViewItemIndex: viewItemIndex,
-                                                })
-                                            }
-                                        }}
+                                        onChange={() =>
+                                            onChange(supportedView, viewIndex, supportedViewItem, viewItemIndex)
+                                        }
                                     />
                                 </SupportedView>
                                 {(viewIndex !== supportedViews.length - 1 ||
