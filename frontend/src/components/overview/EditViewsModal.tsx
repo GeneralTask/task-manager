@@ -1,26 +1,11 @@
 import React, { useCallback } from 'react'
-import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
-import { Border, Colors, Spacing } from '../../styles'
 import GTModal from '../atoms/GTModal'
 import GTButton from '../atoms/buttons/GTButton'
-import styled from 'styled-components'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import EditViewsSelectedView from './EditViewsSelectedView'
 import { useGetOverviewViews, useReorderViews } from '../../services/api/overview.hooks'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
-
-const AddViewsButton = styled(NoStyleButton)`
-    border: ${Border.stroke.medium} solid ${Colors.background.dark};
-    border-radius: ${Border.radius.large};
-    color: ${Colors.text.light};
-    display: flex;
-    align-items: center;
-    padding: ${Spacing.padding._8};
-    gap: ${Spacing.margin._4};
-`
 
 interface EditViewsModalProps {
     isOpen: boolean
@@ -49,10 +34,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             onClose={onClose}
             leftButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             rightButtons={
-                <AddViewsButton onClick={goToAddViewsView}>
-                    <Icon source={icons.plus} size="small" />
-                    Add views
-                </AddViewsButton>
+                <GTButton onClick={goToAddViewsView} iconSource="plus" value="Add views" styleType="secondary" />
             }
         >
             <>
