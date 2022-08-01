@@ -4,8 +4,8 @@ import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
-import { markTaskDone, reorderTask, TMarkTaskDoneData, TReorderTaskData } from "./tasks.hooks"
+import { arrayMoveInPlace, getTaskIndexFromSections } from "../../utils/utils"
+import { markTaskDone, TMarkTaskDoneData } from "./tasks.hooks"
 import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
 
 export const useGetOverviewViews = () => {
@@ -265,62 +265,4 @@ export const useMarkTaskDone = () => {
             }
         },
     })
-}
-
-export const useReorderTaskOverview = () => {
-    const queryClient = useGTQueryClient()
-    return useMutation(
-        (data: TReorderTaskData) =>
-            reorderTask(data),
-        {
-            onMutate: async (data: TReorderTaskData) => {
-
-                await queryClient.cancelQueries('overview')
-                await queryClient.cancelQueries('tasks')
-
-                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                if (!views) return
-
-                const newViews = produce(views, (draft) => {
-                    const sections = draft.map(view => ({
-                        id: view.task_section_id,
-                        tasks: view.view_items
-                    }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId)
-                    if (sectionIndex == null || taskIndex == null) return
-                    const { task, section } = { task: sections[sectionIndex].tasks[taskIndex], section: sections[sectionIndex] }
-
-                    // move within existing section
-                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                        let endIndex = data.orderingId - 1
-                        if (taskIndex < endIndex) {
-                            endIndex -= 1
-                        }
-                        arrayMoveInPlace(section.tasks, taskIndex, endIndex)
-                        // update ordering ids
-                        resetOrderingIds(section.tasks)
-                    }
-                    // move task from one section to another
-                    else {
-                        // remove task from old location
-                        section.tasks.splice(taskIndex, 1)
-
-                        // add task to new location
-                        const dropSection = sections.find((s) => s.id === data.dropSectionId)
-                        if (dropSection == null) return
-                        dropSection.tasks.splice(data.orderingId - 1, 0, task)
-
-                        // update ordering ids
-                        resetOrderingIds(dropSection.tasks)
-                        resetOrderingIds(section.tasks)
-                    }
-                })
-                queryClient.setQueryData('overview', newViews)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('overview')
-                queryClient.invalidateQueries('tasks')
-            },
-        }
-    )
 }

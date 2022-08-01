@@ -40,7 +40,7 @@ export interface TMarkTaskDoneData {
     isCompleted: boolean
 }
 
-export interface TReorderTaskData {
+interface TReorderTaskData {
     taskId: string
     dropSectionId: string
     orderingId: number
@@ -288,9 +288,11 @@ export const useReorderTask = () => {
             onMutate: async (data: TReorderTaskData) => {
                 // cancel all current getTasks queries
                 await queryClient.cancelQueries('tasks')
+                await queryClient.cancelQueries('overview')
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                if (!sections) return
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (!sections || !views) return
 
                 const newSections = produce(sections, (draft) => {
                     // move within the existing section
@@ -328,15 +330,51 @@ export const useReorderTask = () => {
                         resetOrderingIds(dragSection.tasks)
                     }
                 })
+                const newViews = produce(views, (draft) => {
+                    const sections = draft.map(view => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items
+                    }))
+                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId)
+                    if (sectionIndex == null || taskIndex == null) return
+                    const { task, section } = { task: sections[sectionIndex].tasks[taskIndex], section: sections[sectionIndex] }
+
+                    // move within existing section
+                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                        let endIndex = data.orderingId - 1
+                        if (taskIndex < endIndex) {
+                            endIndex -= 1
+                        }
+                        arrayMoveInPlace(section.tasks, taskIndex, endIndex)
+                        // update ordering ids
+                        resetOrderingIds(section.tasks)
+                    }
+                    // move task from one section to another
+                    else {
+                        // remove task from old location
+                        section.tasks.splice(taskIndex, 1)
+
+                        // add task to new location
+                        const dropSection = sections.find((s) => s.id === data.dropSectionId)
+                        if (dropSection == null) return
+                        dropSection.tasks.splice(data.orderingId - 1, 0, task)
+
+                        // update ordering ids
+                        resetOrderingIds(dropSection.tasks)
+                        resetOrderingIds(section.tasks)
+                    }
+                })
+                queryClient.setQueryData('overview', newViews)
                 queryClient.setQueryData('tasks', newSections)
             },
             onSettled: () => {
+                queryClient.invalidateQueries('overview')
                 queryClient.invalidateQueries('tasks')
             },
         }
     )
 }
-export const reorderTask = async (data: TReorderTaskData) => {
+const reorderTask = async (data: TReorderTaskData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
             id_task_section: data.dropSectionId,

@@ -1,12 +1,10 @@
 import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
-import { useReorderTaskOverview } from '../../services/api/overview.hooks'
 import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { getTaskIndexFromSections } from '../../utils/utils'
-import { useParams } from 'react-router-dom'
 
 const LabelEditorContainer = styled.div`
     display: flex;
@@ -66,10 +64,7 @@ interface LabelEditorProps {
 }
 export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorProps): JSX.Element {
     const { mutate: reorderTask } = useReorderTask()
-    const { mutate: reorderTaskOverview } = useReorderTaskOverview()
     const { data } = useGetTasks()
-    const params = useParams()
-    const onOverviewPage = !!params.overviewItem
 
     const options = data?.map((section) => {
         // Do not allow moving to the done section
@@ -80,21 +75,12 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
         const isCurrentSection = section.id === currentSectionId
 
         const handleOnClick = () => {
-            if (onOverviewPage) {
-                reorderTaskOverview({
-                    taskId: task_id,
-                    dropSectionId: section.id,
-                    orderingId: 1,
-                    dragSectionId: currentSectionId,
-                })
-            } else {
-                reorderTask({
-                    taskId: task_id,
-                    dropSectionId: section.id,
-                    orderingId: 1,
-                    dragSectionId: currentSectionId,
-                })
-            }
+            reorderTask({
+                taskId: task_id,
+                dropSectionId: section.id,
+                orderingId: 1,
+                dragSectionId: currentSectionId,
+            })
             closeLabelEditor()
         }
 
