@@ -7,12 +7,13 @@ import { Icon } from '../atoms/Icon'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
-import { openAuthWindow } from '../../utils/auth'
+import { openPopupWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
 import SignOutButton from '../molecules/SignOutButton'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -78,10 +79,24 @@ const SettingsView = () => {
 
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
+    const { refetch: refetchViews } = useGetOverviewViews()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
+    const onWindowClose = () => {
+        refetch()
+        refetchViews()
+    }
+
     const onUnlink = (id: string) => deleteAccount({ id: id })
-    const onRelink = (accountType: string) => supportedTypes && openAuthWindow(accountType, supportedTypes, refetch)
+    const onRelink = (accountType: string) => {
+        if (!supportedTypes) return
+        for (const type of supportedTypes) {
+            if (type.name === accountType) {
+                openPopupWindow(type.authorization_url, onWindowClose)
+                return
+            }
+        }
+    }
 
     return (
         <ScrollViewMimic>
@@ -109,7 +124,7 @@ const SettingsView = () => {
                                                     ) : (
                                                         <TextAlignCenter>{type.name}</TextAlignCenter>
                                                     ),
-                                                onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
+                                                onClick: () => openPopupWindow(type.authorization_url, onWindowClose),
                                                 hasPadding: type.name !== 'Google',
                                             })) ?? []
                                         }

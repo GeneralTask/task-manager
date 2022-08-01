@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const ReactRefreshTypeScript = require('react-refresh-typescript')
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
 const common = require('./webpack.common')
@@ -61,6 +60,5 @@ module.exports = mergeWithRules({
     },
     plugins: [
         new ReactRefreshWebpackPlugin({ overlay: false }),
-        new ForkTsCheckerWebpackPlugin(),
     ]
 })
