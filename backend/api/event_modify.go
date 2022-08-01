@@ -1,8 +1,13 @@
 package api
 
 import (
+	"context"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -41,5 +46,48 @@ func (api *API) EventModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(201, gin.H{})
+
+	err = api.updateEventInDB(c, event, userID, &modifyParams)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	c.JSON(200, gin.H{})
+}
+
+func (api *API) updateEventInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.CalendarEventChangeableFields) error {
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+	taskCollection := database.GetTaskCollection(db)
+
+	flattenedUpdateFields, err := database.FlattenStruct(updateFields)
+	if err != nil {
+		api.Logger.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
+		return err
+	}
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := taskCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": task.ID},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": flattenedUpdateFields},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to update internal DB")
+		return err
+	}
+	if res.MatchedCount != 1 {
+		log.Print("failed to update task", res)
+		return nil // todo return an error here
+	}
+	return nil
 }
