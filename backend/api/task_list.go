@@ -187,7 +187,6 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 }
 
 func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) *TaskResult {
-	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""
@@ -195,16 +194,23 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	taskResult := &TaskResult{
-		ID:         t.ID,
-		IDOrdering: t.IDOrdering,
-		Source: TaskSource{
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
+	taskSource := TaskSource{}
+	if err == nil {
+		taskSource = TaskSource{
 			Name:          taskSourceResult.Details.Name,
 			Logo:          taskSourceResult.Details.Logo,
 			LogoV2:        taskSourceResult.Details.LogoV2,
 			IsCompletable: taskSourceResult.Details.IsCompletable,
 			IsReplyable:   taskSourceResult.Details.IsReplyable,
-		},
+		}
+	} else {
+		api.Logger.Error().Err(err).Msgf("failed to find task source %s", t.SourceID)
+	}
+	taskResult := &TaskResult{
+		ID:             t.ID,
+		IDOrdering:     t.IDOrdering,
+		Source:         taskSource,
 		Deeplink:       t.Deeplink,
 		Title:          t.Title,
 		Body:           t.TaskBase.Body,
