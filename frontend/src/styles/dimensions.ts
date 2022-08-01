@@ -19,6 +19,19 @@ export const modalSize = {
     },
 }
 
+export const modalTemplateSize = {
+    dialog: {
+        max_height: '75vh',
+        min_height: 'fit-content',
+        width: 'fit-content',
+    },
+    default: {
+        max_height: '75vh',
+        min_height: '50vh',
+        width: '50vw',
+    },
+}
+
 export type TModalSize = keyof typeof modalSize
 
 export const MEDIA_MAX_WIDTH = '650px'
