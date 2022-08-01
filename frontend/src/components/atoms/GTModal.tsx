@@ -7,6 +7,7 @@ interface GTModalProps {
     title?: string
     leftButtons?: ReactElement | ReactElement[]
     rightButtons?: ReactElement | ReactElement[]
+    canClose?: boolean
     onClose?: () => void
 }
 const GTModal = (props: GTModalProps) => {
@@ -19,7 +20,7 @@ const GTModal = (props: GTModalProps) => {
         <ModalTemplate
             type="default"
             isOpen={props.isOpen}
-            canClose={true}
+            canClose={props.canClose ?? true}
             onClose={handleClose}
             title={props.title}
             leftButtons={props.leftButtons}

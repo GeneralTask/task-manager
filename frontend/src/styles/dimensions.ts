@@ -9,17 +9,6 @@ export const iconSize = {
 export type TIconSize = keyof typeof iconSize
 
 export const modalSize = {
-    small: {
-        width: '478px',
-        height: '440px',
-    },
-    medium: {
-        width: '723px',
-        height: '620px',
-    },
-}
-
-export const modalTemplateSize = {
     dialog: {
         max_height: '75vh',
         min_height: 'fit-content',

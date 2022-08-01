@@ -1,17 +1,17 @@
 import React, { ReactElement } from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography, Border, Shadows } from '../../styles'
+import { Colors, Spacing, Typography, Border, Shadows, Dimensions } from '../../styles'
 import NoStyleButton from './buttons/NoStyleButton'
 import Modal from 'react-modal'
-import { modalTemplateSize } from '../../styles/dimensions'
 import { Icon } from './Icon'
 import { icons } from '../../styles/images'
+import { TModalSize } from '../../styles/dimensions'
 
 Modal.setAppElement('#root')
 
-const ModalContainer = styled.div<{ type: 'dialog' | 'default' }>`
-    min-height: ${(props) => modalTemplateSize[props.type].min_height};
-    max-height: ${(props) => modalTemplateSize[props.type].max_height};
+const ModalContainer = styled.div<{ type: TModalSize }>`
+    min-height: ${(props) => Dimensions.modalSize[props.type].min_height};
+    max-height: ${(props) => Dimensions.modalSize[props.type].max_height};
     box-sizing: border-box;
     display: flex;
     flex: auto;
@@ -49,36 +49,27 @@ const ButtonsGroup = styled.div`
     gap: ${Spacing.margin._8};
 `
 
-const modalStylesDefault = {
-    content: {
-        margin: 'auto',
-        border: 'none',
-        height: 'fit-content',
-        minHeight: modalTemplateSize.default.min_height,
-        maxHeight: modalTemplateSize.default.max_height,
-        width: modalTemplateSize.default.width,
-        boxShadow: Shadows.medium,
-        padding: Spacing.padding._16,
-        borderRadius: Border.radius.large,
-    },
+const SHARED_MODAL_CONTENT_STYLE = {
+    margin: 'auto',
+    border: 'none',
+    height: 'fit-content',
+    boxShadow: Shadows.medium,
+    padding: Spacing.padding._16,
+    borderRadius: Border.radius.large,
 }
-const modalStylesDialog = {
+
+const getModalStyle = (modalSize: TModalSize): Modal.Styles => ({
     content: {
-        margin: 'auto',
-        border: 'none',
-        height: 'fit-content',
-        minHeight: modalTemplateSize.dialog.min_height,
-        maxHeight: modalTemplateSize.dialog.max_height,
-        width: modalTemplateSize.dialog.width,
-        boxShadow: Shadows.medium,
-        padding: Spacing.padding._16,
-        borderRadius: Border.radius.large,
+        ...SHARED_MODAL_CONTENT_STYLE,
+        maxHeight: Dimensions.modalSize[modalSize].max_height,
+        minHeight: Dimensions.modalSize[modalSize].min_height,
+        width: Dimensions.modalSize[modalSize].width,
     },
-}
+})
 
 interface ModalTemplateProps {
     children?: React.ReactNode
-    type: 'dialog' | 'default'
+    type: TModalSize
     title?: string
     leftButtons?: ReactElement | ReactElement[]
     rightButtons?: ReactElement | ReactElement[]
@@ -87,15 +78,13 @@ interface ModalTemplateProps {
     onClose?: () => void
 }
 const ModalTemplate = (props: ModalTemplateProps) => {
-    const modalStyles = props.type === 'dialog' ? modalStylesDialog : modalStylesDefault
-
     const handleClose = () => {
         if (props.onClose) {
             props.onClose()
         }
     }
     return (
-        <Modal isOpen={props.isOpen} style={modalStyles} onRequestClose={handleClose}>
+        <Modal isOpen={props.isOpen} style={getModalStyle(props.type)} onRequestClose={handleClose}>
             <ModalContainer type={props.type}>
                 <Header>
                     <div>{props.title}</div>
