@@ -137,11 +137,12 @@ type TaskType struct {
 }
 
 type TaskTypeChangeable struct {
-	IsTask        *bool `bson:"is_task,omitempty"`
-	IsMessage     *bool `bson:"is_message,omitempty"`
-	IsThread      *bool `bson:"is_thread,omitempty"`
-	IsEvent       *bool `bson:"is_event,omitempty"`
-	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
+	IsTask                   *bool `bson:"is_task,omitempty"`
+	IsMessage                *bool `bson:"is_message,omitempty"`
+	IsThread                 *bool `bson:"is_thread,omitempty"`
+	IsEvent                  *bool `bson:"is_event,omitempty"`
+	IsPullRequest            bool  `bson:"is_pull_request,omitempty"`
+	IsMeetingPreparationTask bool  `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 // Task json & mongo model

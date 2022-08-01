@@ -20,16 +20,18 @@ import (
 type ViewType string
 
 const (
-	ViewLinearName = "Linear"
-	ViewSlackName  = "Slack"
-	ViewGithubName = "Github"
+	ViewLinearName             = "Linear"
+	ViewSlackName              = "Slack"
+	ViewGithubName             = "Github"
+	ViewMeetingPreparationName = "Meeting Preparation"
 )
 
 const (
-	ViewTaskSection ViewType = "task_section"
-	ViewLinear      ViewType = "linear"
-	ViewSlack       ViewType = "slack"
-	ViewGithub      ViewType = "github"
+	ViewTaskSection        ViewType = "task_section"
+	ViewLinear             ViewType = "linear"
+	ViewSlack              ViewType = "slack"
+	ViewGithub             ViewType = "github"
+	ViewMeetingPreparation ViewType = "meeting_preparation"
 )
 
 type SourcesResult struct {
@@ -143,6 +145,8 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 			singleOverviewResult, err = api.GetSlackOverviewResult(db, ctx, view, userID)
 		case string(ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
+		case string(ViewMeetingPreparation):
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(db, ctx, view, userID)
 		default:
 			err = errors.New("invalid view type")
 		}
@@ -253,6 +257,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			serviceID = external.TaskServiceSlack.ID
 		} else if view.Type == string(ViewGithub) {
 			serviceID = external.TaskServiceGithub.ID
+		} else if view.Type == string(ViewMeetingPreparation) {
+			continue
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -429,6 +435,42 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	}
 	result.ViewItems = pullResults
 	return &result, nil
+}
+
+func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	meetingTasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_meeting_preparation_task": true},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	result := []*TaskResult{}
+	for _, task := range *meetingTasks {
+		result = append(result, api.taskBaseToTaskResult(&task, userID))
+	}
+	return &OverviewResult[TaskResult]{
+		ID:       view.ID,
+		Name:     ViewMeetingPreparationName,
+		Logo:     external.TaskSourceGoogleCalendar.LogoV2,
+		Type:     ViewMeetingPreparation,
+		IsLinked: true,
+		Sources: []SourcesResult{
+			{
+				Name: ViewMeetingPreparationName,
+			},
+		},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     result,
+	}, nil
 }
 
 type ViewCreateParams struct {
