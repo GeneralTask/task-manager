@@ -73,8 +73,7 @@ const AddViewsModalContent = () => {
                                     isChecked={supportedView.views[0].is_added}
                                     disabled={supportedView.views[0].is_add_disabled}
                                     onChange={() => {
-                                        const supportedViewItem = supportedView.views[0]
-                                        onChange(supportedView, viewIndex, supportedViewItem, 0)
+                                        onChange(supportedView, viewIndex, supportedView.views[0], 0)
                                     }}
                                 />
                             )}
