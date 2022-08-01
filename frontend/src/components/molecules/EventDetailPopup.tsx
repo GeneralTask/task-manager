@@ -7,6 +7,7 @@ import { TEvent } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import ReactDOM from 'react-dom'
 
 // Calendar Modal (GCal)
@@ -84,34 +85,7 @@ const DescriptionContainer = styled.div`
     word-wrap: normal;
     overflow-wrap: anywhere;
 `
-
-// Button
-// TO DO: Create a new button component for event detail
-// should be similar to GTButton, take in value and icon source prop
-const ExternalLinkButton = styled.button`
-    display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: center;
-
-    box-sizing: border-box;
-    padding: 6px 10px;
-    gap: 6px;
-
-    width: 280px;
-    height: 42px;
-
-    background: ${Colors.background.white};
-    border: 1px solid ${Colors.button.secondary.hover};
-    box-shadow: ${Shadows.button.default};
-    border-radius: ${Border.radius.medium};
-    cursor: pointer;
-
-    color: ${Colors.text.black};
-    ${Typography.label};
-`
-// Button for closing popup
-// padding: ${Spacing.padding._8};
+// Close Button
 const CloseButton = styled(NoStyleButton)`
     display: flex;
     flex-direction: column;
@@ -148,12 +122,9 @@ const Description = styled.span`
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    // hasPopupVisible: boolean
     handleClose: React.MouseEventHandler<HTMLButtonElement>
 }
 
-// TO DO: figure out CSS styling for where popup goes (for expanded and collapsed)
-// TO DO: create React Portal
 const EventDetailPopup = ({ event, date, handleClose }: EventDetailProps) => {
     const startTime = DateTime.fromISO(event.datetime_start)
     const endTime = DateTime.fromISO(event.datetime_end)
@@ -182,7 +153,6 @@ const EventDetailPopup = ({ event, date, handleClose }: EventDetailProps) => {
                                 <EventDate>
                                     {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                                 </EventDate>
-                                {/* <EventDateText>Thursday, June 23 · 3:00 - 3:30 pm</EventDateText> */}
                             </EventDateContainer>
                         </EventTitleSection>
                         <DescriptionContainer>
@@ -190,10 +160,7 @@ const EventDetailPopup = ({ event, date, handleClose }: EventDetailProps) => {
                         </DescriptionContainer>
                     </EventDetail>
                     <NoStyleAnchor href={event.deeplink} target="_blank">
-                        <ExternalLinkButton>
-                            <Icon source={icons.external_link_darkgray} size="xSmall" />
-                            Google Calendar
-                        </ExternalLinkButton>
+                        <ExternalLinkButton value="Google Calendar" iconSource="external_link_darkgray" />
                     </NoStyleAnchor>
                 </EventBody>
             </EventBoxStyle>

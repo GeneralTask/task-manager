@@ -127,7 +127,6 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
-//EVENT_CONTAINER_COLOR
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }>`
     width: 100%;
     height: 100%;
