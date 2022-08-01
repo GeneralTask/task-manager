@@ -129,11 +129,12 @@ type SlackMessage struct {
 }
 
 type TaskType struct {
-	IsTask        bool `bson:"is_task"`
-	IsMessage     bool `bson:"is_message"`
-	IsThread      bool `bson:"is_thread"`
-	IsEvent       bool `bson:"is_event"`
-	IsPullRequest bool `bson:"is_pull_request"`
+	IsTask                   bool `bson:"is_task"`
+	IsMessage                bool `bson:"is_message"`
+	IsThread                 bool `bson:"is_thread"`
+	IsEvent                  bool `bson:"is_event"`
+	IsPullRequest            bool `bson:"is_pull_request"`
+	IsMeetingPreparationTask bool `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 type TaskTypeChangeable struct {

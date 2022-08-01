@@ -441,6 +441,61 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
+
+	loc, _ := time.LoadLocation("America/Los_Angeles")
+	timeNow := time.Now().UTC()
+	timeEndOfDay := time.Now().In(loc).Add(24 * time.Hour).Truncate(24 * time.Hour)
+	_, offset := timeEndOfDay.Zone()
+	timeEndOfDay = timeEndOfDay.Add(time.Duration(offset) * -time.Second)
+	api.Logger.Debug().Msgf("timeEndOfDay: %v", timeEndOfDay.UTC())
+
+	events, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_event": true},
+			{"calendar_event.datetime_start": bson.M{"$gte": timeNow}},
+			{"calendar_event.datetime_end": bson.M{"$lte": timeEndOfDay.UTC()}},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	api.Logger.Debug().Msgf("Found %d events", len(*events))
+
+	taskCollection := database.GetTaskCollection(db)
+	for _, event := range *events {
+		events, err = database.GetItems(db, userID,
+			&[]bson.M{
+				{"is_completed": false},
+				{"task_type.is_meeting_preparation_task": true},
+				{"id_external": event.ID.Hex()},
+			},
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		if len(*events) == 0 {
+			api.Logger.Debug().Msgf("Creating meeting preparation task for event %s", event.ID.Hex())
+			_, err = taskCollection.InsertOne(ctx, database.Item{
+				TaskBase: database.TaskBase{
+					Title:       event.Title,
+					Body:        event.TaskBase.Body,
+					UserID:      userID,
+					IDExternal:  event.ID.Hex(),
+					IsCompleted: false,
+					SourceID:    external.TASK_SOURCE_ID_GCAL,
+				},
+				TaskType: database.TaskType{
+					IsMeetingPreparationTask: true,
+				},
+			})
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	meetingTasks, err := database.GetItems(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
@@ -449,6 +504,9 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	)
 	if err != nil {
 		return nil, err
+	}
+	for _, meetingTask := range *meetingTasks {
+		api.Logger.Debug().Msgf("Meeting preparation task: %v", meetingTask.Title)
 	}
 
 	result := []*TaskResult{}
