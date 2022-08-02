@@ -3,7 +3,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import AddViewsModal from './AddViewsModal'
 import EditViewsModal from './EditViewsModal'
 
-type TPageState = 'NONE' | 'ADD' | 'REORDER'
+type TPageState = 'NONE' | 'ADD' | 'EDIT'
 
 const EditViewsButtons = () => {
     const [pageState, setPageState] = useState<TPageState>('NONE')
@@ -15,12 +15,12 @@ const EditViewsButtons = () => {
             <GTButton
                 styleType="secondary"
                 iconSource="domino"
-                onClick={() => setPageState('REORDER')}
-                value="Reorder views"
+                onClick={() => setPageState('EDIT')}
+                value="Edit views"
             />
 
             <AddViewsModal isOpen={pageState === 'ADD'} onClose={handleClose} />
-            <EditViewsModal isOpen={pageState === 'REORDER'} onClose={handleClose} />
+            <EditViewsModal isOpen={pageState === 'EDIT'} onClose={handleClose} />
         </>
     )
 }

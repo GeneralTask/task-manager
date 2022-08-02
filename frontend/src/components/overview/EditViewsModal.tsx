@@ -31,7 +31,7 @@ const EditViewsModal = ({ isOpen, onClose }: EditViewsModalProps) => {
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            rightButtons={<GTButton value="Done" styleType="secondary" onClick={onClose} />}
+            rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
         >
             <>
                 {views.map((view, index) => (
