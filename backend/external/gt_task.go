@@ -58,14 +58,6 @@ func (generalTask GeneralTaskTaskSource) GetPullRequests(userID primitive.Object
 	result <- emptyPullRequestResult(nil)
 }
 
-func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("general task task does not support replies")
-}
-
-func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return nil
-}
-
 func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
@@ -111,13 +103,5 @@ func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectI
 }
 
 func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
-	return nil
-}
-
-func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }
