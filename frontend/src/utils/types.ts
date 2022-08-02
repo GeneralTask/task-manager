@@ -211,7 +211,7 @@ export interface TOverviewView {
 export interface TSupportedViewItem {
     name: string
     is_linked: boolean
-    id?: string // id of view if is_linked is true
+    view_id: string // id of view if is_linked is true
     github_id: string
     task_section_id: string
     slack_id: string
@@ -225,6 +225,7 @@ export interface TSupportedView {
     name: string
     logo: TLogoImage
     is_nested: boolean
+    is_linked: boolean
     views: TSupportedViewItem[]
     authorization_url: string
 }

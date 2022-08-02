@@ -51,6 +51,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                         authorizationUrl={source.authorization_url}
                         name={source.name}
                         logo={view.logo}
+                        hasBorder={true}
                     />
                 ))}
             <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
