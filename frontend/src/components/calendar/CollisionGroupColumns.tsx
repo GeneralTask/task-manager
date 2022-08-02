@@ -9,8 +9,6 @@ interface CollisionGroupColumnsProps {
     date: DateTime
     eventDetailId: string
     setEventDetailId: (id: string) => void
-    // isSelected: boolean
-    // setIsSelected: (id: boolean) => void
 }
 
 const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element => {
@@ -29,8 +27,7 @@ const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element =
                     leftOffset={index}
                     collisionGroupSize={numColumns}
                     date={props.date}
-                    // isSelected={props.isSelected}
-                    // setIsSelected={props.setIsSelected}
+                    isSelected={props.eventDetailId === event.id}
                 />
             )
         })

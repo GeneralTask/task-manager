@@ -78,8 +78,6 @@ interface WeekCalendarEventsProps {
     groups: TEvent[][]
     eventDetailId: string
     setEventDetailId: (id: string) => void
-    // isSelected: boolean
-    // setIsSelected: (id: boolean) => void
 }
 const WeekCalendarEvents = ({
     date,
@@ -87,9 +85,7 @@ const WeekCalendarEvents = ({
     groups,
     eventDetailId,
     setEventDetailId,
-}: // isSelected,
-// setIsSelected
-WeekCalendarEventsProps): JSX.Element => {
+}: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
@@ -110,8 +106,6 @@ WeekCalendarEventsProps): JSX.Element => {
                         date={tmpDate}
                         eventDetailId={eventDetailId}
                         setEventDetailId={setEventDetailId}
-                        // isSelected={isSelected}
-                        // setIsSelected={setIsSelected}
                     />
                 ))}
                 <TimeIndicator />
@@ -144,7 +138,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     // To make sure that the eventDetailsID is being updated to all events, not just the events in the same weekday
     // Note: Redux() could have been used to avoid the multiple passing of props across different files, but since the path is not too long, I chose not to
     const [eventDetailsID, setEventDetailsID] = useState('')
-    // const [isSelected, setIsSelected] = useState(false)
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -250,8 +243,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     groups={groups}
                     eventDetailId={eventDetailsID}
                     setEventDetailId={setEventDetailsID}
-                    // isSelected={isSelected}
-                    // setIsSelected={setIsSelected}
                 />
             ))}
         </AllDaysContainer>

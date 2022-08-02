@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useRef } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -19,11 +19,10 @@ interface EventBodyProps {
     event: TEvent
     eventDetailId: string
     setEventDetailId: (id: string) => void
-    // isSelected: boolean
-    // setIsSelected: (id: boolean) => void
     collisionGroupSize: number
     leftOffset: number
     date: DateTime
+    isSelected: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const startTime = DateTime.fromISO(props.event.datetime_start)
@@ -46,48 +45,26 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const ref = useRef<HTMLDivElement>(null) // get access to component in DOM
 
-    // here, I define the x-coord and y-coord of the event to be the bottom left corner
-    // const xCoordEvent = useRef<number>()
-    // const yCoordEvent = useRef<number>()
-
-    const xCoordEvent2 = useRef<number>()
-    const yCoordEvent2 = useRef<number>()
+    // define the x-coord and y-coord of the event to be the bottom left corner
+    const xCoordEvent = useRef<number>()
+    const yCoordEvent = useRef<number>()
 
     const helpHandleClose = (e: MouseEvent) => {
         e.stopPropagation()
         props.setEventDetailId('')
-        // props.setIsSelected(false)
     }
 
-    // this yCoord is not currectly being updated after scrolling - keeps the previous yCoord position
     const onClick = () => {
-        // props.setIsSelected(!props.isSelected)
         props.setEventDetailId(props.event.id)
 
         if (!ref.current) {
             return
         }
 
-        const pos2 = ref.current.getBoundingClientRect()
-        xCoordEvent2.current = pos2.left
-        yCoordEvent2.current = pos2.bottom
-        console.log('ycoord inside onClick(): ', yCoordEvent2.current)
+        const pos = ref.current.getBoundingClientRect()
+        xCoordEvent.current = pos.left
+        yCoordEvent.current = pos.bottom
     }
-
-    // useEffect (() => {
-    //     // For positioning
-    //     if (!ref.current) {
-    //         return
-    //     }
-    //     const pos = ref.current.getBoundingClientRect()
-    //     xCoordEvent.current = pos.left
-    //     yCoordEvent.current = pos.bottom
-
-    //     console.log(props.event.title)
-    //     console.log('xcoord', xCoordEvent.current)
-    //     console.log('ycoord', yCoordEvent.current)
-    //     //console.log('window scroll ycoord:', ref.current.scrollTop)
-    // })
 
     return (
         <EventBodyStyle
@@ -99,14 +76,15 @@ function EventBody(props: EventBodyProps): JSX.Element {
             eventHasEnded={eventHasEnded}
             ref={ref}
         >
-            <EventInfoContainer onClick={onClick}>
+            <EventInfoContainer onClick={onClick} isSelected={props.isSelected}>
                 {props.eventDetailId === props.event.id && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
                         handleClose={helpHandleClose}
-                        xCoord={xCoordEvent2.current!}
-                        yCoord={yCoordEvent2.current}
+                        xCoord={xCoordEvent.current!} //should change this
+                        yCoord={yCoordEvent.current!}
+                        eventHeight={eventBodyHeight}
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>

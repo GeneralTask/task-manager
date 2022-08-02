@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import { DateTime } from 'luxon'
@@ -12,18 +12,16 @@ import ReactDOM from 'react-dom'
 
 export const POPUP_WIDTH = '315px'
 export const WINDOW_HEIGHT = window.innerHeight
-export const WINDOW_HEIGHT_WITHOUT_SCROLLBARS = document.documentElement.clientHeight
-export const CELL_HEIGHT = '64px'
 
 interface EventBoxStyleProps {
-    xCoord: number //get rid of question mark?
+    xCoord: number
     yCoord: number
-    // eventBodyHeight: number
+    popupHeight: number
+    eventHeight: number
 }
 
 // Calendar Modal (GCal)
-// takes in the coordinates for the bottom left corner of the event
-// and set it equal to the coordinates for the top right corner of the popup
+// calculates x and y coordinates of the popup depending on the position of the event, handles edge cases for events >= max height
 const EventBoxStyle = styled.div<EventBoxStyleProps>`
     position: absolute;
     box-sizing: border-box;
@@ -35,7 +33,10 @@ const EventBoxStyle = styled.div<EventBoxStyleProps>`
     width: ${POPUP_WIDTH};
 
     left: calc(${(props) => props.xCoord}px - ${POPUP_WIDTH});
-    top: ${(props) => (props.yCoord >= WINDOW_HEIGHT ? props.yCoord + CELL_HEIGHT : props.yCoord)}px;
+    top: ${(props) =>
+        props.yCoord >= WINDOW_HEIGHT - props.popupHeight
+            ? props.yCoord - props.eventHeight - props.popupHeight
+            : props.yCoord}px;
 
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.medium};
@@ -142,25 +143,29 @@ interface EventDetailProps {
     handleClose: React.MouseEventHandler<HTMLButtonElement>
     xCoord: number
     yCoord: number
-    // show: boolean
+    eventHeight: number
 }
 
-const EventDetailPopup = ({ event, date, handleClose, xCoord, yCoord }: EventDetailProps) => {
+const EventDetailPopup = ({ event, date, handleClose, xCoord, yCoord, eventHeight }: EventDetailProps) => {
     const startTime = DateTime.fromISO(event.datetime_start)
     const endTime = DateTime.fromISO(event.datetime_end)
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00
     const endTimeString = endTime.toFormat('h:mm a') // ex: 3:30 PM
 
-    // useEffect(() => {
-    //     show && document.body.style.overflow == 'hidden';
-    //     !show && document.body.style.overflow == 'scroll';
-    //     console.log('is it showing:', show);
-    // }, [show]);
+    const [height, setHeight] = useState(0)
+
+    const ref = useRef<HTMLDivElement>(null)
+    useLayoutEffect(() => {
+        if (!ref.current) {
+            return
+        }
+        setHeight(ref.current.getBoundingClientRect().height)
+    })
 
     return ReactDOM.createPortal(
         <>
-            <EventBoxStyle xCoord={xCoord} yCoord={yCoord}>
+            <EventBoxStyle xCoord={xCoord} yCoord={yCoord} popupHeight={height} eventHeight={eventHeight} ref={ref}>
                 <EventBody>
                     <EventHeader>
                         <Icon source={logos.gcal} size="xSmall" />

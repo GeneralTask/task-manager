@@ -32,7 +32,6 @@ export const TimeContainer = styled.div`
     justify-content: center;
     position: relative;
 `
-// overflow:  ${(props) => (props.isSelected ? 'hidden': 'scroll')};
 export const AllDaysContainer = styled.div`
     width: 100%;
     flex: 1;
@@ -92,15 +91,15 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
     cursor: pointer;
 `
-// border: ${Border.stroke.medium} solid
-// ${(props) => (props.isSelected ? Colors.border.gray : Colors.background.medium)};
-export const EventInfoContainer = styled.div`
+export const EventInfoContainer = styled.div<{ isSelected: boolean }>`
     display: flex;
     align-items: center;
     height: 100%;
     width: 100%;
     position: absolute;
     z-index: 1;
+    border: ${Border.stroke.medium} solid
+        ${(props) => (props.isSelected ? Colors.border.gray : Colors.background.medium)};
     border-radius: ${Border.radius.medium};
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
