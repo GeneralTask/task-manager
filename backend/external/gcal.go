@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"google.golang.org/api/calendar/v3"
 	"strings"
 	"time"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
 )
 
@@ -243,7 +243,36 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 	return &attendeesList
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *database.CalendarEventChangeableFields) error {
+func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *EventModifyObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	if err != nil {
+		return err
+	}
+
+	gcalEvent := &calendar.Event{}
+	if updateFields.Summary != nil {
+		gcalEvent.Summary = *updateFields.Summary
+	}
+	if updateFields.Location != nil {
+		gcalEvent.Location = *updateFields.Location
+	}
+	if updateFields.Description != nil {
+		gcalEvent.Description = *updateFields.Description
+	}
+	if updateFields.DatetimeStart != nil {
+		gcalEvent.Start = &calendar.EventDateTime{
+			DateTime: updateFields.DatetimeStart.Format(time.RFC3339),
+		}
+	}
+	if updateFields.DatetimeEnd != nil {
+		gcalEvent.End = &calendar.EventDateTime{
+			DateTime: updateFields.DatetimeEnd.Format(time.RFC3339),
+		}
+	}
+	if updateFields.Attendees != nil {
+		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
+	}
+	calendarService.Events.Update(accountID, eventID.Hex(), gcalEvent)
 	return nil
 }
 

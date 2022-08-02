@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -19,7 +20,7 @@ func (api *API) EventModify(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "event ID missing or malformatted"})
 		return
 	}
-	var modifyParams database.CalendarEventChangeableFields
+	var modifyParams external.EventModifyObject
 	err = c.BindJSON(&modifyParams)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("invalid or missing parameter, err")
@@ -46,13 +47,6 @@ func (api *API) EventModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-
-	err = api.updateEventInDB(c, event, userID, &modifyParams)
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
 	c.JSON(200, gin.H{})
 }
 

@@ -18,12 +18,10 @@ func TestEventModify(t *testing.T) {
 	defer dbCleanup()
 
 	authToken := login("approved@generaltask.com", "")
-	// userID := getUserIDFromAuthToken(t, db, authToken)
 
 	taskCollection := database.GetTaskCollection(db)
-	taskCollection.InsertOne(parentCtx, database.Item{})
-
-	// dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	_, err = taskCollection.InsertOne(parentCtx, database.Item{})
+	assert.NoError(t, err)
 
 	eventID := "duck"
 	validUrl := fmt.Sprintf("/events/modify/%s/", eventID)
@@ -38,10 +36,4 @@ func TestEventModify(t *testing.T) {
 		body := bytes.NewBuffer([]byte(`{}`))
 		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusBadRequest)
 	})
-	t.Run("ModifyTitle", func(t *testing.T) {
-		body := bytes.NewBuffer([]byte(`{"title": "duck party"}`))
-		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusOK)
-		// TODO: get gud
-	})
-
 }
