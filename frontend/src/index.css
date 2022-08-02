@@ -2,12 +2,11 @@
     --animate-duration: 250ms !important;
 }
 
-/* left top values need to not be constant */ 
 #portal {
     position: absolute; 
     z-index: 100; 
-    left: 100px; 
-    top: 100px;
+    left: 0px;
+    top: 0px;
 }
 
 html, body {
