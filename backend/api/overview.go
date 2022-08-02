@@ -455,19 +455,18 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 		return nil, errors.New("invalid user")
 	}
 
-	loc, _ := time.LoadLocation("America/Los_Angeles")
 	timeNow := time.Now().UTC()
-	timeEndOfDay := time.Now().In(loc).Add(24 * time.Hour).Truncate(24 * time.Hour)
-	_, offset := timeEndOfDay.Zone()
-	timeEndOfDay = timeEndOfDay.Add(time.Duration(offset) * -time.Second)
-	api.Logger.Debug().Msgf("timeEndOfDay: %v", timeEndOfDay.UTC())
+	timeOffset := timeNow.Add(-1 * timezoneOffset)
+	nextDay := timeOffset.Add(24 * time.Hour)
+	// beginning of next day in UTC but with the timezone offset applied
+	nextDayStart := time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 0, 0, 0, time.UTC).Add(timezoneOffset)
 
 	events, err := database.GetItems(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"task_type.is_event": true},
 			{"calendar_event.datetime_start": bson.M{"$gte": timeNow}},
-			{"calendar_event.datetime_end": bson.M{"$lte": timeEndOfDay.UTC()}},
+			{"calendar_event.datetime_end": bson.M{"$lte": nextDayStart}},
 		},
 	)
 	if err != nil {
