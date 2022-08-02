@@ -5,6 +5,7 @@ module.exports = function (api) {
     presets: [],
     plugins: [
       'babel-plugin-styled-components',
+      'macros',
     ],
   }
 }
