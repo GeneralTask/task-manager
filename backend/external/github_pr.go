@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -29,6 +30,7 @@ const (
 	ActionFixFailedCI       string = "Fix Failed CI"
 	ActionAddressRequested  string = "Address Requested Changes"
 	ActionMergePR           string = "Merge PR"
+	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
 )
 
@@ -251,7 +253,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 			Number:         *pullRequest.Number,
 			Author:         *pullRequest.User.Login,
 			Branch:         *pullRequest.Head.Ref,
-			RequiredAction: getPullRequestRequiredAction(pullRequestData),
+			RequiredAction: getPullRequestRequiredAction(pullRequestData, (*pullRequest.User.Login == *githubUser.Login)),
 			CommentCount:   commentCount,
 			LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 		},
@@ -451,21 +453,27 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 	return false, nil
 }
 
-func getPullRequestRequiredAction(data GithubPRData) string {
-	if !data.IsMergeable {
-		return ActionFixMergeConflicts
-	}
-	if data.ChecksDidFail {
-		return ActionFixFailedCI
-	}
-	if data.RequestedReviewers == 0 {
-		return ActionAddReviewers
-	}
-	if data.HaveRequestedChanges {
-		return ActionAddressRequested
-	}
-	if data.IsApproved {
-		return ActionMergePR
+func getPullRequestRequiredAction(data GithubPRData, userIsAuthor bool) string {
+	log.Print(userIsAuthor)
+	if userIsAuthor {
+		if !data.IsMergeable {
+			return ActionFixMergeConflicts
+		}
+		if data.ChecksDidFail {
+			return ActionFixFailedCI
+		}
+		if data.RequestedReviewers == 0 {
+			return ActionAddReviewers
+		}
+		if data.HaveRequestedChanges {
+			return ActionAddressRequested
+		}
+		if data.IsApproved {
+			return ActionMergePR
+		}
+	} else if !data.IsMergeable || data.ChecksDidFail || data.RequestedReviewers == 0 || data.HaveRequestedChanges || data.IsApproved {
+		// if any author actions required on PR and current user is not owner
+		return ActionWaitingOnAuthor
 	}
 	return ActionWaitingOnReview
 }
