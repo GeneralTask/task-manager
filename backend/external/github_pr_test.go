@@ -22,11 +22,11 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 	t.Run("MarkAsDone", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"foo": "bar"}`)
 		defer taskUpdateServer.Close()
-		gmailTask := GithubPRSource{}
+		githubSource := GithubPRSource{}
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := gmailTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
+		err := githubSource.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 }
