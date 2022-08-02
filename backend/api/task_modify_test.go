@@ -59,17 +59,6 @@ func TestMarkAsComplete(t *testing.T) {
 	defer cancel()
 	insertResult, err = taskCollection.InsertOne(dbCtx, database.TaskBase{
 		UserID:     userID,
-		IDExternal: "sample_gmail_id",
-		SourceID:   external.TASK_SOURCE_ID_GMAIL,
-	})
-	assert.NoError(t, err)
-	gmailTaskID := insertResult.InsertedID.(primitive.ObjectID)
-	gmailTaskIDHex := gmailTaskID.Hex()
-
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	insertResult, err = taskCollection.InsertOne(dbCtx, database.TaskBase{
-		UserID:     userID,
 		IDExternal: "sample_calendar_id",
 		SourceID:   external.TASK_SOURCE_ID_GCAL,
 	})
@@ -93,7 +82,6 @@ func TestMarkAsComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	inboxGmailModifyServer := getGmailArchiveServer(t, "INBOX")
 	response := `{"data": {"issueUpdate": {
 				"success": true,
 					"issue": {
@@ -107,7 +95,6 @@ func TestMarkAsComplete(t *testing.T) {
 	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 
 	api := GetAPI()
-	api.ExternalConfig.GoogleOverrideURLs.GmailModifyURL = &inboxGmailModifyServer.URL
 	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
 	router := GetRouter(api)
 
@@ -169,16 +156,16 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 
-	t.Run("GmailSuccess", func(t *testing.T) {
+	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/modify/"+gmailTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
 		var task database.TaskBase
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, false, task.IsCompleted)
 
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -188,7 +175,7 @@ func TestMarkAsComplete(t *testing.T) {
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.Equal(t, true, task.IsCompleted)
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
 	})
@@ -222,7 +209,7 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
-			"/tasks/modify/"+gmailTaskIDHex+"/",
+			"/tasks/modify/"+jiraTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{
 				"time_duration": 20,
 				"due_date": "`+dueDate.Format(time.RFC3339)+`",
@@ -233,7 +220,7 @@ func TestMarkAsComplete(t *testing.T) {
 		var task database.TaskBase
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, true, task.IsCompleted)
 
@@ -244,7 +231,7 @@ func TestMarkAsComplete(t *testing.T) {
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": gmailTaskID}).Decode(&task)
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": jiraTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, true, task.IsCompleted)
 	})
