@@ -29,7 +29,6 @@ const SupportedViewContent = styled.div`
 interface AddViewsModalProps {
     isOpen: boolean
     onClose: () => void
-    goToEditViewsView: () => void
 }
 
 const AddViewsModalContent = () => {
@@ -88,12 +87,9 @@ const AddViewsModalContent = () => {
                         />
                     )}
                     {/* Do not show divider if this is the last item in the list */}
-                    {
-                        ((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
-                            (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />
-                    }
-                    {
-                        supportedView.is_nested &&
+                    {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
+                        (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />}
+                    {supportedView.is_nested &&
                         supportedView.views.map((supportedViewItem, viewItemIndex) => (
                             <Fragment key={viewItemIndex}>
                                 <SupportedView isIndented>
@@ -112,21 +108,20 @@ const AddViewsModalContent = () => {
                                 {(viewIndex !== supportedViews.length - 1 ||
                                     viewItemIndex !== supportedView.views.length - 1) && <Divider />}
                             </Fragment>
-                        ))
-                    }
-                </Fragment >
+                        ))}
+                </Fragment>
             ))}
         </>
     )
 }
 
-const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProps) => {
+const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
     return (
         <GTModal
             isOpen={isOpen}
             title="Add views"
             onClose={onClose}
-            leftButtons={<GTButton value="Back" color={Colors.gtColor.primary} onClick={goToEditViewsView} />}
+            rightButtons={<GTButton value="Done" styleType="secondary" onClick={onClose} />}
         >
             <AddViewsModalContent />
         </GTModal>
