@@ -28,6 +28,17 @@ type LoginRedirectParams struct {
 	UseDeeplink bool `form:"use_deeplink"`
 }
 
+// Login godoc
+// @Summary      Begins General Task login process
+// @Description  Required for getting authToken to use authenticated endpoints
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        force_prompt   	query     string  false "should use prompt"
+// @Param        use_deeplink   	query     string  false "should use deeplink"
+// @Success      302 {object} string "URL redirect"
+// @Failure      500 {object} string "internal server error"
+// @Router       /login/ [get]
 func (api *API) Login(c *gin.Context) {
 	var params LoginRedirectParams
 	forcePrompt := c.ShouldBind(&params) == nil && params.ForcePrompt
@@ -61,6 +72,20 @@ func (api *API) Login(c *gin.Context) {
 	c.Redirect(302, *authURL)
 }
 
+// LoginCallback godoc
+// @Summary      Begins General Task login process
+// @Description  Finished the logging in process
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        code   	query     string  true "OAuth Code"
+// @Param        state   	query     string  true "OAuth State"
+// @Param        scope   	query     string  true "OAuth Scope"
+// @Success      302 {object} string "URL redirect"
+// @Failure      400 {object} string "invalid params"
+// @Failure      403 {object} string "user not approved for use"
+// @Failure      500 {object} string "internal server error"
+// @Router       /login/callback/ [get]
 func (api *API) LoginCallback(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	var redirectParams GoogleRedirectParams

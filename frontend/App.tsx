@@ -9,7 +9,6 @@ import LandingScreen from './src/components/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
-import { isDevelopmentMode } from './src/environment'
 import store from './src/redux/store'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
@@ -39,22 +38,14 @@ const App = () => {
                                 <Route path="tos-summary" element={<PrivateOutlet />}>
                                     <Route index element={<TermsOfServiceSummaryScreen />} />
                                 </Route>
-                                {isDevelopmentMode && (
-                                    <Route path="overview" element={<PrivateOutlet />}>
-                                        <Route index element={<MainScreen />} />
-                                        <Route path=":overviewItem" element={<MainScreen />} />
-                                    </Route>
-                                )}
+                                <Route path="overview" element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                    <Route path=":overviewItem" element={<MainScreen />} />
+                                </Route>
                                 <Route path="tasks" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                     <Route path=":section" element={<MainScreen />}>
                                         <Route path=":task" element={<MainScreen />} />
-                                    </Route>
-                                </Route>
-                                <Route path="messages" element={<PrivateOutlet />}>
-                                    <Route index element={<MainScreen />} />
-                                    <Route path=":mailbox" element={<MainScreen />}>
-                                        <Route path=":thread" element={<MainScreen />} />
                                     </Route>
                                 </Route>
                                 <Route path="pull-requests" element={<PrivateOutlet />}>

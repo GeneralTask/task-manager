@@ -1,6 +1,7 @@
 package api
 
 import (
+	"sort"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -64,7 +65,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	repositoryIDToResult := make(map[string]RepositoryResult)
 	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
 	for _, pullRequest := range *pullRequests {
-		repositoryID := pullRequest.RepositoryId
+		repositoryID := pullRequest.RepositoryID
 		repositoryResult := RepositoryResult{
 			ID:   repositoryID,
 			Name: pullRequest.RepositoryName,
@@ -80,7 +81,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			},
 			Author:        pullRequest.Author,
 			NumComments:   pullRequest.CommentCount,
-			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
+			CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 			Branch:        pullRequest.Branch,
 			Deeplink:      pullRequest.Deeplink,
 			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
@@ -95,6 +96,9 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			PullRequests: repositoryIDToPullRequests[repositoryID],
 		})
 	}
+	sort.Slice(repositoryResults, func(i, j int) bool {
+		return repositoryResults[i].Name < repositoryResults[j].Name
+	})
 	c.JSON(200, repositoryResults)
 }
 

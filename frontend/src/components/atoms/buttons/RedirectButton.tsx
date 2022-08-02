@@ -10,10 +10,9 @@ const NoDecorationLink = styled(Link)`
     text-decoration: none;
 `
 const PurpleText = styled.span`
-    color: ${Colors.purple._1};
-    font-weight: ${Typography.weight._500};
-    font-size: ${Typography.xxSmall.fontSize};
+    color: ${Colors.gtColor.primary};
     margin-right: ${Spacing.margin._4};
+    ${Typography.bodySmall};
 `
 const VerticalFlex = styled.div`
     display: flex;

@@ -20,7 +20,7 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: ${Typography.xSmall.fontSize};
+    ${Typography.bodySmall};
 `
 
 interface TaskProps {
@@ -28,12 +28,22 @@ interface TaskProps {
     dragDisabled: boolean
     index?: number
     sectionId?: string
-    sectionScrollingRef: MutableRefObject<HTMLDivElement | null>
+    sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
+    onMarkComplete: (taskId: string, isComplete: boolean) => void
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
+const Task = ({
+    task,
+    dragDisabled,
+    index,
+    sectionId,
+    sectionScrollingRef,
+    isSelected,
+    link,
+    onMarkComplete,
+}: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -51,7 +61,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
 
     //If task selection changes, re-enable auto-scrolling for task section
     useEffect(() => {
-        if (sectionScrollingRef.current) {
+        if (sectionScrollingRef?.current) {
             isScrolling.current = false
         }
     }, [isSelected])
@@ -92,16 +102,18 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         [task.id, index, sectionId]
     )
 
-    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
-    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
-
     return (
         <TaskTemplate ref={elementRef}>
             <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
                 {!dragDisabled && <Domino ref={drag} />}
-                <CompleteButton taskId={task.id} isComplete={task.is_done} isSelected={isSelected} />
+                <CompleteButton
+                    taskId={task.id}
+                    isComplete={task.is_done}
+                    onMarkComplete={onMarkComplete}
+                    isSelected={isSelected}
+                />
                 <IconContainer>
-                    <Icon source={icon} size="small" />
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
                 <Title data-testid="task-title">{task.title}</Title>
             </ItemContainer>

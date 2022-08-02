@@ -1,56 +1,48 @@
 import { Colors, Spacing, Typography } from '../../styles'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { TEmailThread, TMailbox, TRepository, TTaskSection } from '../../utils/types'
 
 import { Icon } from '../atoms/Icon'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 import NoStyleInput from '../atoms/NoStyleInput'
-import { icons } from '../../styles/images'
-import { isDevelopmentMode } from '../../environment'
+import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useAddTaskSection } from '../../services/api/task-section.hooks'
-import { weight } from '../../styles/typography'
 
-const AddSectionInputContainer = styled.div`
+import { useParams, useLocation } from 'react-router-dom'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useGetTasks } from '../../services/api/tasks.hooks'
+
+const AddSectionContainer = styled.div`
     display: flex;
+    flex-direction: row;
     align-items: center;
-    overflow: clip;
-    margin-left: ${Spacing.margin._8};
-    flex: 1;
-    min-width: 0;
+    padding: ${Spacing.padding._4} ${Spacing.padding._12};
+    width: 100%;
+    box-sizing: border-box;
+    ${Typography.bodySmall};
+`
+const InputContainer = styled.div`
     & input {
-        font-weight: ${weight._500};
-        font-size: ${Typography.xSmall.fontSize};
-        color: ${Colors.gray._500};
+        color: ${Colors.text.light};
         border: none;
         font-family: inherit;
+        box-sizing: border-box;
+        width: 100%;
     }
-`
-const IconContainer = styled.div`
-    margin-left: 10px;
+    margin-left: ${Spacing.margin._8};
+    ${Typography.bodySmall};
 `
 
-interface SectionLinksProps {
-    taskSections?: TTaskSection[]
-    threadsInbox?: TEmailThread[]
-    pullRequestRepositories?: TRepository[]
-    sectionId: string
-    mailbox?: TMailbox
-    pathName: string
-}
-
-const NavigationSectionLinks = ({
-    taskSections,
-    threadsInbox,
-    pullRequestRepositories,
-    sectionId,
-    mailbox,
-    pathName,
-}: SectionLinksProps) => {
+const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
+
+    const { data: taskSections } = useGetTasks()
+    const { data: pullRequestRepositories } = useGetPullRequests()
+    const { section: sectionId } = useParams()
+    const { pathname } = useLocation()
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSectionName(e.target.value)
@@ -92,15 +84,20 @@ const NavigationSectionLinks = ({
 
     return (
         <>
-            {isDevelopmentMode && (
-                <NavigationLink
-                    link="/overview"
-                    title="Overview"
-                    icon={icons.list}
-                    isCurrentPage={pathName === 'overview'}
-                />
-            )}
-            <NavigationLinkDropdown title="Tasks" icon="label" openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLink
+                link="/overview"
+                title="Overview"
+                icon={icons.list}
+                isCurrentPage={pathname.split('/')[1] === 'overview'}
+            />
+            <NavigationLink
+                link="/pull-requests"
+                title="Pull Requests"
+                icon={logos.github_gray}
+                count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
+                isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
+            />
+            <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
                     ?.filter((section) => !section.is_done)
                     .map((section) => (
@@ -108,7 +105,7 @@ const NavigationSectionLinks = ({
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.label}
+                            icon={icons.inbox}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
@@ -118,19 +115,21 @@ const NavigationSectionLinks = ({
                     ))}
                 {isAddSectionInputVisible && (
                     <NavigationLinkTemplate>
-                        <IconContainer>
-                            <Icon size="small" source={icons.label} />
-                        </IconContainer>
-                        <AddSectionInputContainer>
-                            <NoStyleInput
-                                ref={inputRef}
-                                value={sectionName}
-                                onChange={onKeyChangeHandler}
-                                onKeyDown={onKeyDownHandler}
-                                placeholder="Add Section"
-                                data-testid="add-section-input"
-                            />
-                        </AddSectionInputContainer>
+                        <AddSectionContainer>
+                            <div>
+                                <Icon size="xSmall" source={icons.inbox} />
+                            </div>
+                            <InputContainer>
+                                <NoStyleInput
+                                    ref={inputRef}
+                                    value={sectionName}
+                                    onChange={onKeyChangeHandler}
+                                    onKeyDown={onKeyDownHandler}
+                                    placeholder="Add Section"
+                                    data-testid="add-section-input"
+                                />
+                            </InputContainer>
+                        </AddSectionContainer>
                     </NavigationLinkTemplate>
                 )}
                 {taskSections
@@ -140,7 +139,7 @@ const NavigationSectionLinks = ({
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.label}
+                            icon={icons.inbox}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
@@ -149,34 +148,6 @@ const NavigationSectionLinks = ({
                         />
                     ))}
             </NavigationLinkDropdown>
-            <NavigationLinkDropdown title="Messages" icon="label">
-                <NavigationLink
-                    link="/messages/inbox"
-                    title="Inbox"
-                    icon={icons.inbox}
-                    count={threadsInbox?.filter((t) => t.emails.find((e) => e.is_unread)).length}
-                    isCurrentPage={mailbox === 'inbox'}
-                />
-                <NavigationLink
-                    link="/messages/archive"
-                    title="Archive"
-                    icon={icons.archive}
-                    isCurrentPage={mailbox === 'archive'}
-                />
-            </NavigationLinkDropdown>
-            <NavigationLink
-                link="/pull-requests"
-                title="Pull Requests"
-                icon={icons.repository}
-                count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
-                isCurrentPage={pathName === 'pull-requests'}
-            />
-            <NavigationLink
-                link="/settings"
-                title="Settings"
-                icon={icons.gear}
-                isCurrentPage={pathName === 'settings'}
-            />
         </>
     )
 }

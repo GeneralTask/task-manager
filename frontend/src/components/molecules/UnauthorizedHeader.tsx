@@ -11,7 +11,7 @@ const Header = styled.div`
     width: 100%;
     position: sticky;
     top: 0;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     z-index: 1;
 `
 const IconContainer = styled.div`

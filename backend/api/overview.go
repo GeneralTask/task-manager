@@ -3,7 +3,10 @@ package api
 import (
 	"context"
 	"errors"
+	"sort"
+	"time"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -11,17 +14,22 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ViewType string
 
 const (
 	ViewLinearName = "Linear"
+	ViewSlackName  = "Slack"
+	ViewGithubName = "Github"
 )
 
 const (
 	ViewTaskSection ViewType = "task_section"
 	ViewLinear      ViewType = "linear"
+	ViewSlack       ViewType = "slack"
+	ViewGithub      ViewType = "github"
 )
 
 type SourcesResult struct {
@@ -29,10 +37,12 @@ type SourcesResult struct {
 	AuthorizationURL *string `json:"authorization_url"`
 }
 
-type ViewItems interface {
-	[]*TaskResult
+type ViewItem interface {
+	TaskResult | PullRequestResult
+	GetID() string
 }
-type OverviewResult[T ViewItems] struct {
+
+type OverviewResult[T ViewItem] struct {
 	ID            primitive.ObjectID `json:"id"`
 	Name          string             `json:"name"`
 	Type          ViewType           `json:"type"`
@@ -42,22 +52,25 @@ type OverviewResult[T ViewItems] struct {
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
 	IsReorderable bool               `json:"is_reorderable"`
 	IDOrdering    int                `json:"ordering_id"`
-	ViewItems     T                  `json:"view_items"`
+	ViewItems     []*T               `json:"view_items"`
 }
 
 type SupportedViewItem struct {
 	Name          string             `json:"name"`
 	IsAdded       bool               `json:"is_added"`
-	MessagesID    primitive.ObjectID `json:"messages_id"`
 	TaskSectionID primitive.ObjectID `json:"task_section_id"`
+	GithubID      string             `json:"github_id"`
+	ViewID        primitive.ObjectID `json:"view_id"`
 }
 
 type SupportedView struct {
-	Type     ViewType            `json:"type"`
-	Name     string              `json:"name"`
-	Logo     string              `json:"logo"`
-	IsNested bool                `json:"is_nested"`
-	Views    []SupportedViewItem `json:"views"`
+	Type             ViewType            `json:"type"`
+	Name             string              `json:"name"`
+	Logo             string              `json:"logo"`
+	IsNested         bool                `json:"is_nested"`
+	IsLinked         bool                `json:"is_linked"`
+	AuthorizationURL string              `json:"authorization_url"`
+	Views            []SupportedViewItem `json:"views"`
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
@@ -65,6 +78,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
+		return
 	}
 	defer dbCleanup()
 
@@ -108,33 +122,39 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	sort.SliceStable(result, func(i, j int) bool {
+		return result[i].GetOrderingID() < result[j].GetOrderingID()
+	})
 
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]interface{}, error) {
-	result := []interface{}{}
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]OrderingIDGetter, error) {
+	result := []OrderingIDGetter{}
 	for _, view := range views {
-		if view.Type == string(ViewTaskSection) {
-			overviewResult, err := api.GetTaskSectionOverviewResult(db, ctx, view, userID)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, overviewResult)
-		} else if view.Type == string(ViewLinear) {
-			overviewResult, err := api.GetLinearOverviewResult(db, ctx, view, userID)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, overviewResult)
-		} else {
-			return nil, errors.New("invalid view type")
+		var singleOverviewResult OrderingIDGetter
+		var err error
+		switch view.Type {
+		case string(ViewTaskSection):
+			singleOverviewResult, err = api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+		case string(ViewLinear):
+			singleOverviewResult, err = api.GetLinearOverviewResult(db, ctx, view, userID)
+		case string(ViewSlack):
+			singleOverviewResult, err = api.GetSlackOverviewResult(db, ctx, view, userID)
+		case string(ViewGithub):
+			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
+		default:
+			err = errors.New("invalid view type")
 		}
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, singleOverviewResult)
 	}
 	return result, nil
 }
 
-func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -153,17 +173,42 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	if err != nil {
 		return nil, err
 	}
+	sort.Slice(*tasks, func(i, j int) bool {
+		return (*tasks)[i].IDOrdering < (*tasks)[j].IDOrdering
+	})
 
+	// Reset ID orderings to begin at 1
 	taskResults := []*TaskResult{}
+	taskCollection := database.GetTaskCollection(db)
+	orderingID := 1
 	for _, task := range *tasks {
+		if task.IDOrdering != orderingID {
+			task.IDOrdering = orderingID
+			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+			defer cancel()
+			res, err := taskCollection.UpdateOne(
+				dbCtx,
+				bson.M{"_id": task.ID},
+				bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
+			)
+			if err != nil {
+				return nil, err
+			}
+			if res.MatchedCount != 1 {
+				api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+				return nil, errors.New("failed to update task ordering")
+			}
+		}
+		orderingID++
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
-	return &OverviewResult[[]*TaskResult]{
+	return &OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          name,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          ViewTaskSection,
 		IsLinked:      view.IsLinked,
+		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -204,6 +249,10 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			continue
 		} else if view.Type == string(ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
+		} else if view.Type == string(ViewSlack) {
+			serviceID = external.TaskServiceSlack.ID
+		} else if view.Type == string(ViewGithub) {
+			serviceID = external.TaskServiceGithub.ID
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -231,16 +280,23 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 	return nil
 }
 
-func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[[]*TaskResult], error) {
+func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	result := OverviewResult[[]*TaskResult]{
-		ID:            view.ID,
-		Name:          ViewLinearName,
-		Logo:          external.TaskServiceLinear.LogoV2,
-		Type:          ViewLinear,
-		IsLinked:      view.IsLinked,
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
+	result := OverviewResult[TaskResult]{
+		ID:       view.ID,
+		Name:     ViewLinearName,
+		Logo:     external.TaskServiceLinear.LogoV2,
+		Type:     ViewLinear,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewLinearName,
+				AuthorizationURL: &authURL,
+			},
+		},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
@@ -260,7 +316,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	var taskResults []*TaskResult
+	taskResults := []*TaskResult{}
 	for _, task := range *linearTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
@@ -269,10 +325,116 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
+func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
+	result := OverviewResult[TaskResult]{
+		ID:       view.ID,
+		Name:     ViewSlackName,
+		Logo:     external.TaskServiceSlack.LogoV2,
+		Type:     ViewSlack,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewSlackName,
+				AuthorizationURL: &authURL,
+			},
+		},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	slackTasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_task": true},
+			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	taskResults := []*TaskResult{}
+	for _, task := range *slackTasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	return &result, nil
+}
+
+func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[PullRequestResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
+	result := OverviewResult[PullRequestResult]{
+		ID:       view.ID,
+		Name:     ViewGithubName,
+		Logo:     external.TaskServiceGithub.LogoV2,
+		Type:     ViewGithub,
+		IsLinked: view.IsLinked,
+		Sources: []SourcesResult{
+			{
+				Name:             ViewGithubName,
+				AuthorizationURL: &authURL,
+			},
+		},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*PullRequestResult{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	githubPRs, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_pull_request": true},
+			{"pull_request.repository_id": view.GithubID},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	pullResults := []*PullRequestResult{}
+	// TODO we should change our Github logic to include all a user's repos in a DB
+	// then we should split the Github into per repo (this is currently all the user's repo PRs)
+	for _, pullRequest := range *githubPRs {
+		pullRequestResult := PullRequestResult{
+			ID:     pullRequest.ID.Hex(),
+			Title:  pullRequest.Title,
+			Number: pullRequest.Number,
+			Status: PullRequestStatus{
+				Text:  pullRequest.RequiredAction,
+				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
+			},
+			Author:        pullRequest.Author,
+			NumComments:   pullRequest.CommentCount,
+			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
+			Branch:        pullRequest.Branch,
+			Deeplink:      pullRequest.Deeplink,
+			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+		}
+		pullResults = append(pullResults, &pullRequestResult)
+	}
+	result.ViewItems = pullResults
+	return &result, nil
+}
+
 type ViewCreateParams struct {
 	Type          string  `json:"type" binding:"required"`
-	MessagesID    *string `json:"messages_id"`
 	TaskSectionID *string `json:"task_section_id"`
+	GithubID      *string `json:"github_id"`
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
@@ -280,6 +442,13 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	var viewCreateParams ViewCreateParams
 	err := c.BindJSON(&viewCreateParams)
 	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+	if viewCreateParams.Type == string(ViewTaskSection) && viewCreateParams.TaskSectionID == nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	} else if viewCreateParams.Type == string(ViewGithub) && viewCreateParams.GithubID == nil {
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
 	}
@@ -294,6 +463,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 	viewExists, err := api.ViewDoesExist(db, parentCtx, userID, viewCreateParams)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("error checking that view does not exist")
 		Handle500(c)
 		return
 	}
@@ -303,20 +473,36 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 	var serviceID string
 	taskSectionID := primitive.NilObjectID
+	var githubID string
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		if viewCreateParams.TaskSectionID == nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is required for task section type views"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is required for task section type views"})
 			return
 		}
 		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
+			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
 	} else if viewCreateParams.Type == string(ViewLinear) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
-	} else if viewCreateParams.Type != string(ViewLinear) {
+	} else if viewCreateParams.Type == string(ViewGithub) {
+		serviceID = external.TASK_SERVICE_ID_GITHUB
+		if viewCreateParams.GithubID == nil {
+			c.JSON(400, gin.H{"detail": "'id_github' is required for github type views"})
+			return
+		}
+		isValidGithubRepository, err := api.IsValidGithubRepository(db, userID, *viewCreateParams.GithubID)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("error checking that github repository is valid")
+			Handle500(c)
+			return
+		}
+		if isValidGithubRepository {
+			githubID = *viewCreateParams.GithubID
+		}
+	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -325,6 +511,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 
 	isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
 	if err != nil {
+		api.Logger.Error().Err(err).Msg("error checking that service is linked")
 		Handle500(c)
 		return
 	}
@@ -334,16 +521,19 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		Type:          viewCreateParams.Type,
 		IsLinked:      isLinked,
 		TaskSectionID: taskSectionID,
+		GithubID:      githubID,
 	}
 
 	viewCollection := database.GetViewCollection(db)
-	_, err = viewCollection.InsertOne(parentCtx, view)
+	insertedView, err := viewCollection.InsertOne(parentCtx, view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
 		Handle500(c)
 		return
 	}
-	c.JSON(200, gin.H{})
+	c.JSON(200, gin.H{
+		"id": insertedView.InsertedID.(primitive.ObjectID).Hex(),
+	})
 }
 
 func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
@@ -356,10 +546,19 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 	}
 	if params.Type == string(ViewTaskSection) {
 		if params.TaskSectionID == nil {
-			return false, errors.New("'id_task_section' is required for task section type views")
+			return false, errors.New("'task_section_id' is required for task section type views")
 		}
-		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": *params.TaskSectionID})
-	} else {
+		taskSectionObjectID, err := primitive.ObjectIDFromHex(*params.TaskSectionID)
+		if err != nil {
+			return false, errors.New("'task_section_id' is not a valid ObjectID")
+		}
+		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": taskSectionObjectID})
+	} else if params.Type == string(ViewGithub) {
+		if params.GithubID == nil {
+			return false, errors.New("'github_id' is required for github type views")
+		}
+		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
+	} else if params.Type != string(ViewLinear) && params.Type != string(ViewSlack) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
@@ -369,8 +568,106 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 	return count > 0, nil
 }
 
+type ViewModifyParams struct {
+	IDOrdering int `json:"id_ordering" binding:"required"`
+}
+
 func (api *API) OverviewViewModify(c *gin.Context) {
-	c.JSON(200, nil)
+	viewID, err := getViewIDFromContext(c)
+	if err != nil {
+		Handle404(c)
+		return
+	}
+	var viewModifyParams ViewModifyParams
+	err = c.BindJSON(&viewModifyParams)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
+		return
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	parentCtx := c.Request.Context()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	viewCollection := database.GetViewCollection(db)
+	userID := getUserIDFromContext(c)
+	result, err := viewCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"_id": viewID},
+		}},
+		bson.M{"$set": bson.M{"id_ordering": viewModifyParams.IDOrdering}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to modify view id_ordering")
+		Handle500(c)
+		return
+	}
+	if result.MatchedCount != 1 {
+		Handle404(c)
+		return
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = viewCollection.UpdateMany(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": bson.M{"$ne": viewID}},
+			{"user_id": userID},
+			{"id_ordering": bson.M{"$gte": viewModifyParams.IDOrdering}},
+		}},
+		bson.M{"$inc": bson.M{"id_ordering": 1}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to modify view id_orderings")
+		Handle500(c)
+		return
+	}
+
+	// Normalize ordering IDs
+	var views []database.View
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	options := options.Find().SetSort(bson.M{"id_ordering": 1})
+	cursor, err := viewCollection.Find(dbCtx, bson.M{"user_id": userID}, options)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to get views")
+		Handle500(c)
+		return
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &views)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to get views")
+		Handle500(c)
+		return
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	for index, view := range views {
+		newIDOrdering := index + 1
+		if view.IDOrdering != newIDOrdering {
+			viewCollection.UpdateOne(
+				dbCtx,
+				bson.M{"$and": []bson.M{
+					{"_id": view.ID},
+					{"user_id": userID}},
+				},
+				bson.M{"$set": bson.M{"id_ordering": newIDOrdering}},
+			)
+		}
+	}
+	c.JSON(200, gin.H{})
 }
 
 func (api *API) OverviewViewDelete(c *gin.Context) {
@@ -378,6 +675,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
+		return
 	}
 	defer dbCleanup()
 
@@ -415,30 +713,71 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
-	c.JSON(200, []SupportedView{
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	dbCtx, cancel := context.WithTimeout(c, constants.DatabaseTimeout)
+	defer cancel()
+
+	userID := getUserIDFromContext(c)
+	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(db, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	supportedGithubViews, err := api.getSupportedGithubViews(db, userID)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	isGithubLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_GITHUB)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	isLinearLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_LINEAR)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	isSlackLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_SLACK)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	var githubAuthURL string
+	var linearAuthURL string
+	var slackAuthURL string
+	if !isGithubLinked {
+		githubAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
+	}
+	if !isLinearLinked {
+		linearAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
+	}
+	if !isSlackLinked {
+		slackAuthURL = config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
+	}
+
+	supportedViews := []SupportedView{
 		{
 			Type:     ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
-			Views: []SupportedViewItem{
-				{
-					Name:          "Things to do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-				{
-					Name:          "Thing to not do in St. Louis",
-					IsAdded:       true,
-					TaskSectionID: primitive.NewObjectID(),
-				},
-			},
+			IsLinked: true,
+			Views:    supportedTaskSectionViews,
 		},
 		{
-			Type:     "linear",
-			Name:     "Linear",
-			Logo:     "linear",
-			IsNested: false,
+			Type:             ViewLinear,
+			Name:             "Linear",
+			Logo:             "linear",
+			IsNested:         false,
+			IsLinked:         isLinearLinked,
+			AuthorizationURL: linearAuthURL,
 			Views: []SupportedViewItem{
 				{
 					Name:    "Linear View",
@@ -447,16 +786,157 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:     "github",
-			Name:     "GitHub",
-			Logo:     "github",
-			IsNested: true,
+			Type:             ViewSlack,
+			Name:             "Slack",
+			Logo:             "slack",
+			IsNested:         false,
+			IsLinked:         isSlackLinked,
+			AuthorizationURL: slackAuthURL,
 			Views: []SupportedViewItem{
 				{
-					Name:    "Github View",
-					IsAdded: false,
+					Name:    "Slack View",
+					IsAdded: true,
 				},
 			},
 		},
+		{
+			Type:             ViewGithub,
+			Name:             "GitHub",
+			Logo:             "github",
+			IsNested:         true,
+			IsLinked:         isGithubLinked,
+			AuthorizationURL: githubAuthURL,
+			Views:            supportedGithubViews,
+		},
+	}
+	err = api.updateIsAddedForSupportedViews(db, userID, &supportedViews)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to updated isAdded")
+		Handle500(c)
+		return
+	}
+	c.JSON(200, supportedViews)
+}
+
+func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
+	sections, err := database.GetTaskSections(db, userID)
+	if err != nil || sections == nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
+		return []SupportedViewItem{}, err
+	}
+
+	supportedViewItems := []SupportedViewItem{{
+		Name:          TaskSectionNameDefault,
+		TaskSectionID: constants.IDTaskSectionDefault,
+	}}
+	for _, section := range *sections {
+		supportedViewItems = append(supportedViewItems, SupportedViewItem{
+			Name:          section.Name,
+			TaskSectionID: section.ID,
+		})
+	}
+	return supportedViewItems, nil
+}
+
+func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
+	database.GetPullRequestCollection(db)
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
+		return []SupportedViewItem{}, err
+	}
+	repositoryIDToSupportedViewItems := map[string]SupportedViewItem{}
+	for _, pullRequest := range *pullRequests {
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to parse pull request id")
+			return []SupportedViewItem{}, err
+		}
+		repositoryIDToSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
+			Name:     pullRequest.RepositoryName,
+			GithubID: pullRequest.PullRequest.RepositoryID,
+		}
+	}
+	supportedViewItems := []SupportedViewItem{}
+	for _, supportedViewItem := range repositoryIDToSupportedViewItems {
+		supportedViewItems = append(supportedViewItems, supportedViewItem)
+	}
+	sort.Slice(supportedViewItems, func(i, j int) bool {
+		return supportedViewItems[i].Name < supportedViewItems[j].Name
 	})
+	return supportedViewItems, nil
+}
+
+func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primitive.ObjectID, supportedViews *[]SupportedView) error {
+	if supportedViews == nil {
+		return errors.New("supportedViews must not be nil")
+	}
+	for _, supportedView := range *supportedViews {
+		for index, view := range supportedView.Views {
+			addedView, err := api.getViewFromSupportedView(db, userID, supportedView.Type, view)
+			if err != nil {
+				return err
+			}
+			supportedView.Views[index].IsAdded = addedView != nil
+			if addedView != nil {
+				supportedView.Views[index].ViewID = addedView.ID
+			}
+		}
+	}
+	return nil
+}
+
+func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (*database.View, error) {
+	if viewType == ViewTaskSection {
+		return api.getView(db, userID, viewType, &[]bson.M{
+			{"task_section_id": view.TaskSectionID},
+		})
+	} else if viewType == ViewLinear || viewType == ViewSlack {
+		return api.getView(db, userID, viewType, nil)
+	} else if viewType == ViewGithub {
+		return api.getView(db, userID, viewType, &[]bson.M{
+			{"github_id": view.GithubID},
+		})
+	}
+	return nil, errors.New("invalid view type")
+}
+
+func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (*database.View, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": string(viewType)},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+
+	var view database.View
+	err := database.GetViewCollection(db).FindOne(
+		dbCtx,
+		filter,
+	).Decode(&view)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // view has not been added
+		} else {
+			api.Logger.Error().Err(err).Msg("failed to check if view exists")
+			return nil, err
+		}
+	}
+	return &view, nil
+}
+
+func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryID string) (bool, error) {
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}, {"pull_request.repository_id": repositoryID}})
+	if err != nil {
+		return false, err
+	}
+	return len(*pullRequests) > 0, nil
 }

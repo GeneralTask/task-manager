@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { NO_EVENT_TITLE } from '../../../constants'
-import { Colors, Spacing, Typography } from '../../../styles'
-import { useMeetingBanner } from '../../../services/api/messages.hooks'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { useMeetingBanner } from '../../../services/api/banner.hooks'
 import { icons, logos } from '../../../styles/images'
 import { Icon } from '../Icon'
 import JoinMeetingButton from '../buttons/JointMeetingButton'
@@ -18,7 +18,7 @@ const FooterView = styled.div`
     justify-content: center;
     align-items: right;
     height: 170px;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     width: 100%;
 `
 const FooterTextView = styled.div`
@@ -41,8 +41,7 @@ const FooterText = styled.div`
     display: flex;
     flex-direction: row;
     white-space: nowrap;
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     justify-content: space-between;
     margin-top: ${Spacing.margin._12};
     margin-left: ${Spacing.margin._12};
@@ -50,27 +49,26 @@ const FooterText = styled.div`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    ${Typography.body};
 `
 const HeaderText = styled.div`
     margin-right: ${Spacing.margin._8};
-    font-size: ${Typography.medium.fontSize};
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     padding-left: ${Spacing.padding._4};
-    border: 2px solid transparent;
+    border: ${Border.stroke.large} solid transparent;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    ${Typography.subtitle};
 `
 const BodyTextArea = styled.div`
     overflow: auto;
     padding: ${Spacing.margin._8};
-    color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize};
-    font-weight: ${Typography.weight._400};
+    color: ${Colors.text.light};
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    ${Typography.bodySmall};
 `
 const CursorView = styled.div`
     display: flex;
@@ -82,10 +80,10 @@ const RecommendationText = styled.span`
     padding: ${Spacing.margin._12};
     font: inherit;
     cursor: pointer;
-    color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize};
+    color: ${Colors.text.light};
     text-decoration: none;
     margin-left: ${Spacing.margin._4};
+    ${Typography.bodySmall};
 `
 const DeeplinkText = styled.span`
     display: flex;
@@ -95,10 +93,10 @@ const CursorText = styled.div`
     display: flex;
     overflow: auto;
     font: inherit;
-    color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize};
+    color: ${Colors.text.light};
     text-decoration: none;
     align-items: center;
+    ${Typography.bodySmall};
 `
 const CursorArea = styled.div`
     align-self: right;

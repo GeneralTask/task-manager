@@ -20,12 +20,11 @@ const BodyContainer = styled.div`
     padding: ${Spacing.padding._4};
 `
 const BlackText = styled.span`
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.black};
+    ${Typography.bodySmall};
 `
 const GrayText = styled(BlackText)`
-    color: ${Colors.gray._400};
+    color: ${Colors.text.light};
 `
 
 const DividerContainer = styled.div`
@@ -47,7 +46,7 @@ const SlackMessage = ({ sender, slack_message_params }: SlackMessageProps) => {
     return (
         <>
             <DividerContainer>
-                <Divider color={Colors.gray._300} />
+                <Divider color={Colors.background.dark} />
             </DividerContainer>
             <MessageContainer>
                 <TopContainer>

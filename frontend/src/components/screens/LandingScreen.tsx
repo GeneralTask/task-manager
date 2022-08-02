@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
 
 const LandingScreenContainer = styled.div`
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -56,7 +56,7 @@ const ResponseContainer = styled.div`
     justify-content: center;
     margin-top: 20px;
     height: 20px;
-    color: ${Colors.response.error};
+    color: ${Colors.status.red.default};
 `
 
 const FAQHeader = styled.div`
@@ -84,7 +84,7 @@ const LandingScreen = () => {
             email: '',
         },
     })
-    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/tasks" />
+    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" />
 
     const onWaitlistSubmit = (data: { email: string }) => {
         joinWaitlist(data.email)
@@ -112,9 +112,7 @@ const LandingScreen = () => {
             <FlexGrowContainer>
                 <FlexColumn>
                     <Header>The task manager for highly productive people.</Header>
-                    <Subheader>
-                        General Task pulls together your emails, messages, and tasks and prioritizes what matters most.{' '}
-                    </Subheader>
+                    <Subheader>General Task pulls together your tasks and prioritizes what matters most. </Subheader>
                     <Subheader></Subheader>
                 </FlexColumn>
                 <WaitlistContainer>
@@ -143,9 +141,9 @@ const LandingScreen = () => {
                     <FAQHeader>Google Privacy FAQs</FAQHeader>
                     <Subheader>What will your app do with Google user data?</Subheader>
                     <FAQItem>
-                        General Task stores user data to power features like our email client, calendar view, and
-                        unified task manager. General Task&#39;s use and transfer to any other app of information
-                        received from Google APIs will adhere to{' '}
+                        General Task stores user data to power features like our calendar view and unified task manager.
+                        General Task&#39;s use and transfer to any other app of information received from Google APIs
+                        will adhere to{' '}
                         <a
                             href="https://developers.google.com/terms/api-services-user-data-policy"
                             target="_blank"
@@ -166,9 +164,8 @@ const LandingScreen = () => {
                     <Subheader>How does your app enhance Google user functionality?</Subheader>
                     <FAQItem>
                         Our app enhances user functionality by allowing you to track everything on your plate at work in
-                        one unified place. You can go through your Gmail inbox, respond to emails, and mark other emails
-                        as tasks without leaving our app. You can also view your Google calendar in-app and will soon be
-                        able to modify and create events.
+                        one unified place. You can view your Google calendar in-app and can also modify and create
+                        events.
                     </FAQItem>
                 </FlexColumn>
             </FlexGrowContainer>

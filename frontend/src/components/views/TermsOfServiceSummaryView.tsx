@@ -8,7 +8,7 @@ import { Icon } from '../atoms/Icon'
 import { ModalEnum } from '../../utils/enums'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { TitleLarge } from '../atoms/title/Title'
@@ -58,14 +58,14 @@ const HorizontalFlex = styled.div`
 `
 const AgreementText = styled.div<{ required?: boolean }>`
     margin-left: ${Spacing.margin._8};
-    font-family: 'Switzer-Variable';
-    font-size: ${Typography.xSmall.fontSize};
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._600};
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
+        Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    color: ${Colors.text.light};
+    ${Typography.label};
 `
 const RedAsterisk = styled.span`
-    color: ${Colors.red._1};
-    font-weight: ${Typography.weight._500};
+    color: ${Colors.status.red.default};
+    ${Typography.label};
 `
 const SubmitButtonContainer = styled.div`
     display: flex;
@@ -145,14 +145,9 @@ const TermsOfServiceSummaryView = () => {
             </VerticalFlex>
             <SubmitButtonContainer>
                 <div data-testid="terms-submit-button">
-                    <RoundedGeneralButton
-                        onClick={onSubmit}
-                        value="Continue"
-                        color={Colors.purple._1}
-                        disabled={!termsCheck}
-                    />
+                    <GTButton onClick={onSubmit} value="Continue" styleType="primary" disabled={!termsCheck} />
                 </div>
-                <RoundedGeneralButton onClick={onCancel} textStyle="dark" value="Cancel" hasBorder />
+                <GTButton onClick={onCancel} styleType="secondary" value="Cancel" />
             </SubmitButtonContainer>
         </TermsOfServiceContainer>
     )

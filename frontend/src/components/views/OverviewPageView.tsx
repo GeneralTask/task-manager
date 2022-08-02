@@ -2,24 +2,19 @@ import React, { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { Spacing, Colors, Typography } from '../../styles'
+import { Colors } from '../../styles'
 import TaskDetails from '../details/TaskDetails'
 import EditViewsButton from '../overview/EditViewsButton'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import ThreadDetails from '../details/ThreadDetails'
-import { TEmailThread, TTask } from '../../utils/types'
+import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
+import PullRequestDetails from '../details/PullRequestDetails'
+import { SectionHeader } from '../molecules/Header'
 
 const OverviewPageContainer = styled.div`
     display: flex;
-    border-right: 1px solid ${Colors.gray._300};
-`
-const PageHeader = styled.div`
-    padding: ${Spacing.padding._16};
-    color: ${Colors.gray._500};
-    font-size: ${Typography.small.fontSize};
-    border-bottom: 2px solid ${Colors.gray._200};
+    border-right: 1px solid ${Colors.background.dark};
 `
 const ActionsContainer = styled.div`
     display: flex;
@@ -27,7 +22,7 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: views, isLoading } = useGetOverviewViews()
+    const { data: views, refetch, isLoading, isFetching } = useGetOverviewViews()
     const { overviewItem } = useParams()
     const navigate = useNavigate()
 
@@ -45,8 +40,8 @@ const OverviewView = () => {
         for (const view of views) {
             for (const item of view.view_items) {
                 if (item.id === overviewItem) {
-                    if (view.type === 'message') {
-                        return <ThreadDetails thread={item as TEmailThread} />
+                    if (view.type === 'github') {
+                        return <PullRequestDetails pullRequest={item as TPullRequest} />
                     } else {
                         return <TaskDetails task={item as TTask} link={`/overview/${item.id}`} />
                     }
@@ -72,8 +67,13 @@ const OverviewView = () => {
     return (
         <>
             <OverviewPageContainer>
-                <ScrollableListTemplate noTopPadding>
-                    <PageHeader>Overview</PageHeader>
+                <ScrollableListTemplate>
+                    <SectionHeader
+                        sectionName="Overview"
+                        allowRefresh={true}
+                        refetch={refetch}
+                        isRefreshing={isFetching}
+                    />
                     <ActionsContainer>
                         <EditViewsButton />
                     </ActionsContainer>

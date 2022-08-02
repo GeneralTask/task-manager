@@ -6,14 +6,13 @@ import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { EmailList } from './email/EmailList'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
@@ -25,7 +24,7 @@ const DetailsViewContainer = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: ${Colors.gray._50};
+    background-color: ${Colors.background.light};
     min-width: 300px;
     padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
 `
@@ -39,36 +38,34 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     ${({ isFullHeight }) => isFullHeight && `flex: 1;`}
     display: block;
     background-color: inherit;
-    border: 1px solid transparent;
+    border: ${Border.stroke.medium} solid transparent;
     border-radius: ${Border.radius.large};
     resize: none;
     outline: none;
     overflow: auto;
     padding: ${Spacing.padding._12};
     font: inherit;
-    color: ${Colors.gray._600};
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
+    color: ${Colors.text.light};
+    ${Typography.bodySmall};
     :focus,
     :hover {
-        border: 1px solid ${Colors.gray._400};
+        border: ${Border.stroke.medium} solid ${Colors.background.dark};
         box-shadow: ${Shadows.medium};
     }
 `
 const TitleInput = styled.textarea`
     background-color: inherit;
-    color: ${Colors.gray._600};
+    color: ${Colors.text.light};
     font: inherit;
-    font-size: ${Typography.large.fontSize};
-    font-weight: ${Typography.weight._600};
     border: none;
     resize: none;
     outline: none;
     overflow: hidden;
     margin-bottom: ${Spacing.margin._16};
     :focus {
-        outline: 1px solid ${Colors.gray._500};
+        outline: 1px solid ${Colors.background.dark};
     }
+    ${Typography.subtitle};
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -84,11 +81,9 @@ const StatusContainer = styled.div`
     flex-direction: row;
     gap: ${Spacing.margin._8};
     align-items: center;
-    font-size: ${Typography.xSmall.fontSize};
-    line-height: ${Typography.xSmall.lineHeight};
-    font-weight: ${Typography.weight._500};
-    color: ${Colors.gray._700};
+    color: ${Colors.text.light};
     margin-bottom: ${Spacing.margin._8};
+    ${Typography.bodySmall};
 `
 
 const SYNC_MESSAGES = {
@@ -107,7 +102,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
-    const thread = task.linked_email_thread?.email_thread
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
@@ -151,7 +145,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     }, [titleInput])
 
     useLayoutEffect(() => {
-        if (bodyRef.current && (thread || task.slack_message_params)) {
+        if (bodyRef.current && task.slack_message_params) {
             bodyRef.current.style.height = '0px'
             bodyRef.current.style.height =
                 bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
@@ -194,17 +188,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         e.stopPropagation()
     }
 
-    // Temporary hack to check source of linked task. All tasks currently have a hardcoded sourceID to GT (see PR #1104)
-    const icon = task.linked_email_thread ? logos.gmail : logos[task.source.logo_v2]
-    const deeplinkLabel = task.linked_email_thread ? 'Gmail' : task.source.name
-
     const status = task.external_status ? task.external_status.state : ''
 
     return (
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
-                    <Icon source={icon} size="small" />
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
                 </MarginRight8>
                 {!task.isOptimistic && (
                     <>
@@ -218,10 +208,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             />
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <RoundedGeneralButton
-                                        textStyle="dark"
-                                        value={deeplinkLabel}
-                                        hasBorder
+                                    <GTButton
+                                        styleType="secondary"
+                                        value={task.source.name}
                                         iconSource="external_link"
                                     />
                                 </NoStyleAnchor>
@@ -254,7 +243,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         ref={bodyRef}
                         data-testid="task-body-input"
                         placeholder="Add task details"
-                        isFullHeight={!(thread || task.slack_message_params)}
+                        isFullHeight={!task.slack_message_params}
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
@@ -262,7 +251,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
-                    {thread && <EmailList thread={thread} />}
                     {task.comments && <LinearCommentList comments={task.comments} />}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />

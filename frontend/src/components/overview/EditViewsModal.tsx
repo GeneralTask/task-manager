@@ -3,7 +3,7 @@ import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Border, Colors, Spacing } from '../../styles'
 import GTModal from '../atoms/GTModal'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import EditViewsSelectedView from './EditViewsSelectedView'
@@ -13,9 +13,9 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 
 const AddViewsButton = styled(NoStyleButton)`
-    border: 1px solid ${Colors.gray._500};
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
-    color: ${Colors.gray._500};
+    color: ${Colors.text.light};
     display: flex;
     align-items: center;
     padding: ${Spacing.padding._8};
@@ -47,7 +47,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            leftButtons={<RoundedGeneralButton value="Done" color={Colors.purple._1} onClick={onClose} />}
+            leftButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             rightButtons={
                 <AddViewsButton onClick={goToAddViewsView}>
                     <Icon source={icons.plus} size="small" />
@@ -63,7 +63,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
                     index={views.length}
                     acceptDropType={DropType.OVERVIEW_VIEW}
                     onReorder={handleReorder}
-                    isLast
+                    indicatorType="TOP_ONLY"
                 />
             </>
         </GTModal>

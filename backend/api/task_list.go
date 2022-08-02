@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
@@ -21,12 +19,6 @@ type TaskSource struct {
 	LogoV2        string `json:"logo_v2"`
 	IsCompletable bool   `json:"is_completable"`
 	IsReplyable   bool   `json:"is_replyable"`
-}
-
-type linkedEmailThread struct {
-	LinkedThreadID *primitive.ObjectID    `json:"linked_thread_id,omitempty"`
-	LinkedEmailID  *primitive.ObjectID    `json:"linked_email_id,omitempty"`
-	EmailThread    *ThreadDetailsResponse `bson:"email_thread,omitempty" json:"email_thread,omitempty"`
 }
 
 type externalStatus struct {
@@ -46,7 +38,6 @@ type TaskResult struct {
 	TimeAllocation     int64                        `json:"time_allocated"`
 	SentAt             string                       `json:"sent_at"`
 	IsDone             bool                         `json:"is_done"`
-	LinkedEmailThread  *linkedEmailThread           `json:"linked_email_thread,omitempty"`
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
@@ -106,7 +97,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	})
 
 	taskChannels := []chan external.TaskResult{}
-	pullRequestChannels := []chan external.PullRequestResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
@@ -118,10 +108,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			var tasks = make(chan external.TaskResult)
 			go taskSourceResult.Source.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
-
-			var pullRequests = make(chan external.PullRequestResult)
-			go taskSourceResult.Source.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
-			pullRequestChannels = append(pullRequestChannels, pullRequests)
 		}
 	}
 
@@ -135,19 +121,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			continue
 		}
 		tasks = append(tasks, taskResult.Tasks...)
-	}
-	for _, pullRequestChannel := range pullRequestChannels {
-		pullRequestResult := <-pullRequestChannel
-		if pullRequestResult.Error != nil {
-			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
-			failedFetchSources[pullRequestResult.SourceID] = true
-			continue
-		}
-		for _, pullRequest := range pullRequestResult.PullRequests {
-			tasks = append(tasks, &database.Item{
-				TaskBase: pullRequest.TaskBase,
-			})
-		}
 	}
 	return &tasks, failedFetchSources, nil
 }
@@ -168,8 +141,8 @@ func (api *API) adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK {
-			// we don't ever need to mark GT tasks as done here as they would have already been marked done
+		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK || currentTask.SourceID == external.TASK_SOURCE_ID_GMAIL {
+			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}
 		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
@@ -256,21 +229,6 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 			User:    t.SlackMessageParams.User,
 			Team:    t.SlackMessageParams.Team,
 			Message: t.SlackMessageParams.Message,
-		}
-	}
-
-	log.Debug().Interface("linkedMessage", t.LinkedMessage).Send()
-	if t.LinkedMessage.ThreadID != nil {
-		thread, err := database.GetItem(context.Background(), *t.LinkedMessage.ThreadID, userID)
-		if err != nil {
-			api.Logger.Error().Err(err).Interface("threadID", t.LinkedMessage.ThreadID).Msg("Could not find linked thread in db")
-			return taskResult
-		}
-
-		taskResult.LinkedEmailThread = &linkedEmailThread{
-			EmailThread:    api.createThreadResponse(thread),
-			LinkedThreadID: &thread.ID,
-			LinkedEmailID:  t.LinkedMessage.EmailID,
 		}
 	}
 

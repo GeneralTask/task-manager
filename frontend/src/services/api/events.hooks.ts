@@ -5,7 +5,6 @@ import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { getMonthsAroundDate } from "../../utils/time"
 import { TEvent } from "../../utils/types"
-import { TCreateEventPayload } from "../query-payload-types"
 import { useGTQueryClient } from "../queryUtils"
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
@@ -20,6 +19,23 @@ const getEvents = async (params: { startISO: string; endISO: string }) => {
     } catch {
         throw new Error('getEvents failed')
     }
+}
+
+interface TEventAttendee {
+    name: string
+    email: string
+}
+
+interface TCreateEventPayload {
+    account_id: string
+    datetime_start: string
+    datetime_end: string
+    summary?: string
+    location?: string
+    description?: string
+    time_zone?: string
+    attendees?: TEventAttendee[]
+    add_conference_call?: boolean
 }
 
 interface CreateEventParams {

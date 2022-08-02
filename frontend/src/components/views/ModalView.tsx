@@ -15,7 +15,7 @@ const SHARED_MODAL_CONTENT_STYLE: React.CSSProperties = {
     marginLeft: 'auto',
     marginRight: 'auto',
     border: 'none',
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.background.white,
     overflow: 'auto',
     WebkitOverflowScrolling: 'touch',
     borderRadius: '12px',

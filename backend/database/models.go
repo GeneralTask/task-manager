@@ -168,7 +168,7 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	RepositoryId   string             `bson:"repository_id"`
+	RepositoryID   string             `bson:"repository_id"`
 	RepositoryName string             `bson:"repository_name"`
 	Number         int                `bson:"number"`
 	Author         string             `bson:"author"`
@@ -179,9 +179,12 @@ type PullRequest struct {
 }
 
 type PullRequestChangeableFields struct {
-	Title       string `bson:"title,omitempty"`
-	Body        string `bson:"body,omitempty"`
-	IsCompleted *bool  `bson:"is_completed,omitempty"`
+	Title          string             `bson:"title,omitempty"`
+	Body           string             `bson:"body,omitempty"`
+	RequiredAction string             `bson:"required_action"`
+	CommentCount   int                `bson:"comment_count"`
+	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
+	IsCompleted    *bool              `bson:"is_completed,omitempty"`
 }
 
 type CalendarEvent struct {
@@ -368,6 +371,5 @@ type View struct {
 	IsReorderable bool               `bson:"is_reorderable"`
 	IsLinked      bool               `bson:"is_linked"`
 	GithubID      string             `bson:"github_id"`
-	MessagesID    string             `bson:"messages_id"`
 	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
 }

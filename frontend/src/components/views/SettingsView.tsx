@@ -7,11 +7,13 @@ import { Icon } from '../atoms/Icon'
 import { SectionHeader } from '../molecules/Header'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
-import { openAuthWindow } from '../../utils/auth'
+import { openPopupWindow } from '../../utils/auth'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
 import GTSelect from '../molecules/GTSelect'
-import RoundedGeneralButton from '../atoms/buttons/RoundedGeneralButton'
+import GTButton from '../atoms/buttons/GTButton'
+import SignOutButton from '../molecules/SignOutButton'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -30,7 +32,7 @@ const AccountContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: ${Colors.white};
+    background-color: ${Colors.background.white};
     border-radius: ${Border.radius.large};
     height: 100%;
 `
@@ -40,16 +42,16 @@ const IconContainer = styled.div`
 `
 const AccountButtonContainer = styled.div<{ important?: boolean }>`
     margin-right: ${Spacing.margin._16};
-    background-color: ${(props) => (props.important ? Colors.red._2 : Colors.gray._100)};
-    outline: 1px solid ${(props) => (props.important ? Colors.red._1 : Colors.gray._100)};
-    color: ${Colors.black};
+    background-color: ${(props) => (props.important ? Colors.status.red.light : Colors.background.medium)};
+    outline: 1px solid ${(props) => (props.important ? Colors.status.red.default : Colors.background.medium)};
+    color: ${Colors.text.black};
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     min-width: fit-content;
 `
-const XSmallFontSpan = styled.span`
-    font-size: ${Typography.xSmall.fontSize};
+const AccountNameSpan = styled.span`
     margin-right: auto;
+    ${Typography.bodySmall};
 `
 const FullWidth = styled.div`
     display: flex;
@@ -65,6 +67,11 @@ const TextAlignCenter = styled.span`
     text-align: center;
     width: 100%;
 `
+const GapView = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing.margin._8};
+`
 
 const SettingsView = () => {
     const [showLinkAccountsDropdown, setShowLinkedAccountsDropdown] = useState(false)
@@ -72,10 +79,24 @@ const SettingsView = () => {
 
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
+    const { refetch: refetchViews } = useGetOverviewViews()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
+    const onWindowClose = () => {
+        refetch()
+        refetchViews()
+    }
+
     const onUnlink = (id: string) => deleteAccount({ id: id })
-    const onRelink = (accountType: string) => supportedTypes && openAuthWindow(accountType, supportedTypes, refetch)
+    const onRelink = (accountType: string) => {
+        if (!supportedTypes) return
+        for (const type of supportedTypes) {
+            if (type.name === accountType) {
+                openPopupWindow(type.authorization_url, onWindowClose)
+                return
+            }
+        }
+    }
 
     return (
         <ScrollViewMimic>
@@ -83,35 +104,38 @@ const SettingsView = () => {
                 <SectionHeader sectionName="Settings" allowRefresh={false} />
                 <AccountsContainer>
                     <FullWidth>
-                        <ShowLinkAccountsButtonContainer ref={showLinkAccountsButtonContainerRef}>
-                            <RoundedGeneralButton
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
-                                }}
-                                value="Add new Account"
-                                textStyle="dark"
-                            />
-                            {showLinkAccountsDropdown && (
-                                <GTSelect
-                                    options={
-                                        supportedTypes?.map((type) => ({
-                                            item:
-                                                type.name === 'Google' ? (
-                                                    GoogleSignInButtonImage
-                                                ) : (
-                                                    <TextAlignCenter>{type.name}</TextAlignCenter>
-                                                ),
-                                            onClick: () => openAuthWindow(type.name, supportedTypes, refetch),
-                                            hasPadding: type.name !== 'Google',
-                                        })) ?? []
-                                    }
-                                    location="left"
-                                    onClose={() => setShowLinkedAccountsDropdown(false)}
-                                    parentRef={showLinkAccountsButtonContainerRef}
+                        <GapView>
+                            <ShowLinkAccountsButtonContainer ref={showLinkAccountsButtonContainerRef}>
+                                <GTButton
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
+                                    }}
+                                    value="Add new Account"
+                                    styleType="primary"
                                 />
-                            )}
-                        </ShowLinkAccountsButtonContainer>
+                                {showLinkAccountsDropdown && (
+                                    <GTSelect
+                                        options={
+                                            supportedTypes?.map((type) => ({
+                                                item:
+                                                    type.name === 'Google' ? (
+                                                        GoogleSignInButtonImage
+                                                    ) : (
+                                                        <TextAlignCenter>{type.name}</TextAlignCenter>
+                                                    ),
+                                                onClick: () => openPopupWindow(type.authorization_url, onWindowClose),
+                                                hasPadding: type.name !== 'Google',
+                                            })) ?? []
+                                        }
+                                        location="left"
+                                        onClose={() => setShowLinkedAccountsDropdown(false)}
+                                        parentRef={showLinkAccountsButtonContainerRef}
+                                    />
+                                )}
+                            </ShowLinkAccountsButtonContainer>
+                            <SignOutButton />
+                        </GapView>
                     </FullWidth>
                 </AccountsContainer>
                 {linkedAccounts?.map((account) => (
@@ -121,18 +145,18 @@ const SettingsView = () => {
                                 <IconContainer>
                                     <Icon size="small" source={logos[account.logo_v2]}></Icon>
                                 </IconContainer>
-                                <XSmallFontSpan>{account.display_id}</XSmallFontSpan>
+                                <AccountNameSpan>{account.display_id}</AccountNameSpan>
                                 {account.has_bad_token && (
                                     <AccountButtonContainer important>
                                         <NoStyleButton onClick={() => onRelink(account.name)}>
-                                            <XSmallFontSpan>Re-link Account</XSmallFontSpan>
+                                            <AccountNameSpan>Re-link Account</AccountNameSpan>
                                         </NoStyleButton>
                                     </AccountButtonContainer>
                                 )}
                                 {account.is_unlinkable && (
                                     <AccountButtonContainer>
                                         <NoStyleButton onClick={() => onUnlink(account.id)}>
-                                            <XSmallFontSpan>Remove link</XSmallFontSpan>
+                                            <AccountNameSpan>Remove link</AccountNameSpan>
                                         </NoStyleButton>
                                     </AccountButtonContainer>
                                 )}
