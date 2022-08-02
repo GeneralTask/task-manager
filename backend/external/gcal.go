@@ -249,7 +249,7 @@ func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID
 		return err
 	}
 
-	gcalEvent := &calendar.Event{}
+	gcalEvent := calendar.Event{}
 	if updateFields.Summary != nil {
 		gcalEvent.Summary = *updateFields.Summary
 	}
@@ -272,7 +272,10 @@ func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID
 	if updateFields.Attendees != nil {
 		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
 	}
-	calendarService.Events.Update(accountID, eventID.Hex(), gcalEvent)
+	_, err = calendarService.Events.Patch(accountID, eventID.Hex(), &gcalEvent).Do()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

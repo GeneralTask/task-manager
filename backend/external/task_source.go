@@ -50,8 +50,8 @@ type EventModifyObject struct {
 	Location          *string     `json:"location"`
 	Description       *string     `json:"description"`
 	TimeZone          *string     `json:"time_zone"`
-	DatetimeStart     *time.Time  `json:"datetime_start" binding:"required"`
-	DatetimeEnd       *time.Time  `json:"datetime_end" binding:"required"`
+	DatetimeStart     *time.Time  `json:"datetime_start"`
+	DatetimeEnd       *time.Time  `json:"datetime_end"`
 	Attendees         *[]Attendee `json:"attendees"`
 	AddConferenceCall *bool       `json:"add_conference_call"`
 }
