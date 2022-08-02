@@ -84,6 +84,19 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	}
 	defer dbCleanup()
 
+	headers := c.Request.Header
+	timezoneOffsetHeader := headers["Timezone-Offset"]
+	if len(timezoneOffsetHeader) == 0 {
+		c.JSON(400, gin.H{"error": "Timezone-Offset header is required"})
+		return
+	}
+	timezoneOffset, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Timezone-Offset header is invalid"})
+		return
+	}
+	api.Logger.Debug().Msgf("Timezone offset: %s", timezoneOffset.String())
+
 	userID := getUserIDFromContext(c)
 	_, err = database.GetUser(db, userID)
 	if err != nil {
@@ -118,7 +131,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(db, parentCtx, views, userID)
+	result, err := api.GetOverviewResults(db, parentCtx, views, userID, timezoneOffset)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)
@@ -131,7 +144,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -146,7 +159,7 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 		case string(ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
 		case string(ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(db, ctx, view, userID)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(db, ctx, view, userID, timezoneOffset)
 		default:
 			err = errors.New("invalid view type")
 		}
@@ -437,7 +450,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
