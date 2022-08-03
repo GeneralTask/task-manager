@@ -243,7 +243,7 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 	return &attendeesList
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *EventModifyObject) error {
+func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
@@ -272,7 +272,7 @@ func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID
 	if updateFields.Attendees != nil {
 		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
 	}
-	_, err = calendarService.Events.Patch(accountID, eventID.Hex(), &gcalEvent).Do()
+	_, err = calendarService.Events.Patch(accountID, eventID, &gcalEvent).Do()
 	if err != nil {
 		return err
 	}

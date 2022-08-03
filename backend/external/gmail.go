@@ -922,7 +922,7 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 	return err
 }
 
-func (gmailSource GmailSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *EventModifyObject) error {
+func (gmailSource GmailSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }
 

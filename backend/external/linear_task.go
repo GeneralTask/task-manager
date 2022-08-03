@@ -182,6 +182,6 @@ func (linearTask LinearTaskSource) DeleteEvent(userID primitive.ObjectID, accoun
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *EventModifyObject) error {
+func (linearTask LinearTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

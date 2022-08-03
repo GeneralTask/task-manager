@@ -486,6 +486,6 @@ func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID stri
 	return nil
 }
 
-func (gitPR GithubPRSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID primitive.ObjectID, updateFields *EventModifyObject) error {
+func (gitPR GithubPRSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }
