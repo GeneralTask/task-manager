@@ -501,6 +501,10 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 				TaskType: database.TaskType{
 					IsMeetingPreparationTask: true,
 				},
+				CalendarEvent: database.CalendarEvent{
+					DatetimeStart: event.CalendarEvent.DatetimeStart,
+					DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
+				},
 			})
 			if err != nil {
 				return nil, err
@@ -523,6 +527,8 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 
 	result := []*TaskResult{}
 	for _, task := range *meetingTasks {
+		// if meeting ended
+
 		result = append(result, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
