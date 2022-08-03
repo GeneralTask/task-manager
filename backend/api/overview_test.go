@@ -69,7 +69,7 @@ func TestGetOverviewResults(t *testing.T) {
 	api := GetAPI()
 
 	t.Run("NoViews", func(t *testing.T) {
-		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID())
+		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID(), 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 0, len(result))
@@ -77,7 +77,7 @@ func TestGetOverviewResults(t *testing.T) {
 	t.Run("InvalidViewType", func(t *testing.T) {
 		result, err := api.GetOverviewResults(db, parentCtx, []database.View{{
 			Type: "invalid",
-		}}, primitive.NewObjectID())
+		}}, primitive.NewObjectID(), 0)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid view type", err.Error())
 		assert.Nil(t, result)
@@ -117,7 +117,7 @@ func TestGetOverviewResults(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		result, err := api.GetOverviewResults(db, parentCtx, views, userID)
+		result, err := api.GetOverviewResults(db, parentCtx, views, userID, 0)
 		expectedViewResult := OverviewResult[TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
@@ -701,6 +701,35 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		expectedViewResult.ViewItems = []*PullRequestResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
+}
+
+func TestGetMeetingPreparationOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	api := GetAPI()
+	userID := primitive.NewObjectID()
+
+	t.Run("InvalidUser", func(t *testing.T) {
+		view := database.View{
+			UserID: userID,
+		}
+		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, primitive.NewObjectID(), 0)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, res)
+	})
+	t.Run("NoEvents", func(t *testing.T) {
+		view := database.View{
+			UserID: userID,
+		}
+		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, 0, len(res.ViewItems))
+	})
+
 }
 
 func TestUpdateViewsLinkedStatus(t *testing.T) {
