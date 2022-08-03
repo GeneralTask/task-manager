@@ -463,7 +463,6 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 
 	events, err := database.GetItems(db, userID,
 		&[]bson.M{
-			{"is_completed": false},
 			{"task_type.is_event": true},
 			{"calendar_event.datetime_start": bson.M{"$gte": timeNow}},
 			{"calendar_event.datetime_end": bson.M{"$lte": nextDayStart}},
@@ -521,9 +520,10 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	if err != nil {
 		return nil, err
 	}
-	for _, meetingTask := range *meetingTasks {
-		api.Logger.Debug().Msgf("Meeting preparation task: %v", meetingTask.Title)
-	}
+	// sort by datetime_start
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].CalendarEvent.DatetimeStart <= (*meetingTasks)[j].CalendarEvent.DatetimeStart
+	})
 
 	result := []*TaskResult{}
 	for _, task := range *meetingTasks {
