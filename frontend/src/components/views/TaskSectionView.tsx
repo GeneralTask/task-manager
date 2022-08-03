@@ -16,8 +16,6 @@ import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -137,7 +135,6 @@ const TaskSectionView = () => {
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
-                                <FontAwesomeIcon icon={solid('coffee')} />
                                 {!section.is_done && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (
