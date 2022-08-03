@@ -390,7 +390,10 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": true},
+			},
+			"$or": []bson.M{
 				{"task_type.is_task": true},
+				{"task_type.is_meeting_preparation_task": true},
 			},
 		},
 		findOptions,
