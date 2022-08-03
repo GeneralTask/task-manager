@@ -456,8 +456,8 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	}
 
 	timeNow := time.Now().UTC()
-	timeOffset := timeNow.Add(-1 * timezoneOffset)
-	nextDay := timeOffset.Add(24 * time.Hour)
+	timeOffset := timeNow.Add(timezoneOffset * -1)
+	nextDay := timeOffset.Add(time.Hour * 24)
 	// beginning of next day in UTC but with the timezone offset applied
 	nextDayStart := time.Date(nextDay.Year(), nextDay.Month(), nextDay.Day(), 0, 0, 0, 0, time.UTC).Add(timezoneOffset)
 
