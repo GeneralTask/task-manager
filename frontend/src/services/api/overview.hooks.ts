@@ -31,10 +31,10 @@ export const useReorderViews = () => {
         (data: TReorderViewData) => reorderView(data),
         {
             onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
-                await queryClient.cancelQueries('overview')
-
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!views) return
+                await queryClient.cancelQueries('overview')
+                await queryClient.cancelQueries('tasks')
 
                 const newViews = produce(views, draft => {
                     const startIndex = draft.findIndex(view => view.id === viewId)
@@ -234,7 +234,7 @@ export const useMarkTaskDone = () => {
             if (!views) return
 
             const newViews = produce(views, (draft) => {
-                const sections = draft.map(view => ({
+                const sections = views.map(view => ({
                     id: view.task_section_id,
                     tasks: view.view_items
                 }))
