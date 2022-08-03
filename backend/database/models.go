@@ -163,10 +163,11 @@ type TaskBase struct {
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	DueDate          primitive.DateTime `bson:"due_date"`
 	//time in nanoseconds
-	TimeAllocation    int64              `bson:"time_allocated"`
-	ConferenceCall    *ConferenceCall    `bson:"conference_call"`
-	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
-	CompletedAt       primitive.DateTime `bson:"completed_at"`
+	TimeAllocation                int64              `bson:"time_allocated"`
+	ConferenceCall                *ConferenceCall    `bson:"conference_call"`
+	CreatedAtExternal             primitive.DateTime `bson:"created_at_external"`
+	CompletedAt                   primitive.DateTime `bson:"completed_at"`
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
 }
 
 type PullRequest struct {

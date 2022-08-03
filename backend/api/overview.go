@@ -528,8 +528,9 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	result := []*TaskResult{}
 	for _, task := range *meetingTasks {
 		// if meeting has ended mark task as complete
-		if task.CalendarEvent.DatetimeEnd.Time().Before(time.Now()) {
-			_, err := taskCollection.UpdateOne(ctx, bson.M{"_id": task.ID}, bson.M{"$set": bson.M{"is_completed": true}})
+		if task.CalendarEvent.DatetimeEnd.Time().Before(time.Now()) && !task.HasBeenAutomaticallyCompleted {
+			_, err := taskCollection.UpdateOne(ctx, bson.M{"_id": task.ID},
+				bson.M{"$set": bson.M{"is_completed": true, "has_been_automatically_completed": true}})
 			if err != nil {
 				return nil, err
 			}
