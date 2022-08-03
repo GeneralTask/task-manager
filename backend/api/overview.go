@@ -526,16 +526,12 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 		result = append(result, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
-		ID:       view.ID,
-		Name:     ViewMeetingPreparationName,
-		Logo:     external.TaskSourceGoogleCalendar.LogoV2,
-		Type:     ViewMeetingPreparation,
-		IsLinked: true,
-		Sources: []SourcesResult{
-			{
-				Name: ViewMeetingPreparationName,
-			},
-		},
+		ID:            view.ID,
+		Name:          ViewMeetingPreparationName,
+		Logo:          external.TaskSourceGoogleCalendar.LogoV2,
+		Type:          ViewMeetingPreparation,
+		IsLinked:      true,
+		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
