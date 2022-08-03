@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { MouseEvent, useEffect, useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -11,7 +11,6 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import EventDetailPopup from '../molecules/EventDetailPopup'
-import { useClickOutside } from '../../hooks'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -50,9 +49,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
 
-    // event handler for popup onClose
-    const helpHandleClose = (e: MouseEvent) => {
-        e.stopPropagation()
+    const onClose = () => {
         props.setEventDetailId('')
     }
 
@@ -67,9 +64,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
         xCoordEvent.current = pos.left
         yCoordEvent.current = pos.bottom
     }
-
-    // when user clicks outside of event info container / event body
-    useClickOutside(ref, () => helpHandleClose)
 
     return (
         <EventBodyStyle
@@ -86,7 +80,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
-                        handleClose={helpHandleClose}
+                        onClose={onClose}
                         xCoord={xCoordEvent.current!} //should change this
                         yCoord={yCoordEvent.current!}
                         eventHeight={eventBodyHeight}

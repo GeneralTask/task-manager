@@ -9,6 +9,7 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import ReactDOM from 'react-dom'
+import { useClickOutside } from '../../hooks'
 
 export const POPUP_WIDTH = '315px'
 export const WINDOW_HEIGHT = window.innerHeight
@@ -140,13 +141,13 @@ const Description = styled.span`
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    handleClose: React.MouseEventHandler<HTMLButtonElement>
+    onClose: () => void
     xCoord: number
     yCoord: number
     eventHeight: number
 }
 
-const EventDetailPopup = ({ event, date, handleClose, xCoord, yCoord, eventHeight }: EventDetailProps) => {
+const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps) => {
     const startTime = DateTime.fromISO(event.datetime_start)
     const endTime = DateTime.fromISO(event.datetime_end)
 
@@ -163,6 +164,9 @@ const EventDetailPopup = ({ event, date, handleClose, xCoord, yCoord, eventHeigh
         setHeight(ref.current.getBoundingClientRect().height)
     })
 
+    // when user clicks outside of popup, close it
+    useClickOutside(ref, onClose)
+
     return ReactDOM.createPortal(
         <>
             <EventBoxStyle xCoord={xCoord} yCoord={yCoord} popupHeight={height} eventHeight={eventHeight} ref={ref}>
@@ -171,7 +175,12 @@ const EventDetailPopup = ({ event, date, handleClose, xCoord, yCoord, eventHeigh
                         <Icon source={logos.gcal} size="xSmall" />
                         <EventHeaderIcons>
                             <Icon source={icons.trash_gray} size="xSmall" />
-                            <CloseButton onClick={handleClose}>
+                            <CloseButton
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    onClose()
+                                }}
+                            >
                                 <Icon source={icons.exit} size="small" />
                             </CloseButton>
                         </EventHeaderIcons>
