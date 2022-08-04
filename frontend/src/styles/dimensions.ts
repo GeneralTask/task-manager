@@ -15,9 +15,9 @@ export const modalSize = {
         width: 'fit-content',
     },
     small: {
-        max_height: '620px',
-        min_height: '620px',
-        width: '723px',
+        max_height: '440px',
+        min_height: '440px',
+        width: '478px',
     },
     medium: {
         max_height: '620px',
