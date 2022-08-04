@@ -34,12 +34,15 @@ func TestMigrate007(t *testing.T) {
 			AccountID:  "test_migrate_007",
 			ServiceID:  external.TASK_SERVICE_ID_GOOGLE,
 			IsBadToken: false,
+			Token:      "{ google-token-string }",
 		})
+		slackID := primitive.NewObjectID()
 		externalTokenCollection.InsertOne(dbCtx, database.ExternalAPIToken{
-			ID:         primitive.NewObjectID(),
+			ID:         slackID,
 			AccountID:  "test_migrate_007",
 			ServiceID:  external.TASK_SERVICE_ID_SLACK,
 			IsBadToken: false,
+			Token:      "{ slack-token-string }",
 		})
 
 		err = migrate.Steps(1)
@@ -55,6 +58,15 @@ func TestMigrate007(t *testing.T) {
 		assert.Equal(t, external.TASK_SERVICE_ID_GOOGLE, result.ServiceID)
 		assert.Equal(t, googleID, result.ID)
 		assert.Equal(t, "{}", result.Token)
+
+		filter = bson.M{"account_id": "test_migrate_007", "service_id": "slack"}
+		count, err = externalTokenCollection.CountDocuments(dbCtx, filter)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+		err = externalTokenCollection.FindOne(dbCtx, filter).Decode(&result)
+		assert.NoError(t, err)
+		assert.Equal(t, external.TASK_SERVICE_ID_SLACK, result.ServiceID)
+		assert.Equal(t, "{ slack-token-string }", result.Token)
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
 		err = migrate.Steps(-1)
