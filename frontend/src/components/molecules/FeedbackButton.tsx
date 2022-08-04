@@ -8,7 +8,7 @@ const FeedbackButton = () => {
     const [modalIsOpen, setModalIsOpen] = useState(false)
     const [feedback, setFeedback] = useState('')
     const { mutate: postFeedback } = usePostFeedback()
-    const submitFeedback = async () => {
+    const submitFeedback = () => {
         postFeedback({ feedback: feedback })
     }
     return (

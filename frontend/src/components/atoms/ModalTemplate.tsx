@@ -95,12 +95,10 @@ const ModalTemplate = (props: ModalTemplateProps) => {
                     )}
                 </Header>
                 {props.children && <Body>{props.children}</Body>}
-                {(props.leftButtons || props.rightButtons) && (
-                    <Footer>
-                        <ButtonsGroup>{props.leftButtons}</ButtonsGroup>
-                        {props.rightButtons && <ButtonsGroup>{props.rightButtons}</ButtonsGroup>}
-                    </Footer>
-                )}
+                <Footer>
+                    {props.leftButtons && <ButtonsGroup>{props.leftButtons}</ButtonsGroup>}
+                    {props.rightButtons && <ButtonsGroup>{props.rightButtons}</ButtonsGroup>}
+                </Footer>
             </ModalContainer>
         </Modal>
     )

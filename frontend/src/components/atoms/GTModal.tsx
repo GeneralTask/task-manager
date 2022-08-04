@@ -18,7 +18,7 @@ const GTModal = (props: GTModalProps) => {
     }
     return (
         <ModalTemplate
-            type="default"
+            type="small"
             isOpen={props.isOpen}
             canClose={props.canClose ?? true}
             onClose={handleClose}
