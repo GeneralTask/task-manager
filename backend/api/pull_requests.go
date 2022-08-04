@@ -98,10 +98,12 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	}
 	for _, repositoryResult := range repositoryResults {
 		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
-			if repositoryResult.PullRequests[i].Status.Text < repositoryResult.PullRequests[j].Status.Text {
-				return repositoryResult.PullRequests[i].LastUpdatedAt < repositoryResult.PullRequests[j].LastUpdatedAt
+			left := repositoryResult.PullRequests[i]
+			right := repositoryResult.PullRequests[j]
+			if left.Status.Text == right.Status.Text {
+				return left.LastUpdatedAt < right.LastUpdatedAt
 			}
-			return external.ActionOrdering[repositoryResult.PullRequests[i].Status.Text] < external.ActionOrdering[repositoryResult.PullRequests[j].Status.Text]
+			return external.ActionOrdering[left.Status.Text] < external.ActionOrdering[right.Status.Text]
 		})
 	}
 	c.JSON(200, repositoryResults)
