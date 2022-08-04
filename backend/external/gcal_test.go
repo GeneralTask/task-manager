@@ -565,20 +565,13 @@ func TestModifyEvent(t *testing.T) {
 			Summary:     &summary,
 			Description: &description,
 		}
-
 		expectedEvent := calendar.Event{
 			Summary:     summary,
 			Description: description,
 		}
-
-		server := getEventModifyServer(t, &expectedEvent)
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent)
 		defer server.Close()
 
-		googleCalendar := GoogleCalendarSource{
-			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
-			},
-		}
 		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
@@ -679,8 +672,8 @@ func getEventDeleteServer(t *testing.T, expectedRequestURI string) *httptest.Ser
 	}))
 }
 
-func getEventModifyServer(t *testing.T, expectedEvent *calendar.Event) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func getEventModifyGoogleCalendar(t *testing.T, expectedEvent *calendar.Event) (*GoogleCalendarSource, *httptest.Server) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if expectedEvent == nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err := w.Write([]byte(`{"detail": "gcal internal error"}`))
@@ -700,4 +693,10 @@ func getEventModifyServer(t *testing.T, expectedEvent *calendar.Event) *httptest
 		assert.NoError(t, err)
 		return
 	}))
+	googleCalendar := &GoogleCalendarSource{
+		Google: GoogleService{
+			OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+		},
+	}
+	return googleCalendar, server
 }
