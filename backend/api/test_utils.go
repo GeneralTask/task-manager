@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -293,12 +294,6 @@ func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder
 
 func createRandomGTEmail() string {
 	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
-}
-
-func assertThreadEmailsIsUnreadState(t *testing.T, threadItem database.Item, isUnread bool) {
-	for _, email := range threadItem.Emails {
-		assert.Equal(t, isUnread, email.IsUnread)
-	}
 }
 
 func ServeRequest(

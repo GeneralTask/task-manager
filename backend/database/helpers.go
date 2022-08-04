@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/chidiwilliams/flatbson"
@@ -80,41 +79,6 @@ func UpdateOrCreateItem(
 		return nil, err
 	}
 	return &item, nil
-}
-
-func GetEmailFromMessageID(ctx context.Context, messageID primitive.ObjectID, userID primitive.ObjectID) (*Email, error) {
-	parentCtx := ctx
-	db, dbCleanup, err := GetDBConnection()
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
-	taskCollection := GetTaskCollection(db)
-
-	var thread Item
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"email_thread.emails.message_id": messageID},
-			{"user_id": userID},
-		}},
-		options.FindOne().SetProjection(bson.M{"email_thread.emails.$": 1}),
-	).Decode(&thread)
-	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to get email with messageID: %+v", messageID)
-		return nil, err
-	}
-
-	if len(thread.EmailThread.Emails) == 0 {
-		logger.Error().Msgf("Failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
-		return nil, fmt.Errorf("failed to get email with messageID: %+v, thread Item %+v has empty Emails list", messageID, thread)
-	}
-	return &thread.EmailThread.Emails[0], nil
 }
 
 func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
@@ -275,104 +239,6 @@ func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 		return nil, err
 	}
 	return &items, nil
-}
-
-func GetEmails(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, pagination Pagination) (*[]Item, error) {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	opts := options.FindOptions{
-		Sort: bson.D{{Key: "created_at_external", Value: -1}},
-	}
-	if IsValidPagination(pagination) {
-		limit := int64(*pagination.Limit)
-		skip := int64(*pagination.Page-1) * limit
-		opts.Skip = &skip
-		opts.Limit = &limit
-	}
-	filter := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-			{"task_type.is_message": true},
-		},
-	}
-	if onlyUnread {
-		filter["$and"] = append(filter["$and"].([]bson.M), bson.M{"email.is_unread": true})
-	}
-	cursor, err := GetTaskCollection(db).Find(
-		dbCtx,
-		filter,
-		&opts,
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch emails for user with pagination: %v", pagination)
-		return nil, err
-	}
-	var activeEmails []Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &activeEmails)
-	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch emails for user with pagination: %v", pagination)
-		return nil, err
-	}
-	return &activeEmails, nil
-}
-
-func GetEmailThreads(db *mongo.Database, userID primitive.ObjectID, onlyUnread bool, isArchived bool, pagination Pagination, additionalFilters *[]bson.M) (*[]Item, error) {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	opts := options.FindOptions{
-		Sort: bson.D{{Key: "email_thread.last_updated_at", Value: -1}},
-	}
-	if IsValidPagination(pagination) {
-		limit := int64(*pagination.Limit)
-		skip := int64(*pagination.Page-1) * limit
-		opts.Skip = &skip
-		opts.Limit = &limit
-	}
-	filter := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-			{"task_type.is_thread": true},
-			{"email_thread.is_archived": isArchived},
-		},
-	}
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, additionalFilter := range *additionalFilters {
-			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
-		}
-	}
-	if onlyUnread {
-		isUnreadFilter := bson.M{
-			"email_thread.emails": bson.M{
-				"$elemMatch": bson.M{"is_unread": true},
-			},
-		}
-		filter["$and"] = append(filter["$and"].([]bson.M), isUnreadFilter)
-	}
-
-	cursor, err := GetTaskCollection(db).Find(
-		dbCtx,
-		filter,
-		&opts,
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch threads for user with pagination: %v", pagination)
-		return nil, err
-	}
-	var activeEmails []Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &activeEmails)
-	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to fetch threads for user with pagination: %v", pagination)
-		return nil, err
-	}
-	return &activeEmails, nil
 }
 
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
@@ -628,14 +494,6 @@ func GetWaitlistCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("waitlist")
 }
 
-func GetJiraSitesCollection(db *mongo.Database) *mongo.Collection {
-	return db.Collection("jira_sites")
-}
-
-func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
-	return db.Collection("jira_priorities")
-}
-
 func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("oauth1_request_secrets")
 }
@@ -657,22 +515,6 @@ func IsValidPagination(pagination Pagination) bool {
 		return false
 	}
 	return *pagination.Limit > 0 && *pagination.Page > 0
-}
-
-func EmailItemToChangeable(email *Item) *EmailItemChangeable {
-	return &EmailItemChangeable{
-		Email: email.Email,
-	}
-}
-
-func ThreadItemToChangeable(thread *Item) *ThreadItemChangeable {
-	return &ThreadItemChangeable{
-		EmailThreadChangeable: EmailThreadChangeable{
-			ThreadID:      thread.EmailThread.ThreadID,
-			LastUpdatedAt: thread.EmailThread.LastUpdatedAt,
-			Emails:        thread.EmailThread.Emails,
-		},
-	}
 }
 
 func FlattenStruct(s interface{}) (map[string]interface{}, error) {

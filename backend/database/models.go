@@ -60,20 +60,6 @@ type ExternalAPITokenChangeable struct {
 	NextRefreshPageToken    string `bson:"next_refresh_page"`
 }
 
-type AtlassianSiteConfiguration struct {
-	ID      primitive.ObjectID `bson:"_id,omitempty"`
-	UserID  primitive.ObjectID `bson:"user_id"`
-	CloudID string             `bson:"cloud_id"`
-	SiteURL string             `bson:"site_url"`
-}
-
-type JIRAPriority struct {
-	ID              primitive.ObjectID `bson:"_id,omitempty"`
-	UserID          primitive.ObjectID `bson:"user_id"`
-	JIRAID          string             `bson:"jira_id"`
-	IntegerPriority int                `bson:"integer_priority"`
-}
-
 type StateToken struct {
 	Token       primitive.ObjectID `bson:"_id,omitempty"`
 	UserID      primitive.ObjectID `bson:"user_id"`
@@ -90,8 +76,6 @@ type Item struct {
 	TaskBase           `bson:",inline"`
 	TaskType           `bson:"task_type"`
 	Task               `bson:"task,omitempty"`
-	Email              `bson:"email,omitempty"`
-	EmailThread        `bson:"email_thread,omitempty"`
 	CalendarEvent      `bson:"calendar_event,omitempty"`
 	PullRequest        `bson:"pull_request,omitempty"`
 	SlackMessageParams `bson:"slack_message_params,omitempty"`
@@ -131,7 +115,6 @@ type SlackMessage struct {
 type TaskType struct {
 	IsTask        bool `bson:"is_task"`
 	IsMessage     bool `bson:"is_message"`
-	IsThread      bool `bson:"is_thread"`
 	IsEvent       bool `bson:"is_event"`
 	IsPullRequest bool `bson:"is_pull_request"`
 }
@@ -139,7 +122,6 @@ type TaskType struct {
 type TaskTypeChangeable struct {
 	IsTask        *bool `bson:"is_task,omitempty"`
 	IsMessage     *bool `bson:"is_message,omitempty"`
-	IsThread      *bool `bson:"is_thread,omitempty"`
 	IsEvent       *bool `bson:"is_event,omitempty"`
 	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
 }
@@ -203,43 +185,9 @@ type CalendarEventChangeableFields struct {
 	Body          string `bson:"body,omitempty"`
 }
 
-type EmailThread struct {
-	ThreadID      string             `bson:"thread_id" json:"thread_id"`
-	LastUpdatedAt primitive.DateTime `bson:"last_updated_at" json:"last_updated_at"`
-	Emails        []Email            `bson:"emails,omitempty" json:"emails,omitempty"`
-	IsArchived    bool               `bson:"is_archived" json:"is_archived"`
-}
-
-type Email struct {
-	MessageID      primitive.ObjectID `bson:"message_id" json:"message_id"`
-	SMTPID         string             `bson:"smtp_id" json:"smtp_id"`
-	ThreadID       string             `bson:"thread_id" json:"thread_id"`
-	EmailID        string             `bson:"email_id" json:"email_id"`
-	Subject        string             `bson:"subject" json:"subject"`
-	Body           string             `bson:"body" json:"body"`
-	SenderDomain   string             `bson:"sender_domain" json:"sender_domain"`
-	SenderEmail    string             `bson:"sender_email" json:"sender_email"`
-	SenderName     string             `bson:"sender_name" json:"sender_name"`
-	ReplyTo        string             `bson:"reply_to" json:"reply_to"`
-	IsUnread       bool               `bson:"is_unread" json:"is_unread"`
-	Recipients     Recipients         `bson:"recipients" json:"recipients"`
-	SentAt         primitive.DateTime `bson:"sent_at" json:"sent_at"`
-	NumAttachments int                `bson:"num_attachments" json:"num_attachments"`
-}
-
-type EmailChangeable struct {
-	IsUnread *bool `bson:"is_unread,omitempty"`
-}
-
 type MessageChangeable struct {
-	EmailChangeable `bson:"email,omitempty"`
-	TaskType        *TaskTypeChangeable `bson:"task_type,omitempty"`
-	IsCompleted     *bool               `bson:"is_completed,omitempty"`
-}
-
-type LinkedMessage struct {
-	ThreadID *primitive.ObjectID `bson:"thread_id"`
-	EmailID  *primitive.ObjectID `bson:"email_id"`
+	TaskType    *TaskTypeChangeable `bson:"task_type,omitempty"`
+	IsCompleted *bool               `bson:"is_completed,omitempty"`
 }
 
 type ExternalUser struct {
@@ -262,10 +210,9 @@ type ExternalTaskStatus struct {
 }
 
 type Task struct {
-	PriorityID         string  `bson:"priority_id"`
-	PriorityNormalized float64 `bson:"priority_normalized"`
-	TaskNumber         int     `bson:"task_number"`
-	LinkedMessage      `bson:"linked_message"`
+	PriorityID         string             `bson:"priority_id"`
+	PriorityNormalized float64            `bson:"priority_normalized"`
+	TaskNumber         int                `bson:"task_number"`
 	Comments           *[]Comment         `bson:"comments"`
 	Status             ExternalTaskStatus `bson:"status"`
 	// Used to cache the current status before marking the task as done
@@ -274,10 +221,9 @@ type Task struct {
 }
 
 type TaskChangeable struct {
-	PriorityID         *string  `bson:"priority_id,omitempty"`
-	PriorityNormalized *float64 `bson:"priority_normalized,omitempty"`
-	TaskNumber         *int     `bson:"task_number,omitempty"`
-	LinkedMessage      `bson:"linked_message,omitempty"`
+	PriorityID         *string             `bson:"priority_id,omitempty"`
+	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
+	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	Status             *ExternalTaskStatus `bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
@@ -349,22 +295,6 @@ type Recipients struct {
 type Recipient struct {
 	Name  string `bson:"name" json:"name"`
 	Email string `bson:"email" json:"email"`
-}
-
-type EmailItemChangeable struct {
-	Email `bson:"email,omitempty"`
-}
-
-type EmailThreadChangeable struct {
-	ThreadID      string             `bson:"thread_id,omitempty"`
-	LastUpdatedAt primitive.DateTime `bson:"last_updated_at,omitempty"`
-	Emails        []Email            `bson:"emails,omitempty"`
-	IsArchived    *bool              `bson:"is_archived,omitempty"`
-}
-
-type ThreadItemChangeable struct {
-	EmailThreadChangeable `bson:"email_thread,omitempty"`
-	TaskTypeChangeable    *TaskTypeChangeable `bson:"task_type,omitempty"`
 }
 
 type View struct {
