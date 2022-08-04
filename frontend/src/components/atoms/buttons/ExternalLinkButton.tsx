@@ -1,4 +1,4 @@
-import { Border, Colors, Shadows, Typography } from '../../../styles'
+import { Border, Colors, Shadows } from '../../../styles'
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from '../Icon'
@@ -23,8 +23,10 @@ const Button = styled.button`
     border-radius: ${Border.radius.medium};
     cursor: pointer;
 
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 510;
     color: ${Colors.text.black};
-    ${Typography.label};
 `
 
 interface LinkButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

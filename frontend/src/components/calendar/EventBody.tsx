@@ -43,9 +43,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    const ref = useRef<HTMLDivElement>(null) // get access to component in DOM
+    const ref = useRef<HTMLDivElement>(null)
 
-    // define the x-coord and y-coord of the event to be the bottom left corner
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
 
@@ -60,6 +59,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             return
         }
 
+        // Define the x-coord and y-coord of the event to be the bottom left corner
         const pos = ref.current.getBoundingClientRect()
         xCoordEvent.current = pos.left
         yCoordEvent.current = pos.bottom
@@ -81,8 +81,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         event={props.event}
                         date={props.date}
                         onClose={onClose}
-                        xCoord={xCoordEvent.current!} //should change this
-                        yCoord={yCoordEvent.current!}
+                        xCoord={xCoordEvent.current as number}
+                        yCoord={yCoordEvent.current as number}
                         eventHeight={eventBodyHeight}
                     />
                 )}
