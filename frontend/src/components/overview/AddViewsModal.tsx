@@ -65,7 +65,7 @@ const AddViewsModalContent = () => {
                     {supportedView.is_linked ? (
                         <SupportedView>
                             <SupportedViewContent>
-                                <Icon source={logos[supportedView.logo]} size="small" />
+                                <Icon icon={logos[supportedView.logo]} size="small" />
                                 {supportedView.name}
                             </SupportedViewContent>
                             {!supportedView.is_nested && supportedView.views.length === 1 && (
@@ -88,17 +88,14 @@ const AddViewsModalContent = () => {
                         />
                     )}
                     {/* Do not show divider if this is the last item in the list */}
-                    {
-                        ((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
-                            (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />
-                    }
-                    {
-                        supportedView.is_nested &&
+                    {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
+                        (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />}
+                    {supportedView.is_nested &&
                         supportedView.views.map((supportedViewItem, viewItemIndex) => (
                             <Fragment key={viewItemIndex}>
                                 <SupportedView isIndented>
                                     <SupportedViewContent>
-                                        <Icon source={logos[supportedView.logo]} size="small" />
+                                        <Icon icon={logos[supportedView.logo]} size="small" />
                                         {supportedViewItem.name}
                                     </SupportedViewContent>
                                     <GTCheckbox
@@ -112,9 +109,8 @@ const AddViewsModalContent = () => {
                                 {(viewIndex !== supportedViews.length - 1 ||
                                     viewItemIndex !== supportedView.views.length - 1) && <Divider />}
                             </Fragment>
-                        ))
-                    }
-                </Fragment >
+                        ))}
+                </Fragment>
             ))}
         </>
     )

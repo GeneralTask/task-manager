@@ -28,6 +28,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-pro": "^6.1.2",
     "@fortawesome/fontawesome-svg-core": "^6.1.2",
+    "@fortawesome/free-brands-svg-icons": "^6.1.2",
     "@fortawesome/pro-duotone-svg-icons": "^6.1.2",
     "@fortawesome/pro-light-svg-icons": "^6.1.2",
     "@fortawesome/pro-regular-svg-icons": "^6.1.2",

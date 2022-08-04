@@ -2,7 +2,8 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from '../Icon'
-import { icons, TIconImage } from '../../../styles/images'
+import { TIconColor } from '../../../styles/colors'
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 
 const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
     display: flex;
@@ -44,12 +45,13 @@ const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: bo
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     styleType?: 'primary' | 'secondary'
     wrapText?: boolean
-    iconSource?: TIconImage
+    icon?: IconDefinition
+    iconColor?: TIconColor
 }
 const GTButton = (props: GTButtonProps) => {
     return (
         <Button styleType={props.styleType || 'primary'} wrapText={props.wrapText} {...props}>
-            {props.iconSource && <Icon size="small" source={icons[props.iconSource]} />}
+            {props.icon && <Icon size="small" icon={props.icon} color={props.iconColor} />}
             {props.value}
         </Button>
     )

@@ -6,6 +6,7 @@ import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks
 import styled from 'styled-components'
 import GTButton from '../atoms/buttons/GTButton'
 import { useNavigate } from 'react-router-dom'
+import { logos } from '../../styles/images'
 
 const NavigationViewContainer = styled.div`
     display: flex;
@@ -38,7 +39,7 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer>
             <NavigationViewHeader>
-                <Icon size="medium" />
+                <Icon size="medium" icon={logos['generaltask']} />
             </NavigationViewHeader>
             <OverflowContainer>
                 <NavigationSectionLinks />

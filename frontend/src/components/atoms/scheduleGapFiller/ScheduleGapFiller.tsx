@@ -126,7 +126,7 @@ const ScheduleGapFiller = () => {
                 <FooterText>
                     <NoStyleAnchor href={link}>
                         <DeeplinkText>
-                            <Icon size="large" source={logos[actions[recommendationIndex].logo]} />
+                            <Icon size="large" icon={logos[actions[recommendationIndex].logo]} />
                             <RecommendationText>{actions[recommendationIndex].title}</RecommendationText>
                         </DeeplinkText>
                     </NoStyleAnchor>
@@ -136,12 +136,12 @@ const ScheduleGapFiller = () => {
                                 <CursorPointerDiv
                                     onClick={() => setRecommendation((recommendationIndex - 1) % numEvents)}
                                 >
-                                    <Icon source={icons.caret_left} size="small" />
+                                    <Icon icon={icons.caret_left} size="small" />
                                 </CursorPointerDiv>
                                 <CursorPointerDiv
                                     onClick={() => setRecommendation((recommendationIndex + 1) % numEvents)}
                                 >
-                                    <Icon source={icons.caret_right} size="small" />
+                                    <Icon icon={icons.caret_right} size="small" />
                                 </CursorPointerDiv>
                             </CursorArea>
                             <CursorText>

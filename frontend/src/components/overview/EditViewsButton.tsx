@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
+import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import AddViewsModal from './AddViewsModal'
 import EditViewsModal from './EditViewsModal'
@@ -18,7 +19,7 @@ const EditViewsButton = () => {
     const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
     return (
         <>
-            <GTButtonMarginBottom styleType="secondary" iconSource="gear" onClick={openModal} value="Edit Views" />
+            <GTButtonMarginBottom styleType="secondary" icon={icons.gear} onClick={openModal} value="Edit Views" />
             <EditViewsModal
                 isOpen={pageState === 'EDIT'}
                 onClose={handleClose}

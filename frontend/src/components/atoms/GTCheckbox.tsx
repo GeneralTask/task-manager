@@ -1,4 +1,5 @@
 import React from 'react'
+import { Colors } from '../../styles'
 import { TIconSize } from '../../styles/dimensions'
 import { icons } from '../../styles/images'
 import NoStyleButton from './buttons/NoStyleButton'
@@ -18,7 +19,7 @@ const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) =>
     size = size || 'small'
     return (
         <NoStyleButton onClick={onClickHandler} disabled={disabled}>
-            <Icon size={size} source={isChecked ? icons.task_complete : icons.task_incomplete} />
+            <Icon size={size} icon={isChecked ? icons.check : icons.check_unchecked} color={Colors.icon.purple} />
         </NoStyleButton>
     )
 }

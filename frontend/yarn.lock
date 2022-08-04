@@ -1193,6 +1193,13 @@
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.1.2"
 
+"@fortawesome/free-brands-svg-icons@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-brands-svg-icons/-/free-brands-svg-icons-6.1.2.tgz#14160348b8ad5986b3805797dc4377a96e0014d9"
+  integrity sha512-b2eMfXQBsSxh52pcPtYchURQs6BWNh3zVTG8XH8Lv6V4kDhEg7D0kHN+K1SZniDiPb/e5tBlaygsinMUvetITA==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "6.1.2"
+
 "@fortawesome/pro-duotone-svg-icons@^6.1.2":
   version "6.1.2"
   resolved "https://npm.fontawesome.com/@fortawesome/pro-duotone-svg-icons/-/6.1.2/pro-duotone-svg-icons-6.1.2.tgz#a562da19bacbb58da355bb4ad27f53f13702053a"

@@ -86,7 +86,7 @@ const GTModal = (props: GTModalProps) => {
                 <Header>
                     <div>{props.title}</div>
                     <CloseButton onClick={handleClose}>
-                        <Icon size="small" source={icons.x} />
+                        <Icon size="small" icon={icons.x} />
                     </CloseButton>
                 </Header>
                 {props.children && <Body>{props.children}</Body>}

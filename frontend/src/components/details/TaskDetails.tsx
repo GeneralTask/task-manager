@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos, linearStatus } from '../../styles/images'
+import { logos, icons } from '../../styles/images'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
@@ -194,7 +194,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <Icon icon={logos[task.source.logo_v2]} size="small" />
                 </MarginRight8>
                 {!task.isOptimistic && (
                     <>
@@ -211,7 +211,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                     <GTButton
                                         styleType="secondary"
                                         value={task.source.name}
-                                        iconSource="external_link"
+                                        icon={icons.external_link}
                                     />
                                 </NoStyleAnchor>
                             )}
@@ -232,7 +232,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             />
             {task.external_status && (
                 <StatusContainer>
-                    <Icon source={linearStatus[task.external_status.type]} size="small" /> {status}
+                    {/* <Icon icon={linearStatus[task.external_status.type]} size="small" /> TODO: upload linear icons to FA */}{' '}
+                    {status}
                 </StatusContainer>
             )}
             {task.isOptimistic ? (

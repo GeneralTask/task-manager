@@ -113,7 +113,7 @@ const Task = ({
                     isSelected={isSelected}
                 />
                 <IconContainer>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <Icon icon={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
                 <Title data-testid="task-title">{task.title}</Title>
             </ItemContainer>

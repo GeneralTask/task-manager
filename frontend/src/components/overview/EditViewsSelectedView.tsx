@@ -33,10 +33,10 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
         >
             <SelectedView key={view.id} ref={dragPreview}>
                 <Domino ref={drag} />
-                <Icon source={logos[view.logo]} size="small" />
+                <Icon icon={logos[view.logo]} size="small" />
                 {view.name}
                 <EditViewsDeleteButton onClick={() => removeView(view.id)}>
-                    <Icon source={icons.x_thin} size="small" />
+                    <Icon icon={icons.x} size="small" />
                 </EditViewsDeleteButton>
             </SelectedView>
         </ReorderDropContainer>

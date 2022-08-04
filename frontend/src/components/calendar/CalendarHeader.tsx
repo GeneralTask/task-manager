@@ -112,13 +112,13 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                     <HeaderIconsContainer>
                         <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
                             {isCalendarExpanded ? (
-                                <Icon source={icons.arrows_in} size="small" />
+                                <Icon icon={icons.arrows_in} size="small" />
                             ) : (
-                                <Icon source={icons.arrows_out} size="small" />
+                                <Icon icon={icons.arrows_out} size="small" />
                             )}
                         </ArrowButton>
                         <CaretButton onClick={() => collapseCalendar()}>
-                            <Icon source={icons.caret_right} size="small" />
+                            <Icon icon={icons.caret_right} size="small" />
                         </CaretButton>
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
@@ -140,10 +140,10 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                             Today
                         </HoverButton>
                         <CaretButton onClick={selectPrevious}>
-                            <Icon source={icons.caret_left} size="small" />
+                            <Icon icon={icons.caret_left} size="small" />
                         </CaretButton>
                         <CaretButton onClick={selectNext}>
-                            <Icon source={icons.caret_right} size="small" />
+                            <Icon icon={icons.caret_right} size="small" />
                         </CaretButton>
                     </ButtonContainer>
                 </HeaderBodyContainer>

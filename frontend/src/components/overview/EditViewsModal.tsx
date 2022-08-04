@@ -50,7 +50,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             leftButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             rightButtons={
                 <AddViewsButton onClick={goToAddViewsView}>
-                    <Icon source={icons.plus} size="small" />
+                    <Icon icon={icons.plus} size="small" />
                     Add views
                 </AddViewsButton>
             }
