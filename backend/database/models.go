@@ -178,13 +178,17 @@ type PullRequest struct {
 	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
 }
 
+type PullRequestItemChangeable struct {
+	PullRequestChangeableFields `bson:"pull_request,omitempty"`
+	Title                       *string `bson:"title,omitempty"`
+	Body                        *string `bson:"body,omitempty"`
+	IsCompleted                 *bool   `bson:"is_completed,omitempty"`
+}
+
 type PullRequestChangeableFields struct {
-	Title          string             `bson:"title,omitempty"`
-	Body           string             `bson:"body,omitempty"`
-	RequiredAction string             `bson:"required_action"`
-	CommentCount   int                `bson:"comment_count"`
-	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
-	IsCompleted    *bool              `bson:"is_completed,omitempty"`
+	RequiredAction *string             `bson:"required_action",omitempty`
+	CommentCount   *int                `bson:"comment_count",omitempty`
+	LastUpdatedAt  *primitive.DateTime `bson:"last_updated_at",omitempty`
 }
 
 type CalendarEvent struct {
