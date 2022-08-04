@@ -78,6 +78,8 @@ interface WeekCalendarEventsProps {
     groups: TEvent[][]
     eventDetailId: string
     setEventDetailId: (id: string) => void
+    disableScroll: boolean
+    setDisableScroll: (id: boolean) => void
 }
 const WeekCalendarEvents = ({
     date,
@@ -85,6 +87,8 @@ const WeekCalendarEvents = ({
     groups,
     eventDetailId,
     setEventDetailId,
+    disableScroll,
+    setDisableScroll,
 }: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
@@ -106,6 +110,8 @@ const WeekCalendarEvents = ({
                         date={tmpDate}
                         eventDetailId={eventDetailId}
                         setEventDetailId={setEventDetailId}
+                        disableScroll={disableScroll}
+                        setDisableScroll={setDisableScroll}
                     />
                 ))}
                 <TimeIndicator />
@@ -135,6 +141,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
+    const [disableScroll, setDisableScroll] = useState(false)
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -224,7 +231,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
 
     // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (
-        <AllDaysContainer ref={eventsContainerRef}>
+        <AllDaysContainer ref={eventsContainerRef} disableScroll={disableScroll}>
             <TimeAndHeaderContainer>
                 {expandedCalendar && <CalendarDayHeader />}
                 <TimeContainer>
@@ -240,6 +247,8 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     groups={groups}
                     eventDetailId={eventDetailsID}
                     setEventDetailId={setEventDetailsID}
+                    disableScroll={disableScroll}
+                    setDisableScroll={setDisableScroll}
                 />
             ))}
         </AllDaysContainer>

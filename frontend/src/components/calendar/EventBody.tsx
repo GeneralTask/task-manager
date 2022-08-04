@@ -23,6 +23,8 @@ interface EventBodyProps {
     leftOffset: number
     date: DateTime
     isSelected: boolean
+    disableScroll: boolean
+    setDisableScroll: (id: boolean) => void
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const eventRef = useRef<HTMLDivElement>(null)
@@ -46,8 +48,13 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
 
+    const onClose = () => {
+        props.setEventDetailId('')
+        props.setDisableScroll(false)
+    }
     const onClick = () => {
         props.setEventDetailId(props.event.id)
+        props.setDisableScroll(!props.disableScroll)
         if (!eventRef.current) return
         // Define the x-coord and y-coord of the event to be the bottom left corner
         const pos = eventRef.current.getBoundingClientRect()
@@ -70,7 +77,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
-                        onClose={() => props.setEventDetailId('')}
+                        onClose={onClose}
                         xCoord={xCoordEvent.current as number}
                         yCoord={yCoordEvent.current as number}
                         eventHeight={eventBodyHeight}
