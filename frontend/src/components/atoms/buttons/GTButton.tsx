@@ -3,7 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Icon } from '../Icon'
 import { TIconColor } from '../../../styles/colors'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 
 const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
     display: flex;
@@ -45,7 +45,7 @@ const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: bo
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     styleType?: 'primary' | 'secondary'
     wrapText?: boolean
-    icon?: IconDefinition
+    icon?: IconProp
     iconColor?: TIconColor
 }
 const GTButton = (props: GTButtonProps) => {

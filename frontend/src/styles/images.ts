@@ -1,14 +1,16 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
-import { faArrowDownLeftAndArrowUpRightToCenter, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCalendar, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faInbox, faList, faPencil, faPlus, faSpinner, faSquare, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-light-svg-icons'
+import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCalendar, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faInbox, faList, faPencil, faPlus, faSquare, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-light-svg-icons'
 
-export const logos: { [key: string]: IconDefinition } = {
-    generaltask: faSquare,  // missing icon
+
+
+export const logos: { [key: string]: IconProp | string } = {
+    generaltask: 'fak fa-gt-logo',  // custom icon
     github: faGithub,
     gmail: faGoogle,
-    gcal: faGoogle,         // missing icon
-    google_meet: faGoogle,  // missing icon
-    linear: faSquare,       // missing icon
+    gcal: faGoogle,                 // missing icon
+    google_meet: faGoogle,          // missing icon
+    linear: faSquare,               // missing icon
     slack: faSlack,
 }
 
@@ -36,7 +38,7 @@ export const icons = Object.freeze({
     repository: faCubes,
     hamburger: faBars,
     comment: faComment,
-    spinner: faSpinner,
+    spinner: faArrowRotateRight,
     timer: faTimer,
     trash: faTrash,
     x: faXmark,

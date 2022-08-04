@@ -3,8 +3,7 @@ import { TIconSize } from '../../styles/dimensions'
 import React from 'react'
 import styled from 'styled-components'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
-import { logos } from '../../styles/images'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 
 const IconContainer = styled.div<{ width: string; height: string }>`
     width: ${(props) => props.width};
@@ -20,7 +19,7 @@ const IconContainer = styled.div<{ width: string; height: string }>`
 // `
 
 interface IconProps {
-    icon?: IconDefinition
+    icon: IconProp | string
     size: TIconSize
     color?: string
 }
@@ -30,7 +29,11 @@ export const Icon = (props: IconProps) => {
 
     return (
         <IconContainer width={dimension} height={dimension}>
-            <FontAwesomeIcon icon={props.icon || logos['generaltask']} color={iconColor} />
+            {typeof props.icon === 'string' ? (
+                <i className={props.icon}></i>
+            ) : (
+                <FontAwesomeIcon icon={props.icon} color={iconColor} />
+            )}
         </IconContainer>
     )
 }

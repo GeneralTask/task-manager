@@ -1,4 +1,4 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import React, { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
@@ -50,7 +50,7 @@ interface NavigationLinkProps {
     isCurrentPage: boolean
     link: string
     title: string
-    icon?: IconDefinition
+    icon?: IconProp | string
     taskSection?: TTaskSection
     count?: number
     droppable?: boolean
@@ -105,7 +105,7 @@ const NavigationLink = ({
     return (
         <NavigationLinkTemplate onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
-                <Icon size="xSmall" icon={icon} />
+                {icon && <Icon size="xSmall" icon={icon} />}
                 <SectionTitle>{title}</SectionTitle>
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>

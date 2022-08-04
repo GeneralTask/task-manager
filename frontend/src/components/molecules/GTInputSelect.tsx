@@ -5,7 +5,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
@@ -65,7 +65,7 @@ interface Props {
     placeholder?: string
     pattern?: string
     invalidInput?: string
-    inputIcon?: IconDefinition
+    inputIcon?: IconProp
 }
 
 function GTInputSelect(props: Props): JSX.Element {

@@ -6,6 +6,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import styled from 'styled-components/'
 import { useNavigate } from 'react-router-dom'
+import { logos } from '../../styles/images'
 
 const Footer = styled.div`
     position: sticky;
@@ -37,7 +38,7 @@ const UnauthorizedFooter = () => {
     return (
         <Footer>
             <FooderDiv>
-                <Icon size="medium" />
+                <Icon icon={logos.generaltask} size="medium" />
                 <FooterText>General Task, Inc. © 2022</FooterText>
             </FooderDiv>
             <FooderDiv>
