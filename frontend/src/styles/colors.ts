@@ -58,6 +58,7 @@ export const text = {
 export const icon = {
     white: WHITE,
     gray: GRAY._500,
+    purple: PURPLE._1,
     black: BLACK,
 }
 export type TIconColors = keyof typeof icon
