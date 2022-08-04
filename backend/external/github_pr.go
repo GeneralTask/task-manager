@@ -477,6 +477,10 @@ func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID 
 	return errors.New("has not been implemented yet")
 }
 
+func (gitPR GithubPRSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil

@@ -137,6 +137,10 @@ func (slackTask SlackSavedTaskSource) CreateNewEvent(userID primitive.ObjectID, 
 	return errors.New("has not been implemented yet")
 }
 
+func (slackTask SlackSavedTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+	return errors.New("has not been implemented yet")
+}
+
 func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }
