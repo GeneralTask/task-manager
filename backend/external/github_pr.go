@@ -453,7 +453,6 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 }
 
 func getPullRequestRequiredAction(data GithubPRData, userIsAuthor bool) string {
-	log.Print(userIsAuthor)
 	if userIsAuthor {
 		if !data.IsMergeable {
 			return ActionFixMergeConflicts
