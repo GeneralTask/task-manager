@@ -238,7 +238,6 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 			DisplayName: attendee.Name,
 			Email:       attendee.Email,
 		})
-
 	}
 	return &attendeesList
 }
