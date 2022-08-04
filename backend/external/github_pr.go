@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
-	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
