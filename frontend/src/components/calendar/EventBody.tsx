@@ -25,6 +25,7 @@ interface EventBodyProps {
     isSelected: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
+    const eventRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
@@ -42,25 +43,14 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
-
-    const ref = useRef<HTMLDivElement>(null)
-
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
 
-    const onClose = () => {
-        props.setEventDetailId('')
-    }
-
     const onClick = () => {
         props.setEventDetailId(props.event.id)
-
-        if (!ref.current) {
-            return
-        }
-
+        if (!eventRef.current) return
         // Define the x-coord and y-coord of the event to be the bottom left corner
-        const pos = ref.current.getBoundingClientRect()
+        const pos = eventRef.current.getBoundingClientRect()
         xCoordEvent.current = pos.left
         yCoordEvent.current = pos.bottom
     }
@@ -73,14 +63,14 @@ function EventBody(props: EventBodyProps): JSX.Element {
             topOffset={top}
             eventBodyHeight={eventBodyHeight}
             eventHasEnded={eventHasEnded}
-            ref={ref}
+            ref={eventRef}
         >
             <EventInfoContainer onClick={onClick} isSelected={props.isSelected}>
                 {props.eventDetailId === props.event.id && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
-                        onClose={onClose}
+                        onClose={() => props.setEventDetailId('')}
                         xCoord={xCoordEvent.current as number}
                         yCoord={yCoordEvent.current as number}
                         eventHeight={eventBodyHeight}

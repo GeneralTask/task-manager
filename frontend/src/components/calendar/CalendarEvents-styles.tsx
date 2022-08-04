@@ -98,8 +98,7 @@ export const EventInfoContainer = styled.div<{ isSelected: boolean }>`
     width: 100%;
     position: absolute;
     z-index: 1;
-    border: ${Border.stroke.medium} solid
-        ${(props) => (props.isSelected ? Colors.border.gray : Colors.background.medium)};
+    border: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.gray : 'inherit')};
     border-radius: ${Border.radius.medium};
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`

@@ -134,9 +134,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
-
-    // To make sure that the eventDetailsID is being updated to all events, not just the events in the same weekday
-    // Note: Redux() could have been used to avoid the multiple passing of props across different files, but since the path is not too long, I chose not to
     const [eventDetailsID, setEventDetailsID] = useState('')
 
     const allGroups = useMemo(() => {

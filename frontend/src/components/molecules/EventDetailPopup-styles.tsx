@@ -3,8 +3,8 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 import styled from 'styled-components'
 
-export const POPUP_WIDTH = '315px'
-export const WINDOW_HEIGHT = window.innerHeight
+const POPUP_WIDTH = '315px'
+const WINDOW_HEIGHT = window.innerHeight
 
 interface EventBoxStyleProps {
     xCoord: number
@@ -13,8 +13,8 @@ interface EventBoxStyleProps {
     eventHeight: number
 }
 
-// Calculates the position of the popup depending on the position of the event
-// Handles edge cases for events below max height (window height - popup height)
+/* Calculates the position of the popup depending on the position of the event
+Handles edge cases for events below max height (window height - popup height) */
 export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     position: absolute;
     box-sizing: border-box;
@@ -89,12 +89,7 @@ export const DescriptionContainer = styled.div`
     word-wrap: normal;
     overflow-wrap: anywhere;
 `
-// padding: ${Padding.size.4}
 export const CloseButton = styled(NoStyleButton)`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    isolation: isolate;
     padding: ${Spacing.padding._4};
 
     border-radius: 30vh;

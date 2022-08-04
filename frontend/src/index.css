@@ -2,9 +2,8 @@
     --animate-duration: 250ms !important;
 }
 
-#portal {
+#event-details-popup {
     position: absolute; 
-    z-index: 100; 
     left: 0px;
     top: 0px;
 }
