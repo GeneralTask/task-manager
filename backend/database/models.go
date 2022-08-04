@@ -190,11 +190,6 @@ type MessageChangeable struct {
 	IsCompleted *bool               `bson:"is_completed,omitempty"`
 }
 
-type LinkedMessage struct {
-	ThreadID *primitive.ObjectID `bson:"thread_id"`
-	EmailID  *primitive.ObjectID `bson:"email_id"`
-}
-
 type ExternalUser struct {
 	ExternalID  string `bson:"external_id"`
 	Name        string `bson:"name"`
@@ -215,10 +210,9 @@ type ExternalTaskStatus struct {
 }
 
 type Task struct {
-	PriorityID         string  `bson:"priority_id"`
-	PriorityNormalized float64 `bson:"priority_normalized"`
-	TaskNumber         int     `bson:"task_number"`
-	LinkedMessage      `bson:"linked_message"`
+	PriorityID         string             `bson:"priority_id"`
+	PriorityNormalized float64            `bson:"priority_normalized"`
+	TaskNumber         int                `bson:"task_number"`
 	Comments           *[]Comment         `bson:"comments"`
 	Status             ExternalTaskStatus `bson:"status"`
 	// Used to cache the current status before marking the task as done
@@ -227,10 +221,9 @@ type Task struct {
 }
 
 type TaskChangeable struct {
-	PriorityID         *string  `bson:"priority_id,omitempty"`
-	PriorityNormalized *float64 `bson:"priority_normalized,omitempty"`
-	TaskNumber         *int     `bson:"task_number,omitempty"`
-	LinkedMessage      `bson:"linked_message,omitempty"`
+	PriorityID         *string             `bson:"priority_id,omitempty"`
+	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
+	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	Status             *ExternalTaskStatus `bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
