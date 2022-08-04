@@ -96,9 +96,14 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			PullRequests: repositoryIDToPullRequests[repositoryID],
 		})
 	}
-	sort.Slice(repositoryResults, func(i, j int) bool {
-		return repositoryResults[i].Name < repositoryResults[j].Name
-	})
+	for _, repositoryResult := range repositoryResults {
+		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
+			if repositoryResult.PullRequests[i].Status.Text < repositoryResult.PullRequests[j].Status.Text {
+				return repositoryResult.PullRequests[i].LastUpdatedAt < repositoryResult.PullRequests[j].LastUpdatedAt
+			}
+			return external.ActionOrdering[repositoryResult.PullRequests[i].Status.Text] < external.ActionOrdering[repositoryResult.PullRequests[j].Status.Text]
+		})
+	}
 	c.JSON(200, repositoryResults)
 }
 
