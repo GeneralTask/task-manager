@@ -155,16 +155,19 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			string(pullRequest.IDExternal),
 			pullRequest.SourceID,
 			pullRequest,
-			database.PullRequestChangeableFields{
-				Title:          pullRequest.Title,
-				Body:           pullRequest.TaskBase.Body,
-				IsCompleted:    &isCompleted,
-				LastUpdatedAt:  pullRequest.PullRequest.LastUpdatedAt,
-				CommentCount:   pullRequest.CommentCount,
-				RequiredAction: pullRequest.RequiredAction,
+			database.PullRequestItemChangeable{
+				Title:       &pullRequest.Title,
+				Body:        &pullRequest.TaskBase.Body,
+				IsCompleted: &isCompleted,
+				PullRequestChangeableFields: database.PullRequestChangeableFields{
+					LastUpdatedAt:  &pullRequest.PullRequest.LastUpdatedAt,
+					CommentCount:   &pullRequest.CommentCount,
+					RequiredAction: &pullRequest.RequiredAction,
+				},
 			},
 			nil,
-			false)
+			true)
+
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
