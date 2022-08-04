@@ -7,21 +7,6 @@ type CalendarResult struct {
 	Error          error
 }
 
-type EmailResult struct {
-	Emails       []*database.Item
-	Error        error
-	IsBadToken   bool
-	SourceID     string
-	RefreshState GmailRefreshState
-}
-
-type GmailRefreshState struct {
-	CurrentRefreshTimestamp string
-	NextRefreshPageToken    string
-	HistoryID               uint64
-	NextHistoryPageToken    string
-}
-
 type TaskResult struct {
 	Tasks           []*database.Item
 	PriorityMapping *map[string]int
@@ -40,19 +25,6 @@ func emptyCalendarResult(err error) CalendarResult {
 		CalendarEvents: []*database.Item{},
 		Error:          err,
 	}
-}
-
-func emptyEmailResult(err error) EmailResult {
-	return EmailResult{
-		Emails: []*database.Item{},
-		Error:  err,
-	}
-}
-
-func emptyEmailResultWithSource(err error, sourceID string) EmailResult {
-	result := emptyEmailResult(err)
-	result.SourceID = sourceID
-	return result
 }
 
 func emptyTaskResult(err error) TaskResult {

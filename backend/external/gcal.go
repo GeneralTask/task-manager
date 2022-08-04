@@ -24,10 +24,6 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
 func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
 	if err != nil {
@@ -141,14 +137,6 @@ func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.Obje
 	result <- emptyPullRequestResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("cannot reply to a calendar event")
-}
-
-func (googleCalendar GoogleCalendarSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return errors.New("cannot send email for calendar event")
-}
-
 func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
@@ -222,14 +210,6 @@ func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID,
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		return errors.New("cannot mark calendar event as done")
 	}
-	return nil
-}
-
-func (googleCalendar GoogleCalendarSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (googleCalendar GoogleCalendarSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }
 

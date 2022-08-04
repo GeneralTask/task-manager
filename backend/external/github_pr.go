@@ -59,10 +59,6 @@ type GithubPRRequestData struct {
 	PullRequest *github.PullRequest
 }
 
-func (gitPR GithubPRSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
 func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
@@ -157,16 +153,19 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			string(pullRequest.IDExternal),
 			pullRequest.SourceID,
 			pullRequest,
-			database.PullRequestChangeableFields{
-				Title:          pullRequest.Title,
-				Body:           pullRequest.TaskBase.Body,
-				IsCompleted:    &isCompleted,
-				LastUpdatedAt:  pullRequest.PullRequest.LastUpdatedAt,
-				CommentCount:   pullRequest.CommentCount,
-				RequiredAction: pullRequest.RequiredAction,
+			database.PullRequestItemChangeable{
+				Title:       &pullRequest.Title,
+				Body:        &pullRequest.TaskBase.Body,
+				IsCompleted: &isCompleted,
+				PullRequestChangeableFields: database.PullRequestChangeableFields{
+					LastUpdatedAt:  &pullRequest.PullRequest.LastUpdatedAt,
+					CommentCount:   &pullRequest.CommentCount,
+					RequiredAction: &pullRequest.RequiredAction,
+				},
 			},
 			nil,
-			false)
+			true)
+
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
@@ -478,14 +477,6 @@ func getPullRequestRequiredAction(data GithubPRData, userIsAuthor bool) string {
 	return ActionWaitingOnReview
 }
 
-func (gitPR GithubPRSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("cannot reply to a PR")
-}
-
-func (gitPR GithubPRSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return errors.New("cannot send email for github pr")
-}
-
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
@@ -496,13 +487,5 @@ func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID 
 
 func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
-	return nil
-}
-
-func (gitPR GithubPRSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (gitPR GithubPRSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

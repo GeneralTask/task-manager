@@ -15,10 +15,6 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
 func (generalTask GeneralTaskTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
@@ -56,14 +52,6 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 
 func (generalTask GeneralTaskTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
-}
-
-func (generalTask GeneralTaskTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("general task task does not support replies")
-}
-
-func (generalTask GeneralTaskTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return nil
 }
 
 func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
@@ -111,13 +99,5 @@ func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectI
 }
 
 func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
-	return nil
-}
-
-func (generalTask GeneralTaskTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (generalTask GeneralTaskTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, IsArchived *bool) error {
 	return nil
 }

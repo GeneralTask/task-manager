@@ -31,10 +31,10 @@ export const useReorderViews = () => {
         (data: TReorderViewData) => reorderView(data),
         {
             onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
-                await queryClient.cancelQueries('overview')
-
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!views) return
+                await queryClient.cancelQueries('overview')
+                await queryClient.cancelQueries('tasks')
 
                 const newViews = produce(views, draft => {
                     const startIndex = draft.findIndex(view => view.id === viewId)
@@ -147,7 +147,8 @@ export const useAddView = () => {
                     const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
                     if (supportedViews) {
                         const newSupportedViews = produce(supportedViews, draft => {
-                            draft[supportedViewIndex].views[supportedViewItemIndex].id = data.id
+                            draft[supportedViewIndex].views[supportedViewItemIndex].view_id = data.id
+                            draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = false
                         })
                         queryClient.setQueryData('overview-supported-views', newSupportedViews)
                     }
@@ -171,20 +172,20 @@ export const useRemoveView = () => {
         (viewId: string) => removeView(viewId),
         {
             onMutate: async (viewId: string) => {
-                await Promise.all([
-                    queryClient.cancelQueries('overview-supported-views'),
-                    queryClient.cancelQueries('overview')
-                ])
-
                 const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                queryClient.cancelQueries('overview-supported-views')
+                queryClient.cancelQueries('overview')
+
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, draft => {
                         let found = false
                         for (const view of draft) {
                             for (const viewItem of view.views) {
-                                if (viewItem.id === viewId) {
+                                if (viewItem.view_id === viewId) {
                                     viewItem.is_added = false
                                     viewItem.is_add_disabled = false
+                                    viewItem.view_id = ''
                                     found = true
                                     break
                                 }
@@ -195,7 +196,6 @@ export const useRemoveView = () => {
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
 
-                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (views) {
                     const newViews = produce(views, draft => {
                         for (const view of draft) {
@@ -207,6 +207,10 @@ export const useRemoveView = () => {
                     })
                     queryClient.setQueryData('overview', newViews)
                 }
+            },
+            onSettled: () => {
+                queryClient.invalidateQueries('overview')
+                queryClient.invalidateQueries('overview-supported-views')
             }
         }
     )
@@ -230,7 +234,7 @@ export const useMarkTaskDone = () => {
             if (!views) return
 
             const newViews = produce(views, (draft) => {
-                const sections = draft.map(view => ({
+                const sections = views.map(view => ({
                     id: view.task_section_id,
                     tasks: view.view_items
                 }))

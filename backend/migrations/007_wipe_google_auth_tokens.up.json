@@ -1,0 +1,19 @@
+[
+    {
+        "update": "external_api_tokens",
+        "updates": [
+            {
+                "q": {
+                    "service_id": "google"
+                },
+                "u": {
+                    "$set": {
+                        "is_bad_token": true,
+                        "token": "{}"
+                    }
+                },
+                "multi": true
+            }
+        ]
+    }
+]
