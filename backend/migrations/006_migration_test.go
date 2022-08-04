@@ -85,7 +85,7 @@ func TestMigrate006(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 
-		err = migrate.Down()
+		err = migrate.Steps(-1)
 		assert.NoError(t, err)
 
 		count, err := tasksCollection.CountDocuments(dbCtx, bson.M{
