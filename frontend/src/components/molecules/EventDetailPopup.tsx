@@ -88,7 +88,7 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                 </EventBody>
             </EventBoxStyle>
         </>,
-        document.getElementById('portal')!
+        document.getElementById('portal') as HTMLElement
     )
 }
 
