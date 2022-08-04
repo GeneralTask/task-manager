@@ -186,9 +186,9 @@ type PullRequestItemChangeable struct {
 }
 
 type PullRequestChangeableFields struct {
-	RequiredAction *string             `bson:"required_action",omitempty`
-	CommentCount   *int                `bson:"comment_count",omitempty`
-	LastUpdatedAt  *primitive.DateTime `bson:"last_updated_at",omitempty`
+	RequiredAction *string             `bson:"required_action,omitempty"`
+	CommentCount   *int                `bson:"comment_count,omitempty"`
+	LastUpdatedAt  *primitive.DateTime `bson:"last_updated_at,omitempty"`
 }
 
 type CalendarEvent struct {
