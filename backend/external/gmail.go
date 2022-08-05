@@ -922,10 +922,6 @@ func (gmailSource GmailSource) ModifyThread(userID primitive.ObjectID, accountID
 	return err
 }
 
-func (gmailSource GmailSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
-	return errors.New("has not been implemented yet")
-}
-
 func changeLabelsOnEmailsInThread(gmailService *gmail.Service, threadItem *database.Item, labelToChange string, addLabel bool) error {
 	var err error
 	for _, email := range threadItem.EmailThread.Emails {
