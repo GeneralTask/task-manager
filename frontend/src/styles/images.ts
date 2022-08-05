@@ -18,6 +18,7 @@ export const icons = Object.freeze({
     arrows_out: '/images/arrows_out.svg',
     calendar_blank: '/images/calendar_blank.svg',
     calendar_blank_dark: '/images/calendar_blank_dark.svg', 
+    calendar_blank_light: '/images/calendar_blank_light.svg', 
     caret_down: '/images/caret_down.svg',
     caret_left: '/images/caret_left.svg',
     caret_right: '/images/caret_right.svg',
@@ -32,6 +33,7 @@ export const icons = Object.freeze({
     exit: '/images/exit.svg', 
     external_link: '/images/external_link.svg',
     external_link_dark: '/images/external_link_dark.svg',
+    external_link_light: '/images/external_link_light.svg',
     gear: '/images/gear.svg',
     inbox: '/images/inbox.svg',
     inbox_purple: '/images/inbox_purple.svg',
@@ -48,7 +50,9 @@ export const icons = Object.freeze({
     timer: '/images/timer.svg',
     trash: '/images/trash.svg',
     trash_gray: '/images/trash_gray.svg', 
+    trash_light: '/images/trash_light.svg', 
     x_thin: '/images/x_thin.svg',
+    x_thin_light: '/images/x_thin_light.svg',
     x: '/images/x.svg',
 })
 

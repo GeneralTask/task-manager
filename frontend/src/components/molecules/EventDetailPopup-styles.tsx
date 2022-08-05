@@ -2,6 +2,7 @@ import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 import styled from 'styled-components'
+import GTButton from '../atoms/buttons/GTButton'
 
 const POPUP_WIDTH = '315px'
 const WINDOW_HEIGHT = window.innerHeight
@@ -22,7 +23,7 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     flex-direction: row;
     align-items: flex-start;
     padding: ${Spacing.padding._16} 0px;
-    gap: 10px;
+    gap: ${Spacing.padding._8};
     width: ${POPUP_WIDTH};
 
     left: calc(${(props) => props.xCoord}px - ${POPUP_WIDTH});
@@ -45,25 +46,23 @@ export const EventHeader = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-
-    gap: 138px;
-    width: 280px;
+    justify-content: space-between;
+    align-self: stretch;
+    padding: 0px ${Spacing.padding._16};
 `
 export const EventHeaderIcons = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-
     gap: ${Spacing.margin._4};
-    width: 147px;
 `
 export const EventDetail = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 0px;
-    gap: 10px;
+    padding: ${Spacing.padding._8} 0px;
+    gap: ${Spacing.padding._8};
     width: ${POPUP_WIDTH};
 `
 export const EventTitleSection = styled.div`
@@ -71,8 +70,8 @@ export const EventTitleSection = styled.div`
     flex-direction: column;
     align-items: flex-start;
     align-self: stretch;
-    padding: 0px 18px;
-    gap: 10px;
+    padding: 0px ${Spacing.padding._16};
+    gap: ${Spacing.padding._8};
 `
 export const EventDateContainer = styled.div`
     display: flex;
@@ -90,18 +89,18 @@ export const DescriptionContainer = styled.div`
     overflow-wrap: anywhere;
 `
 export const CloseButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._4};
-
-    border-radius: 30vh;
+    padding: ${Spacing.padding._8};
+    border-radius: 50vh;
     &:hover {
         background-color: ${Colors.background.medium};
     }
 `
-
+export const GTButtonCalendar = styled(GTButton)`
+    width: 283px;
+    font-family: inherit;
+`
 export const EventTitle = styled.span`
-    font-size: 16px;
-    line-height: 20px;
-    font-weight: 510;
+    ${Typography.body}
     color: ${Colors.text.black};
     white-space: nowrap;
     overflow: hidden;
@@ -109,13 +108,11 @@ export const EventTitle = styled.span`
     width: 100%;
 `
 export const EventDate = styled.span`
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 510;
-    color: ${Colors.text.black};
+    ${Typography.label}
+    color: ${Colors.text.light};
 `
 export const Description = styled.span`
     ${Typography.label};
     color: ${Colors.text.black};
-    padding: 0px 18px;
+    padding: 0px ${Spacing.padding._16};
 `

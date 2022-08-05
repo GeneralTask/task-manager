@@ -36,7 +36,6 @@ export const AllDaysContainer = styled.div<{ disableScroll: boolean }>`
     width: 100%;
     flex: 1;
     display: flex;
-    overflow: scroll;
     justify-content: center;
     position: relative;
     overflow: ${(props) => (props.disableScroll ? 'hidden' : 'scroll')};

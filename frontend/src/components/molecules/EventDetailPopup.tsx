@@ -4,7 +4,6 @@ import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import ReactDOM from 'react-dom'
 import { useClickOutside } from '../../hooks'
 import {
@@ -20,6 +19,7 @@ import {
     EventDate,
     DescriptionContainer,
     Description,
+    GTButtonCalendar,
 } from './EventDetailPopup-styles'
 
 interface EventDetailProps {
@@ -55,7 +55,7 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                                 onClose()
                             }}
                         >
-                            <Icon source={icons.exit} size="small" />
+                            <Icon source={icons.x_thin_light} size="xSmall" />
                         </CloseButton>
                     </EventHeaderIcons>
                 </EventHeader>
@@ -63,7 +63,7 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                     <EventTitleSection>
                         <EventTitle>{event.title}</EventTitle>
                         <EventDateContainer>
-                            <Icon source={icons.calendar_blank_dark} size="xSmall" />
+                            <Icon source={icons.calendar_blank_light} size="xSmall" />
                             <EventDate>
                                 {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                             </EventDate>
@@ -74,7 +74,7 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                     </DescriptionContainer>
                 </EventDetail>
                 <NoStyleAnchor href={event.deeplink} target="_blank">
-                    <ExternalLinkButton value="Google Calendar" iconSource="external_link_dark" />
+                    <GTButtonCalendar styleType="secondary" value="Google Calendar" iconSource="external_link_light" />
                 </NoStyleAnchor>
             </EventBody>
         </EventBoxStyle>,
