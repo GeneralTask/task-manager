@@ -50,6 +50,7 @@ const Button = styled(NoStyleButton)<{ styleType: TButtonStyle; wrapText: boolea
     border-radius: ${Border.radius.small};
     text-align: center;
     height: 100%;
+    width: 100%;
     box-shadow: ${Shadows.button.default};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
