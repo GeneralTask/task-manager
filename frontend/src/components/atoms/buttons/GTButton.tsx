@@ -43,7 +43,7 @@ const SmallButtonStyle = css`
     ${Typography.bodySmall}
 `
 
-const Button = styled(NoStyleButton)<{ styleType: TButtonStyle; wrapText?: boolean; size?: TButtonSize }>`
+const Button = styled(NoStyleButton)<{ styleType: TButtonStyle; wrapText: boolean; size: TButtonSize }>`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -70,14 +70,18 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     wrapText?: boolean
     iconSource?: TIconImage
 }
-const GTButton = (props: GTButtonProps) => {
-    const styleType = props.styleType || 'primary'
-    const size = props.size || 'large'
-    const { iconSource, ...rest } = props
+const GTButton = ({
+    styleType = 'primary',
+    size = 'small',
+    wrapText = false,
+    iconSource,
+    value,
+    ...rest
+}: GTButtonProps) => {
     return (
-        <Button styleType={styleType} size={size} wrapText={props.wrapText} {...rest}>
+        <Button styleType={styleType} size={size} wrapText={wrapText} {...rest}>
             {iconSource && <Icon size="small" source={icons[iconSource]} />}
-            {props.value}
+            {value}
         </Button>
     )
 }
