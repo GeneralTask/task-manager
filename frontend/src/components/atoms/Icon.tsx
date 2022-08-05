@@ -25,12 +25,15 @@ interface IconProps {
 }
 export const Icon = (props: IconProps) => {
     const dimension = Dimensions.iconSize[props.size]
+    const fontSize = dimension / 1.5
     const iconColor = props.color ? props.color : 'gray'
 
     return (
-        <IconContainer width={dimension} height={dimension}>
+        <IconContainer width={`${dimension}px`} height={`${dimension}px`}>
             {typeof props.icon === 'string' ? (
-                <i className={props.icon}></i>
+                <span style={{ fontSize: `${fontSize}px`, color: iconColor }}>
+                    <i className={props.icon}></i>
+                </span>
             ) : (
                 <FontAwesomeIcon icon={props.icon} color={iconColor} />
             )}

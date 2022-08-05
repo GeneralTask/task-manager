@@ -38,7 +38,7 @@ const UnauthorizedFooter = () => {
     return (
         <Footer>
             <FooderDiv>
-                <Icon icon={logos.generaltask} size="medium" />
+                <Icon icon={logos.generaltask} color={Colors.icon.purple} size="medium" />
                 <FooterText>General Task, Inc. © 2022</FooterText>
             </FooderDiv>
             <FooderDiv>

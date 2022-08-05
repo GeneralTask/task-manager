@@ -39,7 +39,7 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer>
             <NavigationViewHeader>
-                <Icon size="medium" icon={logos['generaltask']} />
+                <Icon size="medium" icon={logos.generaltask} color={Colors.icon.purple} />
             </NavigationViewHeader>
             <OverflowContainer>
                 <NavigationSectionLinks />
