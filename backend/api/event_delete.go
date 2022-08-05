@@ -5,6 +5,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -14,15 +15,18 @@ func (api *API) EventDelete(c *gin.Context) {
 	eventID, err := primitive.ObjectIDFromHex(eventIDHex)
 	if err != nil {
 		// This means the task ID is improperly formatted
+		log.Debug().Err(err).Msgf("could not parse event_id=%s", eventIDHex)
 		Handle404(c)
 		return
 	}
-	parentCtx := c.Request.Context()
-
 	userID := getUserIDFromContext(c)
-	event, err := database.GetItem(c.Request.Context(), eventID, userID)
+
+	parentCtx := c.Request.Context()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	event, err := database.GetItem(dbCtx, eventID, userID)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "event not found.", "eventID": eventID})
+		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
 	}
 
@@ -47,8 +51,6 @@ func (api *API) EventDelete(c *gin.Context) {
 	}
 	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := taskCollection.DeleteOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
