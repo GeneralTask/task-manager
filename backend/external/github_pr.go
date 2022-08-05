@@ -31,6 +31,7 @@ const (
 	ActionMergePR           string = "Merge PR"
 	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
+	ActionReviewPR          string = "Review PR"
 )
 
 const (
@@ -45,10 +46,13 @@ type GithubPRSource struct {
 
 type GithubPRData struct {
 	RequestedReviewers   int
+	Reviewers            *github.Reviewers
 	IsMergeable          bool
 	IsApproved           bool
 	HaveRequestedChanges bool
 	ChecksDidFail        bool
+	IsOwnedByUser        bool
+	UserLogin            string
 }
 
 type GithubPRRequestData struct {
@@ -202,6 +206,12 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		result <- nil
 		return
 	}
+	reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+		result <- nil
+		return
+	}
 	requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
@@ -229,10 +239,13 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 
 	pullRequestData := GithubPRData{
 		RequestedReviewers:   requestedReviewers,
+		Reviewers:            reviewers,
 		IsMergeable:          pullRequestFetch.GetMergeable(),
 		IsApproved:           pullRequestIsApproved(reviews),
 		HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 		ChecksDidFail:        checksDidFail,
+		IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
+		UserLogin:            githubUser.GetLogin(),
 	}
 
 	result <- &database.Item{
@@ -251,7 +264,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 			Number:         *pullRequest.Number,
 			Author:         *pullRequest.User.Login,
 			Branch:         *pullRequest.Head.Ref,
-			RequiredAction: getPullRequestRequiredAction(pullRequestData, (*pullRequest.User.Login == *githubUser.Login)),
+			RequiredAction: getPullRequestRequiredAction(pullRequestData),
 			CommentCount:   commentCount,
 			LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 		},
@@ -451,28 +464,35 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 	return false, nil
 }
 
-func getPullRequestRequiredAction(data GithubPRData, userIsAuthor bool) string {
-	if userIsAuthor {
+func getPullRequestRequiredAction(data GithubPRData) string {
+	var action string
+	if data.IsOwnedByUser {
 		if !data.IsMergeable {
-			return ActionFixMergeConflicts
+			action = ActionFixMergeConflicts
+		} else if data.ChecksDidFail {
+			action = ActionFixFailedCI
+		} else if data.RequestedReviewers == 0 {
+			action = ActionAddReviewers
+		} else if data.HaveRequestedChanges {
+			action = ActionAddressRequested
+		} else if data.IsApproved {
+			action = ActionMergePR
+		} else {
+			action = ActionWaitingOnReview
 		}
-		if data.ChecksDidFail {
-			return ActionFixFailedCI
+	} else {
+		reviewerUserIDs := data.Reviewers.Users
+		for _, reviewer := range reviewerUserIDs {
+			if reviewer.GetLogin() == data.UserLogin {
+				action = ActionReviewPR
+				break
+			}
 		}
-		if data.RequestedReviewers == 0 {
-			return ActionAddReviewers
+		if action == "" {
+			action = ActionWaitingOnAuthor
 		}
-		if data.HaveRequestedChanges {
-			return ActionAddressRequested
-		}
-		if data.IsApproved {
-			return ActionMergePR
-		}
-	} else if !data.IsMergeable || data.ChecksDidFail || data.RequestedReviewers == 0 || data.HaveRequestedChanges || data.IsApproved {
-		// if any author actions required on PR and current user is not owner
-		return ActionWaitingOnAuthor
 	}
-	return ActionWaitingOnReview
+	return action
 }
 
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
@@ -480,6 +500,10 @@ func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID s
 }
 
 func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
+func (gitPR GithubPRSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 

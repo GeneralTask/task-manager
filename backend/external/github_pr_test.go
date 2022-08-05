@@ -962,22 +962,26 @@ func TestChecksDidFail(t *testing.T) {
 }
 
 func TestGetPullRequestRequiredAction(t *testing.T) {
+	reviewers := github.Reviewers{
+		Users: []*github.User{},
+	}
+	authorUserLogin := "testUser"
 	t.Run("AddReviewers", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers: 0,
 			IsMergeable:        true,
+			IsOwnedByUser:      true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Add Reviewers", action)
 	})
 	t.Run("FixMergeConflicts", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers: 1,
 			IsMergeable:        false,
+			IsOwnedByUser:      true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Merge Conflicts", action)
 	})
 	t.Run("FixFailedCI", func(t *testing.T) {
@@ -985,9 +989,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			RequestedReviewers: 1,
 			IsMergeable:        true,
 			ChecksDidFail:      true,
+			IsOwnedByUser:      true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Failed CI", action)
 	})
 	t.Run("AddressRequestedChanges", func(t *testing.T) {
@@ -996,9 +1000,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			IsMergeable:          true,
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Address Requested Changes", action)
 	})
 	t.Run("MergePR", func(t *testing.T) {
@@ -1008,9 +1012,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: false,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Merge PR", action)
 	})
 	t.Run("WaitingOnReview", func(t *testing.T) {
@@ -1020,9 +1024,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: false,
 			IsApproved:           false,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Review", action)
 	})
 	t.Run("FixMergeConflictsIsTopPriority", func(t *testing.T) {
@@ -1033,9 +1037,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        true,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Merge Conflicts", action)
 	})
 	t.Run("ChecksDidFailIsSecondPriority", func(t *testing.T) {
@@ -1046,9 +1050,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        true,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Failed CI", action)
 	})
 	t.Run("AddReviewersIsThirdPriority", func(t *testing.T) {
@@ -1059,9 +1063,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Add Reviewers", action)
 	})
 	t.Run("AddressRequestedChangesIsFourthPriority", func(t *testing.T) {
@@ -1072,9 +1076,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, true)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Address Requested Changes", action)
 	})
 	t.Run("NotAuthorAndNotMergeable", func(t *testing.T) {
@@ -1085,9 +1089,11 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, false)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Author", action)
 	})
 	t.Run("NotAuthorAndChecksFailed", func(t *testing.T) {
@@ -1098,9 +1104,11 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        true,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, false)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Author", action)
 	})
 	t.Run("NotAuthorAndNoReviewers", func(t *testing.T) {
@@ -1110,9 +1118,11 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, false)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Author", action)
 	})
 	t.Run("NotAuthorAndRequestedChanges", func(t *testing.T) {
@@ -1122,9 +1132,11 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, false)
-
+		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Author", action)
 	})
 	t.Run("NotAuthorAndApproved", func(t *testing.T) {
@@ -1134,8 +1146,11 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, false)
+		action := getPullRequestRequiredAction(pullRequestData)
 
 		assert.Equal(t, "Waiting on Author", action)
 	})
@@ -1146,9 +1161,26 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: false,
 			IsApproved:           false,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
-		action := getPullRequestRequiredAction(pullRequestData, false)
-
-		assert.Equal(t, "Waiting on Review", action)
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorandReviewPR", func(t *testing.T) {
+		reviewers.Users = append(reviewers.Users, &github.User{Login: &authorUserLogin})
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           false,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Review PR", action)
 	})
 }

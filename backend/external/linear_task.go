@@ -177,3 +177,7 @@ func (linearTask LinearTaskSource) CreateNewTask(userID primitive.ObjectID, acco
 func (linearTask LinearTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
+
+func (linearTask LinearTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+	return errors.New("has not been implemented yet")
+}
