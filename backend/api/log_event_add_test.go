@@ -17,14 +17,7 @@ import (
 func TestLogEventAdd(t *testing.T) {
 	parentCtx := context.Background()
 	authToken := login("approved@generaltask.com", "")
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("POST", "/log_events/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "POST", "/log_events/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("POST", "/log_events/", nil)
