@@ -72,15 +72,16 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 const GTButton = ({
     styleType = 'primary',
-    size = 'small',
+    size = 'large',
     wrapText = false,
     iconSource,
     value,
     ...rest
 }: GTButtonProps) => {
+    const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
         <Button styleType={styleType} size={size} wrapText={wrapText} {...rest}>
-            {iconSource && <Icon size="small" source={icons[iconSource]} />}
+            {iconSource && <Icon size={iconSize} source={icons[iconSource]} />}
             {value}
         </Button>
     )
