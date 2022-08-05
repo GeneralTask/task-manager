@@ -74,7 +74,12 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                     </DescriptionContainer>
                 </EventDetail>
                 <NoStyleAnchor href={event.deeplink} target="_blank">
-                    <GTButtonCalendar styleType="secondary" value="Google Calendar" iconSource="external_link_light" />
+                    <GTButtonCalendar
+                        styleType="secondary"
+                        size="small"
+                        value="Google Calendar"
+                        iconSource="external_link_dark"
+                    />
                 </NoStyleAnchor>
             </EventBody>
         </EventBoxStyle>,
