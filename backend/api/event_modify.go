@@ -44,17 +44,29 @@ func (api *API) EventModify(c *gin.Context) {
 		return
 	}
 
-	eventSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
+	//eventSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
+	//if err != nil {
+	//	api.Logger.Error().Err(err).Msg("failed to load external task source")
+	//	Handle500(c)
+	//	return
+	//}
+	//
+	//err = eventSourceResult.Source.ModifyEvent(userID, modifyParams.AccountID, event.IDExternal, &modifyParams)
+	//if err != nil {
+	//	api.Logger.Error().Err(err).Msg("failed to update external task source")
+	//	Handle500(c)
+	//	return
+	//}
+
+	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
 	}
+	defer dbCleanup()
 
-	err = eventSourceResult.Source.ModifyEvent(userID, modifyParams.AccountID, event.IDExternal, &modifyParams)
+	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, modifyParams, nil, true)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to update external task source")
-		Handle500(c)
 		return
 	}
 	c.JSON(200, gin.H{})
