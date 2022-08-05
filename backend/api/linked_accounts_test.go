@@ -29,14 +29,9 @@ func TestSupportedAccountTypesList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
+		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Slack\",\"logo\":\"/images/slack.svg\",\"authorization_url\":\"http://localhost:8080/link/slack/\"}"))
 	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/linked_accounts/supported_types/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/linked_accounts/supported_types/", nil)
 }
 
 func TestLinkedAccountsList(t *testing.T) {
@@ -60,7 +55,7 @@ func TestLinkedAccountsList(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("linkedaccounts2@generaltask.com", "")
 		createGoogleLink(t, db, authToken, "linkedaccounts2@generaltask.com", false).Hex()
-		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
+		linearTokenID := insertLinearToken(t, db, authToken).Hex()
 		assert.NoError(t, err)
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
@@ -71,14 +66,14 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
 
 	})
 
 	t.Run("SuccessWithBadToken", func(t *testing.T) {
 		authToken := login("linkedaccounts3@generaltask.com", "")
 		createGoogleLink(t, db, authToken, "linkedaccounts3@generaltask.com", true).Hex()
-		jiraTokenID := createJIRADungeon(t, db, authToken).Hex()
+		linearTokenID := insertLinearToken(t, db, authToken).Hex()
 
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
@@ -90,15 +85,9 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":true},{\"id\":\""+jiraTokenID+"\",\"display_id\":\"Jira dungeon\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":true},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
 	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/linked_accounts/", nil)
 }
 
 func TestDeleteLinkedAccount(t *testing.T) {
@@ -155,9 +144,9 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("deletelinkedaccount@generaltask.com", "")
-		jiraTokenID := createJIRADungeon(t, db, authToken)
+		linearTokenID := insertLinearToken(t, db, authToken)
 		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+jiraTokenID.Hex()+"/", nil)
+		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+linearTokenID.Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -167,18 +156,12 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		defer cancel()
 		err := database.GetExternalTokenCollection(db).FindOne(
 			dbCtx,
-			bson.M{"_id": jiraTokenID},
+			bson.M{"_id": linearTokenID},
 		).Decode(&token)
 		// assert token is not found in db anymore
 		assert.Error(t, err)
 	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/123/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "DELETE", "/linked_accounts/123/", nil)
 }
 
 func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email string, isBadToken bool) primitive.ObjectID {
@@ -199,7 +182,7 @@ func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email 
 	return res.InsertedID.(primitive.ObjectID)
 }
 
-func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
+func insertLinearToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -208,7 +191,7 @@ func createJIRADungeon(t *testing.T, db *mongo.Database, authToken string) primi
 		&database.ExternalAPIToken{
 			ServiceID:    external.TASK_SERVICE_ID_LINEAR,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
-			DisplayID:    "Jira dungeon",
+			DisplayID:    "Linear",
 			IsUnlinkable: true,
 		},
 	)

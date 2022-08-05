@@ -4,13 +4,15 @@ import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Icon } from '../atoms/Icon'
 import { logos, TLogoImage } from '../../styles/images'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { TSourcesResult } from '../../utils/types'
+import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
+import { openPopupWindow } from '../../utils/auth'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 
-const BannerContainer = styled.div`
+const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;
-    border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
+    border: ${Border.stroke.medium} solid;
+    border-color: ${(props) => (props.hasBorder ? Colors.gtColor.secondary : 'transparent')};
     border-radius: ${Border.radius.small};
     display: flex;
     justify-content: space-between;
@@ -32,53 +34,34 @@ const Title = styled.span`
 `
 
 interface AuthBannerProps {
-    source: TSourcesResult
+    authorizationUrl: string
+    name: string
     logo: TLogoImage
+    hasBorder: boolean
 }
 
-const AUTH_WINDOW_WIDTH = 960
-const AUTH_WINDOW_HEIGHT = 640
-
-const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
-const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
-
-const openAuthWindow = (
-    authorizationUrl: string,
-    sourceName: string,
-    refetch: () => void,
-    refetchViews: () => void
-) => {
-    const win = window.open(
-        authorizationUrl,
-        sourceName,
-        `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
-    )
-
-    if (win != null) {
-        const timer = setInterval(() => {
-            if (win.closed) {
-                clearInterval(timer)
-                refetch()
-                refetchViews()
-            }
-        }, 10)
-    }
-}
-
-const AuthBanner = ({ source, logo }: AuthBannerProps) => {
-    const { refetch } = useGetLinkedAccounts()
+const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps) => {
     const { refetch: refetchViews } = useGetOverviewViews()
+    const { refetch: refetchSupportedViews } = useGetSupportedViews()
+    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
+    const { refetch: fetchPullRequests } = useFetchPullRequests()
+
+    const onWindowClose = async () => {
+        refetchSupportedViews()
+        await Promise.all([fetchExternalTasks(), fetchPullRequests()])
+        refetchViews()
+    }
 
     return (
-        <BannerContainer>
+        <BannerContainer hasBorder={hasBorder}>
             <IconContainer>
                 <Icon size="small" source={logos[logo]} />
-                <Title>{`Connect ${source.name} to General Task`}</Title>
+                <Title>{`Connect ${name} to General Task`}</Title>
             </IconContainer>
             <ConnectButton
                 value="Connect"
                 color={Colors.gtColor.primary}
-                onClick={() => openAuthWindow(source.authorization_url, source.name, refetch, refetchViews)}
+                onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
             />
         </BannerContainer>
     )

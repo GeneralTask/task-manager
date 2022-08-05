@@ -24,7 +24,6 @@ const BannerAndSectionContainer = styled.div`
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
-    user-select: none;
 `
 const ScrollViewMimic = styled.div`
     margin: 40px 0px 0px 10px;
@@ -162,7 +161,7 @@ const TaskSectionView = () => {
                                     index={section.tasks.length + 1}
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
-                                    isLast
+                                    indicatorType="TOP_ONLY"
                                 >
                                     <BottomDropArea />
                                 </ReorderDropContainer>

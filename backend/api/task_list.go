@@ -97,7 +97,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 	})
 
 	taskChannels := []chan external.TaskResult{}
-	pullRequestChannels := []chan external.PullRequestResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
@@ -109,10 +108,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			var tasks = make(chan external.TaskResult)
 			go taskSourceResult.Source.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
-
-			var pullRequests = make(chan external.PullRequestResult)
-			go taskSourceResult.Source.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
-			pullRequestChannels = append(pullRequestChannels, pullRequests)
 		}
 	}
 
@@ -126,19 +121,6 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 			continue
 		}
 		tasks = append(tasks, taskResult.Tasks...)
-	}
-	for _, pullRequestChannel := range pullRequestChannels {
-		pullRequestResult := <-pullRequestChannel
-		if pullRequestResult.Error != nil {
-			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
-			failedFetchSources[pullRequestResult.SourceID] = true
-			continue
-		}
-		for _, pullRequest := range pullRequestResult.PullRequests {
-			tasks = append(tasks, &database.Item{
-				TaskBase: pullRequest.TaskBase,
-			})
-		}
 	}
 	return &tasks, failedFetchSources, nil
 }
@@ -159,7 +141,7 @@ func (api *API) adjustForCompletedTasks(
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
-		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK || currentTask.SourceID == external.TASK_SOURCE_ID_GMAIL {
+		if currentTask.SourceID == external.TASK_SOURCE_ID_GT_TASK {
 			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}
@@ -205,7 +187,6 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 }
 
 func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) *TaskResult {
-	taskSourceResult, _ := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""
@@ -213,16 +194,23 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	taskResult := &TaskResult{
-		ID:         t.ID,
-		IDOrdering: t.IDOrdering,
-		Source: TaskSource{
+	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
+	taskSource := TaskSource{}
+	if err == nil {
+		taskSource = TaskSource{
 			Name:          taskSourceResult.Details.Name,
 			Logo:          taskSourceResult.Details.Logo,
 			LogoV2:        taskSourceResult.Details.LogoV2,
 			IsCompletable: taskSourceResult.Details.IsCompletable,
 			IsReplyable:   taskSourceResult.Details.IsReplyable,
-		},
+		}
+	} else {
+		api.Logger.Error().Err(err).Msgf("failed to find task source %s", t.SourceID)
+	}
+	taskResult := &TaskResult{
+		ID:             t.ID,
+		IDOrdering:     t.IDOrdering,
+		Source:         taskSource,
 		Deeplink:       t.Deeplink,
 		Title:          t.Title,
 		Body:           t.TaskBase.Body,

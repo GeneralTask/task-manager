@@ -22,13 +22,7 @@ func TestOverview(t *testing.T) {
 	authtoken := login("test_overview@generaltask.com", "")
 	api := GetAPI()
 	router := GetRouter(api)
-	t.Run("UnauthorizedGetViews", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/overview/views/", nil)
 	t.Run("SuccessGetViews", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
@@ -964,7 +958,7 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	taskSection1ID := taskSection1.InsertedID.(primitive.ObjectID).Hex()
-	otherUserId, err := primitive.ObjectIDFromHex("Some other user")
+	otherUserId := primitive.NewObjectID()
 	taskSection2, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
 		UserID: otherUserId,
 		Name:   "Goose section",
@@ -1120,6 +1114,118 @@ func TestOverviewViewDelete(t *testing.T) {
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
+	})
+}
+
+func TestOverviewSupportedViewsList(t *testing.T) {
+	parentCtx := context.Background()
+	authToken := login("TestOverviewSupportedViewsList@generaltask.com", "")
+
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID := getUserIDFromAuthToken(t, db, authToken)
+	viewCollection := database.GetViewCollection(db)
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	taskSectionCollection := database.GetTaskSectionCollection(db)
+	taskSection, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
+		UserID: userID,
+		Name:   "Duck section",
+	})
+	assert.NoError(t, err)
+	taskSectionObjectID := taskSection.InsertedID.(primitive.ObjectID)
+	taskSectionID := taskSectionObjectID.Hex()
+
+	UnauthorizedTest(t, "GET", "/overview/supported_views/", nil)
+	t.Run("TestNoViewsAdded", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+
+		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID)
+		assert.Equal(t, expectedBody, string(body))
+	})
+	t.Run("TestTaskSectionIsAdded", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:        userID,
+			Type:          "task_section",
+			IsLinked:      false,
+			TaskSectionID: taskSectionObjectID,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":true,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		assert.Equal(t, expectedBody, string(body))
+	})
+	t.Run("TestLinearIsAddedIsUnlinked", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:   userID,
+			Type:     "linear",
+			IsLinked: false,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		assert.Equal(t, expectedBody, string(body))
+	})
+	t.Run("TestLinearIsAddedIsLinked", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:   userID,
+			Type:     "linear",
+			IsLinked: true,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+			UserID:    userID,
+			Token:     "testtoken",
+			ServiceID: external.TASK_SERVICE_ID_LINEAR,
+		})
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		assert.Equal(t, expectedBody, string(body))
+	})
+	t.Run("TestSlackIsAddedIsUnlinked", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:   userID,
+			Type:     "slack",
+			IsLinked: false,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		assert.Equal(t, expectedBody, string(body))
+	})
+	t.Run("TestSlackIsAddedIsLinked", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		view, err := viewCollection.InsertOne(parentCtx, database.View{
+			UserID:   userID,
+			Type:     "slack",
+			IsLinked: false,
+		})
+		assert.NoError(t, err)
+		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
+		externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+			UserID:    userID,
+			Token:     "testtoken",
+			ServiceID: external.TASK_SERVICE_ID_SLACK,
+		})
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
+		assert.Equal(t, expectedBody, string(body))
 	})
 }
 

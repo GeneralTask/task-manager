@@ -2,11 +2,8 @@ import { DropItem, DropType } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
-import { Colors } from '../../styles'
+import { Border, Colors } from '../../styles'
 
-const isLastStyle = css`
-    flex: 1;
-`
 const DropOverlay = styled.div<{ isLast?: boolean }>`
     position: relative;
     width: 100%;
@@ -14,7 +11,7 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
     display: flex;
     flex-direction: column;
     align-items: center;
-    ${({ isLast }) => (isLast ? isLastStyle : '')}
+    ${({ isLast }) => (isLast ? 'flex: 1;' : '')}
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     width: 100%;
@@ -23,14 +20,24 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: absolute;
     height: 2px;
 `
-export const DropIndicatorAbove = styled.div`
+const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
 `
 const DropIndicatorBelow = styled.div`
     ${DropIndicatorStyles}
     bottom: -2px;
 `
+const WholeDropIndicatorStyle = css`
+    border: ${Border.stroke.medium} solid ${Colors.background.dark};
+    border-radius: ${Border.radius.small};
+`
+const WholeDropIndicator = styled.div<{ isVisible: boolean }>`
+    width: 100%;
+    border: ${Border.stroke.medium} solid transparent;
+    ${(props) => (props.isVisible ? WholeDropIndicatorStyle : '')}
+`
 
+type IndicatorType = 'TOP_AND_BOTTOM' | 'TOP_ONLY' | 'WHOLE'
 enum DropDirection {
     ABOVE,
     BELOW,
@@ -39,22 +46,31 @@ interface ReorderDropContainerProps {
     children?: React.ReactElement
     index: number
     acceptDropType: DropType
-    isLast?: boolean
     onReorder: (item: DropItem, dropIndex: number) => void
+    indicatorType?: IndicatorType
 }
-const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReorder }: ReorderDropContainerProps) => {
+const ReorderDropContainer = ({
+    children,
+    index,
+    acceptDropType,
+    onReorder,
+    indicatorType = 'TOP_AND_BOTTOM',
+}: ReorderDropContainerProps) => {
     const dropRef = useRef<HTMLDivElement>(null)
     const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
 
-    const getDropDirection = useCallback((dropY: number): DropDirection => {
-        if (isLast) return DropDirection.ABOVE
-        const boundingRect = dropRef.current?.getBoundingClientRect()
-        if (!boundingRect) {
-            return DropDirection.ABOVE
-        }
-        const midpoint = (boundingRect.top + boundingRect.bottom) / 2
-        return dropY < midpoint ? DropDirection.ABOVE : DropDirection.BELOW
-    }, [])
+    const getDropDirection = useCallback(
+        (dropY: number): DropDirection => {
+            if (indicatorType !== 'TOP_AND_BOTTOM') return DropDirection.ABOVE
+            const boundingRect = dropRef.current?.getBoundingClientRect()
+            if (!boundingRect) {
+                return DropDirection.ABOVE
+            }
+            const midpoint = (boundingRect.top + boundingRect.bottom) / 2
+            return dropY < midpoint ? DropDirection.ABOVE : DropDirection.BELOW
+        },
+        [indicatorType]
+    )
 
     const onDrop = useCallback(
         (item: DropItem, monitor: DropTargetMonitor) => {
@@ -63,7 +79,7 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
             const dropIndex = index + (dropDirection === DropDirection.ABOVE ? 1 : 2)
             onReorder(item, dropIndex)
         },
-        [index, onReorder, isLast]
+        [index, onReorder]
     )
 
     const [isOver, drop] = useDrop(
@@ -85,10 +101,22 @@ const ReorderDropContainer = ({ children, index, acceptDropType, isLast, onReord
     }, [dropRef])
 
     return (
-        <DropOverlay ref={dropRef} isLast={isLast} data-testid={isLast && 'reorder-bottom-drop-area'}>
-            <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
-            {children}
-            {!isLast && <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW && !isLast} />}
+        <DropOverlay
+            ref={dropRef}
+            isLast={indicatorType === 'TOP_ONLY'}
+            data-testid={indicatorType === 'TOP_ONLY' && 'reorder-bottom-drop-area'}
+        >
+            {indicatorType !== 'WHOLE' && (
+                <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
+            )}
+            {indicatorType === 'WHOLE' ? (
+                <WholeDropIndicator isVisible={isOver}>{children}</WholeDropIndicator>
+            ) : (
+                children
+            )}
+            {indicatorType === 'TOP_AND_BOTTOM' && (
+                <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW} />
+            )}
         </DropOverlay>
     )
 }
