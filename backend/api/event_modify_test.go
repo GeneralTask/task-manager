@@ -34,9 +34,7 @@ func TestInvalidEventModify(t *testing.T) {
 	eventID := event.InsertedID.(primitive.ObjectID).Hex()
 	validUrl := fmt.Sprintf("/events/modify/%s/", eventID)
 
-	t.Run("Unauthorized", func(t *testing.T) {
-		ServeRequest(t, "badAuthToken", "PATCH", validUrl, nil, http.StatusUnauthorized)
-	})
+	UnauthorizedTest(t, "PATCH", validUrl, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
 	t.Run("NoBody", func(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", validUrl, nil, http.StatusBadRequest)
 	})
@@ -53,16 +51,9 @@ func TestInvalidEventModify(t *testing.T) {
 		ServeRequest(t, authToken, "PATCH", "/events/modify/bad_id/", body, http.StatusBadRequest)
 	})
 	t.Run("EventIDFromOtherUser", func(t *testing.T) {
-		otherUserID := primitive.NewObjectID()
-		event, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID: otherUserID,
-			},
-		})
-		assert.NoError(t, err)
-		eventID := event.InsertedID.(primitive.ObjectID)
+		otherUserAuthToken := login("otheruser@aol.com", "")
 
 		body := bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`))
-		ServeRequest(t, authToken, "PATCH", "/events/modify/"+eventID.Hex()+"/", body, http.StatusNotFound)
+		ServeRequest(t, otherUserAuthToken, "PATCH", validUrl, body, http.StatusUnauthorized)
 	})
 }
