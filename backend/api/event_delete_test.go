@@ -46,7 +46,7 @@ func TestEventDelete(t *testing.T) {
 	api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &calendarDeleteServer.URL
 	router := GetRouter(api)
 
-	//UnauthorizedTest(t, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", nil)
+	UnauthorizedTest(t, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", nil)
 	t.Run("InvalidHex", func(t *testing.T) {
 		ServeRequest(t, authToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"1/", nil, http.StatusNotFound)
 	})
