@@ -27,6 +27,7 @@ export const icons = Object.freeze({
     check_unchecked: '/images/check_unchecked.svg',
     chevron_down: '/images/chevron_down.svg',
     copy: '/images/copy.svg',
+    domino: '/images/domino.svg',
     dot: '/images/dot.svg',
     external_link: '/images/external_link.svg',
     gear: '/images/gear.svg',

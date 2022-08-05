@@ -248,6 +248,7 @@ func TestTaskReorder(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
+	UnauthorizedTest(t, "PATCH", "/tasks/modify/123/", nil)
 	t.Run("Success", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -520,14 +521,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, 2, task.IDOrdering)
 		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.True(t, task.HasBeenReordered)
-	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/tasks/modify/123/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 }
 

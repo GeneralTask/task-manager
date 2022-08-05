@@ -22,6 +22,7 @@ func TestSettingsGet(t *testing.T) {
 	defer dbCleanup()
 	settingCollection := database.GetUserSettingsCollection(db)
 
+	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("DefaultValue", func(t *testing.T) {
 		// Random userID; should be ignored
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -67,6 +68,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "{\"field_key\":\"email_ordering_preference\",\"field_name\":\"Email ordering\",\"choices\":[{\"choice_key\":\"newest_first\",\"choice_name\":\"Newest first\"},{\"choice_key\":\"oldest_first\",\"choice_name\":\"Oldest first\"}],\"field_value\":\"newest_first\"}")
 	})
+	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("Unauthorized", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/settings/", nil)
@@ -184,12 +186,5 @@ func TestSettingsModify(t *testing.T) {
 		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
 		assert.NoError(t, err)
 		assert.Equal(t, settings.ChoiceKeyArchive, *setting)
-	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/settings/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 	})
 }

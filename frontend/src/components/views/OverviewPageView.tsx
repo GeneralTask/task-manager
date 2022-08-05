@@ -2,9 +2,9 @@ import React, { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { Colors } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import TaskDetails from '../details/TaskDetails'
-import EditViewsButton from '../overview/EditViewsButton'
+import EditViewsButtons from '../overview/EditViewsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { TPullRequest, TTask } from '../../utils/types'
@@ -19,6 +19,8 @@ const OverviewPageContainer = styled.div`
 const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
+    margin-bottom: ${Spacing.margin._8};
+    gap: ${Spacing.margin._16};
 `
 
 const OverviewView = () => {
@@ -75,7 +77,7 @@ const OverviewView = () => {
                         isRefreshing={isFetching}
                     />
                     <ActionsContainer>
-                        <EditViewsButton />
+                        <EditViewsButtons />
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} />
