@@ -15,38 +15,10 @@ import (
 func TestSections(t *testing.T) {
 	authToken := login("test_sections@generaltask.com", "")
 	createdTaskID := ""
-	t.Run("UnauthorizedList", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/sections/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
-	t.Run("UnauthorizedCreate", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("POST", "/sections/create/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
-	t.Run("UnauthorizedModify", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/sections/modify/123/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
-	t.Run("UnauthorizedDelete", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("DELETE", "/sections/delete/123/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/sections/", nil)
+	UnauthorizedTest(t, "POST", "/sections/create/", nil)
+	UnauthorizedTest(t, "PATCH", "/sections/modify/123/", nil)
+	UnauthorizedTest(t, "DELETE", "/sections/delete/123/", nil)
 	t.Run("EmptyPayloadCreate", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("POST", "/sections/create/", nil)

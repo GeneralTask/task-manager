@@ -12,14 +12,7 @@ import (
 
 func TestUserInfo(t *testing.T) {
 	authToken := login("userinfo@generaltask.com", "")
-	t.Run("UnauthorizedGet", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/user_info/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/user_info/", nil)
 	t.Run("SuccessGet", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/user_info/", nil)
@@ -31,14 +24,7 @@ func TestUserInfo(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false}", string(body))
 	})
-	t.Run("UnauthorizedUpdate", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("PATCH", "/user_info/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "PATCH", "/user_info/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("PATCH", "/user_info/", nil)

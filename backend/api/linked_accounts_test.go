@@ -31,13 +31,7 @@ func TestSupportedAccountTypesList(t *testing.T) {
 		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
 		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Slack\",\"logo\":\"/images/slack.svg\",\"authorization_url\":\"http://localhost:8080/link/slack/\"}"))
 	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/linked_accounts/supported_types/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/linked_accounts/supported_types/", nil)
 }
 
 func TestLinkedAccountsList(t *testing.T) {
@@ -93,13 +87,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		googleTokenID := getGoogleTokenFromAuthToken(t, db, authToken).ID.Hex()
 		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":true},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
 	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/linked_accounts/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/linked_accounts/", nil)
 }
 
 func TestDeleteLinkedAccount(t *testing.T) {
@@ -173,13 +161,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		// assert token is not found in db anymore
 		assert.Error(t, err)
 	})
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/123/", nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "DELETE", "/linked_accounts/123/", nil)
 }
 
 func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email string, isBadToken bool) primitive.ObjectID {

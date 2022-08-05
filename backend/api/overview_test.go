@@ -22,13 +22,7 @@ func TestOverview(t *testing.T) {
 	authtoken := login("test_overview@generaltask.com", "")
 	api := GetAPI()
 	router := GetRouter(api)
-	t.Run("UnauthorizedGetViews", func(t *testing.T) {
-		request, _ := http.NewRequest("GET", "/overview/views/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/overview/views/", nil)
 	t.Run("SuccessGetViews", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
@@ -1143,9 +1137,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 	taskSectionObjectID := taskSection.InsertedID.(primitive.ObjectID)
 	taskSectionID := taskSectionObjectID.Hex()
 
-	t.Run("TestUnauthorized", func(t *testing.T) {
-		ServeRequest(t, "badAuthToken", "GET", "/overview/supported_views/", nil, http.StatusUnauthorized)
-	})
+	UnauthorizedTest(t, "GET", "/overview/supported_views/", nil)
 	t.Run("TestNoViewsAdded", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})

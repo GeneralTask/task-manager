@@ -15,6 +15,7 @@ import (
 func TestLogout(t *testing.T) {
 	parentCtx := context.Background()
 
+	UnauthorizedTest(t, "POST", "/logout/", nil)
 	t.Run("Logout", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 
@@ -42,16 +43,4 @@ func TestLogout(t *testing.T) {
 		count, _ = tokenCollection.CountDocuments(dbCtx, bson.M{"token": authToken})
 		assert.Equal(t, int64(0), count)
 	})
-
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-
-		request, _ := http.NewRequest("POST", "/logout/", nil)
-		request.Header.Add("Authorization", "Bearer c8db8f3c-6fa2-476c-9648-b31432dc3ff7")
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
-
 }

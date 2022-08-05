@@ -40,14 +40,7 @@ func TestPullRequestList(t *testing.T) {
 	pullRequest3, err := createTestPullRequest(db, userID, "tesla", false, true)
 	assert.NoError(t, err)
 
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/pull_requests/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/pull_requests/", nil)
 	t.Run("Success", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/pull_requests/", nil)
