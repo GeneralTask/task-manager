@@ -96,6 +96,13 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			PullRequests: repositoryIDToPullRequests[repositoryID],
 		})
 	}
+
+	// Sort repositories by name
+	sort.Slice(repositoryResults, func(i, j int) bool {
+		return repositoryResults[i].Name < repositoryResults[j].Name
+	})
+
+	// Sort pull requests in repositories by requested action, and then by last updated
 	for _, repositoryResult := range repositoryResults {
 		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
 			left := repositoryResult.PullRequests[i]
