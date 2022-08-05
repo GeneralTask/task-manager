@@ -17,14 +17,7 @@ import (
 func TestFeedbackAdd(t *testing.T) {
 	parentCtx := context.Background()
 	authToken := login("approved@generaltask.com", "")
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("POST", "/feedback/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "POST", "/feedback/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("POST", "/feedback/", nil)
