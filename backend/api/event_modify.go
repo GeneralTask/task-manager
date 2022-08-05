@@ -27,13 +27,22 @@ func (api *API) EventModify(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
+
+	// check that modifyParams isn't empty
+	emptyObj := external.EventModifyObject{AccountID: modifyParams.AccountID}
+	if modifyParams == emptyObj {
+		c.JSON(400, gin.H{"detail": "parameter missing"})
+		return
+	}
+
 	userID := getUserIDFromContext(c)
 
 	event, err := database.GetItem(c.Request.Context(), eventID, userID)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "task not found.", "taskId": eventID})
+		c.JSON(404, gin.H{"detail": "event not found.", "taskId": eventID})
 		return
 	}
+
 	eventSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load external task source")
