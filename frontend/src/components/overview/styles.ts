@@ -6,7 +6,7 @@ export const ViewContainer = styled.div`
     padding: ${Spacing.padding._12};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
-    margin: 0 ${Spacing.margin._24} ${Spacing.margin._16};
+    margin: ${Spacing.margin._16} 0;
     box-shadow: ${Shadows.light};
 `
 export const ViewHeader = styled.div`
