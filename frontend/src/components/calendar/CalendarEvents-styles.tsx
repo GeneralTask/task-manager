@@ -91,14 +91,13 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
     cursor: pointer;
 `
-export const EventInfoContainer = styled.div<{ isSelected: boolean }>`
+export const EventInfoContainer = styled.div`
     display: flex;
     align-items: center;
     height: 100%;
     width: 100%;
     position: absolute;
     z-index: 1;
-    border: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.gray : 'inherit')};
     border-radius: ${Border.radius.medium};
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
@@ -125,11 +124,11 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
-export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }>`
+export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
     height: 100%;
     background: ${Colors.background.white};
-    border: ${Border.stroke.medium} solid ${EVENT_CONTAINER_COLOR};
+    border: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.gray : EVENT_CONTAINER_COLOR)};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};

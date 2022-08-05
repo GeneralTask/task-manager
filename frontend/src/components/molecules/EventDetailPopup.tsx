@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import ReactDOM from 'react-dom'
 import { useClickOutside } from '../../hooks'
 import {
@@ -20,6 +19,7 @@ import {
     DescriptionContainer,
     Description,
     GTButtonCalendar,
+    ExternalLinkAnchor,
 } from './EventDetailPopup-styles'
 
 interface EventDetailProps {
@@ -73,14 +73,14 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                         <Description>{event.body}</Description>
                     </DescriptionContainer>
                 </EventDetail>
-                <NoStyleAnchor href={event.deeplink} target="_blank">
+                <ExternalLinkAnchor href={event.deeplink} target="_blank">
                     <GTButtonCalendar
                         styleType="secondary"
                         size="small"
                         value="Google Calendar"
                         iconSource="external_link_dark"
                     />
-                </NoStyleAnchor>
+                </ExternalLinkAnchor>
             </EventBody>
         </EventBoxStyle>,
         document.getElementById('event-details-popup') as HTMLElement

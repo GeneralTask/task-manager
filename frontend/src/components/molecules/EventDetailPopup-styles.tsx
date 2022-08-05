@@ -3,6 +3,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 import styled from 'styled-components'
 import GTButton from '../atoms/buttons/GTButton'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 const POPUP_WIDTH = '315px'
 const WINDOW_HEIGHT = window.innerHeight
@@ -88,6 +89,9 @@ export const DescriptionContainer = styled.div`
     word-wrap: normal;
     overflow-wrap: anywhere;
 `
+export const ExternalLinkAnchor = styled(NoStyleAnchor)`
+    width: 90%;
+`
 export const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: 50vh;
@@ -96,7 +100,6 @@ export const CloseButton = styled(NoStyleButton)`
     }
 `
 export const GTButtonCalendar = styled(GTButton)`
-    width: 283px;
     font-family: inherit;
 `
 export const EventTitle = styled.span`

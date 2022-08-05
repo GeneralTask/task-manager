@@ -72,14 +72,14 @@ function EventBody(props: EventBodyProps): JSX.Element {
             eventHasEnded={eventHasEnded}
             ref={eventRef}
         >
-            <EventInfoContainer onClick={onClick} isSelected={props.isSelected}>
-                {props.eventDetailId === props.event.id && (
+            <EventInfoContainer onClick={onClick}>
+                {props.eventDetailId === props.event.id && xCoordEvent.current && yCoordEvent.current && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
                         onClose={onClose}
-                        xCoord={xCoordEvent.current as number}
-                        yCoord={yCoordEvent.current as number}
+                        xCoord={xCoordEvent.current}
+                        yCoord={yCoordEvent.current}
                         eventHeight={eventBodyHeight}
                     />
                 )}
@@ -88,7 +88,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>
-            <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} />
+            <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} isSelected={props.isSelected} />
         </EventBodyStyle>
     )
 }
