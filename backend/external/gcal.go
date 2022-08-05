@@ -179,6 +179,24 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 	return nil
 }
 
+func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+	// TODO: create a EventDeleteURL
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	if err != nil {
+		return err
+	}
+
+	err = calendarService.Events.Delete(accountID, externalID).Do()
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to create event")
+		return err
+	}
+	log.Info().Msgf("gcal event successfully deleted externalID=%s", externalID)
+
+	return nil
+}
+
 func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
 	// first check for built-in conference URL
 	var conferenceCall *database.ConferenceCall

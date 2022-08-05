@@ -12,8 +12,9 @@ type TaskSource interface {
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)
-	CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error
+	CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error
+	DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error
 }
 
 type TaskCreationObject struct {
