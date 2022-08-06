@@ -119,7 +119,7 @@ klogin () {
 }
 ```
 
-Run klogin, and your credentials should be updated to include the access for Kubernetes.
+Run `klogin`, and your credentials should be updated to include the access for Kubernetes.
 
 Now, locally on your laptop, run:
 
