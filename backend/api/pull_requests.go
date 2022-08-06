@@ -105,12 +105,12 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	// Sort pull requests in repositories by required action, and then by last updated
 	for _, repositoryResult := range repositoryResults {
 		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
-			left := repositoryResult.PullRequests[i]
-			right := repositoryResult.PullRequests[j]
-			if left.Status.Text == right.Status.Text {
-				return left.LastUpdatedAt < right.LastUpdatedAt
+			leftPR := repositoryResult.PullRequests[i]
+			rightPR := repositoryResult.PullRequests[j]
+			if leftPR.Status.Text == rightPR.Status.Text {
+				return leftPR.LastUpdatedAt < rightPR.LastUpdatedAt
 			}
-			return external.ActionOrdering[left.Status.Text] < external.ActionOrdering[right.Status.Text]
+			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
 		})
 	}
 	c.JSON(200, repositoryResults)
