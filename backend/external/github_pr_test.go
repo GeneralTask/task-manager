@@ -890,6 +890,30 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 
 		assert.True(t, reviewersHaveRequestedChanges)
 	})
+	t.Run("IgnoreCommentedState", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("COMMENTED"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("CHANGES_REQUESTED"),
+			},
+			{
+				User: &github.User{
+					Login: github.String("testUser"),
+				},
+				State: github.String("COMMENTED"),
+			},
+		}
+		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
+		assert.True(t, reviewersHaveRequestedChanges)
+	})
 }
 
 func TestChecksDidFail(t *testing.T) {
