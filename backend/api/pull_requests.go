@@ -108,7 +108,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			leftPR := repositoryResult.PullRequests[i]
 			rightPR := repositoryResult.PullRequests[j]
 			if leftPR.Status.Text == rightPR.Status.Text {
-				return leftPR.LastUpdatedAt < rightPR.LastUpdatedAt
+				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
 			}
 			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
 		})
