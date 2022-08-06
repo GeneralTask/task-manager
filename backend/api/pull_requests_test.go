@@ -24,33 +24,33 @@ func TestPullRequestList(t *testing.T) {
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
-	timeNow := time.Now()
-	pullRequest1, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddReviewers, timeNow)
+	timePullRequestUpdated := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
+	pullRequest1, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddReviewers, timePullRequestUpdated)
 	assert.NoError(t, err)
-	pullRequest2, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixFailedCI, timeNow)
+	pullRequest2, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixFailedCI, timePullRequestUpdated)
 	assert.NoError(t, err)
-	pullRequest3, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionMergePR, timeNow)
+	pullRequest3, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionMergePR, timePullRequestUpdated)
 	assert.NoError(t, err)
-	pullRequest4, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnReview, timeNow)
+	pullRequest4, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnReview, timePullRequestUpdated)
 	assert.NoError(t, err)
-	pullRequest5, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddressRequested, timeNow)
+	pullRequest5, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddressRequested, timePullRequestUpdated)
 	assert.NoError(t, err)
-	pullRequest6, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixMergeConflicts, timeNow)
+	pullRequest6, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixMergeConflicts, timePullRequestUpdated)
 	assert.NoError(t, err)
 	// wrong user id
-	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true, "", timeNow)
+	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true, "", timePullRequestUpdated)
 	assert.NoError(t, err)
 	// completed PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", true, true, "", timeNow)
+	_, err = createTestPullRequest(db, userID, "dogecoin", true, true, "", timePullRequestUpdated)
 	assert.NoError(t, err)
 	// not a PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", false, false, "", timeNow)
+	_, err = createTestPullRequest(db, userID, "dogecoin", false, false, "", timePullRequestUpdated)
 	assert.NoError(t, err)
 	// first PR in second repo
-	pullRequest7, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timeNow)
+	pullRequest7, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timePullRequestUpdated)
 	assert.NoError(t, err)
 	// second PR in second repo, last updated an hour ago
-	timeHourEarlier := timeNow.Add(-1 * time.Hour)
+	timeHourEarlier := timePullRequestUpdated.Add(-1 * time.Hour)
 	pullRequest8, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timeHourEarlier)
 	assert.NoError(t, err)
 
@@ -87,7 +87,7 @@ func TestPullRequestList(t *testing.T) {
 							Color: "yellow",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
 						ID: pullRequest6.ID.Hex(),
@@ -96,7 +96,7 @@ func TestPullRequestList(t *testing.T) {
 							Color: "red",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
 						ID: pullRequest2.ID.Hex(),
@@ -105,7 +105,7 @@ func TestPullRequestList(t *testing.T) {
 							Color: "red",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
 						ID: pullRequest5.ID.Hex(),
@@ -114,7 +114,7 @@ func TestPullRequestList(t *testing.T) {
 							Color: "yellow",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
 						ID: pullRequest3.ID.Hex(),
@@ -123,7 +123,7 @@ func TestPullRequestList(t *testing.T) {
 							Color: "green",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
 						ID: pullRequest4.ID.Hex(),
@@ -132,7 +132,7 @@ func TestPullRequestList(t *testing.T) {
 							Color: "gray",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 				},
 			},
@@ -141,6 +141,15 @@ func TestPullRequestList(t *testing.T) {
 				Name: "tesla",
 				PullRequests: []PullRequestResult{
 					{
+						ID: pullRequest7.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Add Reviewers",
+							Color: "yellow",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
 						ID: pullRequest8.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Add Reviewers",
@@ -148,15 +157,6 @@ func TestPullRequestList(t *testing.T) {
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timeHourEarlier).Time().UTC().Format(time.RFC3339),
-					},
-					{
-						ID: pullRequest7.ID.Hex(),
-						Status: PullRequestStatus{
-							Text:  "Add Reviewers",
-							Color: "yellow",
-						},
-						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timeNow).Time().UTC().Format(time.RFC3339),
 					},
 				},
 			},
