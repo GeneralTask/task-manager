@@ -102,7 +102,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		return repositoryResults[i].Name < repositoryResults[j].Name
 	})
 
-	// Sort pull requests in repositories by requested action, and then by last updated
+	// Sort pull requests in repositories by required action, and then by last updated
 	for _, repositoryResult := range repositoryResults {
 		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
 			left := repositoryResult.PullRequests[i]
