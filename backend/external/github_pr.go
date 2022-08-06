@@ -29,7 +29,9 @@ const (
 	ActionFixFailedCI       string = "Fix Failed CI"
 	ActionAddressRequested  string = "Address Requested Changes"
 	ActionMergePR           string = "Merge PR"
+	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
+	ActionReviewPR          string = "Review PR"
 )
 
 const (
@@ -44,10 +46,13 @@ type GithubPRSource struct {
 
 type GithubPRData struct {
 	RequestedReviewers   int
+	Reviewers            *github.Reviewers
 	IsMergeable          bool
 	IsApproved           bool
 	HaveRequestedChanges bool
 	ChecksDidFail        bool
+	IsOwnedByUser        bool
+	UserLogin            string
 }
 
 type GithubPRRequestData struct {
@@ -201,6 +206,12 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		result <- nil
 		return
 	}
+	reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+		result <- nil
+		return
+	}
 	requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
@@ -228,10 +239,13 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 
 	pullRequestData := GithubPRData{
 		RequestedReviewers:   requestedReviewers,
+		Reviewers:            reviewers,
 		IsMergeable:          pullRequestFetch.GetMergeable(),
 		IsApproved:           pullRequestIsApproved(reviews),
 		HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 		ChecksDidFail:        checksDidFail,
+		IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
+		UserLogin:            githubUser.GetLogin(),
 	}
 
 	result <- &database.Item{
@@ -451,22 +465,34 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 }
 
 func getPullRequestRequiredAction(data GithubPRData) string {
-	if !data.IsMergeable {
-		return ActionFixMergeConflicts
+	var action string
+	if data.IsOwnedByUser {
+		if !data.IsMergeable {
+			action = ActionFixMergeConflicts
+		} else if data.ChecksDidFail {
+			action = ActionFixFailedCI
+		} else if data.RequestedReviewers == 0 {
+			action = ActionAddReviewers
+		} else if data.HaveRequestedChanges {
+			action = ActionAddressRequested
+		} else if data.IsApproved {
+			action = ActionMergePR
+		} else {
+			action = ActionWaitingOnReview
+		}
+	} else {
+		reviewerUserIDs := data.Reviewers.Users
+		for _, reviewer := range reviewerUserIDs {
+			if reviewer.GetLogin() == data.UserLogin {
+				action = ActionReviewPR
+				break
+			}
+		}
+		if action == "" {
+			action = ActionWaitingOnAuthor
+		}
 	}
-	if data.ChecksDidFail {
-		return ActionFixFailedCI
-	}
-	if data.RequestedReviewers == 0 {
-		return ActionAddReviewers
-	}
-	if data.HaveRequestedChanges {
-		return ActionAddressRequested
-	}
-	if data.IsApproved {
-		return ActionMergePR
-	}
-	return ActionWaitingOnReview
+	return action
 }
 
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
