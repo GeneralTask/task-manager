@@ -21,6 +21,7 @@ const (
 	RepoOwnerTypeOrganization string = "Organization"
 	StateApproved             string = "APPROVED"
 	StateRequestedChanges     string = "REQUESTED_CHANGES"
+	StateCommented            string = "COMMENTED"
 )
 
 const (
@@ -440,7 +441,12 @@ func getReviewerCount(context context.Context, githubClient *github.Client, repo
 func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 	userToMostRecentReview := make(map[string]string)
 	for _, review := range reviews {
-		userToMostRecentReview[review.GetUser().GetLogin()] = review.GetState()
+		reviewState := review.GetState()
+		// If a user requests changes, and then leaves a comment, the PR is still in the 'changes requested' state.
+		if reviewState == StateCommented {
+			continue
+		}
+		userToMostRecentReview[review.GetUser().GetLogin()] = reviewState
 	}
 	for _, review := range userToMostRecentReview {
 		if review == StateRequestedChanges {

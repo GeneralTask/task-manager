@@ -827,8 +827,11 @@ func TestGetReviewerCount(t *testing.T) {
 func TestReviewersHaveRequestedChanges(t *testing.T) {
 	user1 := &github.User{Login: github.String("user1")}
 	user2 := &github.User{Login: github.String("user2")}
+
 	stringRequestedChanges := github.String("REQUESTED_CHANGES")
 	stringApproved := github.String("APPROVED")
+	stringCommented := github.String("COMMENTED")
+
 	t.Run("NoReviews", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
@@ -836,55 +839,42 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 	})
 	t.Run("SingleApprovalReview", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User:  user1,
-				State: stringApproved,
-			},
+			{User: user1, State: stringApproved},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
 		assert.False(t, reviewersHaveRequestedChanges)
 	})
 	t.Run("RequestedChangesThenApproved", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User:  user1,
-				State: stringRequestedChanges,
-			},
-			{
-				User:  user1,
-				State: stringApproved,
-			},
+			{User: user1, State: stringRequestedChanges},
+			{User: user1, State: stringApproved},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
 		assert.False(t, reviewersHaveRequestedChanges)
 	})
 	t.Run("ApprovedThenRequestedChanges", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User:  user1,
-				State: stringApproved,
-			},
-			{
-				User:  user1,
-				State: stringRequestedChanges,
-			},
+			{User: user1, State: stringApproved},
+			{User: user1, State: stringRequestedChanges},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
 		assert.True(t, reviewersHaveRequestedChanges)
 	})
 	t.Run("MultupleUsersReview", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User:  user1,
-				State: stringRequestedChanges,
-			},
-			{
-				User:  user2,
-				State: stringApproved,
-			},
+			{User: user1, State: stringRequestedChanges},
+			{User: user2, State: stringApproved},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
 		assert.True(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("IgnoreCommentedState", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{User: user1, State: stringCommented},
+			{User: user1, State: stringRequestedChanges},
+			{User: user1, State: stringCommented},
+		}
+		assert.True(t, reviewersHaveRequestedChanges(pullRequestReviews))
 	})
 }
 
