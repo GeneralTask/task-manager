@@ -536,30 +536,41 @@ func TestCheckRunsForCommit(t *testing.T) {
 }
 
 func TestUserIsReviewer(t *testing.T) {
-	testGithubUser1 := &github.User{
+	testGithubUserReviewer := &github.User{
 		ID: github.Int64(1),
 	}
-	testGithubUser2 := &github.User{
+	testGithubUserNotReviewer := &github.User{
 		ID: github.Int64(2),
 	}
+	testGithubUserSubmittedReview := &github.User{
+		ID: github.Int64(3),
+	}
+	reviews := []*github.PullRequestReview{}
 	githubPullRequest := &github.PullRequest{
-		RequestedReviewers: []*github.User{testGithubUser1},
+		RequestedReviewers: []*github.User{testGithubUserReviewer},
 	}
 	t.Run("UserIsReviewer", func(t *testing.T) {
-		assert.True(t, userIsReviewer(testGithubUser1, githubPullRequest))
+		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
 	})
-	t.Run("UserIsNotReviewer", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUser2, githubPullRequest))
+	// Github API does not consider users who have submitted a review as reviewers, but we still want to show them as a reviewer in our app.
+	t.Run("UserSubmittedReview", func(t *testing.T) {
+		reviews = append(reviews, &github.PullRequestReview{
+			User: testGithubUserSubmittedReview,
+		})
+		assert.True(t, userIsReviewer(testGithubUserSubmittedReview, githubPullRequest, reviews))
+	})
+	t.Run("UserIsNotReviewerAndNotSubmittedReview", func(t *testing.T) {
+		assert.False(t, userIsReviewer(testGithubUserNotReviewer, githubPullRequest, reviews))
 	})
 	t.Run("NilPullRequest", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUser1, nil))
+		assert.False(t, userIsReviewer(testGithubUserReviewer, nil, reviews))
 	})
 	t.Run("NilUser", func(t *testing.T) {
-		assert.False(t, userIsReviewer(nil, githubPullRequest))
+		assert.False(t, userIsReviewer(nil, githubPullRequest, reviews))
 	})
 	t.Run("NilFields", func(t *testing.T) {
-		testGithubUser1.ID = nil
-		assert.False(t, userIsReviewer(testGithubUser1, githubPullRequest))
+		testGithubUserReviewer.ID = nil
+		assert.False(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
 	})
 }
 

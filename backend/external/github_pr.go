@@ -195,14 +195,14 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 	repository := requestData.Repository
 	pullRequest := requestData.PullRequest
 
-	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
-		result <- nil
-		return
-	}
-
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR reviews")
+		result <- nil
+		return
+	}
+	// Only display pull requests where user is the owner, or the user is a reviewer
+	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews) {
 		result <- nil
 		return
 	}
@@ -364,12 +364,19 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 		*githubUser.ID == *pullRequest.User.ID)
 }
 
-func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+// Github API does not consider users who have submitted a review as reviewers
+func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview) bool {
 	if pullRequest == nil || githubUser == nil {
 		return false
 	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+			return true
+		}
+	}
+	// If user submitted a review, we consider them a reviewer as well
+	for _, review := range reviews {
+		if githubUser.GetID() == review.User.GetID() {
 			return true
 		}
 	}
