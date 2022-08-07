@@ -828,7 +828,7 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 	user1 := &github.User{Login: github.String("user1")}
 	user2 := &github.User{Login: github.String("user2")}
 
-	stringRequestedChanges := github.String("REQUESTED_CHANGES")
+	stringRequestedChanges := github.String("CHANGES_REQUESTED")
 	stringApproved := github.String("APPROVED")
 	stringCommented := github.String("COMMENTED")
 
