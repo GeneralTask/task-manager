@@ -552,7 +552,7 @@ func TestUserIsReviewer(t *testing.T) {
 	t.Run("UserIsReviewer", func(t *testing.T) {
 		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
 	})
-	// Github API does not consider users who have submitted a review as reviewers
+	// Github API does not consider users who have submitted a review as reviewers, but we still want to show them as a reviewer in our app.
 	t.Run("UserSubmittedReview", func(t *testing.T) {
 		reviews = append(reviews, &github.PullRequestReview{
 			User: testGithubUserSubmittedReview,
