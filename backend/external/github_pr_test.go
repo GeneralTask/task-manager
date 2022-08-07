@@ -911,8 +911,7 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 				State: github.String("COMMENTED"),
 			},
 		}
-		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
-		assert.True(t, reviewersHaveRequestedChanges)
+		assert.True(t, reviewersHaveRequestedChanges(pullRequestReviews))
 	})
 }
 

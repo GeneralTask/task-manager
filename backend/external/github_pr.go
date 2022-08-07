@@ -435,6 +435,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 	userToMostRecentReview := make(map[string]string)
 	for _, review := range reviews {
 		reviewState := review.GetState()
+		// If a user requests changes, and then leaves a comment, the PR is still in the 'changes requested' state.
 		if reviewState == StateCommented {
 			continue
 		}
