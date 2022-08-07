@@ -20,7 +20,7 @@ const (
 	CurrentlyAuthedUserFilter string = ""
 	RepoOwnerTypeOrganization string = "Organization"
 	StateApproved             string = "APPROVED"
-	StateChangesRequested     string = "CHANGES_REQUESTED"
+	StateRequestedChanges     string = "REQUESTED_CHANGES"
 	StateCommented            string = "COMMENTED"
 )
 
@@ -424,7 +424,7 @@ func getReviewerCount(context context.Context, githubClient *github.Client, repo
 	submittedReviews := 0
 	for _, review := range reviews {
 		state := review.GetState()
-		if review.GetUser() != nil && (state == StateApproved || state == StateChangesRequested) {
+		if review.GetUser() != nil && (state == StateApproved || state == StateRequestedChanges) {
 			submittedReviews += 1
 		}
 	}
@@ -442,7 +442,7 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 		userToMostRecentReview[review.GetUser().GetLogin()] = reviewState
 	}
 	for _, review := range userToMostRecentReview {
-		if review == StateChangesRequested {
+		if review == StateRequestedChanges {
 			return true
 		}
 	}
