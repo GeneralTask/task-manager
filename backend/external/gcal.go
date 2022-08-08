@@ -24,10 +24,6 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
 func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
 	if err != nil {
@@ -179,6 +175,24 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 		return err
 	}
 	log.Info().Msgf("Event created: %s\n", gcalEvent.HtmlLink)
+
+	return nil
+}
+
+func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+	// TODO: create a EventDeleteURL
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	if err != nil {
+		return err
+	}
+
+	err = calendarService.Events.Delete(accountID, externalID).Do()
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to create event")
+		return err
+	}
+	log.Info().Msgf("gcal event successfully deleted externalID=%s", externalID)
 
 	return nil
 }

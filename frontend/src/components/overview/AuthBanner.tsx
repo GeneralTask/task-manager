@@ -26,9 +26,6 @@ const IconContainer = styled.div`
     align-items: center;
     gap: ${Spacing.padding._12};
 `
-const ConnectButton = styled(GTButton)`
-    height: 28px;
-`
 const Title = styled.span`
     ${Typography.bodySmall};
 `
@@ -58,7 +55,7 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
                 <Icon size="small" icon={logos[logo]} />
                 <Title>{`Connect ${name} to General Task`}</Title>
             </IconContainer>
-            <ConnectButton
+            <GTButton
                 value="Connect"
                 color={Colors.gtColor.primary}
                 onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}

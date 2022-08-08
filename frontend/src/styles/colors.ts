@@ -67,12 +67,12 @@ export type TIconColor = keyof typeof icon
 export const button = {
     primary: {
         default: PURPLE._1,
-        hover: PURPLE._3,
+        hover: `linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), ${PURPLE._1}`,
         active_text: GRAY._200,
     },
     secondary: {
         default: WHITE,
-        hover: GRAY._100,
+        hover: GRAY._200,
         active_text: BLACK,
     },
 }

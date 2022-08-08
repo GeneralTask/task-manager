@@ -16,22 +16,6 @@ type LinearTaskSource struct {
 	Linear LinearService
 }
 
-type LinearUserInfoResponse struct {
-}
-
-type LinearTasksResponse struct {
-}
-
-type LinearTasksUpdateFields struct {
-}
-
-type LinearTasksUpdateBody struct {
-}
-
-func (linearTask LinearTaskSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
 func (linearTask LinearTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
@@ -186,14 +170,14 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 
 }
 
-func (linearTask LinearTaskSource) GetTaskUpdateBody(updateFields *database.TaskItemChangeableFields) *LinearTasksUpdateBody {
-	return &LinearTasksUpdateBody{}
-}
-
 func (linearTask LinearTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
 func (linearTask LinearTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	return errors.New("has not been implemented yet")
+}
+
+func (linearTask LinearTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }

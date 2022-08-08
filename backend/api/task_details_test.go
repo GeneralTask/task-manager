@@ -24,19 +24,19 @@ func TestTaskDetail(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
 
-	jiraTaskIDHex := insertTestTask(t, userID, database.Item{
+	linearTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:      userID,
-			IDExternal:  "sample_jira_id_details",
+			IDExternal:  "sample_linear_id_details",
 			SourceID:    external.TASK_SOURCE_ID_LINEAR,
 			IsCompleted: true,
 		},
 		TaskType: database.TaskType{IsTask: true},
 	})
-	linearTaskIDHex := insertTestTask(t, userID, database.Item{
+	linearTaskIDHex2 := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:      userID,
-			IDExternal:  "sample_linear_id_details",
+			IDExternal:  "sample_linear_id_details_2",
 			SourceID:    external.TASK_SOURCE_ID_LINEAR,
 			IsCompleted: true,
 		},
@@ -52,7 +52,7 @@ func TestTaskDetail(t *testing.T) {
 	nonUserTaskIDHex := insertTestTask(t, userID, database.Item{
 		TaskBase: database.TaskBase{
 			UserID:     notUserID,
-			IDExternal: "sample_jira_id_details_2",
+			IDExternal: "sample_linear_id_details_3",
 			SourceID:   external.TASK_SOURCE_ID_LINEAR,
 		},
 		TaskType: database.TaskType{IsTask: true},
@@ -60,7 +60,7 @@ func TestTaskDetail(t *testing.T) {
 
 	router := GetRouter(GetAPI())
 
-	UnauthorizedTest(t, "GET", fmt.Sprintf("/tasks/detail/%s/", jiraTaskIDHex), nil)
+	UnauthorizedTest(t, "GET", fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex), nil)
 	t.Run("InvalidTaskID", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
@@ -90,22 +90,6 @@ func TestTaskDetail(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",
-			fmt.Sprintf("/tasks/detail/%s/", jiraTaskIDHex),
-			nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-
-		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, jiraTaskIDHex),
-			string(body))
-	})
-	t.Run("SuccessLinear", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"GET",
 			fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex),
 			nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -116,7 +100,23 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true}`, linearTaskIDHex),
+			string(body))
+	})
+	t.Run("SuccessLinear", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"GET",
+			fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex2),
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+
+		assert.Equal(t,
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex2),
 			string(body))
 	})
 }

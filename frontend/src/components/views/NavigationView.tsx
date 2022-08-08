@@ -46,7 +46,12 @@ const NavigationView = () => {
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />
-                <GTButton value="Settings" styleType="secondary" onClick={() => navigate('/settings')} />
+                <GTButton
+                    value="Settings"
+                    styleType="secondary"
+                    fitContent={false}
+                    onClick={() => navigate('/settings')}
+                />
             </GapView>
         </NavigationViewContainer>
     )

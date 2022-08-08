@@ -92,8 +92,7 @@ func TestCreateTask(t *testing.T) {
 		authToken = login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin"}`)), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "buy more dogecoin"}`)), http.StatusOK)
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
@@ -117,9 +116,7 @@ func TestCreateTask(t *testing.T) {
 		assert.NoError(t, err)
 		customSectionID := res.InsertedID.(primitive.ObjectID)
 
-		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/",
-			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+customSectionID.Hex()+`"}`)),
-			http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "id_task_section": "`+customSectionID.Hex()+`"}`)), http.StatusOK)
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
