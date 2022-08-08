@@ -14,7 +14,6 @@ interface EventBoxStyleProps {
     popupHeight: number
     eventHeight: number
 }
-
 /* Calculates the position of the popup depending on the position of the event
 Handles edge cases for events below max height (window height - popup height) */
 export const EventBoxStyle = styled.div<EventBoxStyleProps>`

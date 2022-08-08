@@ -80,6 +80,8 @@ interface WeekCalendarEventsProps {
     setEventDetailId: (id: string) => void
     disableScroll: boolean
     setDisableScroll: (id: boolean) => void
+    isEventSelected: boolean
+    setIsEventSelected: (id: boolean) => void
 }
 const WeekCalendarEvents = ({
     date,
@@ -89,6 +91,8 @@ const WeekCalendarEvents = ({
     setEventDetailId,
     disableScroll,
     setDisableScroll,
+    isEventSelected,
+    setIsEventSelected,
 }: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
@@ -112,6 +116,8 @@ const WeekCalendarEvents = ({
                         setEventDetailId={setEventDetailId}
                         disableScroll={disableScroll}
                         setDisableScroll={setDisableScroll}
+                        isEventSelected={isEventSelected}
+                        setIsEventSelected={setIsEventSelected}
                     />
                 ))}
                 <TimeIndicator />
@@ -141,6 +147,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
+    const [isEventSelected, setIsEventSelected] = useState(false)
     const [disableScroll, setDisableScroll] = useState(false)
 
     const allGroups = useMemo(() => {
@@ -249,6 +256,8 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     setEventDetailId={setEventDetailsID}
                     disableScroll={disableScroll}
                     setDisableScroll={setDisableScroll}
+                    isEventSelected={isEventSelected}
+                    setIsEventSelected={setIsEventSelected}
                 />
             ))}
         </AllDaysContainer>

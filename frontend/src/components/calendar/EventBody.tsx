@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useRef } from 'react'
+import React, { useRef, MouseEvent } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -25,6 +25,8 @@ interface EventBodyProps {
     isSelected: boolean
     disableScroll: boolean
     setDisableScroll: (id: boolean) => void
+    isEventSelected: boolean
+    setIsEventSelected: (id: boolean) => void
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const eventRef = useRef<HTMLDivElement>(null)
@@ -48,13 +50,23 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
 
-    const onClose = () => {
+    const onClose = (e: MouseEvent) => {
+        if (eventRef.current?.contains(e.target as Node)) return
         props.setEventDetailId('')
+        props.setIsEventSelected(false)
         props.setDisableScroll(false)
     }
     const onClick = () => {
-        props.setEventDetailId(props.event.id)
-        props.setDisableScroll(!props.disableScroll)
+        if (props.eventDetailId === props.event.id) {
+            props.setEventDetailId('')
+            props.setIsEventSelected(false)
+            props.setDisableScroll(false)
+        } else {
+            props.setEventDetailId(props.event.id)
+            props.setDisableScroll(!props.disableScroll)
+            props.setIsEventSelected(!props.isEventSelected)
+        }
+
         if (!eventRef.current) return
         // Define the x-coord and y-coord of the event to be the bottom left corner
         const pos = eventRef.current.getBoundingClientRect()

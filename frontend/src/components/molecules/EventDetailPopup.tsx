@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -25,7 +25,7 @@ import {
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    onClose: () => void
+    onClose: (e: MouseEvent) => void
     xCoord: number
     yCoord: number
     eventHeight: number
@@ -35,24 +35,33 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
     const popupRef = useRef<HTMLDivElement>(null)
     useLayoutEffect(() => {
         if (!popupRef.current) return
-        setHeight(popupRef.current.getBoundingClientRect().height)
+        setPopupHeight(popupRef.current.getBoundingClientRect().height)
+
+        console.log('xCoord', xCoord)
+        console.log('yCoord', yCoord)
     })
-    useClickOutside(popupRef, onClose)
+
+    useClickOutside(popupRef, () => onClose)
 
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
-    const [height, setHeight] = useState(0)
+    const [popupHeight, setPopupHeight] = useState(0)
 
     return ReactDOM.createPortal(
-        <EventBoxStyle xCoord={xCoord} yCoord={yCoord} popupHeight={height} eventHeight={eventHeight} ref={popupRef}>
+        <EventBoxStyle
+            xCoord={xCoord}
+            yCoord={yCoord}
+            popupHeight={popupHeight}
+            eventHeight={eventHeight}
+            ref={popupRef}
+        >
             <EventBody>
                 <EventHeader>
                     <Icon source={logos.gcal} size="xSmall" />
                     <EventHeaderIcons>
                         <CloseButton
                             onClick={(e) => {
-                                e.stopPropagation()
-                                onClose()
+                                onClose(e as MouseEvent)
                             }}
                         >
                             <Icon source={icons.x_thin_light} size="xSmall" />
