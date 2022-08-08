@@ -35,6 +35,15 @@ const (
 	ActionReviewPR          string = "Review PR"
 )
 
+var ActionOrdering = map[string]int{
+	ActionAddReviewers:      0,
+	ActionFixMergeConflicts: 1,
+	ActionFixFailedCI:       2,
+	ActionAddressRequested:  3,
+	ActionMergePR:           4,
+	ActionWaitingOnReview:   5,
+}
+
 const (
 	ChecksStatusCompleted    string = "completed"
 	ChecksConclusionFailure  string = "failure"
