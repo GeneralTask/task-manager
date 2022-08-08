@@ -13,11 +13,6 @@ const IconContainer = styled.div<{ width: string; height: string }>`
     justify-content: center;
     user-select: none;
 `
-// const ImageContainer = styled.img`
-//     width: 100%;
-//     aspect-ratio: 1;
-// `
-
 interface IconProps {
     icon: IconProp | string
     size: TIconSize
