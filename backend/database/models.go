@@ -130,20 +130,21 @@ type TaskTypeChangeable struct {
 
 // Task json & mongo model
 type TaskBase struct {
-	ID               primitive.ObjectID `bson:"_id,omitempty"`
-	UserID           primitive.ObjectID `bson:"user_id"`
-	IDExternal       string             `bson:"id_external"`
-	IDOrdering       int                `bson:"id_ordering"`
-	IDTaskSection    primitive.ObjectID `bson:"id_task_section"`
-	IsCompleted      bool               `bson:"is_completed"`
-	Sender           string             `bson:"sender"`
-	SourceID         string             `bson:"source_id"`
-	SourceAccountID  string             `bson:"source_account_id"`
-	Deeplink         string             `bson:"deeplink"`
-	Title            string             `bson:"title"`
-	Body             string             `bson:"body"`
-	HasBeenReordered bool               `bson:"has_been_reordered"`
-	DueDate          primitive.DateTime `bson:"due_date"`
+	ID                   primitive.ObjectID `bson:"_id,omitempty"`
+	UserID               primitive.ObjectID `bson:"user_id"`
+	IDExternal           string             `bson:"id_external"`
+	IDOrdering           int                `bson:"id_ordering"`
+	IDTaskSection        primitive.ObjectID `bson:"id_task_section"`
+	IDMeetingPreparation string             `bson:"id_meeting_preparation"`
+	IsCompleted          bool               `bson:"is_completed"`
+	Sender               string             `bson:"sender"`
+	SourceID             string             `bson:"source_id"`
+	SourceAccountID      string             `bson:"source_account_id"`
+	Deeplink             string             `bson:"deeplink"`
+	Title                string             `bson:"title"`
+	Body                 string             `bson:"body"`
+	HasBeenReordered     bool               `bson:"has_been_reordered"`
+	DueDate              primitive.DateTime `bson:"due_date"`
 	//time in nanoseconds
 	TimeAllocation                int64              `bson:"time_allocated"`
 	ConferenceCall                *ConferenceCall    `bson:"conference_call"`

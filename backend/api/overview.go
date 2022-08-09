@@ -473,11 +473,12 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	for _, event := range *events {
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
+		// Check if meeting prep task exists
 		count, err := taskCollection.CountDocuments(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"task_type.is_meeting_preparation_task": true},
-				{"id_external": event.IDExternal},
+				{"id_meeting_preparation": event.IDExternal},
 			},
 			})
 		if err != nil {
@@ -489,12 +490,12 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 		}
 		_, err = taskCollection.InsertOne(ctx, database.Item{
 			TaskBase: database.TaskBase{
-				Title:       event.Title,
-				Body:        event.TaskBase.Body,
-				UserID:      userID,
-				IDExternal:  event.IDExternal,
-				IsCompleted: false,
-				SourceID:    external.TASK_SOURCE_ID_GCAL,
+				Title:                event.Title,
+				Body:                 event.TaskBase.Body,
+				UserID:               userID,
+				IDMeetingPreparation: event.IDExternal,
+				IsCompleted:          false,
+				SourceID:             external.TASK_SOURCE_ID_GCAL,
 			},
 			TaskType: database.TaskType{
 				IsMeetingPreparationTask: true,

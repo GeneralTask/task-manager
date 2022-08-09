@@ -812,46 +812,6 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NotNil(t, res)
 		assert.Equal(t, 1, len(res.ViewItems))
 	})
-	t.Run("TaskDifferentIDExternal", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err := taskCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:      userID,
-				IsCompleted: false,
-				IDExternal:  primitive.NewObjectID().Hex(),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(timeOneHourLater),
-				DatetimeEnd:   primitive.NewDateTimeFromTime(timeOneDayLater),
-			},
-		})
-		assert.NoError(t, err)
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err = taskCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:      userID,
-				IsCompleted: false,
-				IDExternal:  primitive.NewObjectID().Hex(),
-			},
-			TaskType: database.TaskType{
-				IsMeetingPreparationTask: false,
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(timeOneHourLater),
-				DatetimeEnd:   primitive.NewDateTimeFromTime(timeOneDayLater),
-			},
-		})
-		assert.NoError(t, err)
-		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
-		assert.NoError(t, err)
-		assert.NotNil(t, res)
-		assert.Equal(t, 2, len(res.ViewItems))
-	})
 	t.Run("TaskNotMeetingPrepTask", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -891,7 +851,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, 3, len(res.ViewItems))
+		assert.Equal(t, 2, len(res.ViewItems))
 	})
 	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
@@ -916,9 +876,9 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		defer cancel()
 		_, err = taskCollection.InsertOne(dbCtx, database.Item{
 			TaskBase: database.TaskBase{
-				UserID:      userID,
-				IsCompleted: false,
-				IDExternal:  idExternal,
+				UserID:               userID,
+				IsCompleted:          false,
+				IDMeetingPreparation: idExternal,
 			},
 			TaskType: database.TaskType{
 				IsMeetingPreparationTask: true,
@@ -932,7 +892,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
-		assert.Equal(t, 4, len(res.ViewItems))
+		assert.Equal(t, 3, len(res.ViewItems))
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
 		zeroTime := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
@@ -967,7 +927,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, true, item.IsCompleted)
 		assert.Equal(t, true, item.HasBeenAutomaticallyCompleted)
 		assert.NotNil(t, res)
-		assert.Equal(t, 4, len(res.ViewItems))
+		assert.Equal(t, 3, len(res.ViewItems))
 	})
 }
 
