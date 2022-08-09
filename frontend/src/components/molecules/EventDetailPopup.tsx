@@ -36,9 +36,6 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
     useLayoutEffect(() => {
         if (!popupRef.current) return
         setPopupHeight(popupRef.current.getBoundingClientRect().height)
-
-        console.log('xCoord', xCoord)
-        console.log('yCoord', yCoord)
     })
 
     useClickOutside(popupRef, () => onClose)

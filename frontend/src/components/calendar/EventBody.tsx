@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useRef, MouseEvent } from 'react'
+import React, { useRef, MouseEvent, useEffect, useState } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -47,6 +47,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
+
+    const [coords, setCoords] = useState({
+        xCoord: 0,
+        yCoord: 0,
+    })
+
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
 
@@ -56,6 +62,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
         props.setIsEventSelected(false)
         props.setDisableScroll(false)
     }
+
     const onClick = () => {
         if (props.eventDetailId === props.event.id) {
             props.setEventDetailId('')
@@ -69,10 +76,29 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
         if (!eventRef.current) return
         // Define the x-coord and y-coord of the event to be the bottom left corner
-        const pos = eventRef.current.getBoundingClientRect()
-        xCoordEvent.current = pos.left
-        yCoordEvent.current = pos.bottom
+        xCoordEvent.current = eventRef.current.getBoundingClientRect().left
+        yCoordEvent.current = eventRef.current.getBoundingClientRect().bottom
+
+        xCoordEvent.current &&
+            yCoordEvent.current &&
+            setCoords({
+                xCoord: xCoordEvent.current,
+                yCoord: yCoordEvent.current,
+            })
     }
+
+    const handleResize = () => {
+        eventRef.current &&
+            setCoords({
+                xCoord: eventRef.current.getBoundingClientRect().left,
+                yCoord: eventRef.current.getBoundingClientRect().bottom,
+            })
+    }
+
+    useEffect(() => {
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [])
 
     return (
         <EventBodyStyle
@@ -85,13 +111,13 @@ function EventBody(props: EventBodyProps): JSX.Element {
             ref={eventRef}
         >
             <EventInfoContainer onClick={onClick}>
-                {props.eventDetailId === props.event.id && xCoordEvent.current && yCoordEvent.current && (
+                {props.eventDetailId === props.event.id && coords && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
-                        onClose={onClose}
-                        xCoord={xCoordEvent.current}
-                        yCoord={yCoordEvent.current}
+                        onClose={() => onClose}
+                        xCoord={coords.xCoord}
+                        yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
                     />
                 )}
