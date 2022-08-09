@@ -21,6 +21,7 @@ const (
 	RepoOwnerTypeOrganization string = "Organization"
 	StateApproved             string = "APPROVED"
 	StateChangesRequested     string = "CHANGES_REQUESTED"
+	StateCommented            string = "COMMENTED"
 )
 
 const (
@@ -29,8 +30,19 @@ const (
 	ActionFixFailedCI       string = "Fix Failed CI"
 	ActionAddressRequested  string = "Address Requested Changes"
 	ActionMergePR           string = "Merge PR"
+	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
+	ActionReviewPR          string = "Review PR"
 )
+
+var ActionOrdering = map[string]int{
+	ActionAddReviewers:      0,
+	ActionFixMergeConflicts: 1,
+	ActionFixFailedCI:       2,
+	ActionAddressRequested:  3,
+	ActionMergePR:           4,
+	ActionWaitingOnReview:   5,
+}
 
 const (
 	ChecksStatusCompleted    string = "completed"
@@ -44,10 +56,13 @@ type GithubPRSource struct {
 
 type GithubPRData struct {
 	RequestedReviewers   int
+	Reviewers            *github.Reviewers
 	IsMergeable          bool
 	IsApproved           bool
 	HaveRequestedChanges bool
 	ChecksDidFail        bool
+	IsOwnedByUser        bool
+	UserLogin            string
 }
 
 type GithubPRRequestData struct {
@@ -190,14 +205,20 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 	repository := requestData.Repository
 	pullRequest := requestData.PullRequest
 
-	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest) {
-		result <- nil
-		return
-	}
-
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR reviews")
+		result <- nil
+		return
+	}
+	// Only display pull requests where user is the owner, or the user is a reviewer
+	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews) {
+		result <- nil
+		return
+	}
+	reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
 		result <- nil
 		return
 	}
@@ -228,10 +249,13 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 
 	pullRequestData := GithubPRData{
 		RequestedReviewers:   requestedReviewers,
+		Reviewers:            reviewers,
 		IsMergeable:          pullRequestFetch.GetMergeable(),
 		IsApproved:           pullRequestIsApproved(reviews),
 		HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 		ChecksDidFail:        checksDidFail,
+		IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
+		UserLogin:            githubUser.GetLogin(),
 	}
 
 	result <- &database.Item{
@@ -350,12 +374,19 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 		*githubUser.ID == *pullRequest.User.ID)
 }
 
-func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest) bool {
+// Github API does not consider users who have submitted a review as reviewers
+func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview) bool {
 	if pullRequest == nil || githubUser == nil {
 		return false
 	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
+			return true
+		}
+	}
+	// If user submitted a review, we consider them a reviewer as well
+	for _, review := range reviews {
+		if githubUser.GetID() == review.User.GetID() {
 			return true
 		}
 	}
@@ -419,7 +450,12 @@ func getReviewerCount(context context.Context, githubClient *github.Client, repo
 func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 	userToMostRecentReview := make(map[string]string)
 	for _, review := range reviews {
-		userToMostRecentReview[review.GetUser().GetLogin()] = review.GetState()
+		reviewState := review.GetState()
+		// If a user requests changes, and then leaves a comment, the PR is still in the 'changes requested' state.
+		if reviewState == StateCommented {
+			continue
+		}
+		userToMostRecentReview[review.GetUser().GetLogin()] = reviewState
 	}
 	for _, review := range userToMostRecentReview {
 		if review == StateChangesRequested {
@@ -451,22 +487,34 @@ func checksDidFail(context context.Context, githubClient *github.Client, reposit
 }
 
 func getPullRequestRequiredAction(data GithubPRData) string {
-	if !data.IsMergeable {
-		return ActionFixMergeConflicts
+	var action string
+	if data.IsOwnedByUser {
+		if !data.IsMergeable {
+			action = ActionFixMergeConflicts
+		} else if data.ChecksDidFail {
+			action = ActionFixFailedCI
+		} else if data.RequestedReviewers == 0 {
+			action = ActionAddReviewers
+		} else if data.HaveRequestedChanges {
+			action = ActionAddressRequested
+		} else if data.IsApproved {
+			action = ActionMergePR
+		} else {
+			action = ActionWaitingOnReview
+		}
+	} else {
+		reviewerUserIDs := data.Reviewers.Users
+		for _, reviewer := range reviewerUserIDs {
+			if reviewer.GetLogin() == data.UserLogin {
+				action = ActionReviewPR
+				break
+			}
+		}
+		if action == "" {
+			action = ActionWaitingOnAuthor
+		}
 	}
-	if data.ChecksDidFail {
-		return ActionFixFailedCI
-	}
-	if data.RequestedReviewers == 0 {
-		return ActionAddReviewers
-	}
-	if data.HaveRequestedChanges {
-		return ActionAddressRequested
-	}
-	if data.IsApproved {
-		return ActionMergePR
-	}
-	return ActionWaitingOnReview
+	return action
 }
 
 func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {

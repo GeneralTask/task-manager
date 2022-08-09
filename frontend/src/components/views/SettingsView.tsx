@@ -111,6 +111,7 @@ const SettingsView = () => {
                                         e.stopPropagation()
                                         setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
                                     }}
+                                    fitContent={false}
                                     value="Add new Account"
                                     styleType="primary"
                                 />
