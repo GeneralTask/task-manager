@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -44,19 +45,19 @@ func (api *API) EventModify(c *gin.Context) {
 		return
 	}
 
-	//eventSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
-	//if err != nil {
-	//	api.Logger.Error().Err(err).Msg("failed to load external task source")
-	//	Handle500(c)
-	//	return
-	//}
-	//
-	//err = eventSourceResult.Source.ModifyEvent(userID, modifyParams.AccountID, event.IDExternal, &modifyParams)
-	//if err != nil {
-	//	api.Logger.Error().Err(err).Msg("failed to update external task source")
-	//	Handle500(c)
-	//	return
-	//}
+	eventSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to load external task source")
+		Handle500(c)
+		return
+	}
+
+	err = eventSourceResult.Source.ModifyEvent(userID, modifyParams.AccountID, event.IDExternal, &modifyParams)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to update external task source")
+		Handle500(c)
+		return
+	}
 
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
@@ -65,7 +66,18 @@ func (api *API) EventModify(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, modifyParams, nil, true)
+	// fieldsToUpdate := database.CalendarEventChangeableFields{}
+	// if modifyParams.Summary != nil {
+	// 	fieldsToUpdate.Title = *modifyParams.Summary
+	// }
+	// if modifyParams.Description != nil {
+	// 	fieldsToUpdate.Body = *modifyParams.Description
+	// }
+
+	// _, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, modifyParams, nil, false)
+
+	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, modifyParams, nil, false)
+
 	if err != nil {
 		return
 	}

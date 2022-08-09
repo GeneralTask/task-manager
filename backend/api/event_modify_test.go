@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
@@ -42,7 +43,7 @@ func TestInvalidEventModify(t *testing.T) {
 	eventID := eventObjectID.Hex()
 	validUrl := fmt.Sprintf("/events/modify/%s/", eventID)
 
-	calendarModifyServer := testutils.GetMockAPIServer(t, 200, "[]")
+	calendarModifyServer := testutils.GetMockAPIServer(t, 200, "{}")
 	api := GetAPI()
 	api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &calendarModifyServer.URL
 	router := GetRouter(api)
@@ -53,7 +54,7 @@ func TestInvalidEventModify(t *testing.T) {
 			"summary": "new summary",
 			"description": "new description",
 			"start_time": "2020-01-01T00:00:00Z",
-			"end_time": "2020-01-01T00:00:00Z"
+			"end_time": "2020-02-01T00:00:00Z"
 		}`))
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -72,6 +73,7 @@ func TestInvalidEventModify(t *testing.T) {
 		assert.Equal(t, "new description", event.Body)
 		// assert that start and end times are correct
 		assert.Equal(t, "2020-01-01T00:00:00Z", event.DatetimeStart)
+		assert.Equal(t, "2020-02-01T00:00:00Z", event.DatetimeStart)
 	})
 	UnauthorizedTest(t, "PATCH", validUrl, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
 	t.Run("NoBody", func(t *testing.T) {
