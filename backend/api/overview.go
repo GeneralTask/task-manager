@@ -84,18 +84,10 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	headers := c.Request.Header
-	timezoneOffsetHeader := headers["Timezone-Offset"]
-	if len(timezoneOffsetHeader) == 0 {
-		c.JSON(400, gin.H{"error": "Timezone-Offset header is required"})
-		return
-	}
-	timezoneOffset, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
+	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "Timezone-Offset header is invalid"})
-		return
+		c.JSON(400, gin.H{"error": err.Error()})
 	}
-	api.Logger.Debug().Msgf("Timezone offset: %s", timezoneOffset.String())
 
 	userID := getUserIDFromContext(c)
 	_, err = database.GetUser(db, userID)
@@ -131,7 +123,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(db, parentCtx, views, userID, timezoneOffset)
+	result, err := api.GetOverviewResults(db, parentCtx, views, userID, *timezoneOffset)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)

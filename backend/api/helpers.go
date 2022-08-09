@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -39,4 +40,17 @@ func (api *API) GetCurrentTime() time.Time {
 		return *api.OverrideTime
 	}
 	return time.Now()
+}
+
+func GetTimezoneOffsetFromHeader(c *gin.Context) (*time.Duration, error) {
+	headers := c.Request.Header
+	timezoneOffsetHeader := headers["Timezone-Offset"]
+	if len(timezoneOffsetHeader) == 0 {
+		return nil, errors.New("Timezone-Offset header is required")
+	}
+	duration, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
+	if err != nil {
+		return nil, errors.New("Timezone-Offset header is invalid")
+	}
+	return &duration, err
 }
