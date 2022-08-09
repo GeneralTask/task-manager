@@ -469,6 +469,48 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 		return nil, err
 	}
 
+	// Create new meeting prep tasks for events. Ignore events if meeting prep task already exists
+	err = CreateMeetingTasksFromEvents(ctx, db, userID, events)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get all meeting prep tasks for user
+	meetingTasks, err := database.GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_meeting_preparation_task": true},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	// Sort by datetime_start
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].CalendarEvent.DatetimeStart <= (*meetingTasks)[j].CalendarEvent.DatetimeStart
+	})
+
+	// Create result of meeting prep tasks
+	result, err := api.GetMeetingPrepTaskResult(ctx, db, userID, timeNow, meetingTasks)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OverviewResult[TaskResult]{
+		ID:            view.ID,
+		Name:          ViewMeetingPreparationName,
+		Logo:          external.TaskSourceGoogleCalendar.LogoV2,
+		Type:          ViewMeetingPreparation,
+		IsLinked:      true,
+		Sources:       []SourcesResult{},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     result,
+	}, nil
+}
+
+func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.Item) error {
 	taskCollection := database.GetTaskCollection(db)
 	for _, event := range *events {
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
@@ -483,7 +525,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 			},
 			})
 		if err != nil {
-			return nil, err
+			return err
 		}
 		// Create meeting prep task for event if one does not exist
 		if count > 0 {
@@ -507,29 +549,19 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 			},
 		})
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
+	return nil
+}
 
-	meetingTasks, err := database.GetItems(db, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"task_type.is_meeting_preparation_task": true},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-	// sort by datetime_start
-	sort.Slice(*meetingTasks, func(i, j int) bool {
-		return (*meetingTasks)[i].CalendarEvent.DatetimeStart <= (*meetingTasks)[j].CalendarEvent.DatetimeStart
-	})
-
+// GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
+func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Item) ([]*TaskResult, error) {
+	taskCollection := database.GetTaskCollection(db)
 	result := []*TaskResult{}
-	for _, task := range *meetingTasks {
+	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
-		if task.CalendarEvent.DatetimeEnd.Time().Before(timeNow) && !task.HasBeenAutomaticallyCompleted {
-			api.Logger.Debug().Msgf("id: %v", task.ID.Hex())
+		if task.CalendarEvent.DatetimeEnd.Time().Before(expirationTime) && !task.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
 			_, err := taskCollection.UpdateOne(
@@ -546,18 +578,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 		}
 		result = append(result, api.taskBaseToTaskResult(&task, userID))
 	}
-	return &OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          ViewMeetingPreparationName,
-		Logo:          external.TaskSourceGoogleCalendar.LogoV2,
-		Type:          ViewMeetingPreparation,
-		IsLinked:      true,
-		Sources:       []SourcesResult{},
-		TaskSectionID: view.TaskSectionID,
-		IsReorderable: view.IsReorderable,
-		IDOrdering:    view.IDOrdering,
-		ViewItems:     result,
-	}, nil
+	return result, nil
 }
 
 type ViewCreateParams struct {
