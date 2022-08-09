@@ -479,6 +479,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 			bson.M{"$and": []bson.M{
 				{"task_type.is_meeting_preparation_task": true},
 				{"id_meeting_preparation": event.IDExternal},
+				{"source_id": event.SourceID},
 			},
 			})
 		if err != nil {
@@ -495,7 +496,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 				UserID:               userID,
 				IDMeetingPreparation: event.IDExternal,
 				IsCompleted:          false,
-				SourceID:             external.TASK_SOURCE_ID_GCAL,
+				SourceID:             event.SourceID,
 			},
 			TaskType: database.TaskType{
 				IsMeetingPreparationTask: true,
