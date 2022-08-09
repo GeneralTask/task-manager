@@ -3,10 +3,9 @@ package api
 import (
 	"context"
 
-	"github.com/GeneralTask/task-manager/backend/external"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
