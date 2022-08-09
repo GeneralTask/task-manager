@@ -117,6 +117,7 @@ type TaskType struct {
 	IsMessage     bool `bson:"is_message"`
 	IsEvent       bool `bson:"is_event"`
 	IsPullRequest bool `bson:"is_pull_request"`
+	IsMeetingPreparationTask bool `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 type TaskTypeChangeable struct {
@@ -124,6 +125,7 @@ type TaskTypeChangeable struct {
 	IsMessage     *bool `bson:"is_message,omitempty"`
 	IsEvent       *bool `bson:"is_event,omitempty"`
 	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
+	IsMeetingPreparationTask bool  `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 // Task json & mongo model
@@ -143,10 +145,11 @@ type TaskBase struct {
 	HasBeenReordered bool               `bson:"has_been_reordered"`
 	DueDate          primitive.DateTime `bson:"due_date"`
 	//time in nanoseconds
-	TimeAllocation    int64              `bson:"time_allocated"`
-	ConferenceCall    *ConferenceCall    `bson:"conference_call"`
-	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
-	CompletedAt       primitive.DateTime `bson:"completed_at"`
+	TimeAllocation                int64              `bson:"time_allocated"`
+	ConferenceCall                *ConferenceCall    `bson:"conference_call"`
+	CreatedAtExternal             primitive.DateTime `bson:"created_at_external"`
+	CompletedAt                   primitive.DateTime `bson:"completed_at"`
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
 }
 
 type PullRequest struct {

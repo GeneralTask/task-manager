@@ -1,6 +1,8 @@
 package api
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -30,4 +32,11 @@ type OrderingIDGetter interface {
 
 func (result OverviewResult[T]) GetOrderingID() int {
 	return result.IDOrdering
+}
+
+func (api *API) GetCurrentTime() time.Time {
+	if api.OverrideTime != nil {
+		return *api.OverrideTime
+	}
+	return time.Now()
 }
