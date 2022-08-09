@@ -27,6 +27,7 @@ func TestOverview(t *testing.T) {
 	t.Run("SuccessGetViews", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -46,6 +47,7 @@ func TestOverview(t *testing.T) {
 
 		request, _ := http.NewRequest("GET", "/overview/views/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "420")
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
