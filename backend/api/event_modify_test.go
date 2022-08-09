@@ -53,8 +53,8 @@ func TestInvalidEventModify(t *testing.T) {
 			"account_id": "duck@duck.com", 
 			"summary": "new summary",
 			"description": "new description",
-			"start_time": "2020-01-01T00:00:00Z",
-			"end_time": "2020-02-01T00:00:00Z"
+			"datetime_start": "2020-01-01T00:00:00Z",
+			"datetime_end": "2020-02-01T00:00:00Z"
 		}`))
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -72,8 +72,8 @@ func TestInvalidEventModify(t *testing.T) {
 		assert.Equal(t, "new summary", event.Title)
 		assert.Equal(t, "new description", event.Body)
 		// assert that start and end times are correct
-		assert.Equal(t, "2020-01-01T00:00:00Z", event.DatetimeStart)
-		assert.Equal(t, "2020-02-01T00:00:00Z", event.DatetimeStart)
+		assert.Equal(t, primitive.DateTime(1577836800000), event.DatetimeStart)
+		assert.Equal(t, primitive.DateTime(1577836800000), event.DatetimeStart)
 	})
 	UnauthorizedTest(t, "PATCH", validUrl, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
 	t.Run("NoBody", func(t *testing.T) {

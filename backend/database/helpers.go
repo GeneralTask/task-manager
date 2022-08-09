@@ -37,7 +37,7 @@ func UpdateOrCreateItem(
 		}
 	}
 
-	// parentCtx := context.Background()
+	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -52,13 +52,12 @@ func UpdateOrCreateItem(
 		}
 	}
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
-	// dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	// defer cancel()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
 	logger := logging.GetSentryLogger()
 	if fieldsToInsertIfMissing != nil {
 		_, err = taskCollection.UpdateOne(
-			// dbCtx,
-			context.TODO(),
+			dbCtx,
 			dbQuery,
 			bson.M{"$setOnInsert": fieldsToInsertIfMissing},
 			options.Update().SetUpsert(true),
@@ -70,8 +69,7 @@ func UpdateOrCreateItem(
 	}
 
 	mongoResult := taskCollection.FindOneAndUpdate(
-		// dbCtx,
-		context.TODO(),
+		dbCtx,
 		dbQuery,
 		bson.M{"$set": fieldsToUpdate},
 	)

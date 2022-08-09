@@ -66,19 +66,23 @@ func (api *API) EventModify(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	// fieldsToUpdate := database.CalendarEventChangeableFields{}
-	// if modifyParams.Summary != nil {
-	// 	fieldsToUpdate.Title = *modifyParams.Summary
-	// }
-	// if modifyParams.Description != nil {
-	// 	fieldsToUpdate.Body = *modifyParams.Description
-	// }
+	fieldsToUpdate := database.CalendarEventChangeableFields{}
+	if modifyParams.Summary != nil {
+		fieldsToUpdate.Title = *modifyParams.Summary
+	}
+	if modifyParams.Description != nil {
+		fieldsToUpdate.Body = *modifyParams.Description
+	}
+	if modifyParams.DatetimeStart != nil {
+		fieldsToUpdate.CalendarEvent.DatetimeStart = primitive.NewDateTimeFromTime(*modifyParams.DatetimeStart)
+	}
+	if modifyParams.DatetimeEnd != nil {
+		fieldsToUpdate.CalendarEvent.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
+	}
 
-	// _, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, modifyParams, nil, false)
-
-	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, modifyParams, nil, false)
-
+	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, fieldsToUpdate, nil, false)
 	if err != nil {
+		Handle500(c)
 		return
 	}
 	c.JSON(200, gin.H{})
