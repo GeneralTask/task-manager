@@ -473,7 +473,6 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	for _, event := range *events {
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
-		taskCollection := database.GetTaskCollection(db)
 		count, err := taskCollection.CountDocuments(
 			dbCtx,
 			bson.M{"$and": []bson.M{
@@ -485,27 +484,28 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 			return nil, err
 		}
 		// Create meeting prep task for event if one does not exist
-		if count == 0 {
-			_, err = taskCollection.InsertOne(ctx, database.Item{
-				TaskBase: database.TaskBase{
-					Title:       event.Title,
-					Body:        event.TaskBase.Body,
-					UserID:      userID,
-					IDExternal:  event.IDExternal,
-					IsCompleted: false,
-					SourceID:    external.TASK_SOURCE_ID_GCAL,
-				},
-				TaskType: database.TaskType{
-					IsMeetingPreparationTask: true,
-				},
-				CalendarEvent: database.CalendarEvent{
-					DatetimeStart: event.CalendarEvent.DatetimeStart,
-					DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
-				},
-			})
-			if err != nil {
-				return nil, err
-			}
+		if count > 0 {
+			continue
+		}
+		_, err = taskCollection.InsertOne(ctx, database.Item{
+			TaskBase: database.TaskBase{
+				Title:       event.Title,
+				Body:        event.TaskBase.Body,
+				UserID:      userID,
+				IDExternal:  event.IDExternal,
+				IsCompleted: false,
+				SourceID:    external.TASK_SOURCE_ID_GCAL,
+			},
+			TaskType: database.TaskType{
+				IsMeetingPreparationTask: true,
+			},
+			CalendarEvent: database.CalendarEvent{
+				DatetimeStart: event.CalendarEvent.DatetimeStart,
+				DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
+			},
+		})
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -525,7 +525,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 
 	result := []*TaskResult{}
 	for _, task := range *meetingTasks {
-		// if meeting has ended mark task as complete
+		// if meeting has ended, mark task as complete
 		if task.CalendarEvent.DatetimeEnd.Time().Before(timeNow) && !task.HasBeenAutomaticallyCompleted {
 			api.Logger.Debug().Msgf("id: %v", task.ID.Hex())
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
