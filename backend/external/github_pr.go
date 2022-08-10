@@ -28,7 +28,7 @@ const (
 	ActionAddReviewers      string = "Add Reviewers"
 	ActionFixMergeConflicts string = "Fix Merge Conflicts"
 	ActionFixFailedCI       string = "Fix Failed CI"
-	ActionAddressRequested  string = "Address Requested Changes"
+	ActionAddressComments   string = "Address Comments"
 	ActionMergePR           string = "Merge PR"
 	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
@@ -38,9 +38,9 @@ const (
 var ActionOrdering = map[string]int{
 	ActionReviewPR:          0,
 	ActionAddReviewers:      1,
-	ActionFixMergeConflicts: 2,
-	ActionFixFailedCI:       3,
-	ActionAddressRequested:  4,
+	ActionFixFailedCI:       2,
+	ActionAddressComments:   3,
+	ActionFixMergeConflicts: 4,
 	ActionMergePR:           5,
 	ActionWaitingOnReview:   6,
 }
@@ -497,7 +497,7 @@ func getPullRequestRequiredAction(data GithubPRData) string {
 		} else if data.RequestedReviewers == 0 {
 			action = ActionAddReviewers
 		} else if data.HaveRequestedChanges {
-			action = ActionAddressRequested
+			action = ActionAddressComments
 		} else if data.IsApproved {
 			action = ActionMergePR
 		} else {

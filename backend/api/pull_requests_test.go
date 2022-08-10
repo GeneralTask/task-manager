@@ -33,7 +33,7 @@ func TestPullRequestList(t *testing.T) {
 	assert.NoError(t, err)
 	pullRequest4, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnReview, timePullRequestUpdated)
 	assert.NoError(t, err)
-	pullRequest5, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddressRequested, timePullRequestUpdated)
+	pullRequest5, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddressComments, timePullRequestUpdated)
 	assert.NoError(t, err)
 	pullRequest6, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixMergeConflicts, timePullRequestUpdated)
 	assert.NoError(t, err)
@@ -94,15 +94,6 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest6.ID.Hex(),
-						Status: PullRequestStatus{
-							Text:  "Fix Merge Conflicts",
-							Color: "red",
-						},
-						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
-					},
-					{
 						ID: pullRequest2.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Fix Failed CI",
@@ -114,12 +105,22 @@ func TestPullRequestList(t *testing.T) {
 					{
 						ID: pullRequest5.ID.Hex(),
 						Status: PullRequestStatus{
-							Text:  "Address Requested Changes",
+							Text:  "Address Comments",
 							Color: "yellow",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
+					{
+						ID: pullRequest6.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Fix Merge Conflicts",
+							Color: "red",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+
 					{
 						ID: pullRequest3.ID.Hex(),
 						Status: PullRequestStatus{
