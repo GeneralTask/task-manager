@@ -37,7 +37,7 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(true)
+    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false)
     const dispatch = useAppDispatch()
 
     const handleCollapseCalendar = () => {
