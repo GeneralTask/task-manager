@@ -87,6 +87,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
 	}
 
 	userID := getUserIDFromContext(c)
