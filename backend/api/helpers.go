@@ -42,15 +42,15 @@ func (api *API) GetCurrentTime() time.Time {
 	return time.Now()
 }
 
-func GetTimezoneOffsetFromHeader(c *gin.Context) (*time.Duration, error) {
+func GetTimezoneOffsetFromHeader(c *gin.Context) (time.Duration, error) {
 	headers := c.Request.Header
 	timezoneOffsetHeader := headers["Timezone-Offset"]
 	if len(timezoneOffsetHeader) == 0 {
-		return nil, errors.New("Timezone-Offset header is required")
+		return time.Duration(0), errors.New("Timezone-Offset header is required")
 	}
 	duration, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
 	if err != nil {
-		return nil, errors.New("Timezone-Offset header is invalid")
+		return duration, errors.New("Timezone-Offset header is invalid")
 	}
-	return &duration, err
+	return duration, nil
 }

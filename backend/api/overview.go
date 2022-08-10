@@ -124,7 +124,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(db, parentCtx, views, userID, *timezoneOffset)
+	result, err := api.GetOverviewResults(db, parentCtx, views, userID, timezoneOffset)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)
