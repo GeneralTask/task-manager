@@ -212,6 +212,116 @@ func TestGetMeetingPreparationTasks(t *testing.T) {
 	})
 }
 
+func TestGetEventsUntilEndOfDay(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	timeBase := time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)
+	timeHourLater := time.Date(2022, 1, 1, 1, 0, 0, 0, time.UTC)
+	timeDayLater := time.Date(2022, 1, 2, 0, 0, 0, 0, time.UTC)
+
+	task1, err := GetOrCreateItem(
+		db,
+		userID,
+		"123abc",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "123abc",
+				SourceID:   "foobar_source",
+				UserID:     userID,
+			},
+			TaskType: TaskType{
+				IsEvent: true,
+			},
+			CalendarEvent: CalendarEvent{
+				DatetimeStart: primitive.NewDateTimeFromTime(timeHourLater),
+			},
+		},
+	)
+	assert.NoError(t, err)
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"random",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "differentIDExternal",
+				SourceID:   "foobar_source",
+				UserID:     userID,
+			},
+			TaskType: TaskType{
+				IsEvent: true,
+			},
+			CalendarEvent: CalendarEvent{
+				DatetimeStart: primitive.NewDateTimeFromTime(timeDayLater),
+			},
+		},
+	)
+	assert.NoError(t, err)
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"123abcd",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "123abcd",
+				SourceID:   "foobar_source",
+				UserID:     userID,
+			},
+			TaskType: TaskType{
+				IsEvent: false,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"123abcde",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "123abcde",
+				SourceID:   "foobar_source",
+				UserID:     notUserID,
+			},
+			TaskType: TaskType{
+				IsEvent: true,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"philz",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "123abcde",
+				SourceID:   "foobar_source",
+				UserID:     notUserID,
+			},
+			TaskType: TaskType{
+				IsEvent: true,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	t.Run("Success", func(t *testing.T) {
+		events, err := GetEventsUntilEndOfDay(db, userID, timeBase)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*events))
+		assert.Equal(t, task1.ID, (*events)[0].ID)
+	})
+
+}
+
 func TestTaskSectionName(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
