@@ -280,6 +280,15 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 	return &tasks, nil
 }
 
+func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+	return GetItems(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"task_type.is_meeting_preparation_task": true},
+		},
+	)
+}
+
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
 		return "Default", nil

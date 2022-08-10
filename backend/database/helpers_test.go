@@ -144,6 +144,74 @@ func TestInsertLogEvent(t *testing.T) {
 	})
 }
 
+func TestGetMeetingPreparationTasks(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	validMeetingPrepTask, err := GetOrCreateItem(
+		db,
+		userID,
+		"123abc",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "123abc",
+				SourceID:   "foobar_source",
+				UserID:     userID,
+			},
+			TaskType: TaskType{
+				IsMeetingPreparationTask: true,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	// Not meeting preparation task
+	_, err = GetOrCreateItem(
+		db,
+		userID,
+		"123abcde",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal:  "123abcde",
+				SourceID:    "foobar_source",
+				UserID:      userID,
+				IsCompleted: true,
+			},
+			TaskType: TaskType{
+				IsMeetingPreparationTask: false,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	// Wrong user ID
+	_, err = GetOrCreateItem(
+		db,
+		notUserID,
+		"123abe",
+		"foobar_source",
+		&Item{
+			TaskBase: TaskBase{
+				IDExternal: "123abe",
+				SourceID:   "foobar_source",
+				UserID:     notUserID,
+			},
+			TaskType: TaskType{
+				IsMeetingPreparationTask: true,
+			},
+		},
+	)
+	assert.NoError(t, err)
+	t.Run("Success", func(t *testing.T) {
+		tasks, err := GetMeetingPreparationTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, validMeetingPrepTask.ID, (*tasks)[0].ID)
+	})
+}
+
 func TestTaskSectionName(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)

@@ -469,15 +469,11 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	}
 
 	// Get all meeting prep tasks for user
-	meetingTasks, err := database.GetItems(db, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"task_type.is_meeting_preparation_task": true},
-		},
-	)
+	meetingTasks, err := database.GetMeetingPreparationTasks(db, userID)
 	if err != nil {
 		return nil, err
 	}
+
 	// Sort by datetime_start
 	sort.Slice(*meetingTasks, func(i, j int) bool {
 		return (*meetingTasks)[i].CalendarEvent.DatetimeStart <= (*meetingTasks)[j].CalendarEvent.DatetimeStart
