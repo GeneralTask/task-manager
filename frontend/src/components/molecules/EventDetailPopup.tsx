@@ -1,4 +1,4 @@
-import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, MouseEventHandler, useLayoutEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -25,7 +25,7 @@ import {
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    onClose: (e: MouseEvent) => void
+    onClose: MouseEventHandler
     xCoord: number
     yCoord: number
     eventHeight: number
@@ -38,7 +38,8 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
         setPopupHeight(popupRef.current.getBoundingClientRect().height)
     })
 
-    useClickOutside(popupRef, () => onClose)
+    useClickOutside(popupRef, (e) => onClose(e)) //onClose causing bug
+    // useClickOutside(popupRef, onClose)
 
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')

@@ -41,6 +41,9 @@ export const EventBody = styled.div`
     flex-direction: column;
     align-items: center;
     cursor: text;
+
+    min-height: 32px;
+    max-height: 315px;
 `
 export const EventHeader = styled.div`
     display: flex;
@@ -64,6 +67,7 @@ export const EventDetail = styled.div`
     padding: ${Spacing.padding._8} 0px;
     gap: ${Spacing.padding._8};
     width: ${POPUP_WIDTH};
+    overflow-y: scroll;
 `
 export const EventTitleSection = styled.div`
     display: flex;
@@ -80,12 +84,13 @@ export const EventDateContainer = styled.div`
     padding: 0px 2px 0px 0px;
     gap: ${Spacing.padding._8};
 `
+// overflow-y: scroll;
 export const DescriptionContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    word-wrap: normal;
+    height: 100%;
     overflow-wrap: anywhere;
 `
 export const ExternalLinkAnchor = styled(NoStyleAnchor)`

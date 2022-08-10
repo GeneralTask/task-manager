@@ -115,7 +115,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
-                        onClose={() => onClose}
+                        onClose={onClose}
                         xCoord={coords.xCoord}
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
