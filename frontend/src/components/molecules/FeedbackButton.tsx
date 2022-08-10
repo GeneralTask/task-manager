@@ -21,6 +21,7 @@ const FeedbackButton = () => {
                 rightButtons={<GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" />}
                 leftButtons={<GTButton onClick={() => setModalIsOpen(false)} value="Cancel" styleType="secondary" />}
                 title="Got Feedback?"
+                type="small"
             >
                 <FeedbackView feedback={feedback} setFeedback={setFeedback} />
             </GTModal>

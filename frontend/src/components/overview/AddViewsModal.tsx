@@ -123,6 +123,7 @@ const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProp
             title="Add views"
             onClose={onClose}
             leftButtons={<GTButton value="Back" color={Colors.gtColor.primary} onClick={goToEditViewsView} />}
+            type="small"
         >
             <AddViewsModalContent />
         </GTModal>

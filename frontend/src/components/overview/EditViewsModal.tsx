@@ -36,6 +36,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             rightButtons={
                 <GTButton onClick={goToAddViewsView} iconSource="plus" value="Add views" styleType="secondary" />
             }
+            type="small"
         >
             <>
                 {views.map((view, index) => (
