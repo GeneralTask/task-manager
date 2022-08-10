@@ -312,6 +312,18 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, us
 	return taskSection.Name, err
 }
 
+// Get all events that start until the end of the day
+func GetEventsUntilEndOfDay(db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]Item, error) {
+	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
+	return GetItems(db, userID,
+		&[]bson.M{
+			{"task_type.is_event": true},
+			{"calendar_event.datetime_start": bson.M{"$gte": currentTime}},
+			{"calendar_event.datetime_start": bson.M{"$lte": timeEndOfDay}},
+		},
+	)
+}
+
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
 	parentCtx := context.Background()
 	sectionCollection := GetTaskSectionCollection(db)

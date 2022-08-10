@@ -449,15 +449,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	}
 	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
 	timeNow := api.GetCurrentTime().In(localZone)
-	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, localZone)
-
-	events, err := database.GetItems(db, userID,
-		&[]bson.M{
-			{"task_type.is_event": true},
-			{"calendar_event.datetime_start": bson.M{"$gte": timeNow}},
-			{"calendar_event.datetime_start": bson.M{"$lte": timeEndOfDay}},
-		},
-	)
+	events, err := database.GetEventsUntilEndOfDay(db, userID, timeNow)
 	if err != nil {
 		return nil, err
 	}
