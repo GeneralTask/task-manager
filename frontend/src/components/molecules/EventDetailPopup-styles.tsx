@@ -21,7 +21,6 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     flex-direction: row;
     align-items: flex-start;
     padding: ${Spacing.padding._16} 0px;
-    gap: ${Spacing.padding._8};
     width: ${MAX_POPUP_LENGTH};
 
     left: calc(${(props) => props.xCoord}px - ${MAX_POPUP_LENGTH});
@@ -34,13 +33,11 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
 `
-//  max-height: 315px;
 export const EventBody = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: text;
-
     min-height: 10px;
 `
 export const EventHeader = styled.div`
@@ -56,7 +53,6 @@ export const EventHeaderIcons = styled.div`
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    gap: ${Spacing.margin._4};
 `
 export const EventDetail = styled.div`
     display: flex;
@@ -93,7 +89,7 @@ export const DescriptionContainer = styled.div`
 export const ExternalLinkAnchor = styled(NoStyleAnchor)`
     width: 90%;
 `
-export const CloseButton = styled(NoStyleButton)`
+export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: 50vh;
     &:hover {
