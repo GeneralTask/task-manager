@@ -38,8 +38,7 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
         if (!popupRef.current) return
         setPopupHeight(popupRef.current.getBoundingClientRect().height)
     })
-    useClickOutside(popupRef, (e) => onClose(e)) //onClose causing bug
-    // useClickOutside(popupRef, onClose)
+    useClickOutside(popupRef, onClose)
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
     return ReactDOM.createPortal(

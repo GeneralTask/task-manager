@@ -34,13 +34,11 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
 `
-//  max-height: 315px;
 export const EventBody = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: text;
-
     min-height: 10px;
 `
 export const EventHeader = styled.div`
@@ -92,6 +90,7 @@ export const DescriptionContainer = styled.div`
 `
 export const ExternalLinkAnchor = styled(NoStyleAnchor)`
     width: 90%;
+    padding-top: ${Spacing.padding._4};
 `
 export const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
