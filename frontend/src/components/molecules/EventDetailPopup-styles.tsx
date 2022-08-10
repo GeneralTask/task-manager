@@ -88,6 +88,7 @@ export const DescriptionContainer = styled.div`
 `
 export const ExternalLinkAnchor = styled(NoStyleAnchor)`
     width: 90%;
+    padding-top: ${Spacing.padding._4};
 `
 export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};

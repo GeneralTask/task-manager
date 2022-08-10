@@ -51,7 +51,7 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
         if (!popupRef.current) return
         setPopupHeight(popupRef.current.getBoundingClientRect().height)
     })
-    useClickOutside(popupRef, (e) => onClose(e))
+    useClickOutside(popupRef, onClose)
     return ReactDOM.createPortal(
         <EventBoxStyle
             xCoord={xCoord}
