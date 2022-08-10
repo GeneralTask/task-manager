@@ -989,7 +989,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Address Requested Changes", action)
+		assert.Equal(t, "Address Comments", action)
 	})
 	t.Run("MergePR", func(t *testing.T) {
 		pullRequestData := GithubPRData{
@@ -1065,7 +1065,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Address Requested Changes", action)
+		assert.Equal(t, "Address Comments", action)
 	})
 	t.Run("NotAuthorAndNotMergeable", func(t *testing.T) {
 		// make all lower priority conditions true to verify proper priority
