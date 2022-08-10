@@ -36,12 +36,13 @@ const (
 )
 
 var ActionOrdering = map[string]int{
-	ActionAddReviewers:      0,
-	ActionFixMergeConflicts: 1,
-	ActionFixFailedCI:       2,
-	ActionAddressRequested:  3,
-	ActionMergePR:           4,
-	ActionWaitingOnReview:   5,
+	ActionReviewPR:          0,
+	ActionAddReviewers:      1,
+	ActionFixMergeConflicts: 2,
+	ActionFixFailedCI:       3,
+	ActionAddressRequested:  4,
+	ActionMergePR:           5,
+	ActionWaitingOnReview:   6,
 }
 
 const (

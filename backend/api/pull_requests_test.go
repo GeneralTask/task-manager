@@ -76,18 +76,18 @@ func TestPullRequestList(t *testing.T) {
 				Name: "dogecoin",
 				PullRequests: []PullRequestResult{
 					{
-						ID: pullRequest1.ID.Hex(),
+						ID: pullRequest7.ID.Hex(),
 						Status: PullRequestStatus{
-							Text:  "Add Reviewers",
+							Text:  "Review PR",
 							Color: "yellow",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest7.ID.Hex(),
+						ID: pullRequest1.ID.Hex(),
 						Status: PullRequestStatus{
-							Text:  "Review PR",
+							Text:  "Add Reviewers",
 							Color: "yellow",
 						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
