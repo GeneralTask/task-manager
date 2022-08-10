@@ -119,7 +119,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 func getColorFromRequiredAction(requiredAction string) string {
 	if requiredAction == external.ActionFixMergeConflicts || requiredAction == external.ActionFixFailedCI {
 		return PR_COLOR_RED
-	} else if requiredAction == external.ActionAddReviewers || requiredAction == external.ActionAddressRequested {
+	} else if requiredAction == external.ActionAddReviewers || requiredAction == external.ActionAddressRequested || requiredAction == external.ActionReviewPR {
 		return PR_COLOR_YELLOW
 	} else if requiredAction == external.ActionMergePR {
 		return PR_COLOR_GREEN
