@@ -1,11 +1,9 @@
 import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-
 import styled from 'styled-components'
-import GTButton from '../atoms/buttons/GTButton'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
-const POPUP_WIDTH = '315px'
+const MAX_POPUP_LENGTH = '315px'
 const WINDOW_HEIGHT = window.innerHeight
 
 interface EventBoxStyleProps {
@@ -24,9 +22,9 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     align-items: flex-start;
     padding: ${Spacing.padding._16} 0px;
     gap: ${Spacing.padding._8};
-    width: ${POPUP_WIDTH};
+    width: ${MAX_POPUP_LENGTH};
 
-    left: calc(${(props) => props.xCoord}px - ${POPUP_WIDTH});
+    left: calc(${(props) => props.xCoord}px - ${MAX_POPUP_LENGTH});
     top: ${(props) =>
         props.yCoord >= WINDOW_HEIGHT - props.popupHeight
             ? props.yCoord - props.eventHeight - props.popupHeight
@@ -36,14 +34,14 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
 `
+//  max-height: 315px;
 export const EventBody = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: text;
 
-    min-height: 32px;
-    max-height: 315px;
+    min-height: 10px;
 `
 export const EventHeader = styled.div`
     display: flex;
@@ -66,7 +64,8 @@ export const EventDetail = styled.div`
     align-items: center;
     padding: ${Spacing.padding._8} 0px;
     gap: ${Spacing.padding._8};
-    width: ${POPUP_WIDTH};
+    width: ${MAX_POPUP_LENGTH};
+    max-height: ${MAX_POPUP_LENGTH};
     overflow-y: scroll;
 `
 export const EventTitleSection = styled.div`
@@ -81,10 +80,8 @@ export const EventDateContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0px 2px 0px 0px;
     gap: ${Spacing.padding._8};
 `
-// overflow-y: scroll;
 export const DescriptionContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -102,9 +99,6 @@ export const CloseButton = styled(NoStyleButton)`
     &:hover {
         background-color: ${Colors.background.medium};
     }
-`
-export const GTButtonCalendar = styled(GTButton)`
-    font-family: inherit;
 `
 export const EventTitle = styled.span`
     ${Typography.body}

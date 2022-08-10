@@ -18,9 +18,9 @@ import {
     EventDate,
     DescriptionContainer,
     Description,
-    GTButtonCalendar,
     ExternalLinkAnchor,
 } from './EventDetailPopup-styles'
+import GTButton from '../atoms/buttons/GTButton'
 
 interface EventDetailProps {
     event: TEvent
@@ -33,18 +33,15 @@ interface EventDetailProps {
 
 const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps) => {
     const popupRef = useRef<HTMLDivElement>(null)
+    const [popupHeight, setPopupHeight] = useState(0)
     useLayoutEffect(() => {
         if (!popupRef.current) return
         setPopupHeight(popupRef.current.getBoundingClientRect().height)
     })
-
     useClickOutside(popupRef, (e) => onClose(e)) //onClose causing bug
     // useClickOutside(popupRef, onClose)
-
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
-    const [popupHeight, setPopupHeight] = useState(0)
-
     return ReactDOM.createPortal(
         <EventBoxStyle
             xCoord={xCoord}
@@ -81,11 +78,12 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                     </DescriptionContainer>
                 </EventDetail>
                 <ExternalLinkAnchor href={event.deeplink} target="_blank">
-                    <GTButtonCalendar
+                    <GTButton
                         styleType="secondary"
                         size="small"
                         value="Google Calendar"
                         iconSource="external_link_dark"
+                        fitContent={false}
                     />
                 </ExternalLinkAnchor>
             </EventBody>

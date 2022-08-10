@@ -79,16 +79,15 @@ function EventBody(props: EventBodyProps): JSX.Element {
         xCoordEvent.current = eventRef.current.getBoundingClientRect().left
         yCoordEvent.current = eventRef.current.getBoundingClientRect().bottom
 
-        xCoordEvent.current &&
-            yCoordEvent.current &&
+        if (xCoordEvent.current && yCoordEvent.current)
             setCoords({
                 xCoord: xCoordEvent.current,
                 yCoord: yCoordEvent.current,
             })
     }
 
-    const handleResize = () => {
-        eventRef.current &&
+    const handleWindowResize = () => {
+        if (eventRef.current)
             setCoords({
                 xCoord: eventRef.current.getBoundingClientRect().left,
                 yCoord: eventRef.current.getBoundingClientRect().bottom,
@@ -96,8 +95,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
     }
 
     useEffect(() => {
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
+        window.addEventListener('resize', handleWindowResize)
+        return () => window.removeEventListener('resize', handleWindowResize)
     }, [])
 
     return (
