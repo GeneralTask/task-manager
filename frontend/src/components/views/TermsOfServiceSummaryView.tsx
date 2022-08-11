@@ -1,11 +1,10 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { useCallback, useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 
 import Cookies from 'js-cookie'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
-import { ModalEnum } from '../../utils/enums'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
 import GTButton from '../atoms/buttons/GTButton'
@@ -14,9 +13,7 @@ import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { TitleLarge } from '../atoms/title/Title'
 import { icons } from '../../styles/images'
 import { mutateUserInfo } from '../../services/api/user-info.hooks'
-import { setShowModal } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 import { useNavigate } from 'react-router-dom'
 import { AUTHORIZATION_COOKE } from '../../constants'
 
@@ -26,6 +23,7 @@ const TermsOfServiceContainer = styled.div`
     padding: ${Spacing.padding._16};
     height: 100%;
     box-sizing: border-box;
+    min-height: 0;
 `
 const TermsOfServiceHeader = styled.div`
     margin-top: ${Spacing.margin._24};
@@ -39,6 +37,8 @@ const TermsScrollDiv = styled.div`
     overflow-y: scroll;
     margin-top: ${Spacing.margin._8};
     padding: ${Spacing.padding._8};
+    border-top: ${Border.stroke.medium} solid ${Colors.border.gray};
+    border-bottom: ${Border.stroke.medium} solid ${Colors.border.gray};
 `
 const LinkContainer = styled.div`
     display: flex;
@@ -78,7 +78,6 @@ const TermsOfServiceSummaryView = () => {
     const [termsCheck, setTermsCheck] = useState(false)
     const [promotionsCheck, setPromotionsCheck] = useState(false)
     const navigate = useNavigate()
-    const dispatch = useAppDispatch()
     const queryClient = useQueryClient()
 
     const { mutate } = useMutation(
@@ -90,7 +89,6 @@ const TermsOfServiceSummaryView = () => {
         {
             onSuccess: () => {
                 queryClient.invalidateQueries('user_info')
-                dispatch(setShowModal(ModalEnum.NONE))
                 navigate('/')
             },
         }
@@ -101,7 +99,6 @@ const TermsOfServiceSummaryView = () => {
     }, [termsCheck, promotionsCheck])
 
     const onCancel = useCallback(() => {
-        dispatch(setShowModal(ModalEnum.NONE))
         Cookies.remove(AUTHORIZATION_COOKE)
         navigate('/')
     }, [])
