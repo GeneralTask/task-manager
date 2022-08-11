@@ -30,6 +30,7 @@ interface EventBodyProps {
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const eventRef = useRef<HTMLDivElement>(null)
+    const popupRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
@@ -63,7 +64,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
         props.setDisableScroll(false)
     }
 
-    const onClick = () => {
+    const onClick = (e: MouseEvent) => {
+        if (popupRef.current?.contains(e.target as Node)) return
         if (props.eventDetailId === props.event.id) {
             props.setEventDetailId('')
             props.setIsEventSelected(false)
@@ -118,6 +120,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         xCoord={coords.xCoord}
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
+                        ref={popupRef}
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
