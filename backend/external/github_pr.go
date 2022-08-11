@@ -29,6 +29,7 @@ const (
 	ActionFixMergeConflicts string = "Fix Merge Conflicts"
 	ActionFixFailedCI       string = "Fix Failed CI"
 	ActionAddressComments   string = "Address Comments"
+	ActionWaitingOnCI       string = "Waiting on CI"
 	ActionMergePR           string = "Merge PR"
 	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
@@ -41,8 +42,9 @@ var ActionOrdering = map[string]int{
 	ActionFixFailedCI:       2,
 	ActionAddressComments:   3,
 	ActionFixMergeConflicts: 4,
-	ActionMergePR:           5,
-	ActionWaitingOnReview:   6,
+	ActionWaitingOnCI:       5,
+	ActionMergePR:           6,
+	ActionWaitingOnReview:   7,
 }
 
 const (
@@ -62,6 +64,7 @@ type GithubPRData struct {
 	IsApproved           bool
 	HaveRequestedChanges bool
 	ChecksDidFail        bool
+	ChecksDidFinish      bool
 	IsOwnedByUser        bool
 	UserLogin            string
 }
@@ -235,12 +238,15 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		result <- nil
 		return
 	}
-	checksDidFail, err := checksDidFail(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
+	// check runs are individual tests that make up a check suite associated with a commit
+	checkRunsForCommit, err := listCheckRunsForCommit(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR check runs")
 		result <- nil
 		return
 	}
+	checksDidFail := checkRunsDidFail(checkRunsForCommit)
+	checksDidFinish := checkRunsDidFinish(checkRunsForCommit)
 	commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR comments")
@@ -255,6 +261,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		IsApproved:           pullRequestIsApproved(reviews),
 		HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 		ChecksDidFail:        checksDidFail,
+		ChecksDidFinish:      checksDidFinish,
 		IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
 		UserLogin:            githubUser.GetLogin(),
 	}
@@ -466,29 +473,29 @@ func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
 	return false
 }
 
-func checksDidFail(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) (bool, error) {
-	if repository == nil {
-		return false, errors.New("repository is nil")
-	}
-	if pullRequest == nil {
-		return false, errors.New("pull request is nil")
-	}
-	checkRuns, err := listCheckRunsForCommit(context, githubClient, repository, pullRequest, overrideURL)
-	if err != nil {
-		return false, err
-	}
-
-	// check runs are individual tests that make up a check suite associated with a commit
-	for _, run := range checkRuns.CheckRuns {
-		if run.GetStatus() == ChecksStatusCompleted && (run.GetConclusion() == ChecksConclusionFailure || run.GetConclusion() == ChecksConclusionTimedOut) {
-			return true, nil
+func checkRunsDidFinish(checkRuns *github.ListCheckRunsResults) bool {
+	for _, checkRun := range checkRuns.CheckRuns {
+		if checkRun.GetStatus() != ChecksStatusCompleted {
+			return false
 		}
 	}
-	return false, nil
+	return true
+}
+
+func checkRunsDidFail(checkRuns *github.ListCheckRunsResults) bool {
+	for _, run := range checkRuns.CheckRuns {
+		if run.GetStatus() == ChecksStatusCompleted && (run.GetConclusion() == ChecksConclusionFailure || run.GetConclusion() == ChecksConclusionTimedOut) {
+			return true
+		}
+	}
+	return false
 }
 
 func getPullRequestRequiredAction(data GithubPRData) string {
 	var action string
+	if !data.ChecksDidFinish {
+		return ActionWaitingOnCI
+	}
 	if data.IsOwnedByUser {
 		if !data.IsMergeable {
 			action = ActionFixMergeConflicts
@@ -498,6 +505,8 @@ func getPullRequestRequiredAction(data GithubPRData) string {
 			action = ActionAddReviewers
 		} else if data.HaveRequestedChanges {
 			action = ActionAddressComments
+		} else if !data.ChecksDidFinish {
+			action = ActionWaitingOnCI
 		} else if data.IsApproved {
 			action = ActionMergePR
 		} else {

@@ -878,72 +878,71 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 	})
 }
 
-func TestChecksDidFail(t *testing.T) {
-	context := context.Background()
-	githubClient := github.NewClient(nil)
-
-	repository := &github.Repository{
-		Name: github.String("ExampleRepository"),
-		Owner: &github.User{
-			Login: github.String("chad1616"),
-		},
-	}
-	pullRequest := &github.PullRequest{
-		Number: github.Int(1),
-		Head: &github.PullRequestBranch{
-			SHA: github.String("abc123"),
-		},
-	}
+func TestCheckRunsDidFail(t *testing.T) {
 	t.Run("ChecksPass", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
-
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.NoError(t, err)
-		assert.False(t, conclusion)
+		checkRunsResult := github.ListCheckRunsResults{
+			Total: github.Int(2),
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status: github.String("in_progress"),
+				},
+			},
+		}
+		assert.False(t, checkRunsDidFail(&checkRunsResult))
 	})
 	t.Run("ChecksFail", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefFailPayload)
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
-
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.NoError(t, err)
-		assert.True(t, conclusion)
+		checkRunsResult := github.ListCheckRunsResults{
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("failure"),
+				},
+			},
+			Total: github.Int(2),
+		}
+		assert.True(t, checkRunsDidFail(&checkRunsResult))
 	})
-	t.Run("BadStatusCode", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 503, "[]")
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
+}
 
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/commits/abc123/check-runs: 503  []", *checkRunsURL), err.Error())
-		assert.False(t, conclusion)
+func TestCheckRunsDidFinish(t *testing.T) {
+	t.Run("RunDidFinish", func(t *testing.T) {
+		checkRunsResult := github.ListCheckRunsResults{
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("failure"),
+				},
+			},
+			Total: github.Int(2),
+		}
+		assert.True(t, checkRunsDidFinish(&checkRunsResult))
 	})
-	t.Run("BadResponse", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
-
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.Error(t, err)
-		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
-		assert.False(t, conclusion)
-	})
-	t.Run("RepositoryIsNil", func(t *testing.T) {
-		conclusion, err := checksDidFail(context, githubClient, nil, pullRequest, nil)
-		assert.Error(t, err)
-		assert.Equal(t, "repository is nil", err.Error())
-		assert.False(t, conclusion)
-	})
-	t.Run("PullRequestIsNil", func(t *testing.T) {
-		conclusion, err := checksDidFail(context, githubClient, repository, nil, nil)
-
-		assert.Error(t, err)
-		assert.Equal(t, "pull request is nil", err.Error())
-		assert.False(t, conclusion)
+	t.Run("RunDidNotFinish", func(t *testing.T) {
+		checkRunsResult := github.ListCheckRunsResults{
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status: github.String("in_progress"),
+				},
+			},
+			Total: github.Int(2),
+		}
+		assert.False(t, checkRunsDidFinish(&checkRunsResult))
 	})
 }
 
