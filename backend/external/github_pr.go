@@ -493,9 +493,6 @@ func checkRunsDidFail(checkRuns *github.ListCheckRunsResults) bool {
 
 func getPullRequestRequiredAction(data GithubPRData) string {
 	var action string
-	if !data.ChecksDidFinish {
-		return ActionWaitingOnCI
-	}
 	if data.IsOwnedByUser {
 		if !data.IsMergeable {
 			action = ActionFixMergeConflicts

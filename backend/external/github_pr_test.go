@@ -979,6 +979,17 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Failed CI", action)
 	})
+	t.Run("ChecksDidFinish", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        true,
+			ChecksDidFail:      false,
+			ChecksDidFinish:    false,
+			IsOwnedByUser:      true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on CI", action)
+	})
 	t.Run("AddressRequestedChanges", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers:   1,
@@ -995,6 +1006,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			RequestedReviewers:   1,
 			IsMergeable:          true,
 			ChecksDidFail:        false,
+			ChecksDidFinish:      true,
 			HaveRequestedChanges: false,
 			IsApproved:           true,
 			IsOwnedByUser:        true,
@@ -1007,6 +1019,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			RequestedReviewers:   1,
 			IsMergeable:          true,
 			ChecksDidFail:        false,
+			ChecksDidFinish:      true,
 			HaveRequestedChanges: false,
 			IsApproved:           false,
 			IsOwnedByUser:        true,
