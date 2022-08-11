@@ -21,7 +21,7 @@ func (api *API) EventModify(c *gin.Context) {
 	var modifyParams external.EventModifyObject
 	err = c.BindJSON(&modifyParams)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("invalid or missing parameter, err")
+		api.Logger.Error().Err(err).Msg("invalid or missing parameter")
 		c.JSON(400, gin.H{"detail": "parameter missing or malformed"})
 		return
 	}
@@ -40,7 +40,7 @@ func (api *API) EventModify(c *gin.Context) {
 
 	event, err := database.GetItem(dbCtx, eventID, userID)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "event not found", "taskId": eventID})
+		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
 	}
 
