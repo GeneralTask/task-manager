@@ -85,7 +85,7 @@ func TestGetPullRequests(t *testing.T) {
 			Number:         420,
 			Author:         "chad1616",
 			Branch:         "ExampleBranch",
-			RequiredAction: "Fix Merge Conflicts",
+			RequiredAction: "Add Reviewers",
 			CommentCount:   0,
 			LastUpdatedAt:  1296068472000,
 		}
@@ -960,15 +960,6 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Add Reviewers", action)
 	})
-	t.Run("FixMergeConflicts", func(t *testing.T) {
-		pullRequestData := GithubPRData{
-			RequestedReviewers: 1,
-			IsMergeable:        false,
-			IsOwnedByUser:      true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Fix Merge Conflicts", action)
-	})
 	t.Run("FixFailedCI", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers: 1,
@@ -979,27 +970,35 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Failed CI", action)
 	})
-	t.Run("ChecksDidFinish", func(t *testing.T) {
-		pullRequestData := GithubPRData{
-			RequestedReviewers: 1,
-			IsMergeable:        true,
-			ChecksDidFail:      false,
-			ChecksDidFinish:    false,
-			IsOwnedByUser:      true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Waiting on CI", action)
-	})
-	t.Run("AddressRequestedChanges", func(t *testing.T) {
+	t.Run("AddressComments", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers:   1,
 			IsMergeable:          true,
-			ChecksDidFail:        false,
-			HaveRequestedChanges: true,
 			IsOwnedByUser:        true,
+			HaveRequestedChanges: true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Address Comments", action)
+	})
+	t.Run("FixMergeConflicts", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        false,
+			IsOwnedByUser:      true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Fix Merge Conflicts", action)
+	})
+	t.Run("WaitingOnCI", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        true,
+			IsOwnedByUser:      true,
+			ChecksDidFail:      false,
+			ChecksDidFinish:    false,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on CI", action)
 	})
 	t.Run("MergePR", func(t *testing.T) {
 		pullRequestData := GithubPRData{
@@ -1027,58 +1026,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Review", action)
 	})
-	t.Run("FixMergeConflictsIsTopPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   0,
-			IsMergeable:          false,
-			ChecksDidFail:        true,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Fix Merge Conflicts", action)
-	})
-	t.Run("ChecksDidFailIsSecondPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   0,
-			IsMergeable:          true,
-			ChecksDidFail:        true,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Fix Failed CI", action)
-	})
-	t.Run("AddReviewersIsThirdPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   0,
-			IsMergeable:          true,
-			ChecksDidFail:        false,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Add Reviewers", action)
-	})
-	t.Run("AddressRequestedChangesIsFourthPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   1,
-			IsMergeable:          true,
-			ChecksDidFail:        false,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Address Comments", action)
-	})
+
 	t.Run("NotAuthorAndNotMergeable", func(t *testing.T) {
 		// make all lower priority conditions true to verify proper priority
 		pullRequestData := GithubPRData{

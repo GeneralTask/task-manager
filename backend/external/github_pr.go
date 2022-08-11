@@ -494,14 +494,14 @@ func checkRunsDidFail(checkRuns *github.ListCheckRunsResults) bool {
 func getPullRequestRequiredAction(data GithubPRData) string {
 	var action string
 	if data.IsOwnedByUser {
-		if !data.IsMergeable {
-			action = ActionFixMergeConflicts
+		if data.RequestedReviewers == 0 {
+			action = ActionAddReviewers
 		} else if data.ChecksDidFail {
 			action = ActionFixFailedCI
-		} else if data.RequestedReviewers == 0 {
-			action = ActionAddReviewers
 		} else if data.HaveRequestedChanges {
 			action = ActionAddressComments
+		} else if !data.IsMergeable {
+			action = ActionFixMergeConflicts
 		} else if !data.ChecksDidFinish {
 			action = ActionWaitingOnCI
 		} else if data.IsApproved {
