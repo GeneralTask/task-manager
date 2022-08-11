@@ -1,13 +1,12 @@
 import React, { forwardRef } from 'react'
 import styled from 'styled-components'
-import { Border, Dimensions } from '../../styles'
+import { Dimensions } from '../../styles'
 
 const TemplateContainer = styled.div`
     width: 100%;
     position: relative;
     height: ${Dimensions.TASK_HEIGHT};
     box-sizing: border-box;
-    border-radius: ${Border.radius.large};
     padding: 1px 0;
     margin: 2px 0;
 `
