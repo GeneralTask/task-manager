@@ -13,7 +13,12 @@ const FeedbackButton = () => {
     }
     return (
         <>
-            <GTButton value="Share feedback" styleType="secondary" onClick={() => setModalIsOpen(true)} />
+            <GTButton
+                value="Share feedback"
+                styleType="secondary"
+                fitContent={false}
+                onClick={() => setModalIsOpen(true)}
+            />
             <GTModal
                 isOpen={modalIsOpen}
                 canClose={false}

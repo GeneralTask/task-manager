@@ -5,6 +5,7 @@ export const margin = {
     _16: '16px',
     _20: '20px',
     _24: '24px',
+    _32: '32px',
     _40: '40px',
 }
 
@@ -15,5 +16,6 @@ export const padding = {
     _16: '16px',
     _20: '20px',
     _24: '24px',
+    _32: '32px',
     _40: '40px',
 }

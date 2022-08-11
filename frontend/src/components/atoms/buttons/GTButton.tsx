@@ -1,56 +1,96 @@
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Icon } from '../Icon'
 import { icons, TIconImage } from '../../../styles/images'
+import NoStyleButton from './NoStyleButton'
 
-const Button = styled.button<{ styleType: 'primary' | 'secondary'; wrapText?: boolean }>`
+type TButtonStyle = 'primary' | 'secondary'
+type TButtonSize = 'small' | 'large'
+
+const PrimaryButtonStyles = css`
+    background-color: ${Colors.button.primary.default};
+    color: ${Colors.text.white};
+    &:hover {
+        box-shadow: ${Shadows.button.primary.hover};
+        background-color: ${Colors.button.primary.hover};
+    }
+    &:active {
+        box-shadow: ${Shadows.button.primary.active};
+        color: ${Colors.button.primary.active_text};
+    }
+`
+const SecondaryButtonStyles = css`
+    background-color: ${Colors.button.secondary.default};
+    color: ${Colors.text.black};
+    &:hover {
+        box-shadow: ${Shadows.button.secondary.hover};
+        background-color: ${Colors.button.secondary.hover};
+    }
+    &:active {
+        box-shadow: ${Shadows.button.secondary.active};
+        color: ${Colors.button.secondary.active_text};
+    }
+`
+const LargeButtonStyle = css`
+    padding: ${Spacing.padding._8} ${Spacing.padding._16};
+    gap: ${Spacing.padding._8};
+    ${Typography.body}
+`
+const SmallButtonStyle = css`
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    gap: ${Spacing.padding._4};
+    ${Typography.bodySmall}
+`
+
+const Button = styled(NoStyleButton)<{
+    styleType: TButtonStyle
+    wrapText: boolean
+    fitContent: boolean
+    size: TButtonSize
+}>`
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: ${Spacing.margin._4};
     border-radius: ${Border.radius.small};
-    background-color: ${(props) =>
-        props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default};
-    padding: ${Spacing.padding._8} ${Spacing.padding._12};
-    border: none;
     text-align: center;
     height: 100%;
-    color: ${(props) => (props.styleType === 'primary' ? Colors.text.white : Colors.text.black)};
+    width: ${(props) => (props.fitContent ? 'fit-content' : '100%')};
     box-shadow: ${Shadows.button.default};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
-    cursor: pointer;
     transition: background 0.05s;
     transition: box-shadow 0.25s;
     user-select: none;
     ${Typography.body};
-    &:hover {
-        box-shadow: ${(props) =>
-            props.styleType === 'primary' ? Shadows.button.primary.hover : Shadows.button.secondary.hover};
-        background-color: ${(props) =>
-            props.styleType === 'primary' ? Colors.button.primary.hover : Colors.button.secondary.hover};
-    }
-    &:active {
-        box-shadow: ${(props) =>
-            props.styleType === 'primary' ? Shadows.button.primary.active : Shadows.button.secondary.active};
-        color: ${(props) =>
-            props.styleType === 'primary' ? Colors.button.primary.active_text : Colors.button.secondary.active_text};
-    }
+    ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
+    ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
+    ${(props) => props.size === 'large' && LargeButtonStyle};
+    ${(props) => props.size === 'small' && SmallButtonStyle};
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    styleType?: 'primary' | 'secondary'
+    styleType?: TButtonStyle
+    size?: TButtonSize
     wrapText?: boolean
+    fitContent?: boolean
     iconSource?: TIconImage
 }
-const GTButton = (props: GTButtonProps) => {
+const GTButton = ({
+    styleType = 'primary',
+    size = 'large',
+    wrapText = false,
+    fitContent = true,
+    iconSource,
+    value,
+    ...rest
+}: GTButtonProps) => {
+    const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
-        <Button styleType={props.styleType || 'primary'} wrapText={props.wrapText} {...props}>
-            {props.iconSource && <Icon size="small" source={icons[props.iconSource]} />}
-            {props.value}
+        <Button styleType={styleType} size={size} wrapText={wrapText} fitContent={fitContent} {...rest}>
+            {iconSource && <Icon size={iconSize} source={icons[iconSource]} />}
+            {value}
         </Button>
     )
 }

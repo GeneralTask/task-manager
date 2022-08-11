@@ -96,16 +96,30 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			PullRequests: repositoryIDToPullRequests[repositoryID],
 		})
 	}
+
+	// Sort repositories by name
 	sort.Slice(repositoryResults, func(i, j int) bool {
 		return repositoryResults[i].Name < repositoryResults[j].Name
 	})
+
+	// Sort pull requests in repositories by required action, and then by last updated
+	for _, repositoryResult := range repositoryResults {
+		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
+			leftPR := repositoryResult.PullRequests[i]
+			rightPR := repositoryResult.PullRequests[j]
+			if leftPR.Status.Text == rightPR.Status.Text {
+				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
+			}
+			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
+		})
+	}
 	c.JSON(200, repositoryResults)
 }
 
 func getColorFromRequiredAction(requiredAction string) string {
 	if requiredAction == external.ActionFixMergeConflicts || requiredAction == external.ActionFixFailedCI {
 		return PR_COLOR_RED
-	} else if requiredAction == external.ActionAddReviewers || requiredAction == external.ActionAddressRequested {
+	} else if requiredAction == external.ActionAddReviewers || requiredAction == external.ActionAddressRequested || requiredAction == external.ActionReviewPR {
 		return PR_COLOR_YELLOW
 	} else if requiredAction == external.ActionMergePR {
 		return PR_COLOR_GREEN

@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"net/http"
 	"net/http/httptest"
@@ -517,6 +518,40 @@ func TestCreateNewEvent(t *testing.T) {
 	})
 }
 
+func TestDeleteEvent(t *testing.T) {
+	t.Run("ExternalError", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		gcalEventID := "event-id-1"
+
+		server := getEventDeleteServer(t, "")
+		defer server.Close()
+
+		googleCalendar := GoogleCalendarSource{
+			Google: GoogleService{
+				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			},
+		}
+		err := googleCalendar.DeleteEvent(userID, "exampleAccountID", gcalEventID)
+		assert.Error(t, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+		accountID := "exampleAccountID"
+		gcalEventID := "event-id-2"
+
+		server := getEventDeleteServer(t, fmt.Sprintf("/calendars/%s/events/%s?alt=json&prettyPrint=false", accountID, gcalEventID))
+		defer server.Close()
+
+		googleCalendar := GoogleCalendarSource{
+			Google: GoogleService{
+				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			},
+		}
+		err := googleCalendar.DeleteEvent(userID, accountID, gcalEventID)
+		assert.NoError(t, err)
+	})
+}
+
 func assertCalendarEventsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.TaskType, b.TaskType)
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
@@ -584,6 +619,22 @@ func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expect
 		}
 
 		w.WriteHeader(201)
+		w.Write([]byte(`{}`))
+		return
+	}))
+}
+
+func getEventDeleteServer(t *testing.T, expectedRequestURI string) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if expectedRequestURI == "" {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"detail": "gcal internal error"}`))
+			return
+		}
+
+		assert.Equal(t, expectedRequestURI, r.RequestURI)
+
+		w.WriteHeader(200)
 		w.Write([]byte(`{}`))
 		return
 	}))

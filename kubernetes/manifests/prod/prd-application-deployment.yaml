@@ -32,20 +32,6 @@ spec:
                 key: ACCESS_CONTROL_ALLOW_ORIGIN
                 optional: false
 
-          - name: ASANA_OAUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: core-secrets
-                key: ASANA_OAUTH_CLIENT_ID
-                optional: false
-
-          - name: ASANA_OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: core-secrets
-                key: ASANA_OAUTH_CLIENT_SECRET
-                optional: false
-
           - name: COOKIE_DOMAIN
             valueFrom:
               secretKeyRef:
@@ -105,20 +91,6 @@ spec:
                 key: HOME_URL
                 optional: false
 
-          - name: JIRA_OAUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: core-secrets
-                key: JIRA_OAUTH_CLIENT_ID
-                optional: false
-
-          - name: JIRA_OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: core-secrets
-                key: JIRA_OAUTH_CLIENT_SECRET
-                optional: false
-
           - name: LINEAR_OAUTH_CLIENT_ID
             valueFrom:
               secretKeyRef:
@@ -173,20 +145,6 @@ spec:
               secretKeyRef:
                 name: core-secrets
                 key: SLACK_SIGNING_SECRET
-                optional: false
-
-          - name: TRELLO_OAUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: core-secrets
-                key: TRELLO_OAUTH_CLIENT_ID
-                optional: false
-
-          - name: TRELLO_OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: core-secrets
-                key: TRELLO_OAUTH_CLIENT_SECRET
                 optional: false
 
         ports:

@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -22,32 +24,39 @@ func TestPullRequestList(t *testing.T) {
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
-	pullRequest1, err := createTestPullRequest(db, userID, "dogecoin", false, true)
+	timePullRequestUpdated := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
+	pullRequest1, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddReviewers, timePullRequestUpdated)
+	assert.NoError(t, err)
+	pullRequest2, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixFailedCI, timePullRequestUpdated)
+	assert.NoError(t, err)
+	pullRequest3, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionMergePR, timePullRequestUpdated)
+	assert.NoError(t, err)
+	pullRequest4, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnReview, timePullRequestUpdated)
+	assert.NoError(t, err)
+	pullRequest5, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddressRequested, timePullRequestUpdated)
+	assert.NoError(t, err)
+	pullRequest6, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixMergeConflicts, timePullRequestUpdated)
+	assert.NoError(t, err)
+	pullRequest7, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionReviewPR, timePullRequestUpdated)
 	assert.NoError(t, err)
 	// wrong user id
-	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true)
+	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true, "", timePullRequestUpdated)
 	assert.NoError(t, err)
 	// completed PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", true, true)
+	_, err = createTestPullRequest(db, userID, "dogecoin", true, true, "", timePullRequestUpdated)
 	assert.NoError(t, err)
 	// not a PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", false, false)
-	assert.NoError(t, err)
-	// second PR in first repo
-	pullRequest2, err := createTestPullRequest(db, userID, "dogecoin", false, true)
+	_, err = createTestPullRequest(db, userID, "dogecoin", false, false, "", timePullRequestUpdated)
 	assert.NoError(t, err)
 	// first PR in second repo
-	pullRequest3, err := createTestPullRequest(db, userID, "tesla", false, true)
+	pullRequest8, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timePullRequestUpdated)
+	assert.NoError(t, err)
+	// second PR in second repo, last updated an hour ago
+	timeHourEarlier := timePullRequestUpdated.Add(-1 * time.Hour)
+	pullRequest9, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timeHourEarlier)
 	assert.NoError(t, err)
 
-	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
-		request, _ := http.NewRequest("GET", "/pull_requests/", nil)
-
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	})
+	UnauthorizedTest(t, "GET", "/pull_requests/", nil)
 	t.Run("Success", func(t *testing.T) {
 		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest("GET", "/pull_requests/", nil)
@@ -61,22 +70,73 @@ func TestPullRequestList(t *testing.T) {
 		err = json.Unmarshal(body, &result)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(result))
-		assert.Equal(t, result, []RepositoryResult{
+		assert.Equal(t, []RepositoryResult{
 			{
 				ID:   "dogecoin",
 				Name: "dogecoin",
 				PullRequests: []PullRequestResult{
 					{
-						ID:            pullRequest1.ID.Hex(),
-						Status:        PullRequestStatus{Color: "gray"},
+						ID: pullRequest1.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Add Reviewers",
+							Color: "yellow",
+						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID:            pullRequest2.ID.Hex(),
-						Status:        PullRequestStatus{Color: "gray"},
+						ID: pullRequest7.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Review PR",
+							Color: "yellow",
+						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
+						ID: pullRequest6.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Fix Merge Conflicts",
+							Color: "red",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
+						ID: pullRequest2.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Fix Failed CI",
+							Color: "red",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
+						ID: pullRequest5.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Address Requested Changes",
+							Color: "yellow",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
+						ID: pullRequest3.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Merge PR",
+							Color: "green",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
+						ID: pullRequest4.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Waiting on Review",
+							Color: "gray",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 				},
 			},
@@ -85,19 +145,32 @@ func TestPullRequestList(t *testing.T) {
 				Name: "tesla",
 				PullRequests: []PullRequestResult{
 					{
-						ID:            pullRequest3.ID.Hex(),
-						Status:        PullRequestStatus{Color: "gray"},
+						ID: pullRequest8.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Add Reviewers",
+							Color: "yellow",
+						},
 						CreatedAt:     "1970-01-01T00:00:00Z",
-						LastUpdatedAt: "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
+					{
+						ID: pullRequest9.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Add Reviewers",
+							Color: "yellow",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timeHourEarlier).Time().UTC().Format(time.RFC3339),
 					},
 				},
 			},
-		})
+		}, result)
 	})
 }
 
-func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool) (*database.Item, error) {
+func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time) (*database.Item, error) {
 	externalID := primitive.NewObjectID().Hex()
+	lastUpdatedAtPrimitive := primitive.NewDateTimeFromTime(lastUpdatedAt)
 	return database.GetOrCreateItem(
 		db,
 		userID,
@@ -116,6 +189,8 @@ func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, reposi
 			PullRequest: database.PullRequest{
 				RepositoryID:   repositoryName,
 				RepositoryName: repositoryName,
+				RequiredAction: requiredAction,
+				LastUpdatedAt:  lastUpdatedAtPrimitive,
 			},
 		},
 	)

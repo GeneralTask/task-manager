@@ -41,10 +41,6 @@ type SlackAdditionalInformation struct {
 	Deeplink string
 }
 
-func (slackTask SlackSavedTaskSource) GetEmails(userID primitive.ObjectID, accountID string, token database.ExternalAPIToken, result chan<- EmailResult) {
-	result <- emptyEmailResult(nil)
-}
-
 func (slackTask SlackSavedTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
@@ -87,14 +83,6 @@ func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID,
 
 func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
 	return nil
-}
-
-func (slackTask SlackSavedTaskSource) Reply(userID primitive.ObjectID, accountID string, messageID primitive.ObjectID, emailContents EmailContents) error {
-	return errors.New("cannot reply to an Slack task")
-}
-
-func (slackTask SlackSavedTaskSource) SendEmail(userID primitive.ObjectID, accountID string, email EmailContents) error {
-	return errors.New("cannot send email for Slack source")
 }
 
 func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
@@ -149,12 +137,8 @@ func (slackTask SlackSavedTaskSource) CreateNewEvent(userID primitive.ObjectID, 
 	return errors.New("has not been implemented yet")
 }
 
-func (slackTask SlackSavedTaskSource) ModifyMessage(userID primitive.ObjectID, accountID string, emailID string, updateFields *database.MessageChangeable) error {
-	return nil
-}
-
-func (slackTask SlackSavedTaskSource) ModifyThread(userID primitive.ObjectID, accountID string, threadID primitive.ObjectID, isUnread *bool, isArchived *bool) error {
-	return nil
+func (slackTask SlackSavedTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+	return errors.New("has not been implemented yet")
 }
 
 func GenerateSlackUserID(teamID string, userID string) string {

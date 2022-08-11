@@ -29,7 +29,6 @@ const SupportedViewContent = styled.div`
 interface AddViewsModalProps {
     isOpen: boolean
     onClose: () => void
-    goToEditViewsView: () => void
 }
 
 const AddViewsModalContent = () => {
@@ -47,8 +46,8 @@ const AddViewsModalContent = () => {
         supportedViewItem: TSupportedViewItem,
         viewItemIndex: number
     ) => {
-        if (supportedViewItem.is_added && supportedViewItem.id) {
-            removeView(supportedViewItem.id)
+        if (supportedViewItem.is_added && supportedViewItem.view_id) {
+            removeView(supportedViewItem.view_id)
         } else {
             addView({
                 supportedView,
@@ -116,13 +115,13 @@ const AddViewsModalContent = () => {
     )
 }
 
-const AddViewsModal = ({ isOpen, onClose, goToEditViewsView }: AddViewsModalProps) => {
+const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
     return (
         <GTModal
             isOpen={isOpen}
             title="Add views"
             onClose={onClose}
-            leftButtons={<GTButton value="Back" color={Colors.gtColor.primary} onClick={goToEditViewsView} />}
+            rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             type="small"
         >
             <AddViewsModalContent />

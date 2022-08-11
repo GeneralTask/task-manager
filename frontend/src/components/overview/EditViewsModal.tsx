@@ -10,9 +10,8 @@ import Spinner from '../atoms/Spinner'
 interface EditViewsModalProps {
     isOpen: boolean
     onClose: () => void
-    goToAddViewsView: () => void
 }
-const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalProps) => {
+const EditViewsModal = ({ isOpen, onClose }: EditViewsModalProps) => {
     const { data: views, isLoading } = useGetOverviewViews()
     const { mutate: reorderViews } = useReorderViews()
 
@@ -32,10 +31,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
             isOpen={isOpen}
             title="Edit views"
             onClose={onClose}
-            leftButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
-            rightButtons={
-                <GTButton onClick={goToAddViewsView} iconSource="plus" value="Add views" styleType="secondary" />
-            }
+            rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             type="small"
         >
             <>
@@ -46,7 +42,7 @@ const EditViewsModal = ({ isOpen, onClose, goToAddViewsView }: EditViewsModalPro
                     index={views.length}
                     acceptDropType={DropType.OVERVIEW_VIEW}
                     onReorder={handleReorder}
-                    isLast
+                    indicatorType="TOP_ONLY"
                 />
             </>
         </GTModal>
