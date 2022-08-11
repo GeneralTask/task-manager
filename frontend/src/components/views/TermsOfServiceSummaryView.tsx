@@ -1,4 +1,4 @@
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import React, { useCallback, useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 
@@ -37,6 +37,8 @@ const TermsScrollDiv = styled.div`
     overflow-y: scroll;
     margin-top: ${Spacing.margin._8};
     padding: ${Spacing.padding._8};
+    border-top: ${Border.stroke.medium} solid ${Colors.border.gray};
+    border-bottom: ${Border.stroke.medium} solid ${Colors.border.gray};
 `
 const LinkContainer = styled.div`
     display: flex;
