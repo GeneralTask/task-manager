@@ -22,9 +22,6 @@ const Title = styled.span`
     text-overflow: ellipsis;
     ${Typography.bodySmall};
 `
-const NoStyleDiv = styled.div`
-    all: unset;
-`
 
 interface TaskProps {
     task: TTask
@@ -107,22 +104,20 @@ const Task = ({
     )
 
     return (
-        <TaskTemplate ref={elementRef}>
-            <NoStyleDiv onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
-                <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                    {isHovered && !dragDisabled && <Domino ref={drag} />}
-                    <CompleteButton
-                        taskId={task.id}
-                        isComplete={task.is_done}
-                        onMarkComplete={onMarkComplete}
-                        isSelected={isSelected}
-                    />
-                    <Title data-testid="task-title">{task.title}</Title>
-                    <IconContainer>
-                        <Icon source={logos[task.source.logo_v2]} size="small" />
-                    </IconContainer>
-                </ItemContainer>
-            </NoStyleDiv>
+        <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
+                {isHovered && !dragDisabled && <Domino ref={drag} />}
+                <CompleteButton
+                    taskId={task.id}
+                    isComplete={task.is_done}
+                    onMarkComplete={onMarkComplete}
+                    isSelected={isSelected}
+                />
+                <Title data-testid="task-title">{task.title}</Title>
+                <IconContainer>
+                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                </IconContainer>
+            </ItemContainer>
         </TaskTemplate>
     )
 }

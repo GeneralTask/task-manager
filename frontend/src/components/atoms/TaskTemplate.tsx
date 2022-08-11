@@ -6,16 +6,19 @@ const TemplateContainer = styled.div`
     width: 100%;
     position: relative;
     height: ${Dimensions.TASK_HEIGHT};
-    box-sizing: border-box;
     padding: 1px 0;
     margin: 2px 0;
 `
-interface TaskTemplateProps {
-    isShadow?: boolean
+interface TaskTemplateProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode
 }
 const TaskTemplate = forwardRef<HTMLDivElement, TaskTemplateProps>((props: TaskTemplateProps, ref) => {
-    return <TemplateContainer ref={ref}>{props.children}</TemplateContainer>
+    const { children, ...attr } = props
+    return (
+        <TemplateContainer ref={ref} {...attr}>
+            {children}
+        </TemplateContainer>
+    )
 })
 
 export default TaskTemplate
