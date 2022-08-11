@@ -1,9 +1,12 @@
 import { Border, Colors, Spacing } from '../../styles'
-import React from 'react'
+import React, { useState } from 'react'
 import { TitleSmall } from '../atoms/title/Title'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import TextArea from '../atoms/TextArea'
 import styled from 'styled-components'
+import GTModal from '../atoms/GTModal'
+import { usePostFeedback } from '../../services/api/feedback.hooks'
+import GTButton from '../atoms/buttons/GTButton'
 
 const FeedbackHeader = styled.div`
     margin-bottom: ${Spacing.margin._24};
@@ -17,24 +20,33 @@ const TextAreaContainer = styled.div`
     border-radius: ${Border.radius.small};
 `
 interface FeedbackViewProps {
-    feedback: string
-    setFeedback: (feedback: string) => void
+    modalIsOpen: boolean
+    setModalIsOpen: (modalIsOpen: boolean) => void
 }
-const FeedbackView = (props: FeedbackViewProps) => {
+const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
+    const [feedback, setFeedback] = useState('')
+    const { mutate: postFeedback } = usePostFeedback()
+    const submitFeedback = () => {
+        postFeedback({ feedback: feedback })
+    }
     return (
-        <>
+        <GTModal
+            isOpen={modalIsOpen}
+            canClose={false}
+            onClose={() => setModalIsOpen(false)}
+            rightButtons={<GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" />}
+            leftButtons={<GTButton onClick={() => setModalIsOpen(false)} value="Cancel" styleType="secondary" />}
+            title="Got Feedback?"
+            type="small"
+        >
             <FeedbackHeader>
                 <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
             <TextAreaContainer>
-                <TextArea
-                    value={props.feedback}
-                    placeholder="Type in your feedback here."
-                    setValue={props.setFeedback}
-                />
+                <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </TextAreaContainer>
-        </>
+        </GTModal>
     )
 }
 
