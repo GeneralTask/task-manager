@@ -103,6 +103,7 @@ const TermsOfServiceSummaryView = () => {
     const onCancel = useCallback(() => {
         dispatch(setShowModal(ModalEnum.NONE))
         Cookies.remove(AUTHORIZATION_COOKE)
+        navigate('/')
     }, [])
 
     return (
