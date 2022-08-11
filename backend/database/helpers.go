@@ -27,13 +27,17 @@ func UpdateOrCreateItem(
 ) (*Item, error) {
 	var err error
 	if flattenFields {
-		fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
-		if err != nil {
-			return nil, err
+		if fieldsToInsertIfMissing != nil {
+			fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
+			if err != nil {
+				return nil, err
+			}
 		}
-		fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
-		if err != nil {
-			return nil, err
+		if fieldsToUpdate != nil {
+			fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
