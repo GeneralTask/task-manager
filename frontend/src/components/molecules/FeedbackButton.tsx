@@ -13,7 +13,7 @@ const FeedbackButton = () => {
     }
     return (
         <>
-            <GTButton value="Share feedback" styleType="secondary" onClick={openModal} />
+            <GTButton value="Share feedback" styleType="secondary" fitContent={false} onClick={openModal} />
             <ModalView>
                 <FeedbackView />
             </ModalView>

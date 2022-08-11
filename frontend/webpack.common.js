@@ -3,7 +3,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const SentryCliPlugin = require('@sentry/webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default
@@ -52,7 +51,6 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         publicPath: '/',
     },
-    devtool: 'source-map',
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html'
@@ -61,11 +59,6 @@ module.exports = {
             patterns: [
                 { from: 'public', to: '' }
             ]
-        }),
-        new SentryCliPlugin({
-            // Must be the last running plugin
-            include: '.',
-            ignore: ['node_modules', 'webpack.dev.js', 'webpack.prod.js', 'webpack.common.js'],
         }),
         new ForkTsCheckerWebpackPlugin(),
     ],

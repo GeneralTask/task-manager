@@ -536,30 +536,41 @@ func TestCheckRunsForCommit(t *testing.T) {
 }
 
 func TestUserIsReviewer(t *testing.T) {
-	testGithubUser1 := &github.User{
+	testGithubUserReviewer := &github.User{
 		ID: github.Int64(1),
 	}
-	testGithubUser2 := &github.User{
+	testGithubUserNotReviewer := &github.User{
 		ID: github.Int64(2),
 	}
+	testGithubUserSubmittedReview := &github.User{
+		ID: github.Int64(3),
+	}
+	reviews := []*github.PullRequestReview{}
 	githubPullRequest := &github.PullRequest{
-		RequestedReviewers: []*github.User{testGithubUser1},
+		RequestedReviewers: []*github.User{testGithubUserReviewer},
 	}
 	t.Run("UserIsReviewer", func(t *testing.T) {
-		assert.True(t, userIsReviewer(testGithubUser1, githubPullRequest))
+		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
 	})
-	t.Run("UserIsNotReviewer", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUser2, githubPullRequest))
+	// Github API does not consider users who have submitted a review as reviewers, but we still want to show them as a reviewer in our app.
+	t.Run("UserSubmittedReview", func(t *testing.T) {
+		reviews = append(reviews, &github.PullRequestReview{
+			User: testGithubUserSubmittedReview,
+		})
+		assert.True(t, userIsReviewer(testGithubUserSubmittedReview, githubPullRequest, reviews))
+	})
+	t.Run("UserIsNotReviewerAndNotSubmittedReview", func(t *testing.T) {
+		assert.False(t, userIsReviewer(testGithubUserNotReviewer, githubPullRequest, reviews))
 	})
 	t.Run("NilPullRequest", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUser1, nil))
+		assert.False(t, userIsReviewer(testGithubUserReviewer, nil, reviews))
 	})
 	t.Run("NilUser", func(t *testing.T) {
-		assert.False(t, userIsReviewer(nil, githubPullRequest))
+		assert.False(t, userIsReviewer(nil, githubPullRequest, reviews))
 	})
 	t.Run("NilFields", func(t *testing.T) {
-		testGithubUser1.ID = nil
-		assert.False(t, userIsReviewer(testGithubUser1, githubPullRequest))
+		testGithubUserReviewer.ID = nil
+		assert.False(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
 	})
 }
 
@@ -814,81 +825,56 @@ func TestGetReviewerCount(t *testing.T) {
 }
 
 func TestReviewersHaveRequestedChanges(t *testing.T) {
+	user1 := &github.User{Login: github.String("user1")}
+	user2 := &github.User{Login: github.String("user2")}
+
+	stringRequestedChanges := github.String("CHANGES_REQUESTED")
+	stringApproved := github.String("APPROVED")
+	stringCommented := github.String("COMMENTED")
+
 	t.Run("NoReviews", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
-
 		assert.False(t, reviewersHaveRequestedChanges)
 	})
 	t.Run("SingleApprovalReview", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User: &github.User{
-					Login: github.String("testUser"),
-				},
-				State: github.String("APPROVED"),
-			},
+			{User: user1, State: stringApproved},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
-
 		assert.False(t, reviewersHaveRequestedChanges)
 	})
-	t.Run("PreviousRequestedChanges", func(t *testing.T) {
+	t.Run("RequestedChangesThenApproved", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User: &github.User{
-					Login: github.String("testUser"),
-				},
-				State: github.String("REQUESTED_CHANGES"),
-			},
-			{
-				User: &github.User{
-					Login: github.String("testUser"),
-				},
-				State: github.String("APPROVED"),
-			},
+			{User: user1, State: stringRequestedChanges},
+			{User: user1, State: stringApproved},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
-
 		assert.False(t, reviewersHaveRequestedChanges)
 	})
-	t.Run("RequestedChanges", func(t *testing.T) {
+	t.Run("ApprovedThenRequestedChanges", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User: &github.User{
-					Login: github.String("testUser"),
-				},
-				State: github.String("APPROVED"),
-			},
-			{
-				User: &github.User{
-					Login: github.String("testUser"),
-				},
-				State: github.String("CHANGES_REQUESTED"),
-			},
+			{User: user1, State: stringApproved},
+			{User: user1, State: stringRequestedChanges},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
-
 		assert.True(t, reviewersHaveRequestedChanges)
 	})
-	t.Run("MultupleUserStates", func(t *testing.T) {
+	t.Run("MultupleUsersReview", func(t *testing.T) {
 		pullRequestReviews := []*github.PullRequestReview{
-			{
-				User: &github.User{
-					Login: github.String("testUser2"),
-				},
-				State: github.String("CHANGES_REQUESTED"),
-			},
-			{
-				User: &github.User{
-					Login: github.String("testUser1"),
-				},
-				State: github.String("APPROVED"),
-			},
+			{User: user1, State: stringRequestedChanges},
+			{User: user2, State: stringApproved},
 		}
 		reviewersHaveRequestedChanges := reviewersHaveRequestedChanges(pullRequestReviews)
-
 		assert.True(t, reviewersHaveRequestedChanges)
+	})
+	t.Run("IgnoreCommentedState", func(t *testing.T) {
+		pullRequestReviews := []*github.PullRequestReview{
+			{User: user1, State: stringCommented},
+			{User: user1, State: stringRequestedChanges},
+			{User: user1, State: stringCommented},
+		}
+		assert.True(t, reviewersHaveRequestedChanges(pullRequestReviews))
 	})
 }
 
@@ -962,22 +948,26 @@ func TestChecksDidFail(t *testing.T) {
 }
 
 func TestGetPullRequestRequiredAction(t *testing.T) {
+	reviewers := github.Reviewers{
+		Users: []*github.User{},
+	}
+	authorUserLogin := "testUser"
 	t.Run("AddReviewers", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers: 0,
 			IsMergeable:        true,
+			IsOwnedByUser:      true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Add Reviewers", action)
 	})
 	t.Run("FixMergeConflicts", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers: 1,
 			IsMergeable:        false,
+			IsOwnedByUser:      true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Fix Merge Conflicts", action)
 	})
 	t.Run("FixFailedCI", func(t *testing.T) {
@@ -985,9 +975,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			RequestedReviewers: 1,
 			IsMergeable:        true,
 			ChecksDidFail:      true,
+			IsOwnedByUser:      true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Fix Failed CI", action)
 	})
 	t.Run("AddressRequestedChanges", func(t *testing.T) {
@@ -996,9 +986,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			IsMergeable:          true,
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
+			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Address Requested Changes", action)
 	})
 	t.Run("MergePR", func(t *testing.T) {
@@ -1008,9 +998,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: false,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Merge PR", action)
 	})
 	t.Run("WaitingOnReview", func(t *testing.T) {
@@ -1020,9 +1010,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: false,
 			IsApproved:           false,
+			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Waiting on Review", action)
 	})
 	t.Run("FixMergeConflictsIsTopPriority", func(t *testing.T) {
@@ -1033,9 +1023,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        true,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Fix Merge Conflicts", action)
 	})
 	t.Run("ChecksDidFailIsSecondPriority", func(t *testing.T) {
@@ -1046,9 +1036,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        true,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Fix Failed CI", action)
 	})
 	t.Run("AddReviewersIsThirdPriority", func(t *testing.T) {
@@ -1059,9 +1049,9 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-
 		assert.Equal(t, "Add Reviewers", action)
 	})
 	t.Run("AddressRequestedChangesIsFourthPriority", func(t *testing.T) {
@@ -1072,9 +1062,111 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			ChecksDidFail:        false,
 			HaveRequestedChanges: true,
 			IsApproved:           true,
+			IsOwnedByUser:        true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Address Requested Changes", action)
+	})
+	t.Run("NotAuthorAndNotMergeable", func(t *testing.T) {
+		// make all lower priority conditions true to verify proper priority
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          false,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorAndChecksFailed", func(t *testing.T) {
+		// make all lower priority conditions true to verify proper priority
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        true,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorAndNoReviewers", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   0,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorAndRequestedChanges", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorAndApproved", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: true,
+			IsApproved:           true,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
 
-		assert.Equal(t, "Address Requested Changes", action)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorAndNoAuthorActionRequired", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           false,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on Author", action)
+	})
+	t.Run("NotAuthorandReviewPR", func(t *testing.T) {
+		reviewers.Users = append(reviewers.Users, &github.User{Login: &authorUserLogin})
+		pullRequestData := GithubPRData{
+			RequestedReviewers:   1,
+			IsMergeable:          true,
+			ChecksDidFail:        false,
+			HaveRequestedChanges: false,
+			IsApproved:           false,
+			IsOwnedByUser:        false,
+			UserLogin:            authorUserLogin,
+			Reviewers:            &reviewers,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Review PR", action)
 	})
 }
