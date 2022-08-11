@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"google.golang.org/api/calendar/v3"
 	"strings"
 	"time"
+
+	"google.golang.org/api/calendar/v3"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
 
@@ -104,7 +105,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event.IDExternal,
 			event.SourceID,
 			event,
-			database.CalendarEventChangeableFields{
+			database.CalendarEventItemChangeable{
 				CalendarEvent: event.CalendarEvent,
 				Title:         event.Title,
 				Body:          event.TaskBase.Body,

@@ -65,7 +65,7 @@ func (api *API) EventModify(c *gin.Context) {
 	}
 	defer dbCleanup()
 
-	fieldsToUpdate := database.CalendarEventChangeableFields{}
+	fieldsToUpdate := database.CalendarEventItemChangeable{}
 	if modifyParams.Summary != nil {
 		fieldsToUpdate.Title = *modifyParams.Summary
 	}

@@ -178,7 +178,7 @@ type CalendarEvent struct {
 	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
 }
 
-type CalendarEventChangeableFields struct {
+type CalendarEventItemChangeable struct {
 	CalendarEvent `bson:"calendar_event,omitempty"`
 	TaskType      `bson:"task_type,omitempty"`
 	Title         string `bson:"title,omitempty"`
