@@ -63,20 +63,20 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                             </CloseButton>
                         </EventHeaderIcons>
                     </EventHeader>
-                    <EventDetail>
-                        <EventTitleSection>
-                            <EventTitle>{event.title}</EventTitle>
-                            <EventDateContainer>
-                                <Icon source={icons.calendar_blank_light} size="xSmall" />
-                                <EventDate>
-                                    {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                                </EventDate>
-                            </EventDateContainer>
-                        </EventTitleSection>
-                        <DescriptionContainer>
-                            <Description>{event.body}</Description>
-                        </DescriptionContainer>
-                    </EventDetail>
+                    {/* <EventDetail> */}
+                    {/* <EventTitleSection> */}
+                    <EventTitle>{event.title}</EventTitle>
+                    <EventDateContainer>
+                        <Icon source={icons.calendar_blank_light} size="xSmall" />
+                        <EventDate>
+                            {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
+                        </EventDate>
+                    </EventDateContainer>
+                    {/* </EventTitleSection> */}
+                    {/* <DescriptionContainer> */}
+                    <Description>{event.body}</Description>
+                    {/* </DescriptionContainer> */}
+                    {/* </EventDetail> */}
                     <ExternalLinkAnchor href={event.deeplink} target="_blank">
                         <GTButton
                             styleType="secondary"
