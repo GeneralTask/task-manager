@@ -79,7 +79,7 @@ func (api *API) EventModify(c *gin.Context) {
 		fieldsToUpdate.CalendarEvent.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
 	}
 
-	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, fieldsToUpdate, nil, true)
+	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, fieldsToUpdate, fieldsToUpdate, nil, true)
 	if err != nil {
 		Handle500(c)
 		return

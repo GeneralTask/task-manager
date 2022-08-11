@@ -174,8 +174,8 @@ type PullRequestChangeableFields struct {
 }
 
 type CalendarEvent struct {
-	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
-	DatetimeStart primitive.DateTime `bson:"datetime_start"`
+	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
 }
 
 type CalendarEventChangeableFields struct {
