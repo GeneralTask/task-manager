@@ -65,7 +65,13 @@ go run .
 curl localhost:8080/ping
 ```
 
-We can setup the server to rebuild/rerun upon local file changes using [air](https://github.com/cosmtrek/air) and also control the log level by setting the environment variable `LOG_LEVEL` (e.g. `info`, `debug`, etc) (which will override the setting in `.env`).
+### Live-reloading / auto-recompile [highly recommended for devx]
+
+We can setup the server to rebuild/rerun upon local file changes using [air](https://github.com/cosmtrek/air) so you don't have to constantly kill the server and rerun it yourself.
+
+### Controlling log level
+
+We can control the log level by setting the environment variable `LOG_LEVEL` (e.g. `info`, `debug`, etc) (which will override the setting in `.env`).
 
 ## Backend testing
 
