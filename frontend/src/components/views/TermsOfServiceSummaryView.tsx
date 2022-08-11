@@ -23,6 +23,7 @@ const TermsOfServiceContainer = styled.div`
     padding: ${Spacing.padding._16};
     height: 100%;
     box-sizing: border-box;
+    min-height: 0;
 `
 const TermsOfServiceHeader = styled.div`
     margin-top: ${Spacing.margin._24};
