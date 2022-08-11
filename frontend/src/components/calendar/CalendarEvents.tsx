@@ -78,8 +78,8 @@ interface WeekCalendarEventsProps {
     groups: TEvent[][]
     eventDetailId: string
     setEventDetailId: (id: string) => void
-    disableScroll: boolean
-    setDisableScroll: (id: boolean) => void
+    isScrollDisabled: boolean
+    setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
 }
@@ -89,8 +89,8 @@ const WeekCalendarEvents = ({
     groups,
     eventDetailId,
     setEventDetailId,
-    disableScroll,
-    setDisableScroll,
+    isScrollDisabled,
+    setIsScrollDisabled,
     isEventSelected,
     setIsEventSelected,
 }: WeekCalendarEventsProps): JSX.Element => {
@@ -114,8 +114,8 @@ const WeekCalendarEvents = ({
                         date={tmpDate}
                         eventDetailId={eventDetailId}
                         setEventDetailId={setEventDetailId}
-                        disableScroll={disableScroll}
-                        setDisableScroll={setDisableScroll}
+                        isScrollDisabled={isScrollDisabled}
+                        setIsScrollDisabled={setIsScrollDisabled}
                         isEventSelected={isEventSelected}
                         setIsEventSelected={setIsEventSelected}
                     />
@@ -148,7 +148,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
     const [isEventSelected, setIsEventSelected] = useState(false)
-    const [disableScroll, setDisableScroll] = useState(false)
+    const [isScrollDisabled, setIsScrollDisabled] = useState(false)
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -238,7 +238,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
 
     // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (
-        <AllDaysContainer ref={eventsContainerRef} disableScroll={disableScroll}>
+        <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={isScrollDisabled}>
             <TimeAndHeaderContainer>
                 {expandedCalendar && <CalendarDayHeader />}
                 <TimeContainer>
@@ -254,8 +254,8 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     groups={groups}
                     eventDetailId={eventDetailsID}
                     setEventDetailId={setEventDetailsID}
-                    disableScroll={disableScroll}
-                    setDisableScroll={setDisableScroll}
+                    isScrollDisabled={isScrollDisabled}
+                    setIsScrollDisabled={setIsScrollDisabled}
                     isEventSelected={isEventSelected}
                     setIsEventSelected={setIsEventSelected}
                 />

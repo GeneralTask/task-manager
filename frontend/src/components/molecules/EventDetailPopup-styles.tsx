@@ -34,12 +34,13 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
 `
+// width: 100%
 export const EventBody = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: text;
-    min-height: 10px;
+    width: 100%;
+    padding: ${Spacing.padding._8} ${Spacing.padding._16};
 `
 export const EventHeader = styled.div`
     display: flex;
@@ -47,7 +48,6 @@ export const EventHeader = styled.div`
     align-items: center;
     justify-content: space-between;
     align-self: stretch;
-    padding: 0px ${Spacing.padding._16};
 `
 export const EventHeaderIcons = styled.div`
     display: flex;
@@ -60,18 +60,15 @@ export const EventDetail = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: ${Spacing.padding._8} 0px;
     gap: ${Spacing.padding._8};
     width: ${MAX_POPUP_LENGTH};
     max-height: ${MAX_POPUP_LENGTH};
-    overflow-y: scroll;
 `
 export const EventTitleSection = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     align-self: stretch;
-    padding: 0px ${Spacing.padding._16};
     gap: ${Spacing.padding._8};
 `
 export const EventDateContainer = styled.div`
@@ -87,9 +84,10 @@ export const DescriptionContainer = styled.div`
     width: 100%;
     height: 100%;
     overflow-wrap: anywhere;
+    overflow-y: scroll;
 `
 export const ExternalLinkAnchor = styled(NoStyleAnchor)`
-    width: 90%;
+    width: 100%;
     padding-top: ${Spacing.padding._4};
 `
 export const CloseButton = styled(NoStyleButton)`
@@ -114,5 +112,4 @@ export const EventDate = styled.span`
 export const Description = styled.span`
     ${Typography.label};
     color: ${Colors.text.black};
-    padding: 0px ${Spacing.padding._16};
 `

@@ -23,8 +23,8 @@ interface EventBodyProps {
     leftOffset: number
     date: DateTime
     isSelected: boolean
-    disableScroll: boolean
-    setDisableScroll: (id: boolean) => void
+    isScrollDisabled: boolean
+    setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
 }
@@ -61,18 +61,18 @@ function EventBody(props: EventBodyProps): JSX.Element {
         if (eventRef.current?.contains(e.target as Node)) return
         props.setEventDetailId('')
         props.setIsEventSelected(false)
-        props.setDisableScroll(false)
+        props.setIsScrollDisabled(false)
     }
-
     const onClick = (e: MouseEvent) => {
+        // Prevent popup from closing when user clicks on the popup component
         if (popupRef.current?.contains(e.target as Node)) return
         if (props.eventDetailId === props.event.id) {
             props.setEventDetailId('')
             props.setIsEventSelected(false)
-            props.setDisableScroll(false)
+            props.setIsScrollDisabled(false)
         } else {
             props.setEventDetailId(props.event.id)
-            props.setDisableScroll(!props.disableScroll)
+            props.setIsScrollDisabled(!props.isScrollDisabled)
             props.setIsEventSelected(!props.isEventSelected)
         }
 
@@ -81,19 +81,20 @@ function EventBody(props: EventBodyProps): JSX.Element {
         xCoordEvent.current = eventRef.current.getBoundingClientRect().left
         yCoordEvent.current = eventRef.current.getBoundingClientRect().bottom
 
-        if (xCoordEvent.current && yCoordEvent.current)
+        if (xCoordEvent.current && yCoordEvent.current) {
             setCoords({
                 xCoord: xCoordEvent.current,
                 yCoord: yCoordEvent.current,
             })
+        }
     }
-
     const handleWindowResize = () => {
-        if (eventRef.current)
+        if (eventRef.current) {
             setCoords({
                 xCoord: eventRef.current.getBoundingClientRect().left,
                 yCoord: eventRef.current.getBoundingClientRect().bottom,
             })
+        }
     }
 
     useEffect(() => {
@@ -112,7 +113,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             ref={eventRef}
         >
             <EventInfoContainer onClick={onClick}>
-                {props.eventDetailId === props.event.id && coords && (
+                {props.eventDetailId === props.event.id && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
