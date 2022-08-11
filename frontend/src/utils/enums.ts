@@ -11,13 +11,6 @@ export enum AbortID {
     SETTINGS,
 }
 
-export enum ModalEnum {
-    NONE,
-    FEEDBACK,
-    PRIVACY_POLICY,
-    OVERVIEW,
-}
-
 export enum LogEvents {
     TASK_CREATED = 'task_created',
     TASK_EXPANDED = 'task_expanded',

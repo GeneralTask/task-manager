@@ -1,23 +1,13 @@
 import { Border, Colors, Spacing } from '../../styles'
 import React, { useState } from 'react'
-import { TitleMedium, TitleSmall } from '../atoms/title/Title'
-
-import { ModalEnum } from '../../utils/enums'
-import GTButton from '../atoms/buttons/GTButton'
+import { TitleSmall } from '../atoms/title/Title'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import TextArea from '../atoms/TextArea'
-import { setShowModal } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
+import GTModal from '../atoms/GTModal'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
+import GTButton from '../atoms/buttons/GTButton'
 
-const FeedbackViewContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: ${Spacing.padding._16};
-    box-sizing: border-box;
-`
 const FeedbackHeader = styled.div`
     margin-bottom: ${Spacing.margin._24};
     display: flex;
@@ -25,43 +15,38 @@ const FeedbackHeader = styled.div`
 `
 const TextAreaContainer = styled.div`
     flex: 1;
-    margin-top: ${Spacing.margin._4};
+    margin: ${Spacing.margin._4} 0;
     border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.small};
 `
-const ButtonContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin-top: ${Spacing.margin._8};
-    gap: ${Spacing.margin._8};
-`
-
-const FeedbackView = () => {
-    const dispatch = useAppDispatch()
+interface FeedbackViewProps {
+    modalIsOpen: boolean
+    setModalIsOpen: (modalIsOpen: boolean) => void
+}
+const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
     const [feedback, setFeedback] = useState('')
     const { mutate: postFeedback } = usePostFeedback()
-    const submitFeedback = async () => {
+    const submitFeedback = () => {
         postFeedback({ feedback: feedback })
-        dispatch(setShowModal(ModalEnum.NONE))
-    }
-    const closeModal = () => {
-        dispatch(setShowModal(ModalEnum.NONE))
     }
     return (
-        <FeedbackViewContainer>
+        <GTModal
+            isOpen={modalIsOpen}
+            canClose={false}
+            onClose={() => setModalIsOpen(false)}
+            rightButtons={<GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" />}
+            leftButtons={<GTButton onClick={() => setModalIsOpen(false)} value="Cancel" styleType="secondary" />}
+            title="Got Feedback?"
+            type="small"
+        >
             <FeedbackHeader>
-                <TitleMedium>Got feedback?</TitleMedium>
                 <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
             <TextAreaContainer>
                 <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
             </TextAreaContainer>
-            <ButtonContainer>
-                <GTButton onClick={submitFeedback} value="Send feedback" color={Colors.gtColor.primary} />
-                <GTButton onClick={closeModal} value="Cancel" styleType="secondary" />
-            </ButtonContainer>
-        </FeedbackViewContainer>
+        </GTModal>
     )
 }
 

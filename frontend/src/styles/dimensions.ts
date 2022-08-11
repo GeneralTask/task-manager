@@ -9,13 +9,20 @@ export const iconSize = {
 export type TIconSize = keyof typeof iconSize
 
 export const modalSize = {
+    dialog: {
+        max_height: '200px',
+        min_height: 'fit-content',
+        width: 'fit-content',
+    },
     small: {
+        max_height: '440px',
+        min_height: '440px',
         width: '478px',
-        height: '440px',
     },
     medium: {
+        max_height: '620px',
+        min_height: '620px',
         width: '723px',
-        height: '620px',
     },
 }
 
