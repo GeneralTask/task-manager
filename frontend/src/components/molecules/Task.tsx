@@ -22,6 +22,10 @@ const Title = styled.span`
     text-overflow: ellipsis;
     ${Typography.bodySmall};
 `
+const DominoContainer = styled.div`
+    position: absolute;
+    left: ${Spacing.margin._4};
+`
 
 interface TaskProps {
     task: TTask
@@ -106,7 +110,11 @@ const Task = ({
     return (
         <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                {isHovered && !dragDisabled && <Domino ref={drag} />}
+                {isHovered && !dragDisabled && (
+                    <DominoContainer>
+                        <Domino ref={drag} />
+                    </DominoContainer>
+                )}
                 <CompleteButton
                     taskId={task.id}
                     isComplete={task.is_done}
