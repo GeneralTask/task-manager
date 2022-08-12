@@ -58,14 +58,22 @@ func (api *API) EventModify(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
+	err = updateEventInDB(modifyParams, event, userID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
+	c.JSON(200, gin.H{})
+}
+
+func updateEventInDB(modifyParams external.EventModifyObject, event *database.Item, userID primitive.ObjectID) error {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
 	defer dbCleanup()
 
-	fieldsToUpdate := database.CalendarEventItemChangeable{}
+	fieldsToUpdate := database.CalendarEventChangeableFields{}
 	if modifyParams.Summary != nil {
 		fieldsToUpdate.Title = *modifyParams.Summary
 	}
@@ -73,16 +81,15 @@ func (api *API) EventModify(c *gin.Context) {
 		fieldsToUpdate.Body = *modifyParams.Description
 	}
 	if modifyParams.DatetimeStart != nil {
-		fieldsToUpdate.CalendarEvent.DatetimeStart = primitive.NewDateTimeFromTime(*modifyParams.DatetimeStart)
+		fieldsToUpdate.CalendarEventChangeable.DatetimeStart = primitive.NewDateTimeFromTime(*modifyParams.DatetimeStart)
 	}
 	if modifyParams.DatetimeEnd != nil {
-		fieldsToUpdate.CalendarEvent.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
+		fieldsToUpdate.CalendarEventChangeable.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
 	}
 
 	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, fieldsToUpdate, fieldsToUpdate, nil, true)
 	if err != nil {
-		Handle500(c)
-		return
+		return err
 	}
-	c.JSON(200, gin.H{})
+	return nil
 }
