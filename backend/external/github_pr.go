@@ -331,6 +331,8 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 }
 
 func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
+	logger := logging.GetSentryLogger()
+	logger.Debug().Msgf("updating or creating repository %s", *repository.Name)
 	repositoryCollection := database.GetRepositoryCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()

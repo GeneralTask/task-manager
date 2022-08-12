@@ -1,9 +1,10 @@
 package api
 
 import (
-	"sort"
+	"context"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -44,6 +45,7 @@ type PullRequestStatus struct {
 }
 
 func (api *API) PullRequestsList(c *gin.Context) {
+	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -62,57 +64,56 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	repositoryIDToResult := make(map[string]RepositoryResult)
-	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
-	for _, pullRequest := range *pullRequests {
-		repositoryID := pullRequest.RepositoryID
-		repositoryResult := RepositoryResult{
-			ID:   repositoryID,
-			Name: pullRequest.RepositoryName,
-		}
-		repositoryIDToResult[repositoryID] = repositoryResult
-		pullRequestResult := PullRequestResult{
-			ID:     pullRequest.ID.Hex(),
-			Title:  pullRequest.Title,
-			Number: pullRequest.Number,
-			Status: PullRequestStatus{
-				Text:  pullRequest.RequiredAction,
-				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
-			},
-			Author:        pullRequest.Author,
-			NumComments:   pullRequest.CommentCount,
-			CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-			Branch:        pullRequest.Branch,
-			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
-		}
-		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
+
+	var repositories []database.Repository
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := repositoryCollection.Find(
+		dbCtx,
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		Handle500(c)
+		return
 	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor.All(dbCtx, &repositories)
+
 	repositoryResults := []RepositoryResult{}
-	for repositoryID, repositoryResult := range repositoryIDToResult {
-		repositoryResults = append(repositoryResults, RepositoryResult{
-			ID:           repositoryID,
-			Name:         repositoryResult.Name,
-			PullRequests: repositoryIDToPullRequests[repositoryID],
-		})
-	}
+	for _, repository := range repositories {
+		result := RepositoryResult{
+			ID:           repository.ID.Hex(),
+			Name:         repository.FullName,
+			PullRequests: []PullRequestResult{},
+		}
+		for _, pullRequest := range *pullRequests {
+			if pullRequest.RepositoryID == repository.RepositoryID {
+				result.PullRequests = append(result.PullRequests, PullRequestResult{
+					ID:     pullRequest.ID.Hex(),
+					Title:  pullRequest.Title,
+					Number: pullRequest.Number,
+					Status: PullRequestStatus{
+						Text:  pullRequest.RequiredAction,
+						Color: getColorFromRequiredAction(pullRequest.RequiredAction),
+					},
+					Author:        pullRequest.Author,
+					NumComments:   pullRequest.CommentCount,
+					CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+					Branch:        pullRequest.Branch,
+					Deeplink:      pullRequest.Deeplink,
+					LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+				})
 
-	// Sort repositories by name
-	sort.Slice(repositoryResults, func(i, j int) bool {
-		return repositoryResults[i].Name < repositoryResults[j].Name
-	})
-
-	// Sort pull requests in repositories by required action, and then by last updated
-	for _, repositoryResult := range repositoryResults {
-		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
-			leftPR := repositoryResult.PullRequests[i]
-			rightPR := repositoryResult.PullRequests[j]
-			if leftPR.Status.Text == rightPR.Status.Text {
-				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
 			}
-			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
-		})
+		}
+		if len(result.PullRequests) == 0 {
+			continue
+		}
+		repositoryResults = append(repositoryResults, result)
 	}
+
 	c.JSON(200, repositoryResults)
 }
 
