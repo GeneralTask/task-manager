@@ -53,9 +53,13 @@ function EventBody(props: EventBodyProps): JSX.Element {
         xCoord: 0,
         yCoord: 0,
     })
-
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
+
+    useEffect(() => {
+        window.addEventListener('resize', handleWindowResize)
+        return () => window.removeEventListener('resize', handleWindowResize)
+    }, [])
 
     const onClose = (e: MouseEvent) => {
         if (eventRef.current?.contains(e.target as Node)) return
@@ -96,12 +100,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
             })
         }
     }
-
-    useEffect(() => {
-        window.addEventListener('resize', handleWindowResize)
-        return () => window.removeEventListener('resize', handleWindowResize)
-    }, [])
-
     return (
         <EventBodyStyle
             key={props.event.id}
