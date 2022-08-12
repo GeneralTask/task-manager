@@ -1,9 +1,9 @@
 import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 const MAX_POPUP_LENGTH = '315px'
+const MAX_POPUP_HEIGHT = '100px'
 const WINDOW_HEIGHT = window.innerHeight
 
 interface EventBoxStyleProps {
@@ -17,11 +17,7 @@ Handles edge cases for events below max height (window height - popup height) */
 export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     position: absolute;
     box-sizing: border-box;
-    /* display: flex; */
-    /* flex-direction: row; */
-    /* align-items: flex-start; */
-    padding: ${Spacing.padding._16} 0px;
-    /* gap: ${Spacing.padding._8}; */
+    padding: ${Spacing.padding._16} ${Spacing.padding._16};
     width: ${MAX_POPUP_LENGTH};
 
     left: calc(${(props) => props.xCoord}px - ${MAX_POPUP_LENGTH});
@@ -33,68 +29,25 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
-`
-// width: 100%
-export const EventBody = styled.div`
     display: flex;
     flex-direction: column;
-    /* align-items: center; */
     gap: 8px;
-    /* width: 100%;  */
-    /* box-sizing: border-box; */
-    padding: ${Spacing.padding._8} ${Spacing.padding._16};
 `
 export const EventHeader = styled.div`
     display: flex;
-    /* flex-direction: row; */
     align-items: center;
     justify-content: space-between;
-    /* align-self: stretch; */
 `
 export const EventHeaderIcons = styled.div`
     display: flex;
-    /* flex-direction: row; */
-    /* justify-content: flex-end; */
     align-items: center;
     gap: ${Spacing.margin._4};
-`
-export const EventDetail = styled.div`
-    // removed
-    display: flex;
-    flex-direction: column;
-    /* align-items: center; */
-    gap: ${Spacing.padding._8};
-    /* width: ${MAX_POPUP_LENGTH}; */
-    width: 100%;
-    max-height: ${MAX_POPUP_LENGTH};
-`
-export const EventTitleSection = styled.div`
-    // removed
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-    gap: ${Spacing.padding._8};
 `
 export const EventDateContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: ${Spacing.padding._8};
-`
-export const DescriptionContainer = styled.div`
-    // removed
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    /* width: 100%; */
-    max-height: 100px;
-    overflow-wrap: anywhere;
-    overflow-y: auto;
-`
-export const ExternalLinkAnchor = styled(NoStyleAnchor)`
-    /* width: 100%; */
-    /* padding-top: ${Spacing.padding._4}; */
 `
 export const CloseButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
@@ -118,12 +71,7 @@ export const EventDate = styled.span`
 export const Description = styled.div`
     ${Typography.label};
     color: ${Colors.text.black};
-
-    /* display: flex; */
-    /* flex-direction: column; */
-    /* align-items: flex-start; */
-    /* width: 100%; */
-    max-height: 100px;
+    max-height: ${MAX_POPUP_HEIGHT};
     overflow-wrap: break-word;
     overflow-y: auto;
 `

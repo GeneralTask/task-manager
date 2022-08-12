@@ -7,20 +7,16 @@ import ReactDOM from 'react-dom'
 import { useClickOutside } from '../../hooks'
 import {
     EventBoxStyle,
-    EventBody,
     EventHeader,
     EventHeaderIcons,
     CloseButton,
-    EventDetail,
-    EventTitleSection,
     EventTitle,
     EventDateContainer,
     EventDate,
-    DescriptionContainer,
     Description,
-    ExternalLinkAnchor,
 } from './EventDetailPopup-styles'
 import GTButton from '../atoms/buttons/GTButton'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 interface EventDetailProps {
     event: TEvent
@@ -32,8 +28,8 @@ interface EventDetailProps {
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps, ref) => {
-        const popupRef = useRef<HTMLDivElement>(null)
+    ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps, tempRef) => {
+        const popupRef = useRef<HTMLDivElement | null>(null)
         const [popupHeight, setPopupHeight] = useState(0)
         useLayoutEffect(() => {
             if (!popupRef.current) return
@@ -48,45 +44,44 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 yCoord={yCoord}
                 popupHeight={popupHeight}
                 eventHeight={eventHeight}
-                ref={popupRef}
+                ref={(node) => {
+                    popupRef.current = node
+                    if (typeof tempRef === 'function') {
+                        tempRef(node)
+                    } else if (tempRef !== null) {
+                        tempRef.current = node
+                    }
+                }}
             >
-                <EventBody ref={ref}>
-                    <EventHeader>
-                        <Icon source={logos.gcal} size="xSmall" />
-                        <EventHeaderIcons>
-                            <CloseButton
-                                onClick={(e) => {
-                                    onClose(e as MouseEvent)
-                                }}
-                            >
-                                <Icon source={icons.x_thin_light} size="xSmall" />
-                            </CloseButton>
-                        </EventHeaderIcons>
-                    </EventHeader>
-                    {/* <EventDetail> */}
-                    {/* <EventTitleSection> */}
-                    <EventTitle>{event.title}</EventTitle>
-                    <EventDateContainer>
-                        <Icon source={icons.calendar_blank_light} size="xSmall" />
-                        <EventDate>
-                            {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                        </EventDate>
-                    </EventDateContainer>
-                    {/* </EventTitleSection> */}
-                    {/* <DescriptionContainer> */}
-                    <Description>{event.body}</Description>
-                    {/* </DescriptionContainer> */}
-                    {/* </EventDetail> */}
-                    <ExternalLinkAnchor href={event.deeplink} target="_blank">
-                        <GTButton
-                            styleType="secondary"
-                            size="small"
-                            value="Google Calendar"
-                            iconSource="external_link_dark"
-                            fitContent={false}
-                        />
-                    </ExternalLinkAnchor>
-                </EventBody>
+                <EventHeader>
+                    <Icon source={logos.gcal} size="xSmall" />
+                    <EventHeaderIcons>
+                        <CloseButton
+                            onClick={(e) => {
+                                onClose(e as MouseEvent)
+                            }}
+                        >
+                            <Icon source={icons.x_thin_light} size="xSmall" />
+                        </CloseButton>
+                    </EventHeaderIcons>
+                </EventHeader>
+                <EventTitle>{event.title}</EventTitle>
+                <EventDateContainer>
+                    <Icon source={icons.calendar_blank_light} size="xSmall" />
+                    <EventDate>
+                        {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
+                    </EventDate>
+                </EventDateContainer>
+                <Description>{event.body}</Description>
+                <NoStyleAnchor href={event.deeplink} target="_blank">
+                    <GTButton
+                        styleType="secondary"
+                        size="small"
+                        value="Google Calendar"
+                        iconSource="external_link_dark"
+                        fitContent={false}
+                    />
+                </NoStyleAnchor>
             </EventBoxStyle>,
             document.getElementById('event-details-popup') as HTMLElement
         )
