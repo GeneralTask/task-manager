@@ -3,6 +3,8 @@ import React from 'react'
 import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
+    position: absolute;
+    left: ${Spacing.margin._4};
     cursor: grab;
     height: ${Spacing.margin._16};
     padding-left: ${Spacing.padding._4};
@@ -20,7 +22,7 @@ const Dot = styled.div`
     width: 3px;
     height: 3px;
     border-radius: 50px;
-    background-color: ${Colors.background.dark};
+    background-color: ${Colors.border.gray};
     margin: 1px;
 `
 
