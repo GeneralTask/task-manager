@@ -26,10 +26,11 @@ interface EventDetailProps {
     xCoord: number
     yCoord: number
     eventHeight: number
+    setIsScrollDisabled: (id: boolean) => void
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps, ref) => {
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, setIsScrollDisabled }: EventDetailProps, ref) => {
         const popupRef = useRef<HTMLDivElement | null>(null)
         const { mutate: deleteEvent } = useDeleteEvent()
         const [popupHeight, setPopupHeight] = useState(0)
@@ -47,6 +48,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 datetime_start: event.datetime_start,
                 datetime_end: event.datetime_end,
             })
+            setIsScrollDisabled(false)
         }
         return ReactDOM.createPortal(
             <EventBoxStyle
