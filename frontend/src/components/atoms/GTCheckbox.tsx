@@ -5,8 +5,19 @@ import lottie, { AnimationItem } from 'lottie-web'
 import checkbox from '../../../public/animations/checkbox.json'
 import styled from 'styled-components'
 
-const AnimationContainer = styled.div<{ size: TIconSize }>`
+const AnimationContainer = styled.div`
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: ${iconSize.large};
+    height: ${iconSize.large};
+    pointer-events: none;
+`
+
+const SlightlyStyledButton = styled(NoStyleButton)<{ size: TIconSize }>`
     position: relative;
+    justify-content: center;
+    align-items: center;
     width: ${({ size }) => iconSize[size]};
     height: ${({ size }) => iconSize[size]};
 `
@@ -49,15 +60,16 @@ const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) =>
     }, [])
 
     useEffect(() => {
-        animation?.goToAndStop(isChecked ? animation.totalFrames : 0, true)
+        if (!animation) return
+        animation.goToAndStop(isChecked ? animation.totalFrames : 0, true)
+        animation.setSpeed(3)
     }, [animation])
 
-    size = size || 'large'
+    size = size || 'small'
     return (
-        <NoStyleButton onClick={onClickHandler} disabled={disabled}>
-            <AnimationContainer ref={animationContainerRef} size={size} />
-            {/* <Icon size={size} source={isChecked ? icons.task_complete : icons.task_incomplete} /> */}
-        </NoStyleButton>
+        <SlightlyStyledButton onClick={onClickHandler} disabled={disabled} size={size}>
+            <AnimationContainer ref={animationContainerRef} />
+        </SlightlyStyledButton>
     )
 }
 
