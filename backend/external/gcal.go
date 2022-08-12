@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/api/calendar/v3"
+
 	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/rs/zerolog/log"
@@ -16,7 +18,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
 )
 
@@ -105,10 +106,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event.SourceID,
 			event,
 			database.CalendarEventChangeableFields{
-				CalendarEvent: event.CalendarEvent,
-				Title:         event.Title,
-				Body:          event.TaskBase.Body,
-				TaskType:      event.TaskType,
+				CalendarEventChangeable: database.CalendarEventChangeable{
+					DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
+					DatetimeStart: event.CalendarEvent.DatetimeStart,
+				},
+				Title:    event.Title,
+				Body:     event.TaskBase.Body,
+				TaskType: event.TaskType,
 			},
 			nil,
 			false,
@@ -238,9 +242,44 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 			DisplayName: attendee.Name,
 			Email:       attendee.Email,
 		})
-
 	}
 	return &attendeesList
+}
+
+func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	if err != nil {
+		return err
+	}
+
+	gcalEvent := calendar.Event{}
+	if updateFields.Summary != nil {
+		gcalEvent.Summary = *updateFields.Summary
+	}
+	if updateFields.Location != nil {
+		gcalEvent.Location = *updateFields.Location
+	}
+	if updateFields.Description != nil {
+		gcalEvent.Description = *updateFields.Description
+	}
+	if updateFields.DatetimeStart != nil {
+		gcalEvent.Start = &calendar.EventDateTime{
+			DateTime: updateFields.DatetimeStart.Format(time.RFC3339),
+		}
+	}
+	if updateFields.DatetimeEnd != nil {
+		gcalEvent.End = &calendar.EventDateTime{
+			DateTime: updateFields.DatetimeEnd.Format(time.RFC3339),
+		}
+	}
+	if updateFields.Attendees != nil {
+		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
+	}
+	_, err = calendarService.Events.Patch(accountID, eventID, &gcalEvent).Do()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func createConferenceCallRequest() *calendar.ConferenceData {
