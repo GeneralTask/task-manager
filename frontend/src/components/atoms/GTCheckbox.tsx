@@ -16,8 +16,7 @@ const AnimationContainer = styled.div`
 
 const SlightlyStyledButton = styled(NoStyleButton)<{ size: TIconSize }>`
     position: relative;
-    justify-content: center;
-    align-items: center;
+    flex-shrink: 0;
     width: ${({ size }) => iconSize[size]};
     height: ${({ size }) => iconSize[size]};
 `
