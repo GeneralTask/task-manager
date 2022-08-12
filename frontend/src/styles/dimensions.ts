@@ -4,6 +4,7 @@ export const iconSize = {
     small: '20px',
     medium: '30px',
     large: '40px',
+    xLarge: '50px',
 }
 
 export type TIconSize = keyof typeof iconSize

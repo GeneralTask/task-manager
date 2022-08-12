@@ -11,6 +11,8 @@ import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import PullRequestDetails from '../details/PullRequestDetails'
 import { SectionHeader } from '../molecules/Header'
+import EmptyDetails from '../details/EmptyDetails'
+import { icons } from '../../styles/images'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -36,8 +38,8 @@ const OverviewView = () => {
     }
 
     const detailsView = useMemo(() => {
-        if (!views || !overviewItem) {
-            return null
+        if (!views?.length) {
+            return <EmptyDetails iconSource={icons.list} text="You have no views" />
         }
         for (const view of views) {
             for (const item of view.view_items) {
@@ -58,7 +60,7 @@ const OverviewView = () => {
         if (!isLoading && (!overviewItem || !detailsView)) {
             selectFirstItem()
         }
-    }, [])
+    }, [isLoading, overviewItem])
 
     if (isLoading) {
         return <Spinner />
