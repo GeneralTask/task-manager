@@ -476,6 +476,10 @@ func GetViewCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("views")
 }
 
+func GetRepositoryCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("repositories")
+}
+
 func GetUserCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("users")
 }

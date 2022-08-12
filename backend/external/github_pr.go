@@ -13,7 +13,10 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/google/go-github/v45/github"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -135,6 +138,12 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 	var pullRequestChannels []chan *database.Item
 	for _, repository := range repositories {
+		err := updateOrCreateRepository(parentCtx, db, repository, userID)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to update or create repository")
+			result <- emptyPullRequestResult(err)
+			return
+		}
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
@@ -319,6 +328,25 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	}
 	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
 	return repositories, err
+}
+
+func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err := repositoryCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"external_id": fmt.Sprint(*repository.ID)},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": bson.M{
+			"full_name": *repository.FullName,
+			"deeplink":  *repository.HTMLURL,
+		}},
+		options.Update().SetUpsert(true),
+	)
+	return err
 }
 
 func getGithubPullRequests(ctx context.Context, githubClient *github.Client, repository *github.Repository, overrideURL *string) ([]*github.PullRequest, error) {
