@@ -7,20 +7,16 @@ import ReactDOM from 'react-dom'
 import { useClickOutside } from '../../hooks'
 import {
     EventBoxStyle,
-    EventBody,
     EventHeader,
     EventHeaderIcons,
-    EventDetail,
-    EventTitleSection,
     EventTitle,
     EventDateContainer,
     EventDate,
-    DescriptionContainer,
     Description,
-    ExternalLinkAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
 import GTButton from '../atoms/buttons/GTButton'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 
 interface EventDetailProps {
@@ -32,35 +28,41 @@ interface EventDetailProps {
     eventHeight: number
 }
 
-const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps) => {
-    const popupRef = useRef<HTMLDivElement>(null)
-    const { mutate: deleteEvent } = useDeleteEvent()
-    const [popupHeight, setPopupHeight] = useState(0)
-    const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
-    const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
-    const onDelete = async (id: string) => {
-        deleteEvent({
-            id: id,
-            date: date,
-            datetime_start: event.datetime_start,
-            datetime_end: event.datetime_end,
-        })
-    }
-
-    useLayoutEffect(() => {
-        if (!popupRef.current) return
-        setPopupHeight(popupRef.current.getBoundingClientRect().height)
-    })
-    useClickOutside(popupRef, onClose)
-    return ReactDOM.createPortal(
-        <EventBoxStyle
-            xCoord={xCoord}
-            yCoord={yCoord}
-            popupHeight={popupHeight}
-            eventHeight={eventHeight}
-            ref={popupRef}
-        >
-            <EventBody>
+const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
+    ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps, ref) => {
+        const popupRef = useRef<HTMLDivElement | null>(null)
+        const { mutate: deleteEvent } = useDeleteEvent()
+        const [popupHeight, setPopupHeight] = useState(0)
+        useLayoutEffect(() => {
+            if (!popupRef.current) return
+            setPopupHeight(popupRef.current.getBoundingClientRect().height)
+        }, [])
+        useClickOutside(popupRef, onClose)
+        const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
+        const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
+        const onDelete = async (id: string) => {
+            deleteEvent({
+                id: id,
+                date: date,
+                datetime_start: event.datetime_start,
+                datetime_end: event.datetime_end,
+            })
+        }
+        return ReactDOM.createPortal(
+            <EventBoxStyle
+                xCoord={xCoord}
+                yCoord={yCoord}
+                popupHeight={popupHeight}
+                eventHeight={eventHeight}
+                ref={(node) => {
+                    popupRef.current = node
+                    if (typeof ref === 'function') {
+                        ref(node)
+                    } else if (ref !== null) {
+                        ref.current = node
+                    }
+                }}
+            >
                 <EventHeader>
                     <Icon source={logos.gcal} size="xSmall" />
                     <EventHeaderIcons>
@@ -76,21 +78,15 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                         </IconButton>
                     </EventHeaderIcons>
                 </EventHeader>
-                <EventDetail>
-                    <EventTitleSection>
-                        <EventTitle>{event.title}</EventTitle>
-                        <EventDateContainer>
-                            <Icon source={icons.calendar_blank_light} size="xSmall" />
-                            <EventDate>
-                                {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                            </EventDate>
-                        </EventDateContainer>
-                    </EventTitleSection>
-                    <DescriptionContainer>
-                        <Description>{event.body}</Description>
-                    </DescriptionContainer>
-                </EventDetail>
-                <ExternalLinkAnchor href={event.deeplink} target="_blank">
+                <EventTitle>{event.title}</EventTitle>
+                <EventDateContainer>
+                    <Icon source={icons.calendar_blank_light} size="xSmall" />
+                    <EventDate>
+                        {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
+                    </EventDate>
+                </EventDateContainer>
+                <Description>{event.body}</Description>
+                <NoStyleAnchor href={event.deeplink} target="_blank">
                     <GTButton
                         styleType="secondary"
                         size="small"
@@ -98,11 +94,11 @@ const EventDetailPopup = ({ event, date, onClose, xCoord, yCoord, eventHeight }:
                         iconSource="external_link_dark"
                         fitContent={false}
                     />
-                </ExternalLinkAnchor>
-            </EventBody>
-        </EventBoxStyle>,
-        document.getElementById('event-details-popup') as HTMLElement
-    )
-}
+                </NoStyleAnchor>
+            </EventBoxStyle>,
+            document.getElementById('event-details-popup') as HTMLElement
+        )
+    }
+)
 
 export default EventDetailPopup

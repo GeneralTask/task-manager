@@ -23,13 +23,14 @@ interface EventBodyProps {
     leftOffset: number
     date: DateTime
     isSelected: boolean
-    disableScroll: boolean
-    setDisableScroll: (id: boolean) => void
+    isScrollDisabled: boolean
+    setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const eventRef = useRef<HTMLDivElement>(null)
+    const popupRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
@@ -52,25 +53,30 @@ function EventBody(props: EventBodyProps): JSX.Element {
         xCoord: 0,
         yCoord: 0,
     })
-
     const xCoordEvent = useRef<number>()
     const yCoordEvent = useRef<number>()
+
+    useEffect(() => {
+        window.addEventListener('resize', handleWindowResize)
+        return () => window.removeEventListener('resize', handleWindowResize)
+    }, [])
 
     const onClose = (e: MouseEvent) => {
         if (eventRef.current?.contains(e.target as Node)) return
         props.setEventDetailId('')
         props.setIsEventSelected(false)
-        props.setDisableScroll(false)
+        props.setIsScrollDisabled(false)
     }
-
-    const onClick = () => {
+    const onClick = (e: MouseEvent) => {
+        // Prevent popup from closing when user clicks on the popup component
+        if (popupRef.current?.contains(e.target as Node)) return
         if (props.eventDetailId === props.event.id) {
             props.setEventDetailId('')
             props.setIsEventSelected(false)
-            props.setDisableScroll(false)
+            props.setIsScrollDisabled(false)
         } else {
             props.setEventDetailId(props.event.id)
-            props.setDisableScroll(!props.disableScroll)
+            props.setIsScrollDisabled(!props.isScrollDisabled)
             props.setIsEventSelected(!props.isEventSelected)
         }
 
@@ -79,26 +85,21 @@ function EventBody(props: EventBodyProps): JSX.Element {
         xCoordEvent.current = eventRef.current.getBoundingClientRect().left
         yCoordEvent.current = eventRef.current.getBoundingClientRect().bottom
 
-        if (xCoordEvent.current && yCoordEvent.current)
+        if (xCoordEvent.current && yCoordEvent.current) {
             setCoords({
                 xCoord: xCoordEvent.current,
                 yCoord: yCoordEvent.current,
             })
+        }
     }
-
     const handleWindowResize = () => {
-        if (eventRef.current)
+        if (eventRef.current) {
             setCoords({
                 xCoord: eventRef.current.getBoundingClientRect().left,
                 yCoord: eventRef.current.getBoundingClientRect().bottom,
             })
+        }
     }
-
-    useEffect(() => {
-        window.addEventListener('resize', handleWindowResize)
-        return () => window.removeEventListener('resize', handleWindowResize)
-    }, [])
-
     return (
         <EventBodyStyle
             key={props.event.id}
@@ -110,7 +111,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             ref={eventRef}
         >
             <EventInfoContainer onClick={onClick}>
-                {props.eventDetailId === props.event.id && coords && (
+                {props.eventDetailId === props.event.id && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
@@ -118,6 +119,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         xCoord={coords.xCoord}
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
+                        ref={popupRef}
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>

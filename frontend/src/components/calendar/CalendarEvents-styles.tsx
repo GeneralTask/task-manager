@@ -32,13 +32,13 @@ export const TimeContainer = styled.div`
     justify-content: center;
     position: relative;
 `
-export const AllDaysContainer = styled.div<{ disableScroll: boolean }>`
+export const AllDaysContainer = styled.div<{ isScrollDisabled: boolean }>`
     width: 100%;
     flex: 1;
     display: flex;
     justify-content: center;
     position: relative;
-    overflow: ${(props) => (props.disableScroll ? 'hidden' : 'scroll')};
+    overflow: ${(props) => (props.isScrollDisabled ? 'hidden' : 'scroll')};
 `
 export const CalendarTableStyle = styled.table`
     border-collapse: collapse;

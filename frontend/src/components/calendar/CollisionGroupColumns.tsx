@@ -9,8 +9,8 @@ interface CollisionGroupColumnsProps {
     date: DateTime
     eventDetailId: string
     setEventDetailId: (id: string) => void
-    disableScroll: boolean
-    setDisableScroll: (id: boolean) => void
+    isScrollDisabled: boolean
+    setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
 }
@@ -32,8 +32,8 @@ const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element =
                     collisionGroupSize={numColumns}
                     date={props.date}
                     isSelected={props.eventDetailId === event.id}
-                    disableScroll={props.disableScroll}
-                    setDisableScroll={props.setDisableScroll}
+                    isScrollDisabled={props.isScrollDisabled}
+                    setIsScrollDisabled={props.setIsScrollDisabled}
                     isEventSelected={props.isEventSelected}
                     setIsEventSelected={props.setIsEventSelected}
                 />
