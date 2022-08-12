@@ -3,8 +3,6 @@ import React from 'react'
 import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
-    position: absolute;
-    left: ${Spacing.margin._4};
     cursor: grab;
     height: ${Spacing.margin._16};
     padding-left: ${Spacing.padding._4};
