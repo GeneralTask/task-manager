@@ -23,7 +23,7 @@ const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
                     <PullRequest
                         pullRequest={item as TPullRequest}
                         isSelected={overviewItem === item.id}
-                        link={`/overview/${item.id}`}
+                        link={`/overview/${view.id}/${item.id}`}
                     />
                     {index !== view.view_items.length - 1 && (
                         <DividerMargin>

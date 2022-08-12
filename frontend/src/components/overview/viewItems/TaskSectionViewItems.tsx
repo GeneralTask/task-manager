@@ -61,7 +61,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                             index={index}
                             sectionId={sectionId}
                             isSelected={overviewItem === item.id}
-                            link={`/overview/${item.id}`}
+                            link={`/overview/${view.id}/${item.id}`}
                             onMarkComplete={handleMarkTaskComplete}
                         />
                     </ReorderDropContainer>

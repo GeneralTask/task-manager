@@ -27,13 +27,14 @@ const ActionsContainer = styled.div`
 
 const OverviewView = () => {
     const { data: views, refetch, isLoading, isFetching } = useGetOverviewViews()
-    const { overviewItem } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
     const navigate = useNavigate()
 
     const selectFirstItem = () => {
         const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
         if (firstNonEmptyView) {
-            navigate(`/overview/${firstNonEmptyView.view_items[0].id}`)
+            console.log({ linkTo: `/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}` })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`)
         }
     }
 
@@ -42,25 +43,27 @@ const OverviewView = () => {
             return <EmptyDetails iconSource={icons.list} text="You have no views" />
         }
         for (const view of views) {
-            for (const item of view.view_items) {
-                if (item.id === overviewItem) {
-                    if (view.type === 'github') {
-                        return <PullRequestDetails pullRequest={item as TPullRequest} />
-                    } else {
-                        return <TaskDetails task={item as TTask} link={`/overview/${item.id}`} />
+            if (view.id === overviewViewId) {
+                for (const item of view.view_items) {
+                    if (item.id === overviewItemId) {
+                        if (view.type === 'github') {
+                            return <PullRequestDetails pullRequest={item as TPullRequest} />
+                        } else {
+                            return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
+                        }
                     }
                 }
             }
         }
         return null
-    }, [overviewItem, views])
+    }, [overviewViewId, overviewItemId, views])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
-        if (!isLoading && (!overviewItem || !detailsView)) {
+        if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
-    }, [isLoading, overviewItem])
+    }, [isLoading, overviewViewId, overviewItemId])
 
     if (isLoading) {
         return <Spinner />

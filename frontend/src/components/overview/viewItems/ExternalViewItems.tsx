@@ -24,7 +24,7 @@ const ExternalViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                     task={item as TTask}
                     dragDisabled={true}
                     isSelected={overviewItem === item.id}
-                    link={`/overview/${item.id}`}
+                    link={`/overview/${view.id}/${item.id}`}
                     onMarkComplete={handleMarkTaskComplete}
                 />
             ))}
