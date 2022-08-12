@@ -85,7 +85,7 @@ func TestGetPullRequests(t *testing.T) {
 			Number:         420,
 			Author:         "chad1616",
 			Branch:         "ExampleBranch",
-			RequiredAction: "Fix Merge Conflicts",
+			RequiredAction: "Add Reviewers",
 			CommentCount:   0,
 			LastUpdatedAt:  1296068472000,
 		}
@@ -878,72 +878,71 @@ func TestReviewersHaveRequestedChanges(t *testing.T) {
 	})
 }
 
-func TestChecksDidFail(t *testing.T) {
-	context := context.Background()
-	githubClient := github.NewClient(nil)
-
-	repository := &github.Repository{
-		Name: github.String("ExampleRepository"),
-		Owner: &github.User{
-			Login: github.String("chad1616"),
-		},
-	}
-	pullRequest := &github.PullRequest{
-		Number: github.Int(1),
-		Head: &github.PullRequestBranch{
-			SHA: github.String("abc123"),
-		},
-	}
+func TestCheckRunsDidFail(t *testing.T) {
 	t.Run("ChecksPass", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefPayload)
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
-
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.NoError(t, err)
-		assert.False(t, conclusion)
+		checkRunsResult := github.ListCheckRunsResults{
+			Total: github.Int(2),
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status: github.String("in_progress"),
+				},
+			},
+		}
+		assert.False(t, checkRunsDidFail(&checkRunsResult))
 	})
 	t.Run("ChecksFail", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, testutils.CheckRunsForRefFailPayload)
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
-
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.NoError(t, err)
-		assert.True(t, conclusion)
+		checkRunsResult := github.ListCheckRunsResults{
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("failure"),
+				},
+			},
+			Total: github.Int(2),
+		}
+		assert.True(t, checkRunsDidFail(&checkRunsResult))
 	})
-	t.Run("BadStatusCode", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 503, "[]")
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
+}
 
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/commits/abc123/check-runs: 503  []", *checkRunsURL), err.Error())
-		assert.False(t, conclusion)
+func TestCheckRunsDidFinish(t *testing.T) {
+	t.Run("RunDidFinish", func(t *testing.T) {
+		checkRunsResult := github.ListCheckRunsResults{
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("failure"),
+				},
+			},
+			Total: github.Int(2),
+		}
+		assert.True(t, checkRunsDidFinish(&checkRunsResult))
 	})
-	t.Run("BadResponse", func(t *testing.T) {
-		githubCheckRunsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
-		checkRunsURL := &githubCheckRunsServer.URL
-		defer githubCheckRunsServer.Close()
-
-		conclusion, err := checksDidFail(context, githubClient, repository, pullRequest, checkRunsURL)
-		assert.Error(t, err)
-		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
-		assert.False(t, conclusion)
-	})
-	t.Run("RepositoryIsNil", func(t *testing.T) {
-		conclusion, err := checksDidFail(context, githubClient, nil, pullRequest, nil)
-		assert.Error(t, err)
-		assert.Equal(t, "repository is nil", err.Error())
-		assert.False(t, conclusion)
-	})
-	t.Run("PullRequestIsNil", func(t *testing.T) {
-		conclusion, err := checksDidFail(context, githubClient, repository, nil, nil)
-
-		assert.Error(t, err)
-		assert.Equal(t, "pull request is nil", err.Error())
-		assert.False(t, conclusion)
+	t.Run("RunDidNotFinish", func(t *testing.T) {
+		checkRunsResult := github.ListCheckRunsResults{
+			CheckRuns: []*github.CheckRun{
+				{
+					Status:     github.String("completed"),
+					Conclusion: github.String("success"),
+				},
+				{
+					Status: github.String("in_progress"),
+				},
+			},
+			Total: github.Int(2),
+		}
+		assert.False(t, checkRunsDidFinish(&checkRunsResult))
 	})
 }
 
@@ -961,15 +960,6 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Add Reviewers", action)
 	})
-	t.Run("FixMergeConflicts", func(t *testing.T) {
-		pullRequestData := GithubPRData{
-			RequestedReviewers: 1,
-			IsMergeable:        false,
-			IsOwnedByUser:      true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Fix Merge Conflicts", action)
-	})
 	t.Run("FixFailedCI", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers: 1,
@@ -980,22 +970,42 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Fix Failed CI", action)
 	})
-	t.Run("AddressRequestedChanges", func(t *testing.T) {
+	t.Run("AddressComments", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers:   1,
 			IsMergeable:          true,
-			ChecksDidFail:        false,
-			HaveRequestedChanges: true,
 			IsOwnedByUser:        true,
+			HaveRequestedChanges: true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Address Requested Changes", action)
+		assert.Equal(t, "Address Comments", action)
+	})
+	t.Run("FixMergeConflicts", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        false,
+			IsOwnedByUser:      true,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Fix Merge Conflicts", action)
+	})
+	t.Run("WaitingOnCI", func(t *testing.T) {
+		pullRequestData := GithubPRData{
+			RequestedReviewers: 1,
+			IsMergeable:        true,
+			IsOwnedByUser:      true,
+			ChecksDidFail:      false,
+			ChecksDidFinish:    false,
+		}
+		action := getPullRequestRequiredAction(pullRequestData)
+		assert.Equal(t, "Waiting on CI", action)
 	})
 	t.Run("MergePR", func(t *testing.T) {
 		pullRequestData := GithubPRData{
 			RequestedReviewers:   1,
 			IsMergeable:          true,
 			ChecksDidFail:        false,
+			ChecksDidFinish:      true,
 			HaveRequestedChanges: false,
 			IsApproved:           true,
 			IsOwnedByUser:        true,
@@ -1008,6 +1018,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			RequestedReviewers:   1,
 			IsMergeable:          true,
 			ChecksDidFail:        false,
+			ChecksDidFinish:      true,
 			HaveRequestedChanges: false,
 			IsApproved:           false,
 			IsOwnedByUser:        true,
@@ -1015,58 +1026,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Waiting on Review", action)
 	})
-	t.Run("FixMergeConflictsIsTopPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   0,
-			IsMergeable:          false,
-			ChecksDidFail:        true,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Fix Merge Conflicts", action)
-	})
-	t.Run("ChecksDidFailIsSecondPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   0,
-			IsMergeable:          true,
-			ChecksDidFail:        true,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Fix Failed CI", action)
-	})
-	t.Run("AddReviewersIsThirdPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   0,
-			IsMergeable:          true,
-			ChecksDidFail:        false,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Add Reviewers", action)
-	})
-	t.Run("AddressRequestedChangesIsFourthPriority", func(t *testing.T) {
-		// make all lower priority conditions true to verify proper priority
-		pullRequestData := GithubPRData{
-			RequestedReviewers:   1,
-			IsMergeable:          true,
-			ChecksDidFail:        false,
-			HaveRequestedChanges: true,
-			IsApproved:           true,
-			IsOwnedByUser:        true,
-		}
-		action := getPullRequestRequiredAction(pullRequestData)
-		assert.Equal(t, "Address Requested Changes", action)
-	})
+
 	t.Run("NotAuthorAndNotMergeable", func(t *testing.T) {
 		// make all lower priority conditions true to verify proper priority
 		pullRequestData := GithubPRData{
