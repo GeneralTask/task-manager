@@ -20,7 +20,7 @@ const EmptyDropContainer = styled.div`
 const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
     const { mutate: markTaskDone } = useMarkTaskDone()
-    const { overviewItem } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
     const { mutate: reorderTask } = useReorderTask()
 
     const handleReorderTask = useCallback(
@@ -60,7 +60,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                             dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
-                            isSelected={overviewItem === item.id}
+                            isSelected={overviewViewId === view.id && overviewItemId === item.id}
                             link={`/overview/${view.id}/${item.id}`}
                             onMarkComplete={handleMarkTaskComplete}
                         />
