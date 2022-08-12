@@ -43,8 +43,10 @@ const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) =>
                 })
             )
         }
-        return animation?.destroy()
-    }, [animationContainerRef.current])
+        return () => {
+            animation?.destroy()
+        }
+    }, [])
 
     useEffect(() => {
         animation?.goToAndStop(isChecked ? animation.totalFrames : 0, true)
