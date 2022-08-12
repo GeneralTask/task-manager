@@ -87,7 +87,7 @@ func updateEventInDB(modifyParams external.EventModifyObject, event *database.It
 		fieldsToUpdate.CalendarEventChangeable.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
 	}
 
-	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, fieldsToUpdate, fieldsToUpdate, nil, true)
+	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, fieldsToUpdate, nil, true)
 	if err != nil {
 		return err
 	}
