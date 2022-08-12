@@ -38,6 +38,13 @@ interface TCreateEventPayload {
     add_conference_call?: boolean
 }
 
+interface TModifyEventData {
+    id: string
+    date: DateTime
+    datetime_start: string
+    datetime_end: string
+}
+
 interface CreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
@@ -94,5 +101,44 @@ const createEvent = async (data: TCreateEventPayload) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('createEvent failed')
+    }
+}
+export const useDeleteEvent = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation ((data: TModifyEventData) => deleteEvent(data), {
+        onMutate: async (data: TModifyEventData) => {
+            queryClient.cancelQueries('calendar')
+            queryClient.cancelQueries('events')
+
+            const start = DateTime.fromISO(data.datetime_start)
+            const end = DateTime.fromISO(data.datetime_end)
+            const timeBlocks = getMonthsAroundDate(data.date, 1)
+            const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
+            const block = timeBlocks[blockIndex]
+            const events = queryClient.getImmutableQueryData<TEvent[]>([
+                'events',
+                'calendar',
+                block.start.toISO(),
+            ])
+            if (!events) return 
+            
+            const newEvents = produce(events, (draft) => {
+                const eventIdx = draft.findIndex((event) => event.id === data.id)
+                if (eventIdx === -1) return 
+                draft.splice(eventIdx, 1)
+            }) 
+            queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
+        }, 
+        onSettled: () => {
+            queryClient.invalidateQueries('events')
+        },
+    })
+}
+const deleteEvent = async (data: {id: string }) => {
+    try {
+        const res = await apiClient.delete(`/events/delete/${data.id}/`)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('deleteEvent failed')
     }
 }

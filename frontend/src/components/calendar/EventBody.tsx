@@ -122,6 +122,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
                         windowHeight={windowHeight}
+                        setIsScrollDisabled={props.setIsScrollDisabled}
                         ref={popupRef}
                     />
                 )}

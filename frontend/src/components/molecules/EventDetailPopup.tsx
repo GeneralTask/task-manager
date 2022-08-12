@@ -9,14 +9,15 @@ import {
     EventBoxStyle,
     EventHeader,
     EventHeaderIcons,
-    CloseButton,
     EventTitle,
     EventDateContainer,
     EventDate,
     Description,
+    IconButton,
 } from './EventDetailPopup-styles'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import { useDeleteEvent } from '../../services/api/events.hooks'
 
 interface EventDetailProps {
     event: TEvent
@@ -26,11 +27,16 @@ interface EventDetailProps {
     yCoord: number
     eventHeight: number
     windowHeight: number
+    setIsScrollDisabled: (id: boolean) => void
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight, windowHeight }: EventDetailProps, ref) => {
+    (
+        { event, date, onClose, xCoord, yCoord, eventHeight, windowHeight, setIsScrollDisabled }: EventDetailProps,
+        ref
+    ) => {
         const popupRef = useRef<HTMLDivElement | null>(null)
+        const { mutate: deleteEvent } = useDeleteEvent()
         const [popupHeight, setPopupHeight] = useState(0)
         useLayoutEffect(() => {
             if (!popupRef.current) return
@@ -39,6 +45,15 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         useClickOutside(popupRef, onClose)
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
+        const onDelete = async (id: string) => {
+            deleteEvent({
+                id: id,
+                date: date,
+                datetime_start: event.datetime_start,
+                datetime_end: event.datetime_end,
+            })
+            setIsScrollDisabled(false)
+        }
         return ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
@@ -58,13 +73,16 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 <EventHeader>
                     <Icon source={logos.gcal} size="xSmall" />
                     <EventHeaderIcons>
-                        <CloseButton
+                        <IconButton onClick={() => onDelete(event.id)}>
+                            <Icon source={icons.trash_light} size="xSmall" />
+                        </IconButton>
+                        <IconButton
                             onClick={(e) => {
                                 onClose(e as MouseEvent)
                             }}
                         >
                             <Icon source={icons.x_thin_light} size="xSmall" />
-                        </CloseButton>
+                        </IconButton>
                     </EventHeaderIcons>
                 </EventHeader>
                 <EventTitle>{event.title}</EventTitle>
