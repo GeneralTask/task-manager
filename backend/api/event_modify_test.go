@@ -24,7 +24,7 @@ func TestInvalidEventModify(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	authToken := login("approved@generaltask.com", "")
+	authToken := login("TestInvalidEventModify@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	accountID := "duck@duck.com"
 
