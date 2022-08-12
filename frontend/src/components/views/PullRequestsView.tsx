@@ -11,6 +11,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { Colors } from '../../styles'
 import styled from 'styled-components'
+import EmptyDetails from '../details/EmptyDetails'
+import { logos } from '../../styles/images'
 
 const PullRequestsContainer = styled.div`
     display: flex;
@@ -79,7 +81,11 @@ const PullRequestsView = () => {
                     </PullRequestViewContainer>
                 </ScrollableListTemplate>
             </PullRequestsContainer>
-            {expandedPullRequest && <PullRequestDetails pullRequest={expandedPullRequest} />}
+            {expandedPullRequest ? (
+                <PullRequestDetails pullRequest={expandedPullRequest} />
+            ) : (
+                <EmptyDetails iconSource={logos.github_gray} text="You have no pull requests" />
+            )}
         </>
     )
 }

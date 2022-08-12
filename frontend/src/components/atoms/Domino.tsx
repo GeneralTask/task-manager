@@ -20,7 +20,7 @@ const Dot = styled.div`
     width: 3px;
     height: 3px;
     border-radius: 50px;
-    background-color: ${Colors.background.dark};
+    background-color: ${Colors.border.gray};
     margin: 1px;
 `
 

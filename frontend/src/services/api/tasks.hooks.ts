@@ -259,7 +259,8 @@ export const useMarkTaskDone = () => {
                         const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
                         if (taskIndex === undefined || sectionIndex === undefined) return
                         if (draft[sectionIndex].tasks[taskIndex].is_done) {
-                            draft[sectionIndex].tasks.splice(taskIndex, 1)
+                            const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
+                            draft.find((s) => s.is_done)?.tasks.unshift(...task)
                         }
                     })
 
