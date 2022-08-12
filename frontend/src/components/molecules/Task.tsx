@@ -11,6 +11,8 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
+import lottie from 'lottie-web'
+import taskComplete from '../../../public/animations/taskcomplete.json'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -21,6 +23,11 @@ const Title = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     ${Typography.bodySmall};
+`
+const AnimationContainer = styled.div`
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
 `
 
 interface TaskProps {
@@ -48,6 +55,7 @@ const Task = ({
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
+    const animationContainerRef = useRef<HTMLDivElement>(null)
 
     // Add event listener to check if scrolling occurs in task section
     useEffect(() => {
@@ -103,8 +111,23 @@ const Task = ({
         [task.id, index, sectionId]
     )
 
+    useEffect(() => {
+        if (animationContainerRef.current) {
+            lottie.loadAnimation({
+                name: `taskComplete${task.id}`,
+                container: animationContainerRef.current,
+                renderer: 'svg',
+                loop: false,
+                autoplay: false,
+                animationData: taskComplete,
+            })
+            // return lottie.stop(`taskComplete${task.id}`)
+        }
+    }, [])
+
     return (
         <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
+            <AnimationContainer ref={animationContainerRef} />
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
                 {isHovered && !dragDisabled && <Domino ref={drag} />}
                 <CompleteButton
