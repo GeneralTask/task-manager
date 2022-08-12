@@ -49,6 +49,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
+    const [windowHeight, setWindowHeight] = useState(0)
     const [coords, setCoords] = useState({
         xCoord: 0,
         yCoord: 0,
@@ -99,6 +100,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 yCoord: eventRef.current.getBoundingClientRect().bottom,
             })
         }
+        setWindowHeight(window.innerHeight)
     }
     return (
         <EventBodyStyle
@@ -119,6 +121,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         xCoord={coords.xCoord}
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
+                        windowHeight={windowHeight}
                         ref={popupRef}
                     />
                 )}

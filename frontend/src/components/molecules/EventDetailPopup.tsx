@@ -25,10 +25,11 @@ interface EventDetailProps {
     xCoord: number
     yCoord: number
     eventHeight: number
+    windowHeight: number
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight }: EventDetailProps, ref) => {
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, windowHeight }: EventDetailProps, ref) => {
         const popupRef = useRef<HTMLDivElement | null>(null)
         const [popupHeight, setPopupHeight] = useState(0)
         useLayoutEffect(() => {
@@ -44,6 +45,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 yCoord={yCoord}
                 popupHeight={popupHeight}
                 eventHeight={eventHeight}
+                windowHeight={windowHeight}
                 ref={(node) => {
                     popupRef.current = node
                     if (typeof ref === 'function') {

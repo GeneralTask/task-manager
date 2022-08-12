@@ -4,13 +4,13 @@ import styled from 'styled-components'
 
 const MAX_POPUP_LENGTH = '315px'
 const MAX_POPUP_HEIGHT = '100px'
-const WINDOW_HEIGHT = window.innerHeight
 
 interface EventBoxStyleProps {
     xCoord: number
     yCoord: number
     popupHeight: number
     eventHeight: number
+    windowHeight: number
 }
 /* Calculates the position of the popup depending on the position of the event
 Handles edge cases for events below max height (window height - popup height) */
@@ -22,7 +22,7 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
 
     left: calc(${(props) => props.xCoord}px - ${MAX_POPUP_LENGTH});
     top: ${(props) =>
-        props.yCoord >= WINDOW_HEIGHT - props.popupHeight
+        props.yCoord >= props.windowHeight - props.popupHeight
             ? props.yCoord - props.eventHeight - props.popupHeight
             : props.yCoord}px;
 
@@ -31,7 +31,7 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     border-radius: ${Border.radius.small};
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: ${Spacing.padding._8};
 `
 export const EventHeader = styled.div`
     display: flex;
