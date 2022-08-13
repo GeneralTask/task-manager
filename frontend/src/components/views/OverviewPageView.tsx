@@ -33,7 +33,6 @@ const OverviewView = () => {
     const selectFirstItem = () => {
         const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
         if (firstNonEmptyView) {
-            console.log({ linkTo: `/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}` })
             navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`)
         }
     }
