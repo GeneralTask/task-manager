@@ -70,7 +70,12 @@ func (api *API) EventsList(c *gin.Context) {
 	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
 		dbCtx,
-		bson.M{"user_id": userID},
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_bad_token": false},
+			},
+		},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
