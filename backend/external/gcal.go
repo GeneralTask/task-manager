@@ -49,7 +49,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		Do()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		isBadToken := handleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+		isBadToken := checkAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
 		if !isBadToken {
 			logger.Error().Err(err).Msg("unable to load calendar events")
 		}
@@ -206,17 +206,17 @@ func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID
 	return nil
 }
 
-func handleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
+// returns true if the error was because of a bad token
+func checkAndHandleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
 	if !strings.Contains(err.Error(), "oauth2: token expired and refresh token is not set") {
 		return false
 	}
 	token, err := getExternalToken(db, userID, accountID, serviceID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("unable to get external token")
+		logger.Error().Str("userID", userID.Hex()).Str("accountID", accountID).Str("serviceID", serviceID).Err(err).Msg("unable to get external token")
 		return true
 	}
-	token.IsBadToken = true
 
 	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
 	defer cancel()
@@ -226,7 +226,7 @@ func handleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, ac
 		bson.M{"$set": bson.M{"is_bad_token": true}},
 	)
 	if err != nil {
-		logger.Error().Err(err).Msg("unable to update external token")
+		logger.Error().Str("tokenID", token.ID.Hex()).Err(err).Msg("unable to update external token")
 	}
 	return true
 }
