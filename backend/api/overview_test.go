@@ -254,11 +254,10 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
 	})
-	t.Run("InvalidSectionID", func(t *testing.T) {
+	t.Run("InvalidSectionIDGracefullyHandled", func(t *testing.T) {
 		view.TaskSectionID = primitive.NewObjectID()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
-		assert.Error(t, err)
-		assert.Equal(t, "mongo: no documents in result", err.Error())
+		assert.NoError(t, err)
 		assert.Nil(t, result)
 	})
 }

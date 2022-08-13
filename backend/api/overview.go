@@ -149,7 +149,10 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, singleOverviewResult)
+		if singleOverviewResult != nil {
+			// allow for the case of removing an obsolete view without an error
+			result = append(result, singleOverviewResult)
+		}
 	}
 	return result, nil
 }
@@ -160,6 +163,12 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	}
 	name, err := database.GetTaskSectionName(db, view.TaskSectionID, userID)
 	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			return nil, err
+		}
+		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err = database.GetViewCollection(db).DeleteOne(dbCtx, bson.M{"_id": view.ID})
 		return nil, err
 	}
 
