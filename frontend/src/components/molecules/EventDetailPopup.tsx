@@ -45,7 +45,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         useClickOutside(popupRef, onClose)
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
-        const onDelete = async (id: string) => {
+        const onDelete = (id: string) => {
             deleteEvent({
                 id: id,
                 date: date,
