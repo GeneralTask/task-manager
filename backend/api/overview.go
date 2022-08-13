@@ -163,7 +163,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	}
 	name, err := database.GetTaskSectionName(db, view.TaskSectionID, userID)
 	if err != nil {
-		if err.Error() != "mongo: no documents in result" {
+		if err != mongo.ErrNoDocuments {
 			return nil, err
 		}
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
