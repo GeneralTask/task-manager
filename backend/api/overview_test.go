@@ -1104,6 +1104,7 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "github"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, "amc-to-the-moon", addedView.GithubID)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
