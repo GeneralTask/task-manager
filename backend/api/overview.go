@@ -160,7 +160,16 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	}
 	name, err := database.GetTaskSectionName(db, view.TaskSectionID, userID)
 	if err != nil {
-		return nil, err
+		if err.Error() != "mongo: no documents in result" {
+			return nil, err
+		}
+		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err = database.GetViewCollection(db).DeleteOne(dbCtx, bson.M{"_id": view.ID})
+		if err != nil {
+			return nil, err
+		}
+		name = "[Task Section Missing]"
 	}
 
 	tasks, err := database.GetItems(db, userID,
