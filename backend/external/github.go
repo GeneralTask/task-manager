@@ -109,7 +109,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 		return errors.New("internal server error")
 	}
 
-	githubAccountID, err := getGithubAccountIDFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.GetUserURL)
+	githubAccountID, githubLogin, err := getGithubUserInfoFromToken(extCtx, token, CurrentlyAuthedUserFilter, githubService.Config.ConfigValues.GetUserURL)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to fetch Github user")
 		return errors.New("internal server error")
@@ -127,7 +127,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 			ServiceID:      TASK_SERVICE_ID_GITHUB,
 			Token:          string(tokenString),
 			AccountID:      fmt.Sprint(githubAccountID),
-			DisplayID:      "Github",
+			DisplayID:      githubLogin,
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
@@ -152,18 +152,18 @@ func getGithubClientFromToken(ctx context.Context, token *oauth2.Token) *github.
 	return github.NewClient(tokenClient)
 }
 
-func getGithubAccountIDFromToken(ctx context.Context, token *oauth2.Token, currentlyAuthedUserFilter string, overrideURL *string) (int64, error) {
+func getGithubUserInfoFromToken(ctx context.Context, token *oauth2.Token, currentlyAuthedUserFilter string, overrideURL *string) (int64, string, error) {
 	githubClient := getGithubClientFromToken(ctx, token)
-	return getGithubAccountID(ctx, currentlyAuthedUserFilter, githubClient, overrideURL)
+	return getGithubUserInfo(ctx, currentlyAuthedUserFilter, githubClient, overrideURL)
 }
 
-func getGithubAccountID(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, error) {
+func getGithubUserInfo(context context.Context, currentlyAuthedUserFilter string, githubClient *github.Client, overrideURL *string) (int64, string, error) {
 	if overrideURL != nil {
 		githubClient.BaseURL, _ = url.Parse(fmt.Sprintf("%s/", *overrideURL))
 	}
 	githubUser, _, err := githubClient.Users.Get(context, CurrentlyAuthedUserFilter)
 	if err != nil || githubUser == nil {
-		return 0, err
+		return 0, "", err
 	}
-	return githubUser.GetID(), nil
+	return githubUser.GetID(), githubUser.GetLogin(), nil
 }
