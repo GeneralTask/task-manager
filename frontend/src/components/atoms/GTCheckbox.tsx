@@ -43,7 +43,7 @@ const GTCheckbox = ({ isChecked, onChange, disabled }: GTCheckboxProps) => {
         if (!animRef.current) return
         animRef.current.goToAndStop(isChecked ? 26 : 0, true)
         animRef.current.setSpeed(1.5)
-    }, [animRef])
+    }, [])
 
     return (
         <FixedSizeButton onClick={onClickHandler} disabled={disabled}>
