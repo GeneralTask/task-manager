@@ -529,7 +529,7 @@ func TestDeleteEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
 		err := googleCalendar.DeleteEvent(userID, "exampleAccountID", gcalEventID)
@@ -545,7 +545,7 @@ func TestDeleteEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
 		err := googleCalendar.DeleteEvent(userID, accountID, gcalEventID)
@@ -788,7 +788,7 @@ func getEventModifyGoogleCalendar(t *testing.T, expectedEvent *calendar.Event, c
 	}))
 	googleCalendar := &GoogleCalendarSource{
 		Google: GoogleService{
-			OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			OverrideURLs: GoogleURLOverrides{CalendarModifyURL: &server.URL},
 		},
 	}
 	return googleCalendar, server

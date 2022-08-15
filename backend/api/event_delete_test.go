@@ -43,7 +43,7 @@ func TestEventDelete(t *testing.T) {
 
 	calendarDeleteServer := testutils.GetMockAPIServer(t, 200, "[]")
 	api := GetAPI()
-	api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &calendarDeleteServer.URL
+	api.ExternalConfig.GoogleOverrideURLs.CalendarDeleteURL = &calendarDeleteServer.URL
 	router := GetRouter(api)
 
 	UnauthorizedTest(t, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", nil)
