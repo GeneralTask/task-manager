@@ -5,6 +5,11 @@ import checkbox from '../../../public/animations/checkbox.json'
 import styled from 'styled-components'
 import Lottie, { LottieRef } from 'lottie-react'
 
+const ANIM_SPEED = 1.5
+const ANIM_START_FRAME = 4
+const ANIM_END_FRAME = 29
+const ANIM_TOTAL_FRAMES = ANIM_END_FRAME - ANIM_START_FRAME
+
 const AnimationContainer = styled.div`
     position: absolute;
     top: -50%;
@@ -41,9 +46,9 @@ const GTCheckbox = ({ isChecked, onChange, disabled }: GTCheckboxProps) => {
 
     useEffect(() => {
         if (!animRef.current) return
-        animRef.current.goToAndStop(isChecked ? 26 : 0, true)
-        animRef.current.setSpeed(1.5)
-    }, [])
+        animRef.current.goToAndStop(isChecked ? ANIM_TOTAL_FRAMES : 0, true)
+        animRef.current.setSpeed(ANIM_SPEED)
+    }, [animRef.current?.animationItem])
 
     return (
         <FixedSizeButton onClick={onClickHandler} disabled={disabled}>
@@ -54,7 +59,7 @@ const GTCheckbox = ({ isChecked, onChange, disabled }: GTCheckboxProps) => {
                     loop={false}
                     autoplay={false}
                     lottieRef={animRef}
-                    initialSegment={[4, 29]}
+                    initialSegment={[ANIM_START_FRAME, ANIM_END_FRAME]}
                 />
             </AnimationContainer>
         </FixedSizeButton>
