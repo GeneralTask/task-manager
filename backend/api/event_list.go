@@ -8,6 +8,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -19,15 +20,13 @@ type EventListParams struct {
 }
 
 type EventResult struct {
-	ID            primitive.ObjectID `json:"id"`
-	Deeplink      string             `json:"deeplink"`
-	Title         string             `json:"title"`
-	Body          string             `json:"body"`
-	DatetimeEnd   primitive.DateTime `json:"datetime_end,omitempty"`
-	DatetimeStart primitive.DateTime `json:"datetime_start,omitempty"`
-	CallLogo      string             `json:"call_logo,omitempty"`
-	CallPlatform  string             `json:"call_platform,omitempty"`
-	CallURL       string             `json:"call_url,omitempty"`
+	ID             primitive.ObjectID   `json:"id"`
+	Deeplink       string               `json:"deeplink"`
+	Title          string               `json:"title"`
+	Body           string               `json:"body"`
+	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
+	ConferenceCall utils.ConferenceCall `json:"conference_call,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -116,9 +115,11 @@ func (api *API) EventsList(c *gin.Context) {
 				Body:          event.Body,
 				DatetimeEnd:   event.DatetimeEnd,
 				DatetimeStart: event.DatetimeStart,
-				CallLogo:      event.CallLogo,
-				CallPlatform:  event.CallPlatform,
-				CallURL:       event.CallURL,
+				ConferenceCall: utils.ConferenceCall{
+					Logo:     event.CallLogo,
+					Platform: event.CallPlatform,
+					URL:      event.CallURL,
+				},
 			})
 		}
 	}
