@@ -190,7 +190,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 
 func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
 	// TODO: create a EventDeleteURL
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}
