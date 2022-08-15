@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { iconSize, TIconSize } from '../../styles/dimensions'
+import { checkboxSize } from '../../styles/dimensions'
 import NoStyleButton from './buttons/NoStyleButton'
 import checkbox from '../../../public/animations/checkbox.json'
 import styled from 'styled-components'
@@ -9,25 +9,24 @@ const AnimationContainer = styled.div`
     position: absolute;
     top: -50%;
     left: -50%;
-    width: ${iconSize.large};
-    height: ${iconSize.large};
+    width: ${checkboxSize.childContainer};
+    height: ${checkboxSize.childContainer};
     pointer-events: none;
 `
 
-const SlightlyStyledButton = styled(NoStyleButton)<{ size: TIconSize }>`
+const FixedSizeButton = styled(NoStyleButton)`
     position: relative;
-    flex-shrink: 0;
-    width: ${({ size }) => iconSize[size]};
-    height: ${({ size }) => iconSize[size]};
+    min-width: ${checkboxSize.parentContainer};
+    width: ${checkboxSize.parentContainer};
+    height: ${checkboxSize.parentContainer};
 `
 
 interface GTCheckboxProps {
     isChecked: boolean
     onChange: (checked: boolean) => void
-    size?: TIconSize
     disabled?: boolean
 }
-const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) => {
+const GTCheckbox = ({ isChecked, onChange, disabled }: GTCheckboxProps) => {
     const animRef: LottieRef = useRef(null)
 
     const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -46,9 +45,8 @@ const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) =>
         animRef.current.setSpeed(1.5)
     }, [animRef])
 
-    size = size || 'small'
     return (
-        <SlightlyStyledButton onClick={onClickHandler} disabled={disabled} size={size}>
+        <FixedSizeButton onClick={onClickHandler} disabled={disabled}>
             <AnimationContainer>
                 <Lottie
                     name="checkbox"
@@ -59,7 +57,7 @@ const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) =>
                     initialSegment={[4, 29]}
                 />
             </AnimationContainer>
-        </SlightlyStyledButton>
+        </FixedSizeButton>
     )
 }
 
