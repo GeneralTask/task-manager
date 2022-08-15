@@ -331,15 +331,13 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 }
 
 func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
-	logger := logging.GetSentryLogger()
-	logger.Debug().Msgf("updating or creating repository %s", *repository.Name)
 	repositoryCollection := database.GetRepositoryCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := repositoryCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"external_id": fmt.Sprint(*repository.ID)},
+			{"repository_id": fmt.Sprint(*repository.ID)},
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{

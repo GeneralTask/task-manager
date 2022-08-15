@@ -317,6 +317,6 @@ type Repository struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty"`
 	UserID       primitive.ObjectID `bson:"user_id"`
 	FullName     string             `bson:"full_name"`
-	RepositoryID string             `bson:"external_id"`
+	RepositoryID string             `bson:"repository_id"`
 	Deeplink     string             `bson:"deeplink"`
 }

@@ -938,9 +938,10 @@ func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType 
 }
 
 func (api *API) IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryID string) (bool, error) {
-	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}, {"pull_request.repository_id": repositoryID}})
-	if err != nil {
-		return false, err
-	}
-	return len(*pullRequests) > 0, nil
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+
+	count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userID, "repository_id": repositoryID})
+	return count > 0, err
 }
