@@ -90,29 +90,28 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			PullRequests: []PullRequestResult{},
 		}
 		for _, pullRequest := range *pullRequests {
-			if pullRequest.RepositoryID == repository.RepositoryID {
-				result.PullRequests = append(result.PullRequests, PullRequestResult{
-					ID:     pullRequest.ID.Hex(),
-					Title:  pullRequest.Title,
-					Number: pullRequest.Number,
-					Status: PullRequestStatus{
-						Text:  pullRequest.RequiredAction,
-						Color: getColorFromRequiredAction(pullRequest.RequiredAction),
-					},
-					Author:        pullRequest.Author,
-					NumComments:   pullRequest.CommentCount,
-					CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-					Branch:        pullRequest.Branch,
-					Deeplink:      pullRequest.Deeplink,
-					LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
-				})
-
+			if pullRequest.RepositoryID != repository.RepositoryID {
+				continue
 			}
+			result.PullRequests = append(result.PullRequests, PullRequestResult{
+				ID:     pullRequest.ID.Hex(),
+				Title:  pullRequest.Title,
+				Number: pullRequest.Number,
+				Status: PullRequestStatus{
+					Text:  pullRequest.RequiredAction,
+					Color: getColorFromRequiredAction(pullRequest.RequiredAction),
+				},
+				Author:        pullRequest.Author,
+				NumComments:   pullRequest.CommentCount,
+				CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+				Branch:        pullRequest.Branch,
+				Deeplink:      pullRequest.Deeplink,
+				LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+			})
 		}
-		if len(result.PullRequests) == 0 {
-			continue
+		if len(result.PullRequests) > 0 {
+			repositoryResults = append(repositoryResults, result)
 		}
-		repositoryResults = append(repositoryResults, result)
 	}
 
 	// Sort repositories by name

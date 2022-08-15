@@ -856,7 +856,7 @@ func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.Obj
 	defer cancel()
 	err = cursor.All(dbCtx, &repositories)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
+		api.Logger.Error().Err(err).Msg("failed to fetch repositories for user")
 		return []SupportedViewItem{}, err
 	}
 
