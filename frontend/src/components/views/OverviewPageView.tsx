@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
@@ -29,6 +29,7 @@ const OverviewView = () => {
     const { data: views, refetch, isLoading, isFetching } = useGetOverviewViews()
     const { overviewViewId, overviewItemId } = useParams()
     const navigate = useNavigate()
+    const scrollRef = useRef<HTMLDivElement>(null)
 
     const selectFirstItem = () => {
         const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
@@ -73,7 +74,7 @@ const OverviewView = () => {
     return (
         <>
             <OverviewPageContainer>
-                <ScrollableListTemplate>
+                <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader
                         sectionName="Overview"
                         allowRefresh={true}
@@ -84,7 +85,7 @@ const OverviewView = () => {
                         <EditViewsButtons />
                     </ActionsContainer>
                     {views.map((view) => (
-                        <OverviewViewContainer view={view} key={view.id} />
+                        <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />
                     ))}
                 </ScrollableListTemplate>
             </OverviewPageContainer>

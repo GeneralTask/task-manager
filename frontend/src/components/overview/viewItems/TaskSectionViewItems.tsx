@@ -17,7 +17,7 @@ const EmptyDropContainer = styled.div`
     justify-content: center;
 `
 
-const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
+const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
     const { mutate: markTaskDone } = useMarkTaskDone()
     const { overviewViewId, overviewItemId } = useParams()
@@ -60,6 +60,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                             dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
+                            sectionScrollingRef={scrollRef}
                             isSelected={overviewViewId === view.id && overviewItemId === item.id}
                             link={`/overview/${view.id}/${item.id}`}
                             onMarkComplete={handleMarkTaskComplete}
