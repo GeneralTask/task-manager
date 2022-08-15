@@ -49,7 +49,7 @@ func TestInvalidEventModify(t *testing.T) {
 
 	calendarModifyServer := testutils.GetMockAPIServer(t, 200, "{}")
 	api := GetAPI()
-	api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &calendarModifyServer.URL
+	api.ExternalConfig.GoogleOverrideURLs.CalendarModifyURL = &calendarModifyServer.URL
 	router := GetRouter(api)
 
 	UnauthorizedTest(t, "PATCH", validUrl, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
