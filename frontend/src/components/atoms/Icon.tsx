@@ -1,4 +1,4 @@
-import { Dimensions } from '../../styles'
+import { Colors, Dimensions } from '../../styles'
 import { TIconSize } from '../../styles/dimensions'
 import React from 'react'
 import styled from 'styled-components'
@@ -13,6 +13,10 @@ const IconContainer = styled.div<{ width: string; height: string }>`
     justify-content: center;
     user-select: none;
 `
+const ImageContainer = styled.img`
+    width: 100%;
+    aspect-ratio: 1;
+`
 interface IconProps {
     icon: IconProp | string
     size: TIconSize
@@ -20,15 +24,12 @@ interface IconProps {
 }
 export const Icon = (props: IconProps) => {
     const dimension = Dimensions.iconSize[props.size]
-    const fontSize = dimension / 1.5
-    const iconColor = props.color ? props.color : 'gray'
+    const iconColor = props.color ? props.color : Colors.icon.gray
 
     return (
-        <IconContainer width={`${dimension}px`} height={`${dimension}px`}>
+        <IconContainer width={dimension} height={dimension}>
             {typeof props.icon === 'string' ? (
-                <span style={{ fontSize: `${fontSize}px`, color: iconColor }}>
-                    <i className={props.icon}></i>
-                </span>
+                <ImageContainer src={props.icon} />
             ) : (
                 <FontAwesomeIcon icon={props.icon} color={iconColor} />
             )}

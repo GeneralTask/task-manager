@@ -5,12 +5,12 @@ import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRi
 
 
 export const logos: { [key: string]: IconProp | string } = {
-    generaltask: 'fak fa-gt-logo',          // custom icon
+    generaltask: '/images/generaltask.svg',
     github: faGithub,
     gmail: faGoogle,
-    gcal: 'fak fa-google-cal-logo',         // custom icon
-    google_meet: 'fak fa-google-meet-logo', // custom icon
-    linear: 'fak fa-linear-logo',           // custom icon
+    gcal: '/images/gcal.png',
+    google_meet: '/images/google-meet.svg',
+    linear: '/images/linear.png',
     slack: faSlack,
 }
 
