@@ -4,7 +4,7 @@ import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
-import { logos, icons } from '../../styles/images'
+import { logos, icons, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
@@ -232,7 +232,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             />
             {task.external_status && (
                 <StatusContainer>
-                    {/* <Icon icon={linearStatus[task.external_status.type]} size="small" /> TODO: upload linear icons to FA */}{' '}
+                    <Icon icon={linearStatus[task.external_status.type]} size="small" />
                     {status}
                 </StatusContainer>
             )}
