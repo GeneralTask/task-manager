@@ -92,7 +92,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to establish DB connection")
+		logger.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()
@@ -108,7 +108,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 			{"user_id": userID},
 		}}).Decode(&message)
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to get item: %+v", itemID)
+		logger.Error().Err(err).Msgf("failed to get item: %+v", itemID)
 		return nil, err
 	}
 	return &message, nil
@@ -134,7 +134,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to get or create task")
+		logger.Error().Err(err).Msg("failed to get or create task")
 		return nil, err
 	}
 
@@ -146,7 +146,7 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		dbQuery,
 	).Decode(&item)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to get task")
+		logger.Error().Err(err).Msg("failed to get task")
 		return nil, err
 	}
 
@@ -191,7 +191,7 @@ func UpdateOrCreateCalendarEvent(
 	var event CalendarEvent
 	err = mongoResult.Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to update or create item")
+		logger.Error().Err(err).Msg("failed to update or create event")
 		return nil, err
 	}
 	return &event, nil
@@ -202,7 +202,7 @@ func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID pri
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to establish DB connection")
+		logger.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()
@@ -218,7 +218,7 @@ func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID pri
 			{"user_id": userID},
 		}}).Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msgf("Failed to get item: %+v", itemID)
+		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
 		return nil, err
 	}
 	return &event, nil
@@ -244,7 +244,7 @@ func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDE
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to get or create task")
+		logger.Error().Err(err).Msg("failed to get or create event")
 		return nil, err
 	}
 
@@ -256,7 +256,7 @@ func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDE
 		dbQuery,
 	).Decode(&event)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to get task")
+		logger.Error().Err(err).Msg("failed to get event")
 		return nil, err
 	}
 
@@ -279,7 +279,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Item
@@ -287,7 +287,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
