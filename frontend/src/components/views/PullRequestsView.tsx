@@ -84,7 +84,7 @@ const PullRequestsView = () => {
             {expandedPullRequest ? (
                 <PullRequestDetails pullRequest={expandedPullRequest} />
             ) : (
-                <EmptyDetails iconSource={logos.github_gray} text="You have no pull requests" />
+                <EmptyDetails icon={logos.github} text="You have no pull requests" />
             )}
         </>
     )

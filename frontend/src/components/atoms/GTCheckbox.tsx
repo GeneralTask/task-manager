@@ -19,7 +19,11 @@ const GTCheckbox = ({ isChecked, onChange, size, disabled }: GTCheckboxProps) =>
     size = size || 'small'
     return (
         <NoStyleButton onClick={onClickHandler} disabled={disabled}>
-            <Icon size={size} icon={isChecked ? icons.check : icons.check_unchecked} color={Colors.icon.purple} />
+            <Icon
+                size={size}
+                icon={isChecked ? icons.checkbox_checked : icons.checkbox_unchecked}
+                color={Colors.icon.purple}
+            />
         </NoStyleButton>
     )
 }

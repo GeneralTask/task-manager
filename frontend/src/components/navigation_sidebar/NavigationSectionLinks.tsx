@@ -139,7 +139,7 @@ const NavigationSectionLinks = () => {
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.check}
+                            icon={icons.checkbox_checked}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}

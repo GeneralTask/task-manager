@@ -8,6 +8,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 const IconContainer = styled.div<{ width: string; height: string }>`
     width: ${(props) => props.width};
     height: ${(props) => props.height};
+    font-size: ${(props) => props.height};
     display: flex;
     align-items: center;
     justify-content: center;

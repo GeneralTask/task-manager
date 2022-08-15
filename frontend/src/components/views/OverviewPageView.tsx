@@ -39,7 +39,7 @@ const OverviewView = () => {
 
     const detailsView = useMemo(() => {
         if (!views?.length) {
-            return <EmptyDetails iconSource={icons.list} text="You have no views" />
+            return <EmptyDetails icon={icons.list} text="You have no views" />
         }
         for (const view of views) {
             for (const item of view.view_items) {

@@ -124,7 +124,7 @@ const TermsOfServiceSummaryView = () => {
             <VerticalFlex>
                 <NoStyleButton data-testid="terms-check-button" onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
-                        <Icon size="small" icon={termsCheck ? icons.check : icons.check_unchecked} />
+                        <Icon size="small" icon={termsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
                         <AgreementText required>
                             I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
                             service.
@@ -136,7 +136,7 @@ const TermsOfServiceSummaryView = () => {
             <VerticalFlex>
                 <NoStyleButton onClick={() => setPromotionsCheck(!promotionsCheck)}>
                     <HorizontalFlex>
-                        <Icon size="small" icon={promotionsCheck ? icons.check : icons.check_unchecked} />
+                        <Icon size="small" icon={promotionsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
                         <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                     </HorizontalFlex>
                 </NoStyleButton>

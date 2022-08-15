@@ -94,7 +94,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
                     />
                     <SectionName>{section.name}</SectionName>
                 </SectionTitleBox>
-                {isCurrentSection && <Icon size={'xSmall'} icon={icons.check} color={Colors.icon.purple} />}
+                {isCurrentSection && <Icon size={'xSmall'} icon={icons.checkbox_checked} color={Colors.icon.purple} />}
             </ListItem>
         )
     })

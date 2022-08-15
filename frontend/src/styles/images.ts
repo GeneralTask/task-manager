@@ -1,6 +1,6 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
-import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCalendar, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faGripDotsVertical, faInbox, faList, faPencil, faPlus, faSquare, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons'
+import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCalendar, faCheck, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faGripDotsVertical, faInbox, faList, faPencil, faPlus, faSquare, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons'
 
 
 
@@ -23,8 +23,9 @@ export const icons = Object.freeze({
     caret_right: faChevronRight,
     caret_up: faChevronUp,
     check_circle_wavy: faBadgeCheck,
-    check: faCheckSquare,
-    check_unchecked: faSquare,
+    check: faCheck,
+    checkbox_checked: faCheckSquare,
+    checkbox_unchecked: faSquare,
     copy: faCopy,
     dot: faCircleSmall,
     domino: faGripDotsVertical,

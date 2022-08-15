@@ -56,20 +56,20 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 }}
             >
                 <EventHeader>
-                    <Icon source={logos.gcal} size="xSmall" />
+                    <Icon icon={logos.gcal} size="xSmall" />
                     <EventHeaderIcons>
                         <CloseButton
                             onClick={(e) => {
                                 onClose(e as MouseEvent)
                             }}
                         >
-                            <Icon source={icons.x_thin_light} size="xSmall" />
+                            <Icon icon={icons.x} size="xSmall" />
                         </CloseButton>
                     </EventHeaderIcons>
                 </EventHeader>
                 <EventTitle>{event.title}</EventTitle>
                 <EventDateContainer>
-                    <Icon source={icons.calendar_blank_light} size="xSmall" />
+                    <Icon icon={icons.calendar_blank} size="xSmall" />
                     <EventDate>
                         {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                     </EventDate>
@@ -80,7 +80,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                         styleType="secondary"
                         size="small"
                         value="Google Calendar"
-                        iconSource="external_link_dark"
+                        icon={icons.external_link}
                         fitContent={false}
                     />
                 </NoStyleAnchor>
