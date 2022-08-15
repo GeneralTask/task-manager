@@ -867,6 +867,11 @@ func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.Obj
 			GithubID: repo.RepositoryID,
 		})
 	}
+
+	sort.Slice(supportedViewItems, func(i, j int) bool {
+		return supportedViewItems[i].Name < supportedViewItems[j].Name
+	})
+
 	return supportedViewItems, nil
 }
 
