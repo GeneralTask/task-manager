@@ -27,13 +27,17 @@ func UpdateOrCreateItem(
 ) (*Item, error) {
 	var err error
 	if flattenFields {
-		fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
-		if err != nil {
-			return nil, err
+		if fieldsToInsertIfMissing != nil {
+			fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
+			if err != nil {
+				return nil, err
+			}
 		}
-		fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
-		if err != nil {
-			return nil, err
+		if fieldsToUpdate != nil {
+			fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -55,15 +59,17 @@ func UpdateOrCreateItem(
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	logger := logging.GetSentryLogger()
-	_, err = taskCollection.UpdateOne(
-		dbCtx,
-		dbQuery,
-		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
-		options.Update().SetUpsert(true),
-	)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to update or create task")
-		return nil, err
+	if fieldsToInsertIfMissing != nil {
+		_, err = taskCollection.UpdateOne(
+			dbCtx,
+			dbQuery,
+			bson.M{"$setOnInsert": fieldsToInsertIfMissing},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to update or create task")
+			return nil, err
+		}
 	}
 
 	mongoResult := taskCollection.FindOneAndUpdate(

@@ -268,11 +268,10 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
 	})
-	t.Run("InvalidSectionID", func(t *testing.T) {
+	t.Run("InvalidSectionIDGracefullyHandled", func(t *testing.T) {
 		view.TaskSectionID = primitive.NewObjectID()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
-		assert.Error(t, err)
-		assert.Equal(t, "mongo: no documents in result", err.Error())
+		assert.NoError(t, err)
 		assert.Nil(t, result)
 	})
 }
@@ -1114,7 +1113,9 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("MissingTaskSectionId", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section"}`)), http.StatusBadRequest)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section"}`)), http.StatusBadRequest)
+		assert.Equal(t, "{\"detail\":\"'task_section_id' is required for task section type views\"}", string(body))
+
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
@@ -1185,6 +1186,48 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "slack"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("AddGithubViewMissingGithubID", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github"}`)), http.StatusBadRequest)
+		assert.Equal(t, "{\"detail\":\"'id_github' is required for github type views\"}", string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("AddGithubViewMalformattedGithubID", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": 123}`)), http.StatusBadRequest)
+		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("AddGithubViewInvalidGithubID", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": "foobar"}`)), http.StatusBadRequest)
+		assert.Equal(t, "{\"detail\":\"invalid 'id_github'\"}", string(body))
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
+	t.Run("AddGithubViewSuccess", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now())
+		assert.NoError(t, err)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": "amc-to-the-moon"}`)), http.StatusOK)
+		var addedView database.View
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "github"}).Decode(&addedView)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, "amc-to-the-moon", addedView.GithubID)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)

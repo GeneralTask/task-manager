@@ -182,11 +182,16 @@ type CalendarEvent struct {
 	DatetimeStart primitive.DateTime `bson:"datetime_start"`
 }
 
+type CalendarEventChangeable struct {
+	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
+}
+
 type CalendarEventChangeableFields struct {
-	CalendarEvent `bson:"calendar_event,omitempty"`
-	TaskType      `bson:"task_type,omitempty"`
-	Title         string `bson:"title,omitempty"`
-	Body          string `bson:"body,omitempty"`
+	CalendarEventChangeable `bson:"calendar_event,omitempty"`
+	TaskType                `bson:"task_type,omitempty"`
+	Title                   string `bson:"title,omitempty"`
+	Body                    string `bson:"body,omitempty"`
 }
 
 type MessageChangeable struct {

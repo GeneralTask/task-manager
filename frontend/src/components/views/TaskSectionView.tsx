@@ -16,6 +16,8 @@ import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import EmptyDetails from '../details/EmptyDetails'
+import { icons } from '../../styles/images'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -114,7 +116,7 @@ const TaskSectionView = () => {
                 navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
             }
         }
-    }, [taskSections, params.section])
+    }, [taskSections, params.section, params.task])
 
     useItemSelectionController(section?.tasks ?? [], selectTask)
 
@@ -170,7 +172,11 @@ const TaskSectionView = () => {
                     </TaskSectionViewContainer>
                 </ScrollViewMimic>
             </BannerAndSectionContainer>
-            {task && section && <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />}
+            {task && section ? (
+                <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />
+            ) : (
+                <EmptyDetails iconSource={icons.check_gray} text="You have no tasks" />
+            )}
             <ScheduleGapFiller />
         </>
     )

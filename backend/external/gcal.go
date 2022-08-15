@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/api/calendar/v3"
+
 	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/rs/zerolog/log"
@@ -15,8 +17,9 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/api/calendar/v3"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/option"
 )
 
@@ -46,7 +49,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		Do()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("unable to load calendar events")
+		isBadToken := checkAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+		if !isBadToken {
+			logger.Error().Err(err).Msg("unable to load calendar events")
+		}
 		result <- emptyCalendarResult(err)
 		return
 	}
@@ -105,10 +111,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event.SourceID,
 			event,
 			database.CalendarEventChangeableFields{
-				CalendarEvent: event.CalendarEvent,
-				Title:         event.Title,
-				Body:          event.TaskBase.Body,
-				TaskType:      event.TaskType,
+				CalendarEventChangeable: database.CalendarEventChangeable{
+					DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
+					DatetimeStart: event.CalendarEvent.DatetimeStart,
+				},
+				Title:    event.Title,
+				Body:     event.TaskBase.Body,
+				TaskType: event.TaskType,
 			},
 			nil,
 			false,
@@ -181,7 +190,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 
 func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
 	// TODO: create a EventDeleteURL
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}
@@ -195,6 +204,31 @@ func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID
 	log.Info().Msgf("gcal event successfully deleted externalID=%s", externalID)
 
 	return nil
+}
+
+// returns true if the error was because of a bad token
+func checkAndHandleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
+	if !strings.Contains(err.Error(), "oauth2: token expired and refresh token is not set") {
+		return false
+	}
+	token, err := getExternalToken(db, userID, accountID, serviceID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Str("userID", userID.Hex()).Str("accountID", accountID).Str("serviceID", serviceID).Err(err).Msg("unable to get external token")
+		return true
+	}
+
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	_, err = database.GetExternalTokenCollection(db).UpdateOne(
+		dbCtx,
+		bson.M{"_id": token.ID},
+		bson.M{"$set": bson.M{"is_bad_token": true}},
+	)
+	if err != nil {
+		logger.Error().Str("tokenID", token.ID.Hex()).Err(err).Msg("unable to update external token")
+	}
+	return true
 }
 
 func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
@@ -238,9 +272,44 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 			DisplayName: attendee.Name,
 			Email:       attendee.Email,
 		})
-
 	}
 	return &attendeesList
+}
+
+func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background())
+	if err != nil {
+		return err
+	}
+
+	gcalEvent := calendar.Event{}
+	if updateFields.Summary != nil {
+		gcalEvent.Summary = *updateFields.Summary
+	}
+	if updateFields.Location != nil {
+		gcalEvent.Location = *updateFields.Location
+	}
+	if updateFields.Description != nil {
+		gcalEvent.Description = *updateFields.Description
+	}
+	if updateFields.DatetimeStart != nil {
+		gcalEvent.Start = &calendar.EventDateTime{
+			DateTime: updateFields.DatetimeStart.Format(time.RFC3339),
+		}
+	}
+	if updateFields.DatetimeEnd != nil {
+		gcalEvent.End = &calendar.EventDateTime{
+			DateTime: updateFields.DatetimeEnd.Format(time.RFC3339),
+		}
+	}
+	if updateFields.Attendees != nil {
+		gcalEvent.Attendees = *createGcalAttendees(updateFields.Attendees)
+	}
+	_, err = calendarService.Events.Patch(accountID, eventID, &gcalEvent).Do()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func createConferenceCallRequest() *calendar.ConferenceData {

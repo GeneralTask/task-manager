@@ -2,6 +2,13 @@
     --animate-duration: 250ms !important;
 }
 
+#event-details-popup {
+    position: absolute; 
+    left: 0px;
+    top: 0px;
+    z-index: 100; 
+}
+
 html, body {
     height: 100%;
     margin: 0;
