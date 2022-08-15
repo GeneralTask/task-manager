@@ -1096,15 +1096,23 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("AddGithubViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now())
+		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now(), "")
 		assert.NoError(t, err)
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": "amc-to-the-moon"}`)), http.StatusOK)
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cleanup := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cleanup()
+		repositoryID := primitive.NewObjectID().Hex()
+		_, err = repositoryCollection.InsertOne(dbCtx, &database.Repository{
+			UserID:       userID,
+			RepositoryID: repositoryID,
+		})
+		assert.NoError(t, err)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "github", "github_id": "%s"}`, repositoryID))), http.StatusOK)
 		var addedView database.View
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "github"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
-		assert.Equal(t, "amc-to-the-moon", addedView.GithubID)
-
+		assert.Equal(t, repositoryID, addedView.GithubID)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)

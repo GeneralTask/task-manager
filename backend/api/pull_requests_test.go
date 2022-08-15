@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -17,45 +19,70 @@ import (
 )
 
 func TestPullRequestList(t *testing.T) {
+	parentContext := context.Background()
 	authToken := login("test_pull_request_list@generaltask.com", "")
 
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	// Create dummy repositories
+	repositoryCollection := database.GetRepositoryCollection(db)
+	repositoryID1 := primitive.NewObjectID().Hex()
+	repositoryID2 := primitive.NewObjectID().Hex()
+	repositoryName1 := "stonks/test_repository"
+	repositoryName2 := "stonks/test_repository2"
+	repository1 := &database.Repository{
+		UserID:       userID,
+		RepositoryID: repositoryID1,
+		FullName:     repositoryName1,
+	}
+	repository2 := &database.Repository{
+		UserID:       userID,
+		RepositoryID: repositoryID2,
+		FullName:     repositoryName2,
+	}
+	dbCtx, cancel := context.WithTimeout(parentContext, constants.DatabaseTimeout)
+	defer cancel()
+	result, err := repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2})
+	firstID := result.InsertedIDs[0].(primitive.ObjectID)
+	secondID := result.InsertedIDs[1].(primitive.ObjectID)
+	assert.NoError(t, err)
+
 	notUserID := primitive.NewObjectID()
 	timePullRequestUpdated := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
-	pullRequest1, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddReviewers, timePullRequestUpdated)
+	pullRequest1, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionAddReviewers, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest2, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixFailedCI, timePullRequestUpdated)
+	pullRequest2, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionFixFailedCI, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest3, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionMergePR, timePullRequestUpdated)
+	pullRequest3, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionMergePR, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest4, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnReview, timePullRequestUpdated)
+	pullRequest4, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionWaitingOnReview, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest5, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionAddressComments, timePullRequestUpdated)
+	pullRequest5, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionAddressComments, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest6, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionFixMergeConflicts, timePullRequestUpdated)
+	pullRequest6, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionFixMergeConflicts, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest7, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionReviewPR, timePullRequestUpdated)
+	pullRequest7, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionReviewPR, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	pullRequest8, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnCI, timePullRequestUpdated)
+	pullRequest8, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionWaitingOnCI, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
 	// wrong user id
-	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true, "", timePullRequestUpdated)
+	_, err = createTestPullRequest(db, notUserID, repositoryName2, false, true, "", timePullRequestUpdated, "")
 	assert.NoError(t, err)
 	// completed PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", true, true, "", timePullRequestUpdated)
+	_, err = createTestPullRequest(db, userID, repositoryName2, true, true, "", timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
 	// not a PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", false, false, "", timePullRequestUpdated)
+	_, err = createTestPullRequest(db, userID, repositoryName2, false, false, "", timePullRequestUpdated, "")
 	assert.NoError(t, err)
 	// first PR in second repo
-	pullRequest9, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timePullRequestUpdated)
+	pullRequest9, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
 	// second PR in second repo, last updated an hour ago
 	timeHourEarlier := timePullRequestUpdated.Add(-1 * time.Hour)
-	pullRequest10, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timeHourEarlier)
+	pullRequest10, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timeHourEarlier, repositoryID2)
 	assert.NoError(t, err)
 
 	UnauthorizedTest(t, "GET", "/pull_requests/", nil)
@@ -74,8 +101,8 @@ func TestPullRequestList(t *testing.T) {
 		assert.Equal(t, 2, len(result))
 		assert.Equal(t, []RepositoryResult{
 			{
-				ID:   "dogecoin",
-				Name: "dogecoin",
+				ID:   firstID.Hex(),
+				Name: repositoryName1,
 				PullRequests: []PullRequestResult{
 					{
 						ID: pullRequest7.ID.Hex(),
@@ -152,8 +179,8 @@ func TestPullRequestList(t *testing.T) {
 				},
 			},
 			{
-				ID:   "tesla",
-				Name: "tesla",
+				ID:   secondID.Hex(),
+				Name: repositoryName2,
 				PullRequests: []PullRequestResult{
 					{
 						ID: pullRequest9.ID.Hex(),
@@ -179,7 +206,7 @@ func TestPullRequestList(t *testing.T) {
 	})
 }
 
-func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time) (*database.Item, error) {
+func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time, repositoryID string) (*database.Item, error) {
 	externalID := primitive.NewObjectID().Hex()
 	lastUpdatedAtPrimitive := primitive.NewDateTimeFromTime(lastUpdatedAt)
 	return database.GetOrCreateItem(
@@ -198,7 +225,7 @@ func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, reposi
 				IsPullRequest: isPullRequest,
 			},
 			PullRequest: database.PullRequest{
-				RepositoryID:   repositoryName,
+				RepositoryID:   repositoryID,
 				RepositoryName: repositoryName,
 				RequiredAction: requiredAction,
 				LastUpdatedAt:  lastUpdatedAtPrimitive,

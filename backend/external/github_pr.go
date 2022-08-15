@@ -341,8 +341,8 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{
-			"full_name": *repository.FullName,
-			"deeplink":  *repository.HTMLURL,
+			"full_name": repository.GetName(),
+			"deeplink":  repository.GetHTMLURL(),
 		}},
 		options.Update().SetUpsert(true),
 	)

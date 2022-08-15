@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -114,6 +115,22 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		repositoryResults = append(repositoryResults, result)
 	}
 
+	// Sort repositories by name
+	sort.Slice(repositoryResults, func(i, j int) bool {
+		return repositoryResults[i].Name < repositoryResults[j].Name
+	})
+
+	// Sort pull requests in repositories by required action, and then by last updated
+	for _, repositoryResult := range repositoryResults {
+		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
+			leftPR := repositoryResult.PullRequests[i]
+			rightPR := repositoryResult.PullRequests[j]
+			if leftPR.Status.Text == rightPR.Status.Text {
+				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
+			}
+			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
+		})
+	}
 	c.JSON(200, repositoryResults)
 }
 
