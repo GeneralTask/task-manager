@@ -41,24 +41,15 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:    0,
-				IDExternal:    "standard_event",
-				IDTaskSection: constants.IDTaskSectionDefault,
-				Deeplink:      "generaltask.com&authuser=exampleAccountID",
-				Title:         "Standard Event",
-				Body:          "event <strong>description</strong>",
-				SourceID:      TASK_SOURCE_ID_GCAL,
-				UserID:        userID,
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
+		standardTask := database.CalendarEvent{
+			IDExternal:    "standard_event",
+			Deeplink:      "generaltask.com&authuser=exampleAccountID",
+			Title:         "Standard Event",
+			Body:          "event <strong>description</strong>",
+			SourceID:      TASK_SOURCE_ID_GCAL,
+			UserID:        userID,
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
 
 		autoEvent := calendar.Event{
@@ -97,12 +88,12 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := database.GetTaskCollection(db)
+		eventCollection := database.GetCalendarEventCollection(db)
 
-		var calendarEventFromDB database.Item
+		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(
+		err = eventCollection.FindOne(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -134,30 +125,21 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:      1,
-				IDExternal:      "standard_event",
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        "generaltask.com&authuser=exampleAccountID",
-				Title:           "Standard Event",
-				Body:            "old description",
-				SourceID:        TASK_SOURCE_ID_GCAL,
-				UserID:          userID,
-				SourceAccountID: "exampleAccountID",
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-				DatetimeEnd:   primitive.NewDateTimeFromTime(oldEndtime),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
+		standardTask := database.CalendarEvent{
+			IDExternal:      "standard_event",
+			Deeplink:        "generaltask.com&authuser=exampleAccountID",
+			Title:           "Standard Event",
+			Body:            "old description",
+			SourceID:        TASK_SOURCE_ID_GCAL,
+			UserID:          userID,
+			SourceAccountID: "exampleAccountID",
+			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:     primitive.NewDateTimeFromTime(oldEndtime),
 		}
-		database.GetOrCreateItem(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
+		database.GetOrCreateCalendarEvent(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
 		standardTask.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
-		standardTask.TaskBase.Body = "new description"
+		standardTask.Body = "new description"
 
 		autoEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
@@ -195,12 +177,12 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := database.GetTaskCollection(db)
+		eventCollection := database.GetCalendarEventCollection(db)
 
-		var calendarEventFromDB database.Item
+		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(
+		err = eventCollection.FindOne(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -232,29 +214,18 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:      1,
-				IDExternal:      "standard_event",
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        "generaltask.com&authuser=exampleAccountID",
-				Title:           "Standard Event",
-				SourceID:        TASK_SOURCE_ID_GCAL,
-				UserID:          userID,
-				SourceAccountID: "exampleAccountID",
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(oldStartTime),
-				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
+		standardTask := database.CalendarEvent{
+			IDExternal:      "standard_event",
+			Deeplink:        "generaltask.com&authuser=exampleAccountID",
+			Title:           "Standard Event",
+			SourceID:        TASK_SOURCE_ID_GCAL,
+			UserID:          userID,
+			SourceAccountID: "exampleAccountID",
+			DatetimeStart:   primitive.NewDateTimeFromTime(oldStartTime),
+			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
 		}
-		database.GetOrCreateItem(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
+		database.GetOrCreateCalendarEvent(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardTask)
 		standardTask.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
-		// IDOrdering expected to be zero because ordering is reset upon rescheduling
-		standardTask.IDOrdering = 0
 
 		server := getServerForTasks([]*calendar.Event{&standardEvent})
 		defer server.Close()
@@ -272,12 +243,12 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := database.GetTaskCollection(db)
+		eventCollection := database.GetCalendarEventCollection(db)
 
-		var calendarEventFromDB database.Item
+		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(
+		err = eventCollection.FindOne(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -286,8 +257,7 @@ func TestCalendar(t *testing.T) {
 			}},
 		).Decode(&calendarEventFromDB)
 		assert.NoError(t, err)
-		// DB is not updated until task merge
-		standardTask.IDOrdering = 1
+
 		assertCalendarEventsEqual(t, &standardTask, &calendarEventFromDB)
 		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
 	})
@@ -334,28 +304,17 @@ func TestCalendar(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		userID := primitive.NewObjectID()
-		standardTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:    0,
-				IDExternal:    "standard_event",
-				IDTaskSection: constants.IDTaskSectionDefault,
-				Deeplink:      "generaltask.com&authuser=exampleAccountID",
-				Title:         "Standard Event",
-				SourceID:      TASK_SOURCE_ID_GCAL,
-				UserID:        userID,
-				ConferenceCall: &database.ConferenceCall{
-					URL:      "https://meet.google.com/example-conference-id?authuser=exampleAccountID",
-					Platform: "sample-platform",
-					Logo:     "sample-icon-uri",
-				},
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
+		standardTask := database.CalendarEvent{
+			IDExternal:    "standard_event",
+			Deeplink:      "generaltask.com&authuser=exampleAccountID",
+			Title:         "Standard Event",
+			SourceID:      TASK_SOURCE_ID_GCAL,
+			UserID:        userID,
+			CallURL:       "https://meet.google.com/example-conference-id?authuser=exampleAccountID",
+			CallPlatform:  "sample-platform",
+			CallLogo:      "sample-icon-uri",
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
 
 		autoEvent := calendar.Event{
@@ -394,12 +353,12 @@ func TestCalendar(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardTask, firstTask)
 
-		taskCollection := database.GetTaskCollection(db)
+		eventCollection := database.GetCalendarEventCollection(db)
 
-		var calendarEventFromDB database.Item
+		var calendarEventFromDB database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(
+		err = eventCollection.FindOne(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -666,17 +625,16 @@ func TestModifyEvent(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
-func assertCalendarEventsEqual(t *testing.T, a *database.Item, b *database.Item) {
-	assert.Equal(t, a.TaskType, b.TaskType)
+func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *database.CalendarEvent) {
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
 	assert.Equal(t, a.DatetimeEnd, b.DatetimeEnd)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
-	assert.Equal(t, a.IDOrdering, b.IDOrdering)
-	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.SourceID, b.SourceID)
-	assert.Equal(t, a.ConferenceCall, b.ConferenceCall)
+	assert.Equal(t, a.CallLogo, b.CallLogo)
+	assert.Equal(t, a.CallPlatform, b.CallPlatform)
+	assert.Equal(t, a.CallURL, b.CallURL)
 }
 
 func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.Event) {

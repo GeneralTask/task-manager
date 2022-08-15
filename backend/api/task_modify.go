@@ -60,7 +60,7 @@ func (api *API) TaskModify(c *gin.Context) {
 		return
 	}
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(task.SourceID)
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(task.SourceID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)

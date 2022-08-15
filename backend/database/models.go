@@ -76,7 +76,6 @@ type Item struct {
 	TaskBase           `bson:",inline"`
 	TaskType           `bson:"task_type"`
 	Task               `bson:"task,omitempty"`
-	CalendarEvent      `bson:"calendar_event,omitempty"`
 	PullRequest        `bson:"pull_request,omitempty"`
 	SlackMessageParams `bson:"slack_message_params,omitempty"`
 }
@@ -144,7 +143,6 @@ type TaskBase struct {
 	DueDate          primitive.DateTime `bson:"due_date"`
 	//time in nanoseconds
 	TimeAllocation    int64              `bson:"time_allocated"`
-	ConferenceCall    *ConferenceCall    `bson:"conference_call"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
 	CompletedAt       primitive.DateTime `bson:"completed_at"`
 }
@@ -174,20 +172,21 @@ type PullRequestChangeableFields struct {
 }
 
 type CalendarEvent struct {
-	DatetimeEnd   primitive.DateTime `bson:"datetime_end"`
-	DatetimeStart primitive.DateTime `bson:"datetime_start"`
-}
-
-type CalendarEventChangeable struct {
-	DatetimeEnd   primitive.DateTime `bson:"datetime_end,omitempty"`
-	DatetimeStart primitive.DateTime `bson:"datetime_start,omitempty"`
-}
-
-type CalendarEventChangeableFields struct {
-	CalendarEventChangeable `bson:"calendar_event,omitempty"`
-	TaskType                `bson:"task_type,omitempty"`
-	Title                   string `bson:"title,omitempty"`
-	Body                    string `bson:"body,omitempty"`
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
+	UserID          primitive.ObjectID `bson:"user_id,omitempty"`
+	IDExternal      string             `bson:"id_external,omitempty"`
+	SourceID        string             `bson:"source_id,omitempty"`
+	SourceAccountID string             `bson:"source_account_id,omitempty"`
+	Deeplink        string             `bson:"deeplink,omitempty"`
+	Title           string             `bson:"title,omitempty"`
+	Body            string             `bson:"body,omitempty"`
+	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
+	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
+	//time in nanoseconds
+	TimeAllocation int64  `bson:"time_allocated"`
+	CallLogo       string `bson:"call_logo,omitempty"`
+	CallPlatform   string `bson:"call_platform,omitempty"`
+	CallURL        string `bson:"call_url,omitempty"`
 }
 
 type MessageChangeable struct {
@@ -265,12 +264,6 @@ type FeedbackItem struct {
 	UserID    primitive.ObjectID `bson:"user_id"`
 	Feedback  string             `bson:"feedback"`
 	CreatedAt primitive.DateTime `bson:"created_at"`
-}
-
-type ConferenceCall struct {
-	Platform string `bson:"platform"`
-	Logo     string `bson:"logo"`
-	URL      string `bson:"url"`
 }
 
 type LogEvent struct {

@@ -153,6 +153,116 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 	return &item, nil
 }
 
+func UpdateOrCreateCalendarEvent(
+	db *mongo.Database,
+	userID primitive.ObjectID,
+	IDExternal string,
+	sourceID string,
+	fields interface{},
+	additionalFilters *[]bson.M,
+) (*CalendarEvent, error) {
+	var err error
+	parentCtx := context.Background()
+	eventCollection := GetCalendarEventCollection(db)
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"id_external": IDExternal},
+			{"source_id": sourceID},
+			{"user_id": userID},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, filter := range *additionalFilters {
+			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
+		}
+	}
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	logger := logging.GetSentryLogger()
+
+	mongoResult := eventCollection.FindOneAndUpdate(
+		dbCtx,
+		dbQuery,
+		bson.M{"$set": fields},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	)
+
+	var calendarEvent CalendarEvent
+	err = mongoResult.Decode(&calendarEvent)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to update or create item")
+		return nil, err
+	}
+	return &calendarEvent, nil
+}
+
+func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
+	parentCtx := ctx
+	db, dbCleanup, err := GetDBConnection()
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to establish DB connection")
+		return nil, err
+	}
+	defer dbCleanup()
+	eventCollection := GetCalendarEventCollection(db)
+
+	var event CalendarEvent
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = eventCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"user_id": userID},
+		}}).Decode(&event)
+	if err != nil {
+		logger.Error().Err(err).Msgf("Failed to get item: %+v", itemID)
+		return nil, err
+	}
+	return &event, nil
+}
+
+func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*CalendarEvent, error) {
+	parentCtx := context.Background()
+	eventCollection := GetCalendarEventCollection(db)
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"id_external": IDExternal},
+			{"source_id": sourceID},
+			{"user_id": userID},
+		},
+	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err := eventCollection.UpdateOne(
+		dbCtx,
+		dbQuery,
+		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
+		options.Update().SetUpsert(true),
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to get or create task")
+		return nil, err
+	}
+
+	var item CalendarEvent
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = eventCollection.FindOne(
+		dbCtx,
+		dbQuery,
+	).Decode(&item)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to get task")
+		return nil, err
+	}
+
+	return &item, nil
+}
+
 func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -470,6 +580,10 @@ func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 
 func GetTaskCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("tasks")
+}
+
+func GetCalendarEventCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("calendar_events")
 }
 
 func GetViewCollection(db *mongo.Database) *mongo.Collection {

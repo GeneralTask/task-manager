@@ -18,20 +18,16 @@ type EventListParams struct {
 	DatetimeEnd   *time.Time `form:"datetime_end" binding:"required"`
 }
 
-type ConferenceCall struct {
-	Platform string `json:"platform"`
-	Logo     string `json:"logo"`
-	URL      string `json:"url"`
-}
-
 type EventResult struct {
-	ID             primitive.ObjectID `json:"id"`
-	Deeplink       string             `json:"deeplink"`
-	Title          string             `json:"title"`
-	Body           string             `json:"body"`
-	ConferenceCall *ConferenceCall    `json:"conference_call"`
-	DatetimeEnd    primitive.DateTime `json:"datetime_end,omitempty"`
-	DatetimeStart  primitive.DateTime `json:"datetime_start,omitempty"`
+	ID            primitive.ObjectID `json:"id"`
+	Deeplink      string             `json:"deeplink"`
+	Title         string             `json:"title"`
+	Body          string             `json:"body"`
+	DatetimeEnd   primitive.DateTime `json:"datetime_end,omitempty"`
+	DatetimeStart primitive.DateTime `json:"datetime_start,omitempty"`
+	CallLogo      string             `bson:"call_logo,omitempty"`
+	CallPlatform  string             `bson:"call_platform,omitempty"`
+	CallURL       string             `bson:"call_url,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -113,24 +109,16 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			var conferenceCall *ConferenceCall
-			if event.ConferenceCall == nil {
-				conferenceCall = nil
-			} else {
-				conferenceCall = &ConferenceCall{
-					Platform: event.ConferenceCall.Platform,
-					Logo:     event.ConferenceCall.Logo,
-					URL:      event.ConferenceCall.URL,
-				}
-			}
 			calendarEvents = append(calendarEvents, EventResult{
-				ID:             event.ID,
-				Deeplink:       event.Deeplink,
-				Title:          event.Title,
-				Body:           event.TaskBase.Body,
-				ConferenceCall: conferenceCall,
-				DatetimeEnd:    event.DatetimeEnd,
-				DatetimeStart:  event.DatetimeStart,
+				ID:            event.ID,
+				Deeplink:      event.Deeplink,
+				Title:         event.Title,
+				Body:          event.Body,
+				DatetimeEnd:   event.DatetimeEnd,
+				DatetimeStart: event.DatetimeStart,
+				CallLogo:      event.CallLogo,
+				CallPlatform:  event.CallPlatform,
+				CallURL:       event.CallURL,
 			})
 		}
 	}
