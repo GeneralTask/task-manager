@@ -842,30 +842,31 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 }
 
 func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
-	database.GetPullRequestCollection(db)
-	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	var repositories []database.Repository
+	cursor, err := repositoryCollection.Find(dbCtx, bson.M{"user_id": userID})
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
 		return []SupportedViewItem{}, err
 	}
-	repositoryIDToSupportedViewItems := map[string]SupportedViewItem{}
-	for _, pullRequest := range *pullRequests {
-		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to parse pull request id")
-			return []SupportedViewItem{}, err
-		}
-		repositoryIDToSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
-			Name:     pullRequest.RepositoryName,
-			GithubID: pullRequest.PullRequest.RepositoryID,
-		}
+
+	dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &repositories)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
+		return []SupportedViewItem{}, err
 	}
+
 	supportedViewItems := []SupportedViewItem{}
-	for _, supportedViewItem := range repositoryIDToSupportedViewItems {
-		supportedViewItems = append(supportedViewItems, supportedViewItem)
+	for _, repo := range repositories {
+		supportedViewItems = append(supportedViewItems, SupportedViewItem{
+			Name:     repo.FullName,
+			GithubID: repo.RepositoryID,
+		})
 	}
-	sort.Slice(supportedViewItems, func(i, j int) bool {
-		return supportedViewItems[i].Name < supportedViewItems[j].Name
-	})
 	return supportedViewItems, nil
 }
 
