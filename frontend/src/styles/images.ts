@@ -1,6 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
-import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCalendar, faCheck, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faGripDotsVertical, faInbox, faList, faPencil, faPlus, faSquare, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons'
+import { faSquare } from '@fortawesome/pro-regular-svg-icons'
+import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCalendar, faCheck, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faGripDotsVertical, faInbox, faList, faPencil, faPlus, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons'
 
 
 
