@@ -1013,6 +1013,15 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewTaskSection),
+			IsLinked:      true,
+			TaskSectionID: taskSection1ObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
 
@@ -1038,6 +1047,15 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewTaskSection),
+			IsLinked:      true,
+			TaskSectionID: taskSection1ObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1050,6 +1068,15 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "linear"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewLinear),
+			IsLinked:      false,
+			TaskSectionID: primitive.NilObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1062,6 +1089,15 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "slack"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewSlack),
+			IsLinked:      false,
+			TaskSectionID: primitive.NilObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1103,7 +1139,15 @@ func TestOverviewAdd(t *testing.T) {
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "github"}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
-		assert.Equal(t, "amc-to-the-moon", addedView.GithubID)
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewGithub),
+			IsLinked:      false,
+			TaskSectionID: primitive.NilObjectID,
+			GithubID:      "amc-to-the-moon",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
