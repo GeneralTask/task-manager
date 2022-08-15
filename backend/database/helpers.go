@@ -188,13 +188,13 @@ func UpdateOrCreateCalendarEvent(
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	)
 
-	var calendarEvent CalendarEvent
-	err = mongoResult.Decode(&calendarEvent)
+	var event CalendarEvent
+	err = mongoResult.Decode(&event)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update or create item")
 		return nil, err
 	}
-	return &calendarEvent, nil
+	return &event, nil
 }
 
 func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
@@ -248,19 +248,19 @@ func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDE
 		return nil, err
 	}
 
-	var item CalendarEvent
+	var event CalendarEvent
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = eventCollection.FindOne(
 		dbCtx,
 		dbQuery,
-	).Decode(&item)
+	).Decode(&event)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to get task")
 		return nil, err
 	}
 
-	return &item, nil
+	return &event, nil
 }
 
 func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
