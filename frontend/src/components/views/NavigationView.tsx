@@ -12,6 +12,7 @@ const NavigationViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     min-width: 0px;
+    min-height: 0px;
     background-color: ${Colors.background.medium};
     padding: ${Spacing.padding._12};
     box-sizing: border-box;

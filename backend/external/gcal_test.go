@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/testutils"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -528,7 +529,7 @@ func TestDeleteEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
 		err := googleCalendar.DeleteEvent(userID, "exampleAccountID", gcalEventID)
@@ -544,7 +545,7 @@ func TestDeleteEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
 		err := googleCalendar.DeleteEvent(userID, accountID, gcalEventID)
@@ -552,6 +553,119 @@ func TestDeleteEvent(t *testing.T) {
 	})
 }
 
+func TestModifyEvent(t *testing.T) {
+	userID := primitive.NewObjectID()
+	accountID := "duccount_id"
+	eventID := "event_id"
+
+	t.Run("SuccessWithSummaryAndDescription", func(t *testing.T) {
+		summary := "test summary"
+		description := "test description"
+		eventModifyObj := EventModifyObject{
+			AccountID:   accountID,
+			Summary:     &summary,
+			Description: &description,
+		}
+		expectedEvent := calendar.Event{
+			Summary:     summary,
+			Description: description,
+		}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.NoError(t, err)
+	})
+	t.Run("SuccessWithStartDate", func(t *testing.T) {
+		datetimeStart := testutils.CreateTimestamp("2022-04-20")
+		eventModifyObj := EventModifyObject{
+			AccountID:     accountID,
+			DatetimeStart: datetimeStart,
+		}
+		expectedEvent := calendar.Event{
+			Start: &calendar.EventDateTime{Date: "", DateTime: "2022-04-20T00:00:00Z"},
+		}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.NoError(t, err)
+	})
+	t.Run("SuccessWithEndDate", func(t *testing.T) {
+		datetimeEnd := testutils.CreateTimestamp("2023-04-20")
+		eventModifyObj := EventModifyObject{
+			AccountID:   accountID,
+			DatetimeEnd: datetimeEnd,
+		}
+		expectedEvent := calendar.Event{
+			End: &calendar.EventDateTime{Date: "", DateTime: "2023-04-20T00:00:00Z"},
+		}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.NoError(t, err)
+	})
+	t.Run("SuccessWithStartAndEndDate", func(t *testing.T) {
+		datetimeStart := testutils.CreateTimestamp("2020-04-19")
+		datetimeEnd := testutils.CreateTimestamp("2020-04-20")
+		eventModifyObj := EventModifyObject{
+			AccountID:     accountID,
+			DatetimeStart: datetimeStart,
+			DatetimeEnd:   datetimeEnd,
+		}
+		expectedEvent := calendar.Event{
+			Start: &calendar.EventDateTime{Date: "", DateTime: "2020-04-19T00:00:00Z"},
+			End:   &calendar.EventDateTime{Date: "", DateTime: "2020-04-20T00:00:00Z"},
+		}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.NoError(t, err)
+	})
+	t.Run("SuccessWithSummaryAndDescription", func(t *testing.T) {
+		summary := "test summary"
+		description := "test description"
+		eventModifyObj := EventModifyObject{
+			AccountID:   accountID,
+			Summary:     &summary,
+			Description: &description,
+		}
+		expectedEvent := calendar.Event{
+			Summary:     summary,
+			Description: description,
+		}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.NoError(t, err)
+	})
+	t.Run("EmptyModifyObject", func(t *testing.T) {
+		eventModifyObj := EventModifyObject{}
+		expectedEvent := calendar.Event{}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.NoError(t, err)
+	})
+	t.Run("ExternalError", func(t *testing.T) {
+		datetimeStart := testutils.CreateTimestamp("2020-04-19")
+		datetimeEnd := testutils.CreateTimestamp("2020-04-20")
+		eventModifyObj := EventModifyObject{
+			AccountID:     "wrong account ID",
+			DatetimeStart: datetimeStart,
+			DatetimeEnd:   datetimeEnd,
+		}
+		googleCalendar, server := getEventModifyGoogleCalendar(t, nil, accountID, eventID)
+		defer server.Close()
+
+		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		assert.Error(t, err)
+	})
+}
 func assertCalendarEventsEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.TaskType, b.TaskType)
 	assert.Equal(t, a.DatetimeStart, b.DatetimeStart)
@@ -569,10 +683,18 @@ func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.
 	assert.Equal(t, a.Description, b.Description)
 	assert.Equal(t, a.Location, b.Location)
 	assert.Equal(t, a.Summary, b.Summary)
-	assert.Equal(t, a.Start.DateTime, b.Start.DateTime)
-	assert.Equal(t, a.Start.TimeZone, b.Start.TimeZone)
-	assert.Equal(t, a.End.DateTime, b.End.DateTime)
-	assert.Equal(t, a.End.TimeZone, b.End.TimeZone)
+	if a.Start != nil && b.Start != nil {
+		assert.Equal(t, a.Start.DateTime, b.Start.DateTime)
+		assert.Equal(t, a.Start.TimeZone, b.Start.TimeZone)
+	} else {
+		assert.Equal(t, a.Start, b.Start)
+	}
+	if a.End != nil && b.End != nil {
+		assert.Equal(t, a.End.DateTime, b.End.DateTime)
+		assert.Equal(t, a.End.TimeZone, b.End.TimeZone)
+	} else {
+		assert.Equal(t, a.End, b.End)
+	}
 	assert.Equal(t, len(a.Attendees), len(b.Attendees))
 	if len(a.Attendees) == len(b.Attendees) {
 		for i, _ := range a.Attendees {
@@ -638,4 +760,36 @@ func getEventDeleteServer(t *testing.T, expectedRequestURI string) *httptest.Ser
 		w.Write([]byte(`{}`))
 		return
 	}))
+}
+
+func getEventModifyGoogleCalendar(t *testing.T, expectedEvent *calendar.Event, calendarID string, eventID string) (*GoogleCalendarSource, *httptest.Server) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if expectedEvent == nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err := w.Write([]byte(`{"detail": "gcal internal error"}`))
+			assert.NoError(t, err)
+			return
+		}
+
+		// assert that URL is properly constructed
+		assert.Equal(t, fmt.Sprintf("/calendars/%s/events/%s?alt=json&prettyPrint=false", calendarID, eventID), r.RequestURI)
+
+		var requestEvent calendar.Event
+		err := json.NewDecoder(r.Body).Decode(&requestEvent)
+		assert.NoError(t, err)
+
+		// Verify request is built correctly
+		assertGcalCalendarEventsEqual(t, expectedEvent, &requestEvent)
+
+		w.WriteHeader(201)
+		_, err = w.Write([]byte(`{}`))
+		assert.NoError(t, err)
+		return
+	}))
+	googleCalendar := &GoogleCalendarSource{
+		Google: GoogleService{
+			OverrideURLs: GoogleURLOverrides{CalendarModifyURL: &server.URL},
+		},
+	}
+	return googleCalendar, server
 }

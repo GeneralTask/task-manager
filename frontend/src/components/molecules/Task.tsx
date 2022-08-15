@@ -1,5 +1,5 @@
 import { DropType, TTask } from '../../utils/types'
-import React, { MutableRefObject, useCallback, useEffect, useRef } from 'react'
+import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
 
 const IconContainer = styled.div`
-    margin-left: ${Spacing.margin._8};
+    margin-left: auto;
 `
 const Title = styled.span`
     margin-left: ${Spacing.margin._8};
@@ -21,6 +21,10 @@ const Title = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     ${Typography.bodySmall};
+`
+const DominoContainer = styled.div`
+    position: absolute;
+    left: ${Spacing.margin._4};
 `
 
 interface TaskProps {
@@ -47,6 +51,7 @@ const Task = ({
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
+    const [isHovered, setIsHovered] = useState(false)
 
     // Add event listener to check if scrolling occurs in task section
     useEffect(() => {
@@ -103,19 +108,23 @@ const Task = ({
     )
 
     return (
-        <TaskTemplate ref={elementRef}>
-            <ItemContainer isSelected={isSelected} onClick={onClick} ref={dragPreview}>
-                {!dragDisabled && <Domino ref={drag} />}
+        <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
+                {isHovered && !dragDisabled && (
+                    <DominoContainer>
+                        <Domino ref={drag} />
+                    </DominoContainer>
+                )}
                 <CompleteButton
                     taskId={task.id}
                     isComplete={task.is_done}
                     onMarkComplete={onMarkComplete}
                     isSelected={isSelected}
                 />
+                <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
-                <Title data-testid="task-title">{task.title}</Title>
             </ItemContainer>
         </TaskTemplate>
     )

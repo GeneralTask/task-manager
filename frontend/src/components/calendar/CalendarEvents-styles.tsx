@@ -32,13 +32,13 @@ export const TimeContainer = styled.div`
     justify-content: center;
     position: relative;
 `
-export const AllDaysContainer = styled.div`
+export const AllDaysContainer = styled.div<{ isScrollDisabled: boolean }>`
     width: 100%;
     flex: 1;
     display: flex;
-    overflow: scroll;
     justify-content: center;
     position: relative;
+    overflow: ${(props) => (props.isScrollDisabled ? 'hidden' : 'scroll')};
 `
 export const CalendarTableStyle = styled.table`
     border-collapse: collapse;
@@ -89,6 +89,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
         100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
     );
     opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
+    cursor: pointer;
 `
 export const EventInfoContainer = styled.div`
     display: flex;
@@ -97,6 +98,7 @@ export const EventInfoContainer = styled.div`
     width: 100%;
     position: absolute;
     z-index: 1;
+    border-radius: ${Border.radius.medium};
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
@@ -122,11 +124,11 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
 `
-export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean }>`
+export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
     height: 100%;
     background: ${Colors.background.white};
-    border: ${Border.stroke.medium} solid ${EVENT_CONTAINER_COLOR};
+    border: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.gray : EVENT_CONTAINER_COLOR)};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
@@ -145,7 +147,6 @@ export const DateHeader = styled.div`
     color: ${EVENT_TITLE_TEXT_COLOR};
     text-align: center;
 `
-
 export const CalendarDayHeader = styled.div`
     display: flex;
     flex-direction: row;
@@ -157,7 +158,6 @@ export const CalendarDayHeader = styled.div`
     top: 0;
     z-index: 2;
 `
-
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
     padding: ${Spacing.padding._4} ${Spacing.padding._8};

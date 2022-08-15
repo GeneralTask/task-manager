@@ -4,18 +4,26 @@ export const iconSize = {
     small: '20px',
     medium: '30px',
     large: '40px',
+    xLarge: '50px',
 }
 
 export type TIconSize = keyof typeof iconSize
 
 export const modalSize = {
+    dialog: {
+        max_height: '200px',
+        min_height: 'fit-content',
+        width: 'fit-content',
+    },
     small: {
+        max_height: '440px',
+        min_height: '440px',
         width: '478px',
-        height: '440px',
     },
     medium: {
+        max_height: '620px',
+        min_height: '620px',
         width: '723px',
-        height: '620px',
     },
 }
 
@@ -26,4 +34,4 @@ export const WINDOW_MIN_WIDTH = '800px'
 export const NAVIGATION_BAR_WIDTH = '230px'
 export const TASK_ACTION_WIDTH = '200px'
 export const DEFAULT_VIEW_WIDTH = '480px'
-export const TASK_HEIGHT = '36px'
+export const TASK_HEIGHT = '48px'

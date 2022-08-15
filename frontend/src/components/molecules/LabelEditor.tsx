@@ -47,7 +47,7 @@ const SectionTitleBox = styled.div<{ isSelected: boolean }>`
     flex-direction: row;
     align-items: center;
     gap: ${Spacing.padding._8};
-    color: ${(props) => (props.isSelected ? Colors.gtColor.secondary : Colors.text.light)};
+    color: ${(props) => (props.isSelected ? Colors.gtColor.primary : Colors.text.light)};
     min-width: 0;
 `
 const SectionName = styled.span`

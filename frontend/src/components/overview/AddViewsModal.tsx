@@ -122,6 +122,7 @@ const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
             title="Add views"
             onClose={onClose}
             rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
+            type="medium"
         >
             <AddViewsModalContent />
         </GTModal>

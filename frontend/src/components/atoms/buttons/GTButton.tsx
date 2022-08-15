@@ -64,6 +64,7 @@ const Button = styled(NoStyleButton)<{
     transition: background 0.05s;
     transition: box-shadow 0.25s;
     user-select: none;
+    font-family: inherit;
     ${Typography.body};
     ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
