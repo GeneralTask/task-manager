@@ -74,8 +74,15 @@ const EventBanner = ({ event }: EventBannerProps) => {
     const timeUntilEvent = Math.ceil((new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60)
     const timeUntilEventMessage = timeUntilEvent > 0 ? `is in ${timeUntilEvent} minutes.` : 'is now.'
     const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
+    const conferenceCall = {
+        platform: event.call_platform,
+        logo: event.call_logo,
+        url: event.call_url,
+    }
+    console.log(conferenceCall)
+    console.log(event)
     return (
-        <BannerView key={event.id} center={event.conference_call == null}>
+        <BannerView key={event.id} center={event.call_url == null}>
             <MessageView>
                 <MessageText>Your Meeting</MessageText>
                 <BannerTitleView>
@@ -83,7 +90,7 @@ const EventBanner = ({ event }: EventBannerProps) => {
                 </BannerTitleView>
                 <MessageText>{timeUntilEventMessage}</MessageText>
             </MessageView>
-            {event.conference_call && <JoinMeetingButton conferenceCall={event.conference_call} />}
+            {event.call_url != null && <JoinMeetingButton conferenceCall={conferenceCall} />}
         </BannerView>
     )
 }

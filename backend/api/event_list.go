@@ -25,9 +25,9 @@ type EventResult struct {
 	Body          string             `json:"body"`
 	DatetimeEnd   primitive.DateTime `json:"datetime_end,omitempty"`
 	DatetimeStart primitive.DateTime `json:"datetime_start,omitempty"`
-	CallLogo      string             `bson:"call_logo,omitempty"`
-	CallPlatform  string             `bson:"call_platform,omitempty"`
-	CallURL       string             `bson:"call_url,omitempty"`
+	CallLogo      string             `json:"call_logo,omitempty"`
+	CallPlatform  string             `json:"call_platform,omitempty"`
+	CallURL       string             `json:"call_url,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {

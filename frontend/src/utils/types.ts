@@ -86,7 +86,9 @@ export interface TEvent {
     deeplink: string
     datetime_start: string
     datetime_end: string
-    conference_call: TConferenceCall | null
+	call_logo: string
+	call_platform: string
+	call_url: string 
 }
 
 export interface TMeetingBanner {

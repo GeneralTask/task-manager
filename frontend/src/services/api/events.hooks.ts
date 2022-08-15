@@ -70,7 +70,9 @@ export const useCreateEvent = () => {
                     deeplink: '',
                     datetime_start: createEventPayload.datetime_start,
                     datetime_end: createEventPayload.datetime_end,
-                    conference_call: null,
+                    call_url: '',
+                    call_platform: '',
+                    call_logo: '',
                 }
 
                 const newEvents = produce(events, (draft) => {
