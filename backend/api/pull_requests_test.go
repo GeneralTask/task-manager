@@ -31,8 +31,12 @@ func TestPullRequestList(t *testing.T) {
 	repositoryCollection := database.GetRepositoryCollection(db)
 	repositoryID1 := primitive.NewObjectID().Hex()
 	repositoryID2 := primitive.NewObjectID().Hex()
+	repositoryID3 := primitive.NewObjectID().Hex()
+
 	repositoryName1 := "stonks/test_repository"
 	repositoryName2 := "stonks/test_repository2"
+	repositoryName3 := "stonks/test_repository3"
+
 	repository1 := &database.Repository{
 		UserID:       userID,
 		RepositoryID: repositoryID1,
@@ -43,14 +47,19 @@ func TestPullRequestList(t *testing.T) {
 		RepositoryID: repositoryID2,
 		FullName:     repositoryName2,
 	}
+	notUserID := primitive.NewObjectID()
+	repostory3 := &database.Repository{
+		UserID:       notUserID,
+		RepositoryID: repositoryID3,
+		FullName:     repositoryName3,
+	}
 	dbCtx, cancel := context.WithTimeout(parentContext, constants.DatabaseTimeout)
 	defer cancel()
-	result, err := repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2})
+	result, err := repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2, repostory3})
 	firstID := result.InsertedIDs[0].(primitive.ObjectID)
 	secondID := result.InsertedIDs[1].(primitive.ObjectID)
 	assert.NoError(t, err)
 
-	notUserID := primitive.NewObjectID()
 	timePullRequestUpdated := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 	pullRequest1, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionAddReviewers, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
@@ -69,7 +78,7 @@ func TestPullRequestList(t *testing.T) {
 	pullRequest8, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionWaitingOnCI, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
 	// wrong user id
-	_, err = createTestPullRequest(db, notUserID, repositoryName2, false, true, "", timePullRequestUpdated, "")
+	_, err = createTestPullRequest(db, notUserID, repositoryName3, false, true, "", timePullRequestUpdated, repositoryID3)
 	assert.NoError(t, err)
 	// completed PR
 	_, err = createTestPullRequest(db, userID, repositoryName2, true, true, "", timePullRequestUpdated, repositoryID2)
