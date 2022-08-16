@@ -337,7 +337,7 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 	_, err := repositoryCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"repository_id": fmt.Sprint(*repository.ID)},
+			{"repository_id": fmt.Sprint(repository.GetID())},
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{
