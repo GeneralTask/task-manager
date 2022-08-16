@@ -48,14 +48,14 @@ func TestPullRequestList(t *testing.T) {
 		FullName:     repositoryName2,
 	}
 	notUserID := primitive.NewObjectID()
-	repostory3 := &database.Repository{
+	repository3 := &database.Repository{
 		UserID:       notUserID,
 		RepositoryID: repositoryID3,
 		FullName:     repositoryName3,
 	}
 	dbCtx, cancel := context.WithTimeout(parentContext, constants.DatabaseTimeout)
 	defer cancel()
-	result, err := repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2, repostory3})
+	result, err := repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2, repository3})
 	firstID := result.InsertedIDs[0].(primitive.ObjectID)
 	secondID := result.InsertedIDs[1].(primitive.ObjectID)
 	assert.NoError(t, err)
