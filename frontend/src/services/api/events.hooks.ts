@@ -38,7 +38,7 @@ interface TCreateEventPayload {
     add_conference_call?: boolean
 }
 
-interface TModifyEventData {
+export interface TModifyEventData {
     id: string
     date: DateTime
     datetime_start: string
@@ -105,16 +105,17 @@ const createEvent = async (data: TCreateEventPayload) => {
 }
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
-    return useMutation ((data: TModifyEventData) => deleteEvent(data), {
+    return useMutation ((data: TModifyEventData) => deleteEvent(data.id), {
         onMutate: async (data: TModifyEventData) => {
-            queryClient.cancelQueries('calendar')
-            queryClient.cancelQueries('events')
 
             const start = DateTime.fromISO(data.datetime_start)
             const end = DateTime.fromISO(data.datetime_end)
             const timeBlocks = getMonthsAroundDate(data.date, 1)
             const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
             const block = timeBlocks[blockIndex]
+
+            queryClient.cancelQueries([ 'events', 'calendar', block.start.toISO(), ])
+
             const events = queryClient.getImmutableQueryData<TEvent[]>([
                 'events',
                 'calendar',
@@ -124,7 +125,7 @@ export const useDeleteEvent = () => {
             
             const newEvents = produce(events, (draft) => {
                 const eventIdx = draft.findIndex((event) => event.id === data.id)
-                if (eventIdx === -1) return 
+                if (eventIdx === -1) return
                 draft.splice(eventIdx, 1)
             }) 
             queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
@@ -134,9 +135,9 @@ export const useDeleteEvent = () => {
         },
     })
 }
-const deleteEvent = async (data: {id: string }) => {
+const deleteEvent = async (eventId: string) => {
     try {
-        const res = await apiClient.delete(`/events/delete/${data.id}/`)
+        const res = await apiClient.delete(`/events/delete/${eventId}/`)
         return castImmutable(res.data)
     } catch {
         throw new Error('deleteEvent failed')
