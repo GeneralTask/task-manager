@@ -1130,6 +1130,26 @@ func TestOverviewAdd(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
+	t.Run("IncorrectUserID", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		// Create pull request with incorrect user ID
+		_, err := createTestPullRequest(db, primitive.NewObjectID(), "amc-to-the-moon", false, true, "", time.Now(), "")
+		assert.NoError(t, err)
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cleanup := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cleanup()
+		repositoryID := primitive.NewObjectID().Hex()
+		_, err = repositoryCollection.InsertOne(dbCtx, &database.Repository{
+			UserID:       primitive.NewObjectID(),
+			RepositoryID: repositoryID,
+		})
+		assert.NoError(t, err)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusBadRequest)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
 	t.Run("AddGithubViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now(), "")
