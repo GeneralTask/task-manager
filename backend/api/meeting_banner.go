@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,8 +15,8 @@ type meetingBanner struct {
 }
 
 type meetingBannerEvent struct {
-	Title          string         `json:"title"`
-	ConferenceCall ConferenceCall `json:"conference_call"`
+	Title          string               `json:"title"`
+	ConferenceCall utils.ConferenceCall `json:"conference_call"`
 }
 
 type meetingBannerAction struct {
@@ -30,7 +31,7 @@ func (api *API) MeetingBanner(c *gin.Context) {
 		Subtitle: "It looks like you've got a little time before your next meeting (6.9 min)",
 		Events: []meetingBannerEvent{{
 			Title: "Blast off",
-			ConferenceCall: ConferenceCall{
+			ConferenceCall: utils.ConferenceCall{
 				Platform: "Google Meet",
 				Logo:     "/images/google-meet.svg",
 				URL:      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
