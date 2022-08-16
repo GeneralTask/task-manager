@@ -43,18 +43,7 @@ func UpdateOrCreateItem(
 
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
-	dbQuery := bson.M{
-		"$and": []bson.M{
-			{"id_external": IDExternal},
-			{"source_id": sourceID},
-			{"user_id": userID},
-		},
-	}
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, filter := range *additionalFilters {
-			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
-		}
-	}
+	dbQuery := getDBQuery(userID, IDExternal, sourceID, additionalFilters)
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -117,13 +106,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Item, error) {
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
-	dbQuery := bson.M{
-		"$and": []bson.M{
-			{"id_external": IDExternal},
-			{"source_id": sourceID},
-			{"user_id": userID},
-		},
-	}
+	dbQuery := getDBQuery(userID, IDExternal, sourceID, nil)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := taskCollection.UpdateOne(
@@ -164,18 +147,7 @@ func UpdateOrCreateCalendarEvent(
 	var err error
 	parentCtx := context.Background()
 	eventCollection := GetCalendarEventCollection(db)
-	dbQuery := bson.M{
-		"$and": []bson.M{
-			{"id_external": IDExternal},
-			{"source_id": sourceID},
-			{"user_id": userID},
-		},
-	}
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, filter := range *additionalFilters {
-			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
-		}
-	}
+	dbQuery := getDBQuery(userID, IDExternal, sourceID, additionalFilters)
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -227,13 +199,7 @@ func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID pri
 func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*CalendarEvent, error) {
 	parentCtx := context.Background()
 	eventCollection := GetCalendarEventCollection(db)
-	dbQuery := bson.M{
-		"$and": []bson.M{
-			{"id_external": IDExternal},
-			{"source_id": sourceID},
-			{"user_id": userID},
-		},
-	}
+	dbQuery := getDBQuery(userID, IDExternal, sourceID, nil)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := eventCollection.UpdateOne(
@@ -261,6 +227,22 @@ func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDE
 	}
 
 	return &event, nil
+}
+
+func getDBQuery(userID primitive.ObjectID, IDExternal string, sourceID string, additionalFilters *[]bson.M) primitive.M {
+	dbQuery := bson.M{
+		"$and": []bson.M{
+			{"id_external": IDExternal},
+			{"source_id": sourceID},
+			{"user_id": userID},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, filter := range *additionalFilters {
+			dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), filter)
+		}
+	}
+	return dbQuery
 }
 
 func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
