@@ -1143,7 +1143,7 @@ func TestOverviewAdd(t *testing.T) {
 			RepositoryID: repositoryID,
 		})
 		assert.NoError(t, err)
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "` + string(ViewGithub) + `", "github_id": "%s"}`, repositoryID))), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusOK)
 		var addedView database.View
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)}).Decode(&addedView)
 		assert.NoError(t, err)
@@ -1328,33 +1328,36 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 }
 
 func TestIsValidGithubRepository(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
-		repositoryCollection := database.GetRepositoryCollection(db)
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
 
-		userID := primitive.NewObjectID()
-		repositoryID := primitive.NewObjectID().Hex()
-		repositoryCollection.InsertOne(dbCtx, database.Repository{
-			UserID:       userID,
-			RepositoryID: repositoryID,
-		})
+	userID := primitive.NewObjectID()
+	repositoryID := primitive.NewObjectID().Hex()
+	repositoryCollection.InsertOne(dbCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: repositoryID,
+	})
+	t.Run("Success", func(t *testing.T) {
 		result, err := IsValidGithubRepository(db, userID, repositoryID)
 		assert.NoError(t, err)
 		assert.True(t, result)
-
-		result, err = IsValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		result, err := IsValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
 		assert.NoError(t, err)
 		assert.False(t, result)
-
-		result, err = IsValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
+	})
+	t.Run("InvalidRepositoryID", func(t *testing.T) {
+		result, err := IsValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
 		assert.NoError(t, err)
 		assert.False(t, result)
-
-		result, err = IsValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
+	})
+	t.Run("InvalidUserAndRepositoryID", func(t *testing.T) {
+		result, err := IsValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
 		assert.NoError(t, err)
 		assert.False(t, result)
 	})
