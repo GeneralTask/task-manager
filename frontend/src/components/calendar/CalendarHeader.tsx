@@ -123,7 +123,7 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
-            <Divider />
+            <Divider color={Colors.border.light} />
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
