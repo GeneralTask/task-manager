@@ -16,6 +16,7 @@ import { useGetEvents } from '../../services/api/events.hooks'
 import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import useLocalStorage from '../../hooks/useLocalStorage'
 
 const CollapsedCalendarView = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
@@ -37,7 +38,7 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false)
+    const [isCalendarCollapsed, setIsCalendarCollapsed] = useLocalStorage('calendar-collapsed', false)
     const dispatch = useAppDispatch()
 
     const handleCollapseCalendar = () => {
