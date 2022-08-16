@@ -22,7 +22,7 @@ jobs:
         run: |
           npm config set "@fortawesome:registry" https://npm.fontawesome.com/
           npm config set "//npm.fontawesome.com/:_authToken" "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
-          "yarn install"
+          yarn install
 
       - name: install wrangler
         run: "yarn global add @cloudflare/wrangler"
