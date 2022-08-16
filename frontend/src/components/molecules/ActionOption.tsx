@@ -83,7 +83,7 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
         <ButtonAndPopoverContainer ref={actionRef}>
             <ActionButton onClick={() => setIsShown(!isShown)}>
                 <TooltipWrapper inline dataTip={label} tooltipId="tooltip">
-                    {actionString ? <ActionValue value={actionString} /> : <Icon source={icon} size="small" />}
+                    {actionString ? <ActionValue value={actionString} /> : <Icon icon={icon} size="small" />}
                 </TooltipWrapper>
             </ActionButton>
             {isShown && popover}

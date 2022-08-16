@@ -19,6 +19,9 @@ jobs:
         with:
           node-version: 14
       - name: Install
-        run: yarn add --dev @typescript-eslint/eslint-plugin@latest
+        run: |
+          npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+          npm config set "//npm.fontawesome.com/:_authToken" "${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}"
+          yarn add --dev @typescript-eslint/eslint-plugin@latest
       - name: Run ESLint
         run: yarn run eslint . --ext .ts,.tsx --max-warnings=0

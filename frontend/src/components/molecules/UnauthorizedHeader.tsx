@@ -6,6 +6,7 @@ import React from 'react'
 import { Spacing } from '../../styles'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
+import { logos } from '../../styles/images'
 
 const Header = styled.div`
     width: 100%;
@@ -27,7 +28,7 @@ const UnauthorizedHeader = () => {
         <Header>
             <IconContainer>
                 <NoStyleButton onClick={() => navigate('/')}>
-                    <Icon size="medium" />
+                    <Icon icon={logos.generaltask} color={Colors.icon.purple} size="medium" />
                 </NoStyleButton>
             </IconContainer>
             <Divider />

@@ -102,16 +102,16 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             {headerText}
             {props.allowRefresh && (isHovering || props.isRefreshing) && (
                 <RefreshButton onClick={props.refetch} isRefreshing={props.isRefreshing}>
-                    <Icon size={'small'} source={icons.spinner} />
+                    <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
             {props.taskSectionId && !matchImmutableSectionId(props.taskSectionId) && (
                 <>
                     <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
-                        <Icon size={'small'} source={icons['trash']}></Icon>
+                        <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
                     </NoStyleButton>
                     <NoStyleButton onClick={() => setIsEditingTitle(true)}>
-                        <Icon size={'small'} source={icons['pencil']}></Icon>
+                        <Icon size="small" icon={icons.pencil}></Icon>
                     </NoStyleButton>
                 </>
             )}

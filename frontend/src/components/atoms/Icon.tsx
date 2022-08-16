@@ -1,11 +1,14 @@
-import { Dimensions, Images } from '../../styles'
+import { Colors, Dimensions } from '../../styles'
 import { TIconSize } from '../../styles/dimensions'
 import React from 'react'
 import styled from 'styled-components'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 
 const IconContainer = styled.div<{ width: string; height: string }>`
     width: ${(props) => props.width};
     height: ${(props) => props.height};
+    font-size: ${(props) => props.height};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -15,20 +18,22 @@ const ImageContainer = styled.img`
     width: 100%;
     aspect-ratio: 1;
 `
-
 interface IconProps {
+    icon: IconProp | string
     size: TIconSize
-    uri?: string
-    source?: string
+    color?: string
 }
 export const Icon = (props: IconProps) => {
-    const image = props.uri != undefined ? props.uri : props.source ? props.source : Images.logos.generaltask
-
     const dimension = Dimensions.iconSize[props.size]
+    const iconColor = props.color ? props.color : Colors.icon.gray
 
     return (
         <IconContainer width={dimension} height={dimension}>
-            <ImageContainer src={image} />
+            {typeof props.icon === 'string' ? (
+                <ImageContainer src={props.icon} />
+            ) : (
+                <FontAwesomeIcon icon={props.icon} color={iconColor} />
+            )}
         </IconContainer>
     )
 }

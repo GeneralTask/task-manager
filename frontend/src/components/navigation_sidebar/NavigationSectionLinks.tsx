@@ -93,7 +93,7 @@ const NavigationSectionLinks = () => {
             <NavigationLink
                 link="/pull-requests"
                 title="Pull Requests"
-                icon={logos.github_gray}
+                icon={logos.github}
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
@@ -105,7 +105,7 @@ const NavigationSectionLinks = () => {
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.inbox}
+                            icon={icons.folder}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
@@ -117,7 +117,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" source={icons.inbox} />
+                                <Icon size="xSmall" icon={icons.folder} />
                             </div>
                             <InputContainer>
                                 <NoStyleInput
@@ -139,7 +139,7 @@ const NavigationSectionLinks = () => {
                             key={section.id}
                             link={`/tasks/${section.id}`}
                             title={section.name}
-                            icon={icons.inbox}
+                            icon={icons.checkbox_checked}
                             isCurrentPage={sectionId === section.id}
                             taskSection={section}
                             count={section.tasks.length}
