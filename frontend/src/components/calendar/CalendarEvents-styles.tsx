@@ -54,7 +54,6 @@ export const CalendarRow = styled.tr`
 export const CalendarTD = styled.td`
     display: block;
     border-top: 1px solid ${CALENDAR_TD_COLOR};
-    border-left: 1px solid ${CALENDAR_TD_COLOR};
     height: 100%;
 `
 export const CalendarCell = styled.div`
@@ -171,6 +170,8 @@ export const CalendarContainer = styled.div<{ expanded: boolean }>`
     flex: ${(props) => (props.expanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
     display: flex;
+    z-index: 1;
+    box-shadow: ${Shadows.light};
     flex-direction: column;
 `
 export const DayAndHeaderContainer = styled.div`
