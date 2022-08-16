@@ -30,7 +30,7 @@ const RedirectButton = ({ to, text, target }: RedirectButtonProps) => {
         <NoDecorationLink to={to} target={target}>
             <VerticalFlex>
                 <PurpleText>{text}</PurpleText>
-                <Icon size="xxSmall" source={icons.caret_right_purple}></Icon>
+                <Icon size="xxSmall" icon={icons.caret_right} color={Colors.icon.purple}></Icon>
             </VerticalFlex>
         </NoDecorationLink>
     )

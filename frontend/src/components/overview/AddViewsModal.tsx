@@ -64,7 +64,7 @@ const AddViewsModalContent = () => {
                     {supportedView.is_linked ? (
                         <SupportedView>
                             <SupportedViewContent>
-                                <Icon source={logos[supportedView.logo]} size="small" />
+                                <Icon icon={logos[supportedView.logo]} size="small" />
                                 {supportedView.name}
                             </SupportedViewContent>
                             {!supportedView.is_nested && supportedView.views.length === 1 && (
@@ -94,7 +94,7 @@ const AddViewsModalContent = () => {
                             <Fragment key={viewItemIndex}>
                                 <SupportedView isIndented>
                                     <SupportedViewContent>
-                                        <Icon source={logos[supportedView.logo]} size="small" />
+                                        <Icon icon={logos[supportedView.logo]} size="small" />
                                         {supportedViewItem.name}
                                     </SupportedViewContent>
                                     <GTCheckbox

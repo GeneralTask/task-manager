@@ -55,6 +55,15 @@ export const text = {
     white: WHITE,
 }
 
+export const icon = {
+    white: WHITE,
+    gray: GRAY._500,
+    red: RED._1,
+    purple: PURPLE._1,
+    black: BLACK,
+}
+export type TIconColor = keyof typeof icon
+
 export const button = {
     primary: {
         default: PURPLE._1,

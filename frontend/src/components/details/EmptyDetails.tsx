@@ -1,3 +1,4 @@
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import React from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -19,14 +20,14 @@ const Text = styled.span`
 `
 
 interface EmptyDetailsProps {
-    iconSource: string
+    icon: IconProp | string
     text: string
 }
 
-const EmptyDetails = ({ iconSource, text }: EmptyDetailsProps) => {
+const EmptyDetails = ({ icon, text }: EmptyDetailsProps) => {
     return (
         <DetailsViewContainer>
-            <Icon size="xLarge" source={iconSource} />
+            <Icon size="xLarge" icon={icon} />
             <Text>{text}</Text>
         </DetailsViewContainer>
     )

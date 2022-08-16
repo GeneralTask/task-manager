@@ -175,7 +175,7 @@ const TaskSectionView = () => {
             {task && section ? (
                 <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />
             ) : (
-                <EmptyDetails iconSource={icons.check_gray} text="You have no tasks" />
+                <EmptyDetails icon={icons.check} text="You have no tasks" />
             )}
             <ScheduleGapFiller />
         </>

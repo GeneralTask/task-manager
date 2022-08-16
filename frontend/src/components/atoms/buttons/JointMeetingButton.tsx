@@ -5,6 +5,7 @@ import { TConferenceCall } from '../../../utils/types'
 import styled from 'styled-components'
 import NoStyleButton from './NoStyleButton'
 import NoStyleAnchor from '../NoStyleAnchor'
+import { logos } from '../../../styles/images'
 
 const JoinMeetingButtonContainer = styled(NoStyleButton)`
     height: 30px;
@@ -28,7 +29,7 @@ const JoinMeetingButton = ({ conferenceCall }: JoinMeetingButtonProps) => (
     <NoStyleAnchor href={conferenceCall.url} target="_blank" rel="noreferrer">
         <JoinMeetingButtonContainer>
             <ButtonText>Join</ButtonText>
-            <Icon size="xSmall" uri={conferenceCall.logo} />
+            <Icon size="xSmall" icon={logos[conferenceCall.logo]} />
         </JoinMeetingButtonContainer>
     </NoStyleAnchor>
 )

@@ -123,7 +123,7 @@ const Task = ({
                 />
                 <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>
-                    <Icon source={logos[task.source.logo_v2]} size="small" />
+                    <Icon icon={logos[task.source.logo_v2]} size="small" />
                 </IconContainer>
             </ItemContainer>
         </TaskTemplate>
