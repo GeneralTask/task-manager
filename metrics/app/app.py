@@ -17,8 +17,8 @@ from log import get_logger
 
 ACTIVITY_COOLOFF_MINS = 10
 NUM_SESSIONS_THRESHOLD = 5
-DEFAULT_WINDOW = 14
-SESSION_COUNT_THRESHOLDS = [1, 3, 5]
+DEFAULT_WINDOW = 30
+SESSION_COUNT_THRESHOLDS = [1, 3, 5, 10]
 CONNECTION_TEMPLATE = """mongodb://{user}:{password}@cluster0-shard-00-00.dbkij.mongodb.net:27017,cluster0-shard-00-01.dbkij.mongodb.net:27017,cluster0-shard-00-02.dbkij.mongodb.net:27017/myFirstDatabase?authSource=admin&replicaSet=atlas-xn7hxv-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true"""
 logger = get_logger(__name__)
 
