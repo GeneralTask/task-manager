@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/google/go-github/v45/github"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -1128,5 +1130,91 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Review PR", action)
+	})
+}
+
+func TestUpdateOrCreateRepository(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	repositoryCollection := database.GetRepositoryCollection(db)
+
+	userID := primitive.NewObjectID()
+	var repositoryID int64 = 123
+	repositoryFullName := "wow/repository"
+	htmlURL := "http://niceme.me"
+	repository := &github.Repository{
+		ID:       github.Int64(repositoryID),
+		FullName: github.String(repositoryFullName),
+		HTMLURL:  github.String(htmlURL),
+	}
+	updateFullName := github.String("new_repository_name")
+	updateHTMLURL := github.String("http://new.me")
+	t.Run("SuccessCreate", func(t *testing.T) {
+		err = updateOrCreateRepository(parentCtx, db, repository, userID)
+		assert.NoError(t, err)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		count, err := repositoryCollection.CountDocuments(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"repository_id": fmt.Sprint(repository.GetID())},
+				{"user_id": userID},
+			}},
+			nil,
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+	t.Run("SuccessUpdate", func(t *testing.T) {
+		repository.Name = updateFullName
+		repository.HTMLURL = updateHTMLURL
+
+		var repositoryResult database.Repository
+		err = updateOrCreateRepository(parentCtx, db, repository, userID)
+		assert.NoError(t, err)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		repositoryCollection.FindOne(dbCtx,
+			bson.M{"repository_id": fmt.Sprint(repository.GetID()), "user_id": userID},
+		).Decode(&repositoryResult)
+		assert.Equal(t, *updateFullName, repositoryResult.FullName)
+		assert.Equal(t, *updateHTMLURL, repositoryResult.Deeplink)
+	})
+	t.Run("IncorrectUserID", func(t *testing.T) {
+		newFullName := github.String("bad_user_id_full_name")
+		repository.FullName = newFullName
+
+		var repositoryResult database.Repository
+		err = updateOrCreateRepository(parentCtx, db, repository, primitive.NewObjectID())
+		assert.NoError(t, err)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		repositoryCollection.FindOne(dbCtx,
+			bson.M{"repository_id": fmt.Sprint(repository.GetID()), "user_id": userID},
+		).Decode(&repositoryResult)
+		assert.Equal(t, *updateFullName, repositoryResult.FullName)
+		assert.Equal(t, *updateHTMLURL, repositoryResult.Deeplink)
+	})
+	t.Run("IncorrectRepositoryID", func(t *testing.T) {
+		newFullName := github.String("bad_repository_id_full_name")
+		repository.FullName = newFullName
+		repository.ID = github.Int64(0)
+
+		var repositoryResult database.Repository
+		err = updateOrCreateRepository(parentCtx, db, repository, userID)
+		assert.NoError(t, err)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		repositoryCollection.FindOne(dbCtx,
+			bson.M{"repository_id": fmt.Sprint(repository.GetID()), "user_id": userID},
+		).Decode(&repositoryResult)
+		assert.Equal(t, *updateFullName, repositoryResult.FullName)
+		assert.Equal(t, *updateHTMLURL, repositoryResult.Deeplink)
 	})
 }
