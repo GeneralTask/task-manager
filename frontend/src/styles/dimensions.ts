@@ -9,6 +9,11 @@ export const iconSize = {
 
 export type TIconSize = keyof typeof iconSize
 
+export const checkboxSize = {
+    childContainer: '40px',
+    parentContainer: '20px',
+}
+
 export const modalSize = {
     dialog: {
         max_height: '200px',

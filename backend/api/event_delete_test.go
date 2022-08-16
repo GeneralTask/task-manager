@@ -3,11 +3,12 @@ package api
 import (
 	"bytes"
 	"context"
-	"github.com/GeneralTask/task-manager/backend/testutils"
-	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/testutils"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -25,17 +26,14 @@ func TestEventDelete(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
-	taskCollection := database.GetTaskCollection(db)
+	eventCollection := database.GetCalendarEventCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	insertResult, err := taskCollection.InsertOne(dbCtx, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:     userID,
-			IDExternal: "sample_calendar_id",
-			SourceID:   external.TASK_SOURCE_ID_GCAL,
-		},
-		TaskType: database.TaskType{IsEvent: true},
+	insertResult, err := eventCollection.InsertOne(dbCtx, database.CalendarEvent{
+		UserID:     userID,
+		IDExternal: "sample_calendar_id",
+		SourceID:   external.TASK_SOURCE_ID_GCAL,
 	})
 	assert.NoError(t, err)
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -43,7 +41,7 @@ func TestEventDelete(t *testing.T) {
 
 	calendarDeleteServer := testutils.GetMockAPIServer(t, 200, "[]")
 	api := GetAPI()
-	api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &calendarDeleteServer.URL
+	api.ExternalConfig.GoogleOverrideURLs.CalendarDeleteURL = &calendarDeleteServer.URL
 	router := GetRouter(api)
 
 	UnauthorizedTest(t, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", nil)
@@ -57,11 +55,11 @@ func TestEventDelete(t *testing.T) {
 	})
 
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
-		var task database.Item
+		var event database.CalendarEvent
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&task)
-		assert.Equal(t, "sample_calendar_id", task.IDExternal)
+		err = eventCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&event)
+		assert.Equal(t, "sample_calendar_id", event.IDExternal)
 
 		request, _ := http.NewRequest(
 			"DELETE",
@@ -74,7 +72,7 @@ func TestEventDelete(t *testing.T) {
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		count, _ := taskCollection.CountDocuments(dbCtx, bson.M{"_id": calendarTaskID})
+		count, _ := eventCollection.CountDocuments(dbCtx, bson.M{"_id": calendarTaskID})
 		assert.Equal(t, int64(0), count)
 	})
 }

@@ -28,19 +28,15 @@ func TestInvalidEventModify(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	accountID := "duck@duck.com"
 
-	taskCollection := database.GetTaskCollection(db)
-	event, err := taskCollection.InsertOne(parentCtx, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:     userID,
-			IDExternal: accountID,
-			SourceID:   external.TASK_SOURCE_ID_GCAL,
-			Title:      "initial summary",
-			Body:       "initial description",
-		},
-		CalendarEvent: database.CalendarEvent{
-			DatetimeStart: primitive.DateTime(1609559200000),
-			DatetimeEnd:   primitive.DateTime(1609459200000),
-		},
+	eventCollection := database.GetCalendarEventCollection(db)
+	event, err := eventCollection.InsertOne(parentCtx, database.CalendarEvent{
+		UserID:        userID,
+		IDExternal:    accountID,
+		SourceID:      external.TASK_SOURCE_ID_GCAL,
+		Title:         "initial summary",
+		Body:          "initial description",
+		DatetimeStart: primitive.DateTime(1609559200000),
+		DatetimeEnd:   primitive.DateTime(1609459200000),
 	})
 	assert.NoError(t, err)
 	eventObjectID := event.InsertedID.(primitive.ObjectID)
@@ -49,7 +45,7 @@ func TestInvalidEventModify(t *testing.T) {
 
 	calendarModifyServer := testutils.GetMockAPIServer(t, 200, "{}")
 	api := GetAPI()
-	api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &calendarModifyServer.URL
+	api.ExternalConfig.GoogleOverrideURLs.CalendarModifyURL = &calendarModifyServer.URL
 	router := GetRouter(api)
 
 	UnauthorizedTest(t, "PATCH", validUrl, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
@@ -69,7 +65,7 @@ func TestInvalidEventModify(t *testing.T) {
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		event, err := database.GetItem(dbCtx, eventObjectID, userID)
+		event, err := database.GetCalendarEvent(dbCtx, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "initial summary", event.Title)
 		assert.Equal(t, "initial description", event.Body)
@@ -95,7 +91,7 @@ func TestInvalidEventModify(t *testing.T) {
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		event, err := database.GetItem(dbCtx, eventObjectID, userID)
+		event, err := database.GetCalendarEvent(dbCtx, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "new summary", event.Title)
 		assert.Equal(t, "new description", event.Body)

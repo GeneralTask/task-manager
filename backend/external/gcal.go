@@ -17,7 +17,9 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/api/option"
 )
 
@@ -47,12 +49,15 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		Do()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("unable to load calendar events")
+		isBadToken := checkAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+		if !isBadToken {
+			logger.Error().Err(err).Msg("unable to load calendar events")
+		}
 		result <- emptyCalendarResult(err)
 		return
 	}
 
-	events := []*database.Item{}
+	events := []*database.CalendarEvent{}
 	for _, event := range calendarResponse.Items {
 		//exclude all day events which won't have a start time.
 		if len(event.Start.DateTime) == 0 {
@@ -78,56 +83,37 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-		event := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      event.Id,
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
-				SourceID:        TASK_SOURCE_ID_GCAL,
-				Title:           event.Summary,
-				Body:            event.Description,
-				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
-				SourceAccountID: accountID,
-				ConferenceCall:  GetConferenceCall(event, accountID),
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
+		conferenceCall := GetConferenceCall(event, accountID)
+		event := &database.CalendarEvent{
+			UserID:          userID,
+			IDExternal:      event.Id,
+			Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
+			SourceID:        TASK_SOURCE_ID_GCAL,
+			Title:           event.Summary,
+			Body:            event.Description,
+			TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
+			SourceAccountID: accountID,
+			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
+			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+			CallURL:         conferenceCall.URL,
+			CallLogo:        conferenceCall.Logo,
+			CallPlatform:    conferenceCall.Platform,
 		}
-		dbEvent, err := database.UpdateOrCreateItem(
+
+		dbEvent, err := database.UpdateOrCreateCalendarEvent(
 			db,
 			userID,
 			event.IDExternal,
 			event.SourceID,
 			event,
-			database.CalendarEventChangeableFields{
-				CalendarEventChangeable: database.CalendarEventChangeable{
-					DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
-					DatetimeStart: event.CalendarEvent.DatetimeStart,
-				},
-				Title:    event.Title,
-				Body:     event.TaskBase.Body,
-				TaskType: event.TaskType,
-			},
 			nil,
-			false,
 		)
+
 		if err != nil {
 			result <- emptyCalendarResult(err)
 			return
 		}
-		event.HasBeenReordered = dbEvent.HasBeenReordered
 		event.ID = dbEvent.ID
-		event.IDOrdering = dbEvent.IDOrdering
-		// If the meeting is rescheduled, we want to reset the IDOrdering so that reordered tasks are not also moved
-		if event.DatetimeStart != dbEvent.DatetimeStart {
-			event.IDOrdering = 0
-		}
 		events = append(events, event)
 	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
@@ -185,7 +171,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 
 func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
 	// TODO: create a EventDeleteURL
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}
@@ -201,13 +187,38 @@ func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID
 	return nil
 }
 
-func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
+// returns true if the error was because of a bad token
+func checkAndHandleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
+	if !strings.Contains(err.Error(), "oauth2: token expired and refresh token is not set") {
+		return false
+	}
+	token, err := getExternalToken(db, userID, accountID, serviceID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Str("userID", userID.Hex()).Str("accountID", accountID).Str("serviceID", serviceID).Err(err).Msg("unable to get external token")
+		return true
+	}
+
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	_, err = database.GetExternalTokenCollection(db).UpdateOne(
+		dbCtx,
+		bson.M{"_id": token.ID},
+		bson.M{"$set": bson.M{"is_bad_token": true}},
+	)
+	if err != nil {
+		logger.Error().Str("tokenID", token.ID.Hex()).Err(err).Msg("unable to update external token")
+	}
+	return true
+}
+
+func GetConferenceCall(event *calendar.Event, accountID string) *utils.ConferenceCall {
 	// first check for built-in conference URL
-	var conferenceCall *database.ConferenceCall
+	var conferenceCall *utils.ConferenceCall
 	if event.ConferenceData != nil {
 		for _, entryPoint := range event.ConferenceData.EntryPoints {
 			if entryPoint != nil {
-				conferenceCall = &database.ConferenceCall{
+				conferenceCall = &utils.ConferenceCall{
 					Platform: event.ConferenceData.ConferenceSolution.Name,
 					Logo:     event.ConferenceData.ConferenceSolution.IconUri,
 					URL:      entryPoint.Uri,
@@ -225,7 +236,10 @@ func GetConferenceCall(event *calendar.Event, accountID string) *database.Confer
 		conferenceCall.URL += "?authuser=" + accountID
 	}
 
-	return conferenceCall
+	if conferenceCall != nil {
+		return conferenceCall
+	}
+	return &utils.ConferenceCall{}
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
@@ -247,7 +261,7 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}

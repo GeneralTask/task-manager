@@ -1,8 +1,9 @@
+import { faPlus } from '@fortawesome/pro-regular-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useCreateTask } from '../../services/api/tasks.hooks'
-import { Border, Colors, Images, Spacing, Typography, Dimensions } from '../../styles'
-import { Icon } from '../atoms/Icon'
+import { Border, Colors, Spacing, Typography, Dimensions } from '../../styles'
 import KeyboardShortcut from '../atoms/KeyboardShortcut'
 
 const CreateNewTaskContainer = styled.div`
@@ -49,7 +50,8 @@ const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProp
     }
     return (
         <CreateNewTaskContainer>
-            <Icon source={Images.icons.plus} size={'small'} />
+            {/* <Icon source={Images.icons.plus} size={'small'} /> */}
+            <FontAwesomeIcon icon={faPlus} color={Colors.icon.gray} />
             <TaskInput
                 ref={inputRef}
                 value={text}

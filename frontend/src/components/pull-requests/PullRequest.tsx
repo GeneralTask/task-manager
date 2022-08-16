@@ -36,13 +36,13 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
             </Column>
             <Column type="comments">
                 <CommentsCountContainer>
-                    <Icon source={icons.speechBubble} size="small" />
+                    <Icon icon={icons.comment} size="small" />
                     {num_comments}
                 </CommentsCountContainer>
             </Column>
             <Column type="link">
                 <LinkButton href={deeplink} target="_blank">
-                    <Icon source={icons.external_link} size="small" />
+                    <Icon icon={icons.external_link} size="small" />
                 </LinkButton>
             </Column>
         </PullRequestRow>
