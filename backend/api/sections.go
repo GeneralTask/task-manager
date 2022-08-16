@@ -20,16 +20,9 @@ type SectionResult struct {
 }
 
 func (api *API) SectionList(c *gin.Context) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-
 	userID, _ := c.Get("user")
 
-	sections, err := database.GetTaskSections(db, userID.(primitive.ObjectID))
+	sections, err := database.GetTaskSections(api.DB, userID.(primitive.ObjectID))
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch sections for user")
 		Handle500(c)
@@ -55,13 +48,7 @@ func (api *API) SectionAdd(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	sectionCollection := database.GetTaskSectionCollection(db)
+	sectionCollection := database.GetTaskSectionCollection(api.DB)
 
 	userID, _ := c.Get("user")
 
@@ -99,13 +86,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	sectionCollection := database.GetTaskSectionCollection(db)
+	sectionCollection := database.GetTaskSectionCollection(api.DB)
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
@@ -142,14 +123,7 @@ func (api *API) SectionDelete(c *gin.Context) {
 		return
 	}
 	parentCtx := c.Request.Context()
-
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	sectionCollection := database.GetTaskSectionCollection(db)
+	sectionCollection := database.GetTaskSectionCollection(api.DB)
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)

@@ -58,7 +58,7 @@ func (api *API) EventModify(c *gin.Context) {
 		return
 	}
 
-	err = updateEventInDB(modifyParams, event, userID)
+	err = updateEventInDB(api, modifyParams, event, userID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -66,13 +66,7 @@ func (api *API) EventModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func updateEventInDB(modifyParams external.EventModifyObject, event *database.Item, userID primitive.ObjectID) error {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
+func updateEventInDB(api *API, modifyParams external.EventModifyObject, event *database.Item, userID primitive.ObjectID) error {
 	fieldsToUpdate := database.CalendarEventChangeableFields{}
 	if modifyParams.Summary != nil {
 		fieldsToUpdate.Title = *modifyParams.Summary
@@ -87,7 +81,7 @@ func updateEventInDB(modifyParams external.EventModifyObject, event *database.It
 		fieldsToUpdate.CalendarEventChangeable.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
 	}
 
-	_, err = database.UpdateOrCreateItem(db, userID, event.IDExternal, event.SourceID, nil, fieldsToUpdate, nil, true)
+	_, err := database.UpdateOrCreateItem(api.DB, userID, event.IDExternal, event.SourceID, nil, fieldsToUpdate, nil, true)
 	if err != nil {
 		return err
 	}

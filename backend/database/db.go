@@ -12,7 +12,7 @@ import (
 )
 
 type DBHandle struct {
-	db      *mongo.Database
+	DB      *mongo.Database
 	cleanup *func()
 }
 
@@ -30,9 +30,9 @@ func InitDB(dbHandle *DBHandle) (*DBHandle, error) {
 		return dbh, nil
 	}
 
-	dbh, err = createDBHandle()
+	dbh, err = CreateDBHandle()
 	if err != nil {
-		log.Printf("Failed to connect to db, %+v", err)
+		log.Printf("Failed to connect to DB, %+v", err)
 		return nil, err
 	}
 	return dbh, err
@@ -41,7 +41,7 @@ func InitDB(dbHandle *DBHandle) (*DBHandle, error) {
 func GetDBConn() (*mongo.Database, error) {
 	var err error
 	if dbh != nil {
-		return dbh.db, nil
+		return dbh.DB, nil
 	}
 
 	dbh, err = InitDB(nil)
@@ -49,7 +49,7 @@ func GetDBConn() (*mongo.Database, error) {
 		log.Error().Err(err).Msg("Failed to init DB handler")
 		return nil, err
 	}
-	return dbh.db, nil
+	return dbh.DB, nil
 }
 
 func (dbHandle *DBHandle) CloseConnection() {
@@ -58,15 +58,15 @@ func (dbHandle *DBHandle) CloseConnection() {
 	}
 }
 
-func createDBHandle() (*DBHandle, error) {
+func CreateDBHandle() (*DBHandle, error) {
 	db, cleanup, err := GetDBConnection()
 	if err != nil {
-		log.Printf("Failed to connect to db, %+v", err)
+		log.Printf("Failed to connect to DB, %+v", err)
 		// TODO: this should probably be fatal
 		return nil, err
 	}
 	dbh = &DBHandle{
-		db:      db,
+		DB:      db,
 		cleanup: &cleanup,
 	}
 	return dbh, nil

@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/GeneralTask/task-manager/backend/api"
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/migrations"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -26,16 +25,12 @@ func main() {
 	log.Info().Msgf("Starting server in %s environment", env)
 	// TODO: Validate .env/config at server startup
 
-	dbh, err := database.InitDB(nil)
-	if err != nil {
-		log.Fatal().Msgf("Failed to connect to db, %+v", err)
-	}
-	defer dbh.CloseConnection()
-
-	err = migrations.RunMigrations("migrations")
+	err := migrations.RunMigrations("migrations")
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("error running migrations")
 	}
-	api.GetRouter(api.GetAPI()).Run()
+	apiStruct := api.GetAPI()
+	defer apiStruct.DBCleanup()
+	api.GetRouter(apiStruct).Run()
 }
