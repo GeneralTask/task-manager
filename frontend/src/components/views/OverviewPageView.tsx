@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing } from '../../styles'
 import TaskDetails from '../details/TaskDetails'
 import EditViewsButtons from '../overview/EditViewsButtons'
@@ -29,6 +29,9 @@ const OverviewView = () => {
     const { data: views, refetch, isLoading, isFetching } = useGetOverviewViews()
     const { overviewItem } = useParams()
     const navigate = useNavigate()
+
+    // Prefetch supported views
+    useGetSupportedViews()
 
     const selectFirstItem = () => {
         const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
