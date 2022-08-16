@@ -1281,6 +1281,39 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 	})
 }
 
+func TestIsValidGithubRepository(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		db, dbCleanup, err := database.GetDBConnection()
+		assert.NoError(t, err)
+		defer dbCleanup()
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+
+		userID := primitive.NewObjectID()
+		repositoryID := primitive.NewObjectID().Hex()
+		repositoryCollection.InsertOne(dbCtx, database.Repository{
+			UserID:       userID,
+			RepositoryID: repositoryID,
+		})
+		result, err := IsValidGithubRepository(db, userID, repositoryID)
+		assert.NoError(t, err)
+		assert.True(t, result)
+
+		result, err = IsValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
+		assert.NoError(t, err)
+		assert.False(t, result)
+
+		result, err = IsValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
+		assert.NoError(t, err)
+		assert.False(t, result)
+
+		result, err = IsValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
+		assert.NoError(t, err)
+		assert.False(t, result)
+	})
+}
+
 func assertOverviewViewResultEqual[T ViewItem](t *testing.T, expected OverviewResult[T], actual OverviewResult[T]) {
 	assert.Equal(t, expected.Name, actual.Name)
 	assert.Equal(t, expected.Type, actual.Type)
