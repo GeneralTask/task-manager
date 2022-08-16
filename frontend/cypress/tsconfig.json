@@ -4,6 +4,7 @@
         "lib": ["es5", "dom"],
         "types": ["node", "cypress", "@testing-library/cypress"],
         "esModuleInterop": true,
+        "resolveJsonModule": true,
     },
     "include": ["**/*.ts"]
 }
