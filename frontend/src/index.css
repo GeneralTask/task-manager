@@ -19,3 +19,8 @@ html, body {
 .__react_component_tooltip.show {
     opacity: 1 !important;
 }
+
+.ReactModalPortal {
+    z-index: 100 !important;
+    position: relative;
+}
