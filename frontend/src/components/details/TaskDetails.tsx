@@ -8,13 +8,13 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import Spinner from '../atoms/Spinner'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import { default as ActionOption } from '../molecules/ActionOption'
+import CalendarTriageModal from './CalendarTriageModal'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
@@ -93,39 +93,13 @@ const SYNC_MESSAGES = {
     COMPLETE: '',
 }
 
-interface AddViewsModalProps {
-    isOpen: boolean
-    onClose: () => void
-}
-
-const CalendarTriageModal = ({ isOpen, onClose }: AddViewsModalProps) => {
-    return (
-        <GTModal
-            isOpen={isOpen}
-            title="Schedule Tasks"
-            onClose={onClose}
-            rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
-            type="large"
-        >
-            {/* <AddViewsModalContent /> */}
-        </GTModal>
-    )
-}
-type TPageState = 'NONE' | 'CALENDAR_TRIAGE'
+// Will want to move into it's own file evetually
 const CalendarTriageButton = () => {
-    const [pageState, setPageState] = useState<TPageState>('NONE')
-
-    const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
+    const [isModalOpen, setIsModalOpen] = useState(false)
     return (
         <>
-            <GTButton
-                styleType="secondary"
-                icon={icons.calendar_blank}
-                onClick={() => setPageState('CALENDAR_TRIAGE')}
-                value=""
-            />
-
-            <CalendarTriageModal isOpen={pageState === 'CALENDAR_TRIAGE'} onClose={handleClose} />
+            <GTButton styleType="secondary" icon={icons.calendar_blank} onClick={() => setIsModalOpen(true)} value="" />
+            <CalendarTriageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         </>
     )
 }
