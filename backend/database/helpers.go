@@ -369,17 +369,16 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 	return &tasks, nil
 }
 
-func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]PullRequest, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	cursor, err := GetTaskCollection(db).Find(
+	cursor, err := GetPullRequestCollection(db).Find(
 		dbCtx,
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
-				{"task_type.is_pull_request": true},
 			},
 		},
 	)
@@ -388,15 +387,15 @@ func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error
 		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
 		return nil, err
 	}
-	var tasks []Item
+	var pullRequests []PullRequest
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = cursor.All(dbCtx, &tasks)
+	err = cursor.All(dbCtx, &pullRequests)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
 		return nil, err
 	}
-	return &tasks, nil
+	return &pullRequests, nil
 }
 
 func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Item, error) {
@@ -431,6 +430,40 @@ func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 		return nil, err
 	}
 	return &items, nil
+}
+
+func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+	cursor, err := GetPullRequestCollection(db).Find(
+		dbCtx,
+		filter,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
+		return nil, err
+	}
+	var pullRequests []PullRequest
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &pullRequests)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
+		return nil, err
+	}
+	return &pullRequests, nil
 }
 
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
@@ -536,6 +569,29 @@ func MarkItemComplete(db *mongo.Database, itemID primitive.ObjectID) error {
 	}
 	if res.MatchedCount != 1 {
 		return errors.New("did not find item to mark complete")
+	}
+	return nil
+}
+
+// TODO make generic once we refactor Tasks
+func MarkPRComplete(db *mongo.Database, pullRequestID primitive.ObjectID) error {
+	parentCtx := context.Background()
+	pullRequestCollection := GetPullRequestCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := pullRequestCollection.UpdateOne(
+		dbCtx,
+		bson.M{"_id": pullRequestID},
+		bson.M{"$set": bson.M{
+			"is_completed": true,
+			"completed_at": primitive.NewDateTimeFromTime(time.Now()),
+		}},
+	)
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount != 1 {
+		return errors.New("did not find pull request to mark complete")
 	}
 	return nil
 }

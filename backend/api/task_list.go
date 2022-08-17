@@ -161,6 +161,38 @@ func (api *API) adjustForCompletedTasks(
 	return nil
 }
 
+// TODO will make generic once we refactor tasks
+func (api *API) adjustForCompletedPullRequests(
+	db *mongo.Database,
+	currentPullRequests *[]database.PullRequest,
+	fetchedPullRequests *[]*database.PullRequest,
+	failedFetchSources map[string]bool,
+) error {
+	var newPullRequests []*database.PullRequest
+	newPRIDs := make(map[primitive.ObjectID]bool)
+	for _, fetchedPR := range *fetchedPullRequests {
+		newPullRequests = append(newPullRequests, fetchedPR)
+		newPRIDs[fetchedPR.ID] = true
+	}
+
+	// There's a more efficient way to do this but this way is easy to understand
+	for _, currentPullRequest := range *currentPullRequests {
+		if !newPRIDs[currentPullRequest.ID] && !failedFetchSources[currentPullRequest.SourceID] {
+			err := database.MarkPRComplete(db, currentPullRequest.ID)
+			if err != nil {
+				api.Logger.Error().Err(err).Msg("failed to complete pull request")
+				return err
+			}
+			for _, newPR := range newPullRequests {
+				if newPR.IDOrdering > currentPullRequest.IDOrdering {
+					newPR.IDOrdering -= 1
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)

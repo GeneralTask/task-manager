@@ -405,7 +405,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		return &result, nil
 	}
 
-	githubPRs, err := database.GetItems(db, userID,
+	githubPRs, err := database.GetPullRequests(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"task_type.is_pull_request": true},
@@ -432,7 +432,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
 			Branch:        pullRequest.Branch,
 			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+			LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 		}
 		pullResults = append(pullResults, &pullRequestResult)
 	}
@@ -843,7 +843,7 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 
 func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
 	database.GetPullRequestCollection(db)
-	pullRequests, err := database.GetItems(db, userID, &[]bson.M{{"task_type.is_pull_request": true}})
+	pullRequests, err := database.GetPullRequests(db, userID, nil)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch pull requests for user")
 		return []SupportedViewItem{}, err
@@ -856,7 +856,7 @@ func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.Obj
 		}
 		repositoryIDToSupportedViewItems[pullRequest.RepositoryID] = SupportedViewItem{
 			Name:     pullRequest.RepositoryName,
-			GithubID: pullRequest.PullRequest.RepositoryID,
+			GithubID: pullRequest.RepositoryID,
 		}
 	}
 	supportedViewItems := []SupportedViewItem{}

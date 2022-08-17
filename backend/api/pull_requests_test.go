@@ -179,30 +179,23 @@ func TestPullRequestList(t *testing.T) {
 	})
 }
 
-func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time) (*database.Item, error) {
+func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time) (*database.PullRequest, error) {
 	externalID := primitive.NewObjectID().Hex()
 	lastUpdatedAtPrimitive := primitive.NewDateTimeFromTime(lastUpdatedAt)
-	return database.GetOrCreateItem(
+	return database.GetOrCreatePullRequest(
 		db,
 		userID,
 		externalID,
 		"foobar_source",
-		&database.Item{
-			TaskBase: database.TaskBase{
-				IDExternal:  externalID,
-				IsCompleted: isCompleted,
-				SourceID:    "foobar_source",
-				UserID:      userID,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: isPullRequest,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID:   repositoryName,
-				RepositoryName: repositoryName,
-				RequiredAction: requiredAction,
-				LastUpdatedAt:  lastUpdatedAtPrimitive,
-			},
+		&database.PullRequest{
+			IDExternal:     externalID,
+			IsCompleted:    isCompleted,
+			SourceID:       "foobar_source",
+			UserID:         userID,
+			RepositoryID:   repositoryName,
+			RepositoryName: repositoryName,
+			RequiredAction: requiredAction,
+			LastUpdatedAt:  lastUpdatedAtPrimitive,
 		},
 	)
 }
