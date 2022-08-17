@@ -38,7 +38,7 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
                 <div style={{ width: '30%', overflow: 'scroll' }}>
                     <TaskList section={section!} />
                 </div>
-                <div style={{ width: '70%', height: '100%', overflow: 'scroll' }}>
+                <div style={{ width: '70%' }}>
                     <CalendarView isExpanded={true} showExpandOptions={false} />
                 </div>
             </CalendarTriageContainer>
