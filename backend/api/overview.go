@@ -494,7 +494,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
 	} else if viewCreateParams.Type == string(ViewGithub) {
 		serviceID = external.TASK_SERVICE_ID_GITHUB
-		isValidGithubRepository, err := IsValidGithubRepository(db, userID, *viewCreateParams.GithubID)
+		isValidGithubRepository, err := isValidGithubRepository(db, userID, *viewCreateParams.GithubID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error checking that github repository is valid")
 			Handle500(c)
@@ -942,7 +942,7 @@ func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType 
 	return &view, nil
 }
 
-func IsValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryID string) (bool, error) {
+func isValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryID string) (bool, error) {
 	repositoryCollection := database.GetRepositoryCollection(db)
 	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
 	defer cancel()

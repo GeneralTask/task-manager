@@ -1362,22 +1362,22 @@ func TestIsValidGithubRepository(t *testing.T) {
 		RepositoryID: repositoryID,
 	})
 	t.Run("Success", func(t *testing.T) {
-		result, err := IsValidGithubRepository(db, userID, repositoryID)
+		result, err := isValidGithubRepository(db, userID, repositoryID)
 		assert.NoError(t, err)
 		assert.True(t, result)
 	})
 	t.Run("InvalidUserID", func(t *testing.T) {
-		result, err := IsValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
+		result, err := isValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
 		assert.NoError(t, err)
 		assert.False(t, result)
 	})
 	t.Run("InvalidRepositoryID", func(t *testing.T) {
-		result, err := IsValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
+		result, err := isValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
 		assert.NoError(t, err)
 		assert.False(t, result)
 	})
 	t.Run("InvalidUserAndRepositoryID", func(t *testing.T) {
-		result, err := IsValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
+		result, err := isValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
 		assert.NoError(t, err)
 		assert.False(t, result)
 	})
