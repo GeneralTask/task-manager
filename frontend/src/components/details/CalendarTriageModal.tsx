@@ -15,8 +15,9 @@ interface CalendarTriageModalProps {
 const CalendarTriageContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    height: 100%;
     flex-direction: row;
+    overflow: hidden;
 `
 
 const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
@@ -34,10 +35,10 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
             type="large"
         >
             <CalendarTriageContainer>
-                <div style={{ width: '30%' }}>
+                <div style={{ width: '30%', overflow: 'scroll' }}>
                     <TaskList section={section!} />
                 </div>
-                <div style={{ width: '70%' }}>
+                <div style={{ width: '70%', height: '100%', overflow: 'scroll' }}>
                     <CalendarView isExpanded={true} />
                 </div>
             </CalendarTriageContainer>

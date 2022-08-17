@@ -54,42 +54,42 @@ const Task = ({
     const [isHovered, setIsHovered] = useState(false)
 
     // Add event listener to check if scrolling occurs in task section
-    useEffect(() => {
-        const setScrollTrue = () => {
-            isScrolling.current = true
-        }
-        sectionScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
-        return () => {
-            sectionScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
-        }
-    }, [])
+    // useEffect(() => {
+    //     const setScrollTrue = () => {
+    //         isScrolling.current = true
+    //     }
+    //     sectionScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
+    //     return () => {
+    //         sectionScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
+    //     }
+    // }, [])
 
     //If task selection changes, re-enable auto-scrolling for task section
-    useEffect(() => {
-        if (sectionScrollingRef?.current) {
-            isScrolling.current = false
-        }
-    }, [isSelected])
+    // useEffect(() => {
+    //     if (sectionScrollingRef?.current) {
+    //         isScrolling.current = false
+    //     }
+    // }, [isSelected])
 
     //Auto-scroll to task if it is selected and out of view
-    const elementRef = useCallback(
-        (node) => {
-            if (observer.current) observer.current.disconnect()
-            observer.current = new IntersectionObserver(
-                (entries) => {
-                    if (!entries[0].isIntersecting && isSelected && !isScrolling.current) {
-                        node.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                        })
-                    }
-                },
-                { threshold: 1.0 }
-            )
-            if (node) observer.current.observe(node)
-        },
-        [isSelected, isScrolling.current]
-    )
+    // const elementRef = useCallback(
+    //     (node) => {
+    //         if (observer.current) observer.current.disconnect()
+    //         observer.current = new IntersectionObserver(
+    //             (entries) => {
+    //                 if (!entries[0].isIntersecting && isSelected && !isScrolling.current) {
+    //                     node.scrollIntoView({
+    //                         behavior: 'smooth',
+    //                         block: 'center',
+    //                     })
+    //                 }
+    //             },
+    //             { threshold: 1.0 }
+    //         )
+    //         if (node) observer.current.observe(node)
+    //     },
+    //     [isSelected, isScrolling.current]
+    // )
 
     const onClick = useCallback(() => {
         navigate(link)
@@ -108,7 +108,7 @@ const Task = ({
     )
 
     return (
-        <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
+        <TaskTemplate onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
                 {isHovered && !dragDisabled && (
                     <DominoContainer>

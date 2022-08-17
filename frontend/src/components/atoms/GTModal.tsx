@@ -52,7 +52,6 @@ const ButtonsGroup = styled.div`
 const SHARED_MODAL_CONTENT_STYLE = {
     margin: 'auto',
     border: 'none',
-    height: 'fit-content',
     boxShadow: Shadows.medium,
     padding: Spacing.padding._16,
     borderRadius: Border.radius.large,
