@@ -39,7 +39,7 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
                     <TaskList section={section!} />
                 </div>
                 <div style={{ width: '70%', height: '100%', overflow: 'scroll' }}>
-                    <CalendarView isExpanded={true} />
+                    <CalendarView isExpanded={true} showExpandOptions={false} />
                 </div>
             </CalendarTriageContainer>
         </GTModal>

@@ -78,8 +78,14 @@ interface CalendarHeaderProps {
     collapseCalendar: () => void
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
+    showExpandOptions: boolean
 }
-export default function CalendarHeader({ collapseCalendar, date, setDate }: CalendarHeaderProps): JSX.Element {
+export default function CalendarHeader({
+    collapseCalendar,
+    date,
+    setDate,
+    showExpandOptions = true,
+}: CalendarHeaderProps): JSX.Element {
     const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const dispatch = useAppDispatch()
     const selectNext = useCallback(
@@ -106,24 +112,28 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
 
     return (
         <div>
-            <PaddedContainer>
-                <HeaderBodyContainer>
-                    <TitleSmall>Calendar</TitleSmall>
-                    <HeaderIconsContainer>
-                        <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
-                            {isCalendarExpanded ? (
-                                <Icon icon={icons.arrows_in} size="xSmall" />
-                            ) : (
-                                <Icon icon={icons.arrows_out} size="xSmall" />
-                            )}
-                        </ArrowButton>
-                        <CaretButton onClick={() => collapseCalendar()}>
-                            <Icon icon={icons.caret_right} size="xSmall" />
-                        </CaretButton>
-                    </HeaderIconsContainer>
-                </HeaderBodyContainer>
-            </PaddedContainer>
-            <Divider color={Colors.border.light} />
+            {showExpandOptions && (
+                <>
+                    <PaddedContainer>
+                        <HeaderBodyContainer>
+                            <TitleSmall>Calendar</TitleSmall>
+                            <HeaderIconsContainer>
+                                <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
+                                    {isCalendarExpanded ? (
+                                        <Icon icon={icons.arrows_in} size="xSmall" />
+                                    ) : (
+                                        <Icon icon={icons.arrows_out} size="xSmall" />
+                                    )}
+                                </ArrowButton>
+                                <CaretButton onClick={() => collapseCalendar()}>
+                                    <Icon icon={icons.caret_right} size="xSmall" />
+                                </CaretButton>
+                            </HeaderIconsContainer>
+                        </HeaderBodyContainer>
+                    </PaddedContainer>
+                    <Divider color={Colors.border.light} />
+                </>
+            )}
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>

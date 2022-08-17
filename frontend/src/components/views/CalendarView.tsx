@@ -27,8 +27,9 @@ const CollapsedCalendarView = styled.div`
 
 interface CalendarViewProps {
     isExpanded: boolean
+    showExpandOptions?: boolean
 }
-const CalendarView = ({ isExpanded }: CalendarViewProps) => {
+const CalendarView = ({ isExpanded, showExpandOptions = true }: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -76,7 +77,12 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         </CollapsedCalendarView>
     ) : (
         <CalendarContainer expanded={isExpanded}>
-            <CalendarHeader collapseCalendar={handleCollapseCalendar} date={date} setDate={setDate} />
+            <CalendarHeader
+                showExpandOptions={showExpandOptions}
+                collapseCalendar={handleCollapseCalendar}
+                date={date}
+                setDate={setDate}
+            />
             <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} accountId={firstLinkedCalendarAccount} />
         </CalendarContainer>
     )
