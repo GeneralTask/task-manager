@@ -28,7 +28,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     }, [params, pullRequest])
 
     return (
-        <PullRequestRow onClick={onClickHandler} highlight={isSelected}>
+        <PullRequestRow onClick={onClickHandler} isSelected={isSelected}>
             <Column type="title">
                 <TruncatedText>{title}</TruncatedText>
                 <SubtitleSmall>{formattedSubtitle}</SubtitleSmall>
@@ -38,7 +38,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
             </Column>
             <Column type="comments">
                 <CommentsCountContainer>
-                    <Icon icon={icons.comment} size="small" />
+                    <Icon icon={icons.comment} size="xSmall" />
                     {num_comments}
                 </CommentsCountContainer>
             </Column>

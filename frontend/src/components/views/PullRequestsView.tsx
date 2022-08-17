@@ -1,4 +1,4 @@
-import { PullRequestViewContainer, Repository, RepositoryName } from '../pull-requests/styles'
+import { Repository, RepositoryName } from '../pull-requests/styles'
 
 import PullRequest from '../pull-requests/PullRequest'
 import React, { useEffect, useMemo } from 'react'
@@ -15,8 +15,8 @@ import EmptyDetails from '../details/EmptyDetails'
 import { logos } from '../../styles/images'
 
 const PullRequestsContainer = styled.div`
-    display: flex;
-    flex: 1 0;
+    /* display: flex;
+    flex: 1 0; */
     border-right: 1px solid ${Colors.background.dark};
 `
 
@@ -57,28 +57,26 @@ const PullRequestsView = () => {
                         refetch={refetchPullRequests}
                         isRefreshing={isFetchingPullRequests}
                     />
-                    <PullRequestViewContainer>
-                        {repositories.map((repository) => (
-                            <Repository key={repository.id}>
-                                <RepositoryName>{repository.name}</RepositoryName>
-                                {repository.pull_requests.length === 0 ? (
-                                    'No pull requests'
-                                ) : (
-                                    <>
-                                        {repository.pull_requests.map((pr) => (
-                                            <PullRequest
-                                                key={pr.id}
-                                                pullRequest={pr}
-                                                link={`/pull-requests/${pr.id}`}
-                                                isSelected={pr === expandedPullRequest}
-                                            />
-                                        ))}
-                                    </>
-                                )}
-                                <br />
-                            </Repository>
-                        ))}
-                    </PullRequestViewContainer>
+                    {repositories.map((repository) => (
+                        <Repository key={repository.id}>
+                            <RepositoryName>{repository.name}</RepositoryName>
+                            {repository.pull_requests.length === 0 ? (
+                                'No pull requests'
+                            ) : (
+                                <>
+                                    {repository.pull_requests.map((pr) => (
+                                        <PullRequest
+                                            key={pr.id}
+                                            pullRequest={pr}
+                                            link={`/pull-requests/${pr.id}`}
+                                            isSelected={pr === expandedPullRequest}
+                                        />
+                                    ))}
+                                </>
+                            )}
+                            <br />
+                        </Repository>
+                    ))}
                 </ScrollableListTemplate>
             </PullRequestsContainer>
             {expandedPullRequest ? (
