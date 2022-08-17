@@ -83,7 +83,12 @@ const CalendarView = ({ isExpanded, showExpandOptions = true }: CalendarViewProp
                 date={date}
                 setDate={setDate}
             />
-            <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} accountId={firstLinkedCalendarAccount} />
+            <CalendarEvents
+                isExpanded={isExpanded}
+                date={date}
+                numDays={isExpanded ? 7 : 1}
+                accountId={firstLinkedCalendarAccount}
+            />
         </CalendarContainer>
     )
 }

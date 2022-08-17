@@ -82,6 +82,7 @@ interface WeekCalendarEventsProps {
     setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
+    isExpanded: boolean
 }
 const WeekCalendarEvents = ({
     date,
@@ -93,13 +94,13 @@ const WeekCalendarEvents = ({
     setIsScrollDisabled,
     isEventSelected,
     setIsEventSelected,
+    isExpanded,
 }: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     return (
         <DayAndHeaderContainer>
-            {expandedCalendar && (
+            {isExpanded && (
                 <CalendarDayHeader>
                     <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
                         {tmpDate.toFormat('ccc dd')}
@@ -131,11 +132,11 @@ interface CalendarEventsProps {
     date: DateTime
     numDays: number
     accountId: string | undefined
+    isExpanded: boolean
 }
 
-const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
+const CalendarEvents = ({ date, numDays, accountId, isExpanded }: CalendarEventsProps) => {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
@@ -240,7 +241,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     return (
         <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={isScrollDisabled}>
             <TimeAndHeaderContainer>
-                {expandedCalendar && <CalendarDayHeader />}
+                {isExpanded && <CalendarDayHeader />}
                 <TimeContainer>
                     <TimeIndicator />
                     <CalendarTimeTable />
@@ -258,6 +259,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     setIsScrollDisabled={setIsScrollDisabled}
                     isEventSelected={isEventSelected}
                     setIsEventSelected={setIsEventSelected}
+                    isExpanded={isExpanded}
                 />
             ))}
         </AllDaysContainer>
