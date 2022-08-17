@@ -57,7 +57,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 		return
 	}
 
-	events := []*database.Item{}
+	events := []*database.CalendarEvent{}
 	for _, event := range calendarResponse.Items {
 		//exclude all day events which won't have a start time.
 		if len(event.Start.DateTime) == 0 {
@@ -83,56 +83,37 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 
 		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-		event := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      event.Id,
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
-				SourceID:        TASK_SOURCE_ID_GCAL,
-				Title:           event.Summary,
-				Body:            event.Description,
-				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
-				SourceAccountID: accountID,
-				ConferenceCall:  GetConferenceCall(event, accountID),
-			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
-				DatetimeStart: primitive.NewDateTimeFromTime(startTime),
-			},
-			TaskType: database.TaskType{
-				IsEvent: true,
-			},
+		conferenceCall := GetConferenceCall(event, accountID)
+		event := &database.CalendarEvent{
+			UserID:          userID,
+			IDExternal:      event.Id,
+			Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
+			SourceID:        TASK_SOURCE_ID_GCAL,
+			Title:           event.Summary,
+			Body:            event.Description,
+			TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
+			SourceAccountID: accountID,
+			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
+			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+			CallURL:         conferenceCall.URL,
+			CallLogo:        conferenceCall.Logo,
+			CallPlatform:    conferenceCall.Platform,
 		}
-		dbEvent, err := database.UpdateOrCreateItem(
+
+		dbEvent, err := database.UpdateOrCreateCalendarEvent(
 			db,
 			userID,
 			event.IDExternal,
 			event.SourceID,
 			event,
-			database.CalendarEventChangeableFields{
-				CalendarEventChangeable: database.CalendarEventChangeable{
-					DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
-					DatetimeStart: event.CalendarEvent.DatetimeStart,
-				},
-				Title:    event.Title,
-				Body:     event.TaskBase.Body,
-				TaskType: event.TaskType,
-			},
 			nil,
-			false,
 		)
+
 		if err != nil {
 			result <- emptyCalendarResult(err)
 			return
 		}
-		event.HasBeenReordered = dbEvent.HasBeenReordered
 		event.ID = dbEvent.ID
-		event.IDOrdering = dbEvent.IDOrdering
-		// If the meeting is rescheduled, we want to reset the IDOrdering so that reordered tasks are not also moved
-		if event.DatetimeStart != dbEvent.DatetimeStart {
-			event.IDOrdering = 0
-		}
 		events = append(events, event)
 	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
@@ -231,13 +212,13 @@ func checkAndHandleBadToken(err error, db *mongo.Database, userID primitive.Obje
 	return true
 }
 
-func GetConferenceCall(event *calendar.Event, accountID string) *database.ConferenceCall {
+func GetConferenceCall(event *calendar.Event, accountID string) *utils.ConferenceCall {
 	// first check for built-in conference URL
-	var conferenceCall *database.ConferenceCall
+	var conferenceCall *utils.ConferenceCall
 	if event.ConferenceData != nil {
 		for _, entryPoint := range event.ConferenceData.EntryPoints {
 			if entryPoint != nil {
-				conferenceCall = &database.ConferenceCall{
+				conferenceCall = &utils.ConferenceCall{
 					Platform: event.ConferenceData.ConferenceSolution.Name,
 					Logo:     event.ConferenceData.ConferenceSolution.IconUri,
 					URL:      entryPoint.Uri,
@@ -255,7 +236,10 @@ func GetConferenceCall(event *calendar.Event, accountID string) *database.Confer
 		conferenceCall.URL += "?authuser=" + accountID
 	}
 
-	return conferenceCall
+	if conferenceCall != nil {
+		return conferenceCall
+	}
+	return &utils.ConferenceCall{}
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {

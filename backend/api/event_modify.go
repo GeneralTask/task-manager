@@ -38,13 +38,13 @@ func (api *API) EventModify(c *gin.Context) {
 	dbCtx, cancel := context.WithTimeout(c.Request.Context(), constants.DatabaseTimeout)
 	defer cancel()
 
-	event, err := database.GetItem(dbCtx, eventID, userID)
+	event, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
 	}
 
-	eventSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
+	eventSourceResult, err := api.ExternalConfig.GetSourceResult(event.SourceID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
@@ -66,22 +66,21 @@ func (api *API) EventModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func updateEventInDB(api *API, modifyParams external.EventModifyObject, event *database.Item, userID primitive.ObjectID) error {
-	fieldsToUpdate := database.CalendarEventChangeableFields{}
+func updateEventInDB(api *API, modifyParams external.EventModifyObject, event *database.CalendarEvent, userID primitive.ObjectID) error {
 	if modifyParams.Summary != nil {
-		fieldsToUpdate.Title = *modifyParams.Summary
+		event.Title = *modifyParams.Summary
 	}
 	if modifyParams.Description != nil {
-		fieldsToUpdate.Body = *modifyParams.Description
+		event.Body = *modifyParams.Description
 	}
 	if modifyParams.DatetimeStart != nil {
-		fieldsToUpdate.CalendarEventChangeable.DatetimeStart = primitive.NewDateTimeFromTime(*modifyParams.DatetimeStart)
+		event.DatetimeStart = primitive.NewDateTimeFromTime(*modifyParams.DatetimeStart)
 	}
 	if modifyParams.DatetimeEnd != nil {
-		fieldsToUpdate.CalendarEventChangeable.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
+		event.DatetimeEnd = primitive.NewDateTimeFromTime(*modifyParams.DatetimeEnd)
 	}
 
-	_, err := database.UpdateOrCreateItem(api.DB, userID, event.IDExternal, event.SourceID, nil, fieldsToUpdate, nil, true)
+	_, err := database.UpdateOrCreateCalendarEvent(api.DB, userID, event.IDExternal, event.SourceID, event, nil)
 	if err != nil {
 		return err
 	}

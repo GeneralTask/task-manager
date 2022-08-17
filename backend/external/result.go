@@ -3,7 +3,7 @@ package external
 import "github.com/GeneralTask/task-manager/backend/database"
 
 type CalendarResult struct {
-	CalendarEvents []*database.Item
+	CalendarEvents []*database.CalendarEvent
 	Error          error
 }
 
@@ -22,7 +22,7 @@ type PullRequestResult struct {
 
 func emptyCalendarResult(err error) CalendarResult {
 	return CalendarResult{
-		CalendarEvents: []*database.Item{},
+		CalendarEvents: []*database.CalendarEvent{},
 		Error:          err,
 	}
 }

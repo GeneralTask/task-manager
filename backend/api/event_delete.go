@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -24,13 +25,13 @@ func (api *API) EventDelete(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	event, err := database.GetItem(dbCtx, eventID, userID)
+	event, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
 	}
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(event.SourceID)
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(event.SourceID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load external event source")
 		Handle500(c)
@@ -44,8 +45,8 @@ func (api *API) EventDelete(c *gin.Context) {
 		return
 	}
 
-	taskCollection := database.GetTaskCollection(api.DB)
-	res, err := taskCollection.DeleteOne(
+	eventCollection := database.GetCalendarEventCollection(api.DB)
+	res, err := eventCollection.DeleteOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"_id": eventID},

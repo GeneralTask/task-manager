@@ -183,7 +183,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		c.JSON(200, gin.H{})
 		return
 	} else if requestParams.Type == SLACK_VIEW_SUBMISSION {
-		taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
+		taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
 		if err != nil {
 			logger.Error().Err(err).Msg("no Slack source result found")
 			Handle404(c)
@@ -230,7 +230,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 func (api *API) TaskCreate(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	sourceID := c.Param("source_id")
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
 	if err != nil || !taskSourceResult.Details.CanCreateTask {
 		Handle404(c)
 		return

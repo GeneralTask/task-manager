@@ -3,11 +3,16 @@ package utils
 import (
 	"strings"
 
-	"github.com/GeneralTask/task-manager/backend/database"
 	"mvdan.cc/xurls/v2"
 )
 
-var ConferencePatterns = map[string]database.ConferenceCall{
+type ConferenceCall struct {
+	Platform string `json:"platform" bson:"platform"`
+	Logo     string `json:"logo" bson:"logo"`
+	URL      string `json:"url" bson:"url"`
+}
+
+var ConferencePatterns = map[string]ConferenceCall{
 	"meet.google.com": {
 		Platform: "Google Meet",
 		Logo:     "/images/google-meet.svg",
@@ -19,7 +24,7 @@ var ConferencePatterns = map[string]database.ConferenceCall{
 }
 
 // only return the first conference url - in the future we may want to return all of them
-func GetConferenceUrlFromString(text string) *database.ConferenceCall {
+func GetConferenceUrlFromString(text string) *ConferenceCall {
 	for _, match := range xurls.Strict().FindAllString(text, -1) {
 		for pattern, conferenceTemplate := range ConferencePatterns {
 			if strings.Contains(match, pattern) {
