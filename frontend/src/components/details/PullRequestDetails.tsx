@@ -25,7 +25,7 @@ const DetailsTopContainer = styled.div`
 `
 const TitleContainer = styled.div`
     background-color: inherit;
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     font: inherit;
     border: none;
     resize: none;
@@ -66,11 +66,16 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
-                    <Icon icon={logos.github} size="small" />
+                    <Icon icon={logos.github} size="small" color={Colors.icon.black} />
                 </MarginRight8>
                 <MarginLeftAuto>
                     <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTButton styleType="secondary" value="Open in GitHub" icon={icons.external_link} />
+                        <GTButton
+                            styleType="secondary"
+                            value="Open in GitHub"
+                            icon={icons.external_link}
+                            iconColor={Colors.icon.black}
+                        />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
             </DetailsTopContainer>
