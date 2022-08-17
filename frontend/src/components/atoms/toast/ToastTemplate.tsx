@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../../styles'
+import { Spacing } from '../../../styles'
 import GTButton from '../buttons/GTButton'
 
 const ToastContainer = styled.div`
@@ -14,7 +14,8 @@ const MessageSpan = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._40};
+    margin-right: ${Spacing.margin._24};
+    margin-left: ${Spacing.margin._8};
 `
 const ButtonsContainer = styled.div`
     display: flex;
@@ -56,8 +57,8 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                 )}
                 {rightAction && (
                     <GTButton
-                        styleType="primary"
-                        color={Colors.gtColor.primary}
+                        styleType="secondary"
+                        size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
                     />

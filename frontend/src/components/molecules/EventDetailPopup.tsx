@@ -72,7 +72,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             const timeBlocks = getMonthsAroundDate(date, 1)
             const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
             const block = timeBlocks[blockIndex]
-
             queryClient.cancelQueries(['events', 'calendar', block.start.toISO()])
 
             const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
@@ -83,6 +82,9 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 draft.splice(eventIdx, 1)
             })
             queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
+
+            setIsScrollDisabled(false)
+            setEventDetailId('')
         }
 
         // optimistic undo
@@ -105,7 +107,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 datetime_end: data.datetime_end,
                 conference_call: data.conference_call,
             }
-
             const newEvents = produce(events, (draft) => {
                 draft.push(deletedEvent)
             })
@@ -119,8 +120,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 datetime_start: event.datetime_start,
                 datetime_end: event.datetime_end,
             })
-            setIsScrollDisabled(false)
-            setEventDetailId('')
             const timeout = setTimeout(() => {
                 deleteEvent({
                     id: event.id,
