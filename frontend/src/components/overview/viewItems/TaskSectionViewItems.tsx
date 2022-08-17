@@ -9,6 +9,7 @@ import CreateNewTask from '../../molecules/CreateNewTask'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
 import { TASK_HEIGHT } from '../../../styles/dimensions'
+import { useGTQueryClient } from '../../../services/queryUtils'
 
 const EmptyDropContainer = styled.div`
     height: ${TASK_HEIGHT};
@@ -22,6 +23,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
     const { overviewItem } = useParams()
     const { mutate: reorderTask } = useReorderTask()
+    const queryClient = useGTQueryClient()
 
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
@@ -38,7 +40,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
 
     const handleMarkTaskComplete = useCallback(
         (taskId: string, isComplete: boolean) => {
-            if (!view.task_section_id) return
+            if (!view.task_section_id || queryClient.isMutating({ mutationKey: 'markTaskDone' })) return
             markTaskDone({ taskId, sectionId: view.task_section_id, isCompleted: isComplete })
         },
         [view.task_section_id, markTaskDone]

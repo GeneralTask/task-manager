@@ -225,7 +225,7 @@ const removeView = async (viewId: string) => {
 
 export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
+    return useMutation('markTaskDone', (data: TMarkTaskDoneData) => markTaskDone(data), {
         onMutate: async (data: TMarkTaskDoneData) => {
             await queryClient.cancelQueries('overview')
             await queryClient.cancelQueries('tasks')

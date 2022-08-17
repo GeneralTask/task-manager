@@ -17,6 +17,7 @@ import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
+import { useGTQueryClient } from '../../services/queryUtils'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -53,6 +54,7 @@ const TaskSectionView = () => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
+    const queryClient = useGTQueryClient()
 
     const {
         data: taskSections,
@@ -99,7 +101,7 @@ const TaskSectionView = () => {
 
     const handleMarkTaskComplete = useCallback(
         (taskId: string, isComplete: boolean) => {
-            if (!section) return
+            if (!section || queryClient.isMutating({ mutationKey: 'markTaskDone' })) return
             markTaskDone({ taskId, sectionId: section.id, isCompleted: isComplete })
         },
         [section, markTaskDone]

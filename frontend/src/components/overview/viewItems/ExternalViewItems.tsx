@@ -4,13 +4,16 @@ import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
+import { useGTQueryClient } from '../../../services/queryUtils'
 
 const ExternalViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { overviewItem } = useParams()
     const { mutate: markTaskDone } = useMarkTaskDone()
+    const queryClient = useGTQueryClient()
 
     const handleMarkTaskComplete = useCallback(
         (taskId: string, isComplete: boolean) => {
+            if (queryClient.isMutating({ mutationKey: 'markTaskDone' })) return
             markTaskDone({ taskId, isCompleted: isComplete })
         },
         [markTaskDone]

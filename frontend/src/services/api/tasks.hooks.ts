@@ -235,7 +235,7 @@ const modifyTask = async (data: TModifyTaskData) => {
 
 export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
+    return useMutation('markTaskDone', (data: TMarkTaskDoneData) => markTaskDone(data), {
         onMutate: async (data: TMarkTaskDoneData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
