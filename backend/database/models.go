@@ -76,7 +76,6 @@ type Item struct {
 	TaskBase           `bson:",inline"`
 	TaskType           `bson:"task_type"`
 	Task               `bson:"task,omitempty"`
-	PullRequest        `bson:"pull_request,omitempty"`
 	SlackMessageParams `bson:"slack_message_params,omitempty"`
 }
 
@@ -112,10 +111,8 @@ type SlackMessage struct {
 }
 
 type TaskType struct {
-	IsTask        bool `bson:"is_task"`
-	IsMessage     bool `bson:"is_message"`
-	IsEvent       bool `bson:"is_event"`
-	IsPullRequest bool `bson:"is_pull_request"`
+	IsTask    bool `bson:"is_task"`
+	IsMessage bool `bson:"is_message"`
 }
 
 type TaskTypeChangeable struct {
@@ -148,27 +145,23 @@ type TaskBase struct {
 }
 
 type PullRequest struct {
-	RepositoryID   string             `bson:"repository_id"`
-	RepositoryName string             `bson:"repository_name"`
-	Number         int                `bson:"number"`
-	Author         string             `bson:"author"`
-	Branch         string             `bson:"branch"`
-	RequiredAction string             `bson:"required_action"`
-	CommentCount   int                `bson:"comment_count"`
-	LastUpdatedAt  primitive.DateTime `bson:"last_updated_at"`
-}
-
-type PullRequestItemChangeable struct {
-	PullRequestChangeableFields `bson:"pull_request,omitempty"`
-	Title                       *string `bson:"title,omitempty"`
-	Body                        *string `bson:"body,omitempty"`
-	IsCompleted                 *bool   `bson:"is_completed,omitempty"`
-}
-
-type PullRequestChangeableFields struct {
-	RequiredAction *string             `bson:"required_action,omitempty"`
-	CommentCount   *int                `bson:"comment_count,omitempty"`
-	LastUpdatedAt  *primitive.DateTime `bson:"last_updated_at,omitempty"`
+	ID                primitive.ObjectID `bson:"_id,omitempty"`
+	UserID            primitive.ObjectID `bson:"user_id,omitempty"`
+	IDExternal        string             `bson:"id_external,omitempty"`
+	SourceID          string             `bson:"source_id,omitempty"`
+	SourceAccountID   string             `bson:"source_account_id,omitempty"`
+	Deeplink          string             `bson:"deeplink,omitempty"`
+	Title             string             `bson:"title,omitempty"`
+	Body              string             `bson:"body,omitempty"`
+	RepositoryID      string             `bson:"repository_id,omitempty"`
+	RepositoryName    string             `bson:"repository_name,omitempty"`
+	Number            int                `bson:"number,omitempty"`
+	Author            string             `bson:"author,omitempty"`
+	Branch            string             `bson:"branch,omitempty"`
+	RequiredAction    string             `bson:"required_action,omitempty"`
+	CommentCount      int                `bson:"comment_count,omitempty"`
+	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
+	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
 }
 
 type CalendarEvent struct {
