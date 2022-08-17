@@ -79,28 +79,29 @@ interface CalendarHeaderProps {
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
     showExpandOptions: boolean
+    isExpanded: boolean
 }
 export default function CalendarHeader({
     collapseCalendar,
     date,
     setDate,
     showExpandOptions = true,
+    isExpanded,
 }: CalendarHeaderProps): JSX.Element {
-    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const dispatch = useAppDispatch()
     const selectNext = useCallback(
         () =>
             setDate((date) => {
-                return date.plus({ days: isCalendarExpanded ? 7 : 1 })
+                return date.plus({ days: isExpanded ? 7 : 1 })
             }),
-        [date, setDate, isCalendarExpanded]
+        [date, setDate, isExpanded]
     )
     const selectPrevious = useCallback(
         () =>
             setDate((date) => {
-                return date.minus({ days: isCalendarExpanded ? 7 : 1 })
+                return date.minus({ days: isExpanded ? 7 : 1 })
             }),
-        [date, setDate, isCalendarExpanded]
+        [date, setDate, isExpanded]
     )
     const expandCalendar = (expanded: boolean) => {
         dispatch(setExpandedCalendar(expanded))
@@ -118,8 +119,8 @@ export default function CalendarHeader({
                         <HeaderBodyContainer>
                             <TitleSmall>Calendar</TitleSmall>
                             <HeaderIconsContainer>
-                                <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
-                                    {isCalendarExpanded ? (
+                                <ArrowButton onClick={() => expandCalendar(!isExpanded)}>
+                                    {isExpanded ? (
                                         <Icon icon={icons.arrows_in} size="xSmall" />
                                     ) : (
                                         <Icon icon={icons.arrows_out} size="xSmall" />
@@ -141,7 +142,7 @@ export default function CalendarHeader({
                         <HoverButton
                             onClick={() =>
                                 setDate(
-                                    isCalendarExpanded
+                                    isExpanded
                                         ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
                                         : DateTime.now()
                                 )

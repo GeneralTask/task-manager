@@ -78,6 +78,7 @@ const CalendarView = ({ isExpanded, showExpandOptions = true }: CalendarViewProp
     ) : (
         <CalendarContainer expanded={isExpanded}>
             <CalendarHeader
+                isExpanded={isExpanded}
                 showExpandOptions={showExpandOptions}
                 collapseCalendar={handleCollapseCalendar}
                 date={date}
