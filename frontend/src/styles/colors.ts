@@ -46,6 +46,7 @@ export const background = {
 }
 
 export const border = {
+    light: GRAY._200,
     gray: GRAY._500,
 }
 

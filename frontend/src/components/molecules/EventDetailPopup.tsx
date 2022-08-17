@@ -31,26 +31,14 @@ interface EventDetailProps {
     xCoord: number
     yCoord: number
     eventHeight: number
+    eventWidth: number
     windowHeight: number
     setIsScrollDisabled: (id: boolean) => void
     setEventDetailId: (id: string) => void
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    (
-        {
-            event,
-            date,
-            onClose,
-            xCoord,
-            yCoord,
-            eventHeight,
-            windowHeight,
-            setIsScrollDisabled,
-            setEventDetailId,
-        }: EventDetailProps,
-        ref
-    ) => {
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight, setIsScrollDisabled, setEventDetailId }: EventDetailProps, ref) => {
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent } = useDeleteEvent()
@@ -152,6 +140,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 yCoord={yCoord}
                 popupHeight={popupHeight}
                 eventHeight={eventHeight}
+                eventWidth={eventWidth}
                 windowHeight={windowHeight}
                 ref={(node) => {
                     popupRef.current = node

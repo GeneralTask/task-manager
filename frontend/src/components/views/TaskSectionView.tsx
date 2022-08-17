@@ -12,7 +12,6 @@ import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import ScheduleGapFiller from '../atoms/scheduleGapFiller/ScheduleGapFiller'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
@@ -177,7 +176,6 @@ const TaskSectionView = () => {
             ) : (
                 <EmptyDetails icon={icons.check} text="You have no tasks" />
             )}
-            <ScheduleGapFiller />
         </>
     )
 }

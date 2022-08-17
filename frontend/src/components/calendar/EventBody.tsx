@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useRef, MouseEvent, useEffect, useState } from 'react'
+import React, { useRef, MouseEvent, useLayoutEffect, useEffect, useState } from 'react'
 import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
@@ -49,7 +49,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    const [windowHeight, setWindowHeight] = useState(0)
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight)
+    const [eventWidth, setEventWidth] = useState(0)
+    useLayoutEffect(() => {
+        if (!eventRef.current) return
+        setEventWidth(eventRef.current.getBoundingClientRect().width)
+    }, [])
     const [coords, setCoords] = useState({
         xCoord: 0,
         yCoord: 0,
@@ -99,6 +104,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 xCoord: eventRef.current.getBoundingClientRect().left,
                 yCoord: eventRef.current.getBoundingClientRect().bottom,
             })
+            setEventWidth(eventRef.current.getBoundingClientRect().width)
         }
         setWindowHeight(window.innerHeight)
     }
@@ -121,6 +127,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         xCoord={coords.xCoord}
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
+                        eventWidth={eventWidth}
                         windowHeight={windowHeight}
                         setIsScrollDisabled={props.setIsScrollDisabled}
                         setEventDetailId={props.setEventDetailId}
