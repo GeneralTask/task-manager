@@ -30,6 +30,11 @@ export const modalSize = {
         min_height: '620px',
         width: '723px',
     },
+    large: {
+        max_height: '820px',
+        min_height: '620px',
+        width: '1200px',
+    },
 }
 
 export type TModalSize = keyof typeof modalSize

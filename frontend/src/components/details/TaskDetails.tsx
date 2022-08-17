@@ -8,11 +8,13 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
+import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import Spinner from '../atoms/Spinner'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import ActionOption from '../molecules/ActionOption'
+import TooltipWrapper from '../atoms/TooltipWrapper'
+import { default as ActionOption } from '../molecules/ActionOption'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
@@ -91,6 +93,24 @@ const SYNC_MESSAGES = {
     COMPLETE: '',
 }
 
+interface AddViewsModalProps {
+    isOpen: boolean
+    onClose: () => void
+}
+
+const CalendarTriageModal = ({ isOpen, onClose }: AddViewsModalProps) => {
+    return (
+        <GTModal
+            isOpen={isOpen}
+            title="Schedule Tasks"
+            onClose={onClose}
+            rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
+            type="large"
+        >
+            {/* <AddViewsModalContent /> */}
+        </GTModal>
+    )
+}
 type TPageState = 'NONE' | 'CALENDAR_TRIAGE'
 const CalendarTriageButton = () => {
     const [pageState, setPageState] = useState<TPageState>('NONE')
@@ -102,10 +122,10 @@ const CalendarTriageButton = () => {
                 styleType="secondary"
                 icon={icons.calendar_blank}
                 onClick={() => setPageState('CALENDAR_TRIAGE')}
-                value="Schedule Task"
+                value=""
             />
 
-            {/* <CalendarTriageModal isOpen={pageState === 'CALENDAR_TRIAGE'} onClose={handleClose} /> */}
+            <CalendarTriageModal isOpen={pageState === 'CALENDAR_TRIAGE'} onClose={handleClose} />
         </>
     )
 }
@@ -215,8 +235,18 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
                 </MarginRight8>
                 <MarginRight8>
-                    <CalendarTriageButton />
+                    <TooltipWrapper inline dataTip={'Schedule Task'} tooltipId="tooltip">
+                        <CalendarTriageButton />
+                    </TooltipWrapper>
                 </MarginRight8>
+
+                {/* <ActionTaskSchedule
+                    isShown={labelEditorShown}
+                    setIsShown={setLabelEditorShown}
+                    task={task}
+                    keyboardShortcut="showLabelEditor"
+                /> */}
+
                 {!task.isOptimistic && (
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
