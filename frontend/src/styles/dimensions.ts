@@ -31,9 +31,9 @@ export const modalSize = {
         width: '723px',
     },
     large: {
-        max_height: '820px',
-        min_height: '620px',
-        width: '1200px',
+        max_height: '90%',
+        min_height: '90%',
+        width: '95%',
     },
 }
 
