@@ -34,6 +34,10 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 }
 
 func TestGetPullRequests(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	repositoryCollection := database.GetRepositoryCollection(db)
 	t.Run("Success", func(t *testing.T) {
 		userId := primitive.NewObjectID()
 		fetchExternalAPITokenValue := false
@@ -94,6 +98,18 @@ func TestGetPullRequests(t *testing.T) {
 		assert.NoError(t, result.Error)
 		assert.Equal(t, len(result.PullRequests), 1)
 		assert.Equal(t, expectedPullRequest, result.PullRequests[0].PullRequest)
+
+		// Check that repository for PR is created in the database
+		expectedRepository := database.Repository{
+			FullName:     "ExampleRepository",
+			RepositoryID: "1234",
+		}
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		var repository database.Repository
+		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
+		assert.Equal(t, expectedRepository.FullName, repository.FullName)
+		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 	})
 	t.Run("NoPullRequests", func(t *testing.T) {
 		userId := primitive.NewObjectID()
@@ -128,6 +144,18 @@ func TestGetPullRequests(t *testing.T) {
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.PullRequests))
+
+		// Check that repository for PR is created in the database
+		expectedRepository := database.Repository{
+			FullName:     "ExampleRepository",
+			RepositoryID: "1234",
+		}
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		var repository database.Repository
+		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
+		assert.Equal(t, expectedRepository.FullName, repository.FullName)
+		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 	})
 	t.Run("NoRepositories", func(t *testing.T) {
 		userId := primitive.NewObjectID()
@@ -157,6 +185,13 @@ func TestGetPullRequests(t *testing.T) {
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.PullRequests))
+
+		// Check that no repository for PR is created in the database
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userId}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
 	})
 	t.Run("ExternalError", func(t *testing.T) {
 		userId := primitive.NewObjectID()
@@ -177,6 +212,13 @@ func TestGetPullRequests(t *testing.T) {
 
 		assert.Equal(t, result.Error.Error(), "failed to fetch Github user")
 		assert.Error(t, result.Error)
+
+		// Check that no repository for PR is created in the database
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userId}, nil)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
 	})
 }
 
