@@ -1,35 +1,31 @@
-import { useState } from 'react'
+import React from 'react'
 
+function readStorage<T>(key: string): T | undefined {
+    if (typeof window === 'undefined') return undefined
+    try {
+        const item = window.localStorage.getItem(key)
+        return item ? JSON.parse(item) : undefined
+    } catch (e) {
+        console.log(e)
+        return undefined
+    }
+}
+
+function writeStorage<T>(key: string, value: T) {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(key, JSON.stringify(value))
+}
 
 export default function useLocalStorage<T>(key: string, initialValue: T) {
 
-    const [storedValue, setStoredValue] = useState<T>(() => {
-        if (typeof window === 'undefined') {
-            return initialValue
-        }
-        try {
-            const item = window.localStorage.getItem(key)
-            const parsedItem = item ? JSON.parse(item) : initialValue
-            console.log('getting item', parsedItem, 'with key', key)
-            return parsedItem
-        } catch (e) {
-            console.log(e)
-            return initialValue
-        }
-    })
+    const [persistentValue, setPersistentValue] = React.useState<T>(() => readStorage(key) || initialValue)
 
     const setValue = (value: T | ((val: T) => T)) => {
-        try {
-            const valueToStore =
-                value instanceof Function ? value(storedValue) : value
-            setStoredValue(valueToStore)
-            if (typeof window !== 'undefined') {
-                console.log('setting item', valueToStore, 'with key', key)
-                window.localStorage.setItem(key, JSON.stringify(valueToStore))
-            }
-        } catch (e) {
-            console.log(e)
-        }
+        const valueToStore = value instanceof Function ? value(persistentValue) : value
+        setPersistentValue(valueToStore)
+        writeStorage(key, valueToStore)
     }
-    return [storedValue, setValue] as const
+    return [persistentValue, setValue] as const
 }
+
+// TODO: unused, probably remove

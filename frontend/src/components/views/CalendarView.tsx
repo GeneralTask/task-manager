@@ -10,12 +10,13 @@ import { getMonthsAroundDate } from '../../utils/time'
 import { icons } from '../../styles/images'
 import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useIdleTimer } from 'react-idle-timer'
-import { useInterval, useLocalStorage } from '../../hooks'
+import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import { setCalendarCollapsed } from '../../redux/localSlice'
 
 const CollapsedCalendarView = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
@@ -37,12 +38,13 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useLocalStorage('isCalendarCollapsed', false)
+    // const [isCalendarCollapsed, setIsCalendarCollapsed] = useLocalStorage('isCalendarCollapsed', false)
     const dispatch = useAppDispatch()
+    const calendarCollapsed = useAppSelector((state) => state.local.calendar_collapsed)
 
     const handleCollapseCalendar = () => {
         dispatch(setExpandedCalendar(false))
-        setIsCalendarCollapsed(true)
+        dispatch(setCalendarCollapsed(true))
     }
 
     useEffect(() => {
@@ -65,11 +67,11 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     )
 
     useKeyboardShortcut('calendar', () =>
-        isCalendarCollapsed ? setIsCalendarCollapsed(false) : handleCollapseCalendar()
+        calendarCollapsed ? dispatch(setCalendarCollapsed(false)) : handleCollapseCalendar()
     )
 
-    return isCalendarCollapsed ? (
-        <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
+    return calendarCollapsed ? (
+        <CollapsedCalendarView onClick={() => dispatch(setCalendarCollapsed(false))}>
             <CaretButton>
                 <Icon icon={icons.calendar_blank} size="small" />
             </CaretButton>

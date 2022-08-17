@@ -14,8 +14,9 @@ import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
 import SignOutButton from '../molecules/SignOutButton'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { useLocalStorage } from '../../hooks'
 import GTCheckbox from '../atoms/GTCheckbox'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setDarkMode, setDankMode } from '../../redux/localSlice'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -101,8 +102,9 @@ const SettingsView = () => {
     const { refetch: refetchViews } = useGetOverviewViews()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
-    const [darkMode, setDarkMode] = useLocalStorage('darkMode', false)
-    const [dankMode, setDankMode] = useLocalStorage('dankMode', false)
+    const dispatch = useAppDispatch()
+    const darkMode = useAppSelector((state) => state.local.dark_mode)
+    const dankMode = useAppSelector((state) => state.local.dank_mode)
 
     const onWindowClose = () => {
         refetch()
@@ -190,11 +192,11 @@ const SettingsView = () => {
                 <SettingsContainer>
                     <SettingContainer>
                         <span>Dark Mode</span>
-                        <GTCheckbox isChecked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+                        <GTCheckbox isChecked={darkMode} onChange={() => dispatch(setDarkMode(!darkMode))} />
                     </SettingContainer>
                     <SettingContainer>
                         <span>Dank Mode</span>
-                        <GTCheckbox isChecked={dankMode} onChange={() => setDankMode(!dankMode)} />
+                        <GTCheckbox isChecked={dankMode} onChange={() => dispatch(setDankMode(!dankMode))} />
                     </SettingContainer>
                 </SettingsContainer>
             </SettingsViewContainer>
