@@ -93,21 +93,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			if pullRequest.RepositoryID != repository.RepositoryID {
 				continue
 			}
-			result.PullRequests = append(result.PullRequests, PullRequestResult{
-				ID:     pullRequest.ID.Hex(),
-				Title:  pullRequest.Title,
-				Number: pullRequest.Number,
-				Status: PullRequestStatus{
-					Text:  pullRequest.RequiredAction,
-					Color: getColorFromRequiredAction(pullRequest.RequiredAction),
-				},
-				Author:        pullRequest.Author,
-				NumComments:   pullRequest.CommentCount,
-				CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-				Branch:        pullRequest.Branch,
-				Deeplink:      pullRequest.Deeplink,
-				LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
-			})
+			result.PullRequests = append(result.PullRequests, getResultFromPullRequest(pullRequest))
 		}
 		if len(result.PullRequests) > 0 {
 			repositoryResults = append(repositoryResults, result)
@@ -131,6 +117,24 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		})
 	}
 	c.JSON(200, repositoryResults)
+}
+
+func getResultFromPullRequest(pullRequest database.Item) PullRequestResult {
+	return PullRequestResult{
+		ID:     pullRequest.ID.Hex(),
+		Title:  pullRequest.Title,
+		Number: pullRequest.Number,
+		Status: PullRequestStatus{
+			Text:  pullRequest.RequiredAction,
+			Color: getColorFromRequiredAction(pullRequest.RequiredAction),
+		},
+		Author:        pullRequest.Author,
+		NumComments:   pullRequest.CommentCount,
+		CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		Branch:        pullRequest.Branch,
+		Deeplink:      pullRequest.Deeplink,
+		LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+	}
 }
 
 func getColorFromRequiredAction(requiredAction string) string {
