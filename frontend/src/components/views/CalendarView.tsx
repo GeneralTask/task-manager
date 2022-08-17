@@ -14,7 +14,7 @@ import { useAppDispatch } from '../../redux/hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useIdleTimer } from 'react-idle-timer'
-import { useInterval } from '../../hooks'
+import { useInterval, useLocalStorage } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 
 const CollapsedCalendarView = styled.div`
@@ -37,7 +37,7 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false)
+    const [isCalendarCollapsed, setIsCalendarCollapsed] = useLocalStorage('isCalendarCollapsed', false)
     const dispatch = useAppDispatch()
 
     const handleCollapseCalendar = () => {
