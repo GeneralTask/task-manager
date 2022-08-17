@@ -25,8 +25,7 @@ func (dbHandle *DBHandle) CloseConnection() {
 func CreateDBHandle() (*DBHandle, error) {
 	db, cleanup, err := GetDBConnection()
 	if err != nil {
-		log.Printf("Failed to connect to DB, %+v", err)
-		// TODO: this should probably be fatal
+		log.Fatal().Err(err).Msg("failed to connect to DB")
 		return nil, err
 	}
 	dbh := &DBHandle{
