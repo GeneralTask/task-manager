@@ -38,6 +38,10 @@ func TestGetPullRequests(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	repositoryCollection := database.GetRepositoryCollection(db)
+	expectedRepository := database.Repository{
+		FullName:     "ExampleRepository",
+		RepositoryID: "1234",
+	}
 	t.Run("Success", func(t *testing.T) {
 		userId := primitive.NewObjectID()
 		fetchExternalAPITokenValue := false
@@ -100,10 +104,6 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, expectedPullRequest, result.PullRequests[0].PullRequest)
 
 		// Check that repository for PR is created in the database
-		expectedRepository := database.Repository{
-			FullName:     "ExampleRepository",
-			RepositoryID: "1234",
-		}
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
 		defer cancel()
 		var repository database.Repository
@@ -146,10 +146,6 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, 0, len(result.PullRequests))
 
 		// Check that repository for PR is created in the database
-		expectedRepository := database.Repository{
-			FullName:     "ExampleRepository",
-			RepositoryID: "1234",
-		}
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
 		defer cancel()
 		var repository database.Repository
