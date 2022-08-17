@@ -8,7 +8,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -54,10 +53,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	userIDHex, _ := c.Get("user")
 	userID := userIDHex.(primitive.ObjectID)
 
-	pullRequests, err := database.GetItems(db, userID, &[]bson.M{
-		{"is_completed": false},
-		{"task_type.is_pull_request": true},
-	})
+	pullRequests, err := database.GetPullRequests(db, userID, nil)
 	if err != nil || pullRequests == nil {
 		Handle500(c)
 		return
@@ -84,7 +80,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 			Branch:        pullRequest.Branch,
 			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+			LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 		}
 		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
 	}

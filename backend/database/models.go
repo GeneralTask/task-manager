@@ -148,8 +148,7 @@ type PullRequest struct {
 	ID                primitive.ObjectID `bson:"_id,omitempty"`
 	UserID            primitive.ObjectID `bson:"user_id,omitempty"`
 	IDExternal        string             `bson:"id_external,omitempty"`
-	IDOrdering        int                `bson:"id_ordering"`
-	IsCompleted       bool               `bson:"is_completed"`
+	IDOrdering        int                `bson:"id_ordering,omitempty"`
 	SourceID          string             `bson:"source_id,omitempty"`
 	SourceAccountID   string             `bson:"source_account_id,omitempty"`
 	Deeplink          string             `bson:"deeplink,omitempty"`
@@ -164,7 +163,7 @@ type PullRequest struct {
 	CommentCount      int                `bson:"comment_count,omitempty"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
 	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
-	CompletedAt       primitive.DateTime `bson:"completed_at"`
+	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
 }
 
 type CalendarEvent struct {

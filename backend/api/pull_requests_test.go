@@ -44,12 +44,6 @@ func TestPullRequestList(t *testing.T) {
 	// wrong user id
 	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true, "", timePullRequestUpdated)
 	assert.NoError(t, err)
-	// completed PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", true, true, "", timePullRequestUpdated)
-	assert.NoError(t, err)
-	// not a PR
-	_, err = createTestPullRequest(db, userID, "dogecoin", false, false, "", timePullRequestUpdated)
-	assert.NoError(t, err)
 	// first PR in second repo
 	pullRequest9, err := createTestPullRequest(db, userID, "tesla", false, true, external.ActionAddReviewers, timePullRequestUpdated)
 	assert.NoError(t, err)
@@ -189,7 +183,6 @@ func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, reposi
 		"foobar_source",
 		&database.PullRequest{
 			IDExternal:     externalID,
-			IsCompleted:    isCompleted,
 			SourceID:       "foobar_source",
 			UserID:         userID,
 			RepositoryID:   repositoryName,

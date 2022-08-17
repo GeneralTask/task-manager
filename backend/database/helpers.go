@@ -432,6 +432,7 @@ func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 	return &items, nil
 }
 
+// will add helpers once we refactor tasks collection
 func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
