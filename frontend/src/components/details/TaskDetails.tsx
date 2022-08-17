@@ -1,20 +1,19 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
-import ActionOption from '../molecules/ActionOption'
-import { Icon } from '../atoms/Icon'
-import { DETAILS_SYNC_TIMEOUT } from '../../constants'
-import ReactTooltip from 'react-tooltip'
-import { TTask } from '../../utils/types'
-import { logos, icons, linearStatus } from '../../styles/images'
-import { useModifyTask } from '../../services/api/tasks.hooks'
-import GTButton from '../atoms/buttons/GTButton'
-import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { useCallback, useRef } from 'react'
-import Spinner from '../atoms/Spinner'
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import LinearCommentList from './linear/LinearCommentList'
+import ReactTooltip from 'react-tooltip'
+import styled from 'styled-components'
+import { DETAILS_SYNC_TIMEOUT } from '../../constants'
+import { useModifyTask } from '../../services/api/tasks.hooks'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { icons, linearStatus, logos } from '../../styles/images'
+import { TTask } from '../../utils/types'
+import GTButton from '../atoms/buttons/GTButton'
+import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import Spinner from '../atoms/Spinner'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import ActionOption from '../molecules/ActionOption'
+import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
@@ -90,6 +89,25 @@ const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
     ERROR: 'There was an error syncing with our servers',
     COMPLETE: '',
+}
+
+type TPageState = 'NONE' | 'CALENDAR_TRIAGE'
+const CalendarTriageButton = () => {
+    const [pageState, setPageState] = useState<TPageState>('NONE')
+
+    const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
+    return (
+        <>
+            <GTButton
+                styleType="secondary"
+                icon={icons.calendar_blank}
+                onClick={() => setPageState('CALENDAR_TRIAGE')}
+                value="Schedule Task"
+            />
+
+            {/* <CalendarTriageModal isOpen={pageState === 'CALENDAR_TRIAGE'} onClose={handleClose} /> */}
+        </>
+    )
 }
 
 interface TaskDetailsProps {
@@ -195,6 +213,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
+                </MarginRight8>
+                <MarginRight8>
+                    <CalendarTriageButton />
                 </MarginRight8>
                 {!task.isOptimistic && (
                     <>
