@@ -14,6 +14,8 @@ import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
 import SignOutButton from '../molecules/SignOutButton'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { useLocalStorage } from '../../hooks'
+import GTCheckbox from '../atoms/GTCheckbox'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -72,6 +74,23 @@ const GapView = styled.div`
     flex-direction: row;
     gap: ${Spacing.margin._8};
 `
+const SettingContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
+    gap: ${Spacing.margin._8};
+    border-radius: ${Border.radius.small};
+    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    background-color: ${Colors.background.dark};
+    ${Typography.subtitle};
+`
+const SettingsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: ${Spacing.margin._8};
+`
 
 const SettingsView = () => {
     const [showLinkAccountsDropdown, setShowLinkedAccountsDropdown] = useState(false)
@@ -81,6 +100,9 @@ const SettingsView = () => {
     const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
     const { refetch: refetchViews } = useGetOverviewViews()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
+
+    const [darkMode, setDarkMode] = useLocalStorage('darkMode', false)
+    const [dankMode, setDankMode] = useLocalStorage('dankMode', false)
 
     const onWindowClose = () => {
         refetch()
@@ -165,6 +187,16 @@ const SettingsView = () => {
                         </TaskTemplate>
                     </AccountSpacing>
                 ))}
+                <SettingsContainer>
+                    <SettingContainer>
+                        <span>Dark Mode</span>
+                        <GTCheckbox isChecked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+                    </SettingContainer>
+                    <SettingContainer>
+                        <span>Dank Mode</span>
+                        <GTCheckbox isChecked={dankMode} onChange={() => setDankMode(!dankMode)} />
+                    </SettingContainer>
+                </SettingsContainer>
             </SettingsViewContainer>
         </ScrollViewMimic>
     )
