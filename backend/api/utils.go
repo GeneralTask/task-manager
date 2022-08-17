@@ -32,7 +32,7 @@ type API struct {
 }
 
 func GetAPI() *API {
-	dbh, err := database.InitDB(nil)
+	dbh, err := database.CreateDBHandle()
 	if err != nil {
 		log.Fatal().Msgf("Failed to connect to db, %+v", err)
 	}

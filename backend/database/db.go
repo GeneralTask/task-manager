@@ -16,42 +16,6 @@ type DBHandle struct {
 	cleanup *func()
 }
 
-var dbh *DBHandle
-
-func init() {
-	InitDB(dbh)
-}
-
-// InitDB sets up the connection pool global variable.
-func InitDB(dbHandle *DBHandle) (*DBHandle, error) {
-	var err error
-	if dbHandle != nil {
-		dbh = dbHandle
-		return dbh, nil
-	}
-
-	dbh, err = CreateDBHandle()
-	if err != nil {
-		log.Printf("Failed to connect to DB, %+v", err)
-		return nil, err
-	}
-	return dbh, err
-}
-
-func GetDBConn() (*mongo.Database, error) {
-	var err error
-	if dbh != nil {
-		return dbh.DB, nil
-	}
-
-	dbh, err = InitDB(nil)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to init DB handler")
-		return nil, err
-	}
-	return dbh.DB, nil
-}
-
 func (dbHandle *DBHandle) CloseConnection() {
 	if dbHandle.cleanup != nil {
 		(*dbHandle.cleanup)()
@@ -65,7 +29,7 @@ func CreateDBHandle() (*DBHandle, error) {
 		// TODO: this should probably be fatal
 		return nil, err
 	}
-	dbh = &DBHandle{
+	dbh := &DBHandle{
 		DB:      db,
 		cleanup: &cleanup,
 	}
