@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -288,6 +289,14 @@ func (api *API) TaskCreate(c *gin.Context) {
 	} else {
 		// default is currently the only acceptable accountID for general task task source
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
+		var assignedToken *database.ExternalAPIToken
+		var tempTitle *string
+		assignedToken, tempTitle = getValidExternalOwnerAssignedTask(db, userID, taskCreateParams.Title)
+		taskCreateParams.Title = *tempTitle
+		if assignedToken != nil {
+			userID = assignedToken.UserID
+			IDTaskSection = constants.IDTaskSectionDefault
+		}
 	}
 
 	var timeAllocation *int64
@@ -308,6 +317,46 @@ func (api *API) TaskCreate(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"task_id": taskID})
+}
+
+func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.ObjectID, taskTitle string) (*database.ExternalAPIToken, *string) {
+	// assumes connection via Google Calendar
+	// internal token does not currently include email
+	validAssigneeStrings := [...]string{
+		"<to julian@generaltask.com>",
+		"<to john@generaltask.com>",
+		"<to maz@generaltask.com>",
+		"<to nolan@generaltask.com>",
+		"<to jack@generaltask.com>",
+		"<to scott@generaltask.com>",
+		"<to mitsuka@generaltask.com>",
+		"<to marco@generaltask.com>",
+		"<to jiyoon@generaltask.com>",
+		"<to hans@generaltask.com>",
+	}
+
+	fromToken, err := database.GetCalenderGmailTokenFromUserID(db, userID)
+	if err != nil {
+		return nil, &taskTitle
+	}
+
+	if strings.HasSuffix(fromToken.AccountID, "@generaltask.com") {
+		for _, assignString := range validAssigneeStrings {
+			if strings.HasPrefix(taskTitle, assignString) {
+				email := strings.Trim(assignString, "<to ")
+				email = strings.Trim(email, ">")
+				matchingExternalToken, err := database.GetExternalTokenByEmail(db, email)
+				if err != nil {
+					return nil, &taskTitle
+				}
+
+				taskTitle = strings.Trim(taskTitle, assignString)
+				taskTitle = taskTitle + " from: " + fromToken.AccountID
+				return matchingExternalToken, &taskTitle
+			}
+		}
+	}
+	return nil, &taskTitle
 }
 
 func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db *mongo.Database) (primitive.ObjectID, error) {

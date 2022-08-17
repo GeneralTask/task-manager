@@ -80,6 +80,23 @@ func (api *API) TaskModify(c *gin.Context) {
 			Handle500(c)
 			return
 		}
+
+		if modifyParams.TaskItemChangeableFields.Title != nil {
+			db, dbCleanup, err := database.GetDBConnection()
+			if err != nil {
+				Handle500(c)
+			}
+			defer dbCleanup()
+
+			var assignedToken *database.ExternalAPIToken
+			assignedToken, modifyParams.TaskItemChangeableFields.Title = getValidExternalOwnerAssignedTask(db, userID, *(modifyParams.TaskItemChangeableFields.Title))
+			if assignedToken != nil {
+				modifyParams.UserID = assignedToken.UserID
+				tempID := constants.IDTaskSectionDefault.Hex()
+				modifyParams.IDTaskSection = &tempID
+			}
+		}
+
 		api.UpdateTaskInDB(c, task, userID, &modifyParams.TaskItemChangeableFields)
 	}
 
