@@ -33,7 +33,7 @@ export const modalSize = {
     large: {
         max_height: '90%',
         min_height: '90%',
-        width: '95%',
+        width: '90%',
     },
 }
 
