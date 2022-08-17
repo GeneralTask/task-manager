@@ -3,10 +3,12 @@ import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { Column, CommentsCountContainer, LinkButton, PullRequestRow, Status, TruncatedText } from './styles'
+import { Column, CommentsCountContainer, LinkButtonContainer, PullRequestRow, Status, TruncatedText } from './styles'
 import { DateTime } from 'luxon'
 import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import GTButton from '../atoms/buttons/GTButton'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 interface PullRequestProps {
     pullRequest: TPullRequest
@@ -41,9 +43,11 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
                 </CommentsCountContainer>
             </Column>
             <Column type="link">
-                <LinkButton href={deeplink} target="_blank">
-                    <Icon icon={icons.external_link} size="small" />
-                </LinkButton>
+                <LinkButtonContainer>
+                    <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
+                        <GTButton icon={icons.external_link} styleType="secondary" />
+                    </NoStyleAnchor>
+                </LinkButtonContainer>
             </Column>
         </PullRequestRow>
     )

@@ -1,6 +1,4 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
-
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import styled from 'styled-components'
 import { TStatusColors } from '../../styles/colors'
 
@@ -89,13 +87,13 @@ export const BranchNameContainer = styled.div`
     cursor: pointer;
 `
 
-export const LinkButton = styled(NoStyleAnchor)`
+export const LinkButtonContainer = styled.div`
     display: flex;
     flex: 1;
     align-items: center;
     justify-content: center;
-    background-color: ${Colors.background.white};
+    /* background-color: ${Colors.background.white};
     border: ${Border.stroke.medium} solid ${Colors.background.dark};
-    border-radius: ${Border.radius.large};
-    cursor: pointer;
+    border-radius: ${Border.radius.large}; */
+    /* cursor: pointer; */
 `

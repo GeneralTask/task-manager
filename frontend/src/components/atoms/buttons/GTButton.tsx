@@ -2,7 +2,6 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
 import styled, { css } from 'styled-components'
 import { Icon } from '../Icon'
-import { TIconColor } from '../../../styles/colors'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import NoStyleButton from './NoStyleButton'
 
@@ -77,7 +76,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     size?: TButtonSize
     wrapText?: boolean
     icon?: IconProp
-    iconColor?: TIconColor
+    iconColor?: string
     fitContent?: boolean
 }
 const GTButton = ({
