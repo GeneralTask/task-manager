@@ -1154,67 +1154,100 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 	t.Run("SuccessCreate", func(t *testing.T) {
 		err = updateOrCreateRepository(parentCtx, db, repository, userID)
 		assert.NoError(t, err)
+
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-
-		count, err := repositoryCollection.CountDocuments(
+		var result []database.Repository
+		cursor, err := repositoryCollection.Find(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"repository_id": fmt.Sprint(repository.GetID())},
 				{"user_id": userID},
 			}},
-			nil,
 		)
 		assert.NoError(t, err)
-		assert.Equal(t, int64(1), count)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = cursor.All(dbCtx, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(result))
+		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
+		assert.Equal(t, repository.GetName(), result[0].FullName)
+		assert.Equal(t, repository.GetHTMLURL(), result[0].Deeplink)
 	})
 	t.Run("SuccessUpdate", func(t *testing.T) {
 		repository.Name = updateFullName
 		repository.HTMLURL = updateHTMLURL
 
-		var repositoryResult database.Repository
 		err = updateOrCreateRepository(parentCtx, db, repository, userID)
 		assert.NoError(t, err)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		repositoryCollection.FindOne(dbCtx,
-			bson.M{"repository_id": fmt.Sprint(repository.GetID()), "user_id": userID},
-		).Decode(&repositoryResult)
-		assert.Equal(t, *updateFullName, repositoryResult.FullName)
-		assert.Equal(t, *updateHTMLURL, repositoryResult.Deeplink)
+		var result []database.Repository
+		cursor, err := repositoryCollection.Find(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"repository_id": fmt.Sprint(repository.GetID())},
+				{"user_id": userID},
+			}},
+		)
+		assert.NoError(t, err)
+		err = cursor.All(dbCtx, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(result))
+		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
+		assert.Equal(t, *updateFullName, result[0].FullName)
+		assert.Equal(t, *updateHTMLURL, result[0].Deeplink)
 	})
 	t.Run("IncorrectUserID", func(t *testing.T) {
 		newFullName := github.String("bad_user_id_full_name")
 		repository.FullName = newFullName
 
-		var repositoryResult database.Repository
 		err = updateOrCreateRepository(parentCtx, db, repository, primitive.NewObjectID())
 		assert.NoError(t, err)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		repositoryCollection.FindOne(dbCtx,
-			bson.M{"repository_id": fmt.Sprint(repository.GetID()), "user_id": userID},
-		).Decode(&repositoryResult)
-		assert.Equal(t, *updateFullName, repositoryResult.FullName)
-		assert.Equal(t, *updateHTMLURL, repositoryResult.Deeplink)
+		var result []database.Repository
+		cursor, err := repositoryCollection.Find(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"repository_id": fmt.Sprint(repository.GetID())},
+				{"user_id": userID},
+			}},
+		)
+		assert.NoError(t, err)
+		err = cursor.All(dbCtx, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
+		assert.Equal(t, *updateFullName, result[0].FullName)
+		assert.Equal(t, *updateHTMLURL, result[0].Deeplink)
 	})
 	t.Run("IncorrectRepositoryID", func(t *testing.T) {
 		newFullName := github.String("bad_repository_id_full_name")
 		repository.FullName = newFullName
 		repository.ID = github.Int64(0)
 
-		var repositoryResult database.Repository
 		err = updateOrCreateRepository(parentCtx, db, repository, userID)
 		assert.NoError(t, err)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		repositoryCollection.FindOne(dbCtx,
-			bson.M{"repository_id": fmt.Sprint(repository.GetID()), "user_id": userID},
-		).Decode(&repositoryResult)
-		assert.Equal(t, *updateFullName, repositoryResult.FullName)
-		assert.Equal(t, *updateHTMLURL, repositoryResult.Deeplink)
+		var result []database.Repository
+		cursor, err := repositoryCollection.Find(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"repository_id": fmt.Sprint(repository.GetID())},
+				{"user_id": userID},
+			}},
+		)
+		assert.NoError(t, err)
+		err = cursor.All(dbCtx, &result)
+		assert.NoError(t, err)
+		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
+		assert.Equal(t, *updateFullName, result[0].FullName)
+		assert.Equal(t, *updateHTMLURL, result[0].Deeplink)
 	})
 }
