@@ -44,7 +44,13 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 	}
 	email := strings.ToLower(params.Email)
 
-	waitlistCollection := database.GetWaitlistCollection(api.DB)
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	waitlistCollection := database.GetWaitlistCollection(db)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

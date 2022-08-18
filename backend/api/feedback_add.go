@@ -25,7 +25,13 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 		return
 	}
 
-	feedbackCollection := database.GetFeedbackItemCollection(api.DB)
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	feedbackCollection := database.GetFeedbackItemCollection(db)
 
 	userID, _ := c.Get("user")
 

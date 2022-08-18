@@ -21,12 +21,19 @@ type UserInfoParams struct {
 
 func (api *API) UserInfoGet(c *gin.Context) {
 	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	defer dbCleanup()
 	userID, _ := c.Get("user")
 	var userObject database.User
-	userCollection := database.GetUserCollection(api.DB)
+	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -49,8 +56,15 @@ func (api *API) UserInfoUpdate(c *gin.Context) {
 		return
 	}
 
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
 	userID, _ := c.Get("user")
-	userCollection := database.GetUserCollection(api.DB)
+	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = userCollection.UpdateOne(

@@ -44,10 +44,17 @@ type PullRequestStatus struct {
 }
 
 func (api *API) PullRequestsList(c *gin.Context) {
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	defer dbCleanup()
 	userIDHex, _ := c.Get("user")
 	userID := userIDHex.(primitive.ObjectID)
 
-	pullRequests, err := database.GetItems(api.DB, userID, &[]bson.M{
+	pullRequests, err := database.GetItems(db, userID, &[]bson.M{
 		{"is_completed": false},
 		{"task_type.is_pull_request": true},
 	})
