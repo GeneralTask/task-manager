@@ -33,7 +33,9 @@ func TestCreateTestUser(t *testing.T) {
 		defer os.Setenv("ENVIRONMENT", env)
 
 		email := createRandomGTEmail()
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/create_test_user/",
@@ -67,7 +69,9 @@ func TestCreateTestUser(t *testing.T) {
 		os.Setenv("ENVIRONMENT", "prod")
 		defer os.Setenv("ENVIRONMENT", env)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/create_test_user/",

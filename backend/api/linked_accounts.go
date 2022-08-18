@@ -50,13 +50,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 func (api *API) LinkedAccountsList(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
 
 	var tokens []database.ExternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -110,13 +104,7 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

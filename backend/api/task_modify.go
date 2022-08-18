@@ -119,13 +119,7 @@ func ValidateFields(c *gin.Context, updateFields *database.TaskItemChangeableFie
 
 func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Item) error {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return err
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
+	taskCollection := database.GetTaskCollection(api.DB)
 	updateFields := bson.M{"has_been_reordered": true}
 	if IDOrdering != nil {
 		updateFields["id_ordering"] = *IDOrdering
@@ -179,18 +173,12 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 
 func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Item, error) {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return nil, err
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
+	taskCollection := database.GetTaskCollection(api.DB)
 
 	var task database.Item
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = taskCollection.FindOne(
+	err := taskCollection.FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
@@ -205,13 +193,7 @@ func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primiti
 
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-	taskCollection := database.GetTaskCollection(db)
+	taskCollection := database.GetTaskCollection(api.DB)
 
 	if updateFields.IsCompleted != nil {
 		updateFields.Task.PreviousStatus = &task.Status

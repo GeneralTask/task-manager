@@ -94,7 +94,9 @@ func TestPullRequestList(t *testing.T) {
 
 	UnauthorizedTest(t, "GET", "/pull_requests/", nil)
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/pull_requests/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()

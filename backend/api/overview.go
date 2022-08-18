@@ -75,15 +75,9 @@ type SupportedView struct {
 
 func (api *API) OverviewViewsList(c *gin.Context) {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
-	_, err = database.GetUser(db, userID)
+	_, err := database.GetUser(api.DB, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
@@ -92,7 +86,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	cursor, err := database.GetViewCollection(db).Find(
+	cursor, err := database.GetViewCollection(api.DB).Find(
 		dbCtx,
 		bson.M{"user_id": userID},
 	)
@@ -109,14 +103,14 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	err = api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+	err = api.UpdateViewsLinkedStatus(api.DB, parentCtx, &views, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update views")
 		Handle500(c)
 		return
 	}
 
-	result, err := api.GetOverviewResults(db, parentCtx, views, userID)
+	result, err := api.GetOverviewResults(api.DB, parentCtx, views, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)
@@ -462,15 +456,8 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-
 	userID := getUserIDFromContext(c)
-	viewExists, err := api.ViewDoesExist(db, parentCtx, userID, viewCreateParams)
+	viewExists, err := api.ViewDoesExist(api.DB, parentCtx, userID, viewCreateParams)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("error checking that view does not exist")
 		Handle500(c)
@@ -485,7 +472,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	var githubID string
 	if viewCreateParams.Type == string(ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
-		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, db)
+		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, api.DB)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
@@ -494,7 +481,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
 	} else if viewCreateParams.Type == string(ViewGithub) {
 		serviceID = external.TASK_SERVICE_ID_GITHUB
-		isValidGithubRepository, err := isValidGithubRepository(db, userID, *viewCreateParams.GithubID)
+		isValidGithubRepository, err := isValidGithubRepository(api.DB, userID, *viewCreateParams.GithubID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error checking that github repository is valid")
 			Handle500(c)
@@ -512,7 +499,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
-	isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
+	isLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, serviceID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("error checking that service is linked")
 		Handle500(c)
@@ -527,7 +514,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		GithubID:      githubID,
 	}
 
-	viewCollection := database.GetViewCollection(db)
+	viewCollection := database.GetViewCollection(api.DB)
 	insertedView, err := viewCollection.InsertOne(parentCtx, view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
@@ -588,16 +575,10 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
 	parentCtx := c.Request.Context()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	viewCollection := database.GetViewCollection(db)
+	viewCollection := database.GetViewCollection(api.DB)
 	userID := getUserIDFromContext(c)
 	result, err := viewCollection.UpdateOne(
 		dbCtx,
@@ -675,12 +656,6 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 
 func (api *API) OverviewViewDelete(c *gin.Context) {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
 
 	userID := getUserIDFromContext(c)
 	viewID, err := getViewIDFromContext(c)
@@ -689,7 +664,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	_, err = database.GetUser(db, userID)
+	_, err = database.GetUser(api.DB, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
@@ -698,7 +673,7 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	deleteResult, err := database.GetViewCollection(db).DeleteOne(
+	deleteResult, err := database.GetViewCollection(api.DB).DeleteOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{{"_id": viewID}, {"user_id": userID}}},
 	)
@@ -716,37 +691,31 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
 	dbCtx, cancel := context.WithTimeout(c, constants.DatabaseTimeout)
 	defer cancel()
 
 	userID := getUserIDFromContext(c)
-	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(db, userID)
+	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	supportedGithubViews, err := api.getSupportedGithubViews(db, userID)
+	supportedGithubViews, err := api.getSupportedGithubViews(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	isGithubLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_GITHUB)
+	isGithubLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, external.TASK_SERVICE_ID_GITHUB)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	isLinearLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_LINEAR)
+	isLinearLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	isSlackLinked, err := api.IsServiceLinked(db, dbCtx, userID, external.TASK_SERVICE_ID_SLACK)
+	isSlackLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, external.TASK_SERVICE_ID_SLACK)
 	if err != nil {
 		Handle500(c)
 		return
@@ -812,7 +781,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views:            supportedGithubViews,
 		},
 	}
-	err = api.updateIsAddedForSupportedViews(db, userID, &supportedViews)
+	err = api.updateIsAddedForSupportedViews(api.DB, userID, &supportedViews)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to updated isAdded")
 		Handle500(c)

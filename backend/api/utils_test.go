@@ -15,7 +15,9 @@ import (
 
 func TestCORSHeaders(t *testing.T) {
 	t.Run("OPTIONS preflight request", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -28,7 +30,9 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH, DELETE", headers.Get("Access-Control-Allow-Methods"))
 	})
 	t.Run("GET request", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 		authToken := login("approved@generaltask.com", "")
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -79,7 +83,9 @@ func TestAuthenticationMiddleware(t *testing.T) {
 func TestLoggingMiddleware(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 
 		request, _ := http.NewRequest("GET", "/bing_bong/", nil)
 		request.Header.Add("Authorization", authToken)
@@ -100,7 +106,9 @@ func TestLoggingMiddleware(t *testing.T) {
 		assert.Equal(t, int64(1), count)
 	})
 	t.Run("DoesntRecordForLogEndpoint", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 
 		request, _ := http.NewRequest("POST", "/log_events/", nil)
 		request.Header.Add("Authorization", authToken)
@@ -121,7 +129,9 @@ func TestLoggingMiddleware(t *testing.T) {
 		assert.Equal(t, int64(0), count)
 	})
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 
 		request, _ := http.NewRequest("GET", "/bing_bong_two/", nil)
 
@@ -144,7 +154,9 @@ func TestLoggingMiddleware(t *testing.T) {
 
 func Test404(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/not/a-route/", nil)
 
 		recorder := httptest.NewRecorder()
