@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
+import { Border, Colors, Spacing } from '../../styles'
+import { background } from '../../styles/colors'
 import GTButton from '../atoms/buttons/GTButton'
 import GTModal from '../atoms/GTModal'
 import CalendarView from '../views/CalendarView'
@@ -18,6 +20,7 @@ const CalendarTriageContainer = styled.div`
     height: 100%;
     flex-direction: row;
     overflow: hidden;
+    gap: ${Spacing.margin._4};
 `
 
 const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
@@ -37,10 +40,24 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
             type="large"
         >
             <CalendarTriageContainer>
-                <div style={{ width: '30%', overflow: 'scroll' }}>
+                <div
+                    style={{
+                        flexGrow: '1',
+                        overflow: 'scroll',
+                        border: `4px solid ${Colors.background.dark}`,
+                        borderRadius: Border.radius.small,
+                    }}
+                >
                     <TaskList section={section!} />
                 </div>
-                <div style={{ width: '70%' }}>
+                <div
+                    style={{
+                        flexGrow: '5',
+                        backgroundColor: Colors.background.dark,
+                        padding: Spacing.padding._8,
+                        borderRadius: Border.radius.small,
+                    }}
+                >
                     <CalendarView isExpanded={isExpanded} setIsExpanded={setIsExpanded} showExpandOptions={false} />
                 </div>
             </CalendarTriageContainer>

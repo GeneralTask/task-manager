@@ -10,35 +10,9 @@ import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Task from '../molecules/Task'
 
-const BannerAndSectionContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid ${Colors.background.dark};
-    margin-right: auto;
-    flex-shrink: 0;
-    position: relative;
-`
-const ScrollViewMimic = styled.div`
-    margin: 40px 0px 0px 10px;
-    padding-right: 10px;
-    overflow-y: auto;
-    flex: 1;
-    width: ${DEFAULT_VIEW_WIDTH};
-`
-const TaskSectionViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    padding-top: 0;
-    background-color: ${Colors.background.light};
-`
 const TasksContainer = styled.div`
     display: flex;
     flex-direction: column;
-`
-const BottomDropArea = styled.div`
-    height: 100px;
 `
 
 interface TaskListProps {
