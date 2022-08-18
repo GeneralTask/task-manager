@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import GTButton from '../atoms/buttons/GTButton'
 import GTModal from '../atoms/GTModal'
+import GTSelect from '../molecules/GTSelect'
 import CalendarView from '../views/CalendarView'
 import TaskList from '../views/TaskListView'
 
@@ -40,10 +41,15 @@ const CalendarTriageContainer = styled.div`
 `
 
 const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
+    const [showTaskSectionsDropdown, setShowTaskSectionsDropdown] = useState(false)
     const { section: sectionId } = useParams()
     const { data: taskSections } = useGetTasks()
     const [isExpanded, setIsExpanded] = useState(true)
-    const section = taskSections?.find(({ id }) => id === sectionId)
+    const [sectionState, setSectionState] = useState(sectionId)
+    useEffect(() => {
+        setSectionState(sectionId)
+    }, [sectionId])
+    const section = taskSections?.filter(({ name }) => name !== 'Done').find(({ id }) => id === sectionState)
     if (!section) return null
 
     return (
@@ -56,7 +62,36 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
         >
             <CalendarTriageContainer>
                 <TriageLeftContainer>
-                    <TaskList section={section!} />
+                    <div style={{ height: '50px', position: 'relative' }}>
+                        <GTButton
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setShowTaskSectionsDropdown(!showTaskSectionsDropdown)
+                            }}
+                            fitContent={false}
+                            value={section.name}
+                            styleType="primary"
+                        />
+                    </div>
+                    {showTaskSectionsDropdown && (
+                        <GTSelect
+                            options={
+                                taskSections
+                                    ?.filter(({ name }) => name !== 'Done' && name !== section.name)
+                                    .map((currSection) => ({
+                                        item: <div>{currSection.name}</div>,
+                                        onClick: () => {
+                                            setSectionState(currSection.id)
+                                        },
+                                        hasPadding: true,
+                                    })) ?? []
+                            }
+                            location="left"
+                            onClose={() => setShowTaskSectionsDropdown(false)}
+                            // parentRef={}
+                        />
+                    )}
+                    <TaskList section={section!} allowSelect={false} />
                 </TriageLeftContainer>
                 <TriageRightContainer>
                     <CalendarView

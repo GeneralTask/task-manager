@@ -15,9 +15,10 @@ const TasksContainer = styled.div`
 
 interface TaskListProps {
     section: TTaskSection
+    allowSelect?: boolean
 }
 
-const TaskList = ({ section }: TaskListProps) => {
+const TaskList = ({ section, allowSelect = true }: TaskListProps) => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
@@ -92,6 +93,7 @@ const TaskList = ({ section }: TaskListProps) => {
                             isSelected={task.id === params.task}
                             link={`/tasks/${params.section}/${task.id}`}
                             onMarkComplete={handleMarkTaskComplete}
+                            allowSelect={allowSelect}
                         />
                     </ReorderDropContainer>
                 ))}

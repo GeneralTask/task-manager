@@ -1,16 +1,16 @@
-import { DropType, TTask } from '../../utils/types'
 import React, { MutableRefObject, useCallback, useState } from 'react'
-import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
+import { Spacing, Typography } from '../../styles'
+import { DropType, TTask } from '../../utils/types'
 
+import { useDrag } from 'react-dnd'
+import styled from 'styled-components'
+import { logos } from '../../styles/images'
 import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
-import ItemContainer from './ItemContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
-import { logos } from '../../styles/images'
-import styled from 'styled-components'
-import { useDrag } from 'react-dnd'
+import ItemContainer from './ItemContainer'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -36,13 +36,25 @@ interface TaskProps {
     isSelected: boolean
     link: string
     onMarkComplete: (taskId: string, isComplete: boolean) => void
+    allowSelect?: boolean
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, isSelected, link, onMarkComplete }: TaskProps) => {
+const Task = ({
+    task,
+    dragDisabled,
+    index,
+    sectionId,
+    isSelected,
+    link,
+    onMarkComplete,
+    allowSelect = true,
+}: TaskProps) => {
     const navigate = useNavigate()
     const [isHovered, setIsHovered] = useState(false)
     const onClick = useCallback(() => {
-        navigate(link)
+        if (allowSelect) {
+            navigate(link)
+        }
     }, [link])
 
     const [, drag, dragPreview] = useDrag(
@@ -59,8 +71,14 @@ const Task = ({ task, dragDisabled, index, sectionId, isSelected, link, onMarkCo
 
     return (
         <TaskTemplate onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
-            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                {(isSelected || isHovered) && !dragDisabled && (
+            <ItemContainer
+                isSelected={isSelected}
+                isHovered={isHovered}
+                allowSelect={allowSelect}
+                onClick={onClick}
+                ref={dragPreview}
+            >
+                {((isSelected && allowSelect) || isHovered) && !dragDisabled && (
                     <DominoContainer>
                         <Domino ref={drag} />
                     </DominoContainer>
