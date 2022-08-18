@@ -2,14 +2,15 @@ import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 
-const MAX_POPUP_LENGTH = '315px'
-const MAX_POPUP_HEIGHT = '100px'
+const MAX_POPUP_LENGTH = 315
+const MAX_POPUP_HEIGHT = 100
 
 interface EventBoxStyleProps {
     xCoord: number
     yCoord: number
     popupHeight: number
     eventHeight: number
+    eventWidth: number
     windowHeight: number
 }
 /* Calculates the position of the popup depending on the position of the event
@@ -18,9 +19,11 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     position: absolute;
     box-sizing: border-box;
     padding: ${Spacing.padding._16} ${Spacing.padding._16};
-    width: ${MAX_POPUP_LENGTH};
-
-    left: calc(${(props) => props.xCoord}px - ${MAX_POPUP_LENGTH});
+    width: ${MAX_POPUP_LENGTH}px;
+    left: ${(props) =>
+        props.xCoord <= MAX_POPUP_LENGTH
+            ? `calc(${props.xCoord}px + ${props.eventWidth}px)`
+            : `calc(${props.xCoord}px - ${MAX_POPUP_LENGTH}px)`};
     top: ${(props) =>
         props.yCoord >= props.windowHeight - props.popupHeight
             ? props.yCoord - props.eventHeight - props.popupHeight
@@ -71,7 +74,7 @@ export const EventDate = styled.span`
 export const Description = styled.div`
     ${Typography.label};
     color: ${Colors.text.black};
-    max-height: ${MAX_POPUP_HEIGHT};
+    max-height: ${MAX_POPUP_HEIGHT}px;
     overflow-wrap: break-word;
     overflow-y: auto;
 `

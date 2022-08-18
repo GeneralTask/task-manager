@@ -194,7 +194,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(t.SourceID)
 	taskSource := TaskSource{}
 	if err == nil {
 		taskSource = TaskSource{

@@ -71,7 +71,7 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     return isCalendarCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
             <CaretButton>
-                <Icon icon={icons.caret_left} size="small" />
+                <Icon icon={icons.calendar_blank} size="small" />
             </CaretButton>
         </CollapsedCalendarView>
     ) : (
