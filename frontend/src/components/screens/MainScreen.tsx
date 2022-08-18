@@ -55,7 +55,6 @@ const MainScreen = () => {
     }
 
     React.useEffect(() => {
-        console.log('PLAYBACK RATE', playbackRate)
         if (dankMode) {
             document.body.classList.add('dank-mode')
             play()
@@ -65,7 +64,6 @@ const MainScreen = () => {
             setPlaybackRate(0.75)
         }
         return () => {
-            console.log('UNMOUNT')
             document.body.classList.remove('dank-mode')
             stop()
             window.removeEventListener('click', handleClick)
