@@ -45,13 +45,10 @@ const MainScreen = () => {
 
     const [play, { stop, pause }] = useSound('http://www.lejdesigns.com/rankedPUGs/sounds/sponge.mp3', {
         playbackRate,
-        // interrupt: true,
     })
 
     const handleClick = () => {
         setPlaybackRate(playbackRate + 0.1)
-        // play()
-        console.log('FASTER', playbackRate)
     }
 
     React.useEffect(() => {
