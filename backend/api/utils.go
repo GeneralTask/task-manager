@@ -30,12 +30,17 @@ type API struct {
 	DB                  *mongo.Database
 }
 
-func GetAPI() (*API, func()) {
+func GetAPIWithDBCleanup() (*API, func()) {
 	dbh, err := database.CreateDBHandle()
 	if err != nil {
 		log.Fatal().Msgf("Failed to connect to db, %+v", err)
 	}
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB}, dbh.CloseConnection
+}
+
+func GetAPI() *API {
+	api, _ := GetAPIWithDBCleanup()
+	return api
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
