@@ -14,10 +14,12 @@ import {
     EventDate,
     Description,
     IconButton,
+    EventFooter,
 } from './EventDetailPopup-styles'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { useDeleteEvent } from '../../services/api/events.hooks'
+// import { useNavigate } from 'react-router-dom'
 
 interface EventDetailProps {
     event: TEvent
@@ -33,6 +35,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
     ({ event, date, onClose, xCoord, yCoord, eventHeight, setIsScrollDisabled }: EventDetailProps, ref) => {
         const popupRef = useRef<HTMLDivElement | null>(null)
         const { mutate: deleteEvent } = useDeleteEvent()
+        // const navigate = useNavigate()
         const [popupHeight, setPopupHeight] = useState(0)
         useLayoutEffect(() => {
             if (!popupRef.current) return
@@ -50,6 +53,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             })
             setIsScrollDisabled(false)
         }
+        console.log(event.logo)
         return ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
@@ -66,7 +70,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 }}
             >
                 <EventHeader>
-                    <Icon source={logos.gcal} size="xSmall" />
+                    <Icon source={logos[event.logo]} size="xSmall" />
                     <EventHeaderIcons>
                         <IconButton onClick={() => onDelete(event.id)}>
                             <Icon source={icons.trash_light} size="xSmall" />
@@ -88,15 +92,32 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                     </EventDate>
                 </EventDateContainer>
                 <Description>{event.body}</Description>
-                <NoStyleAnchor href={event.deeplink} target="_blank">
-                    <GTButton
-                        styleType="secondary"
-                        size="small"
-                        value="Google Calendar"
-                        iconSource="external_link_dark"
-                        fitContent={false}
-                    />
-                </NoStyleAnchor>
+                {event.task_id ? (
+                    <EventFooter>
+                        <NoStyleAnchor href={event.deeplink_internal} target="_blank">
+                            <GTButton styleType="secondary" size="small" value="View task details" fitContent={true} />
+                        </NoStyleAnchor>
+                        <NoStyleAnchor href={event.deeplink} target="_blank">
+                            <GTButton
+                                styleType="secondary"
+                                size="small"
+                                value="Google Calendar"
+                                iconSource="external_link_dark"
+                                fitContent={true}
+                            />
+                        </NoStyleAnchor>
+                    </EventFooter>
+                ) : (
+                    <NoStyleAnchor href={event.deeplink} target="_blank">
+                        <GTButton
+                            styleType="secondary"
+                            size="small"
+                            value="Google Calendar"
+                            iconSource="external_link_dark"
+                            fitContent={false}
+                        />
+                    </NoStyleAnchor>
+                )}
             </EventBoxStyle>,
             document.getElementById('event-details-popup') as HTMLElement
         )

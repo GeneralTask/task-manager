@@ -48,6 +48,11 @@ export const EventDateContainer = styled.div`
     align-items: center;
     gap: ${Spacing.padding._8};
 `
+export const EventFooter = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.padding._16};
+`
 export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: 50vh;

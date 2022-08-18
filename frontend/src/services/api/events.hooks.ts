@@ -15,6 +15,13 @@ const getEvents = async (params: { startISO: string; endISO: string }) => {
         const res = await apiClient.get('/events/', {
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
         })
+        // some dummy data to test task to cal while waiting for backend
+        const tempData: TEvent[] = res.data
+        return tempData.map(event => {
+            event.deeplink_internal = 'http://localhost:3000/tasks/62e5cdcf1f45b1e2317a62d2/62e5ce531f45b1e2317a639c', 
+            event.logo = 'generaltask'
+            event.task_id = '62e5cdbd1f45b1e2317a62c5'
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('getEvents failed')
@@ -78,6 +85,9 @@ export const useCreateEvent = () => {
                     datetime_start: createEventPayload.datetime_start,
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
+                    logo: 'gcal', // as default 
+                    deeplink_internal: '', 
+                    task_id: ''
                 }
 
                 const newEvents = produce(events, (draft) => {

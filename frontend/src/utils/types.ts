@@ -80,6 +80,9 @@ export interface TExternalStatus {
 }
 
 export interface TEvent {
+    task_id: string
+    logo: string
+    deeplink_internal: string
     id: string
     title: string
     body: string
