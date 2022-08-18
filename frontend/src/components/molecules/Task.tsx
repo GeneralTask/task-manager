@@ -110,7 +110,7 @@ const Task = ({
     return (
         <TaskTemplate onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                {isHovered && !dragDisabled && (
+                {(isSelected || isHovered) && !dragDisabled && (
                     <DominoContainer>
                         <Domino ref={drag} />
                     </DominoContainer>

@@ -21,6 +21,7 @@ const CalendarTriageContainer = styled.div`
     flex-direction: row;
     overflow: hidden;
     gap: ${Spacing.margin._4};
+    padding-bottom: ${Spacing.padding._8};
 `
 
 const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
