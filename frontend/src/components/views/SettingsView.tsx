@@ -13,9 +13,7 @@ import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../at
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
 import SignOutButton from '../molecules/SignOutButton'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
-import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useGTQueryClient } from '../../services/queryUtils'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -80,21 +78,17 @@ const SettingsView = () => {
     const showLinkAccountsButtonContainerRef = useRef<HTMLDivElement>(null)
 
     const { data: supportedTypes } = useGetSupportedTypes()
-    const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
-    const { refetch: refetchViews } = useGetOverviewViews()
-    const { refetch: refetchTasks } = useGetTasks()
-    const { refetch: refetchExternalTasks } = useFetchExternalTasks()
-    const { refetch: refetchExternalPullRequests } = useFetchPullRequests()
-    const { refetch: refetchPullRequests } = useGetPullRequests()
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const queryClient = useGTQueryClient()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const onWindowClose = () => {
-        refetch()
-        refetchViews()
-        refetchTasks()
-        refetchExternalTasks()
-        refetchExternalPullRequests()
-        refetchPullRequests()
+        queryClient.refetchQueries({
+            stale: true,
+            predicate(query) {
+                return query.queryKey !== 'user_info'
+            },
+        })
     }
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
