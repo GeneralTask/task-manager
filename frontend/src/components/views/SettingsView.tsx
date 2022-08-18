@@ -82,9 +82,7 @@ const SettingsView = () => {
     const queryClient = useGTQueryClient()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
-    const onWindowClose = () => {
-        queryClient.refetchQueries({ stale: true })
-    }
+    const onWindowClose = () => queryClient.refetchQueries({ stale: true })
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
     const onRelink = (accountType: string) => {
