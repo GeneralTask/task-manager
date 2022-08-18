@@ -44,8 +44,9 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
                     style={{
                         flexGrow: '1',
                         overflow: 'scroll',
-                        border: `4px solid ${Colors.background.dark}`,
+                        border: `8px solid ${Colors.background.dark}`,
                         borderRadius: Border.radius.small,
+                        backgroundColor: Colors.gtColor.secondary,
                     }}
                 >
                     <TaskList section={section!} />
