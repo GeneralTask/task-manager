@@ -282,8 +282,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 }
 
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
-	api, _ := GetAPI()
-	router := GetRouter(api)
+	router := GetRouter(GetAPI())
 
 	request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
@@ -298,8 +297,7 @@ func createRandomGTEmail() string {
 }
 
 func ServeRequest(t *testing.T, authToken string, method string, url string, requestBody io.Reader, expectedReponseCode int) []byte {
-	api, _ := GetAPI()
-	router := GetRouter(api)
+	router := GetRouter(GetAPI())
 	request, _ := http.NewRequest(method, url, requestBody)
 	request.Header.Add("Authorization", "Bearer "+authToken)
 
@@ -313,8 +311,7 @@ func ServeRequest(t *testing.T, authToken string, method string, url string, req
 
 func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) bool {
 	return t.Run("Unauthorized", func(t *testing.T) {
-		api, _ := GetAPI()
-		router := GetRouter(api)
+		router := GetRouter(GetAPI())
 		request, _ := http.NewRequest(method, url, body)
 
 		recorder := httptest.NewRecorder()
