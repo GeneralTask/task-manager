@@ -40,7 +40,7 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const [isCalendarExpanded, setIsCalendarExpanded] = useState(true)
+    const [isCalendarExpanded, setIsCalendarExpanded] = useState(false)
     return (
         <DefaultTemplateContainer>
             <ReactTooltip

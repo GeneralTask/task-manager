@@ -26,6 +26,7 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
     const [isExpanded, setIsExpanded] = useState(true)
 
     const section = taskSections?.find(({ id }) => id === sectionId)
+    if (!section) return null
 
     return (
         <GTModal
