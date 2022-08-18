@@ -83,12 +83,7 @@ const SettingsView = () => {
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
     const onWindowClose = () => {
-        queryClient.refetchQueries({
-            stale: true,
-            predicate(query) {
-                return query.queryKey !== 'user_info'
-            },
-        })
+        queryClient.refetchQueries({ stale: true })
     }
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
