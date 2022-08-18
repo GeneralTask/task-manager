@@ -95,7 +95,8 @@ func TestMarkAsComplete(t *testing.T) {
 					}}}}}`
 	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
 	router := GetRouter(api)
 
@@ -321,7 +322,9 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -379,7 +382,9 @@ func TestTaskReorder(t *testing.T) {
 		taskIDHex := taskID.Hex()
 
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -393,7 +398,9 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("MissingOrderingID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -407,7 +414,9 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("BadTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		taskIDHex := primitive.NewObjectID().Hex()
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -422,7 +431,9 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("WrongFormatTaskID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/123/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -436,7 +447,9 @@ func TestTaskReorder(t *testing.T) {
 	})
 	t.Run("BadTaskSectionIDFormat", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+primitive.NewObjectID().Hex()+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2, "id_task_section": "poop"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -464,7 +477,9 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_task_section": "`+constants.IDTaskSectionDefault.Hex()+`"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -501,7 +516,9 @@ func TestTaskReorder(t *testing.T) {
 		taskID := insertResult.InsertedID.(primitive.ObjectID)
 		taskIDHex := taskID.Hex()
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		request.Header.Add("Content-Type", "application/json")
@@ -570,7 +587,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -605,7 +624,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -632,7 +653,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -669,7 +692,9 @@ func TestEditFields(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -703,7 +728,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -729,7 +756,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -763,7 +792,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -792,7 +823,9 @@ func TestEditFields(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -839,7 +872,9 @@ func TestEditFields(t *testing.T) {
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",
@@ -871,7 +906,9 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+insertedTaskID.Hex()+"/",

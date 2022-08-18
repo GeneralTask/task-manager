@@ -31,12 +31,20 @@ type API struct {
 	DBCleanup           func()
 }
 
-func GetAPI() *API {
+func GetAPIWithDBCleanup() (*API, func()) {
 	dbh, err := database.CreateDBHandle()
 	if err != nil {
 		log.Fatal().Msgf("Failed to connect to db, %+v", err)
 	}
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB, DBCleanup: dbh.CloseConnection}
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB}, dbh.CloseConnection
+}
+
+func GetAPI() *API {
+	//_, err := database.CreateDBHandle()
+	//if err != nil {
+	//	log.Fatal().Msgf("Failed to connect to db, %+v", err)
+	//}
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
 }
 
 func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
