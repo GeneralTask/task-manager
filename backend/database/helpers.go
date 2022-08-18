@@ -239,14 +239,16 @@ func GetPullRequest(ctx context.Context, itemID primitive.ObjectID, userID primi
 func GetOrCreatePullRequest(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*PullRequest, error) {
 	pullRequestCollection := GetPullRequestCollection(db)
 	mongoResult := GetOrCreateWithCollection(pullRequestCollection, userID, IDExternal, sourceID, fieldsToInsertIfMissing)
+	logger := logging.GetSentryLogger()
+
 	if mongoResult == nil {
+		logger.Error().Msg("unable to create pull request")
 		return nil, errors.New("unable to create pull request")
 	}
 
 	var pullRequest PullRequest
 	err := mongoResult.Decode(&pullRequest)
 	if err != nil {
-		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to get pull request")
 		return nil, err
 	}
@@ -260,7 +262,8 @@ func FindOneAndUpdateWithCollection(
 	IDExternal string,
 	sourceID string,
 	fields interface{},
-	additionalFilters *[]bson.M) *mongo.SingleResult {
+	additionalFilters *[]bson.M,
+) *mongo.SingleResult {
 	parentCtx := context.Background()
 	dbQuery := getDBQuery(userID, IDExternal, sourceID, additionalFilters)
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations

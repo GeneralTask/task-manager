@@ -163,6 +163,8 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			continue
 		}
 
+		isCompleted := false
+		pullRequest.IsCompleted = &isCompleted
 		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,

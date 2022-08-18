@@ -8,6 +8,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -53,7 +54,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	userIDHex, _ := c.Get("user")
 	userID := userIDHex.(primitive.ObjectID)
 
-	pullRequests, err := database.GetPullRequests(db, userID, nil)
+	pullRequests, err := database.GetPullRequests(db, userID, &[]bson.M{{"is_completed": false}})
 	if err != nil || pullRequests == nil {
 		Handle500(c)
 		return

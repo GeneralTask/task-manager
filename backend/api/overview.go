@@ -407,6 +407,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 
 	githubPRs, err := database.GetPullRequests(db, userID,
 		&[]bson.M{
+			{"is_completed": false},
 			{"repository_id": view.GithubID},
 		},
 	)

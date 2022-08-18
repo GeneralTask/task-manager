@@ -41,6 +41,9 @@ func TestPullRequestList(t *testing.T) {
 	assert.NoError(t, err)
 	pullRequest8, err := createTestPullRequest(db, userID, "dogecoin", false, true, external.ActionWaitingOnCI, timePullRequestUpdated)
 	assert.NoError(t, err)
+	// completed PR
+	_, err = createTestPullRequest(db, userID, "dogecoin", true, true, "", timePullRequestUpdated)
+	assert.NoError(t, err)
 	// wrong user id
 	_, err = createTestPullRequest(db, notUserID, "dogecoin", false, true, "", timePullRequestUpdated)
 	assert.NoError(t, err)
@@ -188,6 +191,7 @@ func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, reposi
 			RepositoryID:   repositoryName,
 			RepositoryName: repositoryName,
 			RequiredAction: requiredAction,
+			IsCompleted:    &isCompleted,
 			LastUpdatedAt:  lastUpdatedAtPrimitive,
 		},
 	)
