@@ -39,7 +39,7 @@ func GetAPIWithDBCleanup() (*API, func()) {
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB}, dbh.CloseConnection
 }
 
-func GetAPI() *API {
+func GetTestAPI() *API {
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
 }
 
