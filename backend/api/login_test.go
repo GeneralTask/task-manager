@@ -22,7 +22,7 @@ func TestLoginRedirect(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	api := GetAPI()
+	api, _ := GetAPI()
 	api.ExternalConfig.GoogleLoginConfig = &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",

@@ -21,7 +21,7 @@ import (
 
 func TestOverview(t *testing.T) {
 	authtoken := login("test_overview@generaltask.com", "")
-	api := GetAPI()
+	api, _ := GetAPI()
 	router := GetRouter(api)
 	UnauthorizedTest(t, "GET", "/overview/views/", nil)
 	t.Run("SuccessGetViews", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestGetOverviewResults(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	parentCtx := context.Background()
-	api := GetAPI()
+	api, _ := GetAPI()
 
 	t.Run("NoViews", func(t *testing.T) {
 		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID())
@@ -161,7 +161,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, _ := GetAPI()
 
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -176,7 +176,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	}
 
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		api := GetAPI()
+		api, _ := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -227,7 +227,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
 
-		api := GetAPI()
+		api, _ := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -249,7 +249,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		api := GetAPI()
+		api, _ := GetAPI()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
@@ -285,7 +285,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, _ := GetAPI()
 	authURL := "http://localhost:8080/link/linear/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -431,7 +431,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, _ := GetAPI()
 	authURL := "http://localhost:8080/link/slack/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:       view.ID,
@@ -571,7 +571,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, _ := GetAPI()
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
@@ -702,7 +702,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	api := GetAPI()
+	api, _ := GetAPI()
 	userID := primitive.NewObjectID()
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
@@ -808,7 +808,7 @@ func TestIsServiceLinked(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	api := GetAPI()
+	api, _ := GetAPI()
 
 	userID := primitive.NewObjectID()
 	testServiceID := "testID"
