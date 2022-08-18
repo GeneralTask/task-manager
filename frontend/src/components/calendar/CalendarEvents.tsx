@@ -14,6 +14,7 @@ import {
     DayHeaderText,
     TimeAndHeaderContainer,
     TimeContainer,
+    CALENDAR_DAY_HEADER_HEIGHT,
 } from './CalendarEvents-styles'
 import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
@@ -83,6 +84,7 @@ interface WeekCalendarEventsProps {
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
     isExpanded: boolean
+    accountId: string
 }
 const WeekCalendarEvents = ({
     date,
@@ -95,11 +97,74 @@ const WeekCalendarEvents = ({
     isEventSelected,
     setIsEventSelected,
     isExpanded,
-}: WeekCalendarEventsProps): JSX.Element => {
+    accountId,
+}: WeekCalendarEventsProps) => {
     const tmpDate = date.plus({ days: dayOffset })
+    const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
+    const { mutate: createEvent } = useCreateEvent()
+
+    const onDrop = useCallback(
+        async (item: DropItem, monitor: DropTargetMonitor) => {
+            const dropPosition = monitor.getClientOffset()
+            if (!eventsContainerRef.current || !dropPosition || !accountId) return
+            const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+            const scrollOffset = eventsContainerRef.current.scrollTop
+
+            const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
+
+            // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
+            const dropTimeBlock = Math.floor(
+                (yPosInEventsContainer - CALENDAR_DAY_HEADER_HEIGHT) /
+                    ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
+            )
+
+            const start = date
+                .set({
+                    hour: dropTimeBlock / 2,
+                    minute: dropTimeBlock % 2 === 0 ? 0 : 30,
+                    second: 0,
+                    millisecond: 0,
+                })
+                .plus({ days: dayOffset })
+            const end = start.plus({ minutes: 30 })
+
+            createEvent({
+                createEventPayload: {
+                    account_id: accountId,
+                    datetime_start: start.toISO(),
+                    datetime_end: end.toISO(),
+                    summary: item.task?.title,
+                    description: item.task?.body,
+                },
+                date,
+            })
+        },
+        [date, accountId, createEvent]
+    )
+
+    const [, drop] = useDrop(
+        () => ({
+            accept: DropType.TASK,
+            collect: (monitor) => {
+                return !!monitor.isOver()
+            },
+            drop: onDrop,
+            canDrop: () => accountId !== undefined,
+        }),
+        [accountId, onDrop]
+    )
+
+    useLayoutEffect(() => {
+        if (!eventsContainerRef.current) return
+        eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+    }, [])
+
+    useEffect(() => {
+        drop(eventsContainerRef)
+    }, [eventsContainerRef, drop])
 
     return (
-        <DayAndHeaderContainer>
+        <DayAndHeaderContainer ref={eventsContainerRef}>
             {isExpanded && (
                 <CalendarDayHeader>
                     <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
@@ -136,8 +201,6 @@ interface CalendarEventsProps {
 }
 
 const CalendarEvents = ({ date, numDays, accountId, isExpanded }: CalendarEventsProps) => {
-    const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
@@ -146,7 +209,6 @@ const CalendarEvents = ({ date, numDays, accountId, isExpanded }: CalendarEvents
     const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
     const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
-    const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
     const [isEventSelected, setIsEventSelected] = useState(false)
     const [isScrollDisabled, setIsScrollDisabled] = useState(false)
@@ -177,69 +239,9 @@ const CalendarEvents = ({ date, numDays, accountId, isExpanded }: CalendarEvents
         false
     )
 
-    useLayoutEffect(() => {
-        if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
-        }
-    }, [])
-
-    // drag task to calendar logic
-
-    const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
-            const dropPosition = monitor.getClientOffset()
-            if (!eventsContainerRef.current || !dropPosition || !accountId) return
-            const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-            const scrollOffset = eventsContainerRef.current.scrollTop
-
-            const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
-
-            // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
-            const dropTimeBlock = Math.floor(
-                yPosInEventsContainer / ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
-            )
-
-            const start = date.set({
-                hour: dropTimeBlock / 2,
-                minute: dropTimeBlock % 2 === 0 ? 0 : 30,
-                second: 0,
-                millisecond: 0,
-            })
-            const end = start.plus({ minutes: 30 })
-
-            createEvent({
-                createEventPayload: {
-                    account_id: accountId,
-                    datetime_start: start.toISO(),
-                    datetime_end: end.toISO(),
-                    summary: item.task?.title,
-                    description: item.task?.body,
-                },
-                date,
-            })
-        },
-        [date, accountId, createEvent]
-    )
-
-    const [, drop] = useDrop(
-        () => ({
-            accept: DropType.TASK,
-            collect: (monitor) => {
-                return !!monitor.isOver()
-            },
-            drop: onDrop,
-            canDrop: () => accountId !== undefined,
-        }),
-        [accountId, onDrop]
-    )
-
-    useEffect(() => {
-        drop(eventsContainerRef)
-    }, [eventsContainerRef])
-
     // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (
-        <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={isScrollDisabled}>
+        <AllDaysContainer isScrollDisabled={isScrollDisabled}>
             <TimeAndHeaderContainer>
                 {isExpanded && <CalendarDayHeader />}
                 <TimeContainer>
@@ -260,6 +262,7 @@ const CalendarEvents = ({ date, numDays, accountId, isExpanded }: CalendarEvents
                     isEventSelected={isEventSelected}
                     setIsEventSelected={setIsEventSelected}
                     isExpanded={isExpanded}
+                    accountId={accountId ?? ''}
                 />
             ))}
         </AllDaysContainer>

@@ -16,6 +16,7 @@ export const CALENDAR_TIME_COLOR = Colors.text.light
 export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = '2.5px'
+export const CALENDAR_DAY_HEADER_HEIGHT = 40
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
 
@@ -151,7 +152,7 @@ export const CalendarDayHeader = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    height: 40px;
+    height: ${CALENDAR_DAY_HEADER_HEIGHT}px;
     position: sticky;
     background-color: ${Colors.background.medium};
     top: 0;
