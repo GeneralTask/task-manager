@@ -1,0 +1,16 @@
+Features:
+- Local storage
+    - Saved state for calendar collapse
+    - Toggles in settings menu
+    - Uses redux and local storage to save a whole store
+    - ...Dark/Dank mode
+    - ...Column widths
+- Resizable columns
+    - Implemented on Task, PR, and Overview pages
+    - State is saved between reloads
+- Dark mode
+    - Real Dark
+- Dank mode
+    - Real Dank
+- And much more!
+    - not actually much more
