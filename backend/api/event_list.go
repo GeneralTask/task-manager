@@ -39,10 +39,17 @@ func (api *API) EventsList(c *gin.Context) {
 		return
 	}
 
-	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	userID, _ := c.Get("user")
 	var userObject database.User
-	userCollection := database.GetUserCollection(api.DB)
+	userCollection := database.GetUserCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)

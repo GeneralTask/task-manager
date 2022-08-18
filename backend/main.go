@@ -30,7 +30,5 @@ func main() {
 	if err != nil {
 		logger.Error().Err(err).Msg("error running migrations")
 	}
-	apiStruct := api.GetAPI()
-	defer apiStruct.DBCleanup()
-	api.GetRouter(apiStruct).Run()
+	api.GetRouter(api.GetAPI()).Run()
 }

@@ -89,6 +89,13 @@ type SlackInputValue struct {
 // @Router       /tasks/create_external/slack/ [post]
 func (api *API) SlackTaskCreate(c *gin.Context) {
 	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
 	// make request body readable
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	// this is required, as the first write fully consumes the body
@@ -101,7 +108,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 	slackSigningSecret := config.GetConfigValue("SLACK_SIGNING_SECRET")
 	timestamp := c.Request.Header.Get("X-Slack-Request-Timestamp")
 	signature := c.Request.Header.Get("X-Slack-Signature")
-	err := authenticateSlackRequest(slackSigningSecret, timestamp, signature, string(body))
+	err = authenticateSlackRequest(slackSigningSecret, timestamp, signature, string(body))
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "signing secret invalid"})
 		return
@@ -138,7 +145,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 	// extract external token for task and modal creation
 	externalID := external.GenerateSlackUserID(slackParams.Team.ID, slackParams.User.ID)
-	externalToken, err := database.GetExternalToken(api.DB, externalID, sourceID)
+	externalToken, err := database.GetExternalToken(db, externalID, sourceID)
 	if err != nil {
 		logger.Error().Err(err).Msg("error getting external token")
 		Handle500(c)
@@ -243,12 +250,19 @@ func (api *API) TaskCreate(c *gin.Context) {
 		return
 	}
 
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
 	IDTaskSection := primitive.NilObjectID
 	if taskCreateParams.IDTaskSection != nil {
-		IDTaskSection, err = getValidTaskSection(*taskCreateParams.IDTaskSection, userID, api.DB)
+		IDTaskSection, err = getValidTaskSection(*taskCreateParams.IDTaskSection, userID, db)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
@@ -256,7 +270,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	}
 
 	if sourceID != external.TASK_SOURCE_ID_GT_TASK {
-		externalAPICollection := database.GetExternalTokenCollection(api.DB)
+		externalAPICollection := database.GetExternalTokenCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		count, err := externalAPICollection.CountDocuments(

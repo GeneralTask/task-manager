@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -10,30 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-type DBHandle struct {
-	DB      *mongo.Database
-	cleanup *func()
-}
-
-func (dbHandle *DBHandle) CloseConnection() {
-	if dbHandle.cleanup != nil {
-		(*dbHandle.cleanup)()
-	}
-}
-
-func CreateDBHandle() (*DBHandle, error) {
-	db, cleanup, err := GetDBConnection()
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to DB")
-		return nil, err
-	}
-	dbh := &DBHandle{
-		DB:      db,
-		cleanup: &cleanup,
-	}
-	return dbh, nil
-}
 
 // GetDBConnection returns a MongoDB client
 func GetDBConnection() (*mongo.Database, func(), error) {

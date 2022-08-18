@@ -42,7 +42,13 @@ type LoginRedirectParams struct {
 func (api *API) Login(c *gin.Context) {
 	var params LoginRedirectParams
 	forcePrompt := c.ShouldBind(&params) == nil && params.ForcePrompt
-	insertedStateToken, err := database.CreateStateToken(api.DB, nil, params.UseDeeplink)
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	insertedStateToken, err := database.CreateStateToken(db, nil, params.UseDeeplink)
 	if err != nil {
 		Handle500(c)
 		return
@@ -88,6 +94,13 @@ func (api *API) LoginCallback(c *gin.Context) {
 		return
 	}
 
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+
 	useDeeplinkRedirect := false
 	if !api.SkipStateTokenCheck {
 		stateTokenID, err := primitive.ObjectIDFromHex(redirectParams.State)
@@ -105,13 +118,13 @@ func (api *API) LoginCallback(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "state token does not match cookie"})
 			return
 		}
-		token, err := database.GetStateToken(api.DB, stateTokenID, nil)
+		token, err := database.GetStateToken(db, stateTokenID, nil)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "invalid state token"})
 			return
 		}
 		useDeeplinkRedirect = token.UseDeeplink
-		err = database.DeleteStateToken(api.DB, stateTokenID, nil)
+		err = database.DeleteStateToken(db, stateTokenID, nil)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "invalid state token"})
 			return
@@ -131,18 +144,18 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	if userIsNew != nil && *userIsNew {
-		err = createNewUserTasks(parentCtx, userID, api.DB)
+		err = createNewUserTasks(parentCtx, userID, db)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to create starter tasks")
 		}
-		err = createNewUserViews(parentCtx, userID, api.DB)
+		err = createNewUserViews(parentCtx, userID, db)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to create starter views")
 		}
 	}
 
 	lowerEmail := strings.ToLower(*email)
-	waitlistCollection := database.GetWaitlistCollection(api.DB)
+	waitlistCollection := database.GetWaitlistCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	count, err := waitlistCollection.CountDocuments(
@@ -161,7 +174,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	internalToken := guuid.New().String()
-	internalAPITokenCollection := database.GetInternalTokenCollection(api.DB)
+	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = internalAPITokenCollection.InsertOne(

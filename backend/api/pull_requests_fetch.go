@@ -14,10 +14,17 @@ import (
 
 func (api *API) PullRequestsFetch(c *gin.Context) {
 	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	defer dbCleanup()
 	userID, _ := c.Get("user")
 
 	var tokens []database.ExternalAPIToken
-	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
@@ -38,7 +45,7 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		return
 	}
 
-	currentPRs, err := database.GetActivePRs(api.DB, userID.(primitive.ObjectID))
+	currentPRs, err := database.GetActivePRs(db, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
@@ -50,7 +57,7 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		return
 	}
 
-	err = api.adjustForCompletedTasks(api.DB, currentPRs, &fetchedPRs, failedFetchSources)
+	err = api.adjustForCompletedTasks(db, currentPRs, &fetchedPRs, failedFetchSources)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
 		Handle500(c)

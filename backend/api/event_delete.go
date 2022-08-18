@@ -45,7 +45,13 @@ func (api *API) EventDelete(c *gin.Context) {
 		return
 	}
 
-	eventCollection := database.GetCalendarEventCollection(api.DB)
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	defer dbCleanup()
+	eventCollection := database.GetCalendarEventCollection(db)
 	res, err := eventCollection.DeleteOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
