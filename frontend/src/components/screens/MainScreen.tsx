@@ -40,34 +40,39 @@ const MainScreen = () => {
     useInterval(refetchPullRequests, PR_REFETCH_INTERVAL)
 
     const dankMode = useAppSelector((state) => state.local.dank_mode)
-    const audio = new Audio('./audio/shooting_stars.mp3')
-    audio.load()
 
     const [playbackRate, setPlaybackRate] = React.useState(0.75)
 
-    const [play, { stop }] = useSound('./audio/shooting_stars.mp3', {
+    const [play, { stop }] = useSound('http://www.lejdesigns.com/rankedPUGs/sounds/sponge.mp3', {
         playbackRate,
         // `interrupt` ensures that if the sound starts again before it's
         // ended, it will truncate it. Otherwise, the sound can overlap.
         interrupt: true,
-        id: 'shooting_stars',
     })
 
     const handleClick = () => {
         setPlaybackRate(playbackRate + 0.1)
+        play()
+        console.log('FASTER', playbackRate)
     }
-    window.addEventListener('click', handleClick)
 
     React.useEffect(() => {
+        console.log('PLAYBACK RATE', playbackRate)
         if (dankMode) {
             document.body.classList.add('dank-mode')
             play()
+            window.addEventListener('click', handleClick)
         } else {
+            stop()
+            setPlaybackRate(0.75)
+        }
+        return () => {
+            console.log('UNMOUNT')
             document.body.classList.remove('dank-mode')
             stop()
+            window.removeEventListener('click', handleClick)
         }
-        return () => stop()
-    }, [dankMode])
+    }, [dankMode, playbackRate])
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
