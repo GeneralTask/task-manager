@@ -55,9 +55,7 @@ func TestPullRequestList(t *testing.T) {
 	}
 	dbCtx, cancel := context.WithTimeout(parentContext, constants.DatabaseTimeout)
 	defer cancel()
-	result, err := repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2, repository3})
-	firstID := result.InsertedIDs[0].(primitive.ObjectID)
-	secondID := result.InsertedIDs[1].(primitive.ObjectID)
+	_, err = repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2, repository3})
 	assert.NoError(t, err)
 
 	timePullRequestUpdated := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -110,7 +108,7 @@ func TestPullRequestList(t *testing.T) {
 		assert.Equal(t, 2, len(result))
 		assert.Equal(t, []RepositoryResult{
 			{
-				ID:   firstID.Hex(),
+				ID:   repositoryID1,
 				Name: repositoryName1,
 				PullRequests: []PullRequestResult{
 					{
@@ -188,7 +186,7 @@ func TestPullRequestList(t *testing.T) {
 				},
 			},
 			{
-				ID:   secondID.Hex(),
+				ID:   repositoryID2,
 				Name: repositoryName2,
 				PullRequests: []PullRequestResult{
 					{

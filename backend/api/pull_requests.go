@@ -82,22 +82,26 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	defer cancel()
 	cursor.All(dbCtx, &repositories)
 
+	repositoryIDToResult := make(map[string]RepositoryResult)
+	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
+	for _, pullRequest := range *pullRequests {
+		repositoryID := pullRequest.RepositoryID
+		repositoryResult := RepositoryResult{
+			ID:   repositoryID,
+			Name: pullRequest.RepositoryName,
+		}
+		repositoryIDToResult[repositoryID] = repositoryResult
+		pullRequestResult := getResultFromPullRequest(pullRequest)
+		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
+	}
 	repositoryResults := []RepositoryResult{}
-	for _, repository := range repositories {
-		result := RepositoryResult{
-			ID:           repository.ID.Hex(),
-			Name:         repository.FullName,
-			PullRequests: []PullRequestResult{},
-		}
-		for _, pullRequest := range *pullRequests {
-			if pullRequest.RepositoryID != repository.RepositoryID {
-				continue
-			}
-			result.PullRequests = append(result.PullRequests, getResultFromPullRequest(pullRequest))
-		}
-		if len(result.PullRequests) > 0 {
-			repositoryResults = append(repositoryResults, result)
-		}
+
+	for repositoryID, repositoryResult := range repositoryIDToResult {
+		repositoryResults = append(repositoryResults, RepositoryResult{
+			ID:           repositoryID,
+			Name:         repositoryResult.Name,
+			PullRequests: repositoryIDToPullRequests[repositoryID],
+		})
 	}
 
 	// Sort repositories by name
