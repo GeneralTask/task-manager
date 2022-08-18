@@ -1,5 +1,5 @@
 import { Colors, Spacing } from '../../styles'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { DateTime } from 'luxon'
@@ -80,6 +80,7 @@ interface CalendarHeaderProps {
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
     showExpandOptions: boolean
     isExpanded: boolean
+    setIsExpanded: (isExpanded: boolean) => void
 }
 export default function CalendarHeader({
     collapseCalendar,
@@ -87,8 +88,8 @@ export default function CalendarHeader({
     setDate,
     showExpandOptions = true,
     isExpanded,
+    setIsExpanded,
 }: CalendarHeaderProps): JSX.Element {
-    const dispatch = useAppDispatch()
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -104,9 +105,13 @@ export default function CalendarHeader({
         [date, setDate, isExpanded]
     )
     const expandCalendar = (expanded: boolean) => {
-        dispatch(setExpandedCalendar(expanded))
+        setIsExpanded(expanded)
         setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
     }
+
+    useEffect(() => {
+        expandCalendar(isExpanded)
+    }, [])
 
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)

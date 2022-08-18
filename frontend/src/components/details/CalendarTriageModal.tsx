@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -23,6 +23,7 @@ const CalendarTriageContainer = styled.div`
 const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
     const { section: sectionId } = useParams()
     const { data: taskSections } = useGetTasks()
+    const [isExpanded, setIsExpanded] = useState(true)
 
     const section = taskSections?.find(({ id }) => id === sectionId)
 
@@ -39,7 +40,7 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
                     <TaskList section={section!} />
                 </div>
                 <div style={{ width: '70%' }}>
-                    <CalendarView isExpanded={true} showExpandOptions={false} />
+                    <CalendarView isExpanded={isExpanded} setIsExpanded={setIsExpanded} showExpandOptions={false} />
                 </div>
             </CalendarTriageContainer>
         </GTModal>
