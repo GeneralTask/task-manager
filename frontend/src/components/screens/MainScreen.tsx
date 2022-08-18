@@ -41,7 +41,7 @@ const MainScreen = () => {
 
     const dankMode = useAppSelector((state) => state.local.dank_mode)
 
-    const [playbackRate, setPlaybackRate] = React.useState(0.75)
+    const [playbackRate, setPlaybackRate] = React.useState(1)
 
     const [play, { stop }] = useSound('http://www.lejdesigns.com/rankedPUGs/sounds/sponge.mp3', {
         playbackRate,
@@ -57,14 +57,16 @@ const MainScreen = () => {
     React.useEffect(() => {
         if (dankMode) {
             document.body.classList.add('dank-mode')
+            document.body.classList.add('rain')
             play()
             window.addEventListener('click', handleClick)
         } else {
             stop()
-            setPlaybackRate(0.75)
+            setPlaybackRate(1)
         }
         return () => {
             document.body.classList.remove('dank-mode')
+            document.body.classList.remove('rain')
             stop()
             window.removeEventListener('click', handleClick)
         }
