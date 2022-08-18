@@ -58,7 +58,7 @@ func (api *API) EventModify(c *gin.Context) {
 		return
 	}
 
-	err = updateEventInDB(api, modifyParams, event, userID)
+	err = api.updateEventInDB(modifyParams, event, userID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -66,7 +66,7 @@ func (api *API) EventModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func updateEventInDB(api *API, modifyParams external.EventModifyObject, event *database.CalendarEvent, userID primitive.ObjectID) error {
+func (api *API) updateEventInDB(modifyParams external.EventModifyObject, event *database.CalendarEvent, userID primitive.ObjectID) error {
 	if modifyParams.Summary != nil {
 		event.Title = *modifyParams.Summary
 	}
