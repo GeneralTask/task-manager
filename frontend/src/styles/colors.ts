@@ -1,3 +1,5 @@
+import store from '../redux/store'
+
 const WHITE = '#FFFFFF'
 const BLACK = '#000000'
 const GRAY = {
@@ -5,6 +7,17 @@ const GRAY = {
     _100: '#F4F4F4',
     _200: '#DADADA',
     _500: '#717179',
+    _600: '#6E6E70',
+    _700: '#6A6A6B',
+    _800: '#666667',
+    _900: '#4A4A4B',
+    _1000: '#3D3D3E',
+    _1100: '#353536',
+    _1200: '#2F2F30',
+    _1300: '#29292A',
+    _1400: '#242425',
+    _1500: '#1F1F20',
+    _1600: '#1A1A1B',
 }
 const RED = {
     _1: '#FF135A',
@@ -37,23 +50,25 @@ const PURPLE = {
 }
 
 
+const darkMode = store.getState().local.dark_mode
+
 export const background = {
-    white: WHITE,
-    light: GRAY._50,
-    medium: GRAY._100,
-    dark: GRAY._200,
-    black: BLACK,
+    white: darkMode ? GRAY._1200 : WHITE,
+    light: darkMode ? GRAY._1300 : GRAY._50,
+    medium: darkMode ? GRAY._1400 : GRAY._100,
+    dark: darkMode ? GRAY._1500 : GRAY._200,
+    black: darkMode ? GRAY._1600 : BLACK,
 }
 
 export const border = {
-    light: GRAY._200,
-    gray: GRAY._500,
+    light: darkMode ? GRAY._1200 : GRAY._200,
+    gray: darkMode ? GRAY._1400 : GRAY._500,
 }
 
 export const text = {
-    black: BLACK,
+    black: darkMode ? GRAY._200 : BLACK,
     light: GRAY._500,
-    white: WHITE,
+    white: darkMode ? BLACK : WHITE,
 }
 
 export const icon = {
@@ -72,9 +87,9 @@ export const button = {
         active_text: GRAY._200,
     },
     secondary: {
-        default: WHITE,
-        hover: GRAY._200,
-        active_text: BLACK,
+        default: darkMode ? GRAY._1000 : WHITE,
+        hover: darkMode ? GRAY._1200 : GRAY._200,
+        active_text: darkMode ? WHITE : BLACK,
     },
 }
 

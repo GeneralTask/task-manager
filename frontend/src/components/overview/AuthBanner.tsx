@@ -27,6 +27,7 @@ const IconContainer = styled.div`
     gap: ${Spacing.padding._12};
 `
 const Title = styled.span`
+    color: ${Colors.text.black};
     ${Typography.bodySmall};
 `
 

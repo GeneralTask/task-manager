@@ -56,6 +56,7 @@ const SHARED_MODAL_CONTENT_STYLE = {
     boxShadow: Shadows.medium,
     padding: Spacing.padding._16,
     borderRadius: Border.radius.large,
+    backgroundColor: Colors.background.white,
 }
 
 const getModalStyle = (modalSize: TModalSize): Modal.Styles => ({

@@ -24,6 +24,7 @@ const HeaderText = styled.span`
     border: ${Border.stroke.large} solid transparent;
     overflow-wrap: break-word;
     min-width: 0;
+    color: ${Colors.text.black};
     ${Typography.title};
 `
 const HeaderTextEditable = styled.input`
@@ -35,6 +36,7 @@ const HeaderTextEditable = styled.input`
         border: ${Border.stroke.large} solid ${Colors.background.dark};
     }
     background-color: transparent;
+    color: ${Colors.text.black};
     width: 100%;
     ${Typography.title};
 `

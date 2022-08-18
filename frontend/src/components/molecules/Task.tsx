@@ -1,6 +1,6 @@
 import { DropType, TTask } from '../../utils/types'
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
 import CompleteButton from '../atoms/buttons/CompleteButton'
@@ -20,6 +20,7 @@ const Title = styled.span`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: ${Colors.text.black};
     ${Typography.bodySmall};
 `
 const DominoContainer = styled.div`

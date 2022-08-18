@@ -84,13 +84,16 @@ const SettingContainer = styled.div`
     border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4} ${Spacing.padding._8};
     background-color: ${Colors.background.dark};
-    ${Typography.subtitle};
 `
 const SettingsContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: ${Spacing.margin._8};
+`
+const SettingText = styled.span`
+    color: ${Colors.text.black};
+    ${Typography.subtitle};
 `
 
 const SettingsView = () => {
@@ -191,11 +194,17 @@ const SettingsView = () => {
                 ))}
                 <SettingsContainer>
                     <SettingContainer>
-                        <span>Dark Mode</span>
-                        <GTCheckbox isChecked={darkMode} onChange={() => dispatch(setDarkMode(!darkMode))} />
+                        <SettingText>Dark Mode</SettingText>
+                        <GTCheckbox
+                            isChecked={darkMode}
+                            onChange={() => {
+                                dispatch(setDarkMode(!darkMode))
+                                setTimeout(() => window.location.reload(), 500)
+                            }}
+                        />
                     </SettingContainer>
                     <SettingContainer>
-                        <span>Dank Mode</span>
+                        <SettingText>Dank Mode</SettingText>
                         <GTCheckbox isChecked={dankMode} onChange={() => dispatch(setDankMode(!dankMode))} />
                     </SettingContainer>
                 </SettingsContainer>
