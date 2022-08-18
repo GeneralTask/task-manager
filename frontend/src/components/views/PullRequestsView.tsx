@@ -13,10 +13,13 @@ import { Colors } from '../../styles'
 import styled from 'styled-components'
 import EmptyDetails from '../details/EmptyDetails'
 import { logos } from '../../styles/images'
+import ResizableColumnTemplate from '../templates/ResizableColumnTemplate'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import { setPullRequestPageWidth } from '../../redux/localSlice'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 
 const PullRequestsContainer = styled.div`
-    display: flex;
-    flex: 1 0;
+    height: 100%;
     border-right: 1px solid ${Colors.background.dark};
 `
 
@@ -25,6 +28,9 @@ const PullRequestsView = () => {
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
     const { refetch: refetchPullRequests, isFetching: isFetchingPullRequests } = useFetchPullRequests()
+
+    const dispatch = useAppDispatch()
+    const pullRequestPageWidth = useAppSelector((state) => state.local.pull_request_page_width)
 
     const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
     useItemSelectionController(pullRequests, (itemId: string) => navigate(`/pull-requests/${itemId}`))
@@ -49,38 +55,44 @@ const PullRequestsView = () => {
     }
     return (
         <>
-            <PullRequestsContainer>
-                <ScrollableListTemplate>
-                    <SectionHeader
-                        sectionName="Pull Requests"
-                        allowRefresh={true}
-                        refetch={refetchPullRequests}
-                        isRefreshing={isFetchingPullRequests}
-                    />
-                    <PullRequestViewContainer>
-                        {repositories.map((repository) => (
-                            <Repository key={repository.id}>
-                                <RepositoryName>{repository.name}</RepositoryName>
-                                {repository.pull_requests.length === 0 ? (
-                                    'No pull requests'
-                                ) : (
-                                    <>
-                                        {repository.pull_requests.map((pr) => (
-                                            <PullRequest
-                                                key={pr.id}
-                                                pullRequest={pr}
-                                                link={`/pull-requests/${pr.id}`}
-                                                isSelected={pr === expandedPullRequest}
-                                            />
-                                        ))}
-                                    </>
-                                )}
-                                <br />
-                            </Repository>
-                        ))}
-                    </PullRequestViewContainer>
-                </ScrollableListTemplate>
-            </PullRequestsContainer>
+            <ResizableColumnTemplate
+                initialWidth={pullRequestPageWidth ?? DEFAULT_VIEW_WIDTH}
+                saveWidth={(w) => dispatch(setPullRequestPageWidth(w))}
+                minWidth={DEFAULT_VIEW_WIDTH}
+            >
+                <PullRequestsContainer>
+                    <ScrollableListTemplate>
+                        <SectionHeader
+                            sectionName="Pull Requests"
+                            allowRefresh={true}
+                            refetch={refetchPullRequests}
+                            isRefreshing={isFetchingPullRequests}
+                        />
+                        <PullRequestViewContainer>
+                            {repositories.map((repository) => (
+                                <Repository key={repository.id}>
+                                    <RepositoryName>{repository.name}</RepositoryName>
+                                    {repository.pull_requests.length === 0 ? (
+                                        'No pull requests'
+                                    ) : (
+                                        <>
+                                            {repository.pull_requests.map((pr) => (
+                                                <PullRequest
+                                                    key={pr.id}
+                                                    pullRequest={pr}
+                                                    link={`/pull-requests/${pr.id}`}
+                                                    isSelected={pr === expandedPullRequest}
+                                                />
+                                            ))}
+                                        </>
+                                    )}
+                                    <br />
+                                </Repository>
+                            ))}
+                        </PullRequestViewContainer>
+                    </ScrollableListTemplate>
+                </PullRequestsContainer>
+            </ResizableColumnTemplate>
             {expandedPullRequest ? (
                 <PullRequestDetails pullRequest={expandedPullRequest} />
             ) : (

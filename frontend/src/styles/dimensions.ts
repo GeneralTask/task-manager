@@ -38,5 +38,5 @@ export const MEDIA_MAX_WIDTH = '650px'
 export const WINDOW_MIN_WIDTH = '800px'
 export const NAVIGATION_BAR_WIDTH = '230px'
 export const TASK_ACTION_WIDTH = '200px'
-export const DEFAULT_VIEW_WIDTH = '480px'
+export const DEFAULT_VIEW_WIDTH = 480
 export const TASK_HEIGHT = '48px'

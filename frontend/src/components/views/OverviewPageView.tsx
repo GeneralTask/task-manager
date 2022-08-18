@@ -13,9 +13,14 @@ import PullRequestDetails from '../details/PullRequestDetails'
 import { SectionHeader } from '../molecules/Header'
 import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
+import ResizableColumnTemplate from '../templates/ResizableColumnTemplate'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setOverviewPageWidth } from '../../redux/localSlice'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 
 const OverviewPageContainer = styled.div`
     display: flex;
+    height: 100%;
     border-right: 1px solid ${Colors.background.dark};
 `
 const ActionsContainer = styled.div`
@@ -29,6 +34,9 @@ const OverviewView = () => {
     const { data: views, refetch, isLoading, isFetching } = useGetOverviewViews()
     const { overviewItem } = useParams()
     const navigate = useNavigate()
+
+    const dispatch = useAppDispatch()
+    const overviewPageWidth = useAppSelector((state) => state.local.overview_page_width)
 
     // Prefetch supported views
     useGetSupportedViews()
@@ -73,22 +81,28 @@ const OverviewView = () => {
 
     return (
         <>
-            <OverviewPageContainer>
-                <ScrollableListTemplate>
-                    <SectionHeader
-                        sectionName="Overview"
-                        allowRefresh={true}
-                        refetch={refetch}
-                        isRefreshing={isFetching}
-                    />
-                    <ActionsContainer>
-                        <EditViewsButtons />
-                    </ActionsContainer>
-                    {views.map((view) => (
-                        <OverviewViewContainer view={view} key={view.id} />
-                    ))}
-                </ScrollableListTemplate>
-            </OverviewPageContainer>
+            <ResizableColumnTemplate
+                initialWidth={overviewPageWidth ?? DEFAULT_VIEW_WIDTH}
+                saveWidth={(w) => dispatch(setOverviewPageWidth(w))}
+                minWidth={DEFAULT_VIEW_WIDTH}
+            >
+                <OverviewPageContainer>
+                    <ScrollableListTemplate>
+                        <SectionHeader
+                            sectionName="Overview"
+                            allowRefresh={true}
+                            refetch={refetch}
+                            isRefreshing={isFetching}
+                        />
+                        <ActionsContainer>
+                            <EditViewsButtons />
+                        </ActionsContainer>
+                        {views.map((view) => (
+                            <OverviewViewContainer view={view} key={view.id} />
+                        ))}
+                    </ScrollableListTemplate>
+                </OverviewPageContainer>
+            </ResizableColumnTemplate>
             {detailsView}
         </>
     )

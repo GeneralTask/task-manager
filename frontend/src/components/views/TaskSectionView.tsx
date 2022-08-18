@@ -12,11 +12,15 @@ import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
+import ScrollableListTemplate from '../templates/ScrollableListTemplate'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import ResizableColumnTemplate from '../templates/ResizableColumnTemplate'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
+import { setTaskPageWidth } from '../../redux/localSlice'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -25,13 +29,7 @@ const BannerAndSectionContainer = styled.div`
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
-`
-const ScrollViewMimic = styled.div`
-    margin: 40px 0px 0px 10px;
-    padding-right: 10px;
-    overflow-y: auto;
-    flex: 1;
-    width: ${DEFAULT_VIEW_WIDTH};
+    height: 100%;
 `
 const TaskSectionViewContainer = styled.div`
     flex: 1;
@@ -66,6 +64,9 @@ const TaskSectionView = () => {
 
     const navigate = useNavigate()
     const params = useParams()
+
+    const dispatch = useAppDispatch()
+    const taskPageWidth = useAppSelector((state) => state.local.task_page_width)
 
     const refresh = () => {
         getTasks()
@@ -121,56 +122,62 @@ const TaskSectionView = () => {
 
     return (
         <>
-            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
-                <EventBanner date={DateTime.now()} />
-                <ScrollViewMimic ref={sectionScrollingRef}>
-                    <TaskSectionViewContainer>
-                        {isLoadingTasks || !section ? (
-                            <Loading />
-                        ) : (
-                            <>
-                                <SectionHeader
-                                    sectionName={section.name}
-                                    allowRefresh={true}
-                                    refetch={refresh}
-                                    isRefreshing={isFetchingExternal || isFetchingTasks}
-                                    taskSectionId={section.id}
-                                />
-                                {!section.is_done && <CreateNewTask sectionId={section.id} />}
-                                <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
-                                    {section.tasks.map((task, index) => (
-                                        <ReorderDropContainer
-                                            key={task.id}
-                                            index={index}
-                                            acceptDropType={DropType.TASK}
-                                            onReorder={handleReorderTask}
-                                        >
-                                            <Task
-                                                task={task}
-                                                dragDisabled={section.is_done}
+            <ResizableColumnTemplate
+                initialWidth={taskPageWidth ?? DEFAULT_VIEW_WIDTH}
+                saveWidth={(w) => dispatch(setTaskPageWidth(w))}
+                minWidth={DEFAULT_VIEW_WIDTH}
+            >
+                <BannerAndSectionContainer ref={bannerTaskSectionRef}>
+                    <EventBanner date={DateTime.now()} />
+                    <ScrollableListTemplate ref={sectionScrollingRef}>
+                        <TaskSectionViewContainer>
+                            {isLoadingTasks || !section ? (
+                                <Loading />
+                            ) : (
+                                <>
+                                    <SectionHeader
+                                        sectionName={section.name}
+                                        allowRefresh={true}
+                                        refetch={refresh}
+                                        isRefreshing={isFetchingExternal || isFetchingTasks}
+                                        taskSectionId={section.id}
+                                    />
+                                    {!section.is_done && <CreateNewTask sectionId={section.id} />}
+                                    <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
+                                        {section.tasks.map((task, index) => (
+                                            <ReorderDropContainer
+                                                key={task.id}
                                                 index={index}
-                                                sectionId={section.id}
-                                                sectionScrollingRef={sectionScrollingRef}
-                                                isSelected={task.id === params.task}
-                                                link={`/tasks/${params.section}/${task.id}`}
-                                                onMarkComplete={handleMarkTaskComplete}
-                                            />
-                                        </ReorderDropContainer>
-                                    ))}
-                                </TasksContainer>
-                                <ReorderDropContainer
-                                    index={section.tasks.length + 1}
-                                    acceptDropType={DropType.TASK}
-                                    onReorder={handleReorderTask}
-                                    indicatorType="TOP_ONLY"
-                                >
-                                    <BottomDropArea />
-                                </ReorderDropContainer>
-                            </>
-                        )}
-                    </TaskSectionViewContainer>
-                </ScrollViewMimic>
-            </BannerAndSectionContainer>
+                                                acceptDropType={DropType.TASK}
+                                                onReorder={handleReorderTask}
+                                            >
+                                                <Task
+                                                    task={task}
+                                                    dragDisabled={section.is_done}
+                                                    index={index}
+                                                    sectionId={section.id}
+                                                    sectionScrollingRef={sectionScrollingRef}
+                                                    isSelected={task.id === params.task}
+                                                    link={`/tasks/${params.section}/${task.id}`}
+                                                    onMarkComplete={handleMarkTaskComplete}
+                                                />
+                                            </ReorderDropContainer>
+                                        ))}
+                                    </TasksContainer>
+                                    <ReorderDropContainer
+                                        index={section.tasks.length + 1}
+                                        acceptDropType={DropType.TASK}
+                                        onReorder={handleReorderTask}
+                                        indicatorType="TOP_ONLY"
+                                    >
+                                        <BottomDropArea />
+                                    </ReorderDropContainer>
+                                </>
+                            )}
+                        </TaskSectionViewContainer>
+                    </ScrollableListTemplate>
+                </BannerAndSectionContainer>
+            </ResizableColumnTemplate>
             {task && section ? (
                 <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />
             ) : (
