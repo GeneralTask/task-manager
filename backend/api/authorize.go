@@ -45,13 +45,7 @@ func (api *API) Link(c *gin.Context) {
 	}
 	stateTokenID := primitive.NilObjectID
 	if taskService.Details.AuthType == external.AuthTypeOauth2 {
-		db, dbCleanup, err := database.GetDBConnection()
-		if err != nil {
-			Handle500(c)
-			return
-		}
-		defer dbCleanup()
-		insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID, false)
+		insertedStateToken, err := database.CreateStateToken(api.DB, &internalToken.UserID, false)
 		if err != nil {
 			Handle500(c)
 			return
@@ -113,13 +107,7 @@ func (api *API) LinkCallback(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "invalid state token format"})
 			return
 		}
-		db, dbCleanup, err := database.GetDBConnection()
-		if err != nil {
-			Handle500(c)
-			return
-		}
-		defer dbCleanup()
-		err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
+		err = database.DeleteStateToken(api.DB, stateTokenID, &internalToken.UserID)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "invalid state token"})
 			return
