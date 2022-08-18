@@ -199,7 +199,7 @@ const SettingsView = () => {
                             isChecked={darkMode}
                             onChange={() => {
                                 dispatch(setDarkMode(!darkMode))
-                                setTimeout(() => window.location.reload(), 500)
+                                window.location.reload()
                             }}
                         />
                     </SettingContainer>
