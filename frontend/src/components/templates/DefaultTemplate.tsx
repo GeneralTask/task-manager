@@ -1,14 +1,12 @@
 import '../../styles/tooltip.css'
 
 import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
-
 import CalendarView from '../views/CalendarView'
 import { Colors } from '../../styles'
 import NavigationView from '../views/NavigationView'
 import React, { useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
-import { useAppSelector } from '../../redux/hooks'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;

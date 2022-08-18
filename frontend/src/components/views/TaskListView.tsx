@@ -4,8 +4,6 @@ import { useGetTasks, useMarkTaskDone, useReorderTask } from '../../services/api
 
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { Colors } from '../../styles'
-import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Task from '../molecules/Task'
@@ -21,29 +19,15 @@ interface TaskListProps {
 
 const TaskList = ({ section }: TaskListProps) => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
-    // const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const {
-        data: taskSections,
-        // isLoading: isLoadingTasks,
-        // isFetching: isFetchingTasks,
-        // refetch: getTasks,
-    } = useGetTasks()
+    const { data: taskSections } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDone } = useMarkTaskDone()
-    // const { refetch: fetchExternal, isFetching: isFetchingExternal } = useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
-
-    // const refresh = () => {
-    //     getTasks()
-    //     fetchExternal()
-    // }
-
     const { task } = useMemo(() => {
-        // const section = taskSections?.find(({ id }) => id === params.section)
         const task = section?.tasks.find(({ id }) => id === params.task)
         return { section, task }
     }, [taskSections, params.task, params.section])

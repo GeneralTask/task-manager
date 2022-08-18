@@ -91,42 +91,4 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
     )
 }
 
-const ActionTaskSchedule = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOptionProps) => {
-    const actionRef = useRef<HTMLDivElement>(null)
-    useClickOutside(actionRef, () => setIsShown(false))
-    useEffect(() => {
-        setIsShown(false)
-    }, [task])
-
-    // show action when keyboardShortcut is pressed
-    useKeyboardShortcut(
-        keyboardShortcut,
-        useCallback(() => setIsShown(!isShown), [isShown])
-    )
-    useKeyboardShortcut(
-        'close',
-        useCallback(() => setIsShown(false), []),
-        !isShown
-    )
-
-    const { icon, popover, actionString } = (() => {
-        return {
-            icon: icons.calendar_blank,
-            popover: <LabelEditor task_id={task.id} closeLabelEditor={() => setIsShown(false)} />,
-            actionString: '',
-        }
-    })()
-
-    return (
-        <ButtonAndPopoverContainer ref={actionRef}>
-            <ActionButton onClick={() => setIsShown(!isShown)}>
-                <TooltipWrapper inline dataTip={label} tooltipId="tooltip">
-                    {actionString ? <ActionValue value={actionString} /> : <Icon icon={icon} size="small" />}
-                </TooltipWrapper>
-            </ActionButton>
-            {isShown && popover}
-        </ButtonAndPopoverContainer>
-    )
-}
-
 export default ActionOption

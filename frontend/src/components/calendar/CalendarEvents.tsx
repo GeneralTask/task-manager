@@ -17,7 +17,6 @@ import {
     CALENDAR_DAY_HEADER_HEIGHT,
 } from './CalendarEvents-styles'
 import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
 import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'

@@ -1,12 +1,10 @@
 import { Colors, Spacing } from '../../styles'
 import React, { useCallback, useEffect } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
 

@@ -1,5 +1,5 @@
 import { DropType, TTask } from '../../utils/types'
-import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
+import React, { MutableRefObject, useCallback, useState } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
@@ -38,59 +38,9 @@ interface TaskProps {
     onMarkComplete: (taskId: string, isComplete: boolean) => void
 }
 
-const Task = ({
-    task,
-    dragDisabled,
-    index,
-    sectionId,
-    sectionScrollingRef,
-    isSelected,
-    link,
-    onMarkComplete,
-}: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, isSelected, link, onMarkComplete }: TaskProps) => {
     const navigate = useNavigate()
-    const observer = useRef<IntersectionObserver>()
-    const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
-
-    // Add event listener to check if scrolling occurs in task section
-    // useEffect(() => {
-    //     const setScrollTrue = () => {
-    //         isScrolling.current = true
-    //     }
-    //     sectionScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
-    //     return () => {
-    //         sectionScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
-    //     }
-    // }, [])
-
-    //If task selection changes, re-enable auto-scrolling for task section
-    // useEffect(() => {
-    //     if (sectionScrollingRef?.current) {
-    //         isScrolling.current = false
-    //     }
-    // }, [isSelected])
-
-    //Auto-scroll to task if it is selected and out of view
-    // const elementRef = useCallback(
-    //     (node) => {
-    //         if (observer.current) observer.current.disconnect()
-    //         observer.current = new IntersectionObserver(
-    //             (entries) => {
-    //                 if (!entries[0].isIntersecting && isSelected && !isScrolling.current) {
-    //                     node.scrollIntoView({
-    //                         behavior: 'smooth',
-    //                         block: 'center',
-    //                     })
-    //                 }
-    //             },
-    //             { threshold: 1.0 }
-    //         )
-    //         if (node) observer.current.observe(node)
-    //     },
-    //     [isSelected, isScrolling.current]
-    // )
-
     const onClick = useCallback(() => {
         navigate(link)
     }, [link])

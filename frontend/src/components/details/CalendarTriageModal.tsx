@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
-import { background } from '../../styles/colors'
 import GTButton from '../atoms/buttons/GTButton'
 import GTModal from '../atoms/GTModal'
 import CalendarView from '../views/CalendarView'
@@ -13,6 +12,22 @@ interface CalendarTriageModalProps {
     isOpen: boolean
     onClose: () => void
 }
+
+const TriageLeftContainer = styled.div`
+    flex: 1 0 0;
+    overflow-y: scroll;
+    border: 4px solid ${Colors.background.dark};
+    border-radius: ${Border.radius.small};
+    background-color: ${Colors.gtColor.secondary};
+`
+
+const TriageRightContainer = styled.div`
+    flex: 3 0 0;
+    background-color: ${Colors.background.dark};
+    padding: ${Spacing.padding._4};
+    border-radius: ${Border.radius.small};
+    box-size: border-box;
+`
 
 const CalendarTriageContainer = styled.div`
     display: flex;
@@ -28,7 +43,6 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
     const { section: sectionId } = useParams()
     const { data: taskSections } = useGetTasks()
     const [isExpanded, setIsExpanded] = useState(true)
-
     const section = taskSections?.find(({ id }) => id === sectionId)
     if (!section) return null
 
@@ -41,32 +55,17 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
             type="large"
         >
             <CalendarTriageContainer>
-                <div
-                    style={{
-                        flexGrow: '1',
-                        overflow: 'scroll',
-                        border: `4px solid ${Colors.background.dark}`,
-                        borderRadius: Border.radius.small,
-                        backgroundColor: Colors.gtColor.secondary,
-                    }}
-                >
+                <TriageLeftContainer>
                     <TaskList section={section!} />
-                </div>
-                <div
-                    style={{
-                        flexGrow: '5',
-                        backgroundColor: Colors.background.dark,
-                        padding: Spacing.padding._4,
-                        borderRadius: Border.radius.small,
-                    }}
-                >
+                </TriageLeftContainer>
+                <TriageRightContainer>
                     <CalendarView
                         isExpanded={isExpanded}
                         setIsExpanded={setIsExpanded}
                         showExpandOptions={false}
                         hasRoundedBorder
                     />
-                </div>
+                </TriageRightContainer>
             </CalendarTriageContainer>
         </GTModal>
     )
