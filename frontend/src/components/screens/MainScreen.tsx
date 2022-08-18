@@ -45,8 +45,6 @@ const MainScreen = () => {
 
     const [play, { stop }] = useSound('http://www.lejdesigns.com/rankedPUGs/sounds/sponge.mp3', {
         playbackRate,
-        // `interrupt` ensures that if the sound starts again before it's
-        // ended, it will truncate it. Otherwise, the sound can overlap.
         interrupt: true,
     })
 
