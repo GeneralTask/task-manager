@@ -189,7 +189,7 @@ func makeLoginCallbackRequest(
 		nil,
 	)
 	mockConfig.On("Client", mock.Anything, &mockToken).Return(&mockClient)
-	api, _ := GetAPI()
+	api := GetAPI()
 	api.ExternalConfig.GoogleLoginConfig = &mockConfig
 	api.SkipStateTokenCheck = skipStateTokenCheck
 	router := GetRouter(api)
