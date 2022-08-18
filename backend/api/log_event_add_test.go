@@ -19,7 +19,9 @@ func TestLogEventAdd(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	UnauthorizedTest(t, "POST", "/log_events/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("POST", "/log_events/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -30,7 +32,9 @@ func TestLogEventAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
 	})
 	t.Run("MissingEventType", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/log_events/",
@@ -44,7 +48,9 @@ func TestLogEventAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'event_type' parameter.\"}", string(body))
 	})
 	t.Run("BadEventType", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/log_events/",
@@ -76,7 +82,9 @@ func TestLogEventAdd(t *testing.T) {
 }
 
 func addLogEvent(t *testing.T, authToken string) {
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 	request, _ := http.NewRequest(
 		"POST",
 		"/log_events/",

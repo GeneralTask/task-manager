@@ -14,7 +14,9 @@ func TestUserInfo(t *testing.T) {
 	authToken := login("userinfo@generaltask.com", "")
 	UnauthorizedTest(t, "GET", "/user_info/", nil)
 	t.Run("SuccessGet", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/user_info/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -26,7 +28,9 @@ func TestUserInfo(t *testing.T) {
 	})
 	UnauthorizedTest(t, "PATCH", "/user_info/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/user_info/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -37,7 +41,9 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(body))
 	})
 	t.Run("BadPayload", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/user_info/",
@@ -51,7 +57,9 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(body))
 	})
 	t.Run("SuccessUpdate", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/user_info/",
@@ -76,7 +84,9 @@ func TestUserInfo(t *testing.T) {
 	})
 	t.Run("SuccessPartialUpdate", func(t *testing.T) {
 		// assuming the fields are still true as above
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/user_info/",

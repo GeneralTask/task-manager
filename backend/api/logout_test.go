@@ -29,7 +29,9 @@ func TestLogout(t *testing.T) {
 		count, _ := tokenCollection.CountDocuments(dbCtx, bson.M{"token": authToken})
 		assert.Equal(t, int64(1), count)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 
 		request, _ := http.NewRequest("POST", "/logout/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)

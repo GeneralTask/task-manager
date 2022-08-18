@@ -15,19 +15,12 @@ import (
 
 func (api *API) TasksListV3(c *gin.Context) {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	defer dbCleanup()
 	userID, _ := c.Get("user")
 	var userObject database.User
-	userCollection := database.GetUserCollection(db)
+	userCollection := database.GetUserCollection(api.DB)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -35,19 +28,19 @@ func (api *API) TasksListV3(c *gin.Context) {
 		return
 	}
 
-	activeTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
+	activeTasks, err := database.GetActiveTasks(api.DB, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	completedTasks, err := database.GetCompletedTasks(db, userID.(primitive.ObjectID))
+	completedTasks, err := database.GetCompletedTasks(api.DB, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
 	}
 
 	allTasks, err := api.mergeTasksV3(
-		db,
+		api.DB,
 		activeTasks,
 		completedTasks,
 		userID.(primitive.ObjectID),

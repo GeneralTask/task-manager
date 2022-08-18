@@ -13,13 +13,13 @@ const DefaultTokenPayload string = `{"access_token":"sample-access-token", "data
 
 func TestLinkGithub(t *testing.T) {
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetAPI(), "/link/github/")
+		TestAuthorizeCookieMissing(t, GetTestAPI(), "/link/github/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetAPI(), "/link/github/")
+		TestAuthorizeCookieBad(t, GetTestAPI(), "/link/github/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, GetAPI(), "/link/github/", func(stateToken string) string {
+		TestAuthorizeSuccess(t, GetTestAPI(), "/link/github/", func(stateToken string) string {
 			return "<a href=\"https://github.com/login/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("GITHUB_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fgithub%2Fcallback%2F&amp;response_type=code&amp;scope=repo&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
@@ -28,32 +28,32 @@ func TestLinkGithub(t *testing.T) {
 func TestLinkGithubCallback(t *testing.T) {
 
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetAPI(), "/link/github/callback/")
+		TestAuthorizeCookieMissing(t, GetTestAPI(), "/link/github/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetAPI(), "/link/github/callback/")
+		TestAuthorizeCookieBad(t, GetTestAPI(), "/link/github/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/link/github/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetTestAPI(), "/link/github/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetAPI(), "/link/github/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, GetTestAPI(), "/link/github/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/github/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetTestAPI(), "/link/github/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetAPI(), "/link/github/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, GetTestAPI(), "/link/github/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, DefaultTokenPayload)
-		api := GetAPI()
+		api := GetTestAPI()
 		(api.ExternalConfig.Github.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/github/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusOK, DefaultTokenPayload)
-		api := GetAPI()
+		api := GetTestAPI()
 		(api.ExternalConfig.Github.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 
 		accountIdServer := testutils.GetMockAPIServer(t, http.StatusOK, testutils.UserResponsePayload)
