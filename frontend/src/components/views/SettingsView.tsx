@@ -207,6 +207,7 @@ const SettingsView = () => {
                         <SettingText>Dank Mode</SettingText>
                         <GTCheckbox isChecked={dankMode} onChange={() => dispatch(setDankMode(!dankMode))} />
                     </SettingContainer>
+                    {dankMode && <img src={'/images/sponge.png'} alt="Logo" />}
                 </SettingsContainer>
             </SettingsViewContainer>
         </ScrollViewMimic>
