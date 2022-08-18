@@ -97,3 +97,17 @@ body {
     bottom: 0;
     transform: rotate(45deg);
 }
+
+.dank-mode {
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(359deg);
+    }
+}

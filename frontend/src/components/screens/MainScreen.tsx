@@ -19,6 +19,7 @@ import { useAppSelector } from '../../redux/hooks'
 import { useInterval } from '../../hooks'
 import OverviewPageView from '../views/OverviewPageView'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import { useSound } from 'use-sound'
 
 const toastAnimation = cssTransition({
     enter: 'animate__animated animate__fadeInRight',
@@ -37,6 +38,36 @@ const MainScreen = () => {
     useInterval(refetchExternalTasks, TASK_REFETCH_INTERVAL)
     const { refetch: refetchPullRequests } = useFetchPullRequests()
     useInterval(refetchPullRequests, PR_REFETCH_INTERVAL)
+
+    const dankMode = useAppSelector((state) => state.local.dank_mode)
+    const audio = new Audio('./audio/shooting_stars.mp3')
+    audio.load()
+
+    const [playbackRate, setPlaybackRate] = React.useState(0.75)
+
+    const [play, { stop }] = useSound('./audio/shooting_stars.mp3', {
+        playbackRate,
+        // `interrupt` ensures that if the sound starts again before it's
+        // ended, it will truncate it. Otherwise, the sound can overlap.
+        interrupt: true,
+        id: 'shooting_stars',
+    })
+
+    const handleClick = () => {
+        setPlaybackRate(playbackRate + 0.1)
+    }
+    window.addEventListener('click', handleClick)
+
+    React.useEffect(() => {
+        if (dankMode) {
+            document.body.classList.add('dank-mode')
+            play()
+        } else {
+            document.body.classList.remove('dank-mode')
+            stop()
+        }
+        return () => stop()
+    }, [dankMode])
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {

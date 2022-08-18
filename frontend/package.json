@@ -61,6 +61,7 @@
     "react-toastify": "^9.0.1",
     "react-tooltip": "^4.2.21",
     "styled-components": "^5.3.3",
+    "use-sound": "^4.0.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
