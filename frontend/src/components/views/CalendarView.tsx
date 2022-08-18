@@ -40,16 +40,11 @@ const CalendarView = ({ isExpanded, setIsExpanded, showExpandOptions = true }: C
     useGetEvents(monthBlocks[1], 'calendar')
 
     const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false)
-    const dispatch = useAppDispatch()
 
     const handleCollapseCalendar = () => {
-        dispatch(setExpandedCalendar(false))
+        setIsExpanded(false)
         setIsCalendarCollapsed(true)
     }
-
-    useEffect(() => {
-        dispatch(setExpandedCalendar(false))
-    }, [])
 
     useInterval(
         () => {
