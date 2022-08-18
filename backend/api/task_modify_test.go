@@ -95,7 +95,7 @@ func TestMarkAsComplete(t *testing.T) {
 					}}}}}`
 	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
 
-	api, _ := GetAPI()
+	api := GetAPI()
 	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
 	router := GetRouter(api)
 
