@@ -25,10 +25,23 @@ import { DropItem, DropType, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
-import { useAppSelector } from '../../redux/hooks'
 import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
 import useInterval from '../../hooks/useInterval'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
+import styled from 'styled-components'
+import { Border, Colors } from '../../styles'
+
+const LeDiv = styled.div<{ isOver: boolean; offset: number }>`
+    position: absolute;
+    width: 100%;
+    height: ${CELL_HEIGHT_VALUE / 2}px;
+    border: 2px solid ${Colors.gtColor.primary};
+    display: ${(props) => (props.isOver ? 'block' : 'none')};
+    border-radius: ${Border.radius.medium};
+    box-sizing: border-box;
+    top: ${(props) => props.offset}px;
+    z-index: 1;
+`
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -103,8 +116,10 @@ const WeekCalendarEvents = ({
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const { mutate: createEvent } = useCreateEvent()
 
+    const [dropItemBlockState, setDropItemBlockState] = useState(0)
+
     const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
+        (item: DropItem, monitor: DropTargetMonitor) => {
             const dropPosition = monitor.getClientOffset()
             if (!eventsContainerRef.current || !dropPosition || !accountId) return
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
@@ -142,14 +157,31 @@ const WeekCalendarEvents = ({
         [date, accountId, createEvent]
     )
 
-    const [, drop] = useDrop(
+    const [{ isOver }, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
             collect: (monitor) => {
-                return !!monitor.isOver()
+                return { isOver: monitor.isOver() }
             },
             drop: onDrop,
             canDrop: () => accountId !== undefined,
+            hover: (_, monitor) => {
+                const dropPosition = monitor.getClientOffset()
+                if (!eventsContainerRef.current || !dropPosition || !accountId) return
+                const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+                const scrollOffset = eventsContainerRef.current.scrollTop
+
+                const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
+
+                // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
+                const dropTimeBlock = Math.floor(
+                    (yPosInEventsContainer - CALENDAR_DAY_HEADER_HEIGHT) /
+                        ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
+                )
+                console.log('hovering over', dayOffset)
+                console.log(dropTimeBlock)
+                setDropItemBlockState(dropTimeBlock)
+            },
         }),
         [accountId, onDrop]
     )
@@ -173,6 +205,8 @@ const WeekCalendarEvents = ({
                 </CalendarDayHeader>
             )}
             <DayContainer>
+                <LeDiv isOver={isOver} offset={(CELL_HEIGHT_VALUE / 2) * dropItemBlockState}></LeDiv>
+
                 {groups.map((group, index) => (
                     <CollisionGroupColumns
                         key={index}
