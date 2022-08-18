@@ -29,8 +29,14 @@ interface CalendarViewProps {
     isExpanded: boolean
     setIsExpanded: (isExpanded: boolean) => void
     showExpandOptions?: boolean
+    hasRoundedBorder?: boolean
 }
-const CalendarView = ({ isExpanded, setIsExpanded, showExpandOptions = true }: CalendarViewProps) => {
+const CalendarView = ({
+    isExpanded,
+    setIsExpanded,
+    showExpandOptions = true,
+    hasRoundedBorder = false,
+}: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -72,7 +78,7 @@ const CalendarView = ({ isExpanded, setIsExpanded, showExpandOptions = true }: C
             </CaretButton>
         </CollapsedCalendarView>
     ) : (
-        <CalendarContainer expanded={isExpanded}>
+        <CalendarContainer expanded={isExpanded} hasRoundedBorder={hasRoundedBorder}>
             <CalendarHeader
                 isExpanded={isExpanded}
                 setIsExpanded={setIsExpanded}

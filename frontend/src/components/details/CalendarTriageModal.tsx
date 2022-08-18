@@ -45,7 +45,7 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
                     style={{
                         flexGrow: '1',
                         overflow: 'scroll',
-                        border: `8px solid ${Colors.background.dark}`,
+                        border: `4px solid ${Colors.background.dark}`,
                         borderRadius: Border.radius.small,
                         backgroundColor: Colors.gtColor.secondary,
                     }}
@@ -56,11 +56,16 @@ const CalendarTriageModal = ({ isOpen, onClose }: CalendarTriageModalProps) => {
                     style={{
                         flexGrow: '5',
                         backgroundColor: Colors.background.dark,
-                        padding: Spacing.padding._8,
+                        padding: Spacing.padding._4,
                         borderRadius: Border.radius.small,
                     }}
                 >
-                    <CalendarView isExpanded={isExpanded} setIsExpanded={setIsExpanded} showExpandOptions={false} />
+                    <CalendarView
+                        isExpanded={isExpanded}
+                        setIsExpanded={setIsExpanded}
+                        showExpandOptions={false}
+                        hasRoundedBorder
+                    />
                 </div>
             </CalendarTriageContainer>
         </GTModal>
