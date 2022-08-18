@@ -53,10 +53,10 @@ const PURPLE = {
 const darkMode = store.getState().local.dark_mode
 
 export const background = {
-    white: darkMode ? GRAY._1200 : WHITE,
-    light: darkMode ? GRAY._1300 : GRAY._50,
-    medium: darkMode ? GRAY._1400 : GRAY._100,
-    dark: darkMode ? GRAY._1500 : GRAY._200,
+    white: darkMode ? GRAY._1100 : WHITE,
+    light: darkMode ? GRAY._1200 : GRAY._50,
+    medium: darkMode ? GRAY._1300 : GRAY._100,
+    dark: darkMode ? GRAY._1400 : GRAY._200,
     black: darkMode ? GRAY._1600 : BLACK,
 }
 
@@ -66,8 +66,8 @@ export const border = {
 }
 
 export const text = {
-    black: darkMode ? GRAY._200 : BLACK,
-    light: GRAY._500,
+    black: darkMode ? GRAY._100 : BLACK,
+    light: darkMode ? GRAY._200 : GRAY._500,
     white: darkMode ? BLACK : WHITE,
 }
 
@@ -94,13 +94,13 @@ export const button = {
 }
 
 export const status = {
-    red: { default: RED._1, light: RED._2 },
-    orange: { default: ORANGE._1, light: ORANGE._2 },
-    yellow: { default: YELLOW._1, light: YELLOW._2 },
-    green: { default: GREEN._1, light: GREEN._2 },
-    cyan: { default: CYAN._1, light: CYAN._2 },
-    blue: { default: BLUE._1, light: BLUE._2 },
-    gray: { default: GRAY._500, light: GRAY._200 },
+    red: { default: darkMode ? RED._2 : RED._1, light: darkMode ? RED._1 : RED._2 },
+    orange: { default: darkMode ? ORANGE._2 : ORANGE._1, light: darkMode ? ORANGE._1 : ORANGE._2 },
+    yellow: { default: darkMode ? YELLOW._2 : YELLOW._1, light: darkMode ? YELLOW._1 : YELLOW._2 },
+    green: { default: darkMode ? GREEN._2 : GREEN._1, light: darkMode ? GREEN._1 : GREEN._2 },
+    cyan: { default: darkMode ? CYAN._2 : CYAN._1, light: darkMode ? CYAN._1 : CYAN._2 },
+    blue: { default: darkMode ? BLUE._2 : BLUE._1, light: darkMode ? BLUE._1 : BLUE._2 },
+    gray: { default: darkMode ? GRAY._200 : GRAY._500, light: darkMode ? GRAY._500 : GRAY._200 },
 }
 export type TStatusColors = keyof typeof status
 

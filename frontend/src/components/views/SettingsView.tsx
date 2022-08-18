@@ -54,6 +54,7 @@ const AccountButtonContainer = styled.div<{ important?: boolean }>`
 `
 const AccountNameSpan = styled.span`
     margin-right: auto;
+    color: ${Colors.text.black};
     ${Typography.bodySmall};
 `
 const FullWidth = styled.div`

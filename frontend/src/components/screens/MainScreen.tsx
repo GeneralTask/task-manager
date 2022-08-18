@@ -43,14 +43,14 @@ const MainScreen = () => {
 
     const [playbackRate, setPlaybackRate] = React.useState(1)
 
-    const [play, { stop }] = useSound('http://www.lejdesigns.com/rankedPUGs/sounds/sponge.mp3', {
+    const [play, { stop, pause }] = useSound('http://www.lejdesigns.com/rankedPUGs/sounds/sponge.mp3', {
         playbackRate,
-        interrupt: true,
+        // interrupt: true,
     })
 
     const handleClick = () => {
         setPlaybackRate(playbackRate + 0.1)
-        play()
+        // play()
         console.log('FASTER', playbackRate)
     }
 
@@ -67,7 +67,7 @@ const MainScreen = () => {
         return () => {
             document.body.classList.remove('dank-mode')
             document.body.classList.remove('rain')
-            stop()
+            pause()
             window.removeEventListener('click', handleClick)
         }
     }, [dankMode, playbackRate])
