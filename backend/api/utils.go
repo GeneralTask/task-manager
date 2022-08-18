@@ -40,10 +40,6 @@ func GetAPIWithDBCleanup() (*API, func()) {
 }
 
 func GetAPI() *API {
-	//_, err := database.CreateDBHandle()
-	//if err != nil {
-	//	log.Fatal().Msgf("Failed to connect to db, %+v", err)
-	//}
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
 }
 
