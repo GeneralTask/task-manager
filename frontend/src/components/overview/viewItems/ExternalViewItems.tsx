@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { useMarkTaskDone } from '../../../services/api/overview.hooks'
+import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'

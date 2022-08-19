@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useMarkTaskDone } from '../../../services/api/overview.hooks'
+import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
