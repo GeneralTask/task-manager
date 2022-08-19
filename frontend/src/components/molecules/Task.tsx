@@ -3,7 +3,6 @@ import React, { MutableRefObject, useCallback, useEffect, useRef, useState } fro
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
-import DoneButton from '../atoms/buttons/DoneButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
@@ -11,6 +10,7 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
+import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -105,7 +105,12 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                         <Domino ref={drag} />
                     </DominoContainer>
                 )}
-                <DoneButton taskId={task.id} sectionId={sectionId} isDone={task.is_done} isSelected={isSelected} />
+                <MarkTaskDoneButton
+                    taskId={task.id}
+                    sectionId={sectionId}
+                    isDone={task.is_done}
+                    isSelected={isSelected}
+                />
                 <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />

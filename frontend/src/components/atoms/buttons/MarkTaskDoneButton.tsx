@@ -3,13 +3,13 @@ import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
 import GTCheckbox from '../GTCheckbox'
 
-interface CompleteButtonProps {
+interface MarkTaskDoneButtonProps {
     isDone: boolean
     taskId: string
     sectionId?: string
     isSelected: boolean
 }
-const CompleteButton = ({ isDone, taskId, sectionId, isSelected }: CompleteButtonProps) => {
+const MarkTaskDoneButton = ({ isDone, taskId, sectionId, isSelected }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
     const onMarkTaskDone = () =>
         markTaskDone({
@@ -22,4 +22,4 @@ const CompleteButton = ({ isDone, taskId, sectionId, isSelected }: CompleteButto
     return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} />
 }
 
-export default CompleteButton
+export default MarkTaskDoneButton
