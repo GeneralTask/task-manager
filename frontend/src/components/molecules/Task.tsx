@@ -110,6 +110,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     sectionId={sectionId}
                     isDone={task.is_done}
                     isSelected={isSelected}
+                    isDisabled={task.isOptimistic}
                 />
                 <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>

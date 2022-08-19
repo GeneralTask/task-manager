@@ -6,10 +6,11 @@ import GTCheckbox from '../GTCheckbox'
 interface MarkTaskDoneButtonProps {
     isDone: boolean
     taskId: string
-    sectionId?: string
     isSelected: boolean
+    sectionId?: string
+    isDisabled?: boolean
 }
-const MarkTaskDoneButton = ({ isDone, taskId, sectionId, isSelected }: MarkTaskDoneButtonProps) => {
+const MarkTaskDoneButton = ({ isDone, taskId, isSelected, sectionId, isDisabled }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
     const onMarkTaskDone = () =>
         markTaskDone({
@@ -18,8 +19,8 @@ const MarkTaskDoneButton = ({ isDone, taskId, sectionId, isSelected }: MarkTaskD
             isDone: !isDone,
         })
 
-    useKeyboardShortcut('markComplete', onMarkTaskDone, !isSelected)
-    return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} />
+    useKeyboardShortcut('markComplete', onMarkTaskDone, !isSelected || isDisabled)
+    return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} disabled={isDisabled} />
 }
 
 export default MarkTaskDoneButton
