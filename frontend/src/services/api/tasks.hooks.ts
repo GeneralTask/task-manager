@@ -37,7 +37,7 @@ interface TTaskModifyRequestBody {
 export interface TMarkTaskDoneData {
     taskId: string
     sectionId?: string
-    isCompleted: boolean
+    isDone: boolean
 }
 
 export interface TReorderTaskData {
@@ -246,12 +246,12 @@ export const useMarkTaskDone = () => {
 
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                    if (task) task.is_done = data.isCompleted
+                    if (task) task.is_done = data.isDone
                 })
 
                 queryClient.setQueryData('tasks', newSections)
 
-                if (data.isCompleted) {
+                if (data.isDone) {
                     setTimeout(() => {
                         const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                         if (!sections) return
@@ -259,7 +259,6 @@ export const useMarkTaskDone = () => {
                         const newSections = produce(sections, (draft) => {
                             const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
                             if (taskIndex === undefined || sectionIndex === undefined) return
-                            console.log({ 'toBeDeleted': draft[sectionIndex].tasks[taskIndex] })
                             if (draft[sectionIndex].tasks[taskIndex].is_done) {
                                 const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
                                 draft.find((s) => s.is_done)?.tasks.unshift(...task)
@@ -279,12 +278,12 @@ export const useMarkTaskDone = () => {
                     }))
                     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    draft[sectionIndex].view_items[taskIndex].is_done = data.isCompleted
+                    draft[sectionIndex].view_items[taskIndex].is_done = data.isDone
                 })
 
                 queryClient.setQueryData('overview', newViews)
 
-                if (data.isCompleted) {
+                if (data.isDone) {
                     setTimeout(() => {
                         const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                         if (!views) return
@@ -311,7 +310,7 @@ export const useMarkTaskDone = () => {
 }
 export const markTaskDone = async (data: TMarkTaskDoneData) => {
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
+        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isDone })
         return castImmutable(res.data)
     } catch {
         throw new Error('markTaskDone failed')

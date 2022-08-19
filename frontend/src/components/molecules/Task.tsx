@@ -3,7 +3,7 @@ import React, { MutableRefObject, useCallback, useEffect, useRef, useState } fro
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
-import CompleteButton from '../atoms/buttons/CompleteButton'
+import DoneButton from '../atoms/buttons/DoneButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
@@ -35,19 +35,9 @@ interface TaskProps {
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
-    onMarkComplete: (taskId: string, isComplete: boolean) => void
 }
 
-const Task = ({
-    task,
-    dragDisabled,
-    index,
-    sectionId,
-    sectionScrollingRef,
-    isSelected,
-    link,
-    onMarkComplete,
-}: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -115,12 +105,7 @@ const Task = ({
                         <Domino ref={drag} />
                     </DominoContainer>
                 )}
-                <CompleteButton
-                    taskId={task.id}
-                    isComplete={task.is_done}
-                    onMarkComplete={onMarkComplete}
-                    isSelected={isSelected}
-                />
+                <DoneButton taskId={task.id} sectionId={sectionId} isDone={task.is_done} isSelected={isSelected} />
                 <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />

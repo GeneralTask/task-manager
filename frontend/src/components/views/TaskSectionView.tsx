@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useFetchExternalTasks, useGetTasks, useMarkTaskDone, useReorderTask } from '../../services/api/tasks.hooks'
+import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'
@@ -61,7 +61,6 @@ const TaskSectionView = () => {
         refetch: getTasks,
     } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
-    const { mutate: markTaskDone } = useMarkTaskDone()
     const { refetch: fetchExternal, isFetching: isFetchingExternal } = useFetchExternalTasks()
 
     const navigate = useNavigate()
@@ -95,14 +94,6 @@ const TaskSectionView = () => {
             })
         },
         [section]
-    )
-
-    const handleMarkTaskComplete = useCallback(
-        (taskId: string, isComplete: boolean) => {
-            if (!section) return
-            markTaskDone({ taskId, sectionId: section.id, isCompleted: isComplete })
-        },
-        [section, markTaskDone]
     )
 
     // deal with invalid routes
@@ -153,7 +144,6 @@ const TaskSectionView = () => {
                                                 sectionScrollingRef={sectionScrollingRef}
                                                 isSelected={task.id === params.task}
                                                 link={`/tasks/${params.section}/${task.id}`}
-                                                onMarkComplete={handleMarkTaskComplete}
                                             />
                                         </ReorderDropContainer>
                                     ))}
