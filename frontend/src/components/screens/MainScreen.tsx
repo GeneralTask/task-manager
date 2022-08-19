@@ -55,7 +55,7 @@ const MainScreen = () => {
             <DefaultTemplate>
                 <>{expandedCalendar || currentPage}</>
             </DefaultTemplate>
-            <StyledToastContainer autoClose={false} />
+            <StyledToastContainer />
         </DndProvider>
     )
 }

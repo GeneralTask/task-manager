@@ -27,6 +27,7 @@ const StyledToastContainer = styled(ToastContainer).attrs({
         background-color: ${Colors.background.black};
         box-shadow: ${Shadows.medium};
         border-radius: ${Border.radius.small};
+        width: 400px;
     }
     .toast-body {
         color: ${Colors.text.white};
