@@ -43,16 +43,13 @@ const OverviewView = () => {
             return <EmptyDetails iconSource={icons.list} text="You have no views" />
         }
         for (const view of views) {
-            if (view.id === overviewViewId) {
-                for (const item of view.view_items) {
-                    if (item.id === overviewItemId) {
-                        if (view.type === 'github') {
-                            return <PullRequestDetails pullRequest={item as TPullRequest} />
-                        } else {
-                            return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
-                        }
-                    }
+            if (view.id !== overviewViewId) continue
+            for (const item of view.view_items) {
+                if (item.id !== overviewItemId) continue
+                if (view.type === 'github') {
+                    return <PullRequestDetails pullRequest={item as TPullRequest} />
                 }
+                return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
             }
         }
         return null
