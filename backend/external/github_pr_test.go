@@ -89,19 +89,8 @@ func TestGetPullRequests(t *testing.T) {
 		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 
-		expectedPullRequest := database.PullRequest{
-			RepositoryID:   "1234",
-			RepositoryName: "ExampleRepository",
-			Number:         420,
-			Author:         "chad1616",
-			Branch:         "ExampleBranch",
-			RequiredAction: "Add Reviewers",
-			CommentCount:   0,
-			LastUpdatedAt:  1296068472000,
-		}
 		assert.NoError(t, result.Error)
 		assert.Equal(t, len(result.PullRequests), 1)
-		assert.Equal(t, expectedPullRequest, result.PullRequests[0].PullRequest)
 
 		// Check that repository for PR is created in the database
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)

@@ -57,10 +57,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	userIDHex, _ := c.Get("user")
 	userID := userIDHex.(primitive.ObjectID)
 
-	pullRequests, err := database.GetItems(api.DB, userID, &[]bson.M{
-		{"is_completed": false},
-		{"task_type.is_pull_request": true},
-	})
+	pullRequests, err := database.GetPullRequests(db, userID, &[]bson.M{{"is_completed": false}})
 	if err != nil || pullRequests == nil {
 		Handle500(c)
 		return
@@ -123,7 +120,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	c.JSON(200, repositoryResults)
 }
 
-func getResultFromPullRequest(pullRequest database.Item) PullRequestResult {
+func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResult {
 	return PullRequestResult{
 		ID:     pullRequest.ID.Hex(),
 		Title:  pullRequest.Title,
@@ -137,7 +134,7 @@ func getResultFromPullRequest(pullRequest database.Item) PullRequestResult {
 		CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		Branch:        pullRequest.Branch,
 		Deeplink:      pullRequest.Deeplink,
-		LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+		LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 }
 

@@ -613,75 +613,36 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SingleGithubViewItem", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
-		pullResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID: githubID.Hex(),
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
-		})
-		assert.NoError(t, err)
-		// Insert completed Github PR. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   true,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
-		})
-		assert.NoError(t, err)
-		// Insert Item that is not type PullRequest. This should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: false,
-			},
+		pullRequestCollection := database.GetPullRequestCollection(db)
+		falseBool := false
+		trueBool := true
+		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:       userID,
+			IsCompleted:  &falseBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: githubID.Hex(),
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different UserID. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        primitive.NewObjectID(),
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:      primitive.NewObjectID(),
+			IsCompleted: &falseBool,
+			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
+		})
+		assert.NoError(t, err)
+		// Insert completed Github PR. This PR should not be in the view result.
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:      userID,
+			IsCompleted: &trueBool,
+			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different RepositoryID. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID: primitive.NewObjectID().Hex(),
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:       userID,
+			IsCompleted:  &falseBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: primitive.NewObjectID().Hex(),
 		})
 		assert.NoError(t, err)
 

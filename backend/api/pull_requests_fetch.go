@@ -50,7 +50,7 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		return
 	}
 
-	err = api.adjustForCompletedTasks(api.DB, currentPRs, &fetchedPRs, failedFetchSources)
+	err = api.adjustForCompletedPullRequests(api.DB, currentPRs, &fetchedPRs, failedFetchSources)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
 		Handle500(c)
@@ -60,7 +60,7 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken) ([]*database.Item, map[string]bool, error) {
+func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken) ([]*database.PullRequest, map[string]bool, error) {
 	pullRequestChannels := []chan external.PullRequestResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
@@ -76,7 +76,7 @@ func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken)
 		}
 	}
 
-	pullRequests := []*database.Item{}
+	pullRequests := []*database.PullRequest{}
 	failedFetchSources := make(map[string]bool)
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
@@ -86,9 +86,7 @@ func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken)
 			continue
 		}
 		for _, pullRequest := range pullRequestResult.PullRequests {
-			pullRequests = append(pullRequests, &database.Item{
-				TaskBase: pullRequest.TaskBase,
-			})
+			pullRequests = append(pullRequests, pullRequest)
 		}
 	}
 	return pullRequests, failedFetchSources, nil

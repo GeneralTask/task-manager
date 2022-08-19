@@ -406,11 +406,10 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		return &result, nil
 	}
 
-	githubPRs, err := database.GetItems(db, userID,
+	githubPRs, err := database.GetPullRequests(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_pull_request": true},
-			{"pull_request.repository_id": view.GithubID},
+			{"repository_id": view.GithubID},
 		},
 	)
 	if err != nil {
@@ -433,7 +432,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
 			Branch:        pullRequest.Branch,
 			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+			LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 		}
 		pullResults = append(pullResults, &pullRequestResult)
 	}

@@ -67,7 +67,6 @@ func TestMigrate002(t *testing.T) {
 		expectedTitles := []string{"task_1", "task_2", "task_3"}
 		for i, item := range tasks {
 			assert.Equal(t, expectedTitles[i], item.Title)
-			assert.Equal(t, false, item.TaskType.IsEvent)
 			assert.Equal(t, false, item.TaskType.IsMessage)
 		}
 
@@ -78,7 +77,6 @@ func TestMigrate002(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int(1), len(messages))
 		assert.Equal(t, "task_4", messages[0].Title)
-		assert.Equal(t, false, messages[0].TaskType.IsEvent)
 		assert.Equal(t, false, messages[0].TaskType.IsTask)
 
 		var events []database.Item

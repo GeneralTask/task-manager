@@ -75,14 +75,11 @@ func TestPullRequestList(t *testing.T) {
 	assert.NoError(t, err)
 	pullRequest8, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionWaitingOnCI, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
-	// wrong user id
-	_, err = createTestPullRequest(db, notUserID, repositoryName3, false, true, "", timePullRequestUpdated, repositoryID3)
-	assert.NoError(t, err)
 	// completed PR
 	_, err = createTestPullRequest(db, userID, repositoryName2, true, true, "", timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
-	// not a PR
-	_, err = createTestPullRequest(db, userID, repositoryName2, false, false, "", timePullRequestUpdated, "")
+	// wrong user id
+	_, err = createTestPullRequest(db, notUserID, repositoryName2, false, true, "", timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
 	// first PR in second repo
 	pullRequest9, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timePullRequestUpdated, repositoryID2)
@@ -215,30 +212,23 @@ func TestPullRequestList(t *testing.T) {
 	})
 }
 
-func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time, repositoryID string) (*database.Item, error) {
+func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, repositoryName string, isCompleted bool, isPullRequest bool, requiredAction string, lastUpdatedAt time.Time, repositoryID string) (*database.PullRequest, error) {
 	externalID := primitive.NewObjectID().Hex()
 	lastUpdatedAtPrimitive := primitive.NewDateTimeFromTime(lastUpdatedAt)
-	return database.GetOrCreateItem(
+	return database.GetOrCreatePullRequest(
 		db,
 		userID,
 		externalID,
 		"foobar_source",
-		&database.Item{
-			TaskBase: database.TaskBase{
-				IDExternal:  externalID,
-				IsCompleted: isCompleted,
-				SourceID:    "foobar_source",
-				UserID:      userID,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: isPullRequest,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID:   repositoryID,
-				RepositoryName: repositoryName,
-				RequiredAction: requiredAction,
-				LastUpdatedAt:  lastUpdatedAtPrimitive,
-			},
+		&database.PullRequest{
+			IDExternal:     externalID,
+			IsCompleted:    &isCompleted,
+			SourceID:       "foobar_source",
+			UserID:         userID,
+			RepositoryID:   repositoryID,
+			RepositoryName: repositoryName,
+			RequiredAction: requiredAction,
+			LastUpdatedAt:  lastUpdatedAtPrimitive,
 		},
 	)
 }

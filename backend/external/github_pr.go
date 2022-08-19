@@ -136,7 +136,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
-	var pullRequestChannels []chan *database.Item
+	var pullRequestChannels []chan *database.PullRequest
 	for _, repository := range repositories {
 		err := updateOrCreateRepository(parentCtx, db, repository, userID)
 		if err != nil {
@@ -152,7 +152,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			return
 		}
 		for _, pullRequest := range fetchedPullRequests {
-			pullRequestChan := make(chan *database.Item)
+			pullRequestChan := make(chan *database.PullRequest)
 			requestData := GithubPRRequestData{
 				Client:      githubClient,
 				User:        githubUser,
@@ -164,7 +164,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 	}
 
-	var pullRequestItems []*database.Item
+	var pullRequests []*database.PullRequest
 	for _, pullRequestChan := range pullRequestChannels {
 		pullRequest := <-pullRequestChan
 		// if nil, this means that the request ran into an error: continue and keep processing the rest
@@ -173,24 +173,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 
 		isCompleted := false
-		dbPR, err := database.UpdateOrCreateItem(
+		pullRequest.IsCompleted = &isCompleted
+		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
 			pullRequest.SourceID,
 			pullRequest,
-			database.PullRequestItemChangeable{
-				Title:       &pullRequest.Title,
-				Body:        &pullRequest.TaskBase.Body,
-				IsCompleted: &isCompleted,
-				PullRequestChangeableFields: database.PullRequestChangeableFields{
-					LastUpdatedAt:  &pullRequest.PullRequest.LastUpdatedAt,
-					CommentCount:   &pullRequest.CommentCount,
-					RequiredAction: &pullRequest.RequiredAction,
-				},
-			},
-			nil,
-			true)
+			nil)
 
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
@@ -199,18 +189,17 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 		pullRequest.ID = dbPR.ID
 		pullRequest.IDOrdering = dbPR.IDOrdering
-		pullRequest.IDTaskSection = dbPR.IDTaskSection
 
-		pullRequestItems = append(pullRequestItems, pullRequest)
+		pullRequests = append(pullRequests, pullRequest)
 	}
 
 	result <- PullRequestResult{
-		PullRequests: pullRequestItems,
+		PullRequests: pullRequests,
 		Error:        nil,
 	}
 }
 
-func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.Item) {
+func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
 	logger := logging.GetSentryLogger()
 
 	githubClient := requestData.Client
@@ -275,30 +264,22 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		UserLogin:            githubUser.GetLogin(),
 	}
 
-	result <- &database.Item{
-		TaskBase: database.TaskBase{
-			UserID:            userID,
-			IDExternal:        fmt.Sprint(*pullRequest.ID),
-			Deeplink:          *pullRequest.HTMLURL,
-			SourceID:          TASK_SOURCE_ID_GITHUB_PR,
-			Title:             *pullRequest.Title,
-			SourceAccountID:   accountID,
-			CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
-		},
-		PullRequest: database.PullRequest{
-			RepositoryID:   fmt.Sprint(*repository.ID),
-			RepositoryName: *repository.Name,
-			Number:         *pullRequest.Number,
-			Author:         *pullRequest.User.Login,
-			Branch:         *pullRequest.Head.Ref,
-			RequiredAction: getPullRequestRequiredAction(pullRequestData),
-			CommentCount:   commentCount,
-			LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
-		},
-		TaskType: database.TaskType{
-			IsTask:        false,
-			IsPullRequest: true,
-		},
+	result <- &database.PullRequest{
+		UserID:            userID,
+		IDExternal:        fmt.Sprint(*pullRequest.ID),
+		Deeplink:          *pullRequest.HTMLURL,
+		SourceID:          TASK_SOURCE_ID_GITHUB_PR,
+		Title:             *pullRequest.Title,
+		SourceAccountID:   accountID,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+		RepositoryID:      fmt.Sprint(*repository.ID),
+		RepositoryName:    *repository.Name,
+		Number:            *pullRequest.Number,
+		Author:            *pullRequest.User.Login,
+		Branch:            *pullRequest.Head.Ref,
+		RequiredAction:    getPullRequestRequiredAction(pullRequestData),
+		CommentCount:      commentCount,
+		LastUpdatedAt:     primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 	}
 }
 
