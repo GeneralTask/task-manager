@@ -378,9 +378,16 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		return nil, errors.New("invalid user")
 	}
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
+	repositoryCollection := database.GetRepositoryCollection(db)
+	var repository database.Repository
+	err := repositoryCollection.FindOne(ctx, bson.M{"repository_id": view.GithubID}).Decode(&repository)
+	if err != nil {
+		return nil, err
+	}
+
 	result := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     ViewGithubName,
+		Name:     repository.FullName,
 		Logo:     external.TaskServiceGithub.LogoV2,
 		Type:     ViewGithub,
 		IsLinked: view.IsLinked,

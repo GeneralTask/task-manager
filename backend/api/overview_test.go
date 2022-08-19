@@ -576,6 +576,13 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		IsLinked:   true,
 		GithubID:   githubID.Hex(),
 	}
+	repositoryCollection := database.GetRepositoryCollection(db)
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: githubID.Hex(),
+		FullName:     "OrganizationTest/RepositoryTest",
+	})
+	assert.NoError(t, err)
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
@@ -584,7 +591,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     "Github",
+		Name:     "OrganizationTest/RepositoryTest",
 		Type:     ViewGithub,
 		Logo:     "github",
 		IsLinked: true,
