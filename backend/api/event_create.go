@@ -7,7 +7,7 @@ import (
 
 func (api *API) EventCreate(c *gin.Context) {
 	sourceID := c.Param("source_id")
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(sourceID)
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
 	if err != nil || !taskSourceResult.Details.CanCreateCalendarEvent {
 		Handle404(c)
 		return

@@ -5,6 +5,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
@@ -64,7 +65,7 @@ interface Props {
     placeholder?: string
     pattern?: string
     invalidInput?: string
-    inputIcon?: string
+    inputIcon?: IconProp
 }
 
 function GTInputSelect(props: Props): JSX.Element {
@@ -123,7 +124,7 @@ function GTInputSelect(props: Props): JSX.Element {
             <InputContainer valid={valid}>
                 {inputIcon && (
                     <IconContainer>
-                        <Icon source={inputIcon} size="xSmall" />
+                        <Icon icon={inputIcon} size="xSmall" />
                     </IconContainer>
                 )}
                 <Input
@@ -137,7 +138,7 @@ function GTInputSelect(props: Props): JSX.Element {
                 />
                 {options.length && (
                     <ExpandButton onClick={() => setExpanded(!expanded)}>
-                        <Icon source={icons['chevron_down']} size="xSmall" />
+                        <Icon icon={icons.caret_down} size="xSmall" />
                     </ExpandButton>
                 )}
             </InputContainer>

@@ -29,7 +29,9 @@ func TestCreateTask(t *testing.T) {
 	parentCtx := context.Background()
 
 	authToken := login("approved@generaltask.com", "")
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 
 	t.Run("BadSourceID", func(t *testing.T) {
 		request, _ := http.NewRequest(
@@ -134,7 +136,9 @@ func TestCreateTask(t *testing.T) {
 func TestSlackTaskCreate(t *testing.T) {
 	parentCtx := context.Background()
 
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()

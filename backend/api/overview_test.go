@@ -21,7 +21,8 @@ import (
 
 func TestOverview(t *testing.T) {
 	authtoken := login("test_overview@generaltask.com", "")
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	router := GetRouter(api)
 	UnauthorizedTest(t, "GET", "/overview/views/", nil)
 	t.Run("SuccessGetViews", func(t *testing.T) {
@@ -33,7 +34,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]},{"id":"[a-z0-9]{24}","name":"Linear","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Default","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"🎉 Welcome! Here are some tasks to get you started.","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Try creating a task above! 👆","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"👈 Link your email and task accounts in settings!","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false}]},{"id":"[a-z0-9]{24}","name":"Slack","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -61,7 +62,8 @@ func TestGetOverviewResults(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	parentCtx := context.Background()
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 
 	t.Run("NoViews", func(t *testing.T) {
 		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID())
@@ -161,7 +163,8 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -176,7 +179,8 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	}
 
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		api := GetAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -227,7 +231,8 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
 
-		api := GetAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -249,7 +254,8 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		api := GetAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
@@ -285,7 +291,8 @@ func TestGetLinearOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	authURL := "http://localhost:8080/link/linear/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -431,7 +438,8 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	authURL := "http://localhost:8080/link/slack/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:       view.ID,
@@ -568,14 +576,22 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		IsLinked:   true,
 		GithubID:   githubID.Hex(),
 	}
+	repositoryCollection := database.GetRepositoryCollection(db)
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: githubID.Hex(),
+		FullName:     "OrganizationTest/RepositoryTest",
+	})
+	assert.NoError(t, err)
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     "Github",
+		Name:     "OrganizationTest/RepositoryTest",
 		Type:     ViewGithub,
 		Logo:     "github",
 		IsLinked: true,
@@ -597,75 +613,36 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SingleGithubViewItem", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
-		pullResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID: githubID.Hex(),
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
-		})
-		assert.NoError(t, err)
-		// Insert completed Github PR. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   true,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
-		})
-		assert.NoError(t, err)
-		// Insert Item that is not type PullRequest. This should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: false,
-			},
+		pullRequestCollection := database.GetPullRequestCollection(db)
+		falseBool := false
+		trueBool := true
+		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:       userID,
+			IsCompleted:  &falseBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: githubID.Hex(),
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different UserID. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        primitive.NewObjectID(),
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:      primitive.NewObjectID(),
+			IsCompleted: &falseBool,
+			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
+		})
+		assert.NoError(t, err)
+		// Insert completed Github PR. This PR should not be in the view result.
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:      userID,
+			IsCompleted: &trueBool,
+			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different RepositoryID. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID: primitive.NewObjectID().Hex(),
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:       userID,
+			IsCompleted:  &falseBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: primitive.NewObjectID().Hex(),
 		})
 		assert.NoError(t, err)
 
@@ -702,7 +679,8 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
@@ -808,7 +786,8 @@ func TestIsServiceLinked(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 
 	userID := primitive.NewObjectID()
 	testServiceID := "testID"
@@ -1007,12 +986,21 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewTaskSection),
+			IsLinked:      true,
+			TaskSectionID: taskSection1ObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
 
@@ -1032,12 +1020,21 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewTaskSection),
+			IsLinked:      true,
+			TaskSectionID: taskSection1ObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1046,10 +1043,19 @@ func TestOverviewAdd(t *testing.T) {
 	t.Run("AddLinearViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "linear"}`)), http.StatusOK)
-		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "linear"}).Decode(&addedView)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewLinear)+`"}`)), http.StatusOK)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewLinear)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewLinear),
+			IsLinked:      false,
+			TaskSectionID: primitive.NilObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1058,10 +1064,19 @@ func TestOverviewAdd(t *testing.T) {
 	t.Run("AddSlackViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "slack"}`)), http.StatusOK)
-		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "slack"}).Decode(&addedView)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewSlack)+`"}`)), http.StatusOK)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewSlack)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewSlack),
+			IsLinked:      false,
+			TaskSectionID: primitive.NilObjectID,
+			GithubID:      "",
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1094,16 +1109,54 @@ func TestOverviewAdd(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
+	t.Run("IncorrectUserID", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		// Create pull request with incorrect user ID
+		_, err := createTestPullRequest(db, primitive.NewObjectID(), "amc-to-the-moon", false, true, "", time.Now(), "")
+		assert.NoError(t, err)
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cleanup := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cleanup()
+		repositoryID := primitive.NewObjectID().Hex()
+		_, err = repositoryCollection.InsertOne(dbCtx, &database.Repository{
+			UserID:       primitive.NewObjectID(),
+			RepositoryID: repositoryID,
+		})
+		assert.NoError(t, err)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusBadRequest)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
 	t.Run("AddGithubViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now())
+		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now(), "")
 		assert.NoError(t, err)
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": "amc-to-the-moon"}`)), http.StatusOK)
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cleanup := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cleanup()
+		repositoryID := primitive.NewObjectID().Hex()
+		_, err = repositoryCollection.InsertOne(dbCtx, &database.Repository{
+			UserID:       userID,
+			RepositoryID: repositoryID,
+		})
+		assert.NoError(t, err)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusOK)
 		var addedView database.View
-		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": "github"}).Decode(&addedView)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
-		assert.Equal(t, "amc-to-the-moon", addedView.GithubID)
+
+		assert.Equal(t, database.View{
+			ID:            addedView.ID,
+			UserID:        userID,
+			IDOrdering:    1,
+			Type:          string(ViewGithub),
+			IsLinked:      false,
+			TaskSectionID: primitive.NilObjectID,
+			GithubID:      repositoryID,
+		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1270,6 +1323,42 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
+	})
+}
+
+func TestIsValidGithubRepository(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+
+	userID := primitive.NewObjectID()
+	repositoryID := primitive.NewObjectID().Hex()
+	repositoryCollection.InsertOne(dbCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: repositoryID,
+	})
+	t.Run("Success", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, userID, repositoryID)
+		assert.NoError(t, err)
+		assert.True(t, result)
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
+		assert.NoError(t, err)
+		assert.False(t, result)
+	})
+	t.Run("InvalidRepositoryID", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
+		assert.NoError(t, err)
+		assert.False(t, result)
+	})
+	t.Run("InvalidUserAndRepositoryID", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
+		assert.NoError(t, err)
+		assert.False(t, result)
 	})
 }
 

@@ -28,7 +28,7 @@ const JoinMeetingButton = ({ conferenceCall }: JoinMeetingButtonProps) => (
     <NoStyleAnchor href={conferenceCall.url} target="_blank" rel="noreferrer">
         <JoinMeetingButtonContainer>
             <ButtonText>Join</ButtonText>
-            <Icon size="xSmall" uri={conferenceCall.logo} />
+            <Icon size="xSmall" icon={conferenceCall.logo} />
         </JoinMeetingButtonContainer>
     </NoStyleAnchor>
 )

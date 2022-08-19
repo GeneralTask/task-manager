@@ -8,6 +8,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,20 +19,14 @@ type EventListParams struct {
 	DatetimeEnd   *time.Time `form:"datetime_end" binding:"required"`
 }
 
-type ConferenceCall struct {
-	Platform string `json:"platform"`
-	Logo     string `json:"logo"`
-	URL      string `json:"url"`
-}
-
 type EventResult struct {
-	ID             primitive.ObjectID `json:"id"`
-	Deeplink       string             `json:"deeplink"`
-	Title          string             `json:"title"`
-	Body           string             `json:"body"`
-	ConferenceCall *ConferenceCall    `json:"conference_call"`
-	DatetimeEnd    primitive.DateTime `json:"datetime_end,omitempty"`
-	DatetimeStart  primitive.DateTime `json:"datetime_start,omitempty"`
+	ID             primitive.ObjectID   `json:"id"`
+	Deeplink       string               `json:"deeplink"`
+	Title          string               `json:"title"`
+	Body           string               `json:"body"`
+	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
+	ConferenceCall utils.ConferenceCall `json:"conference_call,omitempty"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -44,17 +39,10 @@ func (api *API) EventsList(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
 	userID, _ := c.Get("user")
 	var userObject database.User
-	userCollection := database.GetUserCollection(db)
+	userCollection := database.GetUserCollection(api.DB)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
@@ -113,24 +101,18 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			var conferenceCall *ConferenceCall
-			if event.ConferenceCall == nil {
-				conferenceCall = nil
-			} else {
-				conferenceCall = &ConferenceCall{
-					Platform: event.ConferenceCall.Platform,
-					Logo:     event.ConferenceCall.Logo,
-					URL:      event.ConferenceCall.URL,
-				}
-			}
 			calendarEvents = append(calendarEvents, EventResult{
-				ID:             event.ID,
-				Deeplink:       event.Deeplink,
-				Title:          event.Title,
-				Body:           event.TaskBase.Body,
-				ConferenceCall: conferenceCall,
-				DatetimeEnd:    event.DatetimeEnd,
-				DatetimeStart:  event.DatetimeStart,
+				ID:            event.ID,
+				Deeplink:      event.Deeplink,
+				Title:         event.Title,
+				Body:          event.Body,
+				DatetimeEnd:   event.DatetimeEnd,
+				DatetimeStart: event.DatetimeStart,
+				ConferenceCall: utils.ConferenceCall{
+					Logo:     event.CallLogo,
+					Platform: event.CallPlatform,
+					URL:      event.CallURL,
+				},
 			})
 		}
 	}

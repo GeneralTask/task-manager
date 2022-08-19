@@ -1,9 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Border, Colors } from '../../styles'
 
 const DividerView = styled.div<{ color: string }>`
-    height: 1px;
+    height: ${Border.stroke.medium};
     width: 100%;
     background-color: ${(props) => props.color};
 `
@@ -11,6 +11,6 @@ interface DividerProps {
     color?: string
 }
 export const Divider = ({ color }: DividerProps) => {
-    const backgroundColor = color ?? Colors.background.medium
+    const backgroundColor = color ?? Colors.border.gray
     return <DividerView color={backgroundColor} />
 }

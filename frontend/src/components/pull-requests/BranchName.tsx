@@ -27,7 +27,7 @@ const BranchName = ({ name }: BranchNameProps) => {
             <BranchNameContainer onClick={handleClick}>
                 <TruncatedText>{name}</TruncatedText>
                 <div>
-                    <Icon size="xSmall" source={icons.copy} />
+                    <Icon size="xSmall" icon={icons.copy} />
                 </div>
             </BranchNameContainer>
         </TooltipWrapper>

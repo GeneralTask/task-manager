@@ -144,7 +144,7 @@ const SettingsView = () => {
                         <TaskTemplate>
                             <AccountContainer>
                                 <IconContainer>
-                                    <Icon size="small" source={logos[account.logo_v2]}></Icon>
+                                    <Icon size="small" icon={logos[account.logo_v2]}></Icon>
                                 </IconContainer>
                                 <AccountNameSpan>{account.display_id}</AccountNameSpan>
                                 {account.has_bad_token && (

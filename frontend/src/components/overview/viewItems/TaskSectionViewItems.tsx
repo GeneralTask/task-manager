@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
@@ -36,14 +35,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsP
         [view.task_section_id]
     )
 
-    const handleMarkTaskComplete = useCallback(
-        (taskId: string, isComplete: boolean) => {
-            if (!view.task_section_id) return
-            markTaskDone({ taskId, sectionId: view.task_section_id, isCompleted: isComplete })
-        },
-        [view.task_section_id, markTaskDone]
-    )
-
     return (
         <>
             {sectionId && <CreateNewTask disableKeyboardShortcut sectionId={sectionId} />}
@@ -63,7 +54,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsP
                             sectionScrollingRef={scrollRef}
                             isSelected={overviewViewId === view.id && overviewItemId === item.id}
                             link={`/overview/${view.id}/${item.id}`}
-                            onMarkComplete={handleMarkTaskComplete}
                         />
                     </ReorderDropContainer>
                 ))
