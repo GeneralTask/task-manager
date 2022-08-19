@@ -168,10 +168,8 @@ func (api *API) adjustForCompletedPullRequests(
 	fetchedPullRequests *[]*database.PullRequest,
 	failedFetchSources map[string]bool,
 ) error {
-	var newPullRequests []*database.PullRequest
 	newPRIDs := make(map[primitive.ObjectID]bool)
 	for _, fetchedPR := range *fetchedPullRequests {
-		newPullRequests = append(newPullRequests, fetchedPR)
 		newPRIDs[fetchedPR.ID] = true
 	}
 
@@ -182,11 +180,6 @@ func (api *API) adjustForCompletedPullRequests(
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete pull request")
 				return err
-			}
-			for _, newPR := range newPullRequests {
-				if newPR.IDOrdering > currentPullRequest.IDOrdering {
-					newPR.IDOrdering -= 1
-				}
 			}
 		}
 	}

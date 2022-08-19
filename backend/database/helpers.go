@@ -220,7 +220,6 @@ func GetPullRequest(ctx context.Context, itemID primitive.ObjectID, userID primi
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
 	defer dbCleanup()
@@ -445,6 +444,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 			{"user_id": userID},
 		},
 	}
+	// TODO move to helper
 	if additionalFilters != nil && len(*additionalFilters) > 0 {
 		for _, additionalFilter := range *additionalFilters {
 			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
