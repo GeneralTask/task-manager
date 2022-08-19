@@ -24,6 +24,9 @@ const FixedSizeButton = styled(NoStyleButton)`
     min-width: ${checkboxSize.parentContainer};
     width: ${checkboxSize.parentContainer};
     height: ${checkboxSize.parentContainer};
+    &:disabled {
+        opacity: 0.3;
+    }
 `
 
 interface GTCheckboxProps {
