@@ -58,7 +58,9 @@ func TestTaskDetail(t *testing.T) {
 		TaskType: database.TaskType{IsTask: true},
 	})
 
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 
 	UnauthorizedTest(t, "GET", fmt.Sprintf("/tasks/detail/%s/", linearTaskIDHex), nil)
 	t.Run("InvalidTaskID", func(t *testing.T) {
