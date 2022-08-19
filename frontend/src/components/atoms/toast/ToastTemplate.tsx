@@ -1,12 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../../styles'
+import { Colors, Spacing, Typography } from '../../../styles'
+import { icons } from '../../../styles/images'
 import GTButton from '../buttons/GTButton'
+import NoStyleButton from '../buttons/NoStyleButton'
+import { Icon } from '../Icon'
 
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: left;
+    gap: ${Spacing.margin._16};
+    padding: ${Spacing.padding._8};
+    color: ${Colors.text.white};
+    ${Typography.body};
 `
 const MessageSpan = styled.span`
     white-space: nowrap;
@@ -45,6 +52,9 @@ interface ToastTemplateProps {
 const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
         <ToastContainer>
+            <NoStyleButton>
+                <Icon icon={icons.x} size="medium" color={Colors.icon.white} />
+            </NoStyleButton>
             <MessageSpan>{message}</MessageSpan>
             <ButtonsContainer>
                 {leftAction && (
