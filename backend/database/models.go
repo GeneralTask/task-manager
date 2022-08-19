@@ -305,3 +305,11 @@ type View struct {
 	GithubID      string             `bson:"github_id"`
 	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
 }
+
+type Repository struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `bson:"user_id"`
+	FullName     string             `bson:"full_name"`
+	RepositoryID string             `bson:"repository_id"`
+	Deeplink     string             `bson:"deeplink"`
+}
