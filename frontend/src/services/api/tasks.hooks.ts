@@ -37,7 +37,7 @@ interface TTaskModifyRequestBody {
 export interface TMarkTaskDoneData {
     taskId: string
     sectionId?: string
-    isCompleted: boolean
+    isDone: boolean
 }
 
 export interface TReorderTaskData {
@@ -237,43 +237,80 @@ export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
         onMutate: async (data: TMarkTaskDoneData) => {
-            // cancel all current getTasks queries
-            await queryClient.cancelQueries('tasks')
-
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            if (!sections) return
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            await queryClient.cancelQueries('tasks')
+            await queryClient.cancelQueries('overview')
 
-            const newSections = produce(sections, (draft) => {
-                const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                if (task) task.is_done = data.isCompleted
-            })
+            if (sections) {
 
-            queryClient.setQueryData('tasks', newSections)
+                const newSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+                    if (task) task.is_done = data.isDone
+                })
 
-            if (data.isCompleted) {
-                setTimeout(() => {
-                    const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                    if (!sections) return
+                queryClient.setQueryData('tasks', newSections)
 
-                    const newSections = produce(sections, (draft) => {
-                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
-                        if (taskIndex === undefined || sectionIndex === undefined) return
-                        if (draft[sectionIndex].tasks[taskIndex].is_done) {
-                            const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
-                            draft.find((s) => s.is_done)?.tasks.unshift(...task)
-                        }
-                    })
+                if (data.isDone) {
+                    setTimeout(() => {
+                        const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                        if (!sections) return
 
-                    queryClient.setQueryData('tasks', newSections)
-                    queryClient.invalidateQueries('tasks')
-                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                        const newSections = produce(sections, (draft) => {
+                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
+                            if (taskIndex === undefined || sectionIndex === undefined) return
+                            if (draft[sectionIndex].tasks[taskIndex].is_done) {
+                                const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
+                                draft.find((s) => s.is_done)?.tasks.unshift(...task)
+                            }
+                        })
+
+                        queryClient.setQueryData('tasks', newSections)
+                        queryClient.invalidateQueries('tasks')
+                    }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                }
+            }
+            if (views) {
+                const newViews = produce(views, (draft) => {
+                    const sections = views.map(view => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items
+                    }))
+                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
+                    if (sectionIndex === undefined || taskIndex === undefined) return
+                    draft[sectionIndex].view_items[taskIndex].is_done = data.isDone
+                })
+
+                queryClient.setQueryData('overview', newViews)
+
+                if (data.isDone) {
+                    setTimeout(() => {
+                        const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                        if (!views) return
+
+                        const newViews = produce(views, (draft) => {
+                            const sections = views.map(view => ({
+                                id: view.task_section_id,
+                                tasks: view.view_items
+                            }))
+                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
+                            if (sectionIndex === undefined || taskIndex === undefined) return
+                            if (draft[sectionIndex].view_items[taskIndex].is_done) {
+                                draft[sectionIndex].view_items.splice(taskIndex, 1)
+                            }
+                        })
+
+                        queryClient.setQueryData('overview', newViews)
+                        queryClient.invalidateQueries('overview')
+                    }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                }
             }
         },
     })
 }
 export const markTaskDone = async (data: TMarkTaskDoneData) => {
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isCompleted })
+        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isDone })
         return castImmutable(res.data)
     } catch {
         throw new Error('markTaskDone failed')
