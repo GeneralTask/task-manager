@@ -1,6 +1,6 @@
 import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
 import { Colors, Spacing } from '../../styles'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarEvents from '../calendar/CalendarEvents'
@@ -8,14 +8,13 @@ import { DateTime } from 'luxon'
 import { Icon } from '../atoms/Icon'
 import { getMonthsAroundDate } from '../../utils/time'
 import { icons } from '../../styles/images'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 const CollapsedCalendarView = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
@@ -25,10 +24,15 @@ const CollapsedCalendarView = styled.div`
     cursor: pointer;
 `
 
+export type TCalendarType = 'day' | 'week'
+
 interface CalendarViewProps {
-    isExpanded: boolean
+    initialType: TCalendarType
+    showMainHeader?: boolean
+    showDateHeader?: boolean
+    isInitiallyCollapsed?: boolean
 }
-const CalendarView = ({ isExpanded }: CalendarViewProps) => {
+const CalendarView = ({}: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -37,17 +41,7 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false)
-    const dispatch = useAppDispatch()
-
-    const handleCollapseCalendar = () => {
-        dispatch(setExpandedCalendar(false))
-        setIsCalendarCollapsed(true)
-    }
-
-    useEffect(() => {
-        dispatch(setExpandedCalendar(false))
-    }, [])
+    const { calendarType, isCollapsed, setIsCollapsed } = useCalendarContext()
 
     useInterval(
         () => {
@@ -64,20 +58,18 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
         [linkedAccounts]
     )
 
-    useKeyboardShortcut('calendar', () =>
-        isCalendarCollapsed ? setIsCalendarCollapsed(false) : handleCollapseCalendar()
-    )
+    useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
 
-    return isCalendarCollapsed ? (
-        <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
+    return isCollapsed ? (
+        <CollapsedCalendarView onClick={() => setIsCollapsed(false)}>
             <CaretButton>
                 <Icon icon={icons.calendar_blank} size="small" />
             </CaretButton>
         </CollapsedCalendarView>
     ) : (
-        <CalendarContainer expanded={isExpanded}>
-            <CalendarHeader collapseCalendar={handleCollapseCalendar} date={date} setDate={setDate} />
-            <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} accountId={firstLinkedCalendarAccount} />
+        <CalendarContainer expanded={calendarType === 'week'}>
+            <CalendarHeader date={date} setDate={setDate} />
+            <CalendarEvents date={date} accountId={firstLinkedCalendarAccount} />
         </CalendarContainer>
     )
 }

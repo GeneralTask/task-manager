@@ -8,7 +8,7 @@ import NavigationView from '../views/NavigationView'
 import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
-import { useAppSelector } from '../../redux/hooks'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -40,7 +40,7 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const { calendarType } = useCalendarContext()
     return (
         <DefaultTemplateContainer>
             <ReactTooltip
@@ -63,8 +63,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.text.black}
             />
             <NavigationView />
-            {!isCalendarExpanded && <TasksandDetails>{children}</TasksandDetails>}
-            <CalendarView isExpanded={isCalendarExpanded} />
+            {calendarType == 'day' && <TasksandDetails>{children}</TasksandDetails>}
+            <CalendarView initialType="day" />
         </DefaultTemplateContainer>
     )
 }

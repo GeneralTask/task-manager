@@ -1,14 +1,13 @@
 import { Colors, Spacing } from '../../styles'
 import React, { useCallback } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
+import { useCalendarContext } from './CalendarContext'
 
 export const PaddedContainer = styled.div`
     padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
@@ -75,13 +74,13 @@ const HeaderIconsContainer = styled.div`
 `
 
 interface CalendarHeaderProps {
-    collapseCalendar: () => void
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
-export default function CalendarHeader({ collapseCalendar, date, setDate }: CalendarHeaderProps): JSX.Element {
-    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
-    const dispatch = useAppDispatch()
+export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
+    const isCalendarExpanded = calendarType === 'week' && !isCollapsed
+
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -96,10 +95,7 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
             }),
         [date, setDate, isCalendarExpanded]
     )
-    const expandCalendar = (expanded: boolean) => {
-        dispatch(setExpandedCalendar(expanded))
-        setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
-    }
+    const toggleCalendar = () => setCalendarType(calendarType == 'day' ? 'week' : 'day')
 
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
@@ -110,14 +106,14 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                 <HeaderBodyContainer>
                     <TitleSmall>Calendar</TitleSmall>
                     <HeaderIconsContainer>
-                        <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
-                            {isCalendarExpanded ? (
+                        <ArrowButton onClick={toggleCalendar}>
+                            {calendarType == 'week' ? (
                                 <Icon icon={icons.arrows_in} size="xSmall" />
                             ) : (
                                 <Icon icon={icons.arrows_out} size="xSmall" />
                             )}
                         </ArrowButton>
-                        <CaretButton onClick={() => collapseCalendar()}>
+                        <CaretButton onClick={() => setIsCollapsed(true)}>
                             <Icon icon={icons.caret_right} size="xSmall" />
                         </CaretButton>
                     </HeaderIconsContainer>
