@@ -77,10 +77,19 @@ interface CalendarHeaderProps {
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
-export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): JSX.Element {
+export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
     const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
 
+    const toggleCalendar = () => {
+        if (calendarType === 'week') {
+            setCalendarType('day')
+            setDate(DateTime.now())
+        } else {
+            setCalendarType('week')
+            setDate(date.minus({ days: date.weekday % 7 }))
+        }
+    }
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -95,8 +104,6 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps): 
             }),
         [date, setDate, isCalendarExpanded]
     )
-    const toggleCalendar = () => setCalendarType(calendarType == 'day' ? 'week' : 'day')
-
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 

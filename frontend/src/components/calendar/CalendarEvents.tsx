@@ -29,7 +29,7 @@ import useInterval from '../../hooks/useInterval'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useCalendarContext } from './CalendarContext'
 
-function CalendarDayTable(): JSX.Element {
+const CalendarDayTable = () => {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
@@ -46,7 +46,7 @@ function CalendarDayTable(): JSX.Element {
     )
 }
 
-function CalendarTimeTable(): JSX.Element {
+const CalendarTimeTable = () => {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
@@ -93,7 +93,7 @@ const WeekCalendarEvents = ({
     setIsScrollDisabled,
     isEventSelected,
     setIsEventSelected,
-}: WeekCalendarEventsProps): JSX.Element => {
+}: WeekCalendarEventsProps) => {
     const tmpDate = date.plus({ days: dayOffset })
     const { calendarType } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
