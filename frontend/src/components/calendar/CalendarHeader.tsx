@@ -78,7 +78,8 @@ interface CalendarHeaderProps {
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
 export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
-    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
+    const { showMainHeader, showDateHeader, calendarType, setCalendarType, setIsCollapsed, isCollapsed } =
+        useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
 
     const toggleCalendar = () => {
@@ -107,50 +108,57 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
+    if (!showMainHeader && !showDateHeader) return <></>
     return (
         <div>
-            <PaddedContainer>
-                <HeaderBodyContainer>
-                    <TitleSmall>Calendar</TitleSmall>
-                    <HeaderIconsContainer>
-                        <ArrowButton onClick={toggleCalendar}>
-                            {calendarType == 'week' ? (
-                                <Icon icon={icons.arrows_in} size="xSmall" />
-                            ) : (
-                                <Icon icon={icons.arrows_out} size="xSmall" />
-                            )}
-                        </ArrowButton>
-                        <CaretButton onClick={() => setIsCollapsed(true)}>
-                            <Icon icon={icons.caret_right} size="xSmall" />
-                        </CaretButton>
-                    </HeaderIconsContainer>
-                </HeaderBodyContainer>
-            </PaddedContainer>
-            <Divider color={Colors.border.light} />
-            <PaddedContainer>
-                <HeaderBodyContainer>
-                    <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
-                    <ButtonContainer>
-                        <HoverButton
-                            onClick={() =>
-                                setDate(
-                                    isCalendarExpanded
-                                        ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
-                                        : DateTime.now()
-                                )
-                            }
-                        >
-                            Today
-                        </HoverButton>
-                        <CaretButton onClick={selectPrevious}>
-                            <Icon icon={icons.caret_left} size="xSmall" />
-                        </CaretButton>
-                        <CaretButton onClick={selectNext}>
-                            <Icon icon={icons.caret_right} size="xSmall" />
-                        </CaretButton>
-                    </ButtonContainer>
-                </HeaderBodyContainer>
-            </PaddedContainer>
+            {showMainHeader && (
+                <>
+                    <PaddedContainer>
+                        <HeaderBodyContainer>
+                            <TitleSmall>Calendar</TitleSmall>
+                            <HeaderIconsContainer>
+                                <ArrowButton onClick={toggleCalendar}>
+                                    {calendarType == 'week' ? (
+                                        <Icon icon={icons.arrows_in} size="xSmall" />
+                                    ) : (
+                                        <Icon icon={icons.arrows_out} size="xSmall" />
+                                    )}
+                                </ArrowButton>
+                                <CaretButton onClick={() => setIsCollapsed(true)}>
+                                    <Icon icon={icons.caret_right} size="xSmall" />
+                                </CaretButton>
+                            </HeaderIconsContainer>
+                        </HeaderBodyContainer>
+                    </PaddedContainer>
+                    <Divider color={Colors.border.light} />
+                </>
+            )}
+            {showDateHeader && (
+                <PaddedContainer>
+                    <HeaderBodyContainer>
+                        <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
+                        <ButtonContainer>
+                            <HoverButton
+                                onClick={() =>
+                                    setDate(
+                                        isCalendarExpanded
+                                            ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
+                                            : DateTime.now()
+                                    )
+                                }
+                            >
+                                Today
+                            </HoverButton>
+                            <CaretButton onClick={selectPrevious}>
+                                <Icon icon={icons.caret_left} size="xSmall" />
+                            </CaretButton>
+                            <CaretButton onClick={selectNext}>
+                                <Icon icon={icons.caret_right} size="xSmall" />
+                            </CaretButton>
+                        </ButtonContainer>
+                    </HeaderBodyContainer>
+                </PaddedContainer>
+            )}
         </div>
     )
 }
