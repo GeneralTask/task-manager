@@ -108,7 +108,6 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event,
 			nil,
 		)
-
 		if err != nil {
 			result <- emptyCalendarResult(err)
 			return
@@ -137,8 +136,8 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 		return err
 	}
 
-	// TODO - add ID generated from backend or client to prevent duplication
 	gcalEvent := &calendar.Event{
+		Id:          event.ID.Hex(),
 		Summary:     event.Summary,
 		Location:    event.Location,
 		Description: event.Description,
