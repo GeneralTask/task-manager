@@ -114,6 +114,12 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			if leftPR.Status.Text == rightPR.Status.Text {
 				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
 			}
+			if _, ok := external.ActionOrdering[leftPR.Status.Text]; !ok {
+				api.Logger.Error().Msgf("Invalid Github action: %s", leftPR.Status.Text)
+			}
+			if _, ok := external.ActionOrdering[rightPR.Status.Text]; !ok {
+				api.Logger.Error().Msgf("Invalid Github action: %s", rightPR.Status.Text)
+			}
 			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
 		})
 	}

@@ -75,6 +75,8 @@ func TestPullRequestList(t *testing.T) {
 	assert.NoError(t, err)
 	pullRequest8, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionWaitingOnCI, timePullRequestUpdated, repositoryID1)
 	assert.NoError(t, err)
+	pullRequest9, err := createTestPullRequest(db, userID, repositoryName1, false, true, external.ActionWaitingOnAuthor, timePullRequestUpdated, repositoryID1)
+	assert.NoError(t, err)
 	// completed PR
 	_, err = createTestPullRequest(db, userID, repositoryName2, true, true, "", timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
@@ -82,11 +84,11 @@ func TestPullRequestList(t *testing.T) {
 	_, err = createTestPullRequest(db, notUserID, repositoryName2, false, true, "", timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
 	// first PR in second repo
-	pullRequest9, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timePullRequestUpdated, repositoryID2)
+	pullRequest10, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timePullRequestUpdated, repositoryID2)
 	assert.NoError(t, err)
 	// second PR in second repo, last updated an hour ago
 	timeHourEarlier := timePullRequestUpdated.Add(-1 * time.Hour)
-	pullRequest10, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timeHourEarlier, repositoryID2)
+	pullRequest11, err := createTestPullRequest(db, userID, repositoryName2, false, true, external.ActionAddReviewers, timeHourEarlier, repositoryID2)
 	assert.NoError(t, err)
 
 	UnauthorizedTest(t, "GET", "/pull_requests/", nil)
@@ -182,6 +184,15 @@ func TestPullRequestList(t *testing.T) {
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
+					{
+						ID: pullRequest9.ID.Hex(),
+						Status: PullRequestStatus{
+							Text:  "Waiting on Author",
+							Color: "gray",
+						},
+						CreatedAt:     "1970-01-01T00:00:00Z",
+						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+					},
 				},
 			},
 			{
@@ -189,7 +200,7 @@ func TestPullRequestList(t *testing.T) {
 				Name: repositoryName2,
 				PullRequests: []PullRequestResult{
 					{
-						ID: pullRequest9.ID.Hex(),
+						ID: pullRequest10.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Add Reviewers",
 							Color: "yellow",
@@ -198,7 +209,7 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest10.ID.Hex(),
+						ID: pullRequest11.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Add Reviewers",
 							Color: "yellow",
