@@ -66,27 +66,31 @@ func (api *API) EventCreate(c *gin.Context) {
 		return
 	}
 
-	// item := database.Item{
-	// 	TaskBase: database.TaskBase{
-	// 		ID:         eventID,
-	// 		UserID:     userID,
-	// 		IDExternal: eventID.Hex(),
-	// 		Title:      eventCreateObject.Summary,
-	// 		Body:       eventCreateObject.Description,
-	// 		SourceID:   sourceID,
-	// 	},
-	// 	CalendarEvent: database.CalendarEvent{
-	// 		DatetimeEnd:   primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
-	// 		DatetimeStart: primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
-	// 		LinkedTaskID:  taskObjectID,
-	// 	},
-	// }
+	event := database.CalendarEvent{
+		ID:              eventID,
+		UserID:          userID,
+		IDExternal:      eventID.Hex(),
+		SourceID:        sourceID,
+		SourceAccountID: eventCreateObject.AccountID,
+		Title:           eventCreateObject.Summary,
+		Body:            eventCreateObject.Description,
+		DatetimeEnd:     primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
+		DatetimeStart:   primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
+		LinkedTaskID:    taskObjectID,
+	}
 
-	// _, err = taskCollection.InsertOne(dbCtx, item)
-	// if err != nil {
-	// 	Handle500(c)
-	// 	return
-	// }
-
+	_, err = database.UpdateOrCreateCalendarEvent(
+		db,
+		userID,
+		eventID.Hex(),
+		sourceID,
+		event,
+		nil,
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to create calendar event in database")
+		Handle500(c)
+		return
+	}
 	c.JSON(201, gin.H{"event_id": eventID.Hex()})
 }
