@@ -1,6 +1,6 @@
 import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
 import { Colors, Spacing } from '../../styles'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarEvents from '../calendar/CalendarEvents'
@@ -32,7 +32,7 @@ interface CalendarViewProps {
     showDateHeader?: boolean
     isInitiallyCollapsed?: boolean
 }
-const CalendarView = ({}: CalendarViewProps) => {
+const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitiallyCollapsed }: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -41,7 +41,14 @@ const CalendarView = ({}: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const { calendarType, isCollapsed, setIsCollapsed } = useCalendarContext()
+    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed, setShowMainHeader, setShowDateHeader } =
+        useCalendarContext()
+    useEffect(() => {
+        setCalendarType(initialType)
+        if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
+        if (showDateHeader !== undefined) setShowDateHeader(showDateHeader)
+        if (isInitiallyCollapsed !== undefined) setIsCollapsed(isInitiallyCollapsed)
+    }, [])
 
     useInterval(
         () => {
