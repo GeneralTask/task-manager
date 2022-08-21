@@ -5,6 +5,7 @@
 *.so
 *.dylib
 *.pyc
+*.csv
 
 # Binaries built with air https://github.com/cosmtrek/air
 backend/tmp
