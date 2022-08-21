@@ -16,10 +16,10 @@ const CalendarContext = createContext<ContextValues>({
     showMainHeader: true,
     showDateHeader: true,
     isCollapsed: false,
-    setCalendarType: () => {},
-    setShowMainHeader: () => {},
-    setShowDateHeader: () => {},
-    setIsCollapsed: () => {},
+    setCalendarType: () => undefined,
+    setShowMainHeader: () => undefined,
+    setShowDateHeader: () => undefined,
+    setIsCollapsed: () => undefined,
 })
 
 export const useCalendarContext = () => {
@@ -50,7 +50,7 @@ const CalendarProvider = ({ children }: CalendarProviderProps) => {
         setIsCollapsed: collapseAndSetType,
     }
 
-    return <CalendarContext.Provider value={value} children={children} />
+    return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>
 }
 
 export default CalendarProvider
