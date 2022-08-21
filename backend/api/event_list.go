@@ -22,16 +22,16 @@ type EventListParams struct {
 }
 
 type EventResult struct {
-	ID               primitive.ObjectID   `json:"id"`
-	Deeplink         string               `json:"deeplink"`
-	Title            string               `json:"title"`
-	Body             string               `json:"body"`
-	ConferenceCall   utils.ConferenceCall `json:"conference_call"`
-	DatetimeEnd      primitive.DateTime   `json:"datetime_end,omitempty"`
-	DatetimeStart    primitive.DateTime   `json:"datetime_start,omitempty"`
-	LinkedTaskID     string               `json:"linked_task_id"`
-	DeeplinkInternal string               `json:"deeplink_internal"`
-	Logo             string               `json:"logo"`
+	ID             primitive.ObjectID   `json:"id"`
+	Deeplink       string               `json:"deeplink"`
+	Title          string               `json:"title"`
+	Body           string               `json:"body"`
+	ConferenceCall utils.ConferenceCall `json:"conference_call"`
+	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
+	LinkedTaskID   string               `json:"linked_task_id"`
+	LinkedTaskLink string               `json:"linked_task_link"`
+	Logo           string               `json:"logo"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -106,19 +106,14 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			deeplinkInternal := ""
-			linkedTaskID := ""
-			logo := external.TaskSourceGoogleCalendar.LogoV2
+			linkedTaskLink := ""
+			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
+			logo := taskSourceResult.Details.LogoV2
 			if event.LinkedTaskID != primitive.NilObjectID {
 				linkedTask, err := database.GetItem(dbCtx, event.LinkedTaskID, event.UserID)
-				if linkedTask != nil && err == nil {
-					sectionID := linkedTask.IDTaskSection.Hex()
-					if linkedTask.IsCompleted {
-						sectionID = constants.IDTaskSectionDone.Hex()
-					}
-					deeplinkInternal = fmt.Sprintf("%stasks/%s/%s", config.GetConfigValue("HOME_URL"), sectionID, linkedTask.ID.Hex())
-					linkedTaskID = linkedTask.ID.Hex()
-					taskSourceResult, _ := api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
+				if err == nil {
+					linkedTaskLink = getLinkedTaskLink(linkedTask)
+					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
 					logo = taskSourceResult.Details.LogoV2
 				}
 			}
@@ -134,9 +129,9 @@ func (api *API) EventsList(c *gin.Context) {
 					Platform: event.CallPlatform,
 					URL:      event.CallURL,
 				},
-				DeeplinkInternal: deeplinkInternal,
-				Logo:             logo,
-				LinkedTaskID:     linkedTaskID,
+				LinkedTaskLink: linkedTaskLink,
+				Logo:           logo,
+				LinkedTaskID:   event.LinkedTaskID.Hex(),
 			})
 		}
 	}
@@ -148,4 +143,12 @@ func (api *API) EventsList(c *gin.Context) {
 	})
 
 	c.JSON(200, calendarEvents)
+}
+
+func getLinkedTaskLink(linkedTask *database.Item) string {
+	sectionID := linkedTask.IDTaskSection.Hex()
+	if linkedTask.IsCompleted {
+		sectionID = constants.IDTaskSectionDone.Hex()
+	}
+	return fmt.Sprintf("%stasks/%s/%s", config.GetConfigValue("HOME_URL"), sectionID, linkedTask.ID.Hex())
 }

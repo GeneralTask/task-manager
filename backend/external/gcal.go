@@ -112,8 +112,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			result <- emptyCalendarResult(err)
 			return
 		}
-		event.ID = dbEvent.ID
-		events = append(events, event)
+		events = append(events, dbEvent)
 	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
