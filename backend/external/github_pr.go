@@ -118,7 +118,9 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 		githubClient = getGithubClientFromToken(extCtx, token)
 	} else {
-		githubClient = github.NewClient(nil)
+		transport := NewTransport()
+		client := transport.Client()
+		githubClient = github.NewClient(client)
 	}
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
