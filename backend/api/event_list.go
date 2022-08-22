@@ -116,6 +116,8 @@ func (api *API) EventsList(c *gin.Context) {
 					linkedTaskLink = getLinkedTaskLink(linkedTask)
 					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
 					logo = taskSourceResult.Details.LogoV2
+				} else {
+					api.Logger.Error().Err(err).Msgf("linked task not found: %s", event.LinkedTaskID.Hex())
 				}
 			}
 			calendarEvents = append(calendarEvents, EventResult{

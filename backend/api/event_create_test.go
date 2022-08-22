@@ -51,13 +51,17 @@ func TestEventCreate(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, expectedStatus, recorder.Code)
-		response := eventCreateResponse{}
-		responseBody, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		err = json.Unmarshal(responseBody, &response)
-		assert.NoError(t, err)
-		assert.NotEqual(t, primitive.NilObjectID, response.ID)
-		return response.ID
+		// if this request should succeed
+		if expectedStatus == http.StatusCreated {
+			response := eventCreateResponse{}
+			responseBody, err := ioutil.ReadAll(recorder.Body)
+			assert.NoError(t, err)
+			err = json.Unmarshal(responseBody, &response)
+			assert.NoError(t, err)
+			assert.NotEqual(t, primitive.NilObjectID, response.ID)
+			return response.ID
+		}
+		return primitive.NilObjectID
 	}
 
 	UnauthorizedTest(t, "POST", url, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
@@ -88,6 +92,7 @@ func TestEventCreate(t *testing.T) {
 				UserID: userID,
 			},
 		})
+		assert.NoError(t, err)
 		taskID := mongoResult.InsertedID.(primitive.ObjectID)
 		eventCreateObject := external.EventCreateObject{
 			AccountID:     "duck@test.com",
@@ -102,6 +107,80 @@ func TestEventCreate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
+	})
+	t.Run("NonExistentLinkedTask", func(t *testing.T) {
+		eventCreateObject := external.EventCreateObject{
+			AccountID:     "duck@test.com",
+			Summary:       "summary",
+			Description:   "description",
+			DatetimeStart: &startTime,
+			DatetimeEnd:   &endTime,
+			LinkedTaskID:  primitive.NewObjectID(),
+		}
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+	})
+	t.Run("LinkedTaskFromWrongUser", func(t *testing.T) {
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		taskCollection := database.GetTaskCollection(db)
+		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Item{
+			TaskBase: database.TaskBase{
+				Title:  "task title",
+				Body:   "task body",
+				UserID: primitive.NewObjectID(),
+			},
+		})
+		assert.NoError(t, err)
+		taskID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := external.EventCreateObject{
+			AccountID:     "duck@test.com",
+			Summary:       "summary",
+			Description:   "description",
+			DatetimeStart: &startTime,
+			DatetimeEnd:   &endTime,
+			LinkedTaskID:  taskID,
+		}
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+	})
+	t.Run("UnsupportedService", func(t *testing.T) {
+		eventCreateObject := external.EventCreateObject{
+			AccountID:     "duck@test.com",
+			Summary:       "summary",
+			Description:   "description",
+			DatetimeStart: &startTime,
+			DatetimeEnd:   &endTime,
+		}
+		body, err := json.Marshal(eventCreateObject)
+		assert.NoError(t, err)
+		ServeRequest(t, authToken, "POST", "/events/create/linear/", bytes.NewBuffer(body), http.StatusNotFound)
+	})
+	t.Run("MissingAccountID", func(t *testing.T) {
+		eventCreateObject := external.EventCreateObject{
+			Summary:       "summary",
+			Description:   "description",
+			DatetimeStart: &startTime,
+			DatetimeEnd:   &endTime,
+			LinkedTaskID:  primitive.NewObjectID(),
+		}
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+	})
+	t.Run("MissingStartTime", func(t *testing.T) {
+		eventCreateObject := external.EventCreateObject{
+			Summary:      "summary",
+			Description:  "description",
+			DatetimeEnd:  &endTime,
+			LinkedTaskID: primitive.NewObjectID(),
+		}
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+	})
+	t.Run("MissingEndTime", func(t *testing.T) {
+		eventCreateObject := external.EventCreateObject{
+			Summary:      "summary",
+			Description:  "description",
+			DatetimeEnd:  &endTime,
+			LinkedTaskID: primitive.NewObjectID(),
+		}
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
 	})
 }
 

@@ -9,7 +9,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func (api *API) EventCreate(c *gin.Context) {
@@ -45,13 +44,9 @@ func (api *API) EventCreate(c *gin.Context) {
 		// check that the task exists
 		_, err := database.GetItem(dbCtx, eventCreateObject.LinkedTaskID, userID)
 		if err != nil {
-			if err == mongo.ErrNoDocuments {
-				c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID)})
-			} else {
-				api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID)
-				Handle500(c)
-				return
-			}
+			api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID)
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID)})
+			return
 		}
 	}
 
