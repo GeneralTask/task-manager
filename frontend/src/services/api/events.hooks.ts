@@ -1,11 +1,12 @@
 import produce, { castImmutable } from "immer"
-import { DateTime } from "luxon"
-import { v4 as uuidv4 } from 'uuid'
 import { useMutation, useQuery } from "react-query"
+
+import { DateTime } from "luxon"
+import { TEvent } from "../../utils/types"
 import apiClient from "../../utils/api"
 import { getMonthsAroundDate } from "../../utils/time"
-import { TEvent } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
+import { v4 as uuidv4 } from 'uuid'
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params))
@@ -36,6 +37,13 @@ interface TCreateEventPayload {
     time_zone?: string
     attendees?: TEventAttendee[]
     add_conference_call?: boolean
+}
+
+export interface TModifyEventData {
+    id: string
+    date: DateTime
+    datetime_start: string
+    datetime_end: string
 }
 
 interface CreateEventParams {
@@ -94,5 +102,64 @@ const createEvent = async (data: TCreateEventPayload) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('createEvent failed')
+    }
+}
+
+export const useDeleteEvent = () => {
+    const queryClient = useGTQueryClient()
+    const getCurrentEvents = (date: DateTime, datetime_start: string, datetime_end: string) => {
+        const start = DateTime.fromISO(datetime_start)
+        const end = DateTime.fromISO(datetime_end)
+        const timeBlocks = getMonthsAroundDate(date, 1)
+        const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
+        const block = timeBlocks[blockIndex]
+        const blockStartTime = block.start.toISO()
+        queryClient.cancelQueries(['events', 'calendar', blockStartTime])
+        return { events: queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()]), blockStartTime }
+    }
+    const useMutationResult = useMutation((data: TModifyEventData) => deleteEvent(data.id), {
+        onMutate: async (data: TModifyEventData) => {
+            const { events, blockStartTime } = getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
+            if (!events) return
+
+            const newEvents = produce(events, (draft) => {
+                const eventIdx = draft.findIndex((event) => event.id === data.id)
+                if (eventIdx === -1) return
+                draft.splice(eventIdx, 1)
+            })
+            queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('events')
+        },
+    })
+    const deleteEventInCache = (data: TModifyEventData) => {
+        const { events, blockStartTime } = getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
+        if (!events) return
+        const newEvents = produce(events, (draft) => {
+            const eventIdx = draft.findIndex((event) => event.id === data.id)
+            if (eventIdx === -1) return
+            draft.splice(eventIdx, 1)
+        })
+        queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
+    }
+    const undoDeleteEventInCache = (event: TEvent, date: DateTime) => {
+        const { events, blockStartTime } = getCurrentEvents(date, event.datetime_start, event.datetime_end)
+        if (!events) return
+
+        const newEvents = produce(events, (draft) => {
+            draft.push(event)
+        })
+        queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
+    }
+    return { ...useMutationResult, deleteEventInCache, undoDeleteEventInCache }
+
+}
+const deleteEvent = async (eventId: string) => {
+    try {
+        const res = await apiClient.delete(`/events/delete/${eventId}/`)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('deleteEvent failed')
     }
 }

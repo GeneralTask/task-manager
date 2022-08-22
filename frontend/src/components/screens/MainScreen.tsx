@@ -23,7 +23,7 @@ const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
 
-    const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
+    const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
     // Refetch tasks and pull requests independent of current page
@@ -47,7 +47,7 @@ const MainScreen = () => {
         }
     })()
 
-    if (isTaskSectionsLoading || isFetching || isUserInfoLoading) return <Loading />
+    if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (

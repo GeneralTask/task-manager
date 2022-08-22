@@ -4,9 +4,7 @@ import { useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskIndexFromSections } from "../../utils/utils"
-import { markTaskDone, TMarkTaskDoneData } from "./tasks.hooks"
-import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
+import { arrayMoveInPlace } from "../../utils/utils"
 
 export const useGetOverviewViews = () => {
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
@@ -221,52 +219,4 @@ const removeView = async (viewId: string) => {
     } catch {
         throw new Error('removeView failed')
     }
-}
-
-export const useMarkTaskDone = () => {
-    const queryClient = useGTQueryClient()
-    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
-        onMutate: async (data: TMarkTaskDoneData) => {
-            await queryClient.cancelQueries('overview')
-            await queryClient.cancelQueries('tasks')
-
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            if (!views) return
-
-            const newViews = produce(views, (draft) => {
-                const sections = views.map(view => ({
-                    id: view.task_section_id,
-                    tasks: view.view_items
-                }))
-                const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
-                if (sectionIndex === undefined || taskIndex === undefined) return
-                draft[sectionIndex].view_items[taskIndex].is_done = data.isCompleted
-            })
-
-            queryClient.setQueryData('overview', newViews)
-
-            if (data.isCompleted) {
-                setTimeout(() => {
-                    const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                    if (!views) return
-
-                    const newViews = produce(views, (draft) => {
-                        const sections = views.map(view => ({
-                            id: view.task_section_id,
-                            tasks: view.view_items
-                        }))
-                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
-                        if (sectionIndex === undefined || taskIndex === undefined) return
-                        if (draft[sectionIndex].view_items[taskIndex].is_done) {
-                            draft[sectionIndex].view_items.splice(taskIndex, 1)
-                        }
-                    })
-
-                    queryClient.setQueryData('overview', newViews)
-                    queryClient.invalidateQueries('overview')
-                    queryClient.invalidateQueries('tasks')
-                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-            }
-        },
-    })
 }

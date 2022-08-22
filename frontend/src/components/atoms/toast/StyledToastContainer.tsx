@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { cssTransition } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
-import { Border, Colors, Shadows } from '../../../styles'
+import { Border, Colors, Shadows, Typography } from '../../../styles'
 
 const toastAnimation = cssTransition({
     enter: 'animate__animated animate__fadeInRight',
@@ -31,6 +31,10 @@ const StyledToastContainer = styled(ToastContainer).attrs({
         padding: 0;
         min-width: 100%;
         display: initial;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu,
+            Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
+            'Segoe UI Symbol';
+        ${Typography.bodySmall};
     }
 `
 
