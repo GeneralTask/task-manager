@@ -13,7 +13,7 @@ import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../at
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
 import SignOutButton from '../molecules/SignOutButton'
-import { useGetOverviewViews } from '../../services/api/overview.hooks'
+import { useGTQueryClient } from '../../services/queryUtils'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -78,14 +78,11 @@ const SettingsView = () => {
     const showLinkAccountsButtonContainerRef = useRef<HTMLDivElement>(null)
 
     const { data: supportedTypes } = useGetSupportedTypes()
-    const { data: linkedAccounts, refetch } = useGetLinkedAccounts()
-    const { refetch: refetchViews } = useGetOverviewViews()
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const queryClient = useGTQueryClient()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
 
-    const onWindowClose = () => {
-        refetch()
-        refetchViews()
-    }
+    const onWindowClose = () => queryClient.refetchQueries({ stale: true })
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
     const onRelink = (accountType: string) => {
