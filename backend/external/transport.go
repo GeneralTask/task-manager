@@ -67,6 +67,7 @@ func getEndToEndHeaders(respHeaders http.Header) []string {
 	return endToEndHeaders
 }
 
+// Roundtrip is middleware that we're using to cache responses from the external API
 func (t *Transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
 	cacheable := req.Method == "GET"
 	var cachedResponse *http.Response
@@ -78,6 +79,7 @@ func (t *Transport) RoundTrip(req *http.Request) (resp *http.Response, err error
 	if transport == nil {
 		transport = http.DefaultTransport
 	} 
+
 
 	if cacheable && cachedResponse != nil && err != nil {
 		if t.MarkCachedResponses {
@@ -104,6 +106,7 @@ func (t *Transport) RoundTrip(req *http.Request) (resp *http.Response, err error
 	}
 
 	resp, err = transport.RoundTrip(req)
+	// Replace the 304 response with a cached response from the DB
 	if err == nil && req.Method == "GET" && resp.StatusCode == http.StatusNotModified {
 		// Replace the 304 response with the one from the cache, but update with new headers
 		endToEndHeaders := getEndToEndHeaders(resp.Header)
@@ -112,10 +115,8 @@ func (t *Transport) RoundTrip(req *http.Request) (resp *http.Response, err error
 		}
 		resp = cachedResponse
 	} 
-	// store response in cach
-	// print http response body as string
-	fmt.PrintF("%s", resp.Body)
-	fmt.Println(resp.Body)
+	// TODO: store response in cache if it's cacheable
+
 	if err != nil {
 		return nil, err
 	}
@@ -129,6 +130,8 @@ func NewTransport() *Transport {
 	}
 }
 
+
 func GetCacheResponse(request *http.Request) (resp *http.Response, err error) {
+	// TODO: Get cached response from the database. I was thinking of storing the response as a field in either the PR or Repo structs.
 	return nil, nil
 }
