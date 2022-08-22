@@ -33,8 +33,6 @@ func (api *API) EventCreate(c *gin.Context) {
 		return
 	}
 	defer dbCleanup()
-	_ = database.GetTaskCollection(db)
-
 	dbCtx, cancel := context.WithTimeout(c.Request.Context(), constants.DatabaseTimeout)
 	defer cancel()
 
