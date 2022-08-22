@@ -297,7 +297,7 @@ type linearUpdateIssueQuery struct {
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
 }
 
-func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) (*linearUpdateIssueQuery, error) {
+func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
 	updateIssueQueryStr := linearUpdateIssueQueryStr
 	if updateFields.Body != nil && *updateFields.Body == "" {
 		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr

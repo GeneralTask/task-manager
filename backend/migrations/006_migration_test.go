@@ -2,8 +2,9 @@ package migrations
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -25,46 +26,41 @@ func TestMigrate006(t *testing.T) {
 		tasksCollection := database.GetTaskCollection(db)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_1",
-				SourceID: "gt",
-			},
+		task1Title := "task_1"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task1Title,
+			SourceID: "gt",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_2",
-				SourceID: "jira",
-			},
+		task2Title := "task_2"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task2Title,
+			SourceID: "jira",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_3",
-				SourceID: "asana_task",
-			},
+		task3Title := "task_3"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task3Title,
+			SourceID: "asana_task",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_4",
-				SourceID: "gmail",
-			},
+		task4Title := "task_4"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task4Title,
+			SourceID: "gmail",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_5",
-				SourceID: "gcal",
-			},
+		task5Title := "task_5"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task5Title,
+			SourceID: "gcal",
 		})
 
 		err = migrate.Steps(1)
 		assert.NoError(t, err)
 
-		var tasks []database.Item
+		var tasks []database.Task
 		cursor, err := tasksCollection.Find(dbCtx, bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},

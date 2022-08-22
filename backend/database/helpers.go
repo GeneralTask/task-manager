@@ -15,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOrCreateItem(
+func UpdateOrCreateTask(
 	db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
@@ -24,7 +24,7 @@ func UpdateOrCreateItem(
 	fieldsToUpdate interface{},
 	additionalFilters *[]bson.M,
 	flattenFields bool,
-) (*Item, error) {
+) (*Task, error) {
 	var err error
 	if flattenFields {
 		if fieldsToInsertIfMissing != nil {
@@ -67,16 +67,16 @@ func UpdateOrCreateItem(
 		bson.M{"$set": fieldsToUpdate},
 	)
 
-	var item Item
-	err = mongoResult.Decode(&item)
+	var task Task
+	err = mongoResult.Decode(&task)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update or create item")
 		return nil, err
 	}
-	return &item, nil
+	return &task, nil
 }
 
-func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
+func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
 	parentCtx := ctx
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
@@ -87,7 +87,7 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	defer dbCleanup()
 	taskCollection := GetTaskCollection(db)
 
-	var message Item
+	var task Task
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
@@ -95,15 +95,15 @@ func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 		bson.M{"$and": []bson.M{
 			{"_id": itemID},
 			{"user_id": userID},
-		}}).Decode(&message)
+		}}).Decode(&task)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get item: %+v", itemID)
 		return nil, err
 	}
-	return &message, nil
+	return &task, nil
 }
 
-func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Item, error) {
+func GetOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Task, error) {
 	parentCtx := context.Background()
 	taskCollection := GetTaskCollection(db)
 	dbQuery := getDBQuery(userID, IDExternal, sourceID, nil)
@@ -121,19 +121,19 @@ func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 		return nil, err
 	}
 
-	var item Item
+	var task Task
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = taskCollection.FindOne(
 		dbCtx,
 		dbQuery,
-	).Decode(&item)
+	).Decode(&task)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to get task")
 		return nil, err
 	}
 
-	return &item, nil
+	return &task, nil
 }
 
 func UpdateOrCreateCalendarEvent(
@@ -341,7 +341,7 @@ func getDBQuery(userID primitive.ObjectID, IDExternal string, sourceID string, a
 	return dbQuery
 }
 
-func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -351,7 +351,6 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
-				{"task_type.is_task": true},
 			},
 		},
 	)
@@ -360,7 +359,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
-	var tasks []Item
+	var tasks []Task
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
@@ -400,7 +399,7 @@ func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]PullRequest
 	return &pullRequests, nil
 }
 
-func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Item, error) {
+func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Task, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -423,7 +422,7 @@ func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 		logger.Error().Err(err).Msg("Failed to fetch items for user")
 		return nil, err
 	}
-	var items []Item
+	var items []Task
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &items)
@@ -470,7 +469,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	return &pullRequests, nil
 }
 
-func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	parentCtx := context.Background()
 
 	findOptions := options.Find()
@@ -485,7 +484,6 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": true},
-				{"task_type.is_task": true},
 			},
 		},
 		findOptions,
@@ -495,7 +493,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
 		return nil, err
 	}
-	var tasks []Item
+	var tasks []Task
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)

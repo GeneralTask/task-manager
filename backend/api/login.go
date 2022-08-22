@@ -185,18 +185,16 @@ func (api *API) LoginCallback(c *gin.Context) {
 func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
 	taskCollection := database.GetTaskCollection(db)
 	for index, title := range constants.StarterTasks {
-		newTask := database.Item{
-			TaskBase: database.TaskBase{
-				UserID:          userID,
-				IDExternal:      primitive.NewObjectID().Hex(),
-				IDOrdering:      index + 1,
-				IDTaskSection:   constants.IDTaskSectionDefault,
-				SourceID:        external.TASK_SOURCE_ID_GT_TASK,
-				Title:           title,
-				Body:            "",
-				SourceAccountID: external.GeneralTaskDefaultAccountID,
-			},
-			TaskType: database.TaskType{IsTask: true},
+		body := ""
+		newTask := database.Task{
+			UserID:          userID,
+			IDExternal:      primitive.NewObjectID().Hex(),
+			IDOrdering:      index + 1,
+			IDTaskSection:   constants.IDTaskSectionDefault,
+			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
+			Title:           &title,
+			Body:            &body,
+			SourceAccountID: external.GeneralTaskDefaultAccountID,
 		}
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()

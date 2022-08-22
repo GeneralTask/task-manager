@@ -16,11 +16,12 @@ func TestLoadGeneralTaskTasks(t *testing.T) {
 	taskWrongSource := createTestTask(userID)
 	taskWrongSource.SourceID = TASK_SOURCE_ID_GCAL
 	taskCompleted := createTestTask(userID)
-	taskCompleted.IsCompleted = true
+	completed := true
+	taskCompleted.IsCompleted = &completed
 	insertTestTasks(
 		t,
 		userID,
-		[]*database.Item{
+		[]*database.Task{
 			task,
 			taskWrongSource,
 			taskCompleted,
@@ -67,7 +68,6 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
-		assert.True(t, task.IsTask)
 		assert.Equal(t, "send dogecoin to the moon", task.Title)
 		assert.Equal(t, time.Hour.Nanoseconds(), task.TimeAllocation)
 	})
@@ -86,36 +86,31 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
-		assert.True(t, task.IsTask)
-		assert.Equal(t, "send tesla stonk to the moon", task.Title)
-		assert.Equal(t, "body", task.TaskBase.Body)
-		assert.Equal(t, timeAllocation, task.TimeAllocation)
+		assert.Equal(t, "send tesla stonk to the moon", *task.Title)
+		assert.Equal(t, "body", *task.Body)
+		assert.Equal(t, timeAllocation, *task.TimeAllocation)
 	})
 }
 
-func createTestTask(userID primitive.ObjectID) *database.Item {
-	return &database.Item{
-		TaskBase: database.TaskBase{
-			IDOrdering:      2,
-			IDExternal:      primitive.NewObjectID().Hex(),
-			IDTaskSection:   constants.IDTaskSectionDefault,
-			Title:           "Sample Taskeroni",
-			SourceID:        TASK_SOURCE_ID_GT_TASK,
-			UserID:          userID,
-			SourceAccountID: GeneralTaskDefaultAccountID,
-		},
-		TaskType: database.TaskType{
-			IsTask: true,
-		},
+func createTestTask(userID primitive.ObjectID) *database.Task {
+	title := "Sample Taskeroni"
+	return &database.Task{
+		IDOrdering:      2,
+		IDExternal:      primitive.NewObjectID().Hex(),
+		IDTaskSection:   constants.IDTaskSectionDefault,
+		Title:           &title,
+		SourceID:        TASK_SOURCE_ID_GT_TASK,
+		UserID:          userID,
+		SourceAccountID: GeneralTaskDefaultAccountID,
 	}
 }
 
-func insertTestTasks(t *testing.T, userID primitive.ObjectID, tasks []*database.Item) {
+func insertTestTasks(t *testing.T, userID primitive.ObjectID, tasks []*database.Task) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
 	for _, task := range tasks {
-		_, err := database.GetOrCreateItem(
+		_, err := database.GetOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,

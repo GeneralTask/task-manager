@@ -2,12 +2,13 @@ package migrations
 
 import (
 	"context"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"testing"
 )
 
 func TestMigrate005(t *testing.T) {
@@ -26,46 +27,37 @@ func TestMigrate005(t *testing.T) {
 	userID := primitive.NewObjectID()
 
 	t.Run("MigrateUp", func(t *testing.T) {
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_1",
-				SourceID: "asana_task",
-			},
-			TaskType: database.TaskType{IsTask: true},
+		task1Title := "task_1"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task1Title,
+			SourceID: "asana_task",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_2",
-				SourceID: "asana_task",
-			},
-			TaskType: database.TaskType{IsTask: true},
+		task2Title := "task_2"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task2Title,
+			SourceID: "asana_task",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_3",
-				SourceID: "linear_task",
-			},
-			TaskType: database.TaskType{IsTask: true},
+		task3Title := "task_3"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task3Title,
+			SourceID: "linear_task",
 		})
-		tasksCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:   userID,
-				Title:    "task_4",
-				SourceID: "gt",
-			},
-			TaskType: database.TaskType{IsTask: true},
+		task4Title := "task_4"
+		tasksCollection.InsertOne(dbCtx, database.Task{
+			UserID:   userID,
+			Title:    &task4Title,
+			SourceID: "gt",
 		})
 
 		err = migrate.Steps(1)
 		assert.NoError(t, err)
 
-		var tasks []database.Item
+		var tasks []database.Task
 		cursor, err := tasksCollection.Find(dbCtx, bson.M{
 			"$and": []bson.M{
-				{"task_type.is_task": true},
 				{"user_id": userID},
 			},
 		})
@@ -80,10 +72,9 @@ func TestMigrate005(t *testing.T) {
 		}
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
-		var tasks []database.Item
+		var tasks []database.Task
 		cursor, err := tasksCollection.Find(dbCtx, bson.M{
 			"$and": []bson.M{
-				{"task_type.is_task": true},
 				{"user_id": userID},
 			},
 		})

@@ -68,7 +68,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 			{"is_completed": false},
 		}},
 	)
-	var tasks []*database.Item
+	var tasks []*database.Task
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
 		logger.Error().Err(err).Msg("failed to fetch slack tasks")
 		result <- emptyTaskResult(err)
@@ -81,7 +81,7 @@ func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID,
 	result <- emptyPullRequestResult(nil)
 }
 
-func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	return nil
 }
 
@@ -104,20 +104,15 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		logger.Error().Err(err).Msg("failed to fetch Slack message params")
 	}
 
-	newTask := database.Item{
-		TaskBase: database.TaskBase{
-			UserID:          userID,
-			IDTaskSection:   taskSection,
-			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
-			Title:           task.Title,
-			Body:            task.Body,
-			SourceAccountID: accountID,
-			Deeplink:        slackAdditionalInformation.Deeplink,
-			Sender:          slackAdditionalInformation.Username,
-		},
-		TaskType: database.TaskType{
-			IsTask: true,
-		},
+	newTask := database.Task{
+		UserID:          userID,
+		IDTaskSection:   taskSection,
+		SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
+		Title:           &task.Title,
+		Body:            &task.Body,
+		SourceAccountID: accountID,
+		Deeplink:        slackAdditionalInformation.Deeplink,
+		Sender:          slackAdditionalInformation.Username,
 		SlackMessageParams: database.SlackMessageParams{
 			Channel: task.SlackMessageParams.Channel,
 			User:    task.SlackMessageParams.User,

@@ -55,35 +55,30 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
-	var tasks []*database.Item
+	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
-		task := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:            userID,
-				IDExternal:        linearIssue.Id.(string),
-				IDTaskSection:     constants.IDTaskSectionDefault,
-				Deeplink:          string(linearIssue.Url),
-				SourceID:          TASK_SOURCE_ID_LINEAR,
-				Title:             string(linearIssue.Title),
-				Body:              string(linearIssue.Description),
-				SourceAccountID:   accountID,
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		stringTitle := string(linearIssue.Title)
+		stringBody := string(linearIssue.Description)
+		task := &database.Task{
+			UserID:            userID,
+			IDExternal:        linearIssue.Id.(string),
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          string(linearIssue.Url),
+			SourceID:          TASK_SOURCE_ID_LINEAR,
+			Title:             &stringTitle,
+			Body:              &stringBody,
+			SourceAccountID:   accountID,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+			Status: &database.ExternalTaskStatus{
+				ExternalID: (linearIssue.State.Id).(string),
+				State:      string(linearIssue.State.Name),
+				Type:       string(linearIssue.State.Type),
 			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-			Task: database.Task{
-				Status: database.ExternalTaskStatus{
-					ExternalID: (linearIssue.State.Id).(string),
-					State:      string(linearIssue.State.Name),
-					Type:       string(linearIssue.State.Type),
-				},
-				CompletedStatus: database.ExternalTaskStatus{
-					ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
-					State:      string(linearIssue.Team.MergeWorkflowState.Name),
-					Type:       string(linearIssue.Team.MergeWorkflowState.Type),
-				},
+			CompletedStatus: &database.ExternalTaskStatus{
+				ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
+				State:      string(linearIssue.Team.MergeWorkflowState.Name),
+				Type:       string(linearIssue.Team.MergeWorkflowState.Type),
 			},
 		}
 		if len(linearIssue.Comments.Nodes) > 0 {
@@ -102,24 +97,22 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				}
 				dbComments = append(dbComments, dbComment)
 			}
-			task.Task.Comments = &dbComments
+			task.Comments = &dbComments
 		}
 		isCompleted := false
-		dbTask, err := database.UpdateOrCreateItem(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskItemChangeableFields{
-				Title:       &task.Title,
-				Body:        &task.TaskBase.Body,
-				IsCompleted: &isCompleted,
-				Task: database.TaskChangeable{
-					Comments:        task.Comments,
-					Status:          &task.Status,
-					CompletedStatus: &task.CompletedStatus,
-				},
+			database.Task{
+				Title:           task.Title,
+				Body:            task.Body,
+				IsCompleted:     &isCompleted,
+				Comments:        task.Comments,
+				Status:          task.Status,
+				CompletedStatus: task.CompletedStatus,
 			},
 			nil,
 			true,
@@ -143,7 +136,7 @@ func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, ac
 	result <- emptyPullRequestResult(nil)
 }
 
-func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		return err

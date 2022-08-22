@@ -2,9 +2,10 @@ package migrations
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"testing"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -40,7 +41,6 @@ func TestMigrate004(t *testing.T) {
 		assert.Equal(t, 4, len(indexes))
 
 		assert.Equal(t, primitive.M{"id_external": int32(1), "source_id": int32(1), "user_id": int32(1)}, indexes[1]["key"])
-		assert.Equal(t, primitive.M{"is_completed": int32(1), "task_type.is_task": int32(1), "user_id": int32(1)}, indexes[2]["key"])
 		assert.Equal(t, primitive.M{"email.is_unread": int32(1), "task_type.is_message": int32(1), "user_id": int32(1)}, indexes[3]["key"])
 	})
 	t.Run("MigrateDown", func(t *testing.T) {

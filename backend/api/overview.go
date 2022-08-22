@@ -169,7 +169,6 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 	tasks, err := database.GetItems(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_task": true},
 			{"id_task_section": view.TaskSectionID},
 		},
 	)
@@ -312,7 +311,6 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	linearTasks, err := database.GetItems(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_task": true},
 			{"source_id": external.TASK_SOURCE_ID_LINEAR},
 		},
 	)
@@ -357,7 +355,6 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	slackTasks, err := database.GetItems(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_task": true},
 			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
 		},
 	)
