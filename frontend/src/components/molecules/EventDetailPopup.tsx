@@ -1,28 +1,26 @@
-import React, { MouseEvent, MouseEventHandler, useLayoutEffect, useRef, useState } from 'react'
-import { DateTime } from 'luxon'
-import { icons, logos } from '../../styles/images'
-import { TEvent } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
-import ReactDOM from 'react-dom'
-import { useClickOutside } from '../../hooks'
 import {
+    Description,
     EventBoxStyle,
+    EventDate,
+    EventDateContainer,
     EventHeader,
     EventHeaderIcons,
     EventTitle,
-    EventDateContainer,
-    EventDate,
-    Description,
     IconButton,
 } from './EventDetailPopup-styles'
-import GTButton from '../atoms/buttons/GTButton'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import { TModifyEventData, useDeleteEvent } from '../../services/api/events.hooks'
+import React, { MouseEvent, MouseEventHandler, useLayoutEffect, useRef, useState } from 'react'
+import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
-import produce from 'immer'
-import { useGTQueryClient } from '../../services/queryUtils'
-import { getMonthsAroundDate } from '../../utils/time'
+
+import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
+import GTButton from '../atoms/buttons/GTButton'
+import { Icon } from '../atoms/Icon'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import ReactDOM from 'react-dom'
+import { TEvent } from '../../utils/types'
+import { useClickOutside } from '../../hooks'
+import { useDeleteEvent } from '../../services/api/events.hooks'
 
 interface EventDetailProps {
     event: TEvent
@@ -38,12 +36,25 @@ interface EventDetailProps {
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight, setIsScrollDisabled, setEventDetailId }: EventDetailProps, ref) => {
+    (
+        {
+            event,
+            date,
+            onClose,
+            xCoord,
+            yCoord,
+            eventHeight,
+            eventWidth,
+            windowHeight,
+            setIsScrollDisabled,
+            setEventDetailId,
+        }: EventDetailProps,
+        ref
+    ) => {
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
-        const { mutate: deleteEvent } = useDeleteEvent()
+        const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
         const [popupHeight, setPopupHeight] = useState(0)
-        const queryClient = useGTQueryClient()
         useLayoutEffect(() => {
             if (!popupRef.current) return
             setPopupHeight(popupRef.current.getBoundingClientRect().height)
@@ -53,56 +64,10 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
 
-        // optimistic delete
-        const helpDeleteEvent = (data: TModifyEventData) => {
-            const start = DateTime.fromISO(data.datetime_start)
-            const end = DateTime.fromISO(data.datetime_end)
-            const timeBlocks = getMonthsAroundDate(date, 1)
-            const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
-            const block = timeBlocks[blockIndex]
-            queryClient.cancelQueries(['events', 'calendar', block.start.toISO()])
-
-            const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
-            if (!events) return
-            const newEvents = produce(events, (draft) => {
-                const eventIdx = draft.findIndex((event) => event.id === data.id)
-                if (eventIdx === -1) return
-                draft.splice(eventIdx, 1)
-            })
-            queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
-
+        const onDelete = (event: TEvent) => {
             setIsScrollDisabled(false)
             setEventDetailId('')
-        }
-
-        // optimistic undo
-        const helpUndoEvent = (data: TEvent) => {
-            const start = DateTime.fromISO(data.datetime_start)
-            const end = DateTime.fromISO(data.datetime_end)
-            const timeBlocks = getMonthsAroundDate(date, 1)
-            const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
-            const block = timeBlocks[blockIndex]
-            queryClient.cancelQueries(['events', 'calendar', block.start.toISO()])
-
-            const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
-            if (!events) return
-            const deletedEvent: TEvent = {
-                id: data.id,
-                title: data.title,
-                body: data.body,
-                deeplink: data.deeplink,
-                datetime_start: data.datetime_start,
-                datetime_end: data.datetime_end,
-                conference_call: data.conference_call,
-            }
-            const newEvents = produce(events, (draft) => {
-                draft.push(deletedEvent)
-            })
-            queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
-        }
-
-        const onDelete = (event: TEvent) => {
-            helpDeleteEvent({
+            deleteEventInCache({
                 id: event.id,
                 date: date,
                 datetime_start: event.datetime_start,
@@ -124,7 +89,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                         onClick: () => {
                             clearTimeout(timeout)
                             dismissToast(undoToastRef.current)
-                            helpUndoEvent(event)
+                            undoDeleteEventInCache(event, date)
                         },
                     },
                 },
