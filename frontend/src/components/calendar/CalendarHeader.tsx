@@ -112,18 +112,18 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                     <HeaderIconsContainer>
                         <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
                             {isCalendarExpanded ? (
-                                <Icon source={icons.arrows_in} size="small" />
+                                <Icon icon={icons.arrows_in} size="xSmall" />
                             ) : (
-                                <Icon source={icons.arrows_out} size="small" />
+                                <Icon icon={icons.arrows_out} size="xSmall" />
                             )}
                         </ArrowButton>
                         <CaretButton onClick={() => collapseCalendar()}>
-                            <Icon source={icons.caret_right} size="small" />
+                            <Icon icon={icons.caret_right} size="xSmall" />
                         </CaretButton>
                     </HeaderIconsContainer>
                 </HeaderBodyContainer>
             </PaddedContainer>
-            <Divider />
+            <Divider color={Colors.border.light} />
             <PaddedContainer>
                 <HeaderBodyContainer>
                     <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
@@ -140,10 +140,10 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
                             Today
                         </HoverButton>
                         <CaretButton onClick={selectPrevious}>
-                            <Icon source={icons.caret_left} size="small" />
+                            <Icon icon={icons.caret_left} size="xSmall" />
                         </CaretButton>
                         <CaretButton onClick={selectNext}>
-                            <Icon source={icons.caret_right} size="small" />
+                            <Icon icon={icons.caret_right} size="xSmall" />
                         </CaretButton>
                     </ButtonContainer>
                 </HeaderBodyContainer>

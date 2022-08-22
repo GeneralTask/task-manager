@@ -13,7 +13,10 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/google/go-github/v45/github"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -24,6 +27,7 @@ const (
 	StateCommented            string = "COMMENTED"
 )
 
+// *Important*: Add all required actions to the ActionOrdering map so that the PRs are ordered correctly
 const (
 	ActionAddReviewers      string = "Add Reviewers"
 	ActionFixMergeConflicts string = "Fix Merge Conflicts"
@@ -45,6 +49,7 @@ var ActionOrdering = map[string]int{
 	ActionWaitingOnCI:       5,
 	ActionMergePR:           6,
 	ActionWaitingOnReview:   7,
+	ActionWaitingOnAuthor:   8,
 }
 
 const (
@@ -133,8 +138,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
-	var pullRequestChannels []chan *database.Item
+	var pullRequestChannels []chan *database.PullRequest
 	for _, repository := range repositories {
+		err := updateOrCreateRepository(parentCtx, db, repository, userID)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to update or create repository")
+			result <- emptyPullRequestResult(err)
+			return
+		}
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
@@ -143,7 +154,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			return
 		}
 		for _, pullRequest := range fetchedPullRequests {
-			pullRequestChan := make(chan *database.Item)
+			pullRequestChan := make(chan *database.PullRequest)
 			requestData := GithubPRRequestData{
 				Client:      githubClient,
 				User:        githubUser,
@@ -155,7 +166,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 	}
 
-	var pullRequestItems []*database.Item
+	var pullRequests []*database.PullRequest
 	for _, pullRequestChan := range pullRequestChannels {
 		pullRequest := <-pullRequestChan
 		// if nil, this means that the request ran into an error: continue and keep processing the rest
@@ -164,24 +175,14 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 
 		isCompleted := false
-		dbPR, err := database.UpdateOrCreateItem(
+		pullRequest.IsCompleted = &isCompleted
+		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,
 			string(pullRequest.IDExternal),
 			pullRequest.SourceID,
 			pullRequest,
-			database.PullRequestItemChangeable{
-				Title:       &pullRequest.Title,
-				Body:        &pullRequest.TaskBase.Body,
-				IsCompleted: &isCompleted,
-				PullRequestChangeableFields: database.PullRequestChangeableFields{
-					LastUpdatedAt:  &pullRequest.PullRequest.LastUpdatedAt,
-					CommentCount:   &pullRequest.CommentCount,
-					RequiredAction: &pullRequest.RequiredAction,
-				},
-			},
-			nil,
-			true)
+			nil)
 
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
@@ -190,18 +191,17 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		}
 		pullRequest.ID = dbPR.ID
 		pullRequest.IDOrdering = dbPR.IDOrdering
-		pullRequest.IDTaskSection = dbPR.IDTaskSection
 
-		pullRequestItems = append(pullRequestItems, pullRequest)
+		pullRequests = append(pullRequests, pullRequest)
 	}
 
 	result <- PullRequestResult{
-		PullRequests: pullRequestItems,
+		PullRequests: pullRequests,
 		Error:        nil,
 	}
 }
 
-func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.Item) {
+func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
 	logger := logging.GetSentryLogger()
 
 	githubClient := requestData.Client
@@ -266,30 +266,22 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		UserLogin:            githubUser.GetLogin(),
 	}
 
-	result <- &database.Item{
-		TaskBase: database.TaskBase{
-			UserID:            userID,
-			IDExternal:        fmt.Sprint(*pullRequest.ID),
-			Deeplink:          *pullRequest.HTMLURL,
-			SourceID:          TASK_SOURCE_ID_GITHUB_PR,
-			Title:             *pullRequest.Title,
-			SourceAccountID:   accountID,
-			CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
-		},
-		PullRequest: database.PullRequest{
-			RepositoryID:   fmt.Sprint(*repository.ID),
-			RepositoryName: *repository.Name,
-			Number:         *pullRequest.Number,
-			Author:         *pullRequest.User.Login,
-			Branch:         *pullRequest.Head.Ref,
-			RequiredAction: getPullRequestRequiredAction(pullRequestData),
-			CommentCount:   commentCount,
-			LastUpdatedAt:  primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
-		},
-		TaskType: database.TaskType{
-			IsTask:        false,
-			IsPullRequest: true,
-		},
+	result <- &database.PullRequest{
+		UserID:            userID,
+		IDExternal:        fmt.Sprint(*pullRequest.ID),
+		Deeplink:          *pullRequest.HTMLURL,
+		SourceID:          TASK_SOURCE_ID_GITHUB_PR,
+		Title:             *pullRequest.Title,
+		SourceAccountID:   accountID,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+		RepositoryID:      fmt.Sprint(*repository.ID),
+		RepositoryName:    *repository.Name,
+		Number:            *pullRequest.Number,
+		Author:            *pullRequest.User.Login,
+		Branch:            *pullRequest.Head.Ref,
+		RequiredAction:    getPullRequestRequiredAction(pullRequestData),
+		CommentCount:      commentCount,
+		LastUpdatedAt:     primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 	}
 }
 
@@ -319,6 +311,25 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	}
 	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
 	return repositories, err
+}
+
+func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err := repositoryCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"repository_id": fmt.Sprint(repository.GetID())},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": bson.M{
+			"full_name": repository.GetName(),
+			"deeplink":  repository.GetHTMLURL(),
+		}},
+		options.Update().SetUpsert(true),
+	)
+	return err
 }
 
 func getGithubPullRequests(ctx context.Context, githubClient *github.Client, repository *github.Repository, overrideURL *string) ([]*github.PullRequest, error) {

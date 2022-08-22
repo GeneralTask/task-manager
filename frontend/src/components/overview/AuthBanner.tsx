@@ -52,7 +52,7 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
     return (
         <BannerContainer hasBorder={hasBorder}>
             <IconContainer>
-                <Icon size="small" source={logos[logo]} />
+                <Icon size="small" icon={logos[logo]} />
                 <Title>{`Connect ${name} to General Task`}</Title>
             </IconContainer>
             <GTButton

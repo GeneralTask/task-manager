@@ -46,6 +46,7 @@ export const background = {
 }
 
 export const border = {
+    light: GRAY._200,
     gray: GRAY._500,
 }
 
@@ -54,6 +55,15 @@ export const text = {
     light: GRAY._500,
     white: WHITE,
 }
+
+export const icon = {
+    white: WHITE,
+    gray: GRAY._500,
+    red: RED._1,
+    purple: PURPLE._1,
+    black: BLACK,
+}
+export type TIconColor = keyof typeof icon
 
 export const button = {
     primary: {

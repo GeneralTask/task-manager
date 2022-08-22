@@ -20,7 +20,9 @@ func TestSections(t *testing.T) {
 	UnauthorizedTest(t, "PATCH", "/sections/modify/123/", nil)
 	UnauthorizedTest(t, "DELETE", "/sections/delete/123/", nil)
 	t.Run("EmptyPayloadCreate", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("POST", "/sections/create/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -31,7 +33,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
 	})
 	t.Run("BadPayloadCreate", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/sections/create/",
@@ -45,7 +49,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
 	})
 	t.Run("CreateSuccess", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/sections/create/",
@@ -59,7 +65,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 	})
 	t.Run("SuccessGet", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/sections/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -75,7 +83,9 @@ func TestSections(t *testing.T) {
 		createdTaskID = sectionResult[0].ID.Hex()
 	})
 	t.Run("EmptyPayloadModify", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/sections/modify/"+createdTaskID+"/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -86,7 +96,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
 	})
 	t.Run("BadPayloadModify", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/sections/modify/"+createdTaskID+"/",
@@ -100,7 +112,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
 	})
 	t.Run("ModifyBadURL", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/sections/modify/"+primitive.NewObjectID().Hex()+"/",
@@ -111,7 +125,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 	t.Run("ModifySuccess", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/sections/modify/"+createdTaskID+"/",
@@ -153,7 +169,9 @@ func TestSections(t *testing.T) {
 		createdTaskID = sectionResult[0].ID.Hex()
 	})
 	t.Run("DeleteBadURL", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"DELETE",
 			"/sections/delete/"+primitive.NewObjectID().Hex()+"/",
@@ -164,7 +182,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
 	t.Run("DeleteSuccess", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"DELETE",
 			"/sections/delete/"+createdTaskID+"/",

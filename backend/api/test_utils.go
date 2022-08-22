@@ -189,7 +189,8 @@ func makeLoginCallbackRequest(
 		nil,
 	)
 	mockConfig.On("Client", mock.Anything, &mockToken).Return(&mockClient)
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	api.ExternalConfig.GoogleLoginConfig = &mockConfig
 	api.SkipStateTokenCheck = skipStateTokenCheck
 	router := GetRouter(api)
@@ -282,7 +283,9 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 }
 
 func runAuthenticatedEndpoint(attemptedHeader string) *httptest.ResponseRecorder {
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 
 	request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 	request.Header.Add("Authorization", attemptedHeader)
@@ -297,7 +300,9 @@ func createRandomGTEmail() string {
 }
 
 func ServeRequest(t *testing.T, authToken string, method string, url string, requestBody io.Reader, expectedReponseCode int) []byte {
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 	request, _ := http.NewRequest(method, url, requestBody)
 	request.Header.Add("Authorization", "Bearer "+authToken)
 
@@ -311,7 +316,9 @@ func ServeRequest(t *testing.T, authToken string, method string, url string, req
 
 func UnauthorizedTest(t *testing.T, method string, url string, body io.Reader) bool {
 	return t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(method, url, body)
 
 		recorder := httptest.NewRecorder()

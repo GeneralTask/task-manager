@@ -161,6 +161,31 @@ func (api *API) adjustForCompletedTasks(
 	return nil
 }
 
+// TODO will make generic once we refactor tasks
+func (api *API) adjustForCompletedPullRequests(
+	db *mongo.Database,
+	currentPullRequests *[]database.PullRequest,
+	fetchedPullRequests *[]*database.PullRequest,
+	failedFetchSources map[string]bool,
+) error {
+	newPRIDs := make(map[primitive.ObjectID]bool)
+	for _, fetchedPR := range *fetchedPullRequests {
+		newPRIDs[fetchedPR.ID] = true
+	}
+
+	// There's a more efficient way to do this but this way is easy to understand
+	for _, currentPullRequest := range *currentPullRequests {
+		if !newPRIDs[currentPullRequest.ID] && !failedFetchSources[currentPullRequest.SourceID] {
+			err := database.MarkPRComplete(db, currentPullRequest.ID)
+			if err != nil {
+				api.Logger.Error().Err(err).Msg("failed to complete pull request")
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
 	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
@@ -194,7 +219,7 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 		dueDate = t.DueDate.Time().Format("2006-01-02")
 	}
 
-	taskSourceResult, err := api.ExternalConfig.GetTaskSourceResult(t.SourceID)
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(t.SourceID)
 	taskSource := TaskSource{}
 	if err == nil {
 		taskSource = TaskSource{

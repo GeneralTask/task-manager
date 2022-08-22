@@ -17,7 +17,9 @@ import (
 func TestWaitlistAdd(t *testing.T) {
 	parentCtx := context.Background()
 	t.Run("EmptyPayload", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("POST", "/waitlist/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -27,7 +29,9 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
 	})
 	t.Run("MissingEmail", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/waitlist/",
@@ -40,7 +44,9 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
 	})
 	t.Run("BadEmail", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/waitlist/",
@@ -82,7 +88,9 @@ func TestWaitlistAdd(t *testing.T) {
 }
 
 func sendWaitlistRequest(t *testing.T, expectedCode int, expectedResponse string) {
-	router := GetRouter(GetAPI())
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
 	request, _ := http.NewRequest(
 		"POST",
 		"/waitlist/",

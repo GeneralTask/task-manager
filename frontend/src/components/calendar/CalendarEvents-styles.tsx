@@ -171,6 +171,8 @@ export const CalendarContainer = styled.div<{ expanded: boolean }>`
     flex: ${(props) => (props.expanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
     display: flex;
+    z-index: 1;
+    box-shadow: ${Shadows.light};
     flex-direction: column;
 `
 export const DayAndHeaderContainer = styled.div`

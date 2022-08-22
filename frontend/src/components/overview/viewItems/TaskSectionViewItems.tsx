@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useMarkTaskDone } from '../../../services/api/overview.hooks'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
@@ -19,7 +18,6 @@ const EmptyDropContainer = styled.div`
 
 const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
-    const { mutate: markTaskDone } = useMarkTaskDone()
     const { overviewItem } = useParams()
     const { mutate: reorderTask } = useReorderTask()
 
@@ -34,14 +32,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
             })
         },
         [view.task_section_id]
-    )
-
-    const handleMarkTaskComplete = useCallback(
-        (taskId: string, isComplete: boolean) => {
-            if (!view.task_section_id) return
-            markTaskDone({ taskId, sectionId: view.task_section_id, isCompleted: isComplete })
-        },
-        [view.task_section_id, markTaskDone]
     )
 
     return (
@@ -62,7 +52,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                             sectionId={sectionId}
                             isSelected={overviewItem === item.id}
                             link={`/overview/${item.id}`}
-                            onMarkComplete={handleMarkTaskComplete}
                         />
                     </ReorderDropContainer>
                 ))

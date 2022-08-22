@@ -87,10 +87,14 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
         return (
             <ListItem key={section.id} onClick={handleOnClick}>
                 <SectionTitleBox isSelected={isCurrentSection}>
-                    <Icon size={'small'} source={isCurrentSection ? icons.inbox_purple : icons.inbox} />
+                    <Icon
+                        size={'small'}
+                        icon={icons.folder}
+                        color={isCurrentSection ? Colors.icon.purple : Colors.icon.gray}
+                    />
                     <SectionName>{section.name}</SectionName>
                 </SectionTitleBox>
-                {isCurrentSection && <Icon size={'xSmall'} source={icons.task_complete} />}
+                {isCurrentSection && <Icon size={'xSmall'} icon={icons.checkbox_checked} color={Colors.icon.purple} />}
             </ListItem>
         )
     })

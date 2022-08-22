@@ -61,7 +61,7 @@ func (config Config) GetTaskServiceResult(serviceID string) (*TaskServiceResult,
 	return &result, nil
 }
 
-func (config Config) GetTaskSourceResult(sourceID string) (*TaskSourceResult, error) {
+func (config Config) GetSourceResult(sourceID string) (*TaskSourceResult, error) {
 	nameToSource := config.getNameToSource()
 	result, ok := nameToSource[sourceID]
 	if !ok {

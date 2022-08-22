@@ -1,7 +1,7 @@
 import React from 'react'
 import { Icon } from '../atoms/Icon'
 import { TPullRequest } from '../../utils/types'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -66,11 +66,11 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         <DetailsViewContainer data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
-                    <Icon source={logos.github} size="small" />
+                    <Icon icon={logos.github} size="small" />
                 </MarginRight8>
                 <MarginLeftAuto>
                     <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTButton styleType="secondary" value="Open in GitHub" iconSource="external_link" />
+                        <GTButton styleType="secondary" value="Open in GitHub" icon={icons.external_link} />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
             </DetailsTopContainer>

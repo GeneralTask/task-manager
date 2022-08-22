@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"time"
 
@@ -27,9 +28,19 @@ type API struct {
 	SkipStateTokenCheck bool
 	Logger              zerolog.Logger
 	OverrideTime        *time.Time
+	DB                  *mongo.Database
+	DBCleanup           func()
 }
 
-func GetAPI() *API {
+func GetAPIWithDBCleanup() (*API, func()) {
+	dbh, err := database.CreateDBHandle()
+	if err != nil {
+		log.Fatal().Msgf("Failed to connect to db, %+v", err)
+	}
+	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB}, dbh.CloseConnection
+}
+
+func GetTestAPI() *API {
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
 }
 

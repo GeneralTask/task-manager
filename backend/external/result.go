@@ -3,7 +3,7 @@ package external
 import "github.com/GeneralTask/task-manager/backend/database"
 
 type CalendarResult struct {
-	CalendarEvents []*database.Item
+	CalendarEvents []*database.CalendarEvent
 	Error          error
 }
 
@@ -15,14 +15,14 @@ type TaskResult struct {
 }
 
 type PullRequestResult struct {
-	PullRequests []*database.Item
+	PullRequests []*database.PullRequest
 	Error        error
 	SourceID     string
 }
 
 func emptyCalendarResult(err error) CalendarResult {
 	return CalendarResult{
-		CalendarEvents: []*database.Item{},
+		CalendarEvents: []*database.CalendarEvent{},
 		Error:          err,
 	}
 }
@@ -44,7 +44,7 @@ func emptyTaskResultWithSource(err error, sourceID string) TaskResult {
 
 func emptyPullRequestResult(err error) PullRequestResult {
 	return PullRequestResult{
-		PullRequests: []*database.Item{},
+		PullRequests: []*database.PullRequest{},
 		Error:        err,
 		SourceID:     TASK_SOURCE_ID_GITHUB_PR,
 	}
