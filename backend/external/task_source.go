@@ -43,7 +43,7 @@ type EventCreateObject struct {
 	DatetimeEnd       *time.Time         `json:"datetime_end" binding:"required"`
 	Attendees         []Attendee         `json:"attendees,omitempty"`
 	AddConferenceCall bool               `json:"add_conference_call,omitempty"`
-	LinkedTaskID      string             `json:"task_id,omitempty"`
+	LinkedTaskID      primitive.ObjectID `json:"task_id,omitempty"`
 }
 
 type EventModifyObject struct {

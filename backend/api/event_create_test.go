@@ -74,12 +74,34 @@ func TestEventCreate(t *testing.T) {
 		eventID := makeCreateRequest(&eventCreateObject, http.StatusCreated)
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, eventID, dbEvent.IDExternal)
+		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
-
 	})
 	t.Run("SuccessLinkedTask", func(t *testing.T) {
-
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		taskCollection := database.GetTaskCollection(db)
+		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Item{
+			TaskBase: database.TaskBase{
+				Title:  "task title",
+				Body:   "task body",
+				UserID: userID,
+			},
+		})
+		taskID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := external.EventCreateObject{
+			AccountID:     "duck@test.com",
+			Summary:       "summary",
+			Description:   "description",
+			DatetimeStart: &startTime,
+			DatetimeEnd:   &endTime,
+			LinkedTaskID:  taskID,
+		}
+		eventID := makeCreateRequest(&eventCreateObject, http.StatusCreated)
+		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
+		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
 	})
 }
 
@@ -89,5 +111,5 @@ func checkEventMatchesCreateObject(t *testing.T, event database.CalendarEvent, c
 	assert.Equal(t, createObject.Description, event.Body)
 	assert.Equal(t, primitive.NewDateTimeFromTime(*createObject.DatetimeStart), event.DatetimeStart)
 	assert.Equal(t, primitive.NewDateTimeFromTime(*createObject.DatetimeEnd), event.DatetimeEnd)
-	assert.Equal(t, createObject.LinkedTaskID, event.Title)
+	assert.Equal(t, createObject.LinkedTaskID, event.LinkedTaskID)
 }

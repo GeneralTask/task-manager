@@ -130,7 +130,7 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}
