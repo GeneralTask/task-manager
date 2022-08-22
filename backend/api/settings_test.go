@@ -35,7 +35,9 @@ func TestSettingsGet(t *testing.T) {
 		assert.NoError(t, err)
 
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -58,7 +60,9 @@ func TestSettingsGet(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -70,7 +74,9 @@ func TestSettingsGet(t *testing.T) {
 	})
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("Unauthorized", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -85,7 +91,9 @@ func TestSettingsModify(t *testing.T) {
 
 	t.Run("EmptyPayload", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("PATCH", "/settings/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -97,7 +105,9 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("InvalidPayload", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -113,7 +123,9 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("BadKey", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -129,7 +141,9 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("BadValue", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -145,7 +159,9 @@ func TestSettingsModify(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
@@ -169,7 +185,9 @@ func TestSettingsModify(t *testing.T) {
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
 
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",

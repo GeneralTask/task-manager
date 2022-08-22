@@ -22,7 +22,8 @@ func TestLoginRedirect(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	api.ExternalConfig.GoogleLoginConfig = &external.OauthConfig{Config: &oauth2.Config{
 		ClientID:    "123",
 		RedirectURL: "g.com",
@@ -122,7 +123,9 @@ func TestLoginCallback(t *testing.T) {
 	waitlistCollection := database.GetWaitlistCollection(db)
 
 	t.Run("MissingQueryParams", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)

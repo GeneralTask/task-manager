@@ -44,7 +44,8 @@ func TestInvalidEventModify(t *testing.T) {
 	validUrl := fmt.Sprintf("/events/modify/%s/", eventID)
 
 	calendarModifyServer := testutils.GetMockAPIServer(t, 200, "{}")
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	api.ExternalConfig.GoogleOverrideURLs.CalendarModifyURL = &calendarModifyServer.URL
 	router := GetRouter(api)
 

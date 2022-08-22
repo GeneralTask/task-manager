@@ -14,19 +14,12 @@ import (
 
 func (api *API) TasksFetch(c *gin.Context) {
 	parentCtx := c.Request.Context()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-
-	defer dbCleanup()
 	userID, _ := c.Get("user")
 	var userObject database.User
-	userCollection := database.GetUserCollection(db)
+	userCollection := database.GetUserCollection(api.DB)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -34,13 +27,13 @@ func (api *API) TasksFetch(c *gin.Context) {
 		return
 	}
 
-	currentTasks, err := database.GetActiveTasks(db, userID.(primitive.ObjectID))
+	currentTasks, err := database.GetActiveTasks(api.DB, userID.(primitive.ObjectID))
 	if err != nil {
 		Handle500(c)
 		return
 	}
 
-	fetchedTasks, failedFetchSources, err := api.fetchTasks(parentCtx, db, userID)
+	fetchedTasks, failedFetchSources, err := api.fetchTasks(parentCtx, api.DB, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch tasks")
 		Handle500(c)
@@ -57,7 +50,7 @@ func (api *API) TasksFetch(c *gin.Context) {
 		api.Logger.Error().Err(err).Msg("failed to update user last_refreshed")
 	}
 
-	err = api.adjustForCompletedTasks(db, currentTasks, fetchedTasks, failedFetchSources)
+	err = api.adjustForCompletedTasks(api.DB, currentTasks, fetchedTasks, failedFetchSources)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to adjust for completed tasks")
 		Handle500(c)

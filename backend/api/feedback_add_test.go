@@ -19,7 +19,9 @@ func TestFeedbackAdd(t *testing.T) {
 	authToken := login("approved@generaltask.com", "")
 	UnauthorizedTest(t, "POST", "/feedback/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest("POST", "/feedback/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -30,7 +32,9 @@ func TestFeedbackAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'feedback' parameter.\"}", string(body))
 	})
 	t.Run("MissingFeedback", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/feedback/",
@@ -44,7 +48,9 @@ func TestFeedbackAdd(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'feedback' parameter.\"}", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
-		router := GetRouter(GetAPI())
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
 		request, _ := http.NewRequest(
 			"POST",
 			"/feedback/",

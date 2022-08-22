@@ -19,15 +19,8 @@ func (api *API) LogEventAdd(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
-
 	userID, _ := c.Get("user")
-	err = database.InsertLogEvent(db, userID.(primitive.ObjectID), params.EventType)
+	err = database.InsertLogEvent(api.DB, userID.(primitive.ObjectID), params.EventType)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to insert waitlist entry")
 		Handle500(c)

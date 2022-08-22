@@ -40,7 +40,8 @@ func TestEventDelete(t *testing.T) {
 	calendarTaskIDHex := calendarTaskID.Hex()
 
 	calendarDeleteServer := testutils.GetMockAPIServer(t, 200, "[]")
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	api.ExternalConfig.GoogleOverrideURLs.CalendarDeleteURL = &calendarDeleteServer.URL
 	router := GetRouter(api)
 
