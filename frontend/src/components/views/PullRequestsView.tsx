@@ -15,8 +15,8 @@ import EmptyDetails from '../details/EmptyDetails'
 import { logos } from '../../styles/images'
 
 const PullRequestsContainer = styled.div`
-    /* display: flex;
-    flex: 1 0; */
+    display: flex;
+    flex-direction: column;
     border-right: 1px solid ${Colors.background.dark};
 `
 
