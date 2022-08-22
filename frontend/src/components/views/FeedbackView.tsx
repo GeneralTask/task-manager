@@ -37,7 +37,6 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             },
             {
                 autoClose: 2000,
-                pauseOnFocusLoss: false,
             }
         )
     }
