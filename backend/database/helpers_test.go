@@ -17,15 +17,17 @@ func TestGetTasks(t *testing.T) {
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
+	notCompleted := false
 	task1, err := GetOrCreateTask(
 		db,
 		userID,
 		"123abc",
 		"foobar_source",
 		&Task{
-			IDExternal: "123abc",
-			SourceID:   "foobar_source",
-			UserID:     userID,
+			IDExternal:  "123abc",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &notCompleted,
 		},
 	)
 	assert.NoError(t, err)
@@ -49,9 +51,10 @@ func TestGetTasks(t *testing.T) {
 		"123abe",
 		"foobar_source",
 		&Task{
-			IDExternal: "123abe",
-			SourceID:   "foobar_source",
-			UserID:     notUserID,
+			IDExternal:  "123abe",
+			SourceID:    "foobar_source",
+			UserID:      notUserID,
+			IsCompleted: &notCompleted,
 		},
 	)
 	assert.NoError(t, err)

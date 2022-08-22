@@ -16,6 +16,9 @@ func TestLoadGeneralTaskTasks(t *testing.T) {
 	taskWrongSource := createTestTask(userID)
 	taskWrongSource.SourceID = TASK_SOURCE_ID_GCAL
 	taskCompleted := createTestTask(userID)
+	notCompleted := false
+	task.IsCompleted = &notCompleted
+	taskWrongSource.IsCompleted = &notCompleted
 	completed := true
 	taskCompleted.IsCompleted = &completed
 	insertTestTasks(

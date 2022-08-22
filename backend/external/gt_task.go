@@ -60,6 +60,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 		taskSection = task.IDTaskSection
 	}
 	timeAllocation := time.Hour.Nanoseconds()
+	completed := false
 	newTask := database.Task{
 		UserID:          userID,
 		IDExternal:      primitive.NewObjectID().Hex(),
@@ -69,6 +70,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 		Body:            &task.Body,
 		TimeAllocation:  &timeAllocation,
 		SourceAccountID: accountID,
+		IsCompleted:     &completed,
 	}
 	if task.DueDate != nil {
 		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)

@@ -246,7 +246,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		Comments:       t.Comments,
 	}
 
-	if *t.Status != (database.ExternalTaskStatus{}) {
+	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
 		taskResult.ExternalStatus = &externalStatus{
 			State: t.Status.State,
 			Type:  t.Status.Type,

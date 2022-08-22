@@ -278,7 +278,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 		var task database.Task
 		err = tasksCollection.FindOne(dbCtx, bson.M{"user_id": user.ID, "id_ordering": index + 1}).Decode(&task)
 		assert.NoError(t, err)
-		assert.Equal(t, title, task.Title)
+		assert.Equal(t, title, *task.Title)
 	}
 }
 
