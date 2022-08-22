@@ -289,12 +289,12 @@ func (api *API) TaskCreate(c *gin.Context) {
 	} else {
 		// default is currently the only acceptable accountID for general task task source
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
-		var assignedToken *database.ExternalAPIToken
+		var assignedUser *database.User
 		var tempTitle *string
-		assignedToken, tempTitle = getValidExternalOwnerAssignedTask(db, userID, taskCreateParams.Title)
+		assignedUser, tempTitle = getValidExternalOwnerAssignedTask(db, userID, taskCreateParams.Title)
 		taskCreateParams.Title = *tempTitle
-		if assignedToken != nil {
-			userID = assignedToken.UserID
+		if assignedUser != nil {
+			userID = assignedUser.ID
 			IDTaskSection = constants.IDTaskSectionDefault
 		}
 	}
@@ -319,7 +319,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	c.JSON(200, gin.H{"task_id": taskID})
 }
 
-func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.ObjectID, taskTitle string) (*database.ExternalAPIToken, *string) {
+func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.ObjectID, taskTitle string) (*database.User, *string) {
 	// assumes connection via Google Calendar
 	// internal token does not currently include email
 	validAssigneeStrings := [...]string{
@@ -335,24 +335,24 @@ func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.Obje
 		"<to hans@generaltask.com>",
 	}
 
-	fromToken, err := database.GetCalenderGmailTokenFromUserID(db, userID)
+	fromToken, err := database.GetUser(db, userID)
 	if err != nil {
 		return nil, &taskTitle
 	}
 
-	if strings.HasSuffix(fromToken.AccountID, "@generaltask.com") {
+	if strings.HasSuffix(fromToken.Email, "@generaltask.com") {
 		for _, assignString := range validAssigneeStrings {
 			if strings.HasPrefix(taskTitle, assignString) {
 				email := strings.Trim(assignString, "<to ")
 				email = strings.Trim(email, ">")
-				matchingExternalToken, err := database.GetExternalTokenByEmail(db, email)
+				matchingUser, err := database.GetUserByEmail(db, email)
 				if err != nil {
 					return nil, &taskTitle
 				}
 
 				taskTitle = strings.Trim(taskTitle, assignString)
-				taskTitle = taskTitle + " from: " + fromToken.AccountID
-				return matchingExternalToken, &taskTitle
+				taskTitle = taskTitle + " from: " + fromToken.Email
+				return matchingUser, &taskTitle
 			}
 		}
 	}

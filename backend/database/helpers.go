@@ -463,6 +463,22 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	return &userObject, nil
 }
 
+func GetUserByEmail(db *mongo.Database, email string) (*User, error) {
+	parentCtx := context.Background()
+	var user User
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	if err := GetUserCollection(db).FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"email": email},
+		}}).Decode(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
 	stateToken := &StateToken{UseDeeplink: useDeeplink}
@@ -554,38 +570,6 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 		return nil, err
 	}
 	return &externalAPIToken, nil
-}
-
-func GetExternalTokenByEmail(db *mongo.Database, email string) (*ExternalAPIToken, error) {
-	parentCtx := context.Background()
-	var externalToken ExternalAPIToken
-
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if err := GetExternalTokenCollection(db).FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"account_id": email},
-		}}).Decode(&externalToken); err != nil {
-		return nil, err
-	}
-	return &externalToken, nil
-}
-
-func GetCalenderGmailTokenFromUserID(db *mongo.Database, userID primitive.ObjectID) (*ExternalAPIToken, error) {
-	parentCtx := context.Background()
-	var externalToken ExternalAPIToken
-
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	if err := GetExternalTokenCollection(db).FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-		}}).Decode(&externalToken); err != nil {
-		return nil, err
-	}
-	return &externalToken, nil
 }
 
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {

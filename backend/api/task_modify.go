@@ -88,10 +88,10 @@ func (api *API) TaskModify(c *gin.Context) {
 			}
 			defer dbCleanup()
 
-			var assignedToken *database.ExternalAPIToken
-			assignedToken, modifyParams.TaskItemChangeableFields.Title = getValidExternalOwnerAssignedTask(db, userID, *(modifyParams.TaskItemChangeableFields.Title))
-			if assignedToken != nil {
-				modifyParams.UserID = assignedToken.UserID
+			var assignedUser *database.User
+			assignedUser, modifyParams.TaskItemChangeableFields.Title = getValidExternalOwnerAssignedTask(db, userID, *(modifyParams.TaskItemChangeableFields.Title))
+			if assignedUser != nil {
+				modifyParams.UserID = assignedUser.ID
 				tempID := constants.IDTaskSectionDefault.Hex()
 				modifyParams.IDTaskSection = &tempID
 			}
