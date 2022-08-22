@@ -111,6 +111,7 @@ func (api *API) EventsList(c *gin.Context) {
 			logo := taskSourceResult.Details.LogoV2
 			if event.LinkedTaskID != primitive.NilObjectID {
 				linkedTask, err := database.GetItem(dbCtx, event.LinkedTaskID, event.UserID)
+				// if linked_task exists
 				if err == nil {
 					linkedTaskLink = getLinkedTaskLink(linkedTask)
 					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
