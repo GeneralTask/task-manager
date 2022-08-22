@@ -26,7 +26,7 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: views, refetch, isLoading, isFetching } = useGetOverviewViews()
+    const { data: views, isLoading, isFetching } = useGetOverviewViews()
     const { overviewItem } = useParams()
     const navigate = useNavigate()
 
@@ -75,12 +75,7 @@ const OverviewView = () => {
         <>
             <OverviewPageContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader
-                        sectionName="Overview"
-                        allowRefresh={true}
-                        refetch={refetch}
-                        isRefreshing={isFetching}
-                    />
+                    <SectionHeader sectionName="Overview" allowRefresh={true} isRefreshing={isFetching} />
                     <ActionsContainer>
                         <EditViewsButtons />
                     </ActionsContainer>

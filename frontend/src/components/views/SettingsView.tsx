@@ -13,7 +13,7 @@ import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../at
 import GTSelect from '../molecules/GTSelect'
 import GTButton from '../atoms/buttons/GTButton'
 import SignOutButton from '../molecules/SignOutButton'
-import { useGTQueryClient } from '../../services/queryUtils'
+import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -79,17 +79,15 @@ const SettingsView = () => {
 
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const queryClient = useGTQueryClient()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
-
-    const onWindowClose = () => queryClient.refetchQueries({ stale: true })
+    const refetchStaleQueries = useRefetchStaleQueries()
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
     const onRelink = (accountType: string) => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === accountType) {
-                openPopupWindow(type.authorization_url, onWindowClose)
+                openPopupWindow(type.authorization_url, refetchStaleQueries)
                 return
             }
         }
@@ -122,7 +120,8 @@ const SettingsView = () => {
                                                     ) : (
                                                         <TextAlignCenter>{type.name}</TextAlignCenter>
                                                     ),
-                                                onClick: () => openPopupWindow(type.authorization_url, onWindowClose),
+                                                onClick: () =>
+                                                    openPopupWindow(type.authorization_url, refetchStaleQueries),
                                                 hasPadding: type.name !== 'Google',
                                             })) ?? []
                                         }
