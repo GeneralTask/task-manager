@@ -9,7 +9,7 @@ import { Icon } from '../Icon'
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: left;
+    justify-content: space-between;
     gap: ${Spacing.margin._16};
     padding: ${Spacing.padding._8};
     color: ${Colors.text.white};
@@ -52,9 +52,6 @@ interface ToastTemplateProps {
 const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
         <ToastContainer>
-            <NoStyleButton>
-                <Icon icon={icons.x} size="medium" color={Colors.icon.white} />
-            </NoStyleButton>
             <MessageSpan>{message}</MessageSpan>
             <ButtonsContainer>
                 {leftAction && (
@@ -72,6 +69,9 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                         value={rightAction.label}
                     />
                 )}
+                <NoStyleButton>
+                    <Icon icon={icons.x} size="medium" color={Colors.icon.white} />
+                </NoStyleButton>
             </ButtonsContainer>
         </ToastContainer>
     )
