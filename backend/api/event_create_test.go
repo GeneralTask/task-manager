@@ -28,7 +28,7 @@ func TestEventCreate(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 
-	authToken := login("TestInvalidEventModify@generaltask.com", "")
+	authToken := login("TestEventCreate@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	url := "/events/create/gcal/"
 	startTime, _ := time.Parse(time.RFC3339, "2022-08-21T12:30:00.000-07:00")
