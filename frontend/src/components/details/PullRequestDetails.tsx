@@ -74,7 +74,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                             styleType="secondary"
                             value="Open in GitHub"
                             icon={icons.external_link}
-                            iconColor={Colors.icon.black}
+                            iconColor="black"
                         />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
