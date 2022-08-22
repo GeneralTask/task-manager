@@ -3,9 +3,10 @@ package api
 import (
 	"context"
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -161,7 +162,7 @@ func Handle500(c *gin.Context) {
 
 func FakeLagMiddleware(c *gin.Context) {
 	if isLocalServer() {
-		time.Sleep(0 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 }
 
