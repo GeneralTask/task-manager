@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -40,7 +41,7 @@ func TestEventCreate(t *testing.T) {
 	api.ExternalConfig.GoogleOverrideURLs.CalendarCreateURL = &calendarCreateServer.URL
 	router := GetRouter(api)
 
-	makeCreateRequest := func(eventCreateObject *external.EventCreateObject, expectedStatus int) primitive.ObjectID {
+	makeCreateRequest := func(eventCreateObject *external.EventCreateObject, expectedStatus int, expectedErrorResponse string) primitive.ObjectID {
 		body, err := json.Marshal(*eventCreateObject)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
@@ -52,7 +53,7 @@ func TestEventCreate(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, expectedStatus, recorder.Code)
 		// if this request should succeed
-		if expectedStatus == http.StatusCreated {
+		if expectedStatus == http.StatusCreated && expectedErrorResponse == "" {
 			response := eventCreateResponse{}
 			responseBody, err := ioutil.ReadAll(recorder.Body)
 			assert.NoError(t, err)
@@ -60,8 +61,12 @@ func TestEventCreate(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotEqual(t, primitive.NilObjectID, response.ID)
 			return response.ID
+		} else {
+			responseBody, err := ioutil.ReadAll(recorder.Body)
+			assert.NoError(t, err)
+			assert.Equal(t, expectedErrorResponse, string(responseBody))
+			return primitive.NilObjectID
 		}
-		return primitive.NilObjectID
 	}
 
 	defaultEventCreateObject := external.EventCreateObject{
@@ -76,7 +81,7 @@ func TestEventCreate(t *testing.T) {
 	t.Run("SuccessNoLinkedTask", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		eventID := makeCreateRequest(&defaultEventCreateObject, http.StatusCreated)
+		eventID := makeCreateRequest(&defaultEventCreateObject, http.StatusCreated, "")
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
@@ -98,7 +103,7 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.LinkedTaskID = taskID
 
-		eventID := makeCreateRequest(&eventCreateObject, http.StatusCreated)
+		eventID := makeCreateRequest(&eventCreateObject, http.StatusCreated, "")
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
@@ -106,8 +111,9 @@ func TestEventCreate(t *testing.T) {
 	})
 	t.Run("NonExistentLinkedTask", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
-		eventCreateObject.LinkedTaskID = primitive.NewObjectID()
-		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+		nonExistentLinkedTaskID := primitive.NewObjectID()
+		eventCreateObject.LinkedTaskID = nonExistentLinkedTaskID
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, nonExistentLinkedTaskID.Hex()))
 	})
 	t.Run("LinkedTaskFromWrongUser", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -124,7 +130,7 @@ func TestEventCreate(t *testing.T) {
 		taskID := mongoResult.InsertedID.(primitive.ObjectID)
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.LinkedTaskID = taskID
-		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, taskID.Hex()))
 	})
 	t.Run("UnsupportedService", func(t *testing.T) {
 		body, err := json.Marshal(defaultEventCreateObject)
@@ -134,17 +140,17 @@ func TestEventCreate(t *testing.T) {
 	t.Run("MissingAccountID", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.AccountID = ""
-		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`)
 	})
 	t.Run("MissingStartTime", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.DatetimeStart = nil
-		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`)
 	})
 	t.Run("MissingEndTime", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.DatetimeEnd = nil
-		makeCreateRequest(&eventCreateObject, http.StatusBadRequest)
+		makeCreateRequest(&eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`)
 	})
 }
 

@@ -42,8 +42,8 @@ func (api *API) EventCreate(c *gin.Context) {
 		// check that the task exists
 		_, err := database.GetItem(dbCtx, eventCreateObject.LinkedTaskID, userID)
 		if err != nil {
-			api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID)
-			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID)})
+			api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID.Hex())
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID.Hex())})
 			return
 		}
 	}
