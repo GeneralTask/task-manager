@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import GTModal from '../atoms/GTModal'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import GTButton from '../atoms/buttons/GTButton'
+import toast from '../../utils/toast'
 
 const FeedbackHeader = styled.div`
     margin-bottom: ${Spacing.margin._24};
@@ -28,6 +29,17 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
     const { mutate: postFeedback } = usePostFeedback()
     const submitFeedback = () => {
         postFeedback({ feedback: feedback })
+        setFeedback('')
+        setModalIsOpen(false)
+        toast(
+            {
+                message: 'Thank you for your feedback',
+            },
+            {
+                autoClose: 2000,
+                pauseOnFocusLoss: false,
+            }
+        )
     }
     return (
         <GTModal
