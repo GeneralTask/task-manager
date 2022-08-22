@@ -17,8 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// see gcal_test.go for success tests
-func TestInvalidEventModify(t *testing.T) {
+func TestEventModify(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)

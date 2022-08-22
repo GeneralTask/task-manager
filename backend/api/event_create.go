@@ -22,7 +22,8 @@ func (api *API) EventCreate(c *gin.Context) {
 
 	var eventCreateObject external.EventCreateObject
 	err = c.Bind(&eventCreateObject)
-	if err != nil {
+	buddy, _ := c.Request.GetBody()
+	if err != nil || buddy == nil {
 		api.Logger.Error().Err(err).Msg("invalid or missing parameter, err")
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter."})
 		return
@@ -42,19 +43,19 @@ func (api *API) EventCreate(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 
 	var taskObjectID primitive.ObjectID
-	if eventCreateObject.TaskID != "" {
-		taskObjectID, err = primitive.ObjectIDFromHex(eventCreateObject.TaskID)
+	if eventCreateObject.LinkedTaskID != "" {
+		taskObjectID, err = primitive.ObjectIDFromHex(eventCreateObject.LinkedTaskID)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": fmt.Sprintf("invalid linked task ID: %s", eventCreateObject.TaskID)})
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("invalid linked task ID: %s", eventCreateObject.LinkedTaskID)})
 			return
 		}
 		// check that the task exists
 		_, err := database.GetItem(dbCtx, taskObjectID, userID)
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
-				c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.TaskID)})
+				c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID)})
 			} else {
-				api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.TaskID)
+				api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID)
 				Handle500(c)
 				return
 			}
@@ -98,5 +99,5 @@ func (api *API) EventCreate(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(201, gin.H{"event_id": eventID.Hex()})
+	c.JSON(201, gin.H{"id": eventID.Hex()})
 }
