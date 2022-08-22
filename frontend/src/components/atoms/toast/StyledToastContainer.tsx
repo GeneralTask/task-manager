@@ -1,4 +1,4 @@
-import { ToastContainer, ToastPosition } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
 import { cssTransition } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -10,17 +10,13 @@ const toastAnimation = cssTransition({
     exit: 'animate__animated animate__fadeOutRight',
 })
 
-const DEFAULT_TOAST_PROPS = {
-    hideProgressBar: true,
-    position: 'bottom-right' as ToastPosition,
-    transition: toastAnimation,
-}
-
 const StyledToastContainer = styled(ToastContainer).attrs({
     className: 'toast-container',
     toastClassName: 'toast',
     bodyClassName: 'toast-body',
-    ...DEFAULT_TOAST_PROPS,
+    hideProgressBar: true,
+    position: 'bottom-right',
+    transition: toastAnimation,
 })`
     --toastify-toast-width: fit-content;
     .toast {
