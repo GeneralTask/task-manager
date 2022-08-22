@@ -27,9 +27,6 @@ const DominoContainer = styled.div`
     position: absolute;
     left: ${Spacing.margin._4};
 `
-const FullWidthContainer = styled.div`
-    width: 100%;
-`
 
 interface TaskProps {
     task: TTask
@@ -108,34 +105,32 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     }
 
     return (
-        <FullWidthContainer>
-            <TaskTemplate
-                ref={elementRef}
-                invisible={invis}
-                onMouseLeave={() => setIsHovered(false)}
-                onMouseEnter={() => setIsHovered(true)}
-            >
-                <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                    {isHovered && !dragDisabled && (
-                        <DominoContainer>
-                            <Domino ref={drag} />
-                        </DominoContainer>
-                    )}
-                    <MarkTaskDoneButton
-                        taskId={task.id}
-                        sectionId={sectionId}
-                        isDone={task.is_done}
-                        isSelected={isSelected}
-                        isDisabled={task.isOptimistic}
-                        onMarkComplete={taskFadeOut}
-                    />
-                    <Title data-testid="task-title">{task.title}</Title>
-                    <IconContainer>
-                        <Icon icon={logos[task.source.logo_v2]} size="small" />
-                    </IconContainer>
-                </ItemContainer>
-            </TaskTemplate>
-        </FullWidthContainer>
+        <TaskTemplate
+            ref={elementRef}
+            invisible={invis}
+            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={() => setIsHovered(true)}
+        >
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
+                {isHovered && !dragDisabled && (
+                    <DominoContainer>
+                        <Domino ref={drag} />
+                    </DominoContainer>
+                )}
+                <MarkTaskDoneButton
+                    taskId={task.id}
+                    sectionId={sectionId}
+                    isDone={task.is_done}
+                    isSelected={isSelected}
+                    isDisabled={task.isOptimistic}
+                    onMarkComplete={taskFadeOut}
+                />
+                <Title data-testid="task-title">{task.title}</Title>
+                <IconContainer>
+                    <Icon icon={logos[task.source.logo_v2]} size="small" />
+                </IconContainer>
+            </ItemContainer>
+        </TaskTemplate>
     )
 }
 
