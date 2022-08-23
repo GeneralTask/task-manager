@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
@@ -27,8 +27,9 @@ const ActionsContainer = styled.div`
 
 const OverviewView = () => {
     const { data: views, isLoading, isFetching } = useGetOverviewViews()
-    const { overviewItem } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
     const navigate = useNavigate()
+    const scrollRef = useRef<HTMLDivElement>(null)
 
     // Prefetch supported views
     useGetSupportedViews()
@@ -36,7 +37,7 @@ const OverviewView = () => {
     const selectFirstItem = () => {
         const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
         if (firstNonEmptyView) {
-            navigate(`/overview/${firstNonEmptyView.view_items[0].id}`)
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`)
         }
     }
 
@@ -45,25 +46,24 @@ const OverviewView = () => {
             return <EmptyDetails icon={icons.list} text="You have no views" />
         }
         for (const view of views) {
+            if (view.id !== overviewViewId) continue
             for (const item of view.view_items) {
-                if (item.id === overviewItem) {
-                    if (view.type === 'github') {
-                        return <PullRequestDetails pullRequest={item as TPullRequest} />
-                    } else {
-                        return <TaskDetails task={item as TTask} link={`/overview/${item.id}`} />
-                    }
+                if (item.id !== overviewItemId) continue
+                if (view.type === 'github') {
+                    return <PullRequestDetails pullRequest={item as TPullRequest} />
                 }
+                return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
             }
         }
         return null
-    }, [overviewItem, views])
+    }, [overviewViewId, overviewItemId, views])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
-        if (!isLoading && (!overviewItem || !detailsView)) {
+        if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
-    }, [isLoading, overviewItem])
+    }, [isLoading, overviewViewId, overviewItemId])
 
     if (isLoading) {
         return <Spinner />
@@ -74,13 +74,13 @@ const OverviewView = () => {
     return (
         <>
             <OverviewPageContainer>
-                <ScrollableListTemplate>
+                <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" allowRefresh={true} isRefreshing={isFetching} />
                     <ActionsContainer>
                         <EditViewsButtons />
                     </ActionsContainer>
                     {views.map((view) => (
-                        <OverviewViewContainer view={view} key={view.id} />
+                        <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />
                     ))}
                 </ScrollableListTemplate>
             </OverviewPageContainer>
