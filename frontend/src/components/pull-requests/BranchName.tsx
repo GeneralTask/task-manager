@@ -20,6 +20,7 @@ const BranchName = ({ name }: BranchNameProps) => {
             {
                 autoClose: 2000,
                 pauseOnFocusLoss: false,
+                theme: 'dark',
             }
         )
     }

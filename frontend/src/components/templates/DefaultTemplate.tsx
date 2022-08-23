@@ -9,6 +9,8 @@ import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { useAppSelector } from '../../redux/hooks'
+import { DateTime } from 'luxon'
+import { useEventBanners } from '../../hooks'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -41,6 +43,7 @@ interface DefaultTemplateProps {
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    useEventBanners(DateTime.now())
     return (
         <DefaultTemplateContainer>
             <ReactTooltip

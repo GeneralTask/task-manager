@@ -11,18 +11,12 @@ const ToastContainer = styled.div`
     align-items: center;
     justify-content: space-between;
     gap: ${Spacing.margin._16};
-    padding: ${Spacing.padding._8};
-    color: ${Colors.text.white};
+    padding: 0 ${Spacing.padding._8};
     ${Typography.body};
 `
-const MessageSpan = styled.span`
-    white-space: nowrap;
+const MessageContainer = styled.div`
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._24};
-    margin-left: ${Spacing.margin._8};
 `
 const ButtonsContainer = styled.div`
     display: flex;
@@ -53,7 +47,7 @@ interface ToastTemplateProps {
 const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
         <ToastContainer>
-            <MessageSpan>{message}</MessageSpan>
+            <MessageContainer>{message}</MessageContainer>
             <ButtonsContainer>
                 {leftAction && (
                     <GTButton
@@ -71,7 +65,7 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                     />
                 )}
                 <NoStyleButton>
-                    <Icon icon={icons.x} size="medium" color={Colors.icon.white} />
+                    <Icon icon={icons.x} size="medium" color={Colors.icon.gray} />
                 </NoStyleButton>
             </ButtonsContainer>
         </ToastContainer>
