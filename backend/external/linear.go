@@ -324,7 +324,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 		} else {
 			logger := logging.GetSentryLogger()
 			if task.Status.ExternalID != task.CompletedStatus.ExternalID {
-				logger.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+				log.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
 				return nil, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
 			} else if task.PreviousStatus.ExternalID == "" {
 				logger.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
