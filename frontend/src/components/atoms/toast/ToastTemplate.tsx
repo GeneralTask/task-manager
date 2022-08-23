@@ -10,7 +10,6 @@ import { Icon } from '../Icon'
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: ${Spacing.margin._16};
     padding: 0 ${Spacing.padding._8};
     ${Typography.body};
@@ -18,6 +17,7 @@ const ToastContainer = styled.div`
 const MessageContainer = styled.div`
     min-width: 0;
     flex-shrink: 1;
+    margin-right: auto;
 `
 const ButtonsContainer = styled.div`
     display: flex;
@@ -66,10 +66,10 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                         value={rightAction.label}
                     />
                 )}
-                <NoStyleButton>
-                    <Icon icon={icons.x} size="medium" color={Colors.icon.gray} />
-                </NoStyleButton>
             </ButtonsContainer>
+            <NoStyleButton>
+                <Icon icon={icons.x} size="medium" color={Colors.icon.gray} />
+            </NoStyleButton>
         </ToastContainer>
     )
 }
