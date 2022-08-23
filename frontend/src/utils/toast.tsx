@@ -11,4 +11,11 @@ const toast = (toastTemplateProps: ToastTemplateProps, options?: ToastOptions): 
     return toastifyToast(<ToastTemplate {...toastTemplateProps} />, options)
 }
 
+const updateToast = (id: ToastId, toastTemplateProps: ToastTemplateProps, options?: ToastOptions): void => {
+    return toastifyToast.update(id, { render: <ToastTemplate {...toastTemplateProps} />, ...options })
+}
+
+const isActive = toastifyToast.isActive
+
+export { updateToast, isActive }
 export default toast

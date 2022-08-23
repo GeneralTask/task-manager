@@ -96,6 +96,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 {
                     autoClose: EVENT_UNDO_TIMEOUT * 1000,
                     pauseOnFocusLoss: false,
+                    theme: 'dark',
                 }
             )
         }
