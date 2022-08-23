@@ -21,6 +21,7 @@ import (
 
 type GoogleURLOverrides struct {
 	CalendarFetchURL  *string
+	CalendarCreateURL *string
 	CalendarModifyURL *string
 	CalendarDeleteURL *string
 }
