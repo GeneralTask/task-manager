@@ -117,7 +117,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 }}
             >
                 <EventHeader>
-                    <Icon icon={logos.gcal} size="xSmall" />
+                    <Icon icon={logos[event.logo]} size="xSmall" />
                     <EventHeaderIcons>
                         <IconButton onClick={() => onDelete(event)}>
                             <Icon icon={icons.trash} size="xSmall" />

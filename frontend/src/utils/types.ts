@@ -1,5 +1,5 @@
-import { TStatusColors } from "../styles/colors"
 import { TLogoImage } from "../styles/images"
+import { TStatusColors } from "../styles/colors"
 
 export type Datestring = string
 
@@ -83,10 +83,13 @@ export interface TEvent {
     id: string
     title: string
     body: string
+    logo: TLogoImage
     deeplink: string
     datetime_start: string
     datetime_end: string
     conference_call: TConferenceCall | null
+    linked_task_id: string
+    linked_task_deeplink: string
 }
 
 export interface TMeetingBanner {

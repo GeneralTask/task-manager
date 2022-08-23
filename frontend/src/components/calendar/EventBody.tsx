@@ -1,6 +1,3 @@
-import { DateTime } from 'luxon'
-import React, { useRef, MouseEvent, useLayoutEffect, useEffect, useState } from 'react'
-import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
     EventBodyStyle,
@@ -9,8 +6,15 @@ import {
     EventInfoContainer,
     EventTime,
     EventTitle,
+    IconContainer,
 } from './CalendarEvents-styles'
+import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+import { DateTime } from 'luxon'
 import EventDetailPopup from '../molecules/EventDetailPopup'
+import { Icon } from '../atoms/Icon'
+import { TEvent } from '../../utils/types'
+import { logos } from '../../styles/images'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -108,6 +112,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
         }
         setWindowHeight(window.innerHeight)
     }
+    console.log({ logo: props.event.logo, actualLogo: logos[props.event.logo] })
     return (
         <EventBodyStyle
             key={props.event.id}
@@ -135,7 +140,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>{props.event.title || '(no title)'}</EventTitle>
+                    <EventTitle isLongEvent={isLongEvent}>
+                        <IconContainer>
+                            <Icon size="xSmall" icon={logos[props.event.logo]} />
+                        </IconContainer>
+                        {props.event.title || '(no title)'}
+                    </EventTitle>
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>

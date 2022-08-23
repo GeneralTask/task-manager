@@ -1,8 +1,8 @@
+import { TEvent, TTask } from "../../utils/types"
 import produce, { castImmutable } from "immer"
 import { useMutation, useQuery } from "react-query"
 
 import { DateTime } from "luxon"
-import { TEvent } from "../../utils/types"
 import apiClient from "../../utils/api"
 import { getMonthsAroundDate } from "../../utils/time"
 import { useGTQueryClient } from "../queryUtils"
@@ -37,6 +37,7 @@ interface TCreateEventPayload {
     time_zone?: string
     attendees?: TEventAttendee[]
     add_conference_call?: boolean
+    task_id?: string
 }
 
 export interface TModifyEventData {
@@ -49,6 +50,8 @@ export interface TModifyEventData {
 interface CreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
+    linkedTask?: TTask
+    linkedTaskSection?: string
 }
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
@@ -75,10 +78,13 @@ export const useCreateEvent = () => {
                     id: uuidv4(),
                     title: createEventPayload.summary ?? '',
                     body: createEventPayload.description ?? '',
+                    logo: 'gcal',
                     deeplink: '',
                     datetime_start: createEventPayload.datetime_start,
                     datetime_end: createEventPayload.datetime_end,
                     conference_call: null,
+                    linked_task_id: '',
+                    linked_task_deeplink: '',
                 }
 
                 const newEvents = produce(events, (draft) => {
