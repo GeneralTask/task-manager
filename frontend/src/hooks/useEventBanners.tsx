@@ -53,12 +53,12 @@ export default function useEventBanners(date: DateTime) {
         const lastShownAt = eventBannerStates.current[event.id] || undefined
         const toastProps = {
             message: `${eventTitle} ${timeUntilEventMessage}`,
-            ...(event.conference_call?.logo
+            ...(event.conference_call?.url
                 ? {
                       leftAction: {
                           icon: event.conference_call?.logo,
                           label: 'Join',
-                          onClick: () => window.open(event.deeplink, '_blank'),
+                          onClick: () => window.open(event.conference_call?.url, '_blank'),
                       },
                   }
                 : event.deeplink && {
