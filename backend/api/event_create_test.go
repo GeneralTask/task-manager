@@ -5,9 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -15,7 +13,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -40,7 +37,6 @@ func TestEventCreate(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	api.ExternalConfig.GoogleOverrideURLs.CalendarCreateURL = &calendarCreateServer.URL
-	router := GetRouter(api)
 
 	defaultEventCreateObject := external.EventCreateObject{
 		AccountID:     "duck@test.com",
@@ -54,7 +50,7 @@ func TestEventCreate(t *testing.T) {
 	t.Run("SuccessNoLinkedTask", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		eventID := makeCreateRequest(t, &defaultEventCreateObject, http.StatusCreated, "", url, authToken, router)
+		eventID := makeCreateRequest(t, &defaultEventCreateObject, http.StatusCreated, "", url, authToken, api)
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
@@ -76,7 +72,7 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.LinkedTaskID = taskID
 
-		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, router)
+		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
@@ -86,7 +82,7 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		nonExistentLinkedTaskID := primitive.NewObjectID()
 		eventCreateObject.LinkedTaskID = nonExistentLinkedTaskID
-		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, nonExistentLinkedTaskID.Hex()), url, authToken, router)
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, nonExistentLinkedTaskID.Hex()), url, authToken, api)
 	})
 	t.Run("LinkedTaskFromWrongUser", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -103,27 +99,27 @@ func TestEventCreate(t *testing.T) {
 		taskID := mongoResult.InsertedID.(primitive.ObjectID)
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.LinkedTaskID = taskID
-		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, taskID.Hex()), url, authToken, router)
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, taskID.Hex()), url, authToken, api)
 	})
 	t.Run("UnsupportedService", func(t *testing.T) {
 		body, err := json.Marshal(defaultEventCreateObject)
 		assert.NoError(t, err)
-		ServeRequest(t, authToken, "POST", "/events/create/linear/", bytes.NewBuffer(body), http.StatusNotFound)
+		ServeRequest(t, authToken, "POST", "/events/create/linear/", bytes.NewBuffer(body), http.StatusNotFound, nil)
 	})
 	t.Run("MissingAccountID", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.AccountID = ""
-		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`, url, authToken, router)
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`, url, authToken, api)
 	})
 	t.Run("MissingStartTime", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.DatetimeStart = nil
-		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`, url, authToken, router)
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`, url, authToken, api)
 	})
 	t.Run("MissingEndTime", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
 		eventCreateObject.DatetimeEnd = nil
-		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`, url, authToken, router)
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, `{"detail":"invalid or missing parameter."}`, url, authToken, api)
 	})
 }
 
@@ -136,30 +132,19 @@ func checkEventMatchesCreateObject(t *testing.T, event database.CalendarEvent, c
 	assert.Equal(t, createObject.LinkedTaskID, event.LinkedTaskID)
 }
 
-func makeCreateRequest(t *testing.T, eventCreateObject *external.EventCreateObject, expectedStatus int, expectedErrorResponse string, url string, authToken string, router *gin.Engine) primitive.ObjectID {
+func makeCreateRequest(t *testing.T, eventCreateObject *external.EventCreateObject, expectedStatus int, expectedErrorResponse string, url string, authToken string, api *API) primitive.ObjectID {
 	body, err := json.Marshal(*eventCreateObject)
 	assert.NoError(t, err)
-	request, _ := http.NewRequest(
-		"POST",
-		url,
-		bytes.NewBuffer(body))
-	request.Header.Add("Authorization", "Bearer "+authToken)
-	recorder := httptest.NewRecorder()
-	router.ServeHTTP(recorder, request)
-	assert.Equal(t, expectedStatus, recorder.Code)
+	response := ServeRequest(t, authToken, "POST", url, bytes.NewBuffer(body), expectedStatus, api)
 	// if this request should succeed
 	if expectedStatus == http.StatusCreated && expectedErrorResponse == "" {
-		response := eventCreateResponse{}
-		responseBody, err := ioutil.ReadAll(recorder.Body)
+		responseObject := eventCreateResponse{}
+		err = json.Unmarshal(response, &responseObject)
 		assert.NoError(t, err)
-		err = json.Unmarshal(responseBody, &response)
-		assert.NoError(t, err)
-		assert.NotEqual(t, primitive.NilObjectID, response.ID)
-		return response.ID
+		assert.NotEqual(t, primitive.NilObjectID, responseObject.ID)
+		return responseObject.ID
 	} else {
-		responseBody, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedErrorResponse, string(responseBody))
+		assert.Equal(t, expectedErrorResponse, string(response))
 		return primitive.NilObjectID
 	}
 }
