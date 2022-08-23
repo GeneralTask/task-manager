@@ -3,9 +3,7 @@ import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/Toa
 
 import React from 'react'
 
-export type ToastId = Id
-
-export const dismissToast = toastifyToast.dismiss
+type ToastId = Id
 
 const toast = (toastTemplateProps: ToastTemplateProps, options?: ToastOptions): ToastId => {
     return toastifyToast(<ToastTemplate {...toastTemplateProps} />, options)
@@ -15,7 +13,9 @@ const updateToast = (id: ToastId, toastTemplateProps: ToastTemplateProps, option
     return toastifyToast.update(id, { render: <ToastTemplate {...toastTemplateProps} />, ...options })
 }
 
+const dismissToast = toastifyToast.dismiss
+
 const isActive = toastifyToast.isActive
 
-export { updateToast, isActive }
+export { ToastId, updateToast, isActive, dismissToast }
 export default toast
