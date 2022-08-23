@@ -277,7 +277,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
 		var assignedUser *database.User
 		var tempTitle *string
-		assignedUser, tempTitle = getValidExternalOwnerAssignedTask(db, userID, taskCreateParams.Title)
+		assignedUser, tempTitle = getValidExternalOwnerAssignedTask(api.DB, userID, taskCreateParams.Title)
 		taskCreateParams.Title = *tempTitle
 		if assignedUser != nil {
 			userID = assignedUser.ID
