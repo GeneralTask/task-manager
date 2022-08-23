@@ -10,7 +10,7 @@ import { Icon } from '../Icon'
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing.margin._16};
+    gap: ${Spacing.margin._8};
     padding: 0 ${Spacing.padding._8};
     ${Typography.body};
 `
