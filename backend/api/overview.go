@@ -10,6 +10,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -85,7 +86,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	}
 
 	userID := getUserIDFromContext(c)
-	_, err := database.GetUser(api.DB, userID)
+	_, err = database.GetUser(api.DB, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
@@ -458,7 +459,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	}
 	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
 	timeNow := api.GetCurrentTime().In(localZone)
-	events, err := database.GetEventsUntilEndOfDay(db, userID, timeNow)
+	events, err := database.GetEventsUntilEndOfDay(ctx, db, userID, timeNow)
 	if err != nil {
 		return nil, err
 	}
@@ -474,10 +475,12 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	if err != nil {
 		return nil, err
 	}
+	logger := logging.GetSentryLogger()
+	logger.Debug().Msgf("Got %d meeting prep tasks", len(*meetingTasks))
 
 	// Sort by datetime_start
 	sort.Slice(*meetingTasks, func(i, j int) bool {
-		return (*meetingTasks)[i].CalendarEvent.DatetimeStart <= (*meetingTasks)[j].CalendarEvent.DatetimeStart
+		return (*meetingTasks)[i].DatetimeStart <= (*meetingTasks)[j].DatetimeStart
 	})
 
 	// Create result of meeting prep tasks
@@ -500,20 +503,24 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	}, nil
 }
 
-func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.Item) error {
+func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	taskCollection := database.GetTaskCollection(db)
+	logger := logging.GetSentryLogger()
 	for _, event := range *events {
+		logger.Debug().Msgf("event: %+v", event.Title)
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
 		// Check if meeting prep task exists
 		count, err := taskCollection.CountDocuments(
 			dbCtx,
 			bson.M{"$and": []bson.M{
+				{"user_id": userID},
 				{"task_type.is_meeting_preparation_task": true},
 				{"id_meeting_preparation": event.IDExternal},
 				{"source_id": event.SourceID},
 			},
-			})
+		})
+		logger.Debug().Msgf("count: %d", count)
 		if err != nil {
 			return err
 		}
@@ -524,7 +531,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		_, err = taskCollection.InsertOne(ctx, database.Item{
 			TaskBase: database.TaskBase{
 				Title:                event.Title,
-				Body:                 event.TaskBase.Body,
+				Body:                 event.Body,
 				UserID:               userID,
 				IDMeetingPreparation: event.IDExternal,
 				IsCompleted:          false,
@@ -533,10 +540,15 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			TaskType: database.TaskType{
 				IsMeetingPreparationTask: true,
 			},
-			CalendarEvent: database.CalendarEvent{
-				DatetimeStart: event.CalendarEvent.DatetimeStart,
-				DatetimeEnd:   event.CalendarEvent.DatetimeEnd,
+			MeetingPreparationParams: database.MeetingPreparationParams{
+				CalendarEventID: event.ID,
+				DatetimeStart: event.DatetimeStart,
+				HasBeenAutomaticallyCompleted: false,
 			},
+			// CalendarEvent: database.CalendarEvent{
+			// 	DatetimeStart: event.DatetimeStart,
+			// 	DatetimeEnd:   event.DatetimeEnd,
+			// },
 		})
 		if err != nil {
 			return err
@@ -551,7 +563,7 @@ func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database
 	result := []*TaskResult{}
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
-		if task.CalendarEvent.DatetimeEnd.Time().Before(expirationTime) && !task.HasBeenAutomaticallyCompleted {
+		if task.DatetimeEnd.Time().After(expirationTime) && !task.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
 			_, err := taskCollection.UpdateOne(

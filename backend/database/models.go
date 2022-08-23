@@ -77,6 +77,7 @@ type Item struct {
 	TaskType           `bson:"task_type"`
 	Task               `bson:"task,omitempty"`
 	SlackMessageParams `bson:"slack_message_params,omitempty"`
+	MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match
@@ -108,6 +109,13 @@ type SlackMessage struct {
 	User     string `json:"user,omitempty"`
 	TimeSent string `json:"ts,omitempty"`
 	Text     string `json:"text,omitempty"`
+}
+
+type MeetingPreparationParams struct {
+	CalendarEventID primitive.ObjectID `bson:"event_id"`
+	DatetimeStart	primitive.DateTime             `bson:"datetime_start"`
+	DatetimeEnd primitive.DateTime
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
 }
 
 type TaskType struct {
@@ -145,7 +153,6 @@ type TaskBase struct {
 	TimeAllocation    int64              `bson:"time_allocated"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
 	CompletedAt       primitive.DateTime `bson:"completed_at"`
-	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
 }
 
 type PullRequest struct {
