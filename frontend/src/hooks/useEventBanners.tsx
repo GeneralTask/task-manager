@@ -51,20 +51,31 @@ export default function useEventBanners(date: DateTime) {
         const timeUntilEventMessage = timeUntilEvent > 0 ? `is in ${timeUntilEvent} minutes.` : 'is now.'
         const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
         const lastShownAt = eventBannerStates.current[event.id] || undefined
+        const toastProps = {
+            message: `${eventTitle} ${timeUntilEventMessage}`,
+            ...(event.conference_call?.logo
+                ? {
+                      leftAction: {
+                          icon: event.conference_call?.logo,
+                          label: 'Join',
+                          onClick: () => window.open(event.deeplink, '_blank'),
+                      },
+                  }
+                : event.deeplink && {
+                      leftAction: { label: 'Open', onClick: () => window.open(event.deeplink, '_blank') },
+                  }),
+        }
 
         if (isActive(event.id)) {
-            updateToast(event.id, { message: `${eventTitle} ${timeUntilEventMessage}` })
+            updateToast(event.id, toastProps)
             eventBannerStates.current = { ...eventBannerStates.current, [event.id]: timeUntilEvent }
         } else {
             if (!lastShownAt || (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))) {
-                toast(
-                    { message: `${eventTitle} ${timeUntilEventMessage}` },
-                    {
-                        toastId: event.id,
-                        autoClose: false,
-                        theme: 'light',
-                    }
-                )
+                toast(toastProps, {
+                    toastId: event.id,
+                    autoClose: false,
+                    theme: 'light',
+                })
                 eventBannerStates.current = { ...eventBannerStates.current, [event.id]: timeUntilEvent }
             }
         }

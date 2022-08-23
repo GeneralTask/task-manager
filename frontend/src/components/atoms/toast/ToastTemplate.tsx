@@ -1,3 +1,4 @@
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import React from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'
@@ -33,16 +34,15 @@ const stopPropogationWrapper = (onClick: (e: React.MouseEvent) => void) => {
     }
 }
 
+interface ToastAction {
+    label: string
+    icon?: IconProp | string
+    onClick: () => void
+}
 interface ToastTemplateProps {
     message: string
-    leftAction?: {
-        label: string
-        onClick: () => void
-    }
-    rightAction?: {
-        label: string
-        onClick: () => void
-    }
+    leftAction?: ToastAction
+    rightAction?: ToastAction
 }
 const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
@@ -51,6 +51,7 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
             <ButtonsContainer>
                 {leftAction && (
                     <GTButton
+                        icon={leftAction.icon}
                         styleType="secondary"
                         onClick={stopPropogationWrapper(leftAction.onClick)}
                         value={leftAction.label}
@@ -58,6 +59,7 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                 )}
                 {rightAction && (
                     <GTButton
+                        icon={rightAction.icon}
                         styleType="secondary"
                         size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}

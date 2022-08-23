@@ -76,7 +76,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     styleType?: TButtonStyle
     size?: TButtonSize
     wrapText?: boolean
-    icon?: IconProp
+    icon?: IconProp | string
     iconColor?: TIconColor
     fitContent?: boolean
 }
