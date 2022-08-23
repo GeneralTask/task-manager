@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestGetTasks(t *testing.T) {
@@ -212,7 +213,22 @@ func TestGetMeetingPreparationTasks(t *testing.T) {
 	})
 }
 
+func createTestCalendarEvent(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {
+	eventsCollection := GetCalendarEventCollection(db)
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	result, err := eventsCollection.InsertOne(
+		dbCtx,
+		&CalendarEvent{
+			UserID: userID,
+			DatetimeStart: dateTimeStart,
+		},
+	)
+	return result.InsertedID.(primitive.ObjectID), err
+}
+
 func TestGetEventsUntilEndOfDay(t *testing.T) {
+	parentContext := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -222,102 +238,20 @@ func TestGetEventsUntilEndOfDay(t *testing.T) {
 	timeHourLater := time.Date(2022, 1, 1, 1, 0, 0, 0, time.UTC)
 	timeDayLater := time.Date(2022, 1, 2, 0, 0, 0, 0, time.UTC)
 
-	task1, err := GetOrCreateItem(
-		db,
-		userID,
-		"123abc",
-		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abc",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsEvent: true,
-			},
-			CalendarEvent: CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(timeHourLater),
-			},
-		},
-	)
+	eventID, err := createTestCalendarEvent(parentContext, db, userID, primitive.NewDateTimeFromTime(timeHourLater))
 	assert.NoError(t, err)
-	_, err = GetOrCreateItem(
-		db,
-		userID,
-		"random",
-		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "differentIDExternal",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsEvent: true,
-			},
-			CalendarEvent: CalendarEvent{
-				DatetimeStart: primitive.NewDateTimeFromTime(timeDayLater),
-			},
-		},
-	)
+	// Event create a day later should not be in the result
+	_, err = createTestCalendarEvent(parentContext, db, userID, primitive.NewDateTimeFromTime(timeDayLater))
 	assert.NoError(t, err)
-	_, err = GetOrCreateItem(
-		db,
-		userID,
-		"123abcd",
-		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abcd",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsEvent: false,
-			},
-		},
-	)
+	// Incorrect UserID
+	_, err = createTestCalendarEvent(parentContext, db, notUserID, primitive.NewDateTimeFromTime(timeHourLater))
 	assert.NoError(t, err)
-	_, err = GetOrCreateItem(
-		db,
-		userID,
-		"123abcde",
-		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abcde",
-				SourceID:   "foobar_source",
-				UserID:     notUserID,
-			},
-			TaskType: TaskType{
-				IsEvent: true,
-			},
-		},
-	)
-	assert.NoError(t, err)
-	_, err = GetOrCreateItem(
-		db,
-		userID,
-		"philz",
-		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abcde",
-				SourceID:   "foobar_source",
-				UserID:     notUserID,
-			},
-			TaskType: TaskType{
-				IsEvent: true,
-			},
-		},
-	)
-	assert.NoError(t, err)
+
 	t.Run("Success", func(t *testing.T) {
-		events, err := GetEventsUntilEndOfDay(db, userID, timeBase)
+		events, err := GetEventsUntilEndOfDay(parentContext, db, userID, timeBase)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*events))
-		assert.Equal(t, task1.ID, (*events)[0].ID)
+		assert.Equal(t, eventID, (*events)[0].ID)
 	})
 
 }

@@ -697,7 +697,8 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	taskCollection := database.GetTaskCollection(db)
 
 	// Set artificial time for testing
-	api := GetAPI()
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	testTime := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 	api.OverrideTime = &testTime
 
@@ -714,24 +715,6 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Nil(t, res)
 	})
 	t.Run("NoEvents", func(t *testing.T) {
-		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
-		assert.NoError(t, err)
-		assert.NotNil(t, res)
-		assert.Equal(t, 0, len(res.ViewItems))
-	})
-	t.Run("TaskTypeNotEvent", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err := taskCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:      userID,
-				IsCompleted: false,
-			},
-			TaskType: database.TaskType{
-				IsEvent: false,
-			},
-		})
-		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
