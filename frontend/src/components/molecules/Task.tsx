@@ -98,16 +98,16 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         [task.id, index, sectionId]
     )
 
-    const [invis, setInvis] = useState(false)
+    const [isVisible, setIsVisible] = useState(true)
 
     const taskFadeOut = () => {
-        if (sectionId !== DONE_SECTION_ID) setInvis(!task.is_done)
+        if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
     }
 
     return (
         <TaskTemplate
             ref={elementRef}
-            invisible={invis}
+            isVisible={isVisible}
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >

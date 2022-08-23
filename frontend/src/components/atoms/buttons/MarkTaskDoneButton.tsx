@@ -21,7 +21,7 @@ const MarkTaskDoneButton = ({
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
     const onMarkTaskDone = () => {
-        onMarkComplete && onMarkComplete()
+        if (onMarkComplete) onMarkComplete()
         markTaskDone({
             taskId: taskId,
             sectionId: sectionId,
