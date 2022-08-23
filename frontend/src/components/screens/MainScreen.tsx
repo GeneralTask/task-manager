@@ -14,22 +14,16 @@ import React from 'react'
 import Settings from '../views/SettingsView'
 import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 import TaskSection from '../views/TaskSectionView'
-import { cssTransition } from 'react-toastify'
 import { useAppSelector } from '../../redux/hooks'
 import { useInterval } from '../../hooks'
 import OverviewPageView from '../views/OverviewPageView'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 
-const toastAnimation = cssTransition({
-    enter: 'animate__animated animate__fadeInRight',
-    exit: 'animate__animated animate__fadeOutRight',
-})
-
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
 
-    const { data: userInfo, isLoading: isUserInfoLoading, isFetching } = useGetUserInfo()
+    const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
     // Refetch tasks and pull requests independent of current page
@@ -53,7 +47,7 @@ const MainScreen = () => {
         }
     })()
 
-    if (isTaskSectionsLoading || isFetching || isUserInfoLoading) return <Loading />
+    if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
@@ -61,7 +55,7 @@ const MainScreen = () => {
             <DefaultTemplate>
                 <>{expandedCalendar || currentPage}</>
             </DefaultTemplate>
-            <StyledToastContainer hideProgressBar position="bottom-right" transition={toastAnimation} />
+            <StyledToastContainer />
         </DndProvider>
     )
 }

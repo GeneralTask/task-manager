@@ -1,12 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../../styles'
+import { Colors, Spacing, Typography } from '../../../styles'
+import { icons } from '../../../styles/images'
 import GTButton from '../buttons/GTButton'
+import NoStyleButton from '../buttons/NoStyleButton'
+import { Icon } from '../Icon'
 
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: ${Spacing.margin._16};
+    padding: ${Spacing.padding._8};
+    color: ${Colors.text.white};
+    ${Typography.body};
 `
 const MessageSpan = styled.span`
     white-space: nowrap;
@@ -14,7 +21,8 @@ const MessageSpan = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._40};
+    margin-right: ${Spacing.margin._24};
+    margin-left: ${Spacing.margin._8};
 `
 const ButtonsContainer = styled.div`
     display: flex;
@@ -56,12 +64,15 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                 )}
                 {rightAction && (
                     <GTButton
-                        styleType="primary"
-                        color={Colors.gtColor.primary}
+                        styleType="secondary"
+                        size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
                     />
                 )}
+                <NoStyleButton>
+                    <Icon icon={icons.x} size="medium" color={Colors.icon.white} />
+                </NoStyleButton>
             </ButtonsContainer>
         </ToastContainer>
     )

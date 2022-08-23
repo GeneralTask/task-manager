@@ -17,8 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// see gcal_test.go for success tests
-func TestInvalidEventModify(t *testing.T) {
+func TestEventModify(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
@@ -100,24 +99,24 @@ func TestInvalidEventModify(t *testing.T) {
 		assert.Equal(t, primitive.DateTime(1580515200000), event.DatetimeEnd)
 	})
 	t.Run("NoBody", func(t *testing.T) {
-		ServeRequest(t, authToken, "PATCH", validUrl, nil, http.StatusBadRequest)
+		ServeRequest(t, authToken, "PATCH", validUrl, nil, http.StatusBadRequest, nil)
 	})
 	t.Run("EmptyBody", func(t *testing.T) {
 		body := bytes.NewBuffer([]byte(`{}`))
-		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusBadRequest)
+		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusBadRequest, nil)
 	})
 	t.Run("MissingModifyParams", func(t *testing.T) {
 		body := bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com"}`))
-		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusBadRequest)
+		ServeRequest(t, authToken, "PATCH", validUrl, body, http.StatusBadRequest, nil)
 	})
 	t.Run("InvalidEventID", func(t *testing.T) {
 		body := bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`))
-		ServeRequest(t, authToken, "PATCH", "/events/modify/bad_id/", body, http.StatusBadRequest)
+		ServeRequest(t, authToken, "PATCH", "/events/modify/bad_id/", body, http.StatusBadRequest, nil)
 	})
 	t.Run("EventIDFromOtherUser", func(t *testing.T) {
 		otherUserAuthToken := login("otheruser@aol.com", "")
 
 		body := bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`))
-		ServeRequest(t, otherUserAuthToken, "PATCH", validUrl, body, http.StatusUnauthorized)
+		ServeRequest(t, otherUserAuthToken, "PATCH", validUrl, body, http.StatusUnauthorized, nil)
 	})
 }
