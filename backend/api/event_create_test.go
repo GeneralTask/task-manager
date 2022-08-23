@@ -84,7 +84,7 @@ func TestEventCreate(t *testing.T) {
 		eventID := makeCreateRequest(&defaultEventCreateObject, http.StatusCreated, "")
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
+		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
 	})
 	t.Run("SuccessLinkedTask", func(t *testing.T) {
@@ -106,7 +106,7 @@ func TestEventCreate(t *testing.T) {
 		eventID := makeCreateRequest(&eventCreateObject, http.StatusCreated, "")
 		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, eventID.Hex(), dbEvent.IDExternal)
+		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
 	})
 	t.Run("NonExistentLinkedTask", func(t *testing.T) {

@@ -49,8 +49,8 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	// generate ID for event so we can use this when inserting into database
-	eventID := primitive.NewObjectID()
-	eventCreateObject.ID = eventID
+	externalEventID := primitive.NewObjectID()
+	eventCreateObject.ID = externalEventID
 
 	err = taskSourceResult.Source.CreateNewEvent(userID, eventCreateObject.AccountID, eventCreateObject)
 	if err != nil {
@@ -60,9 +60,8 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	event := database.CalendarEvent{
-		ID:              eventID,
 		UserID:          userID,
-		IDExternal:      eventID.Hex(),
+		IDExternal:      externalEventID.Hex(),
 		SourceID:        sourceID,
 		SourceAccountID: eventCreateObject.AccountID,
 		Title:           eventCreateObject.Summary,
@@ -72,18 +71,19 @@ func (api *API) EventCreate(c *gin.Context) {
 		LinkedTaskID:    eventCreateObject.LinkedTaskID,
 	}
 
-	_, err = database.UpdateOrCreateCalendarEvent(
+	insertedEvent, err := database.UpdateOrCreateCalendarEvent(
 		db,
 		userID,
-		eventID.Hex(),
+		externalEventID.Hex(),
 		sourceID,
 		event,
 		nil,
 	)
+
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create calendar event in database")
 		Handle500(c)
 		return
 	}
-	c.JSON(201, gin.H{"id": eventID.Hex()})
+	c.JSON(201, gin.H{"id": insertedEvent.ID.Hex()})
 }
