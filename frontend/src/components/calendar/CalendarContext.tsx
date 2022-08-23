@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
+import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
 
 export interface ContextValues {
@@ -16,10 +17,10 @@ const CalendarContext = createContext<ContextValues>({
     showMainHeader: true,
     showDateHeader: true,
     isCollapsed: false,
-    setCalendarType: () => undefined,
-    setShowMainHeader: () => undefined,
-    setShowDateHeader: () => undefined,
-    setIsCollapsed: () => undefined,
+    setCalendarType: emptyFunction,
+    setShowMainHeader: () => emptyFunction,
+    setShowDateHeader: () => emptyFunction,
+    setIsCollapsed: () => emptyFunction,
 })
 
 export const useCalendarContext = () => {
