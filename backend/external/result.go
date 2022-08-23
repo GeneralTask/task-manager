@@ -15,7 +15,7 @@ type TaskResult struct {
 }
 
 type PullRequestResult struct {
-	PullRequests []*database.Item
+	PullRequests []*database.PullRequest
 	Error        error
 	SourceID     string
 }
@@ -44,7 +44,7 @@ func emptyTaskResultWithSource(err error, sourceID string) TaskResult {
 
 func emptyPullRequestResult(err error) PullRequestResult {
 	return PullRequestResult{
-		PullRequests: []*database.Item{},
+		PullRequests: []*database.PullRequest{},
 		Error:        err,
 		SourceID:     TASK_SOURCE_ID_GITHUB_PR,
 	}

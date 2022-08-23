@@ -11,7 +11,8 @@ import {
     faArrowUpRightFromSquare,
     faCalendar,
     faMessage,
-    faSquare
+    faSquare,
+    faXmark
 } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBadgeCheck,
@@ -34,8 +35,7 @@ import {
     faPlus,
     faTag,
     faTimer,
-    faTrash,
-    faXmark
+    faTrash
 } from '@fortawesome/pro-solid-svg-icons'
 
 

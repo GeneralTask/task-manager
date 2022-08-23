@@ -576,6 +576,13 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		IsLinked:   true,
 		GithubID:   githubID.Hex(),
 	}
+	repositoryCollection := database.GetRepositoryCollection(db)
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: githubID.Hex(),
+		FullName:     "OrganizationTest/RepositoryTest",
+	})
+	assert.NoError(t, err)
 	viewCollection := database.GetViewCollection(db)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
@@ -584,7 +591,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     "Github",
+		Name:     "OrganizationTest/RepositoryTest",
 		Type:     ViewGithub,
 		Logo:     "github",
 		IsLinked: true,
@@ -606,75 +613,36 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SingleGithubViewItem", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
-		pullResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID: githubID.Hex(),
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
-		})
-		assert.NoError(t, err)
-		// Insert completed Github PR. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   true,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
-		})
-		assert.NoError(t, err)
-		// Insert Item that is not type PullRequest. This should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: false,
-			},
+		pullRequestCollection := database.GetPullRequestCollection(db)
+		falseBool := false
+		trueBool := true
+		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:       userID,
+			IsCompleted:  &falseBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: githubID.Hex(),
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different UserID. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        primitive.NewObjectID(),
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:      primitive.NewObjectID(),
+			IsCompleted: &falseBool,
+			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
+		})
+		assert.NoError(t, err)
+		// Insert completed Github PR. This PR should not be in the view result.
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:      userID,
+			IsCompleted: &trueBool,
+			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different RepositoryID. This PR should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_GITHUB_PR,
-			},
-			PullRequest: database.PullRequest{
-				RepositoryID: primitive.NewObjectID().Hex(),
-			},
-			TaskType: database.TaskType{
-				IsPullRequest: true,
-			},
+		_, err = pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:       userID,
+			IsCompleted:  &falseBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: primitive.NewObjectID().Hex(),
 		})
 		assert.NoError(t, err)
 
@@ -898,14 +866,14 @@ func TestOverviewModify(t *testing.T) {
 
 	t.Run("MissingIDOrdering", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", firstViewID.Hex())
-		ServeRequest(t, authToken, "PATCH", url, nil, http.StatusBadRequest)
+		ServeRequest(t, authToken, "PATCH", url, nil, http.StatusBadRequest, nil)
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
 		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 	t.Run("InvalidViewID", func(t *testing.T) {
-		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
+		ServeRequest(t, authToken, "PATCH", "/overview/views/1/", bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound, nil)
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
@@ -914,7 +882,7 @@ func TestOverviewModify(t *testing.T) {
 	t.Run("IncorrectViewID", func(t *testing.T) {
 		viewID := primitive.NewObjectID()
 		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
-		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound)
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusNotFound, nil)
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
@@ -923,7 +891,7 @@ func TestOverviewModify(t *testing.T) {
 	t.Run("SuccessInsertFirst", func(t *testing.T) {
 		// Expected Result: [3, 1, 2]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
-		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusOK)
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 1}`)), http.StatusOK, nil)
 		checkViewPosition(t, viewCollection, firstViewID, 2)
 		checkViewPosition(t, viewCollection, secondViewID, 3)
 		checkViewPosition(t, viewCollection, thirdViewID, 1)
@@ -932,7 +900,7 @@ func TestOverviewModify(t *testing.T) {
 	t.Run("SuccessInsertSecond", func(t *testing.T) {
 		// Expected Result: [1, 3, 2]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
-		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 3}`)), http.StatusOK)
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 3}`)), http.StatusOK, nil)
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 3)
 		checkViewPosition(t, viewCollection, thirdViewID, 2)
@@ -941,7 +909,7 @@ func TestOverviewModify(t *testing.T) {
 	t.Run("SuccessInsertThird", func(t *testing.T) {
 		// Expected Result: [1, 2, 3]
 		url := fmt.Sprintf("/overview/views/%s/", thirdViewID.Hex())
-		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 4}`)), http.StatusOK)
+		ServeRequest(t, authToken, "PATCH", url, bytes.NewBuffer([]byte(`{"id_ordering": 4}`)), http.StatusOK, nil)
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
@@ -979,28 +947,28 @@ func TestOverviewAdd(t *testing.T) {
 
 	t.Run("MissingAllParams", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(``)), http.StatusBadRequest)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(``)), http.StatusBadRequest, nil)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
 	t.Run("MissingType", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest, nil)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
 	t.Run("InvalidType", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "invalid_type"}`)), http.StatusInternalServerError)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "invalid_type"}`)), http.StatusInternalServerError, nil)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
 	t.Run("MissingTaskSectionId", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section"}`)), http.StatusBadRequest)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section"}`)), http.StatusBadRequest, nil)
 		assert.Equal(t, "{\"detail\":\"'task_section_id' is required for task section type views\"}", string(body))
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
@@ -1009,7 +977,7 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("BadTaskSectionId", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section", "task_section_id": "bruh"}`)), http.StatusInternalServerError)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "task_section", "task_section_id": "bruh"}`)), http.StatusInternalServerError, nil)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
@@ -1018,7 +986,7 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK, nil)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
@@ -1034,7 +1002,7 @@ func TestOverviewAdd(t *testing.T) {
 			GithubID:      "",
 		}, addedView)
 
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection1ID))), http.StatusBadRequest, nil)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1042,7 +1010,7 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("AddTaskSectionFromOtherUser", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection2ID))), http.StatusBadRequest)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "task_section", "task_section_id": "%s"}`, taskSection2ID))), http.StatusBadRequest, nil)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
@@ -1052,7 +1020,7 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK, nil)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
@@ -1075,7 +1043,7 @@ func TestOverviewAdd(t *testing.T) {
 	t.Run("AddLinearViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewLinear)+`"}`)), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewLinear)+`"}`)), http.StatusOK, nil)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewLinear)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
@@ -1096,7 +1064,7 @@ func TestOverviewAdd(t *testing.T) {
 	t.Run("AddSlackViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewSlack)+`"}`)), http.StatusOK)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewSlack)+`"}`)), http.StatusOK, nil)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewSlack)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
@@ -1116,7 +1084,7 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("AddGithubViewMissingGithubID", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github"}`)), http.StatusBadRequest)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github"}`)), http.StatusBadRequest, nil)
 		assert.Equal(t, "{\"detail\":\"'id_github' is required for github type views\"}", string(body))
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
@@ -1125,7 +1093,7 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("AddGithubViewMalformattedGithubID", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": 123}`)), http.StatusBadRequest)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": 123}`)), http.StatusBadRequest, nil)
 		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
@@ -1134,22 +1102,52 @@ func TestOverviewAdd(t *testing.T) {
 	})
 	t.Run("AddGithubViewInvalidGithubID", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": "foobar"}`)), http.StatusBadRequest)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "github", "github_id": "foobar"}`)), http.StatusBadRequest, nil)
 		assert.Equal(t, "{\"detail\":\"invalid 'id_github'\"}", string(body))
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
+	t.Run("IncorrectUserID", func(t *testing.T) {
+		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
+		// Create pull request with incorrect user ID
+		_, err := createTestPullRequest(db, primitive.NewObjectID(), "amc-to-the-moon", false, true, "", time.Now(), "")
+		assert.NoError(t, err)
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cleanup := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cleanup()
+		repositoryID := primitive.NewObjectID().Hex()
+		_, err = repositoryCollection.InsertOne(dbCtx, &database.Repository{
+			UserID:       primitive.NewObjectID(),
+			RepositoryID: repositoryID,
+		})
+		assert.NoError(t, err)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusBadRequest, nil)
+
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), count)
+	})
 	t.Run("AddGithubViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now())
+		_, err := createTestPullRequest(db, userID, "amc-to-the-moon", false, true, "", time.Now(), "")
 		assert.NoError(t, err)
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewGithub)+`", "github_id": "amc-to-the-moon"}`)), http.StatusOK)
+		repositoryCollection := database.GetRepositoryCollection(db)
+		dbCtx, cleanup := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cleanup()
+		repositoryID := primitive.NewObjectID().Hex()
+		_, err = repositoryCollection.InsertOne(dbCtx, &database.Repository{
+			UserID:       userID,
+			RepositoryID: repositoryID,
+		})
+		assert.NoError(t, err)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusOK, nil)
 		var addedView database.View
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
+
 		assert.Equal(t, database.View{
 			ID:            addedView.ID,
 			UserID:        userID,
@@ -1157,7 +1155,7 @@ func TestOverviewAdd(t *testing.T) {
 			Type:          string(ViewGithub),
 			IsLinked:      false,
 			TaskSectionID: primitive.NilObjectID,
-			GithubID:      "amc-to-the-moon",
+			GithubID:      repositoryID,
 		}, addedView)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID})
@@ -1183,7 +1181,7 @@ func TestOverviewViewDelete(t *testing.T) {
 	viewID := view.InsertedID.(primitive.ObjectID)
 
 	t.Run("InvalidViewID", func(t *testing.T) {
-		ServeRequest(t, authToken, "DELETE", "/overview/views/1/", nil, http.StatusNotFound)
+		ServeRequest(t, authToken, "DELETE", "/overview/views/1/", nil, http.StatusNotFound, nil)
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
@@ -1191,7 +1189,7 @@ func TestOverviewViewDelete(t *testing.T) {
 	t.Run("IncorrectViewID", func(t *testing.T) {
 		incorrectViewID := primitive.NewObjectID()
 		url := fmt.Sprintf("/overview/views/%s/", incorrectViewID.Hex())
-		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusNotFound)
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusNotFound, nil)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
@@ -1200,7 +1198,7 @@ func TestOverviewViewDelete(t *testing.T) {
 	t.Run("InvalidUserID", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
 		authToken := "invalidAuthToken"
-		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusUnauthorized)
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusUnauthorized, nil)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
@@ -1208,7 +1206,7 @@ func TestOverviewViewDelete(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		url := fmt.Sprintf("/overview/views/%s/", viewID.Hex())
-		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusOK)
+		ServeRequest(t, authToken, "DELETE", url, nil, http.StatusOK, nil)
 
 		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"_id": viewID})
 		assert.NoError(t, err)
@@ -1240,7 +1238,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 	t.Run("TestNoViewsAdded", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		externalAPITokenCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
-		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID)
 		assert.Equal(t, expectedBody, string(body))
@@ -1256,7 +1254,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
-		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":true,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
@@ -1270,7 +1268,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
-		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
@@ -1289,7 +1287,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 			Token:     "testtoken",
 			ServiceID: external.TASK_SERVICE_ID_LINEAR,
 		})
-		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Linear View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
@@ -1303,7 +1301,7 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		addedViewId := view.InsertedID.(primitive.ObjectID).Hex()
-		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/slack/\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
 	})
@@ -1322,9 +1320,45 @@ func TestOverviewSupportedViewsList(t *testing.T) {
 			Token:     "testtoken",
 			ServiceID: external.TASK_SERVICE_ID_SLACK,
 		})
-		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK)
+		body := ServeRequest(t, authToken, "GET", "/overview/supported_views/", nil, http.StatusOK, nil)
 		expectedBody := fmt.Sprintf("[{\"type\":\"task_section\",\"name\":\"Task Sections\",\"logo\":\"generaltask\",\"is_nested\":true,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Default\",\"is_added\":false,\"task_section_id\":\"000000000000000000000001\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"},{\"name\":\"Duck section\",\"is_added\":false,\"task_section_id\":\"%s\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"linear\",\"name\":\"Linear\",\"logo\":\"linear\",\"is_nested\":false,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/linear/\",\"views\":[{\"name\":\"Linear View\",\"is_added\":false,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"000000000000000000000000\"}]},{\"type\":\"slack\",\"name\":\"Slack\",\"logo\":\"slack\",\"is_nested\":false,\"is_linked\":true,\"authorization_url\":\"\",\"views\":[{\"name\":\"Slack View\",\"is_added\":true,\"task_section_id\":\"000000000000000000000000\",\"github_id\":\"\",\"view_id\":\"%s\"}]},{\"type\":\"github\",\"name\":\"GitHub\",\"logo\":\"github\",\"is_nested\":true,\"is_linked\":false,\"authorization_url\":\"http://localhost:8080/link/github/\",\"views\":[]}]", taskSectionID, addedViewId)
 		assert.Equal(t, expectedBody, string(body))
+	})
+}
+
+func TestIsValidGithubRepository(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+
+	userID := primitive.NewObjectID()
+	repositoryID := primitive.NewObjectID().Hex()
+	repositoryCollection.InsertOne(dbCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: repositoryID,
+	})
+	t.Run("Success", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, userID, repositoryID)
+		assert.NoError(t, err)
+		assert.True(t, result)
+	})
+	t.Run("InvalidUserID", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, primitive.NewObjectID(), repositoryID)
+		assert.NoError(t, err)
+		assert.False(t, result)
+	})
+	t.Run("InvalidRepositoryID", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, userID, primitive.NewObjectID().Hex())
+		assert.NoError(t, err)
+		assert.False(t, result)
+	})
+	t.Run("InvalidUserAndRepositoryID", func(t *testing.T) {
+		result, err := isValidGithubRepository(db, primitive.NewObjectID(), primitive.NewObjectID().Hex())
+		assert.NoError(t, err)
+		assert.False(t, result)
 	})
 }
 

@@ -299,9 +299,12 @@ func createRandomGTEmail() string {
 	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
 }
 
-func ServeRequest(t *testing.T, authToken string, method string, url string, requestBody io.Reader, expectedReponseCode int) []byte {
-	api, dbCleanup := GetAPIWithDBCleanup()
-	defer dbCleanup()
+func ServeRequest(t *testing.T, authToken string, method string, url string, requestBody io.Reader, expectedReponseCode int, api *API) []byte {
+	if api == nil {
+		newApi, dbCleanup := GetAPIWithDBCleanup()
+		api = newApi
+		defer dbCleanup()
+	}
 	router := GetRouter(api)
 	request, _ := http.NewRequest(method, url, requestBody)
 	request.Header.Add("Authorization", "Bearer "+authToken)

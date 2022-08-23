@@ -1,9 +1,11 @@
 package api
 
 import (
+	"context"
 	"sort"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -44,17 +46,39 @@ type PullRequestStatus struct {
 }
 
 func (api *API) PullRequestsList(c *gin.Context) {
+	parentCtx := c.Request.Context()
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		Handle500(c)
+		return
+	}
+
+	defer dbCleanup()
 	userIDHex, _ := c.Get("user")
 	userID := userIDHex.(primitive.ObjectID)
 
-	pullRequests, err := database.GetItems(api.DB, userID, &[]bson.M{
-		{"is_completed": false},
-		{"task_type.is_pull_request": true},
-	})
+	pullRequests, err := database.GetPullRequests(db, userID, &[]bson.M{{"is_completed": false}})
 	if err != nil || pullRequests == nil {
 		Handle500(c)
 		return
 	}
+
+	var repositories []database.Repository
+	repositoryCollection := database.GetRepositoryCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := repositoryCollection.Find(
+		dbCtx,
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor.All(dbCtx, &repositories)
+
 	repositoryIDToResult := make(map[string]RepositoryResult)
 	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
 	for _, pullRequest := range *pullRequests {
@@ -64,24 +88,11 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			Name: pullRequest.RepositoryName,
 		}
 		repositoryIDToResult[repositoryID] = repositoryResult
-		pullRequestResult := PullRequestResult{
-			ID:     pullRequest.ID.Hex(),
-			Title:  pullRequest.Title,
-			Number: pullRequest.Number,
-			Status: PullRequestStatus{
-				Text:  pullRequest.RequiredAction,
-				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
-			},
-			Author:        pullRequest.Author,
-			NumComments:   pullRequest.CommentCount,
-			CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-			Branch:        pullRequest.Branch,
-			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.PullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
-		}
+		pullRequestResult := getResultFromPullRequest(pullRequest)
 		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
 	}
 	repositoryResults := []RepositoryResult{}
+
 	for repositoryID, repositoryResult := range repositoryIDToResult {
 		repositoryResults = append(repositoryResults, RepositoryResult{
 			ID:           repositoryID,
@@ -103,10 +114,36 @@ func (api *API) PullRequestsList(c *gin.Context) {
 			if leftPR.Status.Text == rightPR.Status.Text {
 				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
 			}
-			return external.ActionOrdering[leftPR.Status.Text] < external.ActionOrdering[rightPR.Status.Text]
+			var ok bool
+			var leftPROrdering, rightIDOrdering int
+			if leftPROrdering, ok = external.ActionOrdering[leftPR.Status.Text]; !ok {
+				api.Logger.Error().Msgf("Invalid Github action: %s", leftPR.Status.Text)
+			}
+			if rightIDOrdering, ok = external.ActionOrdering[rightPR.Status.Text]; !ok {
+				api.Logger.Error().Msgf("Invalid Github action: %s", rightPR.Status.Text)
+			}
+			return leftPROrdering < rightIDOrdering
 		})
 	}
 	c.JSON(200, repositoryResults)
+}
+
+func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResult {
+	return PullRequestResult{
+		ID:     pullRequest.ID.Hex(),
+		Title:  pullRequest.Title,
+		Number: pullRequest.Number,
+		Status: PullRequestStatus{
+			Text:  pullRequest.RequiredAction,
+			Color: getColorFromRequiredAction(pullRequest.RequiredAction),
+		},
+		Author:        pullRequest.Author,
+		NumComments:   pullRequest.CommentCount,
+		CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		Branch:        pullRequest.Branch,
+		Deeplink:      pullRequest.Deeplink,
+		LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
+	}
 }
 
 func getColorFromRequiredAction(requiredAction string) string {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useFetchExternalTasks, useGetTasks, useMarkTaskDone, useReorderTask } from '../../services/api/tasks.hooks'
+import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'
@@ -47,23 +47,12 @@ const TaskSectionView = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const {
-        data: taskSections,
-        isLoading: isLoadingTasks,
-        isFetching: isFetchingTasks,
-        refetch: getTasks,
-    } = useGetTasks()
+    const { data: taskSections, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
-    const { mutate: markTaskDone } = useMarkTaskDone()
-    const { refetch: fetchExternal, isFetching: isFetchingExternal } = useFetchExternalTasks()
+    const { isFetching: isFetchingExternal } = useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
-
-    const refresh = () => {
-        getTasks()
-        fetchExternal()
-    }
 
     const { section, task } = useMemo(() => {
         const section = taskSections?.find(({ id }) => id === params.section)
@@ -88,14 +77,6 @@ const TaskSectionView = () => {
             })
         },
         [section]
-    )
-
-    const handleMarkTaskComplete = useCallback(
-        (taskId: string, isComplete: boolean) => {
-            if (!section) return
-            markTaskDone({ taskId, sectionId: section.id, isCompleted: isComplete })
-        },
-        [section, markTaskDone]
     )
 
     // deal with invalid routes
@@ -125,7 +106,6 @@ const TaskSectionView = () => {
                                 <SectionHeader
                                     sectionName={section.name}
                                     allowRefresh={true}
-                                    refetch={refresh}
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
@@ -146,7 +126,6 @@ const TaskSectionView = () => {
                                                 sectionScrollingRef={sectionScrollingRef}
                                                 isSelected={task.id === params.task}
                                                 link={`/tasks/${params.section}/${task.id}`}
-                                                onMarkComplete={handleMarkTaskComplete}
                                             />
                                         </ReorderDropContainer>
                                     ))}
