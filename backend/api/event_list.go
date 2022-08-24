@@ -102,10 +102,10 @@ func (api *API) EventsList(c *gin.Context) {
 		if calendarResult.Error != nil {
 			continue
 		}
-		linkedTaskID := ""
 		for _, event := range calendarResult.CalendarEvents {
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
+			linkedTaskID := ""
 			if event.LinkedTaskID != primitive.NilObjectID {
 				linkedTask, err := database.GetItem(dbCtx, event.LinkedTaskID, event.UserID)
 				// if linked_task exists
