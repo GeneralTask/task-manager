@@ -12,9 +12,9 @@ export interface TTaskSource {
 }
 
 export interface TConferenceCall {
-    platform: string | EmptyString
+    platform: string
     logo: TLogoImage | EmptyString
-    url: string | EmptyString
+    url: string
 }
 
 export interface TSourcesResult {
