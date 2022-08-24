@@ -104,6 +104,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		logger.Error().Err(err).Msg("failed to fetch Slack message params")
 	}
 
+	completed := false
 	newTask := database.Task{
 		UserID:          userID,
 		IDTaskSection:   taskSection,
@@ -113,6 +114,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 		SourceAccountID: accountID,
 		Deeplink:        slackAdditionalInformation.Deeplink,
 		Sender:          slackAdditionalInformation.Username,
+		IsCompleted:     &completed,
 		SlackMessageParams: database.SlackMessageParams{
 			Channel: task.SlackMessageParams.Channel,
 			User:    task.SlackMessageParams.User,

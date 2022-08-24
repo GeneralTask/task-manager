@@ -332,15 +332,6 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		// Insert item that is not a task. This item should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Task{
-			UserID:        userID,
-			IsCompleted:   &notCompleted,
-			IDTaskSection: primitive.NilObjectID,
-			SourceID:      external.TASK_SOURCE_ID_LINEAR,
-		})
-		assert.NoError(t, err)
-
 		// Insert Linear task with different UserID. This task should not be in the view result.
 		_, err = taskCollection.InsertOne(parentCtx, database.Task{
 			UserID:        primitive.NewObjectID(),
@@ -449,13 +440,6 @@ func TestGetSlackOverviewResult(t *testing.T) {
 			IsCompleted:   &notCompleted,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      "randomSource",
-		})
-		assert.NoError(t, err)
-		_, err = taskCollection.InsertOne(parentCtx, database.Task{
-			UserID:        userID,
-			IsCompleted:   &notCompleted,
-			IDTaskSection: primitive.NilObjectID,
-			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
 		})
 		assert.NoError(t, err)
 		_, err = taskCollection.InsertOne(parentCtx, database.Task{

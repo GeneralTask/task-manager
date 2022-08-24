@@ -97,11 +97,9 @@ type Task struct {
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	Status             *ExternalTaskStatus `bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
-
-	// TODO how to make this not populate by default
-	SlackMessageParams SlackMessageParams `bson:",inline"`
+	PreviousStatus     *ExternalTaskStatus `bson:"previous_status,omitempty"`
+	CompletedStatus    *ExternalTaskStatus `bson:"completed_status,omitempty"`
+	SlackMessageParams SlackMessageParams  `bson:"slack_message_params,omitempty"`
 }
 
 type PullRequest struct {
@@ -148,32 +146,32 @@ type CalendarEvent struct {
 // Note that this model is used in the request for Slack, and thus should match
 // the payload from the Slack request.
 type SlackMessageParams struct {
-	Channel SlackChannel `bson:"channel,omitempty"`
-	User    SlackUser    `bson:"user,omitempty"`
-	Team    SlackTeam    `bson:"team,omitempty"`
-	Message SlackMessage `bson:"message,omitempty"`
+	Channel SlackChannel `bson:"channel,omitempty" json:"channel,omitempty"`
+	User    SlackUser    `bson:"user,omitempty" json:"user,omitempty"`
+	Team    SlackTeam    `bson:"team,omitempty" json:"team,omitempty"`
+	Message SlackMessage `bson:"message,omitempty" json:"message,omitempty"`
 }
 
 type SlackTeam struct {
-	ID     string `bson:"id,omitempty"`
-	Domain string `bson:"domain,omitempty"`
+	ID     string `bson:"id,omitempty" json:"id,omitempty"`
+	Domain string `bson:"domain,omitempty" json:"domain,omitempty"`
 }
 
 type SlackChannel struct {
-	ID   string `bson:"id,omitempty"`
-	Name string `bson:"name,omitempty"`
+	ID   string `bson:"id,omitempty" json:"id,omitempty"`
+	Name string `bson:"name,omitempty" json:"name,omitempty"`
 }
 
 type SlackUser struct {
-	ID   string `bson:"id,omitempty"`
-	Name string `bson:"name,omitempty"`
+	ID   string `bson:"id,omitempty" json:"id,omitempty"`
+	Name string `bson:"name,omitempty" json:"name,omitempty"`
 }
 
 type SlackMessage struct {
-	Type     string `bson:"type,omitempty"`
-	User     string `bson:"user,omitempty"`
-	TimeSent string `bson:"ts,omitempty"`
-	Text     string `bson:"text,omitempty"`
+	Type     string `bson:"type,omitempty" json:"type,omitempty"`
+	User     string `bson:"user,omitempty" json:"user,omitempty"`
+	TimeSent string `bson:"ts,omitempty" json:"ts,omitempty"`
+	Text     string `bson:"text,omitempty" json:"text,omitempty"`
 }
 
 type ExternalUser struct {

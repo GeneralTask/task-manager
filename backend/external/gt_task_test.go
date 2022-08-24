@@ -71,8 +71,8 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
-		assert.Equal(t, "send dogecoin to the moon", task.Title)
-		assert.Equal(t, time.Hour.Nanoseconds(), task.TimeAllocation)
+		assert.Equal(t, "send dogecoin to the moon", *task.Title)
+		assert.Equal(t, time.Hour.Nanoseconds(), *task.TimeAllocation)
 	})
 	t.Run("SuccessAllTheFields", func(t *testing.T) {
 		userID := primitive.NewObjectID()

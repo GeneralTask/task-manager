@@ -60,6 +60,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
+		isCompleted := false
 		task := &database.Task{
 			UserID:            userID,
 			IDExternal:        linearIssue.Id.(string),
@@ -70,6 +71,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			Body:              &stringBody,
 			SourceAccountID:   accountID,
 			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+			IsCompleted:       &isCompleted,
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
 				State:      string(linearIssue.State.Name),
@@ -99,7 +101,6 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			}
 			task.Comments = &dbComments
 		}
-		isCompleted := false
 		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
@@ -109,13 +110,11 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			database.Task{
 				Title:           task.Title,
 				Body:            task.Body,
-				IsCompleted:     &isCompleted,
 				Comments:        task.Comments,
 				Status:          task.Status,
 				CompletedStatus: task.CompletedStatus,
 			},
 			nil,
-			true,
 		)
 		if err != nil {
 			logger.Error().Err(err).Msg("could not create task")

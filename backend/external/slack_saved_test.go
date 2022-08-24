@@ -36,7 +36,7 @@ func TestLoadSlackTasks(t *testing.T) {
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
-		// check IDExternal because ID is set upon db insertion
+		// check IDExternal because ID is set upon db insertion)
 		assert.Equal(t, task.IDExternal, result.Tasks[0].IDExternal)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
@@ -62,12 +62,14 @@ func TestCreateSlackTask(t *testing.T) {
 
 	testTitle := "send dogecoin to the moon"
 	testBody := ""
+	completed := false
 	testTask := database.Task{
 		IDTaskSection:   constants.IDTaskSectionDefault,
 		SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
 		Title:           &testTitle,
 		Body:            &testBody,
 		SourceAccountID: GeneralTaskDefaultAccountID,
+		IsCompleted:     &completed,
 		SlackMessageParams: database.SlackMessageParams{
 			Channel: database.SlackChannel{
 				ID:   "channel ID",
@@ -156,6 +158,7 @@ func TestCreateSlackTask(t *testing.T) {
 
 func createTestSlackTask(userID primitive.ObjectID) *database.Task {
 	testTitle := "Sample Taskeroni"
+	notCompleted := false
 	return &database.Task{
 		IDOrdering:      2,
 		IDExternal:      primitive.NewObjectID().Hex(),
@@ -164,5 +167,6 @@ func createTestSlackTask(userID primitive.ObjectID) *database.Task {
 		SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
 		UserID:          userID,
 		SourceAccountID: GeneralTaskDefaultAccountID,
+		IsCompleted:     &notCompleted,
 	}
 }
