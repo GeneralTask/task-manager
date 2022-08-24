@@ -24,7 +24,7 @@ type EventResult struct {
 	Deeplink       string               `json:"deeplink"`
 	Title          string               `json:"title"`
 	Body           string               `json:"body"`
-	ConferenceCall utils.ConferenceCall `json:"conference_call,omitempty"`
+	ConferenceCall utils.ConferenceCall `json:"conference_call"`
 	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
 	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
 	LinkedTaskID   string               `json:"linked_task_id,omitempty"`
