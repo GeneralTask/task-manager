@@ -7,9 +7,12 @@ import apiClient from "../../utils/api"
 import { getMonthsAroundDate } from "../../utils/time"
 import { useGTQueryClient } from "../queryUtils"
 import { v4 as uuidv4 } from 'uuid'
+import { EVENTS_REFETCH_INTERVAL } from "../../constants"
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params))
+    return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params), {
+        refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
+    })
 }
 const getEvents = async (params: { startISO: string; endISO: string }) => {
     try {
