@@ -25,6 +25,7 @@ module.exports = mergeWithRules({
     },
 })(common, {
     mode: 'development',
+    devtool: 'source-map',
     module: {
         rules: [
             {
