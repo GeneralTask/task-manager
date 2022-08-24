@@ -27,6 +27,7 @@ const (
 	StateCommented            string = "COMMENTED"
 )
 
+// *Important*: Add all required actions to the ActionOrdering map so that the PRs are ordered correctly
 const (
 	ActionAddReviewers      string = "Add Reviewers"
 	ActionFixMergeConflicts string = "Fix Merge Conflicts"
@@ -48,6 +49,7 @@ var ActionOrdering = map[string]int{
 	ActionWaitingOnCI:       5,
 	ActionMergePR:           6,
 	ActionWaitingOnReview:   7,
+	ActionWaitingOnAuthor:   8,
 }
 
 const (

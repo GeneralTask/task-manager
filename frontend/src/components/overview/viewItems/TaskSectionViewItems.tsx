@@ -1,14 +1,14 @@
-import React, { useCallback } from 'react'
-import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { useMarkTaskDone } from '../../../services/api/overview.hooks'
-import { useReorderTask } from '../../../services/api/tasks.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
-import ReorderDropContainer from '../../atoms/ReorderDropContainer'
+import React, { useCallback } from 'react'
+
 import CreateNewTask from '../../molecules/CreateNewTask'
+import ReorderDropContainer from '../../atoms/ReorderDropContainer'
+import { TASK_HEIGHT } from '../../../styles/dimensions'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
-import { TASK_HEIGHT } from '../../../styles/dimensions'
+import styled from 'styled-components'
+import { useParams } from 'react-router-dom'
+import { useReorderTask } from '../../../services/api/tasks.hooks'
 
 const EmptyDropContainer = styled.div`
     height: ${TASK_HEIGHT};
@@ -17,10 +17,9 @@ const EmptyDropContainer = styled.div`
     justify-content: center;
 `
 
-const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
+const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
-    const { mutate: markTaskDone } = useMarkTaskDone()
-    const { overviewItem } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
     const { mutate: reorderTask } = useReorderTask()
 
     const handleReorderTask = useCallback(
@@ -34,14 +33,6 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
             })
         },
         [view.task_section_id]
-    )
-
-    const handleMarkTaskComplete = useCallback(
-        (taskId: string, isComplete: boolean) => {
-            if (!view.task_section_id) return
-            markTaskDone({ taskId, sectionId: view.task_section_id, isCompleted: isComplete })
-        },
-        [view.task_section_id, markTaskDone]
     )
 
     return (
@@ -60,9 +51,9 @@ const TaskSectionViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                             dragDisabled={false}
                             index={index}
                             sectionId={sectionId}
-                            isSelected={overviewItem === item.id}
-                            link={`/overview/${item.id}`}
-                            onMarkComplete={handleMarkTaskComplete}
+                            sectionScrollingRef={scrollRef}
+                            isSelected={overviewViewId === view.id && overviewItemId === item.id}
+                            link={`/overview/${view.id}/${item.id}`}
                         />
                     </ReorderDropContainer>
                 ))

@@ -3,7 +3,6 @@ import React, { MutableRefObject, useCallback, useEffect, useRef, useState } fro
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
-import CompleteButton from '../atoms/buttons/CompleteButton'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from './ItemContainer'
@@ -11,6 +10,8 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
+import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import { DONE_SECTION_ID } from '../../constants'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -35,19 +36,9 @@ interface TaskProps {
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
-    onMarkComplete: (taskId: string, isComplete: boolean) => void
 }
 
-const Task = ({
-    task,
-    dragDisabled,
-    index,
-    sectionId,
-    sectionScrollingRef,
-    isSelected,
-    link,
-    onMarkComplete,
-}: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -107,19 +98,32 @@ const Task = ({
         [task.id, index, sectionId]
     )
 
+    const [isVisible, setIsVisible] = useState(true)
+
+    const taskFadeOut = () => {
+        if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
+    }
+
     return (
-        <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
+        <TaskTemplate
+            ref={elementRef}
+            isVisible={isVisible}
+            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={() => setIsHovered(true)}
+        >
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
                 {isHovered && !dragDisabled && (
                     <DominoContainer>
                         <Domino ref={drag} />
                     </DominoContainer>
                 )}
-                <CompleteButton
+                <MarkTaskDoneButton
                     taskId={task.id}
-                    isComplete={task.is_done}
-                    onMarkComplete={onMarkComplete}
+                    sectionId={sectionId}
+                    isDone={task.is_done}
                     isSelected={isSelected}
+                    isDisabled={task.isOptimistic}
+                    onMarkComplete={taskFadeOut}
                 />
                 <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>

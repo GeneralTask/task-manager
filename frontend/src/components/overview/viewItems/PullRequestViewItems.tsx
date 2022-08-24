@@ -14,7 +14,7 @@ interface PullRequestViewItemsProps {
     view: TOverviewView
 }
 const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
-    const { overviewItem } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
 
     return (
         <>
@@ -22,8 +22,8 @@ const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
                 <Fragment key={item.id}>
                     <PullRequest
                         pullRequest={item as TPullRequest}
-                        isSelected={overviewItem === item.id}
-                        link={`/overview/${item.id}`}
+                        isSelected={overviewViewId === view.id && overviewItemId === item.id}
+                        link={`/overview/${view.id}/${item.id}`}
                     />
                     {index !== view.view_items.length - 1 && (
                         <DividerMargin>

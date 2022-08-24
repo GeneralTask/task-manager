@@ -108,13 +108,11 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			event,
 			nil,
 		)
-
 		if err != nil {
 			result <- emptyCalendarResult(err)
 			return
 		}
-		event.ID = dbEvent.ID
-		events = append(events, event)
+		events = append(events, dbEvent)
 	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
@@ -132,13 +130,13 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background())
 	if err != nil {
 		return err
 	}
 
-	// TODO - add ID generated from backend or client to prevent duplication
 	gcalEvent := &calendar.Event{
+		Id:          event.ID.Hex(),
 		Summary:     event.Summary,
 		Location:    event.Location,
 		Description: event.Description,

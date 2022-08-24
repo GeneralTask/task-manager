@@ -137,10 +137,11 @@ type CalendarEvent struct {
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
-	TimeAllocation int64  `bson:"time_allocated"`
-	CallLogo       string `bson:"call_logo,omitempty"`
-	CallPlatform   string `bson:"call_platform,omitempty"`
-	CallURL        string `bson:"call_url,omitempty"`
+	TimeAllocation int64              `bson:"time_allocated"`
+	CallLogo       string             `bson:"call_logo,omitempty"`
+	CallPlatform   string             `bson:"call_platform,omitempty"`
+	CallURL        string             `bson:"call_url,omitempty"`
+	LinkedTaskID   primitive.ObjectID `bson:"linked_task_id,omitempty"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match

@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { Icon } from '../atoms/Icon'
-import { emptyFunction } from '../../utils/utils'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useNavigate } from 'react-router-dom'
 import RefreshButton from '../atoms/buttons/RefreshButton'
+import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -44,7 +44,6 @@ const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
-    refetch?: () => void
     isRefreshing?: boolean
     taskSectionId?: string
 }
@@ -56,6 +55,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const [sectionName, setSectionName] = useState(props.sectionName)
     const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
+    const refetchStaleQueries = useRefetchStaleQueries()
 
     useEffect(() => {
         setSectionName(props.sectionName)
@@ -82,7 +82,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         e.stopPropagation()
     }
 
-    useKeyboardShortcut('refresh', props.refetch ?? emptyFunction, props.refetch == null)
+    useKeyboardShortcut('refresh', refetchStaleQueries, false)
 
     const headerText = isEditingTitle ? (
         <HeaderTextEditable
@@ -101,7 +101,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
             {headerText}
             {props.allowRefresh && (isHovering || props.isRefreshing) && (
-                <RefreshButton onClick={props.refetch} isRefreshing={props.isRefreshing}>
+                <RefreshButton onClick={refetchStaleQueries} isRefreshing={props.isRefreshing}>
                     <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
