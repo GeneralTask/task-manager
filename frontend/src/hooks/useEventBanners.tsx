@@ -49,7 +49,8 @@ export default function useEventBanners(date: DateTime) {
         const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
         const lastShownAt = eventBannerLastShownAt.get(event.id)
         const toastProps = {
-            message: `${eventTitle} ${timeUntilEventMessage}`,
+            title: eventTitle,
+            message: timeUntilEventMessage,
             ...(event.conference_call?.url
                 ? {
                       leftAction: {
