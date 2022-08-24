@@ -15,19 +15,19 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
+import { DropItem, DropType, TEvent } from '../../utils/types'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
-import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
-import { DropItem, DropType, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
-import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
 import useInterval from '../../hooks/useInterval'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -134,7 +134,7 @@ interface CalendarEventsProps {
 }
 
 const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
-    const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
+    const eventsContainerRef = useRef<HTMLDivElement>(null)
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const monthBlocks = useMemo(() => {
