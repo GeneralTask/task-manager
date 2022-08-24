@@ -1,0 +1,16 @@
+[
+    {
+        "aggregate": "tasks",
+        "pipeline": [
+            {
+                "$project": {
+
+                }
+            },
+            {
+                "$out": "tasks"
+            }
+        ],
+        "cursor": {}
+    }
+]
