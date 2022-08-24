@@ -1,9 +1,3 @@
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import {
-    faGithub,
-    faGoogle,
-    faSlack
-} from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDownLeftAndArrowUpRightToCenter,
     faArrowRotateRight,
@@ -37,6 +31,11 @@ import {
     faTimer,
     faTrash
 } from '@fortawesome/pro-solid-svg-icons'
+import {
+    faGithub,
+    faGoogle,
+    faSlack
+} from '@fortawesome/free-brands-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
