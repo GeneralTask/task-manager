@@ -1,20 +1,20 @@
 import { TLogoImage } from "../styles/images"
 import { TStatusColors } from "../styles/colors"
 
-export type Datestring = string
+export type EmptyString = ''
 
 export interface TTaskSource {
     name: string
     logo: string
-    logo_v2: string
+    logo_v2: TLogoImage
     is_completable: boolean
     is_replyable: boolean
 }
 
 export interface TConferenceCall {
-    platform: string
-    logo: string
-    url: string
+    platform: string | EmptyString
+    logo: TLogoImage | EmptyString
+    url: string | EmptyString
 }
 
 export interface TSourcesResult {
@@ -87,7 +87,7 @@ export interface TEvent {
     deeplink: string
     datetime_start: string
     datetime_end: string
-    conference_call: TConferenceCall | null
+    conference_call: TConferenceCall
     linked_task_id: string
     linked_task_deeplink: string
 }
@@ -163,7 +163,7 @@ export interface TLinkedAccount {
     display_id: string
     name: string
     logo: string
-    logo_v2: string
+    logo_v2: TLogoImage
     is_unlinkable: boolean
     has_bad_token: boolean
 }

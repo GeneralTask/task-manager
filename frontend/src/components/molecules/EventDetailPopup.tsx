@@ -1,4 +1,5 @@
 import {
+    CopyButton,
     Description,
     EventBoxStyle,
     EventDate,
@@ -6,6 +7,7 @@ import {
     EventHeader,
     EventHeaderIcons,
     EventTitle,
+    FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
 import React, { MouseEvent, MouseEventHandler, useLayoutEffect, useRef, useState } from 'react'
@@ -14,6 +16,7 @@ import toast, { ToastId, dismissToast } from '../../utils/toast'
 
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
+import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
@@ -148,6 +151,22 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                         fitContent={false}
                     />
                 </NoStyleAnchor>
+                {event.conference_call.logo && (
+                    <Flex alignItemsCenter>
+                        <FlexAnchor href={event.conference_call.url} target="_blank">
+                            <GTButton
+                                styleType="secondary"
+                                size="small"
+                                value="Join"
+                                icon={event.conference_call.logo}
+                                fitContent={false}
+                            />
+                        </FlexAnchor>
+                        <CopyButton onClick={() => navigator.clipboard.writeText(event.conference_call.url)}>
+                            <Icon size="xSmall" icon={icons.copy} />
+                        </CopyButton>
+                    </Flex>
+                )}
             </EventBoxStyle>,
             document.getElementById('event-details-popup') as HTMLElement
         )

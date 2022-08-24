@@ -82,7 +82,11 @@ export const useCreateEvent = () => {
                     deeplink: '',
                     datetime_start: createEventPayload.datetime_start,
                     datetime_end: createEventPayload.datetime_end,
-                    conference_call: null,
+                    conference_call: {
+                        url: '',
+                        logo: '',
+                        platform: '',
+                    },
                     linked_task_id: '',
                     linked_task_deeplink: '',
                 }

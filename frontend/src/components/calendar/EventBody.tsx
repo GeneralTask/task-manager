@@ -112,7 +112,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
         }
         setWindowHeight(window.innerHeight)
     }
-    console.log({ logo: props.event.logo, actualLogo: logos[props.event.logo] })
     return (
         <EventBodyStyle
             key={props.event.id}
