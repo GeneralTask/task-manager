@@ -22,13 +22,13 @@
                     "created_at_external": 1,
                     "completed_at": 1,
                     "slack_message_params": 1,
-                    "priority_id": "task.priority_id",
-                    "priority_normalized": "task.priority_normalized",
-                    "task_number": "task.task_number",
-                    "comments": "task.comments",
-                    "status": "task.status",
-                    "previous_status": "task.previous_status",
-                    "completed_status": "task.completed_status"
+                    "priority_id": "$task.priority_id",
+                    "priority_normalized": "$task.priority_normalized",
+                    "task_number": "$task.task_number",
+                    "comments": "$task.comments",
+                    "status": "$task.status",
+                    "previous_status": "$task.previous_status",
+                    "completed_status": "$task.completed_status"
                 }
             },
             {
