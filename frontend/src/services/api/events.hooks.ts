@@ -12,6 +12,7 @@ import { EVENTS_REFETCH_INTERVAL } from "../../constants"
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
     return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params), {
         refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
 const getEvents = async (params: { startISO: string; endISO: string }) => {

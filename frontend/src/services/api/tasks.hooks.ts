@@ -66,6 +66,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks')
         },
         refetchInterval: TASK_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
 const fetchExternalTasks = async () => {

@@ -24,6 +24,7 @@ export const useFetchPullRequests = () => {
             queryClient.invalidateQueries('pull_requests')
         },
         refetchInterval: PR_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
 const fetchPullRequests = async () => {
