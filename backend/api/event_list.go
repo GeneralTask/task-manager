@@ -27,7 +27,7 @@ type EventResult struct {
 	ConferenceCall utils.ConferenceCall `json:"conference_call"`
 	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
 	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
-	LinkedTaskID   string               `json:"linked_task_id,omitempty"`
+	LinkedTaskID   string               `json:"linked_task_id"`
 	Logo           string               `json:"logo"`
 }
 
@@ -102,6 +102,7 @@ func (api *API) EventsList(c *gin.Context) {
 		if calendarResult.Error != nil {
 			continue
 		}
+		linkedTaskID := ""
 		for _, event := range calendarResult.CalendarEvents {
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
@@ -111,6 +112,7 @@ func (api *API) EventsList(c *gin.Context) {
 				if err == nil {
 					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
 					logo = taskSourceResult.Details.LogoV2
+					linkedTaskID = linkedTask.ID.Hex()
 				} else {
 					api.Logger.Error().Err(err).Msgf("linked task not found: %s", event.LinkedTaskID.Hex())
 				}
@@ -128,7 +130,7 @@ func (api *API) EventsList(c *gin.Context) {
 					URL:      event.CallURL,
 				},
 				Logo:         logo,
-				LinkedTaskID: event.LinkedTaskID.Hex(),
+				LinkedTaskID: linkedTaskID,
 			})
 		}
 	}
