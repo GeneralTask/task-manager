@@ -68,7 +68,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
-        // const navigate = useNavigate()
         const navigateToTask = useNavigateToTask()
 
         const onDelete = (event: TEvent) => {
