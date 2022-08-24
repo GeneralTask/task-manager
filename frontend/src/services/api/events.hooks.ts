@@ -57,7 +57,7 @@ export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
     return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
         {
-            onMutate: async ({ createEventPayload, date }: CreateEventParams) => {
+            onMutate: async ({ createEventPayload, date, linkedTask }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
                 const start = DateTime.fromISO(createEventPayload.datetime_start)
@@ -78,7 +78,7 @@ export const useCreateEvent = () => {
                     id: uuidv4(),
                     title: createEventPayload.summary ?? '',
                     body: createEventPayload.description ?? '',
-                    logo: 'gcal',
+                    logo: linkedTask?.source.logo_v2 ?? 'gcal',
                     deeplink: '',
                     datetime_start: createEventPayload.datetime_start,
                     datetime_end: createEventPayload.datetime_end,
@@ -87,7 +87,7 @@ export const useCreateEvent = () => {
                         logo: '',
                         platform: '',
                     },
-                    linked_task_id: '',
+                    linked_task_id: linkedTask?.id ?? '',
                     linked_task_deeplink: '',
                 }
 
