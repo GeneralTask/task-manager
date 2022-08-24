@@ -19,11 +19,12 @@ import { EVENT_UNDO_TIMEOUT } from '../../constants'
 import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import ReactDOM from 'react-dom'
+import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
 import { useClickOutside } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
+import { useNavigate } from 'react-router-dom'
 
 interface EventDetailProps {
     event: TEvent
@@ -54,6 +55,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         }: EventDetailProps,
         ref
     ) => {
+        console.log({ event })
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
@@ -66,6 +68,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
+        const navigate = useNavigate()
 
         const onDelete = (event: TEvent) => {
             setIsScrollDisabled(false)
@@ -142,15 +145,28 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                     </EventDate>
                 </EventDateContainer>
                 <Description>{event.body}</Description>
-                <NoStyleAnchor href={event.deeplink} target="_blank">
-                    <GTButton
-                        styleType="secondary"
-                        size="small"
-                        value="Google Calendar"
-                        icon={icons.external_link}
-                        fitContent={false}
-                    />
-                </NoStyleAnchor>
+                <Flex gap={Spacing.margin._8}>
+                    {event.linked_task_deeplink && (
+                        // <FlexAnchor href={event.linked_task_deeplink}>
+                        <GTButton
+                            styleType="secondary"
+                            size="small"
+                            value="View task details"
+                            fitContent={false}
+                            onClick={() => navigate(event.linked_task_deeplink)}
+                        />
+                        // </FlexAnchor>
+                    )}
+                    <FlexAnchor href={event.deeplink} target="_blank">
+                        <GTButton
+                            styleType="secondary"
+                            size="small"
+                            value="Google Calendar"
+                            icon={icons.external_link}
+                            fitContent={false}
+                        />
+                    </FlexAnchor>
+                </Flex>
                 {event.conference_call.logo && (
                     <Flex alignItemsCenter>
                         <FlexAnchor href={event.conference_call.url} target="_blank">
