@@ -108,7 +108,6 @@ export const useNavigateToTask = () => {
             for (const view of views) {
                 for (const item of view.view_items) {
                     if (item.id === taskID) {
-                        console.log(`/overview/${view.id}/${view.id}`)
                         navigate(`/overview/${view.id}/${item.id}`)
                         return
                     }

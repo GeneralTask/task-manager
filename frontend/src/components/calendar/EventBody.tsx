@@ -140,9 +140,11 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
                     <EventTitle isLongEvent={isLongEvent}>
-                        <IconContainer>
-                            <Icon size="xSmall" icon={logos[props.event.logo]} />
-                        </IconContainer>
+                        {props.event.linked_task_id && (
+                            <IconContainer>
+                                <Icon size="xSmall" icon={logos[props.event.logo]} />
+                            </IconContainer>
+                        )}
                         {props.event.title || '(no title)'}
                     </EventTitle>
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
