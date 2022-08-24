@@ -65,7 +65,6 @@ export default function useEventBanners(date: DateTime) {
                       leftAction: { label: 'Open', onClick: () => window.open(event.deeplink, '_blank') },
                   }),
         }
-
         if (isActive(event.id)) {
             updateToast(event.id, toastProps)
             eventBannerStates.current = { ...eventBannerStates.current, [event.id]: timeUntilEvent }

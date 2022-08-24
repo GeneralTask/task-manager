@@ -1,11 +1,8 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../../styles'
-import { icons } from '../../../styles/images'
+import { Spacing, Typography } from '../../../styles'
 import GTButton from '../buttons/GTButton'
-import NoStyleButton from '../buttons/NoStyleButton'
-import { Icon } from '../Icon'
 
 const ToastContainer = styled.div`
     display: flex;
@@ -67,9 +64,6 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                     />
                 )}
             </ButtonsContainer>
-            <NoStyleButton>
-                <Icon icon={icons.x} size="medium" color={Colors.icon.gray} />
-            </NoStyleButton>
         </ToastContainer>
     )
 }
