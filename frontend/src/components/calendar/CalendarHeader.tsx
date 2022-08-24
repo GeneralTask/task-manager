@@ -108,7 +108,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
-    if (!showMainHeader && !showDateHeader) return <></>
+    if (!showMainHeader && !showDateHeader) return null
     return (
         <div>
             {showMainHeader && (
