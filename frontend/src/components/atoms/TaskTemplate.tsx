@@ -17,7 +17,7 @@ interface TaskTemplateProps extends React.HTMLAttributes<HTMLDivElement> {
     isVisible?: boolean
 }
 const TaskTemplate = forwardRef<HTMLDivElement, TaskTemplateProps>((props: TaskTemplateProps, ref) => {
-    const { children, isVisible, ...attr } = props
+    const { children, isVisible = true, ...attr } = props
     return (
         <TemplateContainer ref={ref} isVisible={isVisible} {...attr}>
             {children}
