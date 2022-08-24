@@ -10,7 +10,7 @@ import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-import CalendarProvider from './src/components/calendar/CalendarContext'
+import CalendarContextProvider from './src/components/calendar/CalendarContext'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
@@ -28,7 +28,7 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <Provider store={store}>
-                <CalendarProvider>
+                <CalendarContextProvider>
                     <BrowserRouter>
                         <Suspense fallback={<Loading />}>
                             <Routes>
@@ -61,7 +61,7 @@ const App = () => {
                             </Routes>
                         </Suspense>
                     </BrowserRouter>
-                </CalendarProvider>
+                </CalendarContextProvider>
             </Provider>
         </QueryClientProvider>
     )
