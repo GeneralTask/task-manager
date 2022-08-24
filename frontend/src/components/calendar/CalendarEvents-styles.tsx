@@ -104,23 +104,18 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
     white-space: nowrap;
     margin: 0 12px;
+    ${Typography.label};
     ${(props) => (props.isLongEvent ? 'height: 100%; margin-top: 18px;' : 'display: flex;')}
 `
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing.margin._8};
-    ${Typography.bodySmall};
-    color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: 8px;
     max-height: 100%;
-    ${(props) => props.isLongEvent && 'font-weight: 600;'}
 `
 export const EventTime = styled.div`
-    font-style: normal;
-    font-size: 13px;
-    font-weight: 600;
-    color: ${EVENT_TIME_TEXT_COLOR};
+    color: ${Colors.text.light};
     float: left;
     max-height: 100%;
 `
