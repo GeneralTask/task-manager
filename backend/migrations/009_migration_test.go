@@ -55,6 +55,9 @@ func TestMigrate009(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, filter).Decode(&result)
 		assert.NoError(t, err)
 		assert.Equal(t, external.TASK_SOURCE_ID_LINEAR, result.SourceID)
+
+		// clear DB for next test
+		taskCollection.DeleteMany(dbCtx, filter)
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
 		err = migrate.Steps(-1)
