@@ -1,14 +1,12 @@
 import { DateTime } from 'luxon'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
 import { useInterval } from '.'
 import { TEvent } from '../utils/types'
 import toast, { dismissToast, isActive, updateToast } from '../utils/toast'
 
-interface EventBannerLastShownAt {
-    [key: string]: number
-}
+const eventBannerLastShownAt = new Map<string, number>()
 
 const isEventWithin10Minutes = (event: TEvent) => {
     const eventStart = DateTime.fromISO(event.datetime_start)
@@ -18,7 +16,6 @@ const isEventWithin10Minutes = (event: TEvent) => {
 
 export default function useEventBanners(date: DateTime) {
     const [eventsWithin10Minutes, setEventsWithin10Minutes] = useState<TEvent[]>([])
-    const eventBannerStates = useRef<EventBannerLastShownAt>({})
     const { data: events, refetch } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
@@ -39,10 +36,10 @@ export default function useEventBanners(date: DateTime) {
         false
     )
 
-    Object.keys(eventBannerStates.current).forEach((id) => {
+    eventBannerLastShownAt.forEach((_, id) => {
         if (!eventsWithin10Minutes.map((event) => event.id).includes(id)) {
             dismissToast(id)
-            delete eventBannerStates.current[id]
+            eventBannerLastShownAt.delete(id)
         }
     })
 
@@ -50,7 +47,7 @@ export default function useEventBanners(date: DateTime) {
         const timeUntilEvent = Math.ceil((new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60)
         const timeUntilEventMessage = timeUntilEvent > 0 ? `is in ${timeUntilEvent} minutes.` : 'is now.'
         const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
-        const lastShownAt = eventBannerStates.current[event.id] || undefined
+        const lastShownAt = eventBannerLastShownAt.get(event.id)
         const toastProps = {
             message: `${eventTitle} ${timeUntilEventMessage}`,
             ...(event.conference_call?.url
@@ -67,7 +64,7 @@ export default function useEventBanners(date: DateTime) {
         }
         if (isActive(event.id)) {
             updateToast(event.id, toastProps)
-            eventBannerStates.current = { ...eventBannerStates.current, [event.id]: timeUntilEvent }
+            eventBannerLastShownAt.set(event.id, timeUntilEvent)
         } else {
             if (!lastShownAt || (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))) {
                 toast(toastProps, {
@@ -75,7 +72,7 @@ export default function useEventBanners(date: DateTime) {
                     autoClose: false,
                     theme: 'light',
                 })
-                eventBannerStates.current = { ...eventBannerStates.current, [event.id]: timeUntilEvent }
+                eventBannerLastShownAt.set(event.id, timeUntilEvent)
             }
         }
     })
