@@ -17,22 +17,7 @@ interface OverviewViewProps {
 }
 const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     const { overviewViewId, overviewItemId } = useParams()
-    const [visibleItemsCount, setVisibleItemsCount] = useState(
-        Math.max(
-            Math.min(view.view_items.length, PAGE_SIZE),
-            // if the selected item is in this view, ensure it is visible
-            view.id === overviewViewId ? view.view_items.findIndex((item) => item.id === overviewItemId) + 1 : 0
-        )
-    )
-
-    // if a new item is selected in this view, ensure it is visible
-    useEffect(() => {
-        if (view.id === overviewViewId) {
-            const selectedItemIndex = view.view_items.findIndex((item) => item.id === overviewItemId) + 1
-            setVisibleItemsCount(Math.max(visibleItemsCount, selectedItemIndex))
-        }
-    }, [overviewViewId, overviewItemId, view.id])
-
+    const [visibleItemsCount, setVisibleItemsCount] = useState(0)
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
@@ -57,8 +42,17 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     }, [view.type])
 
     useEffect(() => {
-        setVisibleItemsCount(Math.max(visibleItemsCount, Math.min(view.view_items.length, PAGE_SIZE)))
-    }, [view.is_linked, view.view_items])
+        setVisibleItemsCount(
+            Math.max(
+                // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
+                Math.min(visibleItemsCount, view.view_items.length),
+                // If view.view_items.length drops below PAGE_SIZE, set visibleItemsCount to view.view_items.length
+                Math.min(view.view_items.length, PAGE_SIZE),
+                // if the selected item is in this view, ensure it is visible
+                view.id === overviewViewId ? view.view_items.findIndex((item) => item.id === overviewItemId) + 1 : 0
+            )
+        )
+    }, [view.is_linked, view.view_items, overviewViewId, overviewItemId])
 
     return (
         <ViewContainer>
