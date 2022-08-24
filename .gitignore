@@ -6,6 +6,10 @@
 *.dylib
 *.pyc
 
+# Code generated data
+*.csv
+*.ipynb_checkpoints
+
 # Binaries built with air https://github.com/cosmtrek/air
 backend/tmp
 .air.toml

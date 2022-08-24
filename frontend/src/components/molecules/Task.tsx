@@ -11,6 +11,7 @@ import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import { DONE_SECTION_ID } from '../../constants'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -97,8 +98,19 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         [task.id, index, sectionId]
     )
 
+    const [isVisible, setIsVisible] = useState(true)
+
+    const taskFadeOut = () => {
+        if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
+    }
+
     return (
-        <TaskTemplate ref={elementRef} onMouseLeave={() => setIsHovered(false)} onMouseEnter={() => setIsHovered(true)}>
+        <TaskTemplate
+            ref={elementRef}
+            isVisible={isVisible}
+            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={() => setIsHovered(true)}
+        >
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
                 {isHovered && !dragDisabled && (
                     <DominoContainer>
@@ -111,6 +123,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     isDone={task.is_done}
                     isSelected={isSelected}
                     isDisabled={task.isOptimistic}
+                    onMarkComplete={taskFadeOut}
                 />
                 <Title data-testid="task-title">{task.title}</Title>
                 <IconContainer>

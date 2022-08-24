@@ -1,6 +1,4 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
-
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import styled from 'styled-components'
 import { TStatusColors } from '../../styles/colors'
 
@@ -10,6 +8,8 @@ export const ColumnWidths = {
     status: '30%',
     comments: '10%',
 }
+
+const PULL_REQUEST_HEIGHT = '64px'
 
 type TColumnWidths = keyof typeof ColumnWidths
 
@@ -26,7 +26,8 @@ export const Column = styled.div<{ type: TColumnWidths }>`
 export const Status = styled.div<{ type: TStatusColors }>`
     color: ${Colors.text.black};
     background: ${props => Colors.status[props.type].light};
-    border-radius: ${Border.radius.large};
+    border: ${Border.stroke.medium} solid ${props => Colors.status[props.type].default};
+    border-radius: ${Border.radius.small};
     padding: ${Spacing.margin._4} ${Spacing.margin._8};
     overflow: hidden;
     white-space: nowrap;
@@ -35,22 +36,24 @@ export const Status = styled.div<{ type: TStatusColors }>`
     ${Typography.bodySmall};
 `
 
-export const PullRequestViewContainer = styled.div`
-    margin: 0 ${Spacing.margin._8};
-`
-
 export const Repository = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${Spacing.margin._8};
 `
 
-export const PullRequestRow = styled.div<{ highlight: boolean }>`
+export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
+    height: ${PULL_REQUEST_HEIGHT};
     padding: ${Spacing.padding._4};
-    background-color: ${props => props.highlight ? Colors.background.medium : Colors.background.white};
-    border-radius: ${Border.radius.large};
+    background-color: ${(props) =>
+        props.isSelected ? Colors.background.medium : Colors.background.white};
+    box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
+    border-radius: ${Border.radius.small};
     cursor: pointer;
+    &:hover {
+        background-color: ${Colors.background.medium};
+    }
 `
 
 export const HeaderContainer = styled.div`
@@ -83,19 +86,16 @@ export const BranchNameContainer = styled.div`
     display: flex;
     align-items: center;
     color: ${Colors.gtColor.primary};
-    border: ${Border.stroke.small} solid ${Colors.background.dark};
-    border-radius: ${Border.radius.medium};
+    border: ${Border.stroke.medium} solid ${Colors.border.gray};
+    border-radius: ${Border.radius.small};
     padding: ${Spacing.padding._4} ${Spacing.padding._4};
+    gap: ${Spacing.margin._4};
     cursor: pointer;
 `
 
-export const LinkButton = styled(NoStyleAnchor)`
+export const LinkButtonContainer = styled.div`
     display: flex;
     flex: 1;
     align-items: center;
     justify-content: center;
-    background-color: ${Colors.background.white};
-    border: ${Border.stroke.medium} solid ${Colors.background.dark};
-    border-radius: ${Border.radius.large};
-    cursor: pointer;
 `

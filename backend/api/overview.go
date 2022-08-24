@@ -436,6 +436,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		}
 		pullResults = append(pullResults, &pullRequestResult)
 	}
+	api.sortPullRequestResults(pullResults)
 	result.ViewItems = pullResults
 	return &result, nil
 }

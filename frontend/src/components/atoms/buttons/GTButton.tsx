@@ -1,10 +1,10 @@
+import React from 'react'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import styled, { css } from 'styled-components'
 
 import { Icon } from '../Icon'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import NoStyleButton from './NoStyleButton'
-import React from 'react'
 import { TIconColor } from '../../../styles/colors'
 
 type TButtonStyle = 'primary' | 'secondary'
@@ -94,7 +94,7 @@ const GTButton = ({
     const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
         <Button styleType={styleType} size={size} wrapText={wrapText} fitContent={fitContent} {...rest}>
-            {icon && <Icon size={iconSize} icon={icon} color={iconColor} />}
+            {icon && <Icon size={iconSize} icon={icon} color={iconColor ? Colors.icon[iconColor] : undefined} />}
             {value}
         </Button>
     )
