@@ -16,6 +16,10 @@ const MessageContainer = styled.div`
     flex-shrink: 1;
     margin-right: auto;
 `
+const TitleSpan = styled.span`
+    margin-right: ${Spacing.margin._4};
+    ${Typography.bold};
+`
 const ButtonsContainer = styled.div`
     display: flex;
     align-items: center;
@@ -37,14 +41,18 @@ interface ToastAction {
     onClick: () => void
 }
 interface ToastTemplateProps {
+    title?: string
     message: string
     leftAction?: ToastAction
     rightAction?: ToastAction
 }
-const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps) => {
+const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
         <ToastContainer>
-            <MessageContainer>{message}</MessageContainer>
+            <MessageContainer>
+                {title && <TitleSpan>{title}</TitleSpan>}
+                {message}
+            </MessageContainer>
             <ButtonsContainer>
                 {leftAction && (
                     <GTButton
