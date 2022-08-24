@@ -10,7 +10,7 @@ import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { Provider } from 'react-redux'
 import store from './src/redux/store'
-import CalendarContextProvider from './src/components/calendar/CalendarContext'
+import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))

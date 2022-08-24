@@ -30,7 +30,7 @@ export const useCalendarContext = () => {
 interface CalendarContextProviderProps {
     children: React.ReactNode
 }
-const CalendarContextProvider = ({ children }: CalendarContextProviderProps) => {
+export const CalendarContextProvider = ({ children }: CalendarContextProviderProps) => {
     const [calendarType, setCalendarType] = useState<TCalendarType>('day')
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
@@ -53,5 +53,3 @@ const CalendarContextProvider = ({ children }: CalendarContextProviderProps) => 
 
     return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>
 }
-
-export default CalendarContextProvider
