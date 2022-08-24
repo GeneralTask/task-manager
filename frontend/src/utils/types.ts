@@ -89,7 +89,6 @@ export interface TEvent {
     datetime_end: string
     conference_call: TConferenceCall
     linked_task_id: string
-    linked_task_deeplink: string
 }
 
 export interface TMeetingBanner {

@@ -88,7 +88,6 @@ export const useCreateEvent = () => {
                         platform: '',
                     },
                     linked_task_id: linkedTask?.id ?? '',
-                    linked_task_deeplink: '',
                 }
 
                 const newEvents = produce(events, (draft) => {

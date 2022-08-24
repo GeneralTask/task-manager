@@ -24,7 +24,7 @@ import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
 import { useClickOutside } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
-import { useNavigate } from 'react-router-dom'
+import { useNavigateToTask } from '../../utils/utils'
 
 interface EventDetailProps {
     event: TEvent
@@ -68,7 +68,8 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
-        const navigate = useNavigate()
+        // const navigate = useNavigate()
+        const navigateToTask = useNavigateToTask()
 
         const onDelete = (event: TEvent) => {
             setIsScrollDisabled(false)
@@ -146,16 +147,14 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 </EventDateContainer>
                 <Description>{event.body}</Description>
                 <Flex gap={Spacing.margin._8}>
-                    {event.linked_task_deeplink && (
-                        // <FlexAnchor href={event.linked_task_deeplink}>
+                    {event.linked_task_id && (
                         <GTButton
                             styleType="secondary"
                             size="small"
                             value="View task details"
                             fitContent={false}
-                            onClick={() => navigate(event.linked_task_deeplink)}
+                            onClick={() => navigateToTask(event.linked_task_id)}
                         />
-                        // </FlexAnchor>
                     )}
                     <FlexAnchor href={event.deeplink} target="_blank">
                         <GTButton
