@@ -51,7 +51,6 @@ interface CreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
     linkedTask?: TTask
-    linkedTaskSection?: string
 }
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
