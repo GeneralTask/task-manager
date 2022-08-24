@@ -171,26 +171,6 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 	return nil
 }
 
-func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Item, error) {
-	parentCtx := c.Request.Context()
-	taskCollection := database.GetTaskCollection(api.DB)
-
-	var task database.Item
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task)
-	if err != nil {
-		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
-		return nil, err
-	}
-	return &task, nil
-}
-
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Item, userID primitive.ObjectID, updateFields *database.TaskItemChangeableFields) {
 	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
