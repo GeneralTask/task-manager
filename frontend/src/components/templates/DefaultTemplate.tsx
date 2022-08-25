@@ -63,7 +63,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.text.black}
             />
             <NavigationView />
-            {calendarType == 'day' && <TasksandDetails>{children}</TasksandDetails>}
+            {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
             <CalendarView initialType="day" />
         </DefaultTemplateContainer>
     )
