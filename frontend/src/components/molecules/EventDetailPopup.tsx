@@ -22,9 +22,8 @@ import { Icon } from '../atoms/Icon'
 import ReactDOM from 'react-dom'
 import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
-import { useClickOutside } from '../../hooks'
+import { useClickOutside, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
-import { useNavigateToTask } from '../../utils/utils'
 
 interface EventDetailProps {
     event: TEvent
