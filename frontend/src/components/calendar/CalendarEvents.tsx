@@ -136,11 +136,7 @@ const WeekCalendarEvents = ({
                         setIsEventSelected={setIsEventSelected}
                     />
                 ))}
-                <DropPreview
-                    isVisible={isOver}
-                    offset={DEFAULT_EVENT_HEIGHT * dropPreviewPosition}
-                    height={DEFAULT_EVENT_HEIGHT}
-                />
+                <DropPreview isVisible={isOver} offset={DEFAULT_EVENT_HEIGHT * dropPreviewPosition} />
                 <TimeIndicator />
                 <CalendarDayTable />
             </DayContainer>

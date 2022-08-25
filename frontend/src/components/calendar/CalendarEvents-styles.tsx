@@ -189,11 +189,10 @@ export const TimeAndHeaderContainer = styled.div`
     flex-direction: column;
     height: fit-content;
 `
-export const DropPreview = styled.div<{ isVisible: boolean; offset: number; height: number }>`
+export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     position: absolute;
     width: 100%;
-    height: ${CELL_HEIGHT_VALUE / 2}px;
-    height: ${(props) => props.height}px;
+    height: ${DEFAULT_EVENT_HEIGHT}px;
     border: 2px dashed ${Colors.gtColor.primary};
     display: ${(props) => (props.isVisible ? 'block' : 'none')};
     border-radius: ${Border.radius.medium};
