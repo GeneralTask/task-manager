@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { useDragLayer, XYCoord } from 'react-dnd'
+import React from 'react'
+import { useDragLayer } from 'react-dnd'
 import styled from 'styled-components'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropType } from '../../utils/types'
@@ -14,23 +14,10 @@ const DragOverlay = styled.div`
     width: 100%;
     height: 100%;
 `
-
-function getDragLayerStyles(initialOffset: XYCoord | null, currentOffset: XYCoord | null) {
-    if (!initialOffset || !currentOffset) {
-        return {
-            display: 'none',
-        }
-    }
-
-    const { x, y } = currentOffset
-
-    const transform = `translate(${x}px, ${y}px)`
-    return {
-        transform,
-        WebkitTransform: transform,
-        width: DEFAULT_VIEW_WIDTH,
-    }
-}
+const DragItem = styled.div<{ transform: string }>`
+    width: ${DEFAULT_VIEW_WIDTH};
+    transform: ${({ transform }) => transform};
+`
 
 // This defines the appearance of dragged items in the app
 const DragLayer = () => {
@@ -41,18 +28,14 @@ const DragLayer = () => {
         currentOffset: monitor.getSourceClientOffset(),
         isDragging: monitor.isDragging(),
     }))
-
-    const dragPreview = useMemo(() => {
-        if (itemType !== DropType.TASK || !item.task) return null
-        return <Task task={item.task} dragDisabled isSelected link="" />
-    }, [isDragging, itemType, item?.task])
-
-    if (!isDragging) {
+    if (!isDragging || itemType !== DropType.TASK || !item.task || !initialOffset || !currentOffset) {
         return null
     }
     return (
         <DragOverlay>
-            <div style={getDragLayerStyles(initialOffset, currentOffset)}>{dragPreview}</div>
+            {/* <DragItem transform={`translate(${currentOffset.x}px, ${currentOffset.y}px)`}> */}
+            <Task task={item.task} dragDisabled isSelected link="" />
+            {/* </DragItem> */}
         </DragOverlay>
     )
 }

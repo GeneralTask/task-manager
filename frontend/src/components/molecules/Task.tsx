@@ -140,4 +140,4 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     )
 }
 
-export default Task
+export default React.memo(Task)
