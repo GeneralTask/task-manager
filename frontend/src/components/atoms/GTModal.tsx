@@ -19,7 +19,7 @@ const ModalContainer = styled.div<{ type: TModalSize }>`
     justify-content: space-between;
 `
 const Header = styled.div`
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     margin-bottom: ${Spacing.margin._16};
     display: flex;
     justify-content: space-between;
