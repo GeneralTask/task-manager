@@ -27,7 +27,9 @@ const Header = styled.div`
     ${Typography.title};
 `
 const Body = styled.div`
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: ${Spacing.padding._16};
     display: flex;
     flex-direction: column;
     flex: 1;

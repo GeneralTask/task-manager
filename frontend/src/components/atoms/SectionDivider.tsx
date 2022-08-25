@@ -5,6 +5,7 @@ import { Border, Colors } from '../../styles'
 const DividerView = styled.div<{ color: string }>`
     height: ${Border.stroke.medium};
     width: 100%;
+    flex-shrink: 0;
     background-color: ${(props) => props.color};
 `
 interface DividerProps {

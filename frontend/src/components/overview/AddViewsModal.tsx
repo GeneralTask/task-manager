@@ -22,7 +22,7 @@ const SupportedView = styled.div<{ isIndented?: boolean }>`
 const SupportedViewContent = styled.div`
     display: flex;
     align-items: center;
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     gap: ${Spacing.margin._8};
     ${Typography.bodySmall};
 `
@@ -88,7 +88,9 @@ const AddViewsModalContent = () => {
                     )}
                     {/* Do not show divider if this is the last item in the list */}
                     {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
-                        (supportedView.is_nested && supportedView.views.length > 0)) && <Divider />}
+                        (supportedView.is_nested && supportedView.views.length > 0)) && (
+                        <Divider color={Colors.border.light} />
+                    )}
                     {supportedView.is_nested &&
                         supportedView.views.map((supportedViewItem, viewItemIndex) => (
                             <Fragment key={viewItemIndex}>
@@ -106,7 +108,9 @@ const AddViewsModalContent = () => {
                                     />
                                 </SupportedView>
                                 {(viewIndex !== supportedViews.length - 1 ||
-                                    viewItemIndex !== supportedView.views.length - 1) && <Divider />}
+                                    viewItemIndex !== supportedView.views.length - 1) && (
+                                    <Divider color={Colors.border.light} />
+                                )}
                             </Fragment>
                         ))}
                 </Fragment>
