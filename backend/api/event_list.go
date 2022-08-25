@@ -112,7 +112,7 @@ func (api *API) EventsList(c *gin.Context) {
 					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedTaskSourceID)
 					logo = taskSourceResult.Details.LogoV2
 				} else {
-					api.Logger.Error().Err(err).Msg("Linked task source ID is empty")
+					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
 				}
 				linkedTaskID = event.LinkedTaskID.Hex()
 			}
