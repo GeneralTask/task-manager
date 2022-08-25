@@ -17,55 +17,44 @@ func TestGetTasks(t *testing.T) {
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
-	task1, err := GetOrCreateItem(
+	notCompleted := false
+	task1, err := GetOrCreateTask(
 		db,
 		userID,
 		"123abc",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abc",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsTask: true,
-			},
+		&Task{
+			IDExternal:  "123abc",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &notCompleted,
 		},
 	)
 	assert.NoError(t, err)
-	task2, err := GetOrCreateItem(
+	completed := true
+	task2, err := GetOrCreateTask(
 		db,
 		userID,
 		"123abcde",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal:  "123abcde",
-				SourceID:    "foobar_source",
-				UserID:      userID,
-				IsCompleted: true,
-			},
-			TaskType: TaskType{
-				IsTask: true,
-			},
+		&Task{
+			IDExternal:  "123abcde",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &completed,
 		},
 	)
 	assert.NoError(t, err)
-	_, err = GetOrCreateItem(
+	_, err = GetOrCreateTask(
 		db,
 		notUserID,
 		"123abe",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abe",
-				SourceID:   "foobar_source",
-				UserID:     notUserID,
-			},
-			TaskType: TaskType{
-				IsTask: true,
-			},
+		&Task{
+			IDExternal:  "123abe",
+			SourceID:    "foobar_source",
+			UserID:      notUserID,
+			IsCompleted: &notCompleted,
 		},
 	)
 	assert.NoError(t, err)
@@ -89,41 +78,36 @@ func TestMarkItemComplete(t *testing.T) {
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	task1, err := GetOrCreateItem(
+	task1, err := GetOrCreateTask(
 		db,
 		userID,
 		"123abc",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abc",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsTask: true,
-			},
+		&Task{
+			IDExternal: "123abc",
+			SourceID:   "foobar_source",
+			UserID:     userID,
 		},
 	)
 	assert.NoError(t, err)
 	t.Run("SuccessIdempotent", func(t *testing.T) {
-		MarkItemComplete(db, task1.ID)
+		MarkCompleteWithCollection(GetTaskCollection(db), task1.ID)
 		tasks, err := GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		updatedTask := (*tasks)[0]
-		assert.True(t, updatedTask.IsCompleted)
+		assert.True(t, *updatedTask.IsCompleted)
 		assert.NotEqual(t, task1.CompletedAt, updatedTask.CompletedAt)
 
 		// ensure timestamp advances enough to be different
 		time.Sleep(time.Millisecond)
 
-		MarkItemComplete(db, task1.ID)
+		MarkCompleteWithCollection(GetTaskCollection(db), task1.ID)
 		tasks, err = GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		updatedTask2 := (*tasks)[0]
-		assert.True(t, updatedTask2.IsCompleted)
+		assert.True(t, *updatedTask2.IsCompleted)
 		assert.NotEqual(t, updatedTask.CompletedAt, updatedTask2.CompletedAt)
 	})
 }

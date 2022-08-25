@@ -30,7 +30,7 @@ const MarkTaskDoneButton = ({
     }
 
     useKeyboardShortcut('markComplete', onMarkTaskDone, !isSelected || isDisabled)
-    return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} disabled={isDisabled} />
+    return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} disabled={isDisabled} animated />
 }
 
 export default MarkTaskDoneButton
