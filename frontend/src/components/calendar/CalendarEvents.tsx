@@ -14,7 +14,8 @@ import {
     DayHeaderText,
     TimeAndHeaderContainer,
     TimeContainer,
-    DropOutline,
+    DropPreview,
+    DEFAULT_EVENT_HEIGHT,
 } from './CalendarEvents-styles'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import { TEvent } from '../../utils/types'
@@ -83,6 +84,7 @@ interface WeekCalendarEventsProps {
     setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
+    accountId: string | undefined
 }
 const WeekCalendarEvents = ({
     date,
@@ -94,12 +96,25 @@ const WeekCalendarEvents = ({
     setIsScrollDisabled,
     isEventSelected,
     setIsEventSelected,
+    accountId,
 }: WeekCalendarEventsProps): JSX.Element => {
     const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const eventsContainerRef = useRef<HTMLDivElement>(null)
+    const { isOver, dropPreviewPosition } = useCalendarDrop({
+        accountId,
+        date,
+        eventsContainerRef,
+    })
+
+    useLayoutEffect(() => {
+        if (eventsContainerRef.current) {
+            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+        }
+    }, [])
 
     return (
-        <DayAndHeaderContainer>
+        <DayAndHeaderContainer ref={eventsContainerRef}>
             {expandedCalendar && (
                 <CalendarDayHeader>
                     <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
@@ -121,7 +136,11 @@ const WeekCalendarEvents = ({
                         setIsEventSelected={setIsEventSelected}
                     />
                 ))}
-                <DropOutline isOver={isOver} offset={(CELL_HEIGHT_VALUE / 2) * dropItemBlockState} />
+                <DropPreview
+                    isVisible={isOver}
+                    offset={DEFAULT_EVENT_HEIGHT * dropPreviewPosition}
+                    height={DEFAULT_EVENT_HEIGHT}
+                />
                 <TimeIndicator />
                 <CalendarDayTable />
             </DayContainer>
@@ -136,7 +155,6 @@ interface CalendarEventsProps {
 }
 
 const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
-    const eventsContainerRef = useRef<HTMLDivElement>(null)
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
 
     const monthBlocks = useMemo(() => {
@@ -177,75 +195,8 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         false
     )
 
-    useLayoutEffect(() => {
-        if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
-        }
-    }, [])
-
-    const { isOver, dropPreviewPosition } = useCalendarDrop({
-        accountId,
-        date,
-        eventsContainerRef,
-    })
-
-    // drag task to calendar logic
-
-    // const onDrop = useCallback(
-    //     async (item: DropItem, monitor: DropTargetMonitor) => {
-    //         const dropPosition = monitor.getClientOffset()
-    //         if (!eventsContainerRef.current || !dropPosition || !accountId) return
-    //         const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-    //         const scrollOffset = eventsContainerRef.current.scrollTop
-
-    //         const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
-
-    //         // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
-    //         const dropTimeBlock = Math.floor(
-    //             yPosInEventsContainer / ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
-    //         )
-
-    //         const start = date.set({
-    //             hour: dropTimeBlock / 2,
-    //             minute: dropTimeBlock % 2 === 0 ? 0 : 30,
-    //             second: 0,
-    //             millisecond: 0,
-    //         })
-    //         const end = start.plus({ minutes: 30 })
-
-    //         createEvent({
-    //             createEventPayload: {
-    //                 account_id: accountId,
-    //                 datetime_start: start.toISO(),
-    //                 datetime_end: end.toISO(),
-    //                 summary: item.task?.title,
-    //                 description: item.task?.body,
-    //             },
-    //             date,
-    //         })
-    //     },
-    //     [date, accountId, createEvent]
-    // )
-
-    // const [, drop] = useDrop(
-    //     () => ({
-    //         accept: DropType.TASK,
-    //         collect: (monitor) => {
-    //             return !!monitor.isOver()
-    //         },
-    //         drop: onDrop,
-    //         canDrop: () => accountId !== undefined,
-    //     }),
-    //     [accountId, onDrop]
-    // )
-
-    // useEffect(() => {
-    //     drop(eventsContainerRef)
-    // }, [eventsContainerRef])
-
-    // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (
-        <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={isScrollDisabled}>
+        <AllDaysContainer isScrollDisabled={isScrollDisabled}>
             <TimeAndHeaderContainer>
                 {expandedCalendar && <CalendarDayHeader />}
                 <TimeContainer>
@@ -265,6 +216,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
                     setIsScrollDisabled={setIsScrollDisabled}
                     isEventSelected={isEventSelected}
                     setIsEventSelected={setIsEventSelected}
+                    accountId={accountId}
                 />
             ))}
         </AllDaysContainer>

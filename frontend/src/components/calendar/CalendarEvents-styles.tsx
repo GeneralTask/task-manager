@@ -17,6 +17,8 @@ export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = '2.5px'
 export const CALENDAR_DAY_HEADER_HEIGHT = 40
+export const DEFAULT_EVENT_DURATION = 30
+export const DEFAULT_EVENT_HEIGHT = (CELL_HEIGHT_VALUE * DEFAULT_EVENT_DURATION) / 60
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
 
@@ -187,12 +189,13 @@ export const TimeAndHeaderContainer = styled.div`
     flex-direction: column;
     height: fit-content;
 `
-export const DropOutline = styled.div<{ isOver: boolean; offset: number }>`
+export const DropPreview = styled.div<{ isVisible: boolean; offset: number; height: number }>`
     position: absolute;
     width: 100%;
     height: ${CELL_HEIGHT_VALUE / 2}px;
-    border: 2px solid ${Colors.gtColor.primary};
-    display: ${(props) => (props.isOver ? 'block' : 'none')};
+    height: ${(props) => props.height}px;
+    border: 2px dashed ${Colors.gtColor.primary};
+    display: ${(props) => (props.isVisible ? 'block' : 'none')};
     border-radius: ${Border.radius.medium};
     box-sizing: border-box;
     top: ${(props) => props.offset}px;
