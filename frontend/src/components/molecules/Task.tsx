@@ -86,7 +86,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         navigate(link)
     }, [link])
 
-    const [, drag, dragPreview] = useDrag(
+    const [, drag] = useDrag(
         () => ({
             type: DropType.TASK,
             item: { id: task.id, sectionId, task },
@@ -111,7 +111,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick}>
                 {isHovered && !dragDisabled && (
                     <DominoContainer>
                         <Domino ref={drag} />

@@ -18,6 +18,7 @@ import { useAppSelector } from '../../redux/hooks'
 import { useInterval } from '../../hooks'
 import OverviewPageView from '../views/OverviewPageView'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import DragLayer from '../molecules/DragLayer'
 
 const MainScreen = () => {
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
@@ -56,6 +57,7 @@ const MainScreen = () => {
                 <>{expandedCalendar || currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer />
+            <DragLayer />
         </DndProvider>
     )
 }
