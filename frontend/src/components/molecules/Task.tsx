@@ -12,6 +12,7 @@ import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { DONE_SECTION_ID } from '../../constants'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -86,7 +87,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         navigate(link)
     }, [link])
 
-    const [, drag] = useDrag(
+    const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.TASK,
             item: { id: task.id, sectionId, task },
@@ -97,6 +98,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         }),
         [task.id, index, sectionId]
     )
+
+    // hide default drag preview
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
 
     const [isVisible, setIsVisible] = useState(true)
 
@@ -111,10 +117,10 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick}>
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
                 {isHovered && !dragDisabled && (
                     <DominoContainer>
-                        <Domino ref={drag} />
+                        <Domino />
                     </DominoContainer>
                 )}
                 <MarkTaskDoneButton

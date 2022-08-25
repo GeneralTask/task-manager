@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useDragLayer, XYCoord } from 'react-dnd'
 import styled from 'styled-components'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
+import { DropType } from '../../utils/types'
+import Task from './Task'
 
 const DragOverlay = styled.div`
     position: fixed;
@@ -10,12 +13,6 @@ const DragOverlay = styled.div`
     top: 0;
     width: 100%;
     height: 100%;
-`
-const DragItem = styled.div`
-    background-color: red;
-    padding: 10px;
-    border-radius: 7px;
-    display: inline-block;
 `
 
 function getDragLayerStyles(initialOffset: XYCoord | null, currentOffset: XYCoord | null) {
@@ -31,45 +28,31 @@ function getDragLayerStyles(initialOffset: XYCoord | null, currentOffset: XYCoor
     return {
         transform,
         WebkitTransform: transform,
+        width: DEFAULT_VIEW_WIDTH,
     }
 }
 
-// const renderDragItem = (item: any, itemType: string) => {
-//     switch (itemType) {
-//         case ItemT:
-//             return <DragItem>{item.text}</DragItem>;
-//         default:
-//             return null;
-//     }
-// }
-
 // This defines the appearance of dragged items in the app
 const DragLayer = () => {
-    const {
-        // itemType,
-        isDragging,
-        item,
-        initialOffset,
-        currentOffset,
-    } = useDragLayer((monitor) => ({
+    const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer((monitor) => ({
         item: monitor.getItem(),
         itemType: monitor.getItemType(),
         initialOffset: monitor.getInitialSourceClientOffset(),
         currentOffset: monitor.getSourceClientOffset(),
         isDragging: monitor.isDragging(),
     }))
-    const renderItem = () => {
-        return <div>hi there fren</div>
-    }
+
+    const dragPreview = useMemo(() => {
+        if (itemType !== DropType.TASK || !item.task) return null
+        return <Task task={item.task} dragDisabled isSelected link="" />
+    }, [isDragging, itemType, item?.task])
+
     if (!isDragging) {
         return null
     }
-    console.log({ item })
     return (
         <DragOverlay>
-            <div style={getDragLayerStyles(initialOffset, currentOffset)}>
-                <DragItem>{renderItem()}</DragItem>
-            </div>
+            <div style={getDragLayerStyles(initialOffset, currentOffset)}>{dragPreview}</div>
         </DragOverlay>
     )
 }
