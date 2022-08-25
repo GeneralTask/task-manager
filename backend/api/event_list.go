@@ -110,7 +110,7 @@ func (api *API) EventsList(c *gin.Context) {
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
 			if event.LinkedTaskID != primitive.NilObjectID {
-				linkedTask, err := database.GetItem(dbCtx, event.LinkedTaskID, event.UserID)
+				linkedTask, err := database.GetTask(dbCtx, event.LinkedTaskID, event.UserID)
 				// if linked_task exists
 				if err == nil {
 					linkedTaskDeeplink = getLinkedTaskDeeplink(linkedTask)
@@ -148,9 +148,9 @@ func (api *API) EventsList(c *gin.Context) {
 	c.JSON(200, calendarEvents)
 }
 
-func getLinkedTaskDeeplink(linkedTask *database.Item) string {
+func getLinkedTaskDeeplink(linkedTask *database.Task) string {
 	sectionID := linkedTask.IDTaskSection.Hex()
-	if linkedTask.IsCompleted {
+	if linkedTask.IsCompleted != nil && *linkedTask.IsCompleted {
 		sectionID = constants.IDTaskSectionDone.Hex()
 	}
 	return fmt.Sprintf("%stasks/%s/%s", config.GetConfigValue("HOME_URL"), sectionID, linkedTask.ID.Hex())

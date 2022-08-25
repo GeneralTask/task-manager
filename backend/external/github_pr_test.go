@@ -28,7 +28,7 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := githubSource.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, nil)
+		err := githubSource.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 }

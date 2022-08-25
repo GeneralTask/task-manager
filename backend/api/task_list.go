@@ -70,7 +70,7 @@ const (
 	TaskSectionNameDone    string        = "Done"
 )
 
-func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Item, map[string]bool, error) {
+func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -111,7 +111,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		}
 	}
 
-	tasks := []*database.Item{}
+	tasks := []*database.Task{}
 	failedFetchSources := make(map[string]bool)
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
@@ -127,17 +127,14 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 
 func (api *API) adjustForCompletedTasks(
 	db *mongo.Database,
-	currentTasks *[]database.Item,
-	fetchedTasks *[]*database.Item,
+	currentTasks *[]database.Task,
+	fetchedTasks *[]*database.Task,
 	failedFetchSources map[string]bool,
 ) error {
 	// decrements IDOrdering for tasks behind newly completed tasks
-	var newTasks []*database.TaskBase
 	newTaskIDs := make(map[primitive.ObjectID]bool)
 	for _, fetchedTask := range *fetchedTasks {
-		taskBase := fetchedTask.TaskBase
-		newTasks = append(newTasks, &taskBase)
-		newTaskIDs[taskBase.ID] = true
+		newTaskIDs[fetchedTask.ID] = true
 	}
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentTask := range *currentTasks {
@@ -145,23 +142,17 @@ func (api *API) adjustForCompletedTasks(
 			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}
-		if !newTaskIDs[currentTask.ID] && !currentTask.IsMessage && !failedFetchSources[currentTask.SourceID] {
-			err := database.MarkItemComplete(db, currentTask.ID)
+		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] {
+			err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), currentTask.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete task")
 				return err
-			}
-			for _, newTask := range newTasks {
-				if newTask.IDOrdering > currentTask.IDOrdering {
-					newTask.IDOrdering -= 1
-				}
 			}
 		}
 	}
 	return nil
 }
 
-// TODO will make generic once we refactor tasks
 func (api *API) adjustForCompletedPullRequests(
 	db *mongo.Database,
 	currentPullRequests *[]database.PullRequest,
@@ -176,7 +167,7 @@ func (api *API) adjustForCompletedPullRequests(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentPullRequest := range *currentPullRequests {
 		if !newPRIDs[currentPullRequest.ID] && !failedFetchSources[currentPullRequest.SourceID] {
-			err := database.MarkPRComplete(db, currentPullRequest.ID)
+			err := database.MarkCompleteWithCollection(database.GetPullRequestCollection(db), currentPullRequest.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete pull request")
 				return err
@@ -211,7 +202,7 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 	return nil
 }
 
-func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID) *TaskResult {
+func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
 	if t.DueDate.Time().Unix() == int64(0) {
 		dueDate = ""
@@ -232,22 +223,40 @@ func (api *API) taskBaseToTaskResult(t *database.Item, userID primitive.ObjectID
 	} else {
 		api.Logger.Error().Err(err).Msgf("failed to find task source %s", t.SourceID)
 	}
+
+	// for null pointer checks
+	timeAllocation := int64(0)
+	if t.TimeAllocation != nil {
+		timeAllocation = *t.TimeAllocation
+	}
+	completed := false
+	if t.IsCompleted != nil {
+		completed = *t.IsCompleted
+	}
+	title := ""
+	if t.Title != nil {
+		title = *t.Title
+	}
+	body := ""
+	if t.Body != nil {
+		body = *t.Body
+	}
 	taskResult := &TaskResult{
 		ID:             t.ID,
 		IDOrdering:     t.IDOrdering,
 		Source:         taskSource,
 		Deeplink:       t.Deeplink,
-		Title:          t.Title,
-		Body:           t.TaskBase.Body,
-		TimeAllocation: t.TimeAllocation,
+		Title:          title,
+		Body:           body,
+		TimeAllocation: timeAllocation,
 		Sender:         t.Sender,
 		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:        dueDate,
-		IsDone:         t.IsCompleted,
+		IsDone:         completed,
 		Comments:       t.Comments,
 	}
 
-	if t.Status != (database.ExternalTaskStatus{}) {
+	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
 		taskResult.ExternalStatus = &externalStatus{
 			State: t.Status.State,
 			Type:  t.Status.Type,

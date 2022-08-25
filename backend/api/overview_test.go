@@ -101,16 +101,12 @@ func TestGetOverviewResults(t *testing.T) {
 		}
 
 		taskCollection := database.GetTaskCollection(db)
-		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: taskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		isCompleted := false
+		taskResult, err := taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &isCompleted,
+			IDTaskSection: taskSectionID,
+			SourceID:      external.TASK_SOURCE_ID_GT_TASK,
 		})
 		assert.NoError(t, err)
 
@@ -189,40 +185,29 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	})
 	t.Run("SuccessTaskViewItems", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(db)
+		isCompleted := false
 		items := []interface{}{
-			database.Item{
-				TaskBase: database.TaskBase{
-					UserID:        userID,
-					IsCompleted:   false,
-					IDTaskSection: taskSectionID,
-					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-					IDOrdering:    4,
-				},
-				TaskType: database.TaskType{
-					IsTask: true,
-				}},
-			database.Item{
-				TaskBase: database.TaskBase{
-					UserID:        userID,
-					IsCompleted:   false,
-					IDTaskSection: taskSectionID,
-					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-					IDOrdering:    2,
-				},
-				TaskType: database.TaskType{
-					IsTask: true,
-				}},
-			database.Item{
-				TaskBase: database.TaskBase{
-					UserID:        userID,
-					IsCompleted:   false,
-					IDTaskSection: taskSectionID,
-					SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-					IDOrdering:    3,
-				},
-				TaskType: database.TaskType{
-					IsTask: true,
-				}},
+			database.Task{
+				UserID:        userID,
+				IsCompleted:   &isCompleted,
+				IDTaskSection: taskSectionID,
+				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:    4,
+			},
+			database.Task{
+				UserID:        userID,
+				IsCompleted:   &isCompleted,
+				IDTaskSection: taskSectionID,
+				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:    2,
+			},
+			database.Task{
+				UserID:        userID,
+				IsCompleted:   &isCompleted,
+				IDTaskSection: taskSectionID,
+				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:    3,
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(parentCtx, items)
 		assert.NoError(t, err)
@@ -319,72 +304,40 @@ func TestGetLinearOverviewResult(t *testing.T) {
 	})
 	t.Run("SingleLinearViewItem", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(db)
-		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_LINEAR,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		notCompleted := false
+		completed := true
+		taskResult, err := taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_LINEAR,
 		})
 		assert.NoError(t, err)
 
 		// Insert completed Linear task. This task should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   true,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_LINEAR,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_LINEAR,
 		})
 		assert.NoError(t, err)
 
 		// Insert task with different source. This task should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      "randomSource",
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-		})
-		assert.NoError(t, err)
-
-		// Insert item that is not a task. This item should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_LINEAR,
-			},
-			TaskType: database.TaskType{
-				IsTask: false,
-			},
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      "randomSource",
 		})
 		assert.NoError(t, err)
 
 		// Insert Linear task with different UserID. This task should not be in the view result.
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        primitive.NewObjectID(),
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_LINEAR,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        primitive.NewObjectID(),
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_LINEAR,
 		})
 		assert.NoError(t, err)
 
@@ -466,64 +419,34 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	})
 	t.Run("SingleSlackViewItem", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(db)
-		taskResult, err := taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		notCompleted := false
+		completed := true
+		taskResult, err := taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
 		})
 		assert.NoError(t, err)
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   true,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
 		})
 		assert.NoError(t, err)
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      "randomSource",
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      "randomSource",
 		})
 		assert.NoError(t, err)
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        userID,
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
-			},
-			TaskType: database.TaskType{
-				IsTask: false,
-			},
-		})
-		assert.NoError(t, err)
-		_, err = taskCollection.InsertOne(parentCtx, database.Item{
-			TaskBase: database.TaskBase{
-				UserID:        primitive.NewObjectID(),
-				IsCompleted:   false,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
-			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        primitive.NewObjectID(),
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
 		})
 		assert.NoError(t, err)
 
