@@ -2,9 +2,9 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
 import styled, { css } from 'styled-components'
 import { Icon } from '../Icon'
-import { TIconColor } from '../../../styles/colors'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import NoStyleButton from './NoStyleButton'
+import { TIconColor } from '../../../styles/colors'
 
 type TButtonStyle = 'primary' | 'secondary'
 type TButtonSize = 'small' | 'large'
@@ -93,7 +93,7 @@ const GTButton = ({
     const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
         <Button styleType={styleType} size={size} wrapText={wrapText} fitContent={fitContent} {...rest}>
-            {icon && <Icon size={iconSize} icon={icon} color={iconColor} />}
+            {icon && <Icon size={iconSize} icon={icon} color={iconColor ? Colors.icon[iconColor] : undefined} />}
             {value}
         </Button>
     )
