@@ -107,15 +107,14 @@ func (api *API) EventsList(c *gin.Context) {
 			logo := taskSourceResult.Details.LogoV2
 			linkedTaskID := ""
 			if event.LinkedTaskID != primitive.NilObjectID {
-				linkedTask, err := database.GetItem(dbCtx, event.LinkedTaskID, event.UserID)
-				// if linked_task exists
-				if err == nil {
-					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
+				linkedTaskID = event.LinkedTaskID.Hex()
+				if event.LinkedTaskSourceID != "" {
+					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedTaskSourceID)
 					logo = taskSourceResult.Details.LogoV2
-					linkedTaskID = linkedTask.ID.Hex()
 				} else {
-					api.Logger.Error().Err(err).Msgf("linked task not found: %s", event.LinkedTaskID.Hex())
+					api.Logger.Error().Err(err).Msg("Linked task source ID is empty")
 				}
+				linkedTaskID = event.LinkedTaskID.Hex()
 			}
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
