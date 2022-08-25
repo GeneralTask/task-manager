@@ -136,6 +136,7 @@ interface CalendarEventsProps {
 const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    console.log('hi')
 
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
