@@ -34,6 +34,15 @@ function getDragLayerStyles(initialOffset: XYCoord | null, currentOffset: XYCoor
     }
 }
 
+// const renderDragItem = (item: any, itemType: string) => {
+//     switch (itemType) {
+//         case ItemT:
+//             return <DragItem>{item.text}</DragItem>;
+//         default:
+//             return null;
+//     }
+// }
+
 // This defines the appearance of dragged items in the app
 const DragLayer = () => {
     const {
