@@ -10,7 +10,7 @@ const useNavigateToTask = () => {
     const { data: sectionsData } = useGetTasks()
     const navigate = useNavigate()
 
-    const getTaskURL = useCallback((taskID: string, views: TOverviewView[], sections: TTaskSection[]) => {
+    const getTaskURL = useCallback((taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string) => {
         const isUserOnOverviewPage = pathname.startsWith('/overview')
         if (isUserOnOverviewPage) {
             for (const view of views) {
@@ -31,9 +31,9 @@ const useNavigateToTask = () => {
             }
         }
         return isUserOnOverviewPage
-    }, [pathname])
+    }, [])
 
-    return (taskID: string) => getTaskURL(taskID, viewsData ?? [], sectionsData ?? [])
+    return (taskID: string) => getTaskURL(taskID, viewsData ?? [], sectionsData ?? [], pathname)
 }
 
 export default useNavigateToTask

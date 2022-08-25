@@ -54,7 +54,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         }: EventDetailProps,
         ref
     ) => {
-        console.log({ event })
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
