@@ -1,4 +1,4 @@
-import { DEFAULT_EVENT_HEIGHT } from "../CalendarEvents-styles"
+import { EVENT_CREATION_INTERVAL_IN_MINUTES, EVENT_CREATION_INTERVAL_HEIGHT, EVENT_CREATION_INTERVAL_PER_HOUR } from "../CalendarEvents-styles"
 import { DropItem, DropType } from "../../../utils/types"
 import { DropTargetMonitor, useDrop } from "react-dnd"
 
@@ -21,14 +21,14 @@ const useCalendarDrop = ({
     const { mutate: createEvent } = useCreateEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
 
-    // returns index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
+    // returns index of 15 minute block on the calendar, i.e. 12 am is 0, 12:15 AM is 1, etc.
     const getDropPosition = useCallback((monitor: DropTargetMonitor) => {
         const clientOffset = monitor.getClientOffset()
         if (!eventsContainerRef?.current || !clientOffset || !accountId) return 0
         const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
         const scrollOffset = eventsContainerRef.current.scrollTop
         const yPosInEventsContainer = clientOffset.y - eventsContainerOffset + scrollOffset
-        return Math.floor(yPosInEventsContainer / DEFAULT_EVENT_HEIGHT)
+        return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
     }, [accountId])
 
     const onDrop = useCallback(
@@ -37,8 +37,8 @@ const useCalendarDrop = ({
             const dropPosition = getDropPosition(monitor)
 
             const start = date.set({
-                hour: dropPosition / 2,
-                minute: dropPosition % 2 === 0 ? 0 : 30,
+                hour: dropPosition / EVENT_CREATION_INTERVAL_PER_HOUR,
+                minute: (dropPosition % EVENT_CREATION_INTERVAL_PER_HOUR) * EVENT_CREATION_INTERVAL_IN_MINUTES,
                 second: 0,
                 millisecond: 0,
             })

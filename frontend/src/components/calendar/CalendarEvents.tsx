@@ -15,7 +15,7 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
     DropPreview,
-    DEFAULT_EVENT_HEIGHT,
+    EVENT_CREATION_INTERVAL_HEIGHT,
 } from './CalendarEvents-styles'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import { TEvent } from '../../utils/types'
@@ -136,7 +136,7 @@ const WeekCalendarEvents = ({
                         setIsEventSelected={setIsEventSelected}
                     />
                 ))}
-                <DropPreview isVisible={isOver} offset={DEFAULT_EVENT_HEIGHT * dropPreviewPosition} />
+                <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                 <TimeIndicator />
                 <CalendarDayTable />
             </DayContainer>
