@@ -47,12 +47,12 @@ func TestEventDelete(t *testing.T) {
 
 	UnauthorizedTest(t, "DELETE", "/events/delete/"+calendarTaskIDHex+"/", nil)
 	t.Run("InvalidHex", func(t *testing.T) {
-		ServeRequest(t, authToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"1/", nil, http.StatusNotFound)
+		ServeRequest(t, authToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"1/", nil, http.StatusNotFound, nil)
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
 		secondAuthToken := login("tester@generaltask.com", "")
-		ServeRequest(t, secondAuthToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"1/", nil, http.StatusNotFound)
+		ServeRequest(t, secondAuthToken, "DELETE", "/events/delete/"+calendarTaskIDHex+"1/", nil, http.StatusNotFound, nil)
 	})
 
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {

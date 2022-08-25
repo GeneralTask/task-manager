@@ -42,7 +42,9 @@ const App = () => {
                                     </Route>
                                     <Route path="overview" element={<PrivateOutlet />}>
                                         <Route index element={<MainScreen />} />
-                                        <Route path=":overviewItem" element={<MainScreen />} />
+                                        <Route path=":overviewViewId" element={<MainScreen />}>
+                                            <Route path=":overviewItemId" element={<MainScreen />} />
+                                        </Route>
                                     </Route>
                                     <Route path="tasks" element={<PrivateOutlet />}>
                                         <Route index element={<MainScreen />} />

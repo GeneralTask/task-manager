@@ -44,7 +44,6 @@ export const EventHeader = styled.div`
 export const EventHeaderIcons = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing.margin._4};
 `
 export const EventDateContainer = styled.div`
     display: flex;
@@ -52,7 +51,7 @@ export const EventDateContainer = styled.div`
     align-items: center;
     gap: ${Spacing.padding._8};
 `
-export const CloseButton = styled(NoStyleButton)`
+export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing.padding._8};
     border-radius: 50vh;
     &:hover {

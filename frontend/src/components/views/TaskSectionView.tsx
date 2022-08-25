@@ -12,11 +12,11 @@ import Task from '../molecules/Task'
 import TaskDetails from '../details/TaskDetails'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropItem, DropType } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
+import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const BannerAndSectionContainer = styled.div`
     display: flex;
@@ -25,13 +25,6 @@ const BannerAndSectionContainer = styled.div`
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
-`
-const ScrollViewMimic = styled.div`
-    margin: 40px 0px 0px 10px;
-    padding-right: 10px;
-    overflow-y: auto;
-    flex: 1;
-    width: ${DEFAULT_VIEW_WIDTH};
 `
 const TaskSectionViewContainer = styled.div`
     flex: 1;
@@ -54,22 +47,12 @@ const TaskSectionView = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const {
-        data: taskSections,
-        isLoading: isLoadingTasks,
-        isFetching: isFetchingTasks,
-        refetch: getTasks,
-    } = useGetTasks()
+    const { data: taskSections, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
-    const { refetch: fetchExternal, isFetching: isFetchingExternal } = useFetchExternalTasks()
+    const { isFetching: isFetchingExternal } = useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
-
-    const refresh = () => {
-        getTasks()
-        fetchExternal()
-    }
 
     const { section, task } = useMemo(() => {
         const section = taskSections?.find(({ id }) => id === params.section)
@@ -114,7 +97,7 @@ const TaskSectionView = () => {
         <>
             <BannerAndSectionContainer ref={bannerTaskSectionRef}>
                 <EventBanner date={DateTime.now()} />
-                <ScrollViewMimic ref={sectionScrollingRef}>
+                <ScrollableListTemplate ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
                         {isLoadingTasks || !section ? (
                             <Loading />
@@ -123,7 +106,6 @@ const TaskSectionView = () => {
                                 <SectionHeader
                                     sectionName={section.name}
                                     allowRefresh={true}
-                                    refetch={refresh}
                                     isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
@@ -159,7 +141,7 @@ const TaskSectionView = () => {
                             </>
                         )}
                     </TaskSectionViewContainer>
-                </ScrollViewMimic>
+                </ScrollableListTemplate>
             </BannerAndSectionContainer>
             {task && section ? (
                 <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />

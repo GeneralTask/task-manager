@@ -1,11 +1,11 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
+import { useParams } from 'react-router-dom'
 
-const ExternalViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
-    const { overviewItem } = useParams()
+const ExternalViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
+    const { overviewViewId, overviewItemId } = useParams()
 
     return (
         <>
@@ -14,8 +14,9 @@ const ExternalViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
                     key={item.id}
                     task={item as TTask}
                     dragDisabled={true}
-                    isSelected={overviewItem === item.id}
-                    link={`/overview/${item.id}`}
+                    sectionScrollingRef={scrollRef}
+                    isSelected={overviewViewId === view.id && overviewItemId === item.id}
+                    link={`/overview/${view.id}/${item.id}`}
                 />
             ))}
         </>
