@@ -202,4 +202,5 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     box-sizing: border-box;
     top: ${(props) => props.offset}px;
     z-index: 1;
+    background-color: ${Colors.background.dropIndicator};
 `
