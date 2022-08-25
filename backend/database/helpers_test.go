@@ -91,7 +91,7 @@ func TestMarkItemComplete(t *testing.T) {
 	)
 	assert.NoError(t, err)
 	t.Run("SuccessIdempotent", func(t *testing.T) {
-		MarkItemCompleteWithCollection(GetTaskCollection(db), task1.ID)
+		MarkCompleteWithCollection(GetTaskCollection(db), task1.ID)
 		tasks, err := GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
@@ -102,7 +102,7 @@ func TestMarkItemComplete(t *testing.T) {
 		// ensure timestamp advances enough to be different
 		time.Sleep(time.Millisecond)
 
-		MarkItemCompleteWithCollection(GetTaskCollection(db), task1.ID)
+		MarkCompleteWithCollection(GetTaskCollection(db), task1.ID)
 		tasks, err = GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))

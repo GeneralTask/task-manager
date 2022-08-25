@@ -375,7 +375,7 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 	defer cancel()
 
 	taskCollection := GetTaskCollection(db)
-	cursor, err := GetItemsWithCollection(taskCollection, userID, additionalFilters, dbCtx)
+	cursor, err := FindWithCollection(taskCollection, userID, additionalFilters, dbCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -399,7 +399,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	defer cancel()
 
 	pullRequestCollection := GetPullRequestCollection(db)
-	cursor, err := GetItemsWithCollection(pullRequestCollection, userID, additionalFilters, dbCtx)
+	cursor, err := FindWithCollection(pullRequestCollection, userID, additionalFilters, dbCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -416,7 +416,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	return &pullRequests, nil
 }
 
-func GetItemsWithCollection(collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, dbCtx context.Context) (*mongo.Cursor, error) {
+func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, dbCtx context.Context) (*mongo.Cursor, error) {
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
@@ -523,7 +523,7 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 	return &sections, nil
 }
 
-func MarkItemCompleteWithCollection(collection *mongo.Collection, itemID primitive.ObjectID) error {
+func MarkCompleteWithCollection(collection *mongo.Collection, itemID primitive.ObjectID) error {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

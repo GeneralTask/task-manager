@@ -57,30 +57,3 @@ type EventModifyObject struct {
 	Attendees         *[]Attendee `json:"attendees"`
 	AddConferenceCall *bool       `json:"add_conference_call"`
 }
-
-type TaskChangeable struct {
-	PriorityID         *string                      `bson:"priority_id,omitempty"`
-	PriorityNormalized *float64                     `bson:"priority_normalized,omitempty"`
-	TaskNumber         *int                         `bson:"task_number,omitempty"`
-	Comments           *[]database.Comment          `bson:"comments,omitempty"`
-	Status             *database.ExternalTaskStatus `bson:"status,omitempty"`
-	// Used to cache the current status before marking the task as done
-	PreviousStatus  *database.ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *database.ExternalTaskStatus `bson:"completed_status,omitempty"`
-}
-
-type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `bson:"task,omitempty"`
-	Title          *string            `json:"title" bson:"title,omitempty"`
-	Body           *string            `json:"body" bson:"body,omitempty"`
-	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
-	TimeAllocation *int64             `json:"time_duration" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime `json:"completed_at" bson:"completed_at"`
-}
-
-type TaskModifyParams struct {
-	IDOrdering    *int    `json:"id_ordering"`
-	IDTaskSection *string `json:"id_task_section"`
-	TaskItemChangeableFields
-}

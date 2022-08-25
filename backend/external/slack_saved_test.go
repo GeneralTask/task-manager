@@ -36,7 +36,7 @@ func TestLoadSlackTasks(t *testing.T) {
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
-		// check IDExternal because ID is set upon db insertion)
+		// check IDExternal because ID is set upon db insertion
 		assert.Equal(t, task.IDExternal, result.Tasks[0].IDExternal)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {

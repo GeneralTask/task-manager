@@ -143,7 +143,7 @@ func (api *API) adjustForCompletedTasks(
 			continue
 		}
 		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] {
-			err := database.MarkItemCompleteWithCollection(database.GetTaskCollection(db), currentTask.ID)
+			err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), currentTask.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete task")
 				return err
@@ -167,7 +167,7 @@ func (api *API) adjustForCompletedPullRequests(
 	// There's a more efficient way to do this but this way is easy to understand
 	for _, currentPullRequest := range *currentPullRequests {
 		if !newPRIDs[currentPullRequest.ID] && !failedFetchSources[currentPullRequest.SourceID] {
-			err := database.MarkItemCompleteWithCollection(database.GetPullRequestCollection(db), currentPullRequest.ID)
+			err := database.MarkCompleteWithCollection(database.GetPullRequestCollection(db), currentPullRequest.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete pull request")
 				return err
