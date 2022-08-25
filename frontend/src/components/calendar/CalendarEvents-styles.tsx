@@ -187,3 +187,14 @@ export const TimeAndHeaderContainer = styled.div`
     flex-direction: column;
     height: fit-content;
 `
+export const DropOutline = styled.div<{ isOver: boolean; offset: number }>`
+    position: absolute;
+    width: 100%;
+    height: ${CELL_HEIGHT_VALUE / 2}px;
+    border: 2px solid ${Colors.gtColor.primary};
+    display: ${(props) => (props.isOver ? 'block' : 'none')};
+    border-radius: ${Border.radius.medium};
+    box-sizing: border-box;
+    top: ${(props) => props.offset}px;
+    z-index: 1;
+`

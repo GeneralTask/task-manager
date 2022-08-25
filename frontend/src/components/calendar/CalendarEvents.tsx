@@ -14,12 +14,12 @@ import {
     DayHeaderText,
     TimeAndHeaderContainer,
     TimeContainer,
+    DropOutline,
 } from './CalendarEvents-styles'
-import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
-import { DropItem, DropType, TEvent } from '../../utils/types'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import { EVENTS_REFETCH_INTERVAL } from '../../constants'
+import { TEvent } from '../../utils/types'
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useGetEvents } from '../../services/api/events.hooks'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
@@ -28,6 +28,7 @@ import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
 import useInterval from '../../hooks/useInterval'
+import useCalendarDrop from './utils/useCalendarDrop'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -120,6 +121,7 @@ const WeekCalendarEvents = ({
                         setIsEventSelected={setIsEventSelected}
                     />
                 ))}
+                <DropOutline isOver={isOver} offset={(CELL_HEIGHT_VALUE / 2) * dropItemBlockState} />
                 <TimeIndicator />
                 <CalendarDayTable />
             </DayContainer>
@@ -145,7 +147,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
     const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
-    const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
     const [isEventSelected, setIsEventSelected] = useState(false)
     const [isScrollDisabled, setIsScrollDisabled] = useState(false)
@@ -182,59 +183,65 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         }
     }, [])
 
+    const { isOver, dropPreviewPosition } = useCalendarDrop({
+        accountId,
+        date,
+        eventsContainerRef,
+    })
+
     // drag task to calendar logic
 
-    const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
-            const dropPosition = monitor.getClientOffset()
-            if (!eventsContainerRef.current || !dropPosition || !accountId) return
-            const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-            const scrollOffset = eventsContainerRef.current.scrollTop
+    // const onDrop = useCallback(
+    //     async (item: DropItem, monitor: DropTargetMonitor) => {
+    //         const dropPosition = monitor.getClientOffset()
+    //         if (!eventsContainerRef.current || !dropPosition || !accountId) return
+    //         const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+    //         const scrollOffset = eventsContainerRef.current.scrollTop
 
-            const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
+    //         const yPosInEventsContainer = dropPosition.y - eventsContainerOffset + scrollOffset
 
-            // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
-            const dropTimeBlock = Math.floor(
-                yPosInEventsContainer / ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
-            )
+    //         // index of 30 minute block on the calendar, i.e. 12 am is 0, 12:30 AM is 1, etc.
+    //         const dropTimeBlock = Math.floor(
+    //             yPosInEventsContainer / ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
+    //         )
 
-            const start = date.set({
-                hour: dropTimeBlock / 2,
-                minute: dropTimeBlock % 2 === 0 ? 0 : 30,
-                second: 0,
-                millisecond: 0,
-            })
-            const end = start.plus({ minutes: 30 })
+    //         const start = date.set({
+    //             hour: dropTimeBlock / 2,
+    //             minute: dropTimeBlock % 2 === 0 ? 0 : 30,
+    //             second: 0,
+    //             millisecond: 0,
+    //         })
+    //         const end = start.plus({ minutes: 30 })
 
-            createEvent({
-                createEventPayload: {
-                    account_id: accountId,
-                    datetime_start: start.toISO(),
-                    datetime_end: end.toISO(),
-                    summary: item.task?.title,
-                    description: item.task?.body,
-                },
-                date,
-            })
-        },
-        [date, accountId, createEvent]
-    )
+    //         createEvent({
+    //             createEventPayload: {
+    //                 account_id: accountId,
+    //                 datetime_start: start.toISO(),
+    //                 datetime_end: end.toISO(),
+    //                 summary: item.task?.title,
+    //                 description: item.task?.body,
+    //             },
+    //             date,
+    //         })
+    //     },
+    //     [date, accountId, createEvent]
+    // )
 
-    const [, drop] = useDrop(
-        () => ({
-            accept: DropType.TASK,
-            collect: (monitor) => {
-                return !!monitor.isOver()
-            },
-            drop: onDrop,
-            canDrop: () => accountId !== undefined,
-        }),
-        [accountId, onDrop]
-    )
+    // const [, drop] = useDrop(
+    //     () => ({
+    //         accept: DropType.TASK,
+    //         collect: (monitor) => {
+    //             return !!monitor.isOver()
+    //         },
+    //         drop: onDrop,
+    //         canDrop: () => accountId !== undefined,
+    //     }),
+    //     [accountId, onDrop]
+    // )
 
-    useEffect(() => {
-        drop(eventsContainerRef)
-    }, [eventsContainerRef])
+    // useEffect(() => {
+    //     drop(eventsContainerRef)
+    // }, [eventsContainerRef])
 
     // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (

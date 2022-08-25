@@ -4,27 +4,27 @@ import { DropTargetMonitor, useDrop } from "react-dnd"
 
 import { CALENDAR_DEFAULT_EVENT_DURATION } from "../../../constants"
 import { DateTime } from "luxon"
-import { useCallback } from "react"
+import { useCallback, useState } from "react"
 import { useCreateEvent } from "../../../services/api/events.hooks"
 import { useEffect } from 'react'
 
 interface CalendarDropProps {
-    accountId: string
+    accountId: string | undefined
     date: DateTime
-    dayOffset: number
-    eventsContainerRef: React.MutableRefObject<HTMLDivElement>
+    eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
 }
 
 const useCalendarDrop = ({
     accountId,
     date,
-    dayOffset,
     eventsContainerRef,
 }: CalendarDropProps) => {
     const { mutate: createEvent } = useCreateEvent()
+    const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
 
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
+            console.log({ itemType: monitor.getItemType() })
             const dropPosition = monitor.getClientOffset()
             if (!eventsContainerRef?.current || !dropPosition || !accountId) return
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
@@ -66,7 +66,7 @@ const useCalendarDrop = ({
                 return monitor.isOver()
             },
             drop: onDrop,
-            canDrop: () => accountId !== undefined,
+            canDrop: () => true,//accountId !== undefined,
             hover: (_, monitor) => {
                 const dropPosition = monitor.getClientOffset()
                 if (!eventsContainerRef.current || !dropPosition || !accountId) return
@@ -80,9 +80,9 @@ const useCalendarDrop = ({
                     (yPosInEventsContainer - CALENDAR_DAY_HEADER_HEIGHT) /
                     ((CELL_HEIGHT_VALUE * CALENDAR_DEFAULT_EVENT_DURATION) / 60)
                 )
-                console.log('hovering over', dayOffset)
+                // console.log('hovering over', dayOffset)
                 console.log(dropTimeBlock)
-                setDropItemBlockState(dropTimeBlock)
+                setDropPreviewPosition(dropTimeBlock)
             },
         }),
         [accountId, onDrop]
@@ -92,7 +92,7 @@ const useCalendarDrop = ({
         drop(eventsContainerRef)
     }, [eventsContainerRef])
 
-    return isOver
+    return { isOver, dropPreviewPosition }
 }
 
 export default useCalendarDrop
