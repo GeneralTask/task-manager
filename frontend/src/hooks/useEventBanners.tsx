@@ -8,14 +8,14 @@ import toast, { dismissToast, isActive, updateToast } from '../utils/toast'
 
 const eventBannerLastShownAt = new Map<string, number>()
 
-const isEventWithin10Minutes = (event: TEvent) => {
+const isEventWithinTenMinutes = (event: TEvent) => {
     const eventStart = DateTime.fromISO(event.datetime_start)
     const eventEnd = DateTime.fromISO(event.datetime_end)
     return eventStart < DateTime.now().plus({ minutes: 10 }) && eventEnd > DateTime.now()
 }
 
 export default function useEventBanners(date: DateTime) {
-    const [eventsWithin10Minutes, setEventsWithin10Minutes] = useState<TEvent[]>([])
+    const [eventsWithinTenMinutes, setEventsWithinTenMinutes] = useState<TEvent[]>([])
     const { data: events, refetch } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
@@ -27,9 +27,9 @@ export default function useEventBanners(date: DateTime) {
 
     useInterval(
         () => {
-            const updatedEvents = events?.filter((event) => isEventWithin10Minutes(event))
-            if (updatedEvents && updatedEvents !== eventsWithin10Minutes) {
-                setEventsWithin10Minutes(updatedEvents)
+            const updatedEvents = events?.filter((event) => isEventWithinTenMinutes(event))
+            if (updatedEvents) {
+                setEventsWithinTenMinutes(updatedEvents)
             }
         },
         SINGLE_SECOND_INTERVAL,
@@ -37,15 +37,16 @@ export default function useEventBanners(date: DateTime) {
     )
 
     eventBannerLastShownAt.forEach((_, id) => {
-        if (!eventsWithin10Minutes.map((event) => event.id).includes(id)) {
+        if (!eventsWithinTenMinutes.map((event) => event.id).includes(id)) {
             dismissToast(id)
             eventBannerLastShownAt.delete(id)
         }
     })
 
-    eventsWithin10Minutes.map((event) => {
+    eventsWithinTenMinutes.map((event) => {
         const timeUntilEvent = Math.ceil((new Date(event.datetime_start).getTime() - new Date().getTime()) / 1000 / 60)
-        const timeUntilEventMessage = timeUntilEvent > 0 ? `is in ${timeUntilEvent} minutes.` : 'is now.'
+        const timeUntilEventMessage =
+            timeUntilEvent > 0 ? `is in ${timeUntilEvent} ${timeUntilEvent > 1 ? 'minutes' : 'minute'}.` : 'is now.'
         const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
         const lastShownAt = eventBannerLastShownAt.get(event.id)
         const toastProps = {
