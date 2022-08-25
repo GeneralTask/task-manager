@@ -19,7 +19,7 @@ const ModalContainer = styled.div<{ type: TModalSize }>`
     justify-content: space-between;
 `
 const Header = styled.div`
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     margin-bottom: ${Spacing.margin._16};
     display: flex;
     justify-content: space-between;
@@ -27,7 +27,9 @@ const Header = styled.div`
     ${Typography.title};
 `
 const Body = styled.div`
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: ${Spacing.padding._16};
     display: flex;
     flex-direction: column;
     flex: 1;
