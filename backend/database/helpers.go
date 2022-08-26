@@ -5,8 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/chidiwilliams/flatbson"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
@@ -719,14 +717,4 @@ func IsValidPagination(pagination Pagination) bool {
 		return false
 	}
 	return *pagination.Limit > 0 && *pagination.Page > 0
-}
-
-func FlattenStruct(s interface{}) (map[string]interface{}, error) {
-	flattened, err := flatbson.Flatten(s)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msgf("Could not flatten %+v", s)
-		return nil, err
-	}
-	return flattened, nil
 }
