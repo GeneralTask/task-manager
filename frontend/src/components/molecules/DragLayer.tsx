@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useDragLayer } from 'react-dnd'
 import styled from 'styled-components'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
@@ -14,13 +14,14 @@ const DragOverlay = styled.div`
     width: 100%;
     height: 100%;
 `
-const DragItem = styled.div<{ transform: string }>`
-    width: ${DEFAULT_VIEW_WIDTH};
-    transform: ${({ transform }) => transform};
+const DragItem = styled.div`
+    width: calc(${DEFAULT_VIEW_WIDTH} - 40px);
+    opacity: 0.5;
 `
 
 // This defines the appearance of dragged items in the app
 const DragLayer = () => {
+    const dragItemRef = useRef<HTMLDivElement>(null)
     const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer((monitor) => ({
         item: monitor.getItem(),
         itemType: monitor.getItemType(),
@@ -28,14 +29,19 @@ const DragLayer = () => {
         currentOffset: monitor.getSourceClientOffset(),
         isDragging: monitor.isDragging(),
     }))
-    if (!isDragging || itemType !== DropType.TASK || !item.task || !initialOffset || !currentOffset) {
-        return null
-    }
+
+    // update the position of the drag item. This is much more performant than passing the coords into DragItem
+    useEffect(() => {
+        if (currentOffset && dragItemRef.current)
+            dragItemRef.current.style.transform = `translate(${currentOffset.x}px, ${currentOffset.y}px)`
+    }, [currentOffset])
+
+    if (!isDragging || itemType !== DropType.TASK || !item.task || !initialOffset || !currentOffset) return null
     return (
         <DragOverlay>
-            {/* <DragItem transform={`translate(${currentOffset.x}px, ${currentOffset.y}px)`}> */}
-            <Task task={item.task} dragDisabled isSelected link="" />
-            {/* </DragItem> */}
+            <DragItem ref={dragItemRef}>
+                <Task task={item.task} dragDisabled isSelected link="" />
+            </DragItem>
         </DragOverlay>
     )
 }
