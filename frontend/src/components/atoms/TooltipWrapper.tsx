@@ -6,15 +6,15 @@ interface TooltipWrapperProps {
     tooltipId: string
     inline?: boolean
 }
-const TooltipWrapper = ({ children, dataTip, tooltipId, inline }: TooltipWrapperProps) => {
+const TooltipWrapper = ({ children, dataTip, tooltipId, inline, ...props }: TooltipWrapperProps) => {
     if (inline)
         return (
-            <span data-tip={dataTip} data-for={tooltipId} data-html={true}>
+            <span data-tip={dataTip} data-for={tooltipId} data-html={true} {...props}>
                 {children}
             </span>
         )
     return (
-        <div data-tip={dataTip} data-for={tooltipId} data-html={true}>
+        <div data-tip={dataTip} data-for={tooltipId} data-html={true} {...props}>
             {children}
         </div>
     )

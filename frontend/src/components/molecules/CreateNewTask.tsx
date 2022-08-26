@@ -1,10 +1,13 @@
-import { faPlus } from '@fortawesome/pro-regular-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
+import { KEYBOARD_SHORTCUTS } from '../../constants'
+import { useKeyboardShortcut } from '../../hooks'
 import { useCreateTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography, Dimensions } from '../../styles'
-import KeyboardShortcut from '../atoms/KeyboardShortcut'
+import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 
 const CreateNewTaskContainer = styled.div`
     display: flex;
@@ -25,6 +28,12 @@ const TaskInput = styled.input`
     flex: 1;
     ${Typography.bodySmall};
 `
+const Tooltip = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.padding._8};
+    ${Typography.bodySmall};
+`
 
 interface CreateNewTaskProps {
     sectionId: string
@@ -34,6 +43,7 @@ const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProp
     const [text, setText] = useState('')
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
 
     const submitNewTask = async () => {
         if (!text) return
@@ -48,21 +58,63 @@ const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProp
         if (e.key === 'Enter') submitNewTask()
         else if (e.key === 'Escape') inputRef.current?.blur()
     }
-    return (
-        <CreateNewTaskContainer>
-            {/* <Icon source={Images.icons.plus} size={'small'} /> */}
-            <FontAwesomeIcon icon={faPlus} color={Colors.icon.gray} />
-            <TaskInput
-                ref={inputRef}
-                value={text}
-                placeholder="Add new task"
-                onKeyDown={handleKeyDown}
-                onChange={(e) => setText(e.target.value)}
-            />
+
+    useEffect(() => {
+        ReactTooltip.rebuild()
+    }, [])
+
+    const overrideTooltipPosition = useCallback(
+        (
+            position: { left: number; top: number },
+            _currentEvent: Event,
+            _currentTarget: EventTarget,
+            refNode: null | HTMLDivElement | HTMLSpanElement
+        ) => {
+            const { left, top } = position
+            if (containerRef.current && refNode) {
+                const createNewTaskHalfWidth = containerRef.current.offsetWidth / 2
+                const tooltipHalfWidth = refNode?.offsetWidth / 2
+                return { left: left + createNewTaskHalfWidth - tooltipHalfWidth, top: top }
+            }
+            return { left: left, top: top }
+        },
+        [containerRef.current]
+    )
+
+    const toolTipContent = (
+        <Tooltip>
+            <span>Create new task</span>
             {!disableKeyboardShortcut && (
-                <KeyboardShortcut shortcut="createTask" onKeyPress={() => inputRef.current?.focus()} />
+                <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask}</KeyboardShortcutContainer>
             )}
-        </CreateNewTaskContainer>
+        </Tooltip>
+    )
+
+    useKeyboardShortcut('createTask', () => inputRef.current?.focus(), disableKeyboardShortcut)
+
+    return (
+        <>
+            <CreateNewTaskContainer data-tip data-for="createNewTaskTip" ref={containerRef}>
+                <Icon icon={icons.plus} size={'small'} />
+                <TaskInput
+                    ref={inputRef}
+                    value={text}
+                    placeholder="Add new task"
+                    onKeyDown={handleKeyDown}
+                    onChange={(e) => setText(e.target.value)}
+                />
+            </CreateNewTaskContainer>
+            <ReactTooltip
+                id="createNewTaskTip"
+                place="top"
+                type="light"
+                effect="solid"
+                className="tooltip"
+                overridePosition={overrideTooltipPosition}
+            >
+                {toolTipContent}
+            </ReactTooltip>
+        </>
     )
 }
 
