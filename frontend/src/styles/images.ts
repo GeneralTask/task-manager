@@ -1,7 +1,42 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
-import { faSquare, faCalendar } from '@fortawesome/pro-regular-svg-icons'
-import { faArrowDownLeftAndArrowUpRightToCenter, faArrowRotateRight, faArrowUpRightAndArrowDownLeftFromCenter, faArrowUpRightFromSquare, faBadgeCheck, faBars, faCheck, faCheckSquare, faChevronDown, faChevronLeft, faChevronRight, faChevronUp, faCircleSmall, faComment, faCopy, faCubes, faFolder, faGear, faGripDotsVertical, faInbox, faList, faPencil, faPlus, faTag, faTimer, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons'
+import {
+    faGithub,
+    faGoogle,
+    faSlack
+} from '@fortawesome/free-brands-svg-icons'
+import {
+    faArrowDownLeftAndArrowUpRightToCenter,
+    faArrowRotateRight,
+    faArrowUpRightAndArrowDownLeftFromCenter,
+    faArrowUpRightFromSquare,
+    faCalendar,
+    faMessage,
+    faSquare,
+    faXmark
+} from '@fortawesome/pro-regular-svg-icons'
+import {
+    faBadgeCheck,
+    faBars,
+    faCheck,
+    faCheckSquare,
+    faChevronDown,
+    faChevronLeft,
+    faChevronRight,
+    faChevronUp,
+    faCircleSmall,
+    faCopy,
+    faCubes,
+    faFolder,
+    faGear,
+    faGripDotsVertical,
+    faInbox,
+    faList,
+    faPencil,
+    faPlus,
+    faTag,
+    faTimer,
+    faTrash
+} from '@fortawesome/pro-solid-svg-icons'
 
 
 
@@ -40,7 +75,7 @@ export const icons = Object.freeze({
     pencil: faPencil,
     repository: faCubes,
     hamburger: faBars,
-    comment: faComment,
+    comment: faMessage,
     spinner: faArrowRotateRight,
     timer: faTimer,
     trash: faTrash,

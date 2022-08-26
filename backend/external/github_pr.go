@@ -27,6 +27,7 @@ const (
 	StateCommented            string = "COMMENTED"
 )
 
+// *Important*: Add all required actions to the ActionOrdering map so that the PRs are ordered correctly
 const (
 	ActionAddReviewers      string = "Add Reviewers"
 	ActionFixMergeConflicts string = "Fix Merge Conflicts"
@@ -48,6 +49,7 @@ var ActionOrdering = map[string]int{
 	ActionWaitingOnCI:       5,
 	ActionMergePR:           6,
 	ActionWaitingOnReview:   7,
+	ActionWaitingOnAuthor:   8,
 }
 
 const (
@@ -545,7 +547,7 @@ func (gitPR GithubPRSource) DeleteEvent(userID primitive.ObjectID, accountID str
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }

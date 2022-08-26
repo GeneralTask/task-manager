@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func AssertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
+func AssertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.UserID, b.UserID)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
@@ -18,7 +18,7 @@ func AssertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
 	assert.Equal(t, a.SourceAccountID, b.SourceAccountID)
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.TaskBase.Body, b.TaskBase.Body)
+	assert.Equal(t, a.Body, b.Body)
 	assert.Equal(t, a.HasBeenReordered, b.HasBeenReordered)
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
 	assert.Equal(t, a.CreatedAtExternal, b.CreatedAtExternal)

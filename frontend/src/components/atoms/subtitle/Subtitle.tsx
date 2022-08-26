@@ -2,20 +2,20 @@ import React from 'react'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../../styles'
 
-const SubtitleStyled = styled.span`
-    color: ${Colors.text.light};
-    ${Typography.body};
+const SubtitleStyles = styled.span`
+    color: ${Colors.text.black};
+    ${Typography.bodySmall};
 `
 const SubtitleSmallStyles = styled.span`
-    color: ${Colors.text.light};
-    ${Typography.bodySmall};
+    color: ${Colors.text.black};
+    ${Typography.label};
 `
 
 interface SubtitleProps {
     children: string
 }
 export const Subtitle = ({ children }: SubtitleProps) => {
-    return <SubtitleStyled>{children}</SubtitleStyled>
+    return <SubtitleStyles>{children}</SubtitleStyles>
 }
 
 export const SubtitleSmall = ({ children }: SubtitleProps) => {

@@ -11,8 +11,9 @@ const PAGE_SIZE = 5
 
 interface OverviewViewProps {
     view: TOverviewView
+    scrollRef: React.RefObject<HTMLDivElement>
 }
-const OverviewView = ({ view }: OverviewViewProps) => {
+const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
@@ -54,7 +55,7 @@ const OverviewView = ({ view }: OverviewViewProps) => {
                         hasBorder={true}
                     />
                 ))}
-            <ViewItems view={view} visibleItemsCount={visibleItemsCount} />
+            <ViewItems view={view} visibleItemsCount={visibleItemsCount} scrollRef={scrollRef} />
             {visibleItemsCount < view.view_items.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
                     View more ({nextPageLength})

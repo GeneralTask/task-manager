@@ -275,10 +275,10 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3), count)
 	for index, title := range constants.StarterTasks {
-		var task database.Item
+		var task database.Task
 		err = tasksCollection.FindOne(dbCtx, bson.M{"user_id": user.ID, "id_ordering": index + 1}).Decode(&task)
 		assert.NoError(t, err)
-		assert.Equal(t, title, task.Title)
+		assert.Equal(t, title, *task.Title)
 	}
 }
 
@@ -299,9 +299,12 @@ func createRandomGTEmail() string {
 	return fmt.Sprintf("%s@generaltask.com", uuid.New().String())
 }
 
-func ServeRequest(t *testing.T, authToken string, method string, url string, requestBody io.Reader, expectedReponseCode int) []byte {
-	api, dbCleanup := GetAPIWithDBCleanup()
-	defer dbCleanup()
+func ServeRequest(t *testing.T, authToken string, method string, url string, requestBody io.Reader, expectedReponseCode int, api *API) []byte {
+	if api == nil {
+		newApi, dbCleanup := GetAPIWithDBCleanup()
+		api = newApi
+		defer dbCleanup()
+	}
 	router := GetRouter(api)
 	request, _ := http.NewRequest(method, url, requestBody)
 	request.Header.Add("Authorization", "Bearer "+authToken)
