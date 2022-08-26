@@ -119,6 +119,9 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 
+	hello := "hello!"
+	hello = hello + " there"
+
 	_, err = externalAPITokenCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_GITHUB}}},
