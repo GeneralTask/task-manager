@@ -8,8 +8,8 @@ const EmptyViewContainer = styled.div`
     justify-content: center;
     padding: ${Spacing.padding._12} ${Spacing.padding._16};
     gap: ${Spacing.padding._4};
-    border-radius: ${Border.radius.small};
-    border: 1px solid ${Colors.border.light};
+    border-radius: ${Border.radius.mini};
+    border: 1px solid ${Colors.border.extra_light};
 `
 const EmptyViewContainerText = styled.span`
     color: ${Colors.text.light};
