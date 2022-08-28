@@ -69,7 +69,6 @@ const useCalendarDrop = ({
 
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
-            setEventPreview(undefined)
             const itemType = monitor.getItemType()
             if (!accountId) return
             const dropPosition = getDropPosition(monitor)
@@ -103,7 +102,7 @@ const useCalendarDrop = ({
                 })
             }
         },
-        [date, accountId, createEvent]
+        [date, accountId]
     )
 
     const [isOver, drop] = useDrop(

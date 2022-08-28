@@ -97,6 +97,7 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     );
     cursor: pointer;
     opacity: ${({ eventHasEnded, isBeingDragged }) => (eventHasEnded && !isBeingDragged ? 0.5 : 1)};
+    z-index: ${({ isBeingDragged }) => (isBeingDragged ? 1 : 0)};
 `
 export const EventInfoContainer = styled.div`
     display: flex;
