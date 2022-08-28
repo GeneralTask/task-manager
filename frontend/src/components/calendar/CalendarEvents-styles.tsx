@@ -83,6 +83,7 @@ interface EventBodyStyleProps {
     squishFactor: number
     leftOffset: number
     eventHasEnded: boolean
+    isBeingDragged?: boolean
 }
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
@@ -94,8 +95,8 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     left: calc(
         100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
     );
-    opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
     cursor: pointer;
+    opacity: ${({ eventHasEnded, isBeingDragged }) => (eventHasEnded && !isBeingDragged ? 0.5 : 1)};
 `
 export const EventInfoContainer = styled.div`
     display: flex;
@@ -158,7 +159,7 @@ export const CalendarDayHeader = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    height: 40px;
+    height: ${CALENDAR_DAY_HEADER_HEIGHT}px;
     position: sticky;
     background-color: ${Colors.background.medium};
     top: 0;

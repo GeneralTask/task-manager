@@ -27,6 +27,7 @@ interface EventBodyProps {
     setIsScrollDisabled: (id: boolean) => void
     isEventSelected: boolean
     setIsEventSelected: (id: boolean) => void
+    isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const eventRef = useRef<HTMLDivElement>(null)
@@ -117,6 +118,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             eventBodyHeight={eventBodyHeight}
             eventHasEnded={eventHasEnded}
             ref={eventRef}
+            isBeingDragged={props.isBeingDragged}
         >
             <EventInfoContainer onClick={onClick}>
                 {props.eventDetailId === props.event.id && (

@@ -30,6 +30,7 @@ import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
 import useInterval from '../../hooks/useInterval'
 import useCalendarDrop from './utils/useCalendarDrop'
+import EventBody from './EventBody'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -76,7 +77,6 @@ function CalendarTimeTable(): JSX.Element {
 // Gets called in CalendearEvents (down below)
 interface WeekCalendarEventsProps {
     date: DateTime
-    dayOffset: number
     groups: TEvent[][]
     eventDetailId: string
     setEventDetailId: (id: string) => void
@@ -88,7 +88,6 @@ interface WeekCalendarEventsProps {
 }
 const WeekCalendarEvents = ({
     date,
-    dayOffset,
     groups,
     eventDetailId,
     setEventDetailId,
@@ -98,13 +97,13 @@ const WeekCalendarEvents = ({
     setIsEventSelected,
     accountId,
 }: WeekCalendarEventsProps): JSX.Element => {
-    const tmpDate = date.plus({ days: dayOffset })
     const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const eventsContainerRef = useRef<HTMLDivElement>(null)
-    const { isOver, dropPreviewPosition } = useCalendarDrop({
+    const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
         accountId,
         date,
         eventsContainerRef,
+        isWeekView: expandedCalendar,
     })
 
     useLayoutEffect(() => {
@@ -117,8 +116,8 @@ const WeekCalendarEvents = ({
         <DayAndHeaderContainer ref={eventsContainerRef}>
             {expandedCalendar && (
                 <CalendarDayHeader>
-                    <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
-                        {tmpDate.toFormat('ccc dd')}
+                    <DayHeaderText isToday={date.startOf('day').equals(DateTime.now().startOf('day'))}>
+                        {date.toFormat('ccc dd')}
                     </DayHeaderText>
                 </CalendarDayHeader>
             )}
@@ -127,7 +126,7 @@ const WeekCalendarEvents = ({
                     <CollisionGroupColumns
                         key={index}
                         events={group}
-                        date={tmpDate}
+                        date={date}
                         eventDetailId={eventDetailId}
                         setEventDetailId={setEventDetailId}
                         isScrollDisabled={isScrollDisabled}
@@ -136,7 +135,26 @@ const WeekCalendarEvents = ({
                         setIsEventSelected={setIsEventSelected}
                     />
                 ))}
-                <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
+                {isOver &&
+                    (eventPreview ? (
+                        <EventBody
+                            event={eventPreview}
+                            eventDetailId={eventDetailId}
+                            setEventDetailId={setEventDetailId}
+                            leftOffset={0}
+                            collisionGroupSize={1}
+                            date={date}
+                            isSelected
+                            isScrollDisabled={isScrollDisabled}
+                            setIsScrollDisabled={setIsScrollDisabled}
+                            isEventSelected={isEventSelected}
+                            setIsEventSelected={setIsEventSelected}
+                            isBeingDragged
+                        />
+                    ) : (
+                        <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
+                    ))}
+
                 <TimeIndicator />
                 <CalendarDayTable />
             </DayContainer>
@@ -203,8 +221,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
             {allGroups.map((groups, dayOffset) => (
                 <WeekCalendarEvents
                     key={dayOffset}
-                    date={date}
-                    dayOffset={dayOffset}
+                    date={date.plus({ days: dayOffset })}
                     groups={groups}
                     eventDetailId={eventDetailsID}
                     setEventDetailId={setEventDetailsID}
