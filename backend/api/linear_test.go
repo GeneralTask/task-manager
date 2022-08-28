@@ -47,12 +47,14 @@ func TestLinkLinearCallback(t *testing.T) {
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, LinearTokenPayload)
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		(api.ExternalConfig.Linear.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/linear/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		tokenServer := testutils.GetMockAPIServer(t, http.StatusOK, LinearTokenPayload)
 		(api.ExternalConfig.Linear.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = tokenServer.URL
 		userInfoServer := testutils.GetMockAPIServer(t, http.StatusOK, LinearUserInfoPayload)

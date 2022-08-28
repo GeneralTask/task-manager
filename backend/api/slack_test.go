@@ -46,12 +46,14 @@ func TestLinkSlackCallback(t *testing.T) {
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, `{}`)
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/slack/callback/")
 	})
 	t.Run("FailedUserInfoResponse", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
 		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		userInfoServer := testutils.GetMockAPIServer(t, http.StatusBadRequest, `{
@@ -67,7 +69,8 @@ func TestLinkSlackCallback(t *testing.T) {
 		TestAuthorizeCallbackUnsuccessfulResponse(t, api, "/link/slack/callback/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
 		(api.ExternalConfig.Slack.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 		userInfoServer := testutils.GetMockAPIServer(t, http.StatusOK, `{}`)

@@ -18,10 +18,6 @@ import (
 )
 
 func TestLoginRedirect(t *testing.T) {
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	api.ExternalConfig.GoogleLoginConfig = &external.OauthConfig{Config: &oauth2.Config{
@@ -55,7 +51,7 @@ func TestLoginRedirect(t *testing.T) {
 
 		stateTokenID, err := primitive.ObjectIDFromHex(stateToken)
 		assert.NoError(t, err)
-		token, err := database.GetStateToken(db, stateTokenID, nil)
+		token, err := database.GetStateToken(api.DB, stateTokenID, nil)
 		assert.NoError(t, err)
 		assert.False(t, token.UseDeeplink)
 	})
@@ -82,7 +78,7 @@ func TestLoginRedirect(t *testing.T) {
 
 		stateTokenID, err := primitive.ObjectIDFromHex(stateToken)
 		assert.NoError(t, err)
-		token, err := database.GetStateToken(db, stateTokenID, nil)
+		token, err := database.GetStateToken(api.DB, stateTokenID, nil)
 		assert.NoError(t, err)
 		assert.False(t, token.UseDeeplink)
 	})
@@ -109,7 +105,7 @@ func TestLoginRedirect(t *testing.T) {
 
 		stateTokenID, err := primitive.ObjectIDFromHex(stateToken)
 		assert.NoError(t, err)
-		token, err := database.GetStateToken(db, stateTokenID, nil)
+		token, err := database.GetStateToken(api.DB, stateTokenID, nil)
 		assert.NoError(t, err)
 		assert.True(t, token.UseDeeplink)
 	})
@@ -117,14 +113,14 @@ func TestLoginRedirect(t *testing.T) {
 
 func TestLoginCallback(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
+	//db, dbCleanup, err := database.GetDBConnection()
+	//assert.NoError(t, err)
+	//defer dbCleanup()
+	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
-	waitlistCollection := database.GetWaitlistCollection(db)
+	waitlistCollection := database.GetWaitlistCollection(api.DB)
 
 	t.Run("MissingQueryParams", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
 		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
@@ -171,19 +167,19 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-		verifyLoginCallback(t, db, "unapproved@gmail.com", "noice420", true, false)
+		verifyLoginCallback(t, api.DB, "unapproved@gmail.com", "noice420", true, false)
 	})
 	t.Run("Idempotent", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "TSLA", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "TSLA", true, true)
 	})
 	t.Run("UpdatesName", func(t *testing.T) {
-		userCollection := database.GetUserCollection(db)
+		userCollection := database.GetUserCollection(api.DB)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "Task Destroyer", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		var userObject database.User
@@ -231,30 +227,30 @@ func TestLoginCallback(t *testing.T) {
 		// Verifies request succeeds on second auth (no refresh token supplied)
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err = database.GetExternalTokenCollection(db).DeleteOne(dbCtx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.com"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
+		_, err := database.GetExternalTokenCollection(api.DB).DeleteOne(dbCtx, bson.M{"$and": []bson.M{{"account_id": "approved@generaltask.com"}, {"service_id": external.TASK_SERVICE_ID_GOOGLE}}})
 		assert.NoError(t, err)
-		stateToken, err := newStateToken("", false)
+		stateToken, err := newStateToken(api.DB, "", false)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, true)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("Success", func(t *testing.T) {
-		stateToken, err := newStateToken("", false)
+		stateToken, err := newStateToken(api.DB, "", false)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("SuccessDeeplink", func(t *testing.T) {
-		stateToken, err := newStateToken("", true)
+		stateToken, err := newStateToken(api.DB, "", true)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
-		verifyLoginCallback(t, db, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -267,10 +263,10 @@ func TestLoginCallback(t *testing.T) {
 			},
 		)
 		assert.NoError(t, err)
-		stateToken, err := newStateToken("", false)
+		stateToken, err := newStateToken(api.DB, "", false)
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "dogecoin@tothe.moon", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, db, "dogecoin@tothe.moon", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "dogecoin@tothe.moon", "noice420", true, true)
 	})
 }
