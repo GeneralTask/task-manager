@@ -86,7 +86,8 @@ func TestLinkSlackCallback(t *testing.T) {
 
 func TestLinkSlackApp(t *testing.T) {
 	t.Run("FailedNoCode", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 
 		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/link_app/slack/?code=&state=", nil)
@@ -97,7 +98,8 @@ func TestLinkSlackApp(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	})
 	t.Run("FailedNoAccessToken", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":""}`)
 		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 
@@ -110,7 +112,8 @@ func TestLinkSlackApp(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	})
 	t.Run("FailedExchangeFailure", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, "")
 		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 
@@ -123,7 +126,8 @@ func TestLinkSlackApp(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	})
 	t.Run("Success", func(t *testing.T) {
-		api := GetTestAPI()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"access_token":"sample-access-token"}`)
 		(api.ExternalConfig.SlackApp.OauthConfig.(*external.OauthConfig)).Config.Endpoint.TokenURL = server.URL
 
