@@ -172,7 +172,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				Token:       token,
 			}
 			requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
-			go gitPR.getPullRequestInfo(extCtx, userID, accountID, requestData, pullRequestChan)
+			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
 			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
 		}
 	}
@@ -218,7 +218,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 }
 
-func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
+func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
 	logger := logging.GetSentryLogger()
 
 	githubClient := requestData.Client
@@ -227,7 +227,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 	pullRequest := requestData.PullRequest
 
 	// do the check
-	hasBeenModified, cachedPR := pullRequestHasBeenModified(extCtx, userID, requestData, gitPR.Github.Config.ConfigValues.PullRequestModifiedURL)
+	hasBeenModified, cachedPR := pullRequestHasBeenModified(db, extCtx, userID, requestData, gitPR.Github.Config.ConfigValues.PullRequestModifiedURL)
 	if !hasBeenModified {
 		result <- cachedPR
 		return
@@ -319,14 +319,14 @@ func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
 	return err
 }
 
-func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, requestData GithubPRRequestData, overrideURL *string) (bool, *database.PullRequest) {
+func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, requestData GithubPRRequestData, overrideURL *string) (bool, *database.PullRequest) {
 	logger := logging.GetSentryLogger()
 
 	pullRequest := requestData.PullRequest
 	token := requestData.Token
 	repository := requestData.Repository
 
-	dbPR, err := database.GetPullRequestByExternalID(ctx, fmt.Sprint(*pullRequest.ID), userID)
+	dbPR, err := database.GetPullRequestByExternalID(db, ctx, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
 		// if fail to fetch from DB, fetch from Github
 		if err != mongo.ErrNoDocuments {
