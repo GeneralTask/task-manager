@@ -41,23 +41,13 @@ func GetAPIWithDBCleanup() (*API, func()) {
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB}, dbh.CloseConnection
 }
 
-func GetTestAPI() *API {
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
-}
-
-func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
+func getTokenFromCookie(c *gin.Context, db *mongo.Database) (*database.InternalAPIToken, error) {
 	parentCtx := c.Request.Context()
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
 		return nil, errors.New("invalid auth token")
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return nil, err
-	}
-	defer dbCleanup()
 	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var internalToken database.InternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)

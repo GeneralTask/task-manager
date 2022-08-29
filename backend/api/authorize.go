@@ -39,19 +39,13 @@ func (api *API) Link(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	internalToken, err := getTokenFromCookie(c)
+	internalToken, err := getTokenFromCookie(c, api.DB)
 	if err != nil {
 		return
 	}
 	stateTokenID := primitive.NilObjectID
 	if taskService.Details.AuthType == external.AuthTypeOauth2 {
-		db, dbCleanup, err := database.GetDBConnection()
-		if err != nil {
-			Handle500(c)
-			return
-		}
-		defer dbCleanup()
-		insertedStateToken, err := database.CreateStateToken(db, &internalToken.UserID, false)
+		insertedStateToken, err := database.CreateStateToken(api.DB, &internalToken.UserID, false)
 		if err != nil {
 			Handle500(c)
 			return
@@ -90,7 +84,7 @@ func (api *API) LinkCallback(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	internalToken, err := getTokenFromCookie(c)
+	internalToken, err := getTokenFromCookie(c, api.DB)
 	if err != nil {
 		return
 	}
