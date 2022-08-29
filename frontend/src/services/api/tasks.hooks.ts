@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
-import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
+import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
 import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
 
 export interface TCreateTaskData {
@@ -65,6 +65,8 @@ export const useFetchExternalTasks = () => {
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
         },
+        refetchInterval: TASK_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
 const fetchExternalTasks = async () => {
@@ -239,14 +241,23 @@ export const useMarkTaskDone = () => {
         onMutate: async (data: TMarkTaskDoneData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await queryClient.cancelQueries('tasks')
-            await queryClient.cancelQueries('overview')
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('overview'),
+            ])
 
             if (sections) {
-
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                    if (task) task.is_done = data.isDone
+                    if (task) {
+                        task.is_done = data.isDone
+                        if (task.is_done) {
+                            if (task.source.name === 'Linear' && task.external_status) {
+                                task.external_status.state = 'Done'
+                                task.external_status.type = 'completed'
+                            }
+                        }
+                    }
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -278,7 +289,12 @@ export const useMarkTaskDone = () => {
                     }))
                     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    draft[sectionIndex].view_items[taskIndex].is_done = data.isDone
+                    const task = draft[sectionIndex].view_items[taskIndex]
+                    task.is_done = data.isDone
+                    if (task.is_done && task.source.name === 'Linear' && task.external_status) {
+                        task.external_status.state = 'Done'
+                        task.external_status.type = 'completed'
+                    }
                 })
 
                 queryClient.setQueryData('overview', newViews)

@@ -1,3 +1,4 @@
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
     AllDaysContainer,
     CALENDAR_DEFAULT_SCROLL_HOUR,
@@ -17,19 +18,17 @@ import {
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
 } from './CalendarEvents-styles'
-import { EVENTS_REFETCH_INTERVAL } from '../../constants'
-import { TEvent } from '../../utils/types'
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useGetEvents } from '../../services/api/events.hooks'
-
+import { EVENTS_REFETCH_INTERVAL, CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
+import { DropItem, DropType, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
-import useInterval from '../../hooks/useInterval'
 import useCalendarDrop from './utils/useCalendarDrop'
+import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
 
 function CalendarDayTable(): JSX.Element {
     const hourElements = Array(24)
@@ -158,9 +157,9 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
 
-    const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
-    const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
-    const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
+    const { data: eventPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
+    const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: eventsNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const [eventDetailsID, setEventDetailsID] = useState('')
     const [isEventSelected, setIsEventSelected] = useState(false)
     const [isScrollDisabled, setIsScrollDisabled] = useState(false)
@@ -180,16 +179,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         }
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numDays])
-
-    useInterval(
-        () => {
-            refetchPreviousMonth()
-            refetchCurrentMonth()
-            refetchNextMonth()
-        },
-        EVENTS_REFETCH_INTERVAL,
-        false
-    )
 
     return (
         <AllDaysContainer isScrollDisabled={isScrollDisabled}>

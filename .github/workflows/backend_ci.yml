@@ -45,6 +45,11 @@ jobs:
       - name: Run go tests
         run: ./runtests.sh
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   build_1:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest

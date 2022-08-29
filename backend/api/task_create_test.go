@@ -100,11 +100,11 @@ func TestCreateTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*tasks))
 		task := (*tasks)[3]
-		assert.Equal(t, "buy more dogecoin", task.Title)
-		assert.Equal(t, "", task.TaskBase.Body)
+		assert.Equal(t, "buy more dogecoin", *task.Title)
+		assert.Equal(t, "", *task.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		// 1 hour is the default
-		assert.Equal(t, int64(3600000000000), task.TimeAllocation)
+		assert.Equal(t, int64(3600000000000), *task.TimeAllocation)
 		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
@@ -124,9 +124,9 @@ func TestCreateTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 4, len(*tasks))
 		task := (*tasks)[3]
-		assert.Equal(t, "buy more dogecoin", task.Title)
-		assert.Equal(t, "seriously!", task.TaskBase.Body)
-		assert.Equal(t, int64(300000000000), task.TimeAllocation)
+		assert.Equal(t, "buy more dogecoin", *task.Title)
+		assert.Equal(t, "seriously!", *task.Body)
+		assert.Equal(t, int64(300000000000), *task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		assert.Equal(t, customSectionID, task.IDTaskSection)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
