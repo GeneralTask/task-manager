@@ -31,8 +31,10 @@ export const useReorderViews = () => {
             onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (!views) return
-                await queryClient.cancelQueries('overview')
-                await queryClient.cancelQueries('tasks')
+                await Promise.all([
+                    queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
+                ])
 
                 const newViews = produce(views, draft => {
                     const startIndex = draft.findIndex(view => view.id === viewId)
@@ -172,8 +174,10 @@ export const useRemoveView = () => {
             onMutate: async (viewId: string) => {
                 const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                queryClient.cancelQueries('overview-supported-views')
-                queryClient.cancelQueries('overview')
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                ])
 
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, draft => {

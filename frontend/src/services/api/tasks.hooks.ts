@@ -85,8 +85,10 @@ export const useCreateTask = () => {
         onMutate: async (data: TCreateTaskData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await queryClient.cancelQueries('tasks')
-            await queryClient.cancelQueries('overview')
+            await Promise.all([
+                queryClient.cancelQueries('overview-supported-views'),
+                queryClient.cancelQueries('overview'),
+            ])
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
@@ -197,8 +199,10 @@ export const useModifyTask = () => {
             modifyTask(data),
         {
             onMutate: async (data: TModifyTaskData) => {
-                await queryClient.cancelQueries('overview')
-                await queryClient.cancelQueries('tasks')
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
@@ -342,8 +346,10 @@ export const useReorderTask = () => {
             onMutate: async (data: TReorderTaskData) => {
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                await queryClient.cancelQueries('tasks')
-                await queryClient.cancelQueries('overview')
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                ])
 
                 if (sections) {
                     const newSections = produce(sections, (draft) => {
