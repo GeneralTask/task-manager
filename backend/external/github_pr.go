@@ -525,7 +525,7 @@ func getReviewerCount(context context.Context, githubClient *github.Client, repo
 			submittedReviews += 1
 		}
 	}
-	return submittedReviews + len(reviewers.Users), nil
+	return submittedReviews + len(reviewers.Users) + len(reviewers.Teams), nil
 }
 
 func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
