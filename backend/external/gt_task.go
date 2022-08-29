@@ -40,7 +40,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 			{"is_completed": false},
 		}},
 	)
-	var tasks []*database.Item
+	var tasks []*database.Task
 	logger := logging.GetSentryLogger()
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
 		logger.Error().Err(err).Msg("failed to fetch general task tasks")
@@ -59,26 +59,24 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
-	newTask := database.Item{
-		TaskBase: database.TaskBase{
-			UserID:          userID,
-			IDExternal:      primitive.NewObjectID().Hex(),
-			IDTaskSection:   taskSection,
-			SourceID:        TASK_SOURCE_ID_GT_TASK,
-			Title:           task.Title,
-			Body:            task.Body,
-			TimeAllocation:  time.Hour.Nanoseconds(),
-			SourceAccountID: accountID,
-		},
-		TaskType: database.TaskType{
-			IsTask: true,
-		},
+	timeAllocation := time.Hour.Nanoseconds()
+	completed := false
+	newTask := database.Task{
+		UserID:          userID,
+		IDExternal:      primitive.NewObjectID().Hex(),
+		IDTaskSection:   taskSection,
+		SourceID:        TASK_SOURCE_ID_GT_TASK,
+		Title:           &task.Title,
+		Body:            &task.Body,
+		TimeAllocation:  &timeAllocation,
+		SourceAccountID: accountID,
+		IsCompleted:     &completed,
 	}
 	if task.DueDate != nil {
 		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
 	}
 	if task.TimeAllocation != nil {
-		newTask.TimeAllocation = *task.TimeAllocation
+		newTask.TimeAllocation = task.TimeAllocation
 	}
 
 	parentCtx := context.Background()
@@ -102,7 +100,7 @@ func (generalTask GeneralTaskTaskSource) DeleteEvent(userID primitive.ObjectID, 
 	return errors.New("has not been implemented yet")
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	return nil
 }
 

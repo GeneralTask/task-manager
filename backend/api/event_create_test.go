@@ -60,12 +60,12 @@ func TestEventCreate(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		taskCollection := database.GetTaskCollection(db)
-		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				Title:  "task title",
-				Body:   "task body",
-				UserID: userID,
-			},
+		title := "task title"
+		body := "task body"
+		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Task{
+			Title:  &title,
+			Body:   &body,
+			UserID: userID,
 		})
 		assert.NoError(t, err)
 		taskID := mongoResult.InsertedID.(primitive.ObjectID)
@@ -88,12 +88,12 @@ func TestEventCreate(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		taskCollection := database.GetTaskCollection(db)
-		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Item{
-			TaskBase: database.TaskBase{
-				Title:  "task title",
-				Body:   "task body",
-				UserID: primitive.NewObjectID(),
-			},
+		title := "task title"
+		body := "task body"
+		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Task{
+			Title:  &title,
+			Body:   &body,
+			UserID: primitive.NewObjectID(),
 		})
 		assert.NoError(t, err)
 		taskID := mongoResult.InsertedID.(primitive.ObjectID)

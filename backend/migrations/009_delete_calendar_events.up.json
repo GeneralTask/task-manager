@@ -3,7 +3,9 @@
         "delete": "tasks",
         "deletes": [
             {
-                "q" : {"source_id": "asana_task"},
+                "q": {
+                    "source_id": "gcal"
+                },
                 "limit": 0
             }
         ]
