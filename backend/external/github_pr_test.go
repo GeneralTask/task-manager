@@ -887,6 +887,17 @@ func TestGetReviewerCount(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, reviewerCount)
 	})
+	t.Run("SingleTeamReview", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestTeamReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, reviewerCount)
+	})
 	t.Run("SingleSubmittedReview", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, `{}`)
 		reviewersURL := &githubReviewersServer.URL
