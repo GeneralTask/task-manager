@@ -22,6 +22,7 @@ export const useFetchPullRequests = () => {
     return useQuery('fetch_pull_requests', fetchPullRequests, {
         onSettled: () => {
             queryClient.invalidateQueries('pull_requests')
+            queryClient.invalidateQueries('overview')
         },
         refetchInterval: PR_REFETCH_INTERVAL * 1000,
         refetchIntervalInBackground: true,
