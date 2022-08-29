@@ -12,37 +12,41 @@ import (
 )
 
 func TestLinkSlack(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetTestAPI(), "/link/slack/")
+		TestAuthorizeCookieMissing(t, api, "/link/slack/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetTestAPI(), "/link/slack/")
+		TestAuthorizeCookieBad(t, api, "/link/slack/")
 	})
 	t.Run("Success", func(t *testing.T) {
-		TestAuthorizeSuccess(t, GetTestAPI(), "/link/slack/", func(stateToken string) string {
+		TestAuthorizeSuccess(t, api, "/link/slack/", func(stateToken string) string {
 			return "<a href=\"https://slack.com/oauth/authorize?access_type=offline&amp;client_id=" + config.GetConfigValue("SLACK_OAUTH_CLIENT_ID") + "&amp;prompt=consent&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flink%2Fslack%2Fcallback%2F&amp;response_type=code&amp;scope=commands+users%3Aread&amp;state=" + stateToken + "\">Found</a>.\n\n"
 		})
 	})
 }
 
 func TestLinkSlackCallback(t *testing.T) {
+	dummyAPI, dummyDBCleanup := GetAPIWithDBCleanup()
+	defer dummyDBCleanup()
 	t.Run("CookieMissing", func(t *testing.T) {
-		TestAuthorizeCookieMissing(t, GetTestAPI(), "/link/slack/callback/")
+		TestAuthorizeCookieMissing(t, dummyAPI, "/link/slack/callback/")
 	})
 	t.Run("CookieBad", func(t *testing.T) {
-		TestAuthorizeCookieBad(t, GetTestAPI(), "/link/slack/callback/")
+		TestAuthorizeCookieBad(t, dummyAPI, "/link/slack/callback/")
 	})
 	t.Run("MissingCodeParam", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetTestAPI(), "/link/slack/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, dummyAPI, "/link/slack/callback/")
 	})
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
-		TestAuthorizeCallbackMissingCodeParam(t, GetTestAPI(), "/link/slack/callback/")
+		TestAuthorizeCallbackMissingCodeParam(t, dummyAPI, "/link/slack/callback/")
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetTestAPI(), "/link/slack/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, dummyAPI, "/link/slack/callback/")
 	})
 	t.Run("InvalidStateTokenWrongUser", func(t *testing.T) {
-		TestAuthorizeCallbackInvalidStateToken(t, GetTestAPI(), "/link/slack/callback/")
+		TestAuthorizeCallbackInvalidStateToken(t, dummyAPI, "/link/slack/callback/")
 	})
 	t.Run("UnsuccessfulResponse", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusUnauthorized, `{}`)
