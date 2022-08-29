@@ -482,7 +482,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 
 	// Sort by datetime_start
 	sort.Slice(*meetingTasks, func(i, j int) bool {
-		return (*meetingTasks)[i].DatetimeStart <= (*meetingTasks)[j].DatetimeStart
+		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
 	})
 
 	// Create result of meeting prep tasks
@@ -530,27 +530,22 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		if count > 0 {
 			continue
 		}
-		_, err = taskCollection.InsertOne(ctx, database.Item{
-			TaskBase: database.TaskBase{
-				Title:                event.Title,
-				Body:                 event.Body,
-				UserID:               userID,
-				IDMeetingPreparation: event.IDExternal,
-				IsCompleted:          false,
-				SourceID:             event.SourceID,
-			},
-			TaskType: database.TaskType{
-				IsMeetingPreparationTask: true,
-			},
+		isCompleted := false
+		_, err = taskCollection.InsertOne(ctx, database.Task{
+			Title: 			  &event.Title,
+			Body: &event.Body,
+			UserID:               userID,
+			// IDMeetingPreparation: event.IDExternal,
+			IsCompleted:          &isCompleted,
+			SourceID:             event.SourceID,
+			IsMeetingPreparationTask: true,
+
 			MeetingPreparationParams: database.MeetingPreparationParams{
 				CalendarEventID: event.ID,
+				IDExternal: event.IDExternal,
 				DatetimeStart: event.DatetimeStart,
 				HasBeenAutomaticallyCompleted: false,
 			},
-			// CalendarEvent: database.CalendarEvent{
-			// 	DatetimeStart: event.DatetimeStart,
-			// 	DatetimeEnd:   event.DatetimeEnd,
-			// },
 		})
 		if err != nil {
 			return err
@@ -560,12 +555,12 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 }
 
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
-func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Item) ([]*TaskResult, error) {
+func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(db)
 	result := []*TaskResult{}
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
-		if task.DatetimeEnd.Time().After(expirationTime) && !task.HasBeenAutomaticallyCompleted {
+		if task.MeetingPreparationParams.DatetimeEnd.Time().After(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
 			_, err := taskCollection.UpdateOne(

@@ -691,13 +691,13 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		res, err := api.GetMeetingPreparationOverviewResult(db, parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 
-		var item database.Item
+		var item database.Task
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.NoError(t, err)
 		assert.Equal(t, true, item.IsCompleted)
-		assert.Equal(t, true, item.HasBeenAutomaticallyCompleted)
+		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 		assert.NotNil(t, res)
 		assert.Equal(t, 2, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
@@ -1447,20 +1447,17 @@ func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collect
 	return err
 }
 
-func createTestMeetingPreparationTask(ctx context.Context, taskCollection *mongo.Collection, userID primitive.ObjectID, title string, idMeetingPreparationTask string, dateTimeStart time.Time, dateTimeEnd time.Time) (*mongo.InsertOneResult, error) {
+func createTestMeetingPreparationTask(ctx context.Context, taskCollection *mongo.Collection, userID primitive.ObjectID, title string, IDExternal string, dateTimeStart time.Time, dateTimeEnd time.Time) (*mongo.InsertOneResult, error) {
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
-	return taskCollection.InsertOne(dbCtx, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:               userID,
-			Title:                title,
-			IsCompleted:          false,
-			IDMeetingPreparation: idMeetingPreparationTask,
-		},
-		TaskType: database.TaskType{
-			IsMeetingPreparationTask: true,
-		},
+	isCompleted := false
+	return taskCollection.InsertOne(dbCtx, database.Task{
+		UserID:               userID,
+		Title:                &title,
+		IsCompleted:          &isCompleted,
+		IsMeetingPreparationTask: true,
 		MeetingPreparationParams: database.MeetingPreparationParams{
+			IDExternal: IDExternal,
 			DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
 		},

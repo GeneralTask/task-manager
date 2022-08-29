@@ -148,6 +148,7 @@ type CalendarEvent struct {
 
 type MeetingPreparationParams struct {
 	CalendarEventID primitive.ObjectID `bson:"event_id"`
+	IDExternal	  string             `bson:"id_external"`
 	DatetimeStart	primitive.DateTime             `bson:"datetime_start"`
 	DatetimeEnd primitive.DateTime
 	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`

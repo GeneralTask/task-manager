@@ -476,11 +476,11 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
-func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
-	return GetItems(db, userID,
+func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_meeting_preparation_task": true},
+			{"is_meeting_preparation_task": true},
 		},
 	)
 }
