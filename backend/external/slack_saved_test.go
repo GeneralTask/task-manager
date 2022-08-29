@@ -5,6 +5,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -52,6 +53,17 @@ func TestLoadSlackTasks(t *testing.T) {
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.Tasks))
+	})
+}
+
+func TestSendConfirmationResponse(t *testing.T) {
+	externalAPIToken := database.ExternalAPIToken{
+		Token: `{"access_token": "example_access_token"}`,
+	}
+
+	t.Run("Success", func(t *testing.T) {
+		err := SendConfirmationResponse(externalAPIToken, config.GetConfigValue("SERVER_URL"))
+		assert.NoError(t, err)
 	})
 }
 

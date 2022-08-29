@@ -210,7 +210,7 @@ func SendConfirmationResponse(externalToken database.ExternalAPIToken, responseU
 		return err
 	}
 
-	request, err := http.NewRequest("POST", responseURL, bytes.NewBuffer(getResponse()))
+	request, err := http.NewRequest("POST", responseURL, bytes.NewBuffer(getSlackSuccessResponse()))
 	request.Header.Set("Content-type", "application/json")
 	request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 	client := &http.Client{}
@@ -221,7 +221,7 @@ func SendConfirmationResponse(externalToken database.ExternalAPIToken, responseU
 	return nil
 }
 
-func getResponse() []byte {
+func getSlackSuccessResponse() []byte {
 	return []byte(`{
 		"text": "Task successfully created!"
 	}`)
