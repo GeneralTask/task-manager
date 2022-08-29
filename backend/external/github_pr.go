@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
+	"github.com/rs/zerolog/log"
+	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -58,6 +61,10 @@ const (
 	ChecksConclusionTimedOut string = "timed_out"
 )
 
+const (
+	GithubAPIBaseURL string = "https://api.github.com/"
+)
+
 type GithubPRSource struct {
 	Github GithubService
 }
@@ -79,6 +86,7 @@ type GithubPRRequestData struct {
 	User        *github.User
 	Repository  *github.Repository
 	PullRequest *github.PullRequest
+	Token       *oauth2.Token
 }
 
 func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
@@ -103,9 +111,10 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
+	var token *oauth2.Token
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
@@ -139,6 +148,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	var pullRequestChannels []chan *database.PullRequest
+	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
 		err := updateOrCreateRepository(parentCtx, db, repository, userID)
 		if err != nil {
@@ -160,14 +170,16 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				User:        githubUser,
 				Repository:  repository,
 				PullRequest: pullRequest,
+				Token:       token,
 			}
+			requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
 			go gitPR.getPullRequestInfo(extCtx, userID, accountID, requestData, pullRequestChan)
 			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
 		}
 	}
 
 	var pullRequests []*database.PullRequest
-	for _, pullRequestChan := range pullRequestChannels {
+	for count, pullRequestChan := range pullRequestChannels {
 		pullRequest := <-pullRequestChan
 		// if nil, this means that the request ran into an error: continue and keep processing the rest
 		if pullRequest == nil {
@@ -176,6 +188,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 		isCompleted := false
 		pullRequest.IsCompleted = &isCompleted
+		pullRequest.LastFetched = requestTimes[count]
 		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,
@@ -183,7 +196,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest.SourceID,
 			pullRequest,
 			nil)
-
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
@@ -208,6 +220,13 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 	githubUser := requestData.User
 	repository := requestData.Repository
 	pullRequest := requestData.PullRequest
+
+	// do the check
+	hasBeenModified := pullRequestHasBeenModified(extCtx, userID, requestData)
+	if !hasBeenModified {
+		result <- nil
+		return
+	}
 
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
@@ -293,6 +312,41 @@ func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
 		githubClient.BaseURL = baseURL
 	}
 	return err
+}
+
+func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, requestData GithubPRRequestData) bool {
+	logger := logging.GetSentryLogger()
+
+	pullRequest := requestData.PullRequest
+	token := requestData.Token
+	repository := requestData.Repository
+
+	dbPR, err := database.GetPullRequest(ctx, fmt.Sprint(*pullRequest.ID), TASK_SOURCE_ID_GITHUB_PR, userID)
+	if err != nil {
+		// if fail to fetch from DB, fetch from Githubb
+		logger.Error().Err(err).Msg("unable to fetch pull request from db")
+		return true
+	}
+
+	log.Print(dbPR.PullRequest.LastFetched)
+
+	requestURL := GithubAPIBaseURL + "repos/" + *repository.Owner.Login + "/" + *repository.Name + "/pulls/" + fmt.Sprint(*pullRequest.Number)
+
+	// Github API does not support conditional requests, so this logic is required
+	request, err := http.NewRequest("GET", requestURL, nil)
+	request.Header.Set("Accept", "application/vnd.github+json")
+	request.Header.Set("Authorization", "token "+token.AccessToken)
+	if !dbPR.LastFetched.Time().IsZero() {
+		request.Header.Set("If-Modified-Since", (dbPR.PullRequest.LastFetched.Time().Format("Mon, 02 Jan 2006 15:04:05 MST")))
+	}
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		logger.Error().Err(err).Msg("error with github http request")
+		return true
+	}
+
+	return (resp.StatusCode != http.StatusNotModified)
 }
 
 func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {

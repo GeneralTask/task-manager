@@ -361,7 +361,7 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 	)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		logger.Error().Err(err).Msg("failed to fetch PRs for user")
 		return nil, err
 	}
 	return cursor, nil
@@ -384,7 +384,7 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -431,7 +431,7 @@ func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID,
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	return cursor, nil
@@ -458,7 +458,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Task
@@ -466,7 +466,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -610,7 +610,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to delete state token")
+		logger.Error().Err(err).Msg("failed to delete state token")
 		return err
 	}
 	if result.DeletedCount != 1 {

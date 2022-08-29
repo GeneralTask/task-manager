@@ -121,6 +121,7 @@ type PullRequest struct {
 	RequiredAction    string             `bson:"required_action,omitempty"`
 	CommentCount      int                `bson:"comment_count,omitempty"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
+	LastFetched       primitive.DateTime `bson:"last_fetched,omitempty"`
 	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
 	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
 }
