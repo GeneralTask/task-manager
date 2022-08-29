@@ -148,7 +148,7 @@ func CORSMiddleware(c *gin.Context) {
 	if origin := c.Request.Header.Get("Origin"); slices.Contains(allowedOrigins, origin) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 	} else {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", allowedOrigins[0])
+		c.Writer.Header().Set("Access-Control-Allow-Origin", config.GetConfigValue("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN"))
 	}
 
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Content-Type,Timezone-Offset,sentry-trace,baggage")
