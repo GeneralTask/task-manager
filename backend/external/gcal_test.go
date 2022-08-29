@@ -393,7 +393,7 @@ func TestCreateNewEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
 			},
 		}
 		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
@@ -430,7 +430,7 @@ func TestCreateNewEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
 			},
 		}
 		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
@@ -470,7 +470,7 @@ func TestCreateNewEvent(t *testing.T) {
 
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
-				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
 			},
 		}
 		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
@@ -655,7 +655,7 @@ func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.
 	}
 	assert.Equal(t, len(a.Attendees), len(b.Attendees))
 	if len(a.Attendees) == len(b.Attendees) {
-		for i, _ := range a.Attendees {
+		for i := range a.Attendees {
 			assert.Equal(t, a.Attendees[i].Email, b.Attendees[i].Email)
 			assert.Equal(t, a.Attendees[i].DisplayName, b.Attendees[i].DisplayName)
 		}

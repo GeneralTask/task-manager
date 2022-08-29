@@ -16,13 +16,7 @@ const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
 const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                refetchOnWindowFocus: false,
-            },
-        },
-    })
+    const queryClient = new QueryClient()
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -40,7 +34,9 @@ const App = () => {
                                 </Route>
                                 <Route path="overview" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
-                                    <Route path=":overviewItem" element={<MainScreen />} />
+                                    <Route path=":overviewViewId" element={<MainScreen />}>
+                                        <Route path=":overviewItemId" element={<MainScreen />} />
+                                    </Route>
                                 </Route>
                                 <Route path="tasks" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />

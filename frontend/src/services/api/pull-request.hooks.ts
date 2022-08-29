@@ -1,5 +1,6 @@
 import { castImmutable } from "immer"
 import { useQuery } from "react-query"
+import { PR_REFETCH_INTERVAL } from "../../constants"
 import apiClient from "../../utils/api"
 import { TRepository } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
@@ -22,6 +23,8 @@ export const useFetchPullRequests = () => {
         onSettled: () => {
             queryClient.invalidateQueries('pull_requests')
         },
+        refetchInterval: PR_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
 const fetchPullRequests = async () => {

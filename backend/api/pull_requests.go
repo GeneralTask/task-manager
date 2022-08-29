@@ -22,9 +22,9 @@ const (
 )
 
 type RepositoryResult struct {
-	ID           string              `json:"id"`
-	Name         string              `json:"name"`
-	PullRequests []PullRequestResult `json:"pull_requests"`
+	ID           string               `json:"id"`
+	Name         string               `json:"name"`
+	PullRequests []*PullRequestResult `json:"pull_requests"`
 }
 
 type PullRequestResult struct {
@@ -80,7 +80,7 @@ func (api *API) PullRequestsList(c *gin.Context) {
 	cursor.All(dbCtx, &repositories)
 
 	repositoryIDToResult := make(map[string]RepositoryResult)
-	repositoryIDToPullRequests := make(map[string][]PullRequestResult)
+	repositoryIDToPullRequests := make(map[string][]*PullRequestResult)
 	for _, pullRequest := range *pullRequests {
 		repositoryID := pullRequest.RepositoryID
 		repositoryResult := RepositoryResult{
@@ -89,12 +89,12 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		}
 		repositoryIDToResult[repositoryID] = repositoryResult
 		pullRequestResult := getResultFromPullRequest(pullRequest)
-		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], pullRequestResult)
+		repositoryIDToPullRequests[repositoryID] = append(repositoryIDToPullRequests[repositoryID], &pullRequestResult)
 	}
-	repositoryResults := []RepositoryResult{}
+	repositoryResults := []*RepositoryResult{}
 
 	for repositoryID, repositoryResult := range repositoryIDToResult {
-		repositoryResults = append(repositoryResults, RepositoryResult{
+		repositoryResults = append(repositoryResults, &RepositoryResult{
 			ID:           repositoryID,
 			Name:         repositoryResult.Name,
 			PullRequests: repositoryIDToPullRequests[repositoryID],
@@ -108,24 +108,28 @@ func (api *API) PullRequestsList(c *gin.Context) {
 
 	// Sort pull requests in repositories by required action, and then by last updated
 	for _, repositoryResult := range repositoryResults {
-		sort.Slice(repositoryResult.PullRequests, func(i, j int) bool {
-			leftPR := repositoryResult.PullRequests[i]
-			rightPR := repositoryResult.PullRequests[j]
-			if leftPR.Status.Text == rightPR.Status.Text {
-				return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
-			}
-			var ok bool
-			var leftPROrdering, rightIDOrdering int
-			if leftPROrdering, ok = external.ActionOrdering[leftPR.Status.Text]; !ok {
-				api.Logger.Error().Msgf("Invalid Github action: %s", leftPR.Status.Text)
-			}
-			if rightIDOrdering, ok = external.ActionOrdering[rightPR.Status.Text]; !ok {
-				api.Logger.Error().Msgf("Invalid Github action: %s", rightPR.Status.Text)
-			}
-			return leftPROrdering < rightIDOrdering
-		})
+		api.sortPullRequestResults(repositoryResult.PullRequests)
 	}
 	c.JSON(200, repositoryResults)
+}
+
+func (api *API) sortPullRequestResults(prResults []*PullRequestResult) {
+	sort.Slice(prResults, func(i, j int) bool {
+		leftPR := prResults[i]
+		rightPR := prResults[j]
+		if leftPR.Status.Text == rightPR.Status.Text {
+			return leftPR.LastUpdatedAt > rightPR.LastUpdatedAt
+		}
+		var ok bool
+		var leftPROrdering, rightIDOrdering int
+		if leftPROrdering, ok = external.ActionOrdering[leftPR.Status.Text]; !ok {
+			api.Logger.Error().Msgf("Invalid Github action: %s", leftPR.Status.Text)
+		}
+		if rightIDOrdering, ok = external.ActionOrdering[rightPR.Status.Text]; !ok {
+			api.Logger.Error().Msgf("Invalid Github action: %s", rightPR.Status.Text)
+		}
+		return leftPROrdering < rightIDOrdering
+	})
 }
 
 func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResult {

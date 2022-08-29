@@ -111,7 +111,7 @@ func TestPullRequestList(t *testing.T) {
 			{
 				ID:   repositoryID1,
 				Name: repositoryName1,
-				PullRequests: []PullRequestResult{
+				PullRequests: []*PullRequestResult{
 					{
 						ID: pullRequest7.ID.Hex(),
 						Status: PullRequestStatus{
@@ -198,7 +198,7 @@ func TestPullRequestList(t *testing.T) {
 			{
 				ID:   repositoryID2,
 				Name: repositoryName2,
-				PullRequests: []PullRequestResult{
+				PullRequests: []*PullRequestResult{
 					{
 						ID: pullRequest10.ID.Hex(),
 						Status: PullRequestStatus{

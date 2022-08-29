@@ -3,9 +3,10 @@ package api
 import (
 	"context"
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

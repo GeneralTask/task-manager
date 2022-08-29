@@ -5,6 +5,7 @@ import React from 'react'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import { icons } from '../../styles/images'
 import toast from '../../utils/toast'
+import { Colors } from '../../styles'
 
 interface BranchNameProps {
     name: string
@@ -26,9 +27,7 @@ const BranchName = ({ name }: BranchNameProps) => {
         <TooltipWrapper dataTip={name} tooltipId="tooltip">
             <BranchNameContainer onClick={handleClick}>
                 <TruncatedText>{name}</TruncatedText>
-                <div>
-                    <Icon size="xSmall" icon={icons.copy} />
-                </div>
+                <Icon size="xSmall" icon={icons.copy} color={Colors.icon.purple} />
             </BranchNameContainer>
         </TooltipWrapper>
     )

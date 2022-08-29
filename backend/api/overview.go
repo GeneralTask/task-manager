@@ -12,6 +12,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -114,6 +115,8 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	}
 	err = api.UpdateViewsLinkedStatus(api.DB, parentCtx, &views, userID)
 	if err != nil {
+		log.Print("failed to get views")
+
 		api.Logger.Error().Err(err).Msg("failed to update views")
 		Handle500(c)
 		return
@@ -121,6 +124,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 
 	result, err := api.GetOverviewResults(api.DB, parentCtx, views, userID, timezoneOffset)
 	if err != nil {
+		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
 		Handle500(c)
 		return
@@ -177,10 +181,9 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 		return nil, err
 	}
 
-	tasks, err := database.GetItems(db, userID,
+	tasks, err := database.GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_task": true},
 			{"id_task_section": view.TaskSectionID},
 		},
 	)
@@ -322,10 +325,9 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 		return &result, nil
 	}
 
-	linearTasks, err := database.GetItems(db, userID,
+	linearTasks, err := database.GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_task": true},
 			{"source_id": external.TASK_SOURCE_ID_LINEAR},
 		},
 	)
@@ -367,10 +369,9 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 		return &result, nil
 	}
 
-	slackTasks, err := database.GetItems(db, userID,
+	slackTasks, err := database.GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
-			{"task_type.is_task": true},
 			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
 		},
 	)
@@ -449,6 +450,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		}
 		pullResults = append(pullResults, &pullRequestResult)
 	}
+	api.sortPullRequestResults(pullResults)
 	result.ViewItems = pullResults
 	return &result, nil
 }
