@@ -126,22 +126,16 @@ func FindOneAndUpdateWithCollection(
 	return mongoResult, nil
 }
 
-func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+func GetTask(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
 	parentCtx := ctx
-	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
 	taskCollection := GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	mongoResult := FindOneWithCollection(dbCtx, taskCollection, userID, itemID)
 
 	var task Task
 	defer cancel()
-	err = mongoResult.Decode(&task)
+	err := mongoResult.Decode(&task)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
 		return nil, err
@@ -149,19 +143,13 @@ func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &task, nil
 }
 
-func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
-	db, dbCleanup, err := GetDBConnection()
+func GetCalendarEvent(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneWithCollection(ctx, eventCollection, userID, itemID)
 
 	var event CalendarEvent
-	err = mongoResult.Decode(&event)
+	err := mongoResult.Decode(&event)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
 		return nil, err

@@ -51,7 +51,7 @@ func TestEventCreate(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		eventID := makeCreateRequest(t, &defaultEventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
@@ -73,7 +73,7 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject.LinkedTaskID = taskID
 
 		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(dbCtx, eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
