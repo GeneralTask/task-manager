@@ -60,6 +60,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         if (sectionScrollingRef?.current) {
             isScrolling.current = false
         }
+        if (isSelected) console.log({ task })
     }, [isSelected])
 
     //Auto-scroll to task if it is selected and out of view

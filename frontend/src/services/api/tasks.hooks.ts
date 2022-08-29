@@ -53,6 +53,7 @@ export const useGetTasks = () => {
 const getTasks = async () => {
     try {
         const res = await apiClient.get('/tasks/v3/')
+        console.log({ res })
         return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
@@ -248,7 +249,13 @@ export const useMarkTaskDone = () => {
 
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                    if (task) task.is_done = data.isDone
+                    if (task && task.is_done) {
+                        task.is_done = data.isDone
+                        if (task.source.name === 'linear' && task.external_status) {
+                            task.external_status.state = 'Done'
+                            task.external_status.type = 'completed'
+                        }
+                    }
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -280,7 +287,12 @@ export const useMarkTaskDone = () => {
                     }))
                     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    draft[sectionIndex].view_items[taskIndex].is_done = data.isDone
+                    const task = draft[sectionIndex].view_items[taskIndex]
+                    task.is_done = data.isDone
+                    if (task.is_done && task.source.name === 'linear' && task.external_status) {
+                        task.external_status.state = 'Done'
+                        task.external_status.type = 'completed'
+                    }
                 })
 
                 queryClient.setQueryData('overview', newViews)
