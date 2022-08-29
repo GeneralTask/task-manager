@@ -1,5 +1,5 @@
 import { castImmutable } from "immer"
-import { useQuery, useMutation } from "react-query"
+import { useQuery, useMutation, QueryFunctionContext } from "react-query"
 import apiClient from "../../utils/api"
 import { TLinkedAccount, TSupportedType } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
@@ -7,9 +7,9 @@ import { useGTQueryClient } from "../queryUtils"
 export const useGetLinkedAccounts = () => {
     return useQuery<TLinkedAccount[]>('linked_accounts', getLinkedAccounts)
 }
-const getLinkedAccounts = async () => {
+const getLinkedAccounts = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/linked_accounts/')
+        const res = await apiClient.get('/linked_accounts/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('getLinkedAccounts failed')
@@ -19,9 +19,9 @@ const getLinkedAccounts = async () => {
 export const useGetSupportedTypes = () => {
     return useQuery<TSupportedType[]>('supported_types', getSupportedTypes)
 }
-const getSupportedTypes = async () => {
+const getSupportedTypes = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/linked_accounts/supported_types/')
+        const res = await apiClient.get('/linked_accounts/supported_types/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('getSupportedTypes failed')

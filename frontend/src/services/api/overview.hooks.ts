@@ -1,6 +1,6 @@
 import produce, { castImmutable } from "immer"
 import { v4 as uuidv4 } from 'uuid'
-import { useMutation, useQuery } from "react-query"
+import { QueryFunctionContext, useMutation, useQuery } from "react-query"
 import apiClient from "../../utils/api"
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from "../../utils/types"
 import { useGTQueryClient } from "../queryUtils"
@@ -9,9 +9,9 @@ import { arrayMoveInPlace } from "../../utils/utils"
 export const useGetOverviewViews = () => {
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
 }
-const getOverviewViews = async () => {
+const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/overview/views/')
+        const res = await apiClient.get('/overview/views/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
@@ -66,9 +66,9 @@ const reorderView = async (data: TReorderViewData) => {
 export const useGetSupportedViews = () => {
     return useQuery<TSupportedView[], void>('overview-supported-views', getSupportedViews)
 }
-const getSupportedViews = async () => {
+const getSupportedViews = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/overview/supported_views/')
+        const res = await apiClient.get('/overview/supported_views/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('getSupportedViews failed')
