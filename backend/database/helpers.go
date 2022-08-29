@@ -188,7 +188,9 @@ func GetPullRequestByExternalID(ctx context.Context, externalID string, userID p
 		externalID,
 	).Decode(&pullRequest)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
+		}
 		return nil, err
 	}
 	return &pullRequest, nil

@@ -146,5 +146,8 @@ spec:
                   key: SLACK_SIGNING_SECRET
                   optional: false
 
+            - name: SLACK_WEBHOOK_FEEDBACK
+              value: https://hooks.slack.com/services/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
+
           ports:
             - containerPort: 8080
