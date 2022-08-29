@@ -321,23 +321,23 @@ func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, 
 	token := requestData.Token
 	repository := requestData.Repository
 
-	dbPR, err := database.GetPullRequest(ctx, fmt.Sprint(*pullRequest.ID), TASK_SOURCE_ID_GITHUB_PR, userID)
+	dbPR, err := database.GetPullRequestByExternalID(ctx, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
 		// if fail to fetch from DB, fetch from Githubb
 		logger.Error().Err(err).Msg("unable to fetch pull request from db")
 		return true
 	}
 
-	log.Print(dbPR.PullRequest.LastFetched)
+	log.Print(dbPR.LastFetched)
 
 	requestURL := GithubAPIBaseURL + "repos/" + *repository.Owner.Login + "/" + *repository.Name + "/pulls/" + fmt.Sprint(*pullRequest.Number)
 
 	// Github API does not support conditional requests, so this logic is required
-	request, err := http.NewRequest("GET", requestURL, nil)
+	request, _ := http.NewRequest("GET", requestURL, nil)
 	request.Header.Set("Accept", "application/vnd.github+json")
 	request.Header.Set("Authorization", "token "+token.AccessToken)
 	if !dbPR.LastFetched.Time().IsZero() {
-		request.Header.Set("If-Modified-Since", (dbPR.PullRequest.LastFetched.Time().Format("Mon, 02 Jan 2006 15:04:05 MST")))
+		request.Header.Set("If-Modified-Since", (dbPR.LastFetched.Time().Format("Mon, 02 Jan 2006 15:04:05 MST")))
 	}
 	client := &http.Client{}
 	resp, err := client.Do(request)

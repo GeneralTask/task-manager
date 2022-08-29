@@ -169,20 +169,27 @@ func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID pri
 	return &event, nil
 }
 
-func GetPullRequest(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*PullRequest, error) {
+func GetPullRequestByExternalID(ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
 	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		return nil, err
 	}
 	defer dbCleanup()
-	pullRequestCollection := GetPullRequestCollection(db)
-	mongoResult := FindOneWithCollection(ctx, pullRequestCollection, userID, itemID)
 
+	pullRequestCollection := GetPullRequestCollection(db)
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
 	var pullRequest PullRequest
-	err = mongoResult.Decode(&pullRequest)
+	err = pullRequestCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"id_external": externalID},
+			{"user_id": userID},
+		}},
+	).Decode(&pullRequest)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get pull request: %+v", itemID)
+		logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
 		return nil, err
 	}
 	return &pullRequest, nil
