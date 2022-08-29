@@ -178,7 +178,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	var pullRequests []*database.PullRequest
-	for count, pullRequestChan := range pullRequestChannels {
+	for index, pullRequestChan := range pullRequestChannels {
 		pullRequest := <-pullRequestChan
 		// if nil, this means that the request ran into an error: continue and keep processing the rest
 		if pullRequest == nil {
@@ -193,7 +193,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 
 		isCompleted := false
 		pullRequest.IsCompleted = &isCompleted
-		pullRequest.LastFetched = requestTimes[count]
+		pullRequest.LastFetched = requestTimes[index]
 		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,
@@ -328,7 +328,7 @@ func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, 
 
 	dbPR, err := database.GetPullRequestByExternalID(ctx, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
-		// if fail to fetch from DB, fetch from Githubb
+		// if fail to fetch from DB, fetch from Github
 		logger.Error().Err(err).Msg("unable to fetch pull request from db")
 		return true, nil
 	}
