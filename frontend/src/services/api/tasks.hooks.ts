@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
-import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
+import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
 import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
 
 export interface TCreateTaskData {
@@ -65,6 +65,8 @@ export const useFetchExternalTasks = () => {
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
         },
+        refetchInterval: TASK_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
 const fetchExternalTasks = async () => {

@@ -19,14 +19,13 @@ import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, u
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
-import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
+import { CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
 import { DropItem, DropType, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useAppSelector } from '../../redux/hooks'
 import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
-import useInterval from '../../hooks/useInterval'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 
 function CalendarDayTable(): JSX.Element {
@@ -142,9 +141,9 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
 
-    const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
-    const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
-    const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
+    const { data: eventPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
+    const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: eventsNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
     const [isEventSelected, setIsEventSelected] = useState(false)
@@ -165,16 +164,6 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
         }
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numDays])
-
-    useInterval(
-        () => {
-            refetchPreviousMonth()
-            refetchCurrentMonth()
-            refetchNextMonth()
-        },
-        EVENTS_REFETCH_INTERVAL,
-        false
-    )
 
     useLayoutEffect(() => {
         if (eventsContainerRef.current) {
