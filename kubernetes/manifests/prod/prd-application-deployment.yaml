@@ -25,12 +25,11 @@ spec:
           imagePullPolicy: Always
           name: "core"
           env:
-            - name: ACCESS_CONTROL_ALLOW_ORIGIN
-              valueFrom:
-                secretKeyRef:
-                  name: core-secrets
-                  key: ACCESS_CONTROL_ALLOW_ORIGIN
-                  optional: false
+            - name: ACCESS_CONTROL_ALLOW_ORIGINS
+              value: https://generaltask.com,https://mobile.generaltask.com
+
+            - name: DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN
+              value: https://generaltask.com
 
             - name: COOKIE_DOMAIN
               valueFrom:
