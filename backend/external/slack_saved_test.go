@@ -58,14 +58,18 @@ func TestLoadSlackTasks(t *testing.T) {
 }
 
 func TestSendConfirmationResponse(t *testing.T) {
-	externalAPIToken := database.ExternalAPIToken{
-		Token: `{"access_token": "example_access_token"}`,
-	}
-
-	t.Run("Success", func(t *testing.T) {
+	t.Run("MalformedExternalToken", func(t *testing.T) {
 		server := getServerForTests()
 		defer server.Close()
-
+		err := SendConfirmationResponse(database.ExternalAPIToken{}, server.URL)
+		assert.Error(t, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		externalAPIToken := database.ExternalAPIToken{
+			Token: `{"access_token": "example_access_token"}`,
+		}
+		server := getServerForTests()
+		defer server.Close()
 		err := SendConfirmationResponse(externalAPIToken, server.URL)
 		assert.NoError(t, err)
 	})
