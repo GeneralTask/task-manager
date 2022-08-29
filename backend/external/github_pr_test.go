@@ -100,7 +100,7 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 	})
-	t.Run("SuccesConditionalRequest", func(t *testing.T) {
+	t.Run("SuccessConditionalRequest", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		pullRequestCollection := database.GetPullRequestCollection(db)

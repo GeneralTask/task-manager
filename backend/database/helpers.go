@@ -177,22 +177,36 @@ func GetPullRequestByExternalID(ctx context.Context, externalID string, userID p
 	}
 	defer dbCleanup()
 
-	pullRequestCollection := GetPullRequestCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 	var pullRequest PullRequest
-	err = pullRequestCollection.FindOne(
+
+	err = FindOneExternalWithCollection(
 		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"id_external": externalID},
-			{"user_id": userID},
-		}},
+		GetPullRequestCollection(db),
+		userID,
+		externalID,
 	).Decode(&pullRequest)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
 		return nil, err
 	}
 	return &pullRequest, nil
+}
+
+func FindOneExternalWithCollection(
+	ctx context.Context,
+	collection *mongo.Collection,
+	userID primitive.ObjectID,
+	externalID string) *mongo.SingleResult {
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	return collection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"id_external": externalID},
+			{"user_id": userID},
+		}})
 }
 
 func FindOneWithCollection(
