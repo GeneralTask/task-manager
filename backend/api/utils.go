@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -17,6 +16,8 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -143,8 +144,14 @@ func getToken(c *gin.Context) (string, error) {
 
 // CORSMiddleware sets CORS headers, abort if CORS preflight request is received
 func CORSMiddleware(c *gin.Context) {
+	allowedOrigins := strings.Split(config.GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGINS"), ",")
+	if origin := c.Request.Header.Get("Origin"); slices.Contains(allowedOrigins, origin) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", config.GetConfigValue("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN"))
+	}
+
 	c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Content-Type,Timezone-Offset,sentry-trace,baggage")
-	c.Writer.Header().Set("Access-Control-Allow-Origin", config.GetConfigValue("ACCESS_CONTROL_ALLOW_ORIGIN"))
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(http.StatusNoContent)

@@ -16,13 +16,7 @@ const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
 const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                refetchOnWindowFocus: false,
-            },
-        },
-    })
+    const queryClient = new QueryClient()
 
     return (
         <QueryClientProvider client={queryClient}>
