@@ -1,11 +1,12 @@
 package external
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -62,7 +63,10 @@ func TestSendConfirmationResponse(t *testing.T) {
 	}
 
 	t.Run("Success", func(t *testing.T) {
-		err := SendConfirmationResponse(externalAPIToken, config.GetConfigValue("SERVER_URL"))
+		server := getServerForTests()
+		defer server.Close()
+
+		err := SendConfirmationResponse(externalAPIToken, server.URL)
 		assert.NoError(t, err)
 	})
 }
@@ -181,4 +185,9 @@ func createTestSlackTask(userID primitive.ObjectID) *database.Task {
 		SourceAccountID: GeneralTaskDefaultAccountID,
 		IsCompleted:     &notCompleted,
 	}
+}
+
+func getServerForTests() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}))
 }
