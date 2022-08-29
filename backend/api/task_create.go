@@ -219,6 +219,13 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			c.JSON(503, gin.H{"detail": "failed to create task"})
 			return
 		}
+
+		// send ephemeral response
+		err = external.SendConfirmationResponse(*externalToken, slackMetadataParams.ResponseURL)
+		if err != nil {
+			c.JSON(500, gin.H{"detail": "failed to send ephemeral response"})
+		}
+
 		c.JSON(200, gin.H{})
 		return
 	}

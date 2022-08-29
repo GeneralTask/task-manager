@@ -1,6 +1,8 @@
 package external
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -52,6 +54,24 @@ func TestLoadSlackTasks(t *testing.T) {
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.Tasks))
+	})
+}
+
+func TestSendConfirmationResponse(t *testing.T) {
+	t.Run("MalformedExternalToken", func(t *testing.T) {
+		server := getServerForTests()
+		defer server.Close()
+		err := SendConfirmationResponse(database.ExternalAPIToken{}, server.URL)
+		assert.Error(t, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		externalAPIToken := database.ExternalAPIToken{
+			Token: `{"access_token": "example_access_token"}`,
+		}
+		server := getServerForTests()
+		defer server.Close()
+		err := SendConfirmationResponse(externalAPIToken, server.URL)
+		assert.NoError(t, err)
 	})
 }
 
@@ -169,4 +189,9 @@ func createTestSlackTask(userID primitive.ObjectID) *database.Task {
 		SourceAccountID: GeneralTaskDefaultAccountID,
 		IsCompleted:     &notCompleted,
 	}
+}
+
+func getServerForTests() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	}))
 }
