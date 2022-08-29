@@ -119,7 +119,6 @@ const useCalendarDrop = ({
                 setDropPreviewPosition(getDropPosition(monitor))
                 const itemType = monitor.getItemType()
                 if (itemType === DropType.EVENT && item.event) {
-                    // setEventPreview({ ...item.event, id: '' })
                     setEventPreview(item.event)
                 } else {
                     setEventPreview(undefined)
