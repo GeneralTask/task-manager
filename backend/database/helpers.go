@@ -157,19 +157,13 @@ func GetCalendarEvent(db *mongo.Database, ctx context.Context, itemID primitive.
 	return &event, nil
 }
 
-func GetPullRequestByExternalID(ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
-	db, dbCleanup, err := GetDBConnection()
+func GetPullRequestByExternalID(db *mongo.Database, ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 	var pullRequest PullRequest
 
-	err = FindOneExternalWithCollection(
+	err := FindOneExternalWithCollection(
 		dbCtx,
 		GetPullRequestCollection(db),
 		userID,
