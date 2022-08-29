@@ -72,34 +72,36 @@ const useCalendarDrop = ({
             const itemType = monitor.getItemType()
             if (!accountId) return
             const dropPosition = getDropPosition(monitor)
-            if (itemType === DropType.TASK) {
-                const start = getStartTimeFromDropPosition(dropPosition)
-                const end = start.plus({ minutes: 30 })
-                createEvent({
-                    payload: {
-                        account_id: accountId,
-                        datetime_start: start.toISO(),
-                        datetime_end: end.toISO(),
-                        summary: item.task?.title,
-                        description: item.task?.body,
-                    },
-                    date,
-                })
-            }
-            else if (itemType === DropType.EVENT) {
-                if (!item.event) return
-                const start = getStartTimeFromDropPosition(dropPosition)
-                const end = start.plus(getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end))
-
-                modifyEvent({
-                    event: item.event,
-                    payload: {
-                        account_id: accountId,
-                        datetime_start: start.toISO(),
-                        datetime_end: end.toISO(),
-                    },
-                    date,
-                })
+            const start = getStartTimeFromDropPosition(dropPosition)
+            switch (itemType) {
+                case DropType.TASK: {
+                    const end = start.plus({ minutes: 30 })
+                    createEvent({
+                        payload: {
+                            account_id: accountId,
+                            datetime_start: start.toISO(),
+                            datetime_end: end.toISO(),
+                            summary: item.task?.title,
+                            description: item.task?.body,
+                        },
+                        date,
+                    })
+                    break
+                }
+                case DropType.EVENT: {
+                    if (!item.event) return
+                    const end = start.plus(getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end))
+                    modifyEvent({
+                        event: item.event,
+                        payload: {
+                            account_id: accountId,
+                            datetime_start: start.toISO(),
+                            datetime_end: end.toISO(),
+                        },
+                        date,
+                    })
+                    break
+                }
             }
         },
         [date, accountId]
