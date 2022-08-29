@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -327,16 +326,12 @@ func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, 
 	token := requestData.Token
 	repository := requestData.Repository
 
-	log.Print("going to load PR!", fmt.Sprint(*pullRequest.ID), userID)
 	dbPR, err := database.GetPullRequestByExternalID(ctx, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
 		// if fail to fetch from DB, fetch from Githubb
 		logger.Error().Err(err).Msg("unable to fetch pull request from db")
-		log.Print("NOT FOUND IN DB")
 		return true, nil
 	}
-
-	log.Print(dbPR.LastFetched)
 
 	requestURL := GithubAPIBaseURL + "repos/" + *repository.Owner.Login + "/" + *repository.Name + "/pulls/" + fmt.Sprint(*pullRequest.Number)
 	if overrideURL != nil {
@@ -346,7 +341,6 @@ func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, 
 	// Github API does not support conditional requests, so this logic is required
 	request, _ := http.NewRequest("GET", requestURL, nil)
 	request.Header.Set("Accept", "application/vnd.github+json")
-	log.Print("access token:", token)
 	if token != nil {
 		request.Header.Set("Authorization", "token "+token.AccessToken)
 	}
@@ -359,7 +353,6 @@ func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, 
 		logger.Error().Err(err).Msg("error with github http request")
 		return true, dbPR
 	}
-	log.Print("response status code:", resp.StatusCode, (resp.StatusCode != http.StatusNotModified), "\n")
 
 	return (resp.StatusCode != http.StatusNotModified), dbPR
 }
