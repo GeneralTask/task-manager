@@ -32,7 +32,7 @@ const useCalendarDrop = ({
     }, [accountId])
 
     const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
+        (item: DropItem, monitor: DropTargetMonitor) => {
             if (!accountId) return
             const dropPosition = getDropPosition(monitor)
 
@@ -61,9 +61,7 @@ const useCalendarDrop = ({
     const [isOver, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
-            collect: (monitor) => {
-                return monitor.isOver()
-            },
+            collect: monitor => monitor.isOver(),
             drop: onDrop,
             canDrop: () => accountId !== undefined,
             hover: (_, monitor) => {
