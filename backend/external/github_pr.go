@@ -186,6 +186,12 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			continue
 		}
 
+		// don't update or create if pull request has DB ID already (it's a cached PR from the DB)
+		if pullRequest.ID != primitive.NilObjectID {
+			pullRequests = append(pullRequests, pullRequest)
+			continue
+		}
+
 		isCompleted := false
 		pullRequest.IsCompleted = &isCompleted
 		pullRequest.LastFetched = requestTimes[count]
@@ -222,9 +228,9 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 	pullRequest := requestData.PullRequest
 
 	// do the check
-	hasBeenModified := pullRequestHasBeenModified(extCtx, userID, requestData)
+	hasBeenModified, cachedPR := pullRequestHasBeenModified(extCtx, userID, requestData, gitPR.Github.Config.ConfigValues.PullRequestModifiedURL)
 	if !hasBeenModified {
-		result <- nil
+		result <- cachedPR
 		return
 	}
 
@@ -314,28 +320,36 @@ func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
 	return err
 }
 
-func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, requestData GithubPRRequestData) bool {
+func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, requestData GithubPRRequestData, overrideURL *string) (bool, *database.PullRequest) {
 	logger := logging.GetSentryLogger()
 
 	pullRequest := requestData.PullRequest
 	token := requestData.Token
 	repository := requestData.Repository
 
+	log.Print("going to load PR!", fmt.Sprint(*pullRequest.ID), userID)
 	dbPR, err := database.GetPullRequestByExternalID(ctx, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
 		// if fail to fetch from DB, fetch from Githubb
 		logger.Error().Err(err).Msg("unable to fetch pull request from db")
-		return true
+		log.Print("NOT FOUND IN DB")
+		return true, nil
 	}
 
 	log.Print(dbPR.LastFetched)
 
 	requestURL := GithubAPIBaseURL + "repos/" + *repository.Owner.Login + "/" + *repository.Name + "/pulls/" + fmt.Sprint(*pullRequest.Number)
+	if overrideURL != nil {
+		requestURL = *overrideURL
+	}
 
 	// Github API does not support conditional requests, so this logic is required
 	request, _ := http.NewRequest("GET", requestURL, nil)
 	request.Header.Set("Accept", "application/vnd.github+json")
-	request.Header.Set("Authorization", "token "+token.AccessToken)
+	log.Print("access token:", token)
+	if token != nil {
+		request.Header.Set("Authorization", "token "+token.AccessToken)
+	}
 	if !dbPR.LastFetched.Time().IsZero() {
 		request.Header.Set("If-Modified-Since", (dbPR.LastFetched.Time().Format("Mon, 02 Jan 2006 15:04:05 MST")))
 	}
@@ -343,10 +357,11 @@ func pullRequestHasBeenModified(ctx context.Context, userID primitive.ObjectID, 
 	resp, err := client.Do(request)
 	if err != nil {
 		logger.Error().Err(err).Msg("error with github http request")
-		return true
+		return true, dbPR
 	}
+	log.Print("response status code:", resp.StatusCode, (resp.StatusCode != http.StatusNotModified), "\n")
 
-	return (resp.StatusCode != http.StatusNotModified)
+	return (resp.StatusCode != http.StatusNotModified), dbPR
 }
 
 func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
