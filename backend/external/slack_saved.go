@@ -1,9 +1,11 @@
 package external
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -199,6 +201,30 @@ func getSlackUsername(client *slack.Client, userID string, result chan<- string)
 	}
 	result <- userProfile.Profile.DisplayName
 	return
+}
+
+func SendConfirmationResponse(externalToken database.ExternalAPIToken, responseURL string) error {
+	var oauthToken oauth2.Token
+	err := json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest("POST", responseURL, bytes.NewBuffer(getResponse()))
+	request.Header.Set("Content-type", "application/json")
+	request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getResponse() []byte {
+	return []byte(`{
+		"text": "Task successfully created!"
+	}`)
 }
 
 func GetSlackModal(triggerID string, formData string, message string) []byte {
