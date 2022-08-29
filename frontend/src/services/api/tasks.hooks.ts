@@ -53,7 +53,6 @@ export const useGetTasks = () => {
 const getTasks = async () => {
     try {
         const res = await apiClient.get('/tasks/v3/')
-        console.log({ res })
         return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
@@ -242,18 +241,21 @@ export const useMarkTaskDone = () => {
         onMutate: async (data: TMarkTaskDoneData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await queryClient.cancelQueries('tasks')
-            await queryClient.cancelQueries('overview')
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('overview'),
+            ])
 
             if (sections) {
-
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                    if (task && task.is_done) {
+                    if (task) {
                         task.is_done = data.isDone
-                        if (task.source.name === 'linear' && task.external_status) {
-                            task.external_status.state = 'Done'
-                            task.external_status.type = 'completed'
+                        if (task.is_done) {
+                            if (task.source.name === 'Linear' && task.external_status) {
+                                task.external_status.state = 'Done'
+                                task.external_status.type = 'completed'
+                            }
                         }
                     }
                 })
@@ -289,7 +291,7 @@ export const useMarkTaskDone = () => {
                     if (sectionIndex === undefined || taskIndex === undefined) return
                     const task = draft[sectionIndex].view_items[taskIndex]
                     task.is_done = data.isDone
-                    if (task.is_done && task.source.name === 'linear' && task.external_status) {
+                    if (task.is_done && task.source.name === 'Linear' && task.external_status) {
                         task.external_status.state = 'Done'
                         task.external_status.type = 'completed'
                     }
