@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestGetTasks(t *testing.T) {
@@ -126,6 +127,50 @@ func TestInsertLogEvent(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
+}
+
+
+func createTestCalendarEvent(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {
+	eventsCollection := GetCalendarEventCollection(db)
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	result, err := eventsCollection.InsertOne(
+		dbCtx,
+		&CalendarEvent{
+			UserID: userID,
+			DatetimeStart: dateTimeStart,
+		},
+	)
+	return result.InsertedID.(primitive.ObjectID), err
+}
+
+func TestGetEventsUntilEndOfDay(t *testing.T) {
+	parentContext := context.Background()
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	timeBase := time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC)
+	timeHourLater := time.Date(2022, 1, 1, 1, 0, 0, 0, time.UTC)
+	timeDayLater := time.Date(2022, 1, 2, 0, 0, 0, 0, time.UTC)
+
+	eventID, err := createTestCalendarEvent(parentContext, db, userID, primitive.NewDateTimeFromTime(timeHourLater))
+	assert.NoError(t, err)
+	// Event create a day later should not be in the result
+	_, err = createTestCalendarEvent(parentContext, db, userID, primitive.NewDateTimeFromTime(timeDayLater))
+	assert.NoError(t, err)
+	// Incorrect UserID
+	_, err = createTestCalendarEvent(parentContext, db, notUserID, primitive.NewDateTimeFromTime(timeHourLater))
+	assert.NoError(t, err)
+
+	t.Run("Success", func(t *testing.T) {
+		events, err := GetEventsUntilEndOfDay(parentContext, db, userID, timeBase)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*events))
+		assert.Equal(t, eventID, (*events)[0].ID)
+	})
+
 }
 
 func TestTaskSectionName(t *testing.T) {

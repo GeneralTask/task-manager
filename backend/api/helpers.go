@@ -1,6 +1,9 @@
 package api
 
 import (
+	"errors"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -30,4 +33,24 @@ type OrderingIDGetter interface {
 
 func (result OverviewResult[T]) GetOrderingID() int {
 	return result.IDOrdering
+}
+
+func (api *API) GetCurrentTime() time.Time {
+	if api.OverrideTime != nil {
+		return *api.OverrideTime
+	}
+	return time.Now()
+}
+
+func GetTimezoneOffsetFromHeader(c *gin.Context) (time.Duration, error) {
+	headers := c.Request.Header
+	timezoneOffsetHeader := headers["Timezone-Offset"]
+	if len(timezoneOffsetHeader) == 0 {
+		return time.Duration(0), errors.New("Timezone-Offset header is required")
+	}
+	duration, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
+	if err != nil {
+		return duration, errors.New("Timezone-Offset header is invalid")
+	}
+	return duration, nil
 }

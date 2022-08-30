@@ -29,6 +29,7 @@ type API struct {
 	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
 	Logger              zerolog.Logger
+	OverrideTime        *time.Time
 	DB                  *mongo.Database
 	DBCleanup           func()
 }
