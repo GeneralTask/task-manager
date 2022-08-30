@@ -69,7 +69,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetTask(c.Request.Context(), taskID, userID)
+	task, err := database.GetTask(api.DB, c.Request.Context(), taskID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
@@ -239,13 +239,6 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 		}
 	}
 
-	flattenedTaskChangeableFields, err := database.FlattenStruct(updateFields)
-	if err != nil {
-		api.Logger.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
-		Handle500(c)
-		return
-	}
-
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	res, err := taskCollection.UpdateOne(
@@ -254,7 +247,7 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 			{"_id": task.ID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": flattenedTaskChangeableFields},
+		bson.M{"$set": updateFields},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update internal DB")

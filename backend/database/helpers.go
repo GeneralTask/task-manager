@@ -5,8 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/chidiwilliams/flatbson"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
@@ -128,22 +126,16 @@ func FindOneAndUpdateWithCollection(
 	return mongoResult, nil
 }
 
-func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+func GetTask(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
 	parentCtx := ctx
-	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
 	taskCollection := GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	mongoResult := FindOneWithCollection(dbCtx, taskCollection, userID, itemID)
 
 	var task Task
 	defer cancel()
-	err = mongoResult.Decode(&task)
+	err := mongoResult.Decode(&task)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
 		return nil, err
@@ -151,19 +143,13 @@ func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &task, nil
 }
 
-func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
-	db, dbCleanup, err := GetDBConnection()
+func GetCalendarEvent(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneWithCollection(ctx, eventCollection, userID, itemID)
 
 	var event CalendarEvent
-	err = mongoResult.Decode(&event)
+	err := mongoResult.Decode(&event)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
 		return nil, err
@@ -171,23 +157,40 @@ func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID pri
 	return &event, nil
 }
 
-func GetPullRequest(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*PullRequest, error) {
-	db, dbCleanup, err := GetDBConnection()
+func GetPullRequestByExternalID(db *mongo.Database, ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-	pullRequestCollection := GetPullRequestCollection(db)
-	mongoResult := FindOneWithCollection(ctx, pullRequestCollection, userID, itemID)
-
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
 	var pullRequest PullRequest
-	err = mongoResult.Decode(&pullRequest)
+
+	err := FindOneExternalWithCollection(
+		dbCtx,
+		GetPullRequestCollection(db),
+		userID,
+		externalID,
+	).Decode(&pullRequest)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get pull request: %+v", itemID)
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
+		}
 		return nil, err
 	}
 	return &pullRequest, nil
+}
+
+func FindOneExternalWithCollection(
+	ctx context.Context,
+	collection *mongo.Collection,
+	userID primitive.ObjectID,
+	externalID string) *mongo.SingleResult {
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	return collection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"id_external": externalID},
+			{"user_id": userID},
+		}})
 }
 
 func FindOneWithCollection(
@@ -363,7 +366,7 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 	)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		logger.Error().Err(err).Msg("failed to fetch PRs for user")
 		return nil, err
 	}
 	return cursor, nil
@@ -386,7 +389,7 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -433,7 +436,7 @@ func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID,
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	return cursor, nil
@@ -460,7 +463,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	var tasks []Task
@@ -468,7 +471,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
@@ -612,7 +615,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to delete state token")
+		logger.Error().Err(err).Msg("failed to delete state token")
 		return err
 	}
 	if result.DeletedCount != 1 {
@@ -719,14 +722,4 @@ func IsValidPagination(pagination Pagination) bool {
 		return false
 	}
 	return *pagination.Limit > 0 && *pagination.Page > 0
-}
-
-func FlattenStruct(s interface{}) (map[string]interface{}, error) {
-	flattened, err := flatbson.Flatten(s)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msgf("Could not flatten %+v", s)
-		return nil, err
-	}
-	return flattened, nil
 }

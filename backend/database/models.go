@@ -121,6 +121,7 @@ type PullRequest struct {
 	RequiredAction    string             `bson:"required_action,omitempty"`
 	CommentCount      int                `bson:"comment_count,omitempty"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
+	LastFetched       primitive.DateTime `bson:"last_fetched,omitempty"`
 	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
 	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
 }
@@ -147,10 +148,11 @@ type CalendarEvent struct {
 // Note that this model is used in the request for Slack, and thus should match
 // the payload from the Slack request.
 type SlackMessageParams struct {
-	Channel SlackChannel `bson:"channel,omitempty" json:"channel,omitempty"`
-	User    SlackUser    `bson:"user,omitempty" json:"user,omitempty"`
-	Team    SlackTeam    `bson:"team,omitempty" json:"team,omitempty"`
-	Message SlackMessage `bson:"message,omitempty" json:"message,omitempty"`
+	Channel     SlackChannel `bson:"channel,omitempty" json:"channel,omitempty"`
+	User        SlackUser    `bson:"user,omitempty" json:"user,omitempty"`
+	Team        SlackTeam    `bson:"team,omitempty" json:"team,omitempty"`
+	Message     SlackMessage `bson:"message,omitempty" json:"message,omitempty"`
+	ResponseURL string       `bson:"response_url,omitempty" json:"response_url,omitempty"`
 }
 
 type SlackTeam struct {

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { useInterval } from '../../hooks'
@@ -99,14 +99,13 @@ interface EventBannersProps {
 }
 const EventBanners = ({ date }: EventBannersProps) => {
     const [eventsWithin15Minutes, setEventsWithin15Minutes] = useState<TEvent[]>([])
-    const { data: events, refetch } = useGetEvents(
+    const { data: events } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
             endISO: date.endOf('day').plus({ minutes: 15 }).toISO(),
         },
         'banner'
     )
-    useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
     useInterval(
         () => {
