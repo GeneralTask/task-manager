@@ -1,5 +1,5 @@
 import { castImmutable } from "immer"
-import { useQuery } from "react-query"
+import { QueryFunctionContext, useQuery } from "react-query"
 import { PR_REFETCH_INTERVAL } from "../../constants"
 import apiClient from "../../utils/api"
 import { TRepository } from "../../utils/types"
@@ -27,9 +27,9 @@ export const useFetchPullRequests = () => {
         refetchIntervalInBackground: true,
     })
 }
-const fetchPullRequests = async () => {
+const fetchPullRequests = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/pull_requests/fetch/')
+        const res = await apiClient.get('/pull_requests/fetch/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('fetchPullRequests failed')

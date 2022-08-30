@@ -1,5 +1,5 @@
 import produce, { castImmutable } from "immer"
-import { useMutation, useQuery } from "react-query"
+import { QueryFunctionContext, useMutation, useQuery } from "react-query"
 
 import { DateTime } from "luxon"
 import { TEvent } from "../../utils/types"
@@ -10,15 +10,16 @@ import { v4 as uuidv4 } from 'uuid'
 import { EVENTS_REFETCH_INTERVAL } from "../../constants"
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params), {
+    return useQuery<TEvent[]>(['events', calendarType, params.startISO], (queryFunctionContext) => getEvents(params, queryFunctionContext), {
         refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
         refetchIntervalInBackground: true,
     })
 }
-const getEvents = async (params: { startISO: string; endISO: string }) => {
+const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/events/', {
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
+            signal,
         })
         return castImmutable(res.data)
     } catch {
