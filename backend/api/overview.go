@@ -508,7 +508,8 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
 		// Check if meeting prep task exists
-		count, err := taskCollection.CountDocuments(
+		var meetingTask *database.Task
+		err := taskCollection.FindOne(
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"user_id": userID},
@@ -516,14 +517,30 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 				{"meeting_preparation_params.id_external": event.IDExternal},
 				{"source_id": event.SourceID},
 			},
-			})
-		if err != nil {
+			}).Decode(&meetingTask)
+
+		if err != nil && err != mongo.ErrNoDocuments {
 			return err
 		}
-		// Create meeting prep task for event if one does not exist
-		if count > 0 {
+		// Update meeting prep task for event
+		if meetingTask != nil {
+			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+			defer cancel()
+			_, err := taskCollection.UpdateOne(
+				dbCtx,
+				bson.M{"_id": meetingTask.ID},
+				bson.M{"$set": bson.M{
+					"title": event.Title,
+					"body":  event.Body,
+					"meeting_preparation_params.datetime_start": event.DatetimeStart,
+				}},
+			)
+			if err != nil {
+				return err
+			}
 			continue
 		}
+		// Create meeting prep task for event if one does not exist
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
 			Title:                    &event.Title,
