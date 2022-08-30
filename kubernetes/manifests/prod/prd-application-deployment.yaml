@@ -25,12 +25,11 @@ spec:
           imagePullPolicy: Always
           name: "core"
           env:
-            - name: ACCESS_CONTROL_ALLOW_ORIGIN
-              valueFrom:
-                secretKeyRef:
-                  name: core-secrets
-                  key: ACCESS_CONTROL_ALLOW_ORIGIN
-                  optional: false
+            - name: ACCESS_CONTROL_ALLOW_ORIGINS
+              value: https://generaltask.com,https://mobile.generaltask.com
+
+            - name: DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN
+              value: https://generaltask.com
 
             - name: COOKIE_DOMAIN
               valueFrom:
@@ -146,6 +145,9 @@ spec:
                   name: core-secrets
                   key: SLACK_SIGNING_SECRET
                   optional: false
+
+            - name: SLACK_WEBHOOK_FEEDBACK
+              value: https://hooks.slack.com/services/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
 
           ports:
             - containerPort: 8080

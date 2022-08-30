@@ -49,8 +49,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/create_test_user/", handlers.CreateTestUser)
 
 	// Add middlewares
-	router.Use(TokenMiddleware)
-	router.Use(LoggingMiddleware)
+	router.Use(TokenMiddleware(handlers.DB))
+	router.Use(LoggingMiddleware(handlers.DB))
 	// Authenticated endpoints
 	router.GET("/meeting_banner/", handlers.MeetingBanner)
 	router.GET("/linked_accounts/", handlers.LinkedAccountsList)
