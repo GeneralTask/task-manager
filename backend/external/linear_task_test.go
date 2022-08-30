@@ -174,6 +174,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			SourceID:          TASK_SOURCE_ID_LINEAR,
 			SourceAccountID:   "wrong",
 			UserID:            userID,
+			DueDate:           primitive.NewDateTimeFromTime(time.Time{}),
 			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: "state-id",
@@ -254,6 +255,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			SourceID:          TASK_SOURCE_ID_LINEAR,
 			SourceAccountID:   "sample_account@email.com",
 			UserID:            userID,
+			DueDate:           primitive.NewDateTimeFromTime(time.Time{}),
 			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: "state-id",
@@ -337,6 +339,7 @@ func TestModifyLinearTask(t *testing.T) {
 		SourceID:          TASK_SOURCE_ID_LINEAR,
 		SourceAccountID:   "sample_account@email.com",
 		UserID:            userID,
+		DueDate:           primitive.NewDateTimeFromTime(time.Time{}),
 		CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 		Status: &database.ExternalTaskStatus{
 			ExternalID: "merge-workflow-state-id",
@@ -392,9 +395,13 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
-			Title: &newName,
-			Body:  &newBody,
+		newDueDate, err := time.Parse("2006-01-02", "2022-09-12")
+		assert.NoError(t, err)
+		dueDatePrimitive := primitive.NewDateTimeFromTime(newDueDate)
+		err = linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+			Title:   &newName,
+			Body:    &newBody,
+			DueDate: dueDatePrimitive,
 		}, nil)
 		assert.NoError(t, err)
 	})
