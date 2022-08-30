@@ -453,10 +453,6 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 				{"user_id": userID},
 				{"is_completed": true},
 			},
-			"$or": []bson.M{
-				{"task_type.is_task": true},
-				{"task_type.is_meeting_preparation_task": true},
-			},
 		},
 		findOptions,
 	)
@@ -515,15 +511,14 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := eventCollection.Find(
-		dbCtx, 
+		dbCtx,
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"datetime_start": bson.M{"$gte": currentTime}},
 				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
-
 			},
-	})
+		})
 	if err != nil {
 		return nil, err
 	}

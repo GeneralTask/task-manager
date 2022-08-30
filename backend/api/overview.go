@@ -517,11 +517,11 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			dbCtx,
 			bson.M{"$and": []bson.M{
 				{"user_id": userID},
-				{"task_type.is_meeting_preparation_task": true},
-				{"id_meeting_preparation": event.IDExternal},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.id_external": event.IDExternal},
 				{"source_id": event.SourceID},
 			},
-		})
+			})
 		logger.Debug().Msgf("count: %d", count)
 		if err != nil {
 			return err
@@ -532,18 +532,17 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		}
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
-			Title: 			  &event.Title,
-			Body: &event.Body,
-			UserID:               userID,
+			Title:  &event.Title,
+			Body:   &event.Body,
+			UserID: userID,
 			// IDMeetingPreparation: event.IDExternal,
-			IsCompleted:          &isCompleted,
-			SourceID:             event.SourceID,
+			IsCompleted:              &isCompleted,
+			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
-
 			MeetingPreparationParams: database.MeetingPreparationParams{
-				CalendarEventID: event.ID,
-				IDExternal: event.IDExternal,
-				DatetimeStart: event.DatetimeStart,
+				CalendarEventID:               event.ID,
+				IDExternal:                    event.IDExternal,
+				DatetimeStart:                 event.DatetimeStart,
 				HasBeenAutomaticallyCompleted: false,
 			},
 		})
@@ -558,9 +557,12 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(db)
 	result := []*TaskResult{}
+	logger := logging.GetSentryLogger()
 	for _, task := range *tasks {
+		logger.Debug().Msgf("task: %+v", task.Title)
 		// if meeting has ended, mark task as complete
 		if task.MeetingPreparationParams.DatetimeEnd.Time().After(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+			logger.Debug().Msgf("marking as complete: task: %+v", task.Title)
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
 			_, err := taskCollection.UpdateOne(
