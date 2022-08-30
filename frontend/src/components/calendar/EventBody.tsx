@@ -11,6 +11,7 @@ import {
     EventTitle,
 } from './CalendarEvents-styles'
 import EventDetailPopup from '../molecules/EventDetailPopup'
+import ResizeHandle from './ResizeHandle'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -142,6 +143,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 </EventInfo>
             </EventInfoContainer>
             <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} isSelected={props.isSelected} />
+            <ResizeHandle event={props.event} />
         </EventBodyStyle>
     )
 }

@@ -169,6 +169,7 @@ export interface TLinkedAccount {
 export enum DropType {
     TASK = 'task',
     EVENT = 'event',
+    EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
 }
 

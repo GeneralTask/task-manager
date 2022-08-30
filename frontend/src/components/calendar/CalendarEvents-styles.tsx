@@ -15,7 +15,7 @@ export const CALENDAR_TD_COLOR = Colors.background.dark
 export const CALENDAR_TIME_COLOR = Colors.text.light
 export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
-export const EVENT_BOTTOM_PADDING = '2.5px'
+export const EVENT_BOTTOM_PADDING = 2.5
 export const CALENDAR_DAY_HEADER_HEIGHT = 40
 export const DEFAULT_EVENT_DURATION_IN_MINUTES = 30
 export const DEFAULT_EVENT_HEIGHT = (CELL_HEIGHT_VALUE * DEFAULT_EVENT_DURATION_IN_MINUTES) / 60
@@ -23,7 +23,9 @@ export const EVENT_CREATION_INTERVAL_IN_MINUTES = 15
 export const EVENT_CREATION_INTERVAL_HEIGHT = (CELL_HEIGHT_VALUE * EVENT_CREATION_INTERVAL_IN_MINUTES) / 60
 export const EVENT_CREATION_INTERVAL_PER_HOUR = 60 / EVENT_CREATION_INTERVAL_IN_MINUTES
 
-const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
+const getEventWidth = (squishFactor: number) => `calc(
+    (${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/(${squishFactor})
+)`
 
 export const DayContainer = styled.div`
     width: 100%;
@@ -85,19 +87,25 @@ interface EventBodyStyleProps {
     eventHasEnded: boolean
     isBeingDragged?: boolean
 }
-export const EventBodyStyle = styled.div<EventBodyStyleProps>`
-    --squish-factor: ${({ squishFactor }) => squishFactor};
-    --left-offset: ${({ leftOffset }) => leftOffset};
-    width: calc(${WIDTH_CSS_CALCULATION});
-    height: calc(${(props) => props.eventBodyHeight}px - ${EVENT_BOTTOM_PADDING});
-    top: ${(props) => props.topOffset}px;
+// using attrs as recommended by styled-components to avoid re-creating style class for every drag state
+export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => ({
+    style: {
+        squishFactor: props.squishFactor,
+        leftOffset: props.leftOffset,
+        width: getEventWidth(props.squishFactor),
+        height: props.eventBodyHeight - EVENT_BOTTOM_PADDING,
+        top: props.topOffset,
+        left: `calc(
+            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
+            props.leftOffset
+        }
+        )`,
+        opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
+        zIndex: props.isBeingDragged ? 1 : 0,
+    },
+}))<EventBodyStyleProps>`
     position: absolute;
-    left: calc(
-        100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
-    );
     cursor: pointer;
-    opacity: ${({ eventHasEnded, isBeingDragged }) => (eventHasEnded && !isBeingDragged ? 0.5 : 1)};
-    z-index: ${({ isBeingDragged }) => (isBeingDragged ? 1 : 0)};
 `
 export const EventInfoContainer = styled.div`
     display: flex;
@@ -113,16 +121,21 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     white-space: nowrap;
     margin: 0 12px;
     align-items: center;
-    ${(props) => (props.isLongEvent ? 'height: 100%; margin-top: 18px;' : 'display: flex;')}
+    ${(props) => (props.isLongEvent ? 'height: 100%;' : 'display: flex;')}
 `
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     font-style: normal;
     font-size: 14px;
     font-weight: 600;
     color: ${EVENT_TITLE_TEXT_COLOR};
-    margin-right: 8px;
+    margin-right: ${Spacing.margin._8};
     max-height: 100%;
-    ${(props) => props.isLongEvent && 'font-weight: 600;'}
+    ${(props) =>
+        props.isLongEvent &&
+        `
+        font-weight: 600;
+        margin-top: ${Spacing.margin._12};
+    `}
 `
 export const EventTime = styled.div`
     font-style: normal;
