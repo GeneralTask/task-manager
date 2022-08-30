@@ -97,11 +97,11 @@ type Task struct {
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	Status             *ExternalTaskStatus `bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus     *ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus    *ExternalTaskStatus `bson:"completed_status,omitempty"`
-	SlackMessageParams SlackMessageParams  `bson:"slack_message_params,omitempty"`
+	PreviousStatus           *ExternalTaskStatus      `bson:"previous_status,omitempty"`
+	CompletedStatus          *ExternalTaskStatus      `bson:"completed_status,omitempty"`
+	SlackMessageParams       SlackMessageParams       `bson:"slack_message_params,omitempty"`
 	MeetingPreparationParams MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
-	IsMeetingPreparationTask bool `bson:"is_meeting_preparation_task,omitempty"`
+	IsMeetingPreparationTask bool                     `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 type PullRequest struct {
@@ -147,11 +147,11 @@ type CalendarEvent struct {
 }
 
 type MeetingPreparationParams struct {
-	CalendarEventID primitive.ObjectID `bson:"event_id"`
-	IDExternal	  string             `bson:"id_external"`
-	DatetimeStart	primitive.DateTime             `bson:"datetime_start"`
-	DatetimeEnd primitive.DateTime
-	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
+	CalendarEventID               primitive.ObjectID `bson:"event_id"`
+	IDExternal                    string             `bson:"id_external"`
+	DatetimeStart                 primitive.DateTime `bson:"datetime_start"`
+	DatetimeEnd                   primitive.DateTime
+	HasBeenAutomaticallyCompleted bool `bson:"has_been_automatically_completed"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match

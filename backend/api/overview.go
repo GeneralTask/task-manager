@@ -10,7 +10,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -477,8 +476,6 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	if err != nil {
 		return nil, err
 	}
-	logger := logging.GetSentryLogger()
-	logger.Debug().Msgf("Got %d meeting prep tasks", len(*meetingTasks))
 
 	// Sort by datetime_start
 	sort.Slice(*meetingTasks, func(i, j int) bool {
@@ -507,9 +504,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 
 func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	taskCollection := database.GetTaskCollection(db)
-	logger := logging.GetSentryLogger()
 	for _, event := range *events {
-		logger.Debug().Msgf("event: %+v", event.Title)
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
 		// Check if meeting prep task exists
@@ -522,7 +517,6 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 				{"source_id": event.SourceID},
 			},
 			})
-		logger.Debug().Msgf("count: %d", count)
 		if err != nil {
 			return err
 		}
@@ -532,10 +526,9 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		}
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
-			Title:  &event.Title,
-			Body:   &event.Body,
-			UserID: userID,
-			// IDMeetingPreparation: event.IDExternal,
+			Title:                    &event.Title,
+			Body:                     &event.Body,
+			UserID:                   userID,
 			IsCompleted:              &isCompleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
@@ -557,12 +550,9 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(db)
 	result := []*TaskResult{}
-	logger := logging.GetSentryLogger()
 	for _, task := range *tasks {
-		logger.Debug().Msgf("task: %+v", task.Title)
 		// if meeting has ended, mark task as complete
 		if task.MeetingPreparationParams.DatetimeEnd.Time().After(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
-			logger.Debug().Msgf("marking as complete: task: %+v", task.Title)
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
 			_, err := taskCollection.UpdateOne(
@@ -571,7 +561,7 @@ func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database
 					{"_id": task.ID},
 					{"user_id": userID},
 				}},
-				bson.M{"$set": bson.M{"is_completed": true, "has_been_automatically_completed": true}})
+				bson.M{"$set": bson.M{"is_completed": true, "meeting_preparation_params.has_been_automatically_completed": true}})
 			if err != nil {
 				return nil, err
 			}
