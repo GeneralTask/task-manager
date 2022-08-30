@@ -21,15 +21,15 @@ const EmptyViewContainerTextHeader = styled(EmptyViewContainerText)`
 `
 
 interface EmptyViewItemProps {
-    topText: string
-    bottomText: string
+    header: string
+    body: string
 }
 
-const EmptyViewItem = ({ topText, bottomText }: EmptyViewItemProps) => {
+const EmptyViewItem = ({ header, body }: EmptyViewItemProps) => {
     return (
         <EmptyViewContainer>
-            <EmptyViewContainerTextHeader>{topText}</EmptyViewContainerTextHeader>
-            <EmptyViewContainerText>{bottomText}</EmptyViewContainerText>
+            <EmptyViewContainerTextHeader>{header}</EmptyViewContainerTextHeader>
+            <EmptyViewContainerText>{body}</EmptyViewContainerText>
         </EmptyViewContainer>
     )
 }

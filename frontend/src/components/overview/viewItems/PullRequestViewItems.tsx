@@ -36,8 +36,8 @@ const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
                 ))
             ) : (
                 <EmptyViewItem
-                    topText="You have no more pull requests!"
-                    bottomText="When new pull requests get assigned to you, they will appear here."
+                    header="You have no more pull requests!"
+                    body="When new pull requests get assigned to you, they will appear here."
                 />
             )}
         </>

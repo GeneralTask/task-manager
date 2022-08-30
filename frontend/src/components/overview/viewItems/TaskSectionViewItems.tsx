@@ -57,8 +57,8 @@ const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsP
                     indicatorType="WHOLE"
                 >
                     <EmptyViewItem
-                        topText="You've completed all your tasks!"
-                        bottomText="Create new tasks to see them here."
+                        header="You've completed all your tasks!"
+                        body="Create new tasks to see them here."
                     />
                 </ReorderDropContainer>
             )}
