@@ -18,9 +18,9 @@ const CalendarContext = createContext<ContextValues>({
     showDateHeader: true,
     isCollapsed: false,
     setCalendarType: emptyFunction,
-    setShowMainHeader: () => emptyFunction,
-    setShowDateHeader: () => emptyFunction,
-    setIsCollapsed: () => emptyFunction,
+    setShowMainHeader: emptyFunction,
+    setShowDateHeader: emptyFunction,
+    setIsCollapsed: emptyFunction,
 })
 
 export const useCalendarContext = () => {
