@@ -146,10 +146,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"))
 		return
 	}
-	fmt.Println("userTeams:", len(userTeams))
-	for _, team := range userTeams {
-		fmt.Println("team:", team.GetSlug())
-	}
 
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
@@ -382,7 +378,6 @@ func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAu
 }
 
 func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string) ([]*github.Team, error) {
-	fmt.Println("override url:", overrideURL)
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
