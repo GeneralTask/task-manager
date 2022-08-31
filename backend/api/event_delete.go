@@ -38,7 +38,7 @@ func (api *API) EventDelete(c *gin.Context) {
 		return
 	}
 
-	err = taskSourceResult.Source.DeleteEvent(userID, event.SourceAccountID, event.IDExternal)
+	err = taskSourceResult.Source.DeleteEvent(api.DB, userID, event.SourceAccountID, event.IDExternal)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)

@@ -15,6 +15,9 @@ import (
 )
 
 func TestLoadSlackTasks(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	task := createTestSlackTask(userID)
 	taskWrongSource := createTestSlackTask(userID)
@@ -34,7 +37,7 @@ func TestLoadSlackTasks(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		var tasks = make(chan TaskResult)
-		go SlackSavedTaskSource{}.GetTasks(userID, GeneralTaskDefaultAccountID, tasks)
+		go SlackSavedTaskSource{}.GetTasks(db, userID, GeneralTaskDefaultAccountID, tasks)
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
@@ -43,14 +46,14 @@ func TestLoadSlackTasks(t *testing.T) {
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
 		var tasks = make(chan TaskResult)
-		go SlackSavedTaskSource{}.GetTasks(primitive.NewObjectID(), GeneralTaskDefaultAccountID, tasks)
+		go SlackSavedTaskSource{}.GetTasks(db, primitive.NewObjectID(), GeneralTaskDefaultAccountID, tasks)
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("WrongSourceAccountID", func(t *testing.T) {
 		var tasks = make(chan TaskResult)
-		go SlackSavedTaskSource{}.GetTasks(userID, "other_account_id", tasks)
+		go SlackSavedTaskSource{}.GetTasks(db, userID, "other_account_id", tasks)
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.Tasks))
@@ -112,7 +115,7 @@ func TestCreateSlackTask(t *testing.T) {
 	t.Run("SuccessSlackCreation", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 		testTask.UserID = userID
-		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+		_, err := SlackSavedTaskSource{}.CreateNewTask(db, userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 			SlackMessageParams: database.SlackMessageParams{
 				Channel: database.SlackChannel{
@@ -145,7 +148,7 @@ func TestCreateSlackTask(t *testing.T) {
 		testTask.UserID = userID
 		taskSectionID := primitive.NewObjectID()
 		testTask.IDTaskSection = taskSectionID
-		_, err := SlackSavedTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+		_, err := SlackSavedTaskSource{}.CreateNewTask(db, userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 			SlackMessageParams: database.SlackMessageParams{
 				Channel: database.SlackChannel{
