@@ -107,20 +107,14 @@ func (api *API) LinkCallback(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "invalid state token format"})
 			return
 		}
-		db, dbCleanup, err := database.GetDBConnection()
-		if err != nil {
-			Handle500(c)
-			return
-		}
-		defer dbCleanup()
-		err = database.DeleteStateToken(db, stateTokenID, &internalToken.UserID)
+		err = database.DeleteStateToken(api.DB, stateTokenID, &internalToken.UserID)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "invalid state token"})
 			return
 		}
 		callbackParams = external.CallbackParams{Oauth2Code: &redirectParams.Code}
 	}
-	err = taskServiceResult.Service.HandleLinkCallback(callbackParams, internalToken.UserID)
+	err = taskServiceResult.Service.HandleLinkCallback(api.DB, callbackParams, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return

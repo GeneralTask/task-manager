@@ -31,6 +31,7 @@ type GithubConfigValues struct {
 	ListPullRequestCommentsURL  *string
 	ListIssueCommentsURL        *string
 	ListRepositoriesURL         *string
+	ListUserTeamsURL            *string
 	PullRequestModifiedURL      *string
 }
 
@@ -86,13 +87,8 @@ func (githubService GithubService) GetSignupURL(stateTokenID primitive.ObjectID,
 	return nil, errors.New("github does not support signup")
 }
 
-func (githubService GithubService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (githubService GithubService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return errors.New("internal server error")
-	}
-	defer dbCleanup()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -141,7 +137,7 @@ func (githubService GithubService) HandleLinkCallback(params CallbackParams, use
 	return nil
 }
 
-func (github GithubService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+func (github GithubService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 

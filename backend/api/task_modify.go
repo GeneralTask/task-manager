@@ -110,7 +110,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			PreviousStatus:     modifyParams.TaskItemChangeableFields.Task.PreviousStatus,
 			CompletedStatus:    modifyParams.TaskItemChangeableFields.Task.CompletedStatus,
 		}
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
+		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)

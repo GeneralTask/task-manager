@@ -52,13 +52,8 @@ func (linear LinearService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return nil, errors.New("linear does not support signup")
 }
 
-func (linear LinearService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (linear LinearService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return errors.New("internal server error")
-	}
-	defer dbCleanup()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -128,7 +123,7 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 	return string(query.Viewer.Email), nil
 }
 
-func (linear LinearService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+func (linear LinearService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("linear does not support signup")
 }
 
