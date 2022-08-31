@@ -1,8 +1,8 @@
-import { DateTime } from "luxon"
-import { useEffect, useRef } from "react"
-import { useDrop } from "react-dnd"
-import { useCalendarContext } from "../components/calendar/CalendarContext"
-import { DropType } from "../utils/types"
+import { DateTime } from 'luxon'
+import { useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
+import { useCalendarContext } from '../components/calendar/CalendarContext'
+import { DropType } from '../utils/types'
 
 const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElement>) => {
     const hoverStarted = useRef<DateTime>()
