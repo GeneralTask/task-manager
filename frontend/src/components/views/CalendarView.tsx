@@ -56,10 +56,12 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
 
     useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
 
+    const { isTaskDraggingOverDetailsView } = useCalendarContext()
+
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
-        <CalendarContainer expanded={calendarType === 'week'}>
+        <CalendarContainer expanded={calendarType === 'week'} hasShadow={isTaskDraggingOverDetailsView}>
             <CalendarHeader date={date} setDate={setDate} />
             <CalendarEvents date={date} accountId={firstLinkedCalendarAccount} />
         </CalendarContainer>

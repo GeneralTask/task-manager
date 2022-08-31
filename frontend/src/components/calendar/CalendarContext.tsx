@@ -7,24 +7,24 @@ export interface ContextValues {
     showMainHeader: boolean
     showDateHeader: boolean
     isCollapsed: boolean
-    isTaskDragging: boolean
+    isTaskDraggingOverDetailsView: boolean
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
     setIsCollapsed: (isCollapsed: boolean) => void
-    setIsTaskDragging: (isTaskDragging: boolean) => void
+    setIsTaskDraggingOverDetailsView: (isTaskDraggingOverDetailsView: boolean) => void
 }
 const CalendarContext = createContext<ContextValues>({
     calendarType: 'day',
     showMainHeader: true,
     showDateHeader: true,
     isCollapsed: false,
-    isTaskDragging: false,
+    isTaskDraggingOverDetailsView: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
     setIsCollapsed: emptyFunction,
-    setIsTaskDragging: emptyFunction,
+    setIsTaskDraggingOverDetailsView: emptyFunction,
 })
 
 export const useCalendarContext = () => {
@@ -39,7 +39,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
-    const [isTaskDragging, setIsTaskDragging] = useState<boolean>(false)
+    const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
@@ -50,12 +50,12 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         showMainHeader,
         showDateHeader,
         isCollapsed,
-        isTaskDragging,
+        isTaskDraggingOverDetailsView,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
         setIsCollapsed: collapseAndSetType,
-        setIsTaskDragging,
+        setIsTaskDraggingOverDetailsView,
     }
 
     return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>

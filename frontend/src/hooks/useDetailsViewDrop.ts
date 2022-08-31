@@ -1,28 +1,26 @@
 import { DateTime } from "luxon"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useDrop } from "react-dnd"
 import { useCalendarContext } from "../components/calendar/CalendarContext"
 import { DropType } from "../utils/types"
 
 const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElement>) => {
     const hoverStarted = useRef<DateTime>()
-    const { isCollapsed, setIsCollapsed } = useCalendarContext()
-    const [isOver, setIsOver] = useState(false)
+    const { isCollapsed, setIsCollapsed, isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView } = useCalendarContext()
 
     const [, drop] = useDrop(
         () => ({
             accept: [DropType.TASK],
             collect: (monitor) => {
-                console.log({ isCollapsed })
                 if (isCollapsed) {
-                    if (!isOver && monitor.isOver()) {
+                    if (!isTaskDraggingOverDetailsView && monitor.isOver()) {
                         hoverStarted.current = DateTime.now()
                     }
                 }
                 if (!monitor.isOver()) {
                     hoverStarted.current = undefined
                 }
-                setIsOver(monitor.isOver())
+                setIsTaskDraggingOverDetailsView(monitor.isOver())
             },
             hover: (_, monitor) => {
                 if (!isCollapsed || !hoverStarted.current) return
@@ -31,7 +29,7 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
                 hoverStarted.current = undefined
             }
         }),
-        [isCollapsed, isOver]
+        [isCollapsed, isTaskDraggingOverDetailsView]
     )
 
     useEffect(() => {
