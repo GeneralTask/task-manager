@@ -86,6 +86,7 @@ type GithubPRRequestData struct {
 	Repository  *github.Repository
 	PullRequest *github.PullRequest
 	Token       *oauth2.Token
+	UserTeams   []*github.Team
 }
 
 func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
@@ -139,6 +140,17 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
+	userTeams, err := getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github user teams")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"))
+		return
+	}
+	fmt.Println("userTeams:", len(userTeams))
+	for _, team := range userTeams {
+		fmt.Println("team:", team.GetSlug())
+	}
+
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github repos for user")
@@ -170,6 +182,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				Repository:  repository,
 				PullRequest: pullRequest,
 				Token:       token,
+				UserTeams:   userTeams,
 			}
 			requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
 			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
@@ -240,7 +253,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 	// Only display pull requests where user is the owner, or the user is a reviewer
-	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews) {
+	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
 		result <- nil
 		return
 	}
@@ -368,6 +381,15 @@ func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAu
 	return githubUser, err
 }
 
+func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string) ([]*github.Team, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	userTeams, _, err := githubClient.Teams.ListUserTeams(context, nil)
+	return userTeams, err
+}
+
 func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) ([]*github.Repository, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
@@ -458,13 +480,20 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 // Github API does not consider users who have submitted a review as reviewers
-func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview) bool {
+func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, userTeams []*github.Team) bool {
 	if pullRequest == nil || githubUser == nil {
 		return false
 	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
+		}
+	}
+	for _, userTeam := range userTeams {
+		for _, team := range pullRequest.RequestedTeams {
+			if team.ID != nil && userTeam.ID != nil && *team.ID == *userTeam.ID {
+				return true
+			}
 		}
 	}
 	// If user submitted a review, we consider them a reviewer as well
