@@ -128,7 +128,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	} else {
 		githubClient = github.NewClient(nil)
 	}
-	fmt.Println("github Client:", githubClient)
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -139,7 +138,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
 		return
 	}
-	fmt.Println("githubUser:", githubUser)
 
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
@@ -148,12 +146,9 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
-	fmt.Println("repositories count:", len(repositories))
-
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
-		fmt.Println("repository:", *repository.FullName, *repository.BranchesURL)
 		err := updateOrCreateRepository(parentCtx, db, repository, userID)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create repository")
@@ -163,9 +158,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
-		fmt.Println("pull requests count:", len(fetchedPullRequests))
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
-			fmt.Println("404 error")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
 		}
@@ -226,7 +219,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 }
 
 func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
-	fmt.Println("yes it's called")
 	logger := logging.GetSentryLogger()
 
 	githubClient := requestData.Client
@@ -249,7 +241,6 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 	}
 	// Only display pull requests where user is the owner, or the user is a reviewer
 	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews) {
-		fmt.Println("skipping for a reason", userIsOwner(githubUser, pullRequest), userIsReviewer(githubUser, pullRequest, reviews))
 		result <- nil
 		return
 	}
