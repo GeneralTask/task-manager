@@ -17,10 +17,9 @@ import (
 
 func TestSettingsGet(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
+	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
-	settingCollection := database.GetUserSettingsCollection(db)
+	settingCollection := database.GetUserSettingsCollection(api.DB)
 
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("DefaultValue", func(t *testing.T) {
@@ -49,7 +48,7 @@ func TestSettingsGet(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		userID := getUserIDFromAuthToken(t, db, authToken)
+		userID := getUserIDFromAuthToken(t, api.DB, authToken)
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -74,8 +73,6 @@ func TestSettingsGet(t *testing.T) {
 	})
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("Unauthorized", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
 		router := GetRouter(api)
 		request, _ := http.NewRequest("GET", "/settings/", nil)
 		recorder := httptest.NewRecorder()

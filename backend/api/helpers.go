@@ -1,8 +1,10 @@
 package api
 
 import (
+	"errors"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -35,6 +37,31 @@ type OrderingIDGetter interface {
 
 func (result OverviewResult[T]) GetOrderingID() int {
 	return result.IDOrdering
+}
+
+func (api *API) GetCurrentLocalizedTime(timezoneOffset time.Duration) time.Time {
+	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+	return api.GetCurrentTime().In(localZone)
+}
+
+func (api *API) GetCurrentTime() time.Time {
+	if api.OverrideTime != nil {
+		return *api.OverrideTime
+	}
+	return time.Now()
+}
+
+func GetTimezoneOffsetFromHeader(c *gin.Context) (time.Duration, error) {
+	headers := c.Request.Header
+	timezoneOffsetHeader := headers["Timezone-Offset"]
+	if len(timezoneOffsetHeader) == 0 {
+		return time.Duration(0), errors.New("Timezone-Offset header is required")
+	}
+	duration, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
+	if err != nil {
+		return duration, errors.New("Timezone-Offset header is invalid")
+	}
+	return duration, nil
 }
 
 func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.ObjectID, taskTitle string) (*database.User, string) {

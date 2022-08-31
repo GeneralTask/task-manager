@@ -94,7 +94,7 @@ func (api *API) EventsList(c *gin.Context) {
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			go taskSourceResult.Source.GetEvents(userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
+			go taskSourceResult.Source.GetEvents(api.DB, userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 		}
 	}
@@ -110,7 +110,7 @@ func (api *API) EventsList(c *gin.Context) {
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
 			if event.LinkedTaskID != primitive.NilObjectID {
-				linkedTask, err := database.GetTask(dbCtx, event.LinkedTaskID, event.UserID)
+				linkedTask, err := database.GetTask(api.DB, dbCtx, event.LinkedTaskID, event.UserID)
 				// if linked_task exists
 				if err == nil {
 					linkedTaskDeeplink = getLinkedTaskDeeplink(linkedTask)

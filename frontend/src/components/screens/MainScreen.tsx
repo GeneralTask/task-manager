@@ -13,13 +13,10 @@ import React from 'react'
 import Settings from '../views/SettingsView'
 import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 import TaskSection from '../views/TaskSectionView'
-import { useAppSelector } from '../../redux/hooks'
 import OverviewPageView from '../views/OverviewPageView'
 
 const MainScreen = () => {
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
     const location = useLocation()
-
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
 
@@ -44,7 +41,7 @@ const MainScreen = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             <DefaultTemplate>
-                <>{expandedCalendar || currentPage}</>
+                <>{currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer />
         </DndProvider>

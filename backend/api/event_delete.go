@@ -25,7 +25,7 @@ func (api *API) EventDelete(c *gin.Context) {
 	parentCtx := c.Request.Context()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	event, err := database.GetCalendarEvent(dbCtx, eventID, userID)
+	event, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
@@ -38,7 +38,7 @@ func (api *API) EventDelete(c *gin.Context) {
 		return
 	}
 
-	err = taskSourceResult.Source.DeleteEvent(userID, event.SourceAccountID, event.IDExternal)
+	err = taskSourceResult.Source.DeleteEvent(api.DB, userID, event.SourceAccountID, event.IDExternal)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)

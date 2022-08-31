@@ -38,7 +38,7 @@ func (api *API) EventModify(c *gin.Context) {
 	dbCtx, cancel := context.WithTimeout(c.Request.Context(), constants.DatabaseTimeout)
 	defer cancel()
 
-	event, err := database.GetCalendarEvent(dbCtx, eventID, userID)
+	event, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
@@ -51,7 +51,7 @@ func (api *API) EventModify(c *gin.Context) {
 		return
 	}
 
-	err = eventSourceResult.Source.ModifyEvent(userID, modifyParams.AccountID, event.IDExternal, &modifyParams)
+	err = eventSourceResult.Source.ModifyEvent(api.DB, userID, modifyParams.AccountID, event.IDExternal, &modifyParams)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)

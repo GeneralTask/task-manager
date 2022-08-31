@@ -97,9 +97,11 @@ type Task struct {
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	Status             *ExternalTaskStatus `bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus     *ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus    *ExternalTaskStatus `bson:"completed_status,omitempty"`
-	SlackMessageParams SlackMessageParams  `bson:"slack_message_params,omitempty"`
+	PreviousStatus           *ExternalTaskStatus      `bson:"previous_status,omitempty"`
+	CompletedStatus          *ExternalTaskStatus      `bson:"completed_status,omitempty"`
+	SlackMessageParams       SlackMessageParams       `bson:"slack_message_params,omitempty"`
+	MeetingPreparationParams MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
+	IsMeetingPreparationTask bool                     `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 type PullRequest struct {
@@ -121,6 +123,7 @@ type PullRequest struct {
 	RequiredAction    string             `bson:"required_action,omitempty"`
 	CommentCount      int                `bson:"comment_count,omitempty"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
+	LastFetched       primitive.DateTime `bson:"last_fetched,omitempty"`
 	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
 	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
 }
@@ -144,13 +147,22 @@ type CalendarEvent struct {
 	LinkedTaskID   primitive.ObjectID `bson:"linked_task_id,omitempty"`
 }
 
+type MeetingPreparationParams struct {
+	CalendarEventID               primitive.ObjectID `bson:"event_id"`
+	IDExternal                    string             `bson:"id_external"`
+	DatetimeStart                 primitive.DateTime `bson:"datetime_start"`
+	DatetimeEnd                   primitive.DateTime
+	HasBeenAutomaticallyCompleted bool `bson:"has_been_automatically_completed"`
+}
+
 // Note that this model is used in the request for Slack, and thus should match
 // the payload from the Slack request.
 type SlackMessageParams struct {
-	Channel SlackChannel `bson:"channel,omitempty" json:"channel,omitempty"`
-	User    SlackUser    `bson:"user,omitempty" json:"user,omitempty"`
-	Team    SlackTeam    `bson:"team,omitempty" json:"team,omitempty"`
-	Message SlackMessage `bson:"message,omitempty" json:"message,omitempty"`
+	Channel     SlackChannel `bson:"channel,omitempty" json:"channel,omitempty"`
+	User        SlackUser    `bson:"user,omitempty" json:"user,omitempty"`
+	Team        SlackTeam    `bson:"team,omitempty" json:"team,omitempty"`
+	Message     SlackMessage `bson:"message,omitempty" json:"message,omitempty"`
+	ResponseURL string       `bson:"response_url,omitempty" json:"response_url,omitempty"`
 }
 
 type SlackTeam struct {
