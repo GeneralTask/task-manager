@@ -1,8 +1,13 @@
 package api
 
 import (
+	"regexp"
+	"strings"
+
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func getUserIDFromContext(c *gin.Context) primitive.ObjectID {
@@ -30,4 +35,26 @@ type OrderingIDGetter interface {
 
 func (result OverviewResult[T]) GetOrderingID() int {
 	return result.IDOrdering
+}
+
+func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.ObjectID, taskTitle string) (*database.User, string) {
+	fromToken, err := database.GetUser(db, userID)
+	if err != nil {
+		return nil, ""
+	}
+
+	if strings.HasSuffix(fromToken.Email, "@generaltask.com") && strings.HasPrefix(taskTitle, "<to ") {
+		regex, err := regexp.Compile(`<to [a-zA-Z]+>`)
+		name := regex.FindString(taskTitle)
+		name = strings.Trim(name, "<to ")
+		name = strings.Trim(name, ">")
+		matchingUser, err := database.GetGeneralTaskUserByName(db, name)
+		if err != nil {
+			return nil, ""
+		}
+
+		taskTitle = regex.ReplaceAllString(taskTitle, "") + " from: " + fromToken.Email
+		return matchingUser, taskTitle
+	}
+	return nil, ""
 }

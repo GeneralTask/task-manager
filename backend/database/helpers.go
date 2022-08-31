@@ -559,7 +559,7 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	return &userObject, nil
 }
 
-func GetUserByEmail(db *mongo.Database, email string) (*User, error) {
+func GetGeneralTaskUserByName(db *mongo.Database, name string) (*User, error) {
 	parentCtx := context.Background()
 	var user User
 
@@ -568,7 +568,7 @@ func GetUserByEmail(db *mongo.Database, email string) (*User, error) {
 	if err := GetUserCollection(db).FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"email": email},
+			{"email": name + "@generaltask.com"},
 		}}).Decode(&user); err != nil {
 		return nil, err
 	}
