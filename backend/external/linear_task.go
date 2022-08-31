@@ -2,6 +2,7 @@ package external
 
 import (
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -16,7 +17,7 @@ type LinearTaskSource struct {
 	Linear LinearService
 }
 
-func (linearTask LinearTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 

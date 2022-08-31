@@ -27,12 +27,6 @@ func (api *API) EventCreate(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
 	dbCtx, cancel := context.WithTimeout(c.Request.Context(), constants.DatabaseTimeout)
 	defer cancel()
 
@@ -72,7 +66,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	insertedEvent, err := database.UpdateOrCreateCalendarEvent(
-		db,
+		api.DB,
 		userID,
 		externalEventID.Hex(),
 		sourceID,

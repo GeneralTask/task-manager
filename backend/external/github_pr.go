@@ -88,7 +88,7 @@ type GithubPRRequestData struct {
 	Token       *oauth2.Token
 }
 
-func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 

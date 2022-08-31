@@ -1,6 +1,7 @@
 package external
 
 import (
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -8,7 +9,7 @@ import (
 )
 
 type TaskSource interface {
-	GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
+	GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
 	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
 	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
 	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)

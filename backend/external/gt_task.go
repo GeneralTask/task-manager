@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -15,7 +16,7 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (generalTask GeneralTaskTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 

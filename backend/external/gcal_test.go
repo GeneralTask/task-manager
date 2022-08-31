@@ -22,6 +22,9 @@ import (
 
 func TestCalendar(t *testing.T) {
 	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
 	t.Run("Success", func(t *testing.T) {
 		standardEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
@@ -37,9 +40,6 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
@@ -81,7 +81,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -121,9 +121,6 @@ func TestCalendar(t *testing.T) {
 		oldEndtime, _ := time.Parse(time.RFC3339, "2021-03-06T15:35:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
@@ -170,7 +167,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -210,9 +207,6 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
@@ -236,7 +230,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -270,7 +264,7 @@ func TestCalendar(t *testing.T) {
 		}
 		defer server.Close()
 		var calendarResult = make(chan CalendarResult)
-		go googleCalendar.GetEvents(primitive.NewObjectID(), "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, primitive.NewObjectID(), "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.CalendarEvents))
@@ -300,9 +294,6 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
@@ -346,7 +337,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))

@@ -27,18 +27,12 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
 	if err != nil {
 		result <- emptyCalendarResult(err)
 		return
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyCalendarResult(err)
-		return
-	}
-	defer dbCleanup()
 
 	calendarResponse, err := calendarService.Events.
 		List("primary").

@@ -43,7 +43,7 @@ type SlackAdditionalInformation struct {
 	Deeplink string
 }
 
-func (slackTask SlackSavedTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (slackTask SlackSavedTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
