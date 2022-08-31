@@ -164,7 +164,7 @@ func TestUpdateOrCreateTask(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	t.Run("NoUpdateIfTaskExistsAndInMissing", func(t *testing.T) {
+	t.Run("NoUpdateIfTaskExistsAndFieldsInUpdateIfMissing", func(t *testing.T) {
 		completed := true
 		updateTask := Task{
 			IsCompleted: &completed,
@@ -214,7 +214,23 @@ func TestUpdateOrCreatePullRequest(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	t.Run("Success", func(t *testing.T) {
+	t.Run("CreateSuccess", func(t *testing.T) {
+		newUserID := primitive.NewObjectID()
+		newPR, err := UpdateOrCreatePullRequest(db, newUserID, "222aaa", "random_source", &PullRequest{
+			IDExternal: "222aaa",
+			SourceID:   "random_source",
+			UserID:     newUserID,
+			Title:      "new event",
+		}, nil)
+		assert.NoError(t, err)
+
+		ctx := context.Background()
+		respPR, err := GetPullRequestByExternalID(db, ctx, "222aaa", newUserID)
+		assert.NoError(t, err)
+		assert.Equal(t, newPR.ID, respPR.ID)
+		assert.Equal(t, "new event", respPR.Title)
+	})
+	t.Run("UpdateSuccess", func(t *testing.T) {
 		completed := true
 		updateTask := Task{
 			IsCompleted: &completed,
@@ -246,7 +262,23 @@ func TestUpdateOrCreateCalendarEvent(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	t.Run("Success", func(t *testing.T) {
+	t.Run("CreateSuccess", func(t *testing.T) {
+		newUserID := primitive.NewObjectID()
+		newEvent, err := UpdateOrCreateCalendarEvent(db, newUserID, "222aaa", "random_source", &CalendarEvent{
+			IDExternal: "222aaa",
+			SourceID:   "random_source",
+			UserID:     newUserID,
+			Title:      "new event",
+		}, nil)
+		assert.NoError(t, err)
+
+		ctx := context.Background()
+		respEvent, err := GetCalendarEvent(db, ctx, (*newEvent).ID, newUserID)
+		assert.NoError(t, err)
+		assert.Equal(t, newEvent.ID, respEvent.ID)
+		assert.Equal(t, "new event", respEvent.Title)
+	})
+	t.Run("UpdateSuccess", func(t *testing.T) {
 		updateEvent := CalendarEvent{
 			Title: "new title",
 		}
@@ -413,12 +445,12 @@ func TestTaskSectionName(t *testing.T) {
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 
-	t.Run("Default task section", func(t *testing.T) {
+	t.Run("DefaultTaskSection", func(t *testing.T) {
 		name, err := GetTaskSectionName(db, constants.IDTaskSectionDefault, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "Default", name)
 	})
-	t.Run("Custom task section", func(t *testing.T) {
+	t.Run("CustomTaskSection", func(t *testing.T) {
 		parentCtx := context.Background()
 		sectionName := "TestSection"
 		taskSectionCollection := GetTaskSectionCollection(db)
@@ -438,7 +470,7 @@ func TestTaskSectionName(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, sectionName, name)
 	})
-	t.Run("No task section with provided ID", func(t *testing.T) {
+	t.Run("NoTaskSectionWithProvidedID", func(t *testing.T) {
 		db, dbCleanup, err := GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
@@ -454,12 +486,12 @@ func TestGetTaskSections(t *testing.T) {
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 
-	t.Run("No task sections", func(t *testing.T) {
+	t.Run("NoTaskSections", func(t *testing.T) {
 		sections, err := GetTaskSections(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(*sections))
 	})
-	t.Run("Custom task section", func(t *testing.T) {
+	t.Run("CustomTaskSection", func(t *testing.T) {
 		parentCtx := context.Background()
 		sectionName := "TestSection"
 		taskSectionCollection := GetTaskSectionCollection(db)
@@ -479,6 +511,26 @@ func TestGetTaskSections(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*sections))
 		assert.Equal(t, sectionName, (*sections)[0].Name)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		parentCtx := context.Background()
+		sectionName := "TestSection"
+		taskSectionCollection := GetTaskSectionCollection(db)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		_, err := taskSectionCollection.InsertOne(
+			dbCtx,
+			&TaskSection{
+				UserID: userID,
+				Name:   sectionName,
+			},
+		)
+		assert.NoError(t, err)
+
+		sections, err := GetTaskSections(db, primitive.NewObjectID())
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*sections))
 	})
 }
 
@@ -503,7 +555,7 @@ func TestGetUser(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("WrongUserID", func(t *testing.T) {
 		_, err := GetUser(db, primitive.NewObjectID())
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
@@ -527,7 +579,7 @@ func TestGetStateToken(t *testing.T) {
 	tokenID, err := primitive.ObjectIDFromHex(*tokenStr)
 	assert.NoError(t, err)
 
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("WrongStateToken", func(t *testing.T) {
 		token, err := GetStateToken(db, primitive.NewObjectID(), &userID)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, token)
@@ -556,7 +608,7 @@ func TestDeleteStateToken(t *testing.T) {
 	tokenID, err := primitive.ObjectIDFromHex(*tokenStr)
 	assert.NoError(t, err)
 
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("WrongStateToken", func(t *testing.T) {
 		err := DeleteStateToken(db, primitive.NewObjectID(), &userID)
 		assert.Error(t, err)
 	})
@@ -610,7 +662,7 @@ func TestGetExternalToken(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	t.Run("Failure", func(t *testing.T) {
+	t.Run("WrongUserID", func(t *testing.T) {
 		_, err := GetExternalToken(db, "wrong account", serviceID)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
