@@ -382,6 +382,7 @@ func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAu
 }
 
 func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string) ([]*github.Team, error) {
+	fmt.Println("override url:", overrideURL)
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
