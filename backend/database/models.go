@@ -257,14 +257,15 @@ type Recipient struct {
 }
 
 type View struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	UserID        primitive.ObjectID `bson:"user_id"`
-	IDOrdering    int                `bson:"id_ordering"`
-	Type          string             `bson:"type"`
-	IsReorderable bool               `bson:"is_reorderable"`
-	IsLinked      bool               `bson:"is_linked"`
-	GithubID      string             `bson:"github_id"`
-	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
+	ID                       primitive.ObjectID `bson:"_id,omitempty"`
+	UserID                   primitive.ObjectID `bson:"user_id"`
+	IDOrdering               int                `bson:"id_ordering"`
+	Type                     string             `bson:"type"`
+	IsReorderable            bool               `bson:"is_reorderable"`
+	IsLinked                 bool               `bson:"is_linked"`
+	GithubID                 string             `bson:"github_id"`
+	TaskSectionID            primitive.ObjectID `bson:"task_section_id"`
+	IsMeetingPreparationView bool               `bson:"is_meeting_preparation_view"`
 }
 
 type Repository struct {

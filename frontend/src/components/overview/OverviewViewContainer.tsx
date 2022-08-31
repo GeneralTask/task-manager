@@ -6,6 +6,7 @@ import ExternalViewItems from './viewItems/ExternalViewItems'
 import Spinner from '../atoms/Spinner'
 import AuthBanner from './AuthBanner'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
+import MeetingPreparationViewItem from './viewItems/MeetingPreparationViewItem'
 
 const PAGE_SIZE = 5
 
@@ -33,6 +34,8 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                 return ExternalViewItems
             case 'github':
                 return PullRequestViewItems
+            case 'meeting_preparation':
+                return MeetingPreparationViewItem
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }

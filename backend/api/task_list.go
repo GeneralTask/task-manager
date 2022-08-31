@@ -41,6 +41,8 @@ type TaskResult struct {
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
+	DatetimeStart      *string                      `json:"datetime_start,omitempty"`
+	DatetimeEnd        *string                      `json:"datetime_end,omitempty"`
 }
 
 type TaskSection struct {
@@ -270,6 +272,13 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			Team:    t.SlackMessageParams.Team,
 			Message: t.SlackMessageParams.Message,
 		}
+	}
+
+	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
+		startTime := t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339)
+		endTime := t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339)
+		taskResult.DatetimeStart = &startTime
+		taskResult.DatetimeEnd = &endTime
 	}
 
 	return taskResult

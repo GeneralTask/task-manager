@@ -586,6 +586,15 @@ func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database
 		}
 		result = append(result, api.taskBaseToTaskResult(&task, userID))
 	}
+	// dummy result
+	start := "2020-01-01T00:00:00Z"
+	end := "2020-01-01T00:00:00Z"
+	result = append(result, &TaskResult{
+		Title:         "This is a title",
+		Body:          "Even better",
+		DatetimeStart: &start,
+		DatetimeEnd:   &end,
+	})
 	return result, nil
 }
 
@@ -647,7 +656,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			return
 		}
 		githubID = *viewCreateParams.GithubID
-	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
+	} else if viewCreateParams.Type != string(ViewMeetingPreparation) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -703,7 +712,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(ViewLinear) && params.Type != string(ViewSlack) {
+	} else if params.Type != string(ViewLinear) && params.Type != string(ViewSlack) && params.Type != string(ViewMeetingPreparation) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
@@ -891,6 +900,19 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 
 	supportedViews := []SupportedView{
 		{
+			Type:     ViewMeetingPreparation,
+			Name:     "Meeting Preparation for the day",
+			Logo:     external.TaskSourceGoogleCalendar.LogoV2,
+			IsNested: false,
+			IsLinked: true,
+			Views: []SupportedViewItem{
+				{
+					Name:    ViewMeetingPreparationName,
+					IsAdded: false,
+				},
+			},
+		},
+		{
 			Type:     ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
@@ -1023,7 +1045,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == ViewLinear || viewType == ViewSlack {
+	} else if viewType == ViewLinear || viewType == ViewSlack || viewType == ViewMeetingPreparation {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
