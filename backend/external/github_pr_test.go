@@ -423,7 +423,7 @@ func TestGithubRepositories(t *testing.T) {
 		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
 
 		assert.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("GET %s/user/repos: 401  []", *userRepositoriesURL), err.Error())
+		assert.Equal(t, fmt.Sprintf("GET %s/user/repos?sort=pushed: 401  []", *userRepositoriesURL), err.Error())
 		assert.Nil(t, githubRepositories)
 	})
 	t.Run("BadResponse", func(t *testing.T) {

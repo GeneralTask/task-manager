@@ -373,7 +373,10 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	if err != nil {
 		return nil, err
 	}
-	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
+	// we sort by "pushed" to put the more active repos near the front of the results
+	// 30 results are returned by default, which should be enough, but we can increase to 100 if needed
+	repositoryListOptions := github.RepositoryListOptions{Sort: "pushed"}
+	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, &repositoryListOptions)
 	return repositories, err
 }
 
