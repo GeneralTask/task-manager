@@ -126,7 +126,7 @@ func (slackService SlackService) HandleLinkCallback(db *mongo.Database, params C
 	return nil
 }
 
-func (slackService SlackService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
+func (slackService SlackService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("slack does not support signup")
 }
 

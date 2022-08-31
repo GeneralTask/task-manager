@@ -141,7 +141,7 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 	return nil
 }
 
-func (Google GoogleService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
+func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	parentCtx := context.Background()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)

@@ -136,7 +136,7 @@ func (githubService GithubService) HandleLinkCallback(db *mongo.Database, params
 	return nil
 }
 
-func (github GithubService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
+func (github GithubService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("github does not support signup")
 }
 

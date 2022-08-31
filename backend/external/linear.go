@@ -123,7 +123,7 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 	return string(query.Viewer.Email), nil
 }
 
-func (linear LinearService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
+func (linear LinearService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("linear does not support signup")
 }
 

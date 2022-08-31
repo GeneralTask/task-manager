@@ -23,6 +23,6 @@ func (generalTask GeneralTaskService) HandleLinkCallback(db *mongo.Database, par
 	return errors.New("general task service does not support linking")
 }
 
-func (generalTask GeneralTaskService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
+func (generalTask GeneralTaskService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("general task service does not support signup")
 }
