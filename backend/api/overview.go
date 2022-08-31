@@ -555,6 +555,9 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 		bTime, _ := time.Parse("2006-01-02", b.DueDate)
 		return aTime.Unix() < bTime.Unix()
 	})
+	for idx, result := range taskResults {
+		result.IDOrdering = idx
+	}
 	return taskResults
 }
 
