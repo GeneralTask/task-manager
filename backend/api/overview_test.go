@@ -712,15 +712,15 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		expectedViewResult.ViewItems = []*TaskResult{
 			{
 				ID:         secondTaskID,
-				IDOrdering: 2,
+				IDOrdering: 1,
 			},
 			{
 				ID:         thirdTaskID,
-				IDOrdering: 3,
+				IDOrdering: 2,
 			},
 			{
 				ID:         firstTaskID,
-				IDOrdering: 1,
+				IDOrdering: 3,
 			},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
@@ -730,6 +730,34 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
+	})
+}
+
+func testReorderTaskResultsByDueDate(t *testing.T) {
+	t.Run("EmptyResults", func(t *testing.T) {
+		tasks := []*TaskResult{}
+		result := reorderTaskResultsByDueDate(tasks)
+		assert.Equal(t, 0, len(result))
+	})
+	t.Run("Success", func(t *testing.T) {
+		tasks := []*TaskResult{
+			{
+				DueDate:    "2000-01-01",
+				IDOrdering: 0,
+			},
+			{
+				DueDate:    "2000-02-01",
+				IDOrdering: 1,
+			},
+			{
+				DueDate:    "2000-01-01",
+				IDOrdering: 2,
+			},
+		}
+		result := reorderTaskResultsByDueDate(tasks)
+		assert.Equal(t, 3, len(result))
+		assert.Equal(t, "2000-01-01", result[0].DueDate)
+		assert.Equal(t, "2000-02-01", result[2].DueDate)
 	})
 }
 

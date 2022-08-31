@@ -541,14 +541,21 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 	for _, task := range *dueTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
-	sort.SliceStable(taskResults, func(i, j int) bool {
-		a := taskResults[i]
-		b := taskResults[j]
-		return a.DueDate < b.DueDate
-	})
+	taskResults = reorderTaskResultsByDueDate(taskResults)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
+}
+
+func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
+	sort.SliceStable(taskResults, func(i, j int) bool {
+		a := taskResults[i]
+		b := taskResults[j]
+		aTime, _ := time.Parse("2006-01-02", a.DueDate)
+		bTime, _ := time.Parse("2006-01-02", b.DueDate)
+		return aTime.Unix() < bTime.Unix()
+	})
+	return taskResults
 }
 
 func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
