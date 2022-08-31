@@ -19,7 +19,7 @@ func (generalTask GeneralTaskService) GetSignupURL(stateTokenID primitive.Object
 	return nil, errors.New("general task service does not support signup")
 }
 
-func (generalTask GeneralTaskService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID, db *mongo.Database) error {
+func (generalTask GeneralTaskService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	return errors.New("general task service does not support linking")
 }
 

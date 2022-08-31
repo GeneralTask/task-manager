@@ -86,7 +86,7 @@ func (githubService GithubService) GetSignupURL(stateTokenID primitive.ObjectID,
 	return nil, errors.New("github does not support signup")
 }
 
-func (githubService GithubService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID, db *mongo.Database) error {
+func (githubService GithubService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)

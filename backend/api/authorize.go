@@ -114,7 +114,7 @@ func (api *API) LinkCallback(c *gin.Context) {
 		}
 		callbackParams = external.CallbackParams{Oauth2Code: &redirectParams.Code}
 	}
-	err = taskServiceResult.Service.HandleLinkCallback(callbackParams, internalToken.UserID, api.DB)
+	err = taskServiceResult.Service.HandleLinkCallback(api.DB, callbackParams, internalToken.UserID)
 	if err != nil {
 		c.JSON(500, gin.H{"detail": err.Error()})
 		return

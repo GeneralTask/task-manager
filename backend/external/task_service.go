@@ -8,7 +8,7 @@ import (
 type TaskService interface {
 	GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error)
 	GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error)
-	HandleLinkCallback(params CallbackParams, userID primitive.ObjectID, db *mongo.Database) error
+	HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error
 	HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error)
 }
 

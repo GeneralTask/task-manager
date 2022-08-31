@@ -87,7 +87,7 @@ func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return &authURL, nil
 }
 
-func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID, db *mongo.Database) error {
+func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	token, err := Google.LinkConfig.Exchange(context.Background(), *params.Oauth2Code)
 	logger := logging.GetSentryLogger()
 	if err != nil {

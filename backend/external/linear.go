@@ -52,7 +52,7 @@ func (linear LinearService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return nil, errors.New("linear does not support signup")
 }
 
-func (linear LinearService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID, db *mongo.Database) error {
+func (linear LinearService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
