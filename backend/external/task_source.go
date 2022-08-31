@@ -10,10 +10,10 @@ import (
 
 type TaskSource interface {
 	GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult)
-	GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult)
-	GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
-	CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)
-	ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error
+	GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult)
+	GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult)
+	CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error)
+	ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error
 	CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error
 	DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error

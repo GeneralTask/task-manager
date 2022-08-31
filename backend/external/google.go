@@ -144,12 +144,6 @@ func (Google GoogleService) HandleLinkCallback(params CallbackParams, userID pri
 func (Google GoogleService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
 	parentCtx := context.Background()
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return primitive.NilObjectID, nil, nil, err
-	}
-	defer dbCleanup()
-
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 	token, err := Google.LoginConfig.Exchange(extCtx, *params.Oauth2Code)

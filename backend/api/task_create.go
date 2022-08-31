@@ -214,7 +214,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		}
 
 		userID := externalToken.UserID
-		_, err = taskSourceResult.Source.CreateNewTask(userID, externalID, taskCreationObject)
+		_, err = taskSourceResult.Source.CreateNewTask(api.DB, userID, externalID, taskCreationObject)
 		if err != nil {
 			c.JSON(503, gin.H{"detail": "failed to create task"})
 			return
@@ -295,7 +295,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
 	}
-	taskID, err := taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
+	taskID, err := taskSourceResult.Source.CreateNewTask(api.DB, userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return

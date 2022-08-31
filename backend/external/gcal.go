@@ -111,15 +111,15 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
-func (googleCalendar GoogleCalendarSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (googleCalendar GoogleCalendarSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	result <- emptyTaskResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (googleCalendar GoogleCalendarSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (googleCalendar GoogleCalendarSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
@@ -234,7 +234,7 @@ func GetConferenceCall(event *calendar.Event, accountID string) *utils.Conferenc
 	return &utils.ConferenceCall{}
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
+func (googleCalendar GoogleCalendarSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		return errors.New("cannot mark calendar event as done")
 	}

@@ -28,7 +28,7 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := githubSource.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, nil)
+		err := githubSource.ModifyTask(nil, userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 }
@@ -86,7 +86,7 @@ func TestGetPullRequests(t *testing.T) {
 				},
 			},
 		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 
 		assert.NoError(t, result.Error)
@@ -160,7 +160,7 @@ func TestGetPullRequests(t *testing.T) {
 				},
 			},
 		}
-		go githubPR.GetPullRequests(userID, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userID, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 
 		assert.NoError(t, result.Error)
@@ -202,7 +202,7 @@ func TestGetPullRequests(t *testing.T) {
 				},
 			},
 		}
-		go githubPR.GetPullRequests(userID, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userID, "exampleAccountID", pullRequests)
 		result = <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.PullRequests))
@@ -237,7 +237,7 @@ func TestGetPullRequests(t *testing.T) {
 				},
 			},
 		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.PullRequests))
@@ -274,7 +274,7 @@ func TestGetPullRequests(t *testing.T) {
 				},
 			},
 		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.PullRequests))
@@ -300,7 +300,7 @@ func TestGetPullRequests(t *testing.T) {
 				},
 			},
 		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 
 		assert.Equal(t, result.Error.Error(), "failed to fetch Github user")

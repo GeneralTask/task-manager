@@ -88,7 +88,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, result.Error.Error())
@@ -106,7 +106,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, "invalid character 'o' looking for beginning of value", result.Error.Error())
@@ -125,7 +125,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, `non-200 OK status code: 409 Conflict body: ""`, result.Error.Error())
@@ -144,7 +144,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, "invalid character 'o' in literal true (expecting 'r')", result.Error.Error())
@@ -201,7 +201,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
@@ -295,7 +295,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
@@ -378,7 +378,7 @@ func TestModifyLinearTask(t *testing.T) {
 		}}
 
 		isCompleted := true
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, &database.Task{})
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, &database.Task{})
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
@@ -398,7 +398,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newDueDate, err := time.Parse("2006-01-02", "2022-09-12")
 		assert.NoError(t, err)
 		dueDatePrimitive := primitive.NewDateTimeFromTime(newDueDate)
-		err = linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: dueDatePrimitive,
@@ -420,7 +420,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := true
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
 			IsCompleted: &isCompleted,
@@ -442,7 +442,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -463,7 +463,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := ""
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -484,7 +484,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := ""
 		newBody := "New Body"
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -505,7 +505,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
 			DueDate: primitive.NewDateTimeFromTime(time.Now()),
@@ -538,7 +538,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := false
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
@@ -569,7 +569,7 @@ func TestModifyLinearTask(t *testing.T) {
 			dbCtx,
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
 			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
