@@ -172,7 +172,7 @@ export const CalendarContainer = styled.div<{ expanded: boolean; hasShadow: bool
     background-color: ${Colors.background.medium};
     display: flex;
     z-index: 1;
-    box-shadow: ${Shadows.medium};
+    box-shadow: ${Shadows.light};
     flex-direction: column;
 `
 export const DayAndHeaderContainer = styled.div`
