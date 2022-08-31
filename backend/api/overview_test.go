@@ -638,8 +638,18 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		completed := true
 		before, err := time.Parse("2006-01-02", "2000-01-01")
 		assert.NoError(t, err)
+		beforeButLater, err := time.Parse("2006-01-02", "2000-02-01")
 		after, err := time.Parse("2006-01-02", "2100-01-01")
+		assert.NoError(t, err)
 		items := []interface{}{
+			// due before but later
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     primitive.NewDateTimeFromTime(beforeButLater),
+				IDOrdering:  0,
+			},
 			// not completed, due before
 			database.Task{
 				UserID:      userID,
@@ -690,9 +700,10 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		}
 		taskResult, err := taskCollection.InsertMany(parentCtx, items)
 		assert.NoError(t, err)
-		assert.Equal(t, 6, len(taskResult.InsertedIDs))
+		assert.Equal(t, 7, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
+		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
 
 		result, err := api.GetDueTodayOverviewResult(parentCtx, view, userID, 0)
 		assert.NoError(t, err)
@@ -700,12 +711,16 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		// Check results are in the correct order, and the IDOrderings begin at 1
 		expectedViewResult.ViewItems = []*TaskResult{
 			{
-				ID:         firstTaskID,
-				IDOrdering: 1,
-			},
-			{
 				ID:         secondTaskID,
 				IDOrdering: 2,
+			},
+			{
+				ID:         thirdTaskID,
+				IDOrdering: 3,
+			},
+			{
+				ID:         firstTaskID,
+				IDOrdering: 1,
 			},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)

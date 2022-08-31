@@ -541,6 +541,11 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 	for _, task := range *dueTasks {
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
+	sort.SliceStable(taskResults, func(i, j int) bool {
+		a := taskResults[i]
+		b := taskResults[j]
+		return a.DueDate < b.DueDate
+	})
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
