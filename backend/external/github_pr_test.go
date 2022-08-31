@@ -70,6 +70,10 @@ func TestGetPullRequests(t *testing.T) {
 		listPullRequestCommentsURL := &githubListPullRequestCommentsServer.URL
 		defer githubListPullRequestCommentsServer.Close()
 
+		githubListUserTeamsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		listUserTeamsURL := &githubListUserTeamsServer.URL
+		defer githubListUserTeamsServer.Close()
+
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
@@ -82,6 +86,7 @@ func TestGetPullRequests(t *testing.T) {
 						ListPullRequestCommentsURL:  listPullRequestCommentsURL,
 						ListPullRequestReviewersURL: pullRequestReviewersURL,
 						ListCheckRunsForRefURL:      listCheckRunsForRefURL,
+						ListUserTeamsURL:            listUserTeamsURL,
 					},
 				},
 			},
@@ -146,6 +151,10 @@ func TestGetPullRequests(t *testing.T) {
 		pullRequestModifiedURL := &githubPullRequestModifiedServer.URL
 		defer githubPullRequestModifiedServer.Close()
 
+		githubListUserTeamsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		listUserTeamsURL := &githubListUserTeamsServer.URL
+		defer githubListUserTeamsServer.Close()
+
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
@@ -155,6 +164,7 @@ func TestGetPullRequests(t *testing.T) {
 						GetUserURL:             userURL,
 						ListRepositoriesURL:    userRepositoriesURL,
 						ListPullRequestsURL:    userPullRequestsURL,
+						ListUserTeamsURL:       listUserTeamsURL,
 						PullRequestModifiedURL: pullRequestModifiedURL,
 					},
 				},
@@ -197,6 +207,7 @@ func TestGetPullRequests(t *testing.T) {
 						ListPullRequestCommentsURL:  listPullRequestCommentsURL,
 						ListPullRequestReviewersURL: pullRequestReviewersURL,
 						ListCheckRunsForRefURL:      listCheckRunsForRefURL,
+						ListUserTeamsURL:            listUserTeamsURL,
 						PullRequestModifiedURL:      pullRequestModifiedURL,
 					},
 				},
@@ -224,6 +235,10 @@ func TestGetPullRequests(t *testing.T) {
 		userPullRequestsURL := &githubUserPullRequestsServer.URL
 		defer githubUserPullRequestsServer.Close()
 
+		githubListUserTeamsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		listUserTeamsURL := &githubListUserTeamsServer.URL
+		defer githubListUserTeamsServer.Close()
+
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
@@ -233,6 +248,7 @@ func TestGetPullRequests(t *testing.T) {
 						GetUserURL:            userURL,
 						ListRepositoriesURL:   userRepositoriesURL,
 						ListPullRequestsURL:   userPullRequestsURL,
+						ListUserTeamsURL:      listUserTeamsURL,
 					},
 				},
 			},
@@ -262,6 +278,10 @@ func TestGetPullRequests(t *testing.T) {
 		userRepositoriesURL := &githubUserRepositoriesServer.URL
 		defer githubUserRepositoriesServer.Close()
 
+		githubListUserTeamsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		listUserTeamsURL := &githubListUserTeamsServer.URL
+		defer githubListUserTeamsServer.Close()
+
 		var pullRequests = make(chan PullRequestResult)
 		githubPR := GithubPRSource{
 			Github: GithubService{
@@ -270,6 +290,7 @@ func TestGetPullRequests(t *testing.T) {
 						FetchExternalAPIToken: &fetchExternalAPITokenValue,
 						GetUserURL:            userURL,
 						ListRepositoriesURL:   userRepositoriesURL,
+						ListUserTeamsURL:      listUserTeamsURL,
 					},
 				},
 			},
@@ -687,27 +708,34 @@ func TestUserIsReviewer(t *testing.T) {
 		RequestedReviewers: []*github.User{testGithubUserReviewer},
 	}
 	t.Run("UserIsReviewer", func(t *testing.T) {
-		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
+		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews, []*github.Team{}))
+	})
+	t.Run("UserIsReviewerViaTeam", func(t *testing.T) {
+		teamID := int64(69420)
+		githubPullRequest2 := &github.PullRequest{
+			RequestedTeams: []*github.Team{{ID: &teamID}},
+		}
+		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest2, reviews, []*github.Team{{ID: &teamID}}))
 	})
 	// Github API does not consider users who have submitted a review as reviewers, but we still want to show them as a reviewer in our app.
 	t.Run("UserSubmittedReview", func(t *testing.T) {
 		reviews = append(reviews, &github.PullRequestReview{
 			User: testGithubUserSubmittedReview,
 		})
-		assert.True(t, userIsReviewer(testGithubUserSubmittedReview, githubPullRequest, reviews))
+		assert.True(t, userIsReviewer(testGithubUserSubmittedReview, githubPullRequest, reviews, []*github.Team{}))
 	})
 	t.Run("UserIsNotReviewerAndNotSubmittedReview", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUserNotReviewer, githubPullRequest, reviews))
+		assert.False(t, userIsReviewer(testGithubUserNotReviewer, githubPullRequest, reviews, []*github.Team{}))
 	})
 	t.Run("NilPullRequest", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUserReviewer, nil, reviews))
+		assert.False(t, userIsReviewer(testGithubUserReviewer, nil, reviews, []*github.Team{}))
 	})
 	t.Run("NilUser", func(t *testing.T) {
-		assert.False(t, userIsReviewer(nil, githubPullRequest, reviews))
+		assert.False(t, userIsReviewer(nil, githubPullRequest, reviews, []*github.Team{}))
 	})
 	t.Run("NilFields", func(t *testing.T) {
 		testGithubUserReviewer.ID = nil
-		assert.False(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
+		assert.False(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews, []*github.Team{}))
 	})
 }
 

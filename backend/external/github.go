@@ -31,6 +31,7 @@ type GithubConfigValues struct {
 	ListPullRequestCommentsURL  *string
 	ListIssueCommentsURL        *string
 	ListRepositoriesURL         *string
+	ListUserTeamsURL            *string
 	PullRequestModifiedURL      *string
 }
 
