@@ -1,28 +1,17 @@
-import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
-import { Colors, Spacing } from '../../styles'
+import CalendarHeader from '../calendar/CalendarHeader'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarEvents from '../calendar/CalendarEvents'
 import { DateTime } from 'luxon'
-import { Icon } from '../atoms/Icon'
 import { getMonthsAroundDate } from '../../utils/time'
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useCalendarContext } from '../calendar/CalendarContext'
-
-const CollapsedCalendarView = styled.div`
-    padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
-    background-color: ${Colors.background.medium};
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-`
+import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
 
 export type TCalendarType = 'day' | 'week'
 
@@ -68,11 +57,7 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
     useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
 
     return isCollapsed ? (
-        <CollapsedCalendarView onClick={() => setIsCollapsed(false)}>
-            <CaretButton>
-                <Icon icon={icons.calendar_blank} size="small" />
-            </CaretButton>
-        </CollapsedCalendarView>
+        <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
         <CalendarContainer expanded={calendarType === 'week'}>
             <CalendarHeader date={date} setDate={setDate} />

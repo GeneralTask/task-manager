@@ -16,18 +16,11 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
 
-const DetailsViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: ${Colors.background.light};
-    min-width: 300px;
-    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
-`
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -191,7 +184,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const status = task.external_status ? task.external_status.state : ''
 
     return (
-        <DetailsViewContainer data-testid="details-view-container">
+        <DetailsViewTemplate data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
@@ -258,7 +251,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
-        </DetailsViewContainer>
+        </DetailsViewTemplate>
     )
 }
 
