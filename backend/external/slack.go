@@ -74,13 +74,8 @@ func (slackService SlackService) GetSignupURL(stateTokenID primitive.ObjectID, f
 	return nil, errors.New("slack does not support signup")
 }
 
-func (slackService SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (slackService SlackService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID, db *mongo.Database) error {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return errors.New("internal server error")
-	}
-	defer dbCleanup()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -131,7 +126,7 @@ func (slackService SlackService) HandleLinkCallback(params CallbackParams, userI
 	return nil
 }
 
-func (slackService SlackService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+func (slackService SlackService) HandleSignupCallback(params CallbackParams, db *mongo.Database) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("slack does not support signup")
 }
 
