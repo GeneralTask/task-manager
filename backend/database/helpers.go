@@ -477,6 +477,15 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	return GetTasks(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"is_meeting_preparation_task": true},
+		},
+	)
+}
+
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
 		return "Default", nil
@@ -498,6 +507,31 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, us
 	).Decode(&taskSection)
 
 	return taskSection.Name, err
+}
+
+// Get all events that start until the end of the day
+func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]CalendarEvent, error) {
+	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
+	eventCollection := GetCalendarEventCollection(db)
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := eventCollection.Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"datetime_start": bson.M{"$gte": currentTime}},
+				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
+			},
+		})
+	if err != nil {
+		return nil, err
+	}
+	var events []CalendarEvent
+	dbCtx, cancel = context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &events)
+	return &events, err
 }
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {

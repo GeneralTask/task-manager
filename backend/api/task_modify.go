@@ -42,6 +42,7 @@ type TaskModifyParams struct {
 	TaskItemChangeableFields
 }
 
+// dueDate must be of form 2006-03-02T15:04:05Z
 func (api *API) TaskModify(c *gin.Context) {
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)

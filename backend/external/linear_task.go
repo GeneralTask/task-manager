@@ -60,6 +60,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
+		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
 		isCompleted := false
 		task := &database.Task{
 			UserID:            userID,
@@ -72,6 +73,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			SourceAccountID:   accountID,
 			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			IsCompleted:       &isCompleted,
+			DueDate:           primitive.NewDateTimeFromTime(dueDate),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
 				State:      string(linearIssue.State.Name),
@@ -112,6 +114,7 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				Body:            task.Body,
 				Comments:        task.Comments,
 				Status:          task.Status,
+				DueDate:         task.DueDate,
 				CompletedStatus: task.CompletedStatus,
 			},
 			nil,

@@ -21,16 +21,18 @@ import (
 type ViewType string
 
 const (
-	ViewLinearName = "Linear"
-	ViewSlackName  = "Slack"
-	ViewGithubName = "Github"
+	ViewLinearName             = "Linear"
+	ViewSlackName              = "Slack"
+	ViewGithubName             = "Github"
+	ViewMeetingPreparationName = "Meeting Preparation"
 )
 
 const (
-	ViewTaskSection ViewType = "task_section"
-	ViewLinear      ViewType = "linear"
-	ViewSlack       ViewType = "slack"
-	ViewGithub      ViewType = "github"
+	ViewTaskSection        ViewType = "task_section"
+	ViewLinear             ViewType = "linear"
+	ViewSlack              ViewType = "slack"
+	ViewGithub             ViewType = "github"
+	ViewMeetingPreparation ViewType = "meeting_preparation"
 )
 
 type SourcesResult struct {
@@ -77,8 +79,14 @@ type SupportedView struct {
 func (api *API) OverviewViewsList(c *gin.Context) {
 	parentCtx := c.Request.Context()
 
+	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
 	userID := getUserIDFromContext(c)
-	_, err := database.GetUser(api.DB, userID)
+	_, err = database.GetUser(api.DB, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
@@ -113,7 +121,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(api.DB, parentCtx, views, userID)
+	result, err := api.GetOverviewResults(api.DB, parentCtx, views, userID, timezoneOffset)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -127,7 +135,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
@@ -141,6 +149,8 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 			singleOverviewResult, err = api.GetSlackOverviewResult(db, ctx, view, userID)
 		case string(ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
+		case string(ViewMeetingPreparation):
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(db, ctx, view, userID, timezoneOffset)
 		default:
 			err = errors.New("invalid view type")
 		}
@@ -259,6 +269,8 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 			serviceID = external.TaskServiceSlack.ID
 		} else if view.Type == string(ViewGithub) {
 			serviceID = external.TaskServiceGithub.ID
+		} else if view.Type == string(ViewMeetingPreparation) {
+			continue
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -440,6 +452,141 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	api.sortPullRequestResults(pullResults)
 	result.ViewItems = pullResults
 	return &result, nil
+}
+
+func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+	timeNow := api.GetCurrentTime().In(localZone)
+	events, err := database.GetEventsUntilEndOfDay(ctx, db, userID, timeNow)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create new meeting prep tasks for events. Ignore events if meeting prep task already exists
+	err = CreateMeetingTasksFromEvents(ctx, db, userID, events)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get all meeting prep tasks for user
+	meetingTasks, err := database.GetMeetingPreparationTasks(db, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Sort by datetime_start
+	sort.Slice(*meetingTasks, func(i, j int) bool {
+		return (*meetingTasks)[i].MeetingPreparationParams.DatetimeStart <= (*meetingTasks)[j].MeetingPreparationParams.DatetimeStart
+	})
+
+	// Create result of meeting prep tasks
+	result, err := api.GetMeetingPrepTaskResult(ctx, db, userID, timeNow, meetingTasks)
+	if err != nil {
+		return nil, err
+	}
+
+	return &OverviewResult[TaskResult]{
+		ID:            view.ID,
+		Name:          ViewMeetingPreparationName,
+		Logo:          external.TaskSourceGoogleCalendar.LogoV2,
+		Type:          ViewMeetingPreparation,
+		IsLinked:      true,
+		Sources:       []SourcesResult{},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     result,
+	}, nil
+}
+
+func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+	taskCollection := database.GetTaskCollection(db)
+	for _, event := range *events {
+		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+		defer cancel()
+		// Check if meeting prep task exists
+		var meetingTask *database.Task
+		err := taskCollection.FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"user_id": userID},
+				{"is_meeting_preparation_task": true},
+				{"meeting_preparation_params.id_external": event.IDExternal},
+				{"source_id": event.SourceID},
+			},
+			}).Decode(&meetingTask)
+
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+		// Update meeting prep task for event
+		if meetingTask != nil {
+			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+			defer cancel()
+			_, err := taskCollection.UpdateOne(
+				dbCtx,
+				bson.M{"_id": meetingTask.ID},
+				bson.M{"$set": bson.M{
+					"title": event.Title,
+					"body":  event.Body,
+					"meeting_preparation_params.datetime_start": event.DatetimeStart,
+				}},
+			)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+		// Create meeting prep task for event if one does not exist
+		isCompleted := false
+		_, err = taskCollection.InsertOne(ctx, database.Task{
+			Title:                    &event.Title,
+			Body:                     &event.Body,
+			UserID:                   userID,
+			IsCompleted:              &isCompleted,
+			SourceID:                 event.SourceID,
+			IsMeetingPreparationTask: true,
+			MeetingPreparationParams: database.MeetingPreparationParams{
+				CalendarEventID:               event.ID,
+				IDExternal:                    event.IDExternal,
+				DatetimeStart:                 event.DatetimeStart,
+				HasBeenAutomaticallyCompleted: false,
+			},
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
+func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+	taskCollection := database.GetTaskCollection(db)
+	result := []*TaskResult{}
+	for _, task := range *tasks {
+		// if meeting has ended, mark task as complete
+		if task.MeetingPreparationParams.DatetimeEnd.Time().After(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+			defer cancel()
+			_, err := taskCollection.UpdateOne(
+				dbCtx,
+				bson.M{"$and": []bson.M{
+					{"_id": task.ID},
+					{"user_id": userID},
+				}},
+				bson.M{"$set": bson.M{"is_completed": true, "meeting_preparation_params.has_been_automatically_completed": true}})
+			if err != nil {
+				return nil, err
+			}
+			continue
+		}
+		result = append(result, api.taskBaseToTaskResult(&task, userID))
+	}
+	return result, nil
 }
 
 type ViewCreateParams struct {
