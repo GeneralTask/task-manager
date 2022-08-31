@@ -71,21 +71,18 @@ func TestOverview(t *testing.T) {
 }
 
 func TestGetOverviewResults(t *testing.T) {
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
 	parentCtx := context.Background()
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 
 	t.Run("NoViews", func(t *testing.T) {
-		result, err := api.GetOverviewResults(db, parentCtx, []database.View{}, primitive.NewObjectID(), 0)
+		result, err := api.GetOverviewResults(parentCtx, []database.View{}, primitive.NewObjectID(), 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, 0, len(result))
 	})
 	t.Run("InvalidViewType", func(t *testing.T) {
-		result, err := api.GetOverviewResults(db, parentCtx, []database.View{{
+		result, err := api.GetOverviewResults(parentCtx, []database.View{{
 			Type: "invalid",
 		}}, primitive.NewObjectID(), 0)
 		assert.Error(t, err)
@@ -96,7 +93,7 @@ func TestGetOverviewResults(t *testing.T) {
 		userID := primitive.NewObjectID()
 		taskSectionName := "Test Task Section"
 
-		taskSectionCollection := database.GetTaskSectionCollection(db)
+		taskSectionCollection := database.GetTaskSectionCollection(api.DB)
 		taskSectionResult, err := taskSectionCollection.InsertOne(parentCtx, database.TaskSection{
 			Name:   taskSectionName,
 			UserID: userID,
@@ -113,7 +110,7 @@ func TestGetOverviewResults(t *testing.T) {
 			},
 		}
 
-		taskCollection := database.GetTaskCollection(db)
+		taskCollection := database.GetTaskCollection(api.DB)
 		isCompleted := false
 		taskResult, err := taskCollection.InsertOne(parentCtx, database.Task{
 			UserID:        userID,
@@ -123,7 +120,7 @@ func TestGetOverviewResults(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		result, err := api.GetOverviewResults(db, parentCtx, views, userID, 0)
+		result, err := api.GetOverviewResults(parentCtx, views, userID, 0)
 		expectedViewResult := OverviewResult[TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
@@ -188,16 +185,14 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	}
 
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SuccessTaskViewItems", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
+		taskCollection := database.GetTaskCollection(api.DB)
 		isCompleted := false
 		items := []interface{}{
 			database.Task{
@@ -231,7 +226,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
-		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		// Check results are in the correct order, and the IDOrderings begin at 1
@@ -252,16 +247,14 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
 	})
 	t.Run("InvalidSectionIDGracefullyHandled", func(t *testing.T) {
 		view.TaskSectionID = primitive.NewObjectID()
-		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetTaskSectionOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.Nil(t, result)
 	})
@@ -269,12 +262,11 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 
 func TestGetLinearOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	_, err := externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
 		UserID:    userID,
 		Token:     "testtoken",
 		ServiceID: external.TaskServiceLinear.ID,
@@ -286,11 +278,10 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		Type:       "linear",
 		IsLinked:   true,
 	}
-	viewCollection := database.GetViewCollection(db)
+	viewCollection := database.GetViewCollection(api.DB)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api, dbCleanup := GetAPIWithDBCleanup()
-	defer dbCleanup()
+
 	authURL := "http://localhost:8080/link/linear/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -309,14 +300,14 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		TaskSectionID: primitive.NilObjectID,
 	}
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetLinearOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SingleLinearViewItem", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
+		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
 		taskResult, err := taskCollection.InsertOne(parentCtx, database.Task{
@@ -355,7 +346,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 
 		taskID := taskResult.InsertedID.(primitive.ObjectID)
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetLinearOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{
@@ -366,14 +357,14 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		result, err := api.GetLinearOverviewResult(parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
 	})
 	t.Run("ViewNotLinked", func(t *testing.T) {
 		view.IsLinked = false
-		result, err := api.GetLinearOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetLinearOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
@@ -384,12 +375,11 @@ func TestGetLinearOverviewResult(t *testing.T) {
 
 func TestGetSlackOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
+	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	_, err := externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
 		UserID:    userID,
 		Token:     "testtoken",
 		ServiceID: external.TaskServiceSlack.ID,
@@ -401,11 +391,9 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		Type:       "slack",
 		IsLinked:   true,
 	}
-	viewCollection := database.GetViewCollection(db)
+	viewCollection := database.GetViewCollection(api.DB)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api, dbCleanup := GetAPIWithDBCleanup()
-	defer dbCleanup()
 	authURL := "http://localhost:8080/link/slack/"
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:       view.ID,
@@ -424,14 +412,14 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		TaskSectionID: primitive.NilObjectID,
 	}
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetSlackOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SingleSlackViewItem", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
+		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
 		taskResult, err := taskCollection.InsertOne(parentCtx, database.Task{
@@ -464,7 +452,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 
 		taskID := taskResult.InsertedID.(primitive.ObjectID)
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetSlackOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{
@@ -475,14 +463,14 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		result, err := api.GetSlackOverviewResult(parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
 	})
 	t.Run("ViewNotLinked", func(t *testing.T) {
 		view.IsLinked = false
-		result, err := api.GetSlackOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetSlackOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
@@ -493,12 +481,12 @@ func TestGetSlackOverviewResult(t *testing.T) {
 
 func TestGetGithubOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
+	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
+
 	userID := primitive.NewObjectID()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	_, err = externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	_, err := externalAPITokenCollection.InsertOne(parentCtx, database.ExternalAPIToken{
 		UserID:    userID,
 		Token:     "testtoken",
 		ServiceID: external.TaskServiceGithub.ID,
@@ -512,18 +500,17 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		IsLinked:   true,
 		GithubID:   githubID.Hex(),
 	}
-	repositoryCollection := database.GetRepositoryCollection(db)
+	repositoryCollection := database.GetRepositoryCollection(api.DB)
 	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
 		UserID:       userID,
 		RepositoryID: githubID.Hex(),
 		FullName:     "OrganizationTest/RepositoryTest",
 	})
 	assert.NoError(t, err)
-	viewCollection := database.GetViewCollection(db)
+	viewCollection := database.GetViewCollection(api.DB)
 	_, err = viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	api, dbCleanup := GetAPIWithDBCleanup()
-	defer dbCleanup()
+
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
@@ -542,14 +529,14 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		TaskSectionID: primitive.NilObjectID,
 	}
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetGithubOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*PullRequestResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SingleGithubViewItem", func(t *testing.T) {
-		pullRequestCollection := database.GetPullRequestCollection(db)
+		pullRequestCollection := database.GetPullRequestCollection(api.DB)
 		falseBool := false
 		trueBool := true
 		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
@@ -583,7 +570,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 
 		pullRequestID := pullResult.InsertedID.(primitive.ObjectID)
-		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetGithubOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*PullRequestResult{
@@ -594,14 +581,14 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		result, err := api.GetGithubOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		result, err := api.GetGithubOverviewResult(parentCtx, view, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
 	})
 	t.Run("ViewNotLinked", func(t *testing.T) {
 		view.IsLinked = false
-		result, err := api.GetGithubOverviewResult(db, parentCtx, view, userID)
+		result, err := api.GetGithubOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
@@ -612,8 +599,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 
 func TestGetDueTodayOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
+	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 
 	userID := primitive.NewObjectID()
@@ -623,11 +609,9 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		Type:       "due_today",
 		IsLinked:   true,
 	}
-	viewCollection := database.GetViewCollection(db)
-	_, err = viewCollection.InsertOne(parentCtx, view)
+	viewCollection := database.GetViewCollection(api.DB)
+	_, err := viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
-	// api, dbCleanup := GetAPIWithDBCleanup()
-	// defer dbCleanup()
 
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -644,14 +628,14 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 	t.Run("EmptyViewItems", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
-		result, err := api.GetDueTodayOverviewResult(db, parentCtx, view, userID, 0)
+		result, err := api.GetDueTodayOverviewResult(parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*TaskResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("SuccessTaskViewItems", func(t *testing.T) {
-		taskCollection := database.GetTaskCollection(db)
+		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
 		before, err := time.Parse("2006-01-02", "2000-01-01")
@@ -714,7 +698,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
-		result, err := api.GetDueTodayOverviewResult(db, parentCtx, view, userID, 0)
+		result, err := api.GetDueTodayOverviewResult(parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		// Check results are in the correct order, and the IDOrderings begin at 1
@@ -731,9 +715,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		result, err := api.GetDueTodayOverviewResult(parentCtx, view, primitive.NewObjectID(), 0)
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 		assert.Nil(t, result)
@@ -742,13 +724,10 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 
 func TestUpdateViewsLinkedStatus(t *testing.T) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
 
 	t.Run("InvalidUserID", func(t *testing.T) {
 		views := []database.View{
@@ -756,13 +735,13 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 				UserID: userID,
 			},
 		}
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, primitive.NewObjectID())
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 	})
 	t.Run("NoViews", func(t *testing.T) {
 		views := []database.View{}
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, primitive.NewObjectID())
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, primitive.NewObjectID())
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(views))
 	})
@@ -774,7 +753,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 				Type:     "linear",
 			},
 		}
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(views))
 		assert.False(t, views[0].IsLinked)
@@ -794,7 +773,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 			ServiceID: external.TaskServiceLinear.ID,
 		})
 
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(views))
 		assert.True(t, views[0].IsLinked)
@@ -815,7 +794,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 			ServiceID: external.TaskServiceLinear.ID,
 		})
 
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(views))
 		assert.True(t, views[0].IsLinked)
@@ -830,7 +809,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 			},
 		}
 
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, userID)
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(views))
 		assert.False(t, views[0].IsLinked)
@@ -841,7 +820,7 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 				UserID: userID,
 			},
 		}
-		err := api.UpdateViewsLinkedStatus(db, parentCtx, &views, primitive.NewObjectID())
+		err := api.UpdateViewsLinkedStatus(parentCtx, &views, primitive.NewObjectID())
 		assert.Error(t, err)
 		assert.Equal(t, "invalid user", err.Error())
 	})

@@ -114,7 +114,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	err = api.UpdateViewsLinkedStatus(api.DB, parentCtx, &views, userID)
+	err = api.UpdateViewsLinkedStatus(parentCtx, &views, userID)
 	if err != nil {
 		log.Print("failed to get views")
 
@@ -123,7 +123,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(api.DB, parentCtx, views, userID, timezoneOffset)
+	result, err := api.GetOverviewResults(parentCtx, views, userID, timezoneOffset)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -137,24 +137,24 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(ctx context.Context, views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
 		var err error
 		switch view.Type {
 		case string(ViewTaskSection):
-			singleOverviewResult, err = api.GetTaskSectionOverviewResult(db, ctx, view, userID)
+			singleOverviewResult, err = api.GetTaskSectionOverviewResult(ctx, view, userID)
 		case string(ViewLinear):
-			singleOverviewResult, err = api.GetLinearOverviewResult(db, ctx, view, userID)
+			singleOverviewResult, err = api.GetLinearOverviewResult(ctx, view, userID)
 		case string(ViewSlack):
-			singleOverviewResult, err = api.GetSlackOverviewResult(db, ctx, view, userID)
+			singleOverviewResult, err = api.GetSlackOverviewResult(ctx, view, userID)
 		case string(ViewGithub):
-			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
+			singleOverviewResult, err = api.GetGithubOverviewResult(ctx, view, userID)
 		case string(ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(db, ctx, view, userID, timezoneOffset)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(ctx, view, userID, timezoneOffset)
 		case string(ViewDueToday):
-			singleOverviewResult, err = api.GetDueTodayOverviewResult(db, ctx, view, userID, timezoneOffset)
+			singleOverviewResult, err = api.GetDueTodayOverviewResult(ctx, view, userID, timezoneOffset)
 		default:
 			err = errors.New("invalid view type")
 		}
@@ -169,22 +169,22 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 	return result, nil
 }
 
-func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	name, err := database.GetTaskSectionName(db, view.TaskSectionID, userID)
+	name, err := database.GetTaskSectionName(api.DB, view.TaskSectionID, userID)
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
 			return nil, err
 		}
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
-		_, err = database.GetViewCollection(db).DeleteOne(dbCtx, bson.M{"_id": view.ID})
+		_, err = database.GetViewCollection(api.DB).DeleteOne(dbCtx, bson.M{"_id": view.ID})
 		return nil, err
 	}
 
-	tasks, err := database.GetTasks(db, userID,
+	tasks, err := database.GetTasks(api.DB, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"id_task_section": view.TaskSectionID},
@@ -199,7 +199,7 @@ func (api *API) GetTaskSectionOverviewResult(db *mongo.Database, ctx context.Con
 
 	// Reset ID orderings to begin at 1
 	taskResults := []*TaskResult{}
-	taskCollection := database.GetTaskCollection(db)
+	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
 	for _, task := range *tasks {
 		if task.IDOrdering != orderingID {
@@ -259,7 +259,7 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 	return count > 0, nil
 }
 
-func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context, views *[]database.View, userID primitive.ObjectID) error {
+func (api *API) UpdateViewsLinkedStatus(ctx context.Context, views *[]database.View, userID primitive.ObjectID) error {
 	for index, view := range *views {
 		if view.UserID != userID {
 			return errors.New("invalid user")
@@ -280,14 +280,14 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 		}
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
-		isLinked, err := api.IsServiceLinked(db, dbCtx, userID, serviceID)
+		isLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, serviceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to check if service is linked")
 			return err
 		}
 		// If view is linked but service does not exist, update view to unlinked and vice versa
 		if view.IsLinked != isLinked {
-			_, err := database.GetViewCollection(db).UpdateOne(
+			_, err := database.GetViewCollection(api.DB).UpdateOne(
 				dbCtx,
 				bson.M{"_id": view.ID},
 				bson.M{"$set": bson.M{"is_linked": isLinked}},
@@ -302,7 +302,7 @@ func (api *API) UpdateViewsLinkedStatus(db *mongo.Database, ctx context.Context,
 	return nil
 }
 
-func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -328,7 +328,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 		return &result, nil
 	}
 
-	linearTasks, err := database.GetTasks(db, userID,
+	linearTasks, err := database.GetTasks(api.DB, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"source_id": external.TASK_SOURCE_ID_LINEAR},
@@ -346,7 +346,7 @@ func (api *API) GetLinearOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
-func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -372,7 +372,7 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 		return &result, nil
 	}
 
-	slackTasks, err := database.GetTasks(db, userID,
+	slackTasks, err := database.GetTasks(api.DB, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
@@ -390,12 +390,12 @@ func (api *API) GetSlackOverviewResult(db *mongo.Database, ctx context.Context, 
 	return &result, nil
 }
 
-func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[PullRequestResult], error) {
+func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[PullRequestResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
-	repositoryCollection := database.GetRepositoryCollection(db)
+	repositoryCollection := database.GetRepositoryCollection(api.DB)
 	var repository database.Repository
 	err := repositoryCollection.FindOne(ctx, bson.M{"repository_id": view.GithubID}).Decode(&repository)
 	if err != nil {
@@ -423,7 +423,7 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 		return &result, nil
 	}
 
-	githubPRs, err := database.GetPullRequests(db, userID,
+	githubPRs, err := database.GetPullRequests(api.DB, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"repository_id": view.GithubID},
@@ -458,25 +458,24 @@ func (api *API) GetGithubOverviewResult(db *mongo.Database, ctx context.Context,
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
-	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
-	timeNow := api.GetCurrentTime().In(localZone)
-	events, err := database.GetEventsUntilEndOfDay(ctx, db, userID, timeNow)
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	events, err := database.GetEventsUntilEndOfDay(ctx, api.DB, userID, timeNow)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create new meeting prep tasks for events. Ignore events if meeting prep task already exists
-	err = CreateMeetingTasksFromEvents(ctx, db, userID, events)
+	err = CreateMeetingTasksFromEvents(ctx, api.DB, userID, events)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get all meeting prep tasks for user
-	meetingTasks, err := database.GetMeetingPreparationTasks(db, userID)
+	meetingTasks, err := database.GetMeetingPreparationTasks(api.DB, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -487,7 +486,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	})
 
 	// Create result of meeting prep tasks
-	result, err := api.GetMeetingPrepTaskResult(ctx, db, userID, timeNow, meetingTasks)
+	result, err := api.GetMeetingPrepTaskResult(ctx, userID, timeNow, meetingTasks)
 	if err != nil {
 		return nil, err
 	}
@@ -506,7 +505,7 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 	}, nil
 }
 
-func (api *API) GetDueTodayOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -526,10 +525,9 @@ func (api *API) GetDueTodayOverviewResult(db *mongo.Database, ctx context.Contex
 		return &result, nil
 	}
 
-	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
-	timeNow := api.GetCurrentTime().In(localZone)
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, timeNow.Location())
-	dueTasks, err := database.GetTasks(db, userID,
+	dueTasks, err := database.GetTasks(api.DB, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
@@ -610,8 +608,8 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 }
 
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
-func (api *API) GetMeetingPrepTaskResult(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
-	taskCollection := database.GetTaskCollection(db)
+func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
