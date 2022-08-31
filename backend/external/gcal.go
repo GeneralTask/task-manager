@@ -28,7 +28,7 @@ type GoogleCalendarSource struct {
 }
 
 func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		result <- emptyCalendarResult(err)
 		return
@@ -123,8 +123,8 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.Object
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
-func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background())
+func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
@@ -161,9 +161,9 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 	return nil
 }
 
-func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	// TODO: create a EventDeleteURL
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
@@ -252,8 +252,8 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 	return &attendeesList
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background())
+func (googleCalendar GoogleCalendarSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
@@ -300,15 +300,10 @@ func createConferenceCallRequest() *calendar.ConferenceData {
 	}
 }
 
-func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context) (*calendar.Service, error) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
+func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context, db *mongo.Database) (*calendar.Service, error) {
 	var calendarService *calendar.Service
 	logger := logging.GetSentryLogger()
+	var err error
 	if overrideURL != nil {
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()

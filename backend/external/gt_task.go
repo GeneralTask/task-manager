@@ -93,11 +93,11 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 
-func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (generalTask GeneralTaskTaskSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (generalTask GeneralTaskTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (generalTask GeneralTaskTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
@@ -105,6 +105,6 @@ func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, a
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (generalTask GeneralTaskTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

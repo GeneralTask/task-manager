@@ -46,7 +46,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	externalEventID := primitive.NewObjectID()
 	eventCreateObject.ID = externalEventID
 
-	err = taskSourceResult.Source.CreateNewEvent(userID, eventCreateObject.AccountID, eventCreateObject)
+	err = taskSourceResult.Source.CreateNewEvent(api.DB, userID, eventCreateObject.AccountID, eventCreateObject)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)
