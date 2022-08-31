@@ -35,6 +35,11 @@ func (result OverviewResult[T]) GetOrderingID() int {
 	return result.IDOrdering
 }
 
+func (api *API) GetCurrentLocalizedTime(timezoneOffset time.Duration) time.Time {
+	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+	return api.GetCurrentTime().In(localZone)
+}
+
 func (api *API) GetCurrentTime() time.Time {
 	if api.OverrideTime != nil {
 		return *api.OverrideTime
