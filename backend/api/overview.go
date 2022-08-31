@@ -25,6 +25,7 @@ const (
 	ViewSlackName              = "Slack"
 	ViewGithubName             = "Github"
 	ViewMeetingPreparationName = "Meeting Preparation"
+	ViewDueTodayName           = "Due Today"
 )
 
 const (
@@ -33,6 +34,7 @@ const (
 	ViewSlack              ViewType = "slack"
 	ViewGithub             ViewType = "github"
 	ViewMeetingPreparation ViewType = "meeting_preparation"
+	ViewDueToday           ViewType = "due_today"
 )
 
 type SourcesResult struct {
@@ -151,6 +153,8 @@ func (api *API) GetOverviewResults(db *mongo.Database, ctx context.Context, view
 			singleOverviewResult, err = api.GetGithubOverviewResult(db, ctx, view, userID)
 		case string(ViewMeetingPreparation):
 			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(db, ctx, view, userID, timezoneOffset)
+		case string(ViewDueToday):
+			singleOverviewResult, err = api.GetDueTodayOverviewResult(db, ctx, view, userID, timezoneOffset)
 		default:
 			err = errors.New("invalid view type")
 		}
@@ -500,6 +504,48 @@ func (api *API) GetMeetingPreparationOverviewResult(db *mongo.Database, ctx cont
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     result,
 	}, nil
+}
+
+func (api *API) GetDueTodayOverviewResult(db *mongo.Database, ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+	if view.UserID != userID {
+		return nil, errors.New("invalid user")
+	}
+	result := OverviewResult[TaskResult]{
+		ID:            view.ID,
+		Name:          ViewDueTodayName,
+		Logo:          external.TaskServiceGeneralTask.LogoV2,
+		Type:          ViewDueToday,
+		IsLinked:      view.IsLinked,
+		Sources:       []SourcesResult{},
+		TaskSectionID: view.TaskSectionID,
+		IsReorderable: view.IsReorderable,
+		IDOrdering:    view.IDOrdering,
+		ViewItems:     []*TaskResult{},
+	}
+	if !view.IsLinked {
+		return &result, nil
+	}
+
+	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+	timeNow := api.GetCurrentTime().In(localZone)
+	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, timeNow.Location())
+	dueTasks, err := database.GetTasks(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
+			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	taskResults := []*TaskResult{}
+	for _, task := range *dueTasks {
+		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
+	}
+	result.IsLinked = view.IsLinked
+	result.ViewItems = taskResults
+	return &result, nil
 }
 
 func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {

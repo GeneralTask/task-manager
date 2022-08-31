@@ -610,6 +610,136 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	})
 }
 
+func TestGetDueTodayOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID := primitive.NewObjectID()
+	view := database.View{
+		UserID:     userID,
+		IDOrdering: 1,
+		Type:       "due_today",
+		IsLinked:   true,
+	}
+	viewCollection := database.GetViewCollection(db)
+	_, err = viewCollection.InsertOne(parentCtx, view)
+	assert.NoError(t, err)
+	// api, dbCleanup := GetAPIWithDBCleanup()
+	// defer dbCleanup()
+
+	expectedViewResult := OverviewResult[TaskResult]{
+		ID:            view.ID,
+		Name:          "Due Today",
+		Type:          ViewDueToday,
+		Logo:          external.TaskServiceGeneralTask.LogoV2,
+		IsLinked:      true,
+		Sources:       []SourcesResult{},
+		IsReorderable: false,
+		IDOrdering:    1,
+		TaskSectionID: primitive.NilObjectID,
+	}
+
+	t.Run("EmptyViewItems", func(t *testing.T) {
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		result, err := api.GetDueTodayOverviewResult(db, parentCtx, view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		expectedViewResult.ViewItems = []*TaskResult{}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("SuccessTaskViewItems", func(t *testing.T) {
+		taskCollection := database.GetTaskCollection(db)
+		notCompleted := false
+		completed := true
+		before, err := time.Parse("2006-01-02", "2000-01-01")
+		assert.NoError(t, err)
+		after, err := time.Parse("2006-01-02", "2100-01-01")
+		items := []interface{}{
+			// not completed, due before
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     primitive.NewDateTimeFromTime(before),
+				IDOrdering:  1,
+			},
+			// linear source, due before
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_LINEAR,
+				DueDate:     primitive.NewDateTimeFromTime(before),
+				IDOrdering:  2,
+			},
+			// not completed, no due date
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:  3,
+			},
+			// completed, due before
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &completed,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     primitive.NewDateTimeFromTime(before),
+				IDOrdering:  4,
+			},
+			// not completed, due after
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     primitive.NewDateTimeFromTime(after),
+				IDOrdering:  5,
+			},
+			// wrong user ID, due before
+			database.Task{
+				UserID:      primitive.NewObjectID(),
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     primitive.NewDateTimeFromTime(before),
+				IDOrdering:  6,
+			},
+		}
+		taskResult, err := taskCollection.InsertMany(parentCtx, items)
+		assert.NoError(t, err)
+		assert.Equal(t, 6, len(taskResult.InsertedIDs))
+		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
+		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		result, err := api.GetDueTodayOverviewResult(db, parentCtx, view, userID, 0)
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+		// Check results are in the correct order, and the IDOrderings begin at 1
+		expectedViewResult.ViewItems = []*TaskResult{
+			{
+				ID:         firstTaskID,
+				IDOrdering: 1,
+			},
+			{
+				ID:         secondTaskID,
+				IDOrdering: 2,
+			},
+		}
+		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+	})
+	t.Run("InvalidUser", func(t *testing.T) {
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		result, err := api.GetTaskSectionOverviewResult(db, parentCtx, view, primitive.NewObjectID())
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, result)
+	})
+}
+
 func TestUpdateViewsLinkedStatus(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
