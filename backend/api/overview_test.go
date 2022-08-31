@@ -626,8 +626,6 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 	}
 
 	t.Run("EmptyViewItems", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
 		result, err := api.GetDueTodayOverviewResult(parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -696,8 +694,6 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
 		result, err := api.GetDueTodayOverviewResult(parentCtx, view, userID, 0)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
