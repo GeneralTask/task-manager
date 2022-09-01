@@ -16,18 +16,18 @@ import (
 )
 
 type TaskChangeable struct {
-	PriorityID         *string                      `bson:"priority_id,omitempty"`
-	PriorityNormalized *float64                     `bson:"priority_normalized,omitempty"`
-	TaskNumber         *int                         `bson:"task_number,omitempty"`
-	Comments           *[]database.Comment          `bson:"comments,omitempty"`
-	Status             *database.ExternalTaskStatus `bson:"status,omitempty"`
+	PriorityID         *string                      `json:"priority_id,omitempty" bson:"priority_id,omitempty"`
+	PriorityNormalized *float64                     `json:"priority_normalized,omitempty" bson:"priority_normalized,omitempty"`
+	TaskNumber         *int                         `json:"task_number,omitempty" bson:"task_number,omitempty"`
+	Comments           *[]database.Comment          `json:"comments,omitempty" bson:"comments,omitempty"`
+	Status             *database.ExternalTaskStatus `json:"status,omitempty" bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus  *database.ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *database.ExternalTaskStatus `bson:"completed_status,omitempty"`
+	PreviousStatus  *database.ExternalTaskStatus `json:"previous_status,omitempty" bson:"previous_status,omitempty"`
+	CompletedStatus *database.ExternalTaskStatus `json:"completed_status,omitempty" bson:"completed_status,omitempty"`
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `bson:"task,omitempty"`
+	Task           TaskChangeable     `json:"task,omitempty" bson:"task,omitempty"`
 	Title          *string            `json:"title" bson:"title,omitempty"`
 	Body           *string            `json:"body" bson:"body,omitempty"`
 	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
