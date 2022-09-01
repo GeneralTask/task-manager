@@ -10,7 +10,7 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, MouseEventHandler, useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
 
@@ -24,36 +24,22 @@ import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
 import { useClickOutside, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    onClose: MouseEventHandler
+    onClose: (e?: MouseEvent) => void
     xCoord: number
     yCoord: number
     eventHeight: number
     eventWidth: number
     windowHeight: number
-    setIsScrollDisabled: (id: boolean) => void
-    setEventDetailId: (id: string) => void
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    (
-        {
-            event,
-            date,
-            onClose,
-            xCoord,
-            yCoord,
-            eventHeight,
-            eventWidth,
-            windowHeight,
-            setIsScrollDisabled,
-            setEventDetailId,
-        }: EventDetailProps,
-        ref
-    ) => {
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }: EventDetailProps, ref) => {
+        const { selectedEvent, setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
@@ -64,13 +50,19 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         }, [])
         useClickOutside(popupRef, onClose)
 
+        useEffect(() => {
+            console.log('sup')
+            if (selectedEvent?.id !== event.id) {
+                onClose()
+            }
+        }, [selectedEvent?.id])
+
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
         const navigateToTask = useNavigateToTask()
 
         const onDelete = (event: TEvent) => {
-            setIsScrollDisabled(false)
-            setEventDetailId('')
+            setSelectedEvent(null)
             deleteEventInCache({
                 id: event.id,
                 date: date,
@@ -150,7 +142,10 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                             size="small"
                             value="View task details"
                             fitContent={false}
-                            onClick={() => navigateToTask(event.linked_task_id)}
+                            onClick={() => {
+                                setSelectedEvent(null)
+                                navigateToTask(event.linked_task_id)
+                            }}
                         />
                     )}
                     <FlexAnchor href={event.deeplink} target="_blank">

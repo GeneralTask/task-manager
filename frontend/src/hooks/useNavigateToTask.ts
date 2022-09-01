@@ -1,5 +1,6 @@
 import { useCallback } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
+import { useCalendarContext } from "../components/calendar/CalendarContext"
 import { useGetOverviewViews } from "../services/api/overview.hooks"
 import { useGetTasks } from "../services/api/tasks.hooks"
 import { TOverviewView, TTaskSection } from "../utils/types"
@@ -9,6 +10,7 @@ const useNavigateToTask = () => {
     const { data: viewsData } = useGetOverviewViews()
     const { data: sectionsData } = useGetTasks()
     const navigate = useNavigate()
+    const { setCalendarType } = useCalendarContext()
 
     const getTaskURL = useCallback((taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string) => {
         const isUserOnOverviewPage = pathname.startsWith('/overview')
@@ -16,6 +18,7 @@ const useNavigateToTask = () => {
             for (const view of views) {
                 for (const item of view.view_items) {
                     if (item.id === taskID) {
+                        setCalendarType('day')
                         navigate(`/overview/${view.id}/${item.id}`)
                         return
                     }
@@ -25,6 +28,7 @@ const useNavigateToTask = () => {
         for (const section of sections) {
             for (const task of section.tasks) {
                 if (task.id === taskID) {
+                    setCalendarType('day')
                     navigate(`/tasks/${section.id}/${task.id}`)
                     return
                 }
