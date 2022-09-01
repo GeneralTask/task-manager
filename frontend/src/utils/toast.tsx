@@ -1,9 +1,7 @@
-import { Id, ToastOptions, toast as toastifyToast } from 'react-toastify'
+import { Id as ToastId, ToastOptions, toast as toastifyToast } from 'react-toastify'
 import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/ToastTemplate'
 
 import React from 'react'
-
-type ToastId = Id
 
 const toast = (toastTemplateProps: ToastTemplateProps, options?: ToastOptions): ToastId => {
     return toastifyToast(<ToastTemplate {...toastTemplateProps} />, options)
@@ -14,7 +12,6 @@ const updateToast = (id: ToastId, toastTemplateProps: ToastTemplateProps, option
 }
 
 const dismissToast = toastifyToast.dismiss
-
 const isActive = toastifyToast.isActive
 
 export { ToastId, updateToast, isActive, dismissToast }
