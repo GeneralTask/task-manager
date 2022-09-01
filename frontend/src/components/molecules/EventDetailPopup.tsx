@@ -10,7 +10,7 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
 
@@ -39,7 +39,7 @@ interface EventDetailProps {
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
     ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }: EventDetailProps, ref) => {
-        const { selectedEvent, setSelectedEvent } = useCalendarContext()
+        const { setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
@@ -49,13 +49,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             setPopupHeight(popupRef.current.getBoundingClientRect().height)
         }, [])
         useClickOutside(popupRef, onClose)
-
-        useEffect(() => {
-            console.log('sup')
-            if (selectedEvent?.id !== event.id) {
-                onClose()
-            }
-        }, [selectedEvent?.id])
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
