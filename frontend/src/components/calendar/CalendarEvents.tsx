@@ -15,7 +15,7 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import { CALENDAR_DEFAULT_EVENT_DURATION, EVENTS_REFETCH_INTERVAL } from '../../constants'
+import { CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
 import { DropItem, DropType, TEvent } from '../../utils/types'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -26,10 +26,11 @@ import { DateTime } from 'luxon'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
-import { useAppSelector } from '../../redux/hooks'
-import useInterval from '../../hooks/useInterval'
+import { useCalendarContext } from './CalendarContext'
 
-function CalendarDayTable(): JSX.Element {
+
+
+const CalendarDayTable = () => {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
@@ -46,7 +47,7 @@ function CalendarDayTable(): JSX.Element {
     )
 }
 
-function CalendarTimeTable(): JSX.Element {
+const CalendarTimeTable = () => {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
@@ -93,13 +94,14 @@ const WeekCalendarEvents = ({
     setIsScrollDisabled,
     isEventSelected,
     setIsEventSelected,
-}: WeekCalendarEventsProps): JSX.Element => {
+}: WeekCalendarEventsProps) => {
     const tmpDate = date.plus({ days: dayOffset })
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const { calendarType } = useCalendarContext()
+    const isWeekCalendar = calendarType === 'week'
 
     return (
         <DayAndHeaderContainer>
-            {expandedCalendar && (
+            {isWeekCalendar && (
                 <CalendarDayHeader>
                     <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
                         {tmpDate.toFormat('ccc dd')}
@@ -129,22 +131,22 @@ const WeekCalendarEvents = ({
 
 interface CalendarEventsProps {
     date: DateTime
-    numDays: number
     accountId: string | undefined
 }
 
-const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
+const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
     const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
-    const expandedCalendar = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const { calendarType } = useCalendarContext()
+    const numberOfDays = calendarType === 'week' ? 7 : 1
 
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
 
-    const { data: eventPreviousMonth, refetch: refetchPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
-    const { data: eventsCurrentMonth, refetch: refetchCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
-    const { data: eventsNextMonth, refetch: refetchNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
+    const { data: eventPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
+    const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
+    const { data: eventsNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
     const [eventDetailsID, setEventDetailsID] = useState('')
     const [isEventSelected, setIsEventSelected] = useState(false)
@@ -153,7 +155,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
         const allGroups: TEvent[][][] = []
-        for (let i = 0; i < numDays; i++) {
+        for (let i = 0; i < numberOfDays; i++) {
             const startDate = date.plus({ days: i }).startOf('day')
             const endDate = startDate.endOf('day')
             const eventList = events?.filter(
@@ -164,17 +166,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
             allGroups.push(findCollisionGroups(eventList ?? []))
         }
         return allGroups
-    }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numDays])
-
-    useInterval(
-        () => {
-            refetchPreviousMonth()
-            refetchCurrentMonth()
-            refetchNextMonth()
-        },
-        EVENTS_REFETCH_INTERVAL,
-        false
-    )
+    }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numberOfDays])
 
     useLayoutEffect(() => {
         if (eventsContainerRef.current) {
@@ -242,7 +234,7 @@ const CalendarEvents = ({ date, numDays, accountId }: CalendarEventsProps) => {
     return (
         <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={isScrollDisabled}>
             <TimeAndHeaderContainer>
-                {expandedCalendar && <CalendarDayHeader />}
+                {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
                     <TimeIndicator />
                     <CalendarTimeTable />

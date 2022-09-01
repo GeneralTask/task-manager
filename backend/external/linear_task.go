@@ -2,6 +2,7 @@ package external
 
 import (
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -16,18 +17,11 @@ type LinearTaskSource struct {
 	Linear LinearService
 }
 
-func (linearTask LinearTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
-		return
-	}
-	defer dbCleanup()
-
+func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -55,35 +49,34 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		return
 	}
 
-	var tasks []*database.Item
+	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
-		task := &database.Item{
-			TaskBase: database.TaskBase{
-				UserID:            userID,
-				IDExternal:        linearIssue.Id.(string),
-				IDTaskSection:     constants.IDTaskSectionDefault,
-				Deeplink:          string(linearIssue.Url),
-				SourceID:          TASK_SOURCE_ID_LINEAR,
-				Title:             string(linearIssue.Title),
-				Body:              string(linearIssue.Description),
-				SourceAccountID:   accountID,
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		stringTitle := string(linearIssue.Title)
+		stringBody := string(linearIssue.Description)
+		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
+		isCompleted := false
+		task := &database.Task{
+			UserID:            userID,
+			IDExternal:        linearIssue.Id.(string),
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          string(linearIssue.Url),
+			SourceID:          TASK_SOURCE_ID_LINEAR,
+			Title:             &stringTitle,
+			Body:              &stringBody,
+			SourceAccountID:   accountID,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+			IsCompleted:       &isCompleted,
+			DueDate:           primitive.NewDateTimeFromTime(dueDate),
+			Status: &database.ExternalTaskStatus{
+				ExternalID: (linearIssue.State.Id).(string),
+				State:      string(linearIssue.State.Name),
+				Type:       string(linearIssue.State.Type),
 			},
-			TaskType: database.TaskType{
-				IsTask: true,
-			},
-			Task: database.Task{
-				Status: database.ExternalTaskStatus{
-					ExternalID: (linearIssue.State.Id).(string),
-					State:      string(linearIssue.State.Name),
-					Type:       string(linearIssue.State.Type),
-				},
-				CompletedStatus: database.ExternalTaskStatus{
-					ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
-					State:      string(linearIssue.Team.MergeWorkflowState.Name),
-					Type:       string(linearIssue.Team.MergeWorkflowState.Type),
-				},
+			CompletedStatus: &database.ExternalTaskStatus{
+				ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
+				State:      string(linearIssue.Team.MergeWorkflowState.Name),
+				Type:       string(linearIssue.Team.MergeWorkflowState.Type),
 			},
 		}
 		if len(linearIssue.Comments.Nodes) > 0 {
@@ -102,27 +95,23 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 				}
 				dbComments = append(dbComments, dbComment)
 			}
-			task.Task.Comments = &dbComments
+			task.Comments = &dbComments
 		}
-		isCompleted := false
-		dbTask, err := database.UpdateOrCreateItem(
+		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.TaskItemChangeableFields{
-				Title:       &task.Title,
-				Body:        &task.TaskBase.Body,
-				IsCompleted: &isCompleted,
-				Task: database.TaskChangeable{
-					Comments:        task.Comments,
-					Status:          &task.Status,
-					CompletedStatus: &task.CompletedStatus,
-				},
+			database.Task{
+				Title:           task.Title,
+				Body:            task.Body,
+				Comments:        task.Comments,
+				Status:          task.Status,
+				DueDate:         task.DueDate,
+				CompletedStatus: task.CompletedStatus,
 			},
 			nil,
-			true,
 		)
 		if err != nil {
 			logger.Error().Err(err).Msg("could not create task")
@@ -139,17 +128,11 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	result <- TaskResult{Tasks: tasks}
 }
 
-func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
+func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -170,18 +153,18 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 
 }
 
-func (linearTask LinearTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (linearTask LinearTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (linearTask LinearTaskSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (linearTask LinearTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (linearTask LinearTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

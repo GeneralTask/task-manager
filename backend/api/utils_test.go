@@ -14,10 +14,10 @@ import (
 )
 
 func TestCORSHeaders(t *testing.T) {
-	t.Run("OPTIONS preflight request", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	router := GetRouter(api)
+	t.Run("OPTIONS preflight request default", func(t *testing.T) {
 		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -29,10 +29,20 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
 		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH, DELETE", headers.Get("Access-Control-Allow-Methods"))
 	})
-	t.Run("GET request", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
+	t.Run("OPTIONS preflight request mobile", func(t *testing.T) {
+		request, _ := http.NewRequest("OPTIONS", "/tasks/", nil)
+		request.Header.Add("Origin", "http://mobile.localhost.com:3000")
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+
+		assert.Equal(t, http.StatusNoContent, recorder.Code)
+		headers := recorder.Result().Header
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Content-Type,Timezone-Offset,sentry-trace,baggage",
+			headers.Get("Access-Control-Allow-Headers"))
+		assert.Equal(t, "http://mobile.localhost.com:3000", headers.Get("Access-Control-Allow-Origin"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH, DELETE", headers.Get("Access-Control-Allow-Methods"))
+	})
+	t.Run("GET request default", func(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/ping_authed/", nil)
 		authToken := login("approved@generaltask.com", "")
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -44,6 +54,21 @@ func TestCORSHeaders(t *testing.T) {
 		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Content-Type,Timezone-Offset,sentry-trace,baggage",
 			headers.Get("Access-Control-Allow-Headers"))
 		assert.Equal(t, "http://localhost:3000", headers.Get("Access-Control-Allow-Origin"))
+		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH, DELETE", headers.Get("Access-Control-Allow-Methods"))
+	})
+	t.Run("GET request default mobile", func(t *testing.T) {
+		request, _ := http.NewRequest("GET", "/ping_authed/", nil)
+		authToken := login("approved@generaltask.com", "")
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Add("Origin", "http://mobile.localhost.com:3000")
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		headers := recorder.Result().Header
+		assert.Equal(t, "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Headers,Access-Control-Allow-Methods,Content-Type,Timezone-Offset,sentry-trace,baggage",
+			headers.Get("Access-Control-Allow-Headers"))
+		assert.Equal(t, "http://mobile.localhost.com:3000", headers.Get("Access-Control-Allow-Origin"))
 		assert.Equal(t, "POST, OPTIONS, GET, PUT, PATCH, DELETE", headers.Get("Access-Control-Allow-Methods"))
 	})
 }

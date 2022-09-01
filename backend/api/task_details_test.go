@@ -24,38 +24,28 @@ func TestTaskDetail(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
 
-	linearTaskIDHex := insertTestTask(t, userID, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:      userID,
-			IDExternal:  "sample_linear_id_details",
-			SourceID:    external.TASK_SOURCE_ID_LINEAR,
-			IsCompleted: true,
-		},
-		TaskType: database.TaskType{IsTask: true},
+	completed := true
+	linearTaskIDHex := insertTestTask(t, userID, database.Task{
+		UserID:      userID,
+		IDExternal:  "sample_linear_id_details",
+		SourceID:    external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted: &completed,
 	})
-	linearTaskIDHex2 := insertTestTask(t, userID, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:      userID,
-			IDExternal:  "sample_linear_id_details_2",
-			SourceID:    external.TASK_SOURCE_ID_LINEAR,
-			IsCompleted: true,
-		},
-		TaskType: database.TaskType{IsTask: true},
-		Task: database.Task{
-			Status: database.ExternalTaskStatus{
-				//ExternalID: "",
-				State: "Done",
-				Type:  "completed",
-			},
+	linearTaskIDHex2 := insertTestTask(t, userID, database.Task{
+		UserID:      userID,
+		IDExternal:  "sample_linear_id_details_2",
+		SourceID:    external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted: &completed,
+		Status: &database.ExternalTaskStatus{
+			//ExternalID: "",
+			State: "Done",
+			Type:  "completed",
 		},
 	})
-	nonUserTaskIDHex := insertTestTask(t, userID, database.Item{
-		TaskBase: database.TaskBase{
-			UserID:     notUserID,
-			IDExternal: "sample_linear_id_details_3",
-			SourceID:   external.TASK_SOURCE_ID_LINEAR,
-		},
-		TaskType: database.TaskType{IsTask: true},
+	nonUserTaskIDHex := insertTestTask(t, userID, database.Task{
+		UserID:     notUserID,
+		IDExternal: "sample_linear_id_details_3",
+		SourceID:   external.TASK_SOURCE_ID_LINEAR,
 	})
 
 	api, dbCleanup := GetAPIWithDBCleanup()
@@ -123,7 +113,7 @@ func TestTaskDetail(t *testing.T) {
 	})
 }
 
-func insertTestTask(t *testing.T, userID primitive.ObjectID, task database.Item) string {
+func insertTestTask(t *testing.T, userID primitive.ObjectID, task database.Task) string {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -136,7 +126,7 @@ func insertTestTask(t *testing.T, userID primitive.ObjectID, task database.Item)
 	return taskIDHex
 }
 
-func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Item) string {
+func insertTestItem(t *testing.T, userID primitive.ObjectID, task database.Task) string {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()

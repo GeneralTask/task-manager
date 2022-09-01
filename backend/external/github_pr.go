@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
+	"golang.org/x/oauth2"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -58,6 +60,10 @@ const (
 	ChecksConclusionTimedOut string = "timed_out"
 )
 
+const (
+	GithubAPIBaseURL string = "https://api.github.com/"
+)
+
 type GithubPRSource struct {
 	Github GithubService
 }
@@ -79,30 +85,27 @@ type GithubPRRequestData struct {
 	User        *github.User
 	Repository  *github.Repository
 	PullRequest *github.PullRequest
+	Token       *oauth2.Token
+	UserTeams   []*github.Team
 }
 
-func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (gitPR GithubPRSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (gitPR GithubPRSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	result <- emptyTaskResult(nil)
 }
 
-func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	parentCtx := context.Background()
 	logger := logging.GetSentryLogger()
 
 	var githubClient *github.Client
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	db, dbCleanup, err := database.GetDBConnection()
-	defer dbCleanup()
-	if err != nil {
-		result <- emptyPullRequestResult(err)
-		return
-	}
 
+	var token *oauth2.Token
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
 		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
@@ -131,6 +134,13 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 		return
 	}
 
+	userTeams, err := getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github user teams")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"))
+		return
+	}
+
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github repos for user")
@@ -139,6 +149,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 
 	var pullRequestChannels []chan *database.PullRequest
+	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
 		err := updateOrCreateRepository(parentCtx, db, repository, userID)
 		if err != nil {
@@ -160,22 +171,32 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				User:        githubUser,
 				Repository:  repository,
 				PullRequest: pullRequest,
+				Token:       token,
+				UserTeams:   userTeams,
 			}
-			go gitPR.getPullRequestInfo(extCtx, userID, accountID, requestData, pullRequestChan)
+			requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
+			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
 			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
 		}
 	}
 
 	var pullRequests []*database.PullRequest
-	for _, pullRequestChan := range pullRequestChannels {
+	for index, pullRequestChan := range pullRequestChannels {
 		pullRequest := <-pullRequestChan
 		// if nil, this means that the request ran into an error: continue and keep processing the rest
 		if pullRequest == nil {
 			continue
 		}
 
+		// don't update or create if pull request has DB ID already (it's a cached PR from the DB)
+		if pullRequest.ID != primitive.NilObjectID {
+			pullRequests = append(pullRequests, pullRequest)
+			continue
+		}
+
 		isCompleted := false
 		pullRequest.IsCompleted = &isCompleted
+		pullRequest.LastFetched = requestTimes[index]
 		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,
@@ -183,7 +204,6 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 			pullRequest.SourceID,
 			pullRequest,
 			nil)
-
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
 			result <- emptyPullRequestResult(err)
@@ -201,13 +221,20 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	}
 }
 
-func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
+func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
 	logger := logging.GetSentryLogger()
 
 	githubClient := requestData.Client
 	githubUser := requestData.User
 	repository := requestData.Repository
 	pullRequest := requestData.PullRequest
+
+	// do the check
+	hasBeenModified, cachedPR := pullRequestHasBeenModified(db, extCtx, userID, requestData, gitPR.Github.Config.ConfigValues.PullRequestModifiedURL)
+	if !hasBeenModified {
+		result <- cachedPR
+		return
+	}
 
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
@@ -216,7 +243,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(extCtx context.Context, userID pr
 		return
 	}
 	// Only display pull requests where user is the owner, or the user is a reviewer
-	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews) {
+	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
 		result <- nil
 		return
 	}
@@ -295,6 +322,46 @@ func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
 	return err
 }
 
+func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, requestData GithubPRRequestData, overrideURL *string) (bool, *database.PullRequest) {
+	logger := logging.GetSentryLogger()
+
+	pullRequest := requestData.PullRequest
+	token := requestData.Token
+	repository := requestData.Repository
+
+	dbPR, err := database.GetPullRequestByExternalID(db, ctx, fmt.Sprint(*pullRequest.ID), userID)
+	if err != nil {
+		// if fail to fetch from DB, fetch from Github
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msg("unable to fetch pull request from db")
+		}
+		return true, nil
+	}
+
+	requestURL := GithubAPIBaseURL + "repos/" + *repository.Owner.Login + "/" + *repository.Name + "/pulls/" + fmt.Sprint(*pullRequest.Number)
+	if overrideURL != nil {
+		requestURL = *overrideURL
+	}
+
+	// Github API does not support conditional requests, so this logic is required
+	request, _ := http.NewRequest("GET", requestURL, nil)
+	request.Header.Set("Accept", "application/vnd.github+json")
+	if token != nil {
+		request.Header.Set("Authorization", "token "+token.AccessToken)
+	}
+	if !dbPR.LastFetched.Time().IsZero() {
+		request.Header.Set("If-Modified-Since", (dbPR.LastFetched.Time().Format("Mon, 02 Jan 2006 15:04:05 MST")))
+	}
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		logger.Error().Err(err).Msg("error with github http request")
+		return true, dbPR
+	}
+
+	return (resp.StatusCode != http.StatusNotModified), dbPR
+}
+
 func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
@@ -304,12 +371,24 @@ func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAu
 	return githubUser, err
 }
 
+func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string) ([]*github.Team, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	userTeams, _, err := githubClient.Teams.ListUserTeams(context, nil)
+	return userTeams, err
+}
+
 func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) ([]*github.Repository, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
 	}
-	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
+	// we sort by "pushed" to put the more active repos near the front of the results
+	// 30 results are returned by default, which should be enough, but we can increase to 100 if needed
+	repositoryListOptions := github.RepositoryListOptions{Sort: "pushed"}
+	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, &repositoryListOptions)
 	return repositories, err
 }
 
@@ -394,13 +473,20 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 // Github API does not consider users who have submitted a review as reviewers
-func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview) bool {
+func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, userTeams []*github.Team) bool {
 	if pullRequest == nil || githubUser == nil {
 		return false
 	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
+		}
+	}
+	for _, userTeam := range userTeams {
+		for _, team := range pullRequest.RequestedTeams {
+			if team.ID != nil && userTeam.ID != nil && *team.ID == *userTeam.ID {
+				return true
+			}
 		}
 	}
 	// If user submitted a review, we consider them a reviewer as well
@@ -463,7 +549,7 @@ func getReviewerCount(context context.Context, githubClient *github.Client, repo
 			submittedReviews += 1
 		}
 	}
-	return submittedReviews + len(reviewers.Users), nil
+	return submittedReviews + len(reviewers.Users) + len(reviewers.Teams), nil
 }
 
 func reviewersHaveRequestedChanges(reviews []*github.PullRequestReview) bool {
@@ -535,23 +621,23 @@ func getPullRequestRequiredAction(data GithubPRData) string {
 	return action
 }
 
-func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (gitPR GithubPRSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (gitPR GithubPRSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (gitPR GithubPRSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+func (gitPR GithubPRSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }
 
-func (gitPR GithubPRSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (gitPR GithubPRSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

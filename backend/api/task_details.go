@@ -18,7 +18,7 @@ func (api *API) TaskDetail(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetItem(c.Request.Context(), taskID, userID)
+	task, err := database.GetTask(api.DB, c.Request.Context(), taskID, userID)
 	if err != nil {
 		Handle404(c)
 		return

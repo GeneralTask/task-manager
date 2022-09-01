@@ -1,0 +1,13 @@
+[
+    {
+        "delete": "tasks",
+        "deletes": [
+            {
+                "q": {
+                    "source_id": "github_pr"
+                },
+                "limit": 0
+            }
+        ]
+    }
+]
