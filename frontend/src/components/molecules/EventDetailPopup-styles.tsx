@@ -1,4 +1,6 @@
-import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import styled from 'styled-components'
 
@@ -76,4 +78,10 @@ export const Description = styled.div`
     max-height: ${MAX_POPUP_HEIGHT}px;
     overflow-wrap: break-word;
     overflow-y: auto;
+`
+export const FlexAnchor = styled(NoStyleAnchor)`
+    flex: 1;
+`
+export const CopyButton = styled(IconButton)`
+    margin: 0 ${Spacing.margin._8};
 `

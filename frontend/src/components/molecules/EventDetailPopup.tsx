@@ -1,4 +1,5 @@
 import {
+    CopyButton,
     Description,
     EventBoxStyle,
     EventDate,
@@ -6,51 +7,39 @@ import {
     EventHeader,
     EventHeaderIcons,
     EventTitle,
+    FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, MouseEventHandler, useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
 
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
+import Flex from '../atoms/Flex'
 import GTButton from '../atoms/buttons/GTButton'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import ReactDOM from 'react-dom'
+import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
-import { useClickOutside } from '../../hooks'
+import { useClickOutside, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    onClose: MouseEventHandler
+    onClose: (e?: MouseEvent) => void
     xCoord: number
     yCoord: number
     eventHeight: number
     eventWidth: number
     windowHeight: number
-    setIsScrollDisabled: (id: boolean) => void
-    setEventDetailId: (id: string) => void
 }
 
 const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    (
-        {
-            event,
-            date,
-            onClose,
-            xCoord,
-            yCoord,
-            eventHeight,
-            eventWidth,
-            windowHeight,
-            setIsScrollDisabled,
-            setEventDetailId,
-        }: EventDetailProps,
-        ref
-    ) => {
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }: EventDetailProps, ref) => {
+        const { setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
@@ -63,10 +52,10 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
+        const navigateToTask = useNavigateToTask()
 
         const onDelete = (event: TEvent) => {
-            setIsScrollDisabled(false)
-            setEventDetailId('')
+            setSelectedEvent(null)
             deleteEventInCache({
                 id: event.id,
                 date: date,
@@ -117,7 +106,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 }}
             >
                 <EventHeader>
-                    <Icon icon={logos.gcal} size="xSmall" />
+                    <Icon icon={logos[event.logo]} size="xSmall" />
                     <EventHeaderIcons>
                         <IconButton onClick={() => onDelete(event)}>
                             <Icon icon={icons.trash} size="xSmall" />
@@ -139,15 +128,45 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                     </EventDate>
                 </EventDateContainer>
                 <Description>{event.body}</Description>
-                <NoStyleAnchor href={event.deeplink} target="_blank">
-                    <GTButton
-                        styleType="secondary"
-                        size="small"
-                        value="Google Calendar"
-                        icon={icons.external_link}
-                        fitContent={false}
-                    />
-                </NoStyleAnchor>
+                <Flex gap={Spacing.margin._8}>
+                    {event.linked_task_id && (
+                        <GTButton
+                            styleType="secondary"
+                            size="small"
+                            value="View task details"
+                            fitContent={false}
+                            onClick={() => {
+                                setSelectedEvent(null)
+                                navigateToTask(event.linked_task_id)
+                            }}
+                        />
+                    )}
+                    <FlexAnchor href={event.deeplink} target="_blank">
+                        <GTButton
+                            styleType="secondary"
+                            size="small"
+                            value="Google Calendar"
+                            icon={icons.external_link}
+                            fitContent={false}
+                        />
+                    </FlexAnchor>
+                </Flex>
+                {event.conference_call.logo && (
+                    <Flex alignItemsCenter>
+                        <FlexAnchor href={event.conference_call.url} target="_blank">
+                            <GTButton
+                                styleType="secondary"
+                                size="small"
+                                value="Join"
+                                icon={event.conference_call.logo}
+                                fitContent={false}
+                            />
+                        </FlexAnchor>
+                        <CopyButton onClick={() => navigator.clipboard.writeText(event.conference_call.url)}>
+                            <Icon size="xSmall" icon={icons.copy} />
+                        </CopyButton>
+                    </Flex>
+                )}
             </EventBoxStyle>,
             document.getElementById('event-details-popup') as HTMLElement
         )
