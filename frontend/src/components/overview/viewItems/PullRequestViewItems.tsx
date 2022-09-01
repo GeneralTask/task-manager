@@ -17,29 +17,31 @@ interface PullRequestViewItemsProps {
 const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
     const { overviewViewId, overviewItemId } = useParams()
 
+    if (view.view_items.length === 0) {
+        return (
+            <EmptyViewItem
+                header="You have no more pull requests!"
+                body="When new pull requests get assigned to you, they will appear here."
+            />
+        )
+    }
+
     return (
         <>
-            {view.view_items.length > 0 ? (
-                view.view_items.map((item, index) => (
-                    <Fragment key={item.id}>
-                        <PullRequest
-                            pullRequest={item as TPullRequest}
-                            isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                            link={`/overview/${view.id}/${item.id}`}
-                        />
-                        {index !== view.view_items.length - 1 && (
-                            <DividerMargin>
-                                <Divider />
-                            </DividerMargin>
-                        )}
-                    </Fragment>
-                ))
-            ) : (
-                <EmptyViewItem
-                    header="You have no more pull requests!"
-                    body="When new pull requests get assigned to you, they will appear here."
-                />
-            )}
+            {view.view_items.map((item, index) => (
+                <Fragment key={item.id}>
+                    <PullRequest
+                        pullRequest={item as TPullRequest}
+                        isSelected={overviewViewId === view.id && overviewItemId === item.id}
+                        link={`/overview/${view.id}/${item.id}`}
+                    />
+                    {index !== view.view_items.length - 1 && (
+                        <DividerMargin>
+                            <Divider />
+                        </DividerMargin>
+                    )}
+                </Fragment>
+            ))}
         </>
     )
 }
