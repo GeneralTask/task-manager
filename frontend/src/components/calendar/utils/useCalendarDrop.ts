@@ -7,7 +7,7 @@ import { useCallback, useState } from "react"
 import { useCreateEvent } from "../../../services/api/events.hooks"
 import { useEffect } from 'react'
 
-interface CalendarDropProps {
+interface CalendarDropArgs {
     accountId: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
@@ -17,7 +17,7 @@ const useCalendarDrop = ({
     accountId,
     date,
     eventsContainerRef,
-}: CalendarDropProps) => {
+}: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
 
