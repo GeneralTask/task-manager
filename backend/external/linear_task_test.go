@@ -543,7 +543,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
-		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,

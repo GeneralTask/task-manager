@@ -70,6 +70,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			Status:             &externalStatus,
 			SlackMessageParams: slackMessageParams,
 		}, userID)
+		// TODO change to a helper method to compare taskResults
 		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
 		assert.Equal(t, timeAllocation, result.TimeAllocation)
 		assert.False(t, result.IsDone)
