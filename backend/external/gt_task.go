@@ -3,8 +3,9 @@ package external
 import (
 	"context"
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
 
@@ -68,7 +69,8 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 		IsCompleted:     &completed,
 	}
 	if task.DueDate != nil {
-		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
+		dueDate := primitive.NewDateTimeFromTime(*task.DueDate)
+		newTask.DueDate = &dueDate
 	}
 	if task.TimeAllocation != nil {
 		newTask.TimeAllocation = task.TimeAllocation

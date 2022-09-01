@@ -165,6 +165,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
 		title := "test title"
 		description := "test description"
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 		priority := 3.0
 		expectedTask := database.Task{
 			IDOrdering:         0,
@@ -176,7 +177,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			SourceID:           TASK_SOURCE_ID_LINEAR,
 			SourceAccountID:    "wrong",
 			UserID:             userID,
-			DueDate:            primitive.NewDateTimeFromTime(time.Time{}),
+			DueDate:            &dueDate,
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
 			PriorityNormalized: &priority,
 			Status: &database.ExternalTaskStatus{
@@ -248,6 +249,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		title := "wrong test title"
 		description := "wrong test description"
 		priority := 3.0
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
@@ -259,7 +261,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			SourceID:           TASK_SOURCE_ID_LINEAR,
 			SourceAccountID:    "sample_account@email.com",
 			UserID:             userID,
-			DueDate:            primitive.NewDateTimeFromTime(time.Time{}),
+			DueDate:            &dueDate,
 			PriorityNormalized: &priority,
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
 			Status: &database.ExternalTaskStatus{
@@ -333,6 +335,7 @@ func TestModifyLinearTask(t *testing.T) {
 	completed := true
 	testTitle := "test title"
 	testDescription := "test description"
+	dueDate := primitive.NewDateTimeFromTime(time.Time{})
 	expectedTask := database.Task{
 		IDOrdering:        0,
 		IDExternal:        "test-issue-id-1",
@@ -344,7 +347,7 @@ func TestModifyLinearTask(t *testing.T) {
 		SourceID:          TASK_SOURCE_ID_LINEAR,
 		SourceAccountID:   "sample_account@email.com",
 		UserID:            userID,
-		DueDate:           primitive.NewDateTimeFromTime(time.Time{}),
+		DueDate:           &dueDate,
 		CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 		Status: &database.ExternalTaskStatus{
 			ExternalID: "merge-workflow-state-id",
@@ -407,7 +410,7 @@ func TestModifyLinearTask(t *testing.T) {
 		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:              &newName,
 			Body:               &newBody,
-			DueDate:            dueDatePrimitive,
+			DueDate:            &dueDatePrimitive,
 			PriorityNormalized: &priority,
 		}, nil)
 		assert.NoError(t, err)
@@ -448,11 +451,11 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
-
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.NoError(t, err)
 	})
@@ -469,11 +472,12 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := ""
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.NoError(t, err)
 	})
@@ -490,11 +494,12 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := ""
 		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.EqualErrorf(t, err, err.Error(), "cannot set linear issue title to empty string")
 	})
@@ -511,11 +516,12 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `decoding response: EOF`, err.Error())
@@ -544,11 +550,12 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
-			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			DueDate:     &dueDate,
 			IsCompleted: &isCompleted,
 		}, &expectedTask)
 		assert.NoError(t, err)
@@ -568,6 +575,7 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
 		var taskFromDB database.Task
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -579,7 +587,7 @@ func TestModifyLinearTask(t *testing.T) {
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
-			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			DueDate:     &dueDate,
 			IsCompleted: &isCompleted,
 		}, &expectedTask)
 		assert.NotEqual(t, nil, err)

@@ -27,13 +27,13 @@ type TaskChangeable struct {
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `json:"task,omitempty" bson:"task,omitempty"`
-	Title          *string            `json:"title" bson:"title,omitempty"`
-	Body           *string            `json:"body" bson:"body,omitempty"`
-	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
-	TimeAllocation *int64             `json:"time_duration" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime `json:"completed_at" bson:"completed_at"`
+	Task           TaskChangeable      `json:"task,omitempty" bson:"task,omitempty"`
+	Title          *string             `json:"title,omitempty" bson:"title,omitempty"`
+	Body           *string             `json:"body,omitempty" bson:"body,omitempty"`
+	DueDate        *primitive.DateTime `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	TimeAllocation *int64              `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool               `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
+	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
 }
 
 type TaskModifyParams struct {

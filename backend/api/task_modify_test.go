@@ -553,6 +553,8 @@ func TestEditFields(t *testing.T) {
 	taskPriorityNormalized := 5.0
 	taskNumber := 3
 
+	timeNow := primitive.NewDateTimeFromTime(time.Now())
+
 	sampleTask := database.Task{
 		IDExternal:         "ID External",
 		IDOrdering:         1,
@@ -565,7 +567,7 @@ func TestEditFields(t *testing.T) {
 		Title:              &taskTitle,
 		Body:               &taskBody,
 		HasBeenReordered:   false,
-		DueDate:            primitive.NewDateTimeFromTime(time.Now()),
+		DueDate:            &timeNow,
 		TimeAllocation:     &taskTime,
 		CreatedAtExternal:  primitive.NewDateTimeFromTime(time.Now()),
 		PriorityID:         &taskPriorityID,
@@ -713,7 +715,8 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
@@ -853,9 +856,11 @@ func TestEditFields(t *testing.T) {
 		newTitle := "New Title"
 		newBody := "New Body"
 		newTimeAllocation := int64(20 * 1000 * 1000)
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+
 		expectedTask.Title = &newTitle
 		expectedTask.Body = &newBody
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
 		expectedTask.TimeAllocation = &newTimeAllocation
 
 		utils.AssertTasksEqual(t, &expectedTask, &task)

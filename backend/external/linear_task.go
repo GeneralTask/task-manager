@@ -56,6 +56,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
 		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
+		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		isCompleted := false
 
 		task := &database.Task{
@@ -69,7 +70,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			SourceAccountID:    accountID,
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
 			IsCompleted:        &isCompleted,
-			DueDate:            primitive.NewDateTimeFromTime(dueDate),
+			DueDate:            &primitiveDueDate,
 			PriorityNormalized: (*float64)(&linearIssue.Priority),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
