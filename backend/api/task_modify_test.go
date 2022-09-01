@@ -553,6 +553,8 @@ func TestEditFields(t *testing.T) {
 	taskPriorityNormalized := 5.0
 	taskNumber := 3
 
+	timeNow := primitive.NewDateTimeFromTime(time.Now())
+
 	sampleTask := database.Task{
 		IDExternal:         "ID External",
 		IDOrdering:         1,
@@ -565,7 +567,7 @@ func TestEditFields(t *testing.T) {
 		Title:              &taskTitle,
 		Body:               &taskBody,
 		HasBeenReordered:   false,
-		DueDate:            primitive.NewDateTimeFromTime(time.Now()),
+		DueDate:            &timeNow,
 		TimeAllocation:     &taskTime,
 		CreatedAtExternal:  primitive.NewDateTimeFromTime(time.Now()),
 		PriorityID:         &taskPriorityID,
@@ -713,7 +715,8 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
@@ -853,9 +856,11 @@ func TestEditFields(t *testing.T) {
 		newTitle := "New Title"
 		newBody := "New Body"
 		newTimeAllocation := int64(20 * 1000 * 1000)
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+
 		expectedTask.Title = &newTitle
 		expectedTask.Body = &newBody
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
 		expectedTask.TimeAllocation = &newTimeAllocation
 
 		utils.AssertTasksEqual(t, &expectedTask, &task)
@@ -925,5 +930,43 @@ func TestEditFields(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"parameter missing\"}", string(body))
+	})
+	t.Run("Assign to other General Task user", func(t *testing.T) {
+		ctx := context.Background()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+
+		userCollection := database.GetUserCollection(api.DB)
+		assert.NoError(t, err)
+		_, err := userCollection.InsertOne(ctx, database.User{
+			Email: "john@generaltask.com",
+		})
+		assert.NoError(t, err)
+
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title":"<to john>Hello!"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var task database.Task
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, "Hello! from: approved@generaltask.com", *task.Title)
 	})
 }

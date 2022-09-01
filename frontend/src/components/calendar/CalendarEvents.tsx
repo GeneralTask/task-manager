@@ -15,17 +15,17 @@ import {
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
+import { DropItem, DropType, TEvent } from '../../utils/types'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
-import { CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
-import { DropItem, DropType, TEvent } from '../../utils/types'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
-import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useCalendarContext } from './CalendarContext'
 
 const CalendarDayTable = () => {
@@ -75,24 +75,8 @@ interface WeekCalendarEventsProps {
     date: DateTime
     dayOffset: number
     groups: TEvent[][]
-    eventDetailId: string
-    setEventDetailId: (id: string) => void
-    isScrollDisabled: boolean
-    setIsScrollDisabled: (id: boolean) => void
-    isEventSelected: boolean
-    setIsEventSelected: (id: boolean) => void
 }
-const WeekCalendarEvents = ({
-    date,
-    dayOffset,
-    groups,
-    eventDetailId,
-    setEventDetailId,
-    isScrollDisabled,
-    setIsScrollDisabled,
-    isEventSelected,
-    setIsEventSelected,
-}: WeekCalendarEventsProps) => {
+const WeekCalendarEvents = ({ date, dayOffset, groups }: WeekCalendarEventsProps) => {
     const tmpDate = date.plus({ days: dayOffset })
     const { calendarType } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
@@ -108,17 +92,7 @@ const WeekCalendarEvents = ({
             )}
             <DayContainer>
                 {groups.map((group, index) => (
-                    <CollisionGroupColumns
-                        key={index}
-                        events={group}
-                        date={tmpDate}
-                        eventDetailId={eventDetailId}
-                        setEventDetailId={setEventDetailId}
-                        isScrollDisabled={isScrollDisabled}
-                        setIsScrollDisabled={setIsScrollDisabled}
-                        isEventSelected={isEventSelected}
-                        setIsEventSelected={setIsEventSelected}
-                    />
+                    <CollisionGroupColumns key={index} events={group} date={tmpDate} />
                 ))}
                 <TimeIndicator />
                 <CalendarDayTable />
@@ -146,9 +120,7 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
     const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
     const { mutate: createEvent } = useCreateEvent()
-    const [eventDetailsID, setEventDetailsID] = useState('')
-    const [isEventSelected, setIsEventSelected] = useState(false)
-    const [isScrollDisabled, setIsScrollDisabled] = useState(false)
+    const { selectedEvent } = useCalendarContext()
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -173,7 +145,6 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
     }, [])
 
     // drag task to calendar logic
-
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
             const dropPosition = monitor.getClientOffset()
@@ -203,8 +174,10 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                     datetime_end: end.toISO(),
                     summary: item.task?.title,
                     description: item.task?.body,
+                    task_id: item.task?.id,
                 },
                 date,
+                linkedTask: item.task,
             })
         },
         [date, accountId, createEvent]
@@ -226,9 +199,8 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
         drop(eventsContainerRef)
     }, [eventsContainerRef])
 
-    // Passing CalendarEvent props (eventdetails) to WeekCalendarEvents
     return (
-        <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={isScrollDisabled}>
+        <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={selectedEvent != null}>
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
@@ -237,18 +209,7 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                 </TimeContainer>
             </TimeAndHeaderContainer>
             {allGroups.map((groups, dayOffset) => (
-                <WeekCalendarEvents
-                    key={dayOffset}
-                    date={date}
-                    dayOffset={dayOffset}
-                    groups={groups}
-                    eventDetailId={eventDetailsID}
-                    setEventDetailId={setEventDetailsID}
-                    isScrollDisabled={isScrollDisabled}
-                    setIsScrollDisabled={setIsScrollDisabled}
-                    isEventSelected={isEventSelected}
-                    setIsEventSelected={setIsEventSelected}
-                />
+                <WeekCalendarEvents key={dayOffset} date={date} dayOffset={dayOffset} groups={groups} />
             ))}
         </AllDaysContainer>
     )

@@ -598,6 +598,20 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	return &userObject, nil
 }
 
+func GetGeneralTaskUserByName(db *mongo.Database, name string) (*User, error) {
+	parentCtx := context.Background()
+	var user User
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	if err := GetUserCollection(db).FindOne(
+		dbCtx,
+		bson.M{"email": name + "@generaltask.com"}).Decode(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
 	stateToken := &StateToken{UseDeeplink: useDeeplink}

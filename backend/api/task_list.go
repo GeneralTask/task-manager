@@ -204,10 +204,12 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 
 func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
-	if t.DueDate.Time().Unix() == int64(0) {
-		dueDate = ""
-	} else {
-		dueDate = t.DueDate.Time().Format("2006-01-02")
+	if t.DueDate != nil {
+		if t.DueDate.Time().Unix() == int64(0) {
+			dueDate = ""
+		} else {
+			dueDate = t.DueDate.Time().Format("2006-01-02")
+		}
 	}
 
 	taskSourceResult, err := api.ExternalConfig.GetSourceResult(t.SourceID)

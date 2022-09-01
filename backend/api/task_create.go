@@ -297,6 +297,14 @@ func (api *API) TaskCreate(c *gin.Context) {
 	} else {
 		// default is currently the only acceptable accountID for general task task source
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
+		var assignedUser *database.User
+		var tempTitle string
+		assignedUser, tempTitle, err = getValidExternalOwnerAssignedTask(api.DB, userID, taskCreateParams.Title)
+		if err == nil {
+			userID = assignedUser.ID
+			IDTaskSection = constants.IDTaskSectionDefault
+			taskCreateParams.Title = tempTitle
+		}
 	}
 
 	var timeAllocation *int64

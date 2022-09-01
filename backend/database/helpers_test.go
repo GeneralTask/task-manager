@@ -595,6 +595,40 @@ func TestGetUser(t *testing.T) {
 	})
 }
 
+func TestGetGeneralTaskUserByName(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	googleID := "example@generaltask.com"
+	name := "Tony the Tiger"
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = GetUserCollection(db).InsertOne(
+		dbCtx,
+		&User{
+			ID:       userID,
+			GoogleID: googleID,
+			Name:     name,
+			Email:    googleID,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("WrongUserID", func(t *testing.T) {
+		_, err := GetGeneralTaskUserByName(db, "julian")
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		user, err := GetGeneralTaskUserByName(db, "example")
+		assert.NoError(t, err)
+		assert.Equal(t, googleID, user.Email)
+		assert.Equal(t, name, user.Name)
+	})
+}
+
 func TestGetStateToken(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
