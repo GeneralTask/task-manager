@@ -117,6 +117,17 @@ func (api *API) TaskModify(c *gin.Context) {
 			Handle500(c)
 			return
 		}
+
+		if modifyParams.TaskItemChangeableFields.Title != nil {
+			var assignedUser *database.User
+			var tempTitle string
+			assignedUser, tempTitle, err = getValidExternalOwnerAssignedTask(api.DB, userID, *(modifyParams.TaskItemChangeableFields.Title))
+			if err == nil {
+				updateTask.UserID = assignedUser.ID
+				updateTask.IDTaskSection = constants.IDTaskSectionDefault
+				updateTask.Title = &tempTitle
+			}
+		}
 		api.UpdateTaskInDB(c, task, userID, &updateTask)
 	}
 

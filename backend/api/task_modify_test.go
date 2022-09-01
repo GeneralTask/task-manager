@@ -931,4 +931,42 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"parameter missing\"}", string(body))
 	})
+	t.Run("Assign to other General Task user", func(t *testing.T) {
+		ctx := context.Background()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+
+		userCollection := database.GetUserCollection(api.DB)
+		assert.NoError(t, err)
+		_, err := userCollection.InsertOne(ctx, database.User{
+			Email: "john@generaltask.com",
+		})
+		assert.NoError(t, err)
+
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title":"<to john>Hello!"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var task database.Task
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, "Hello! from: approved@generaltask.com", *task.Title)
+	})
 }
