@@ -263,11 +263,11 @@ const linearUpdateIssueQueryStr = `
 		  issueUpdate(
 			id: $id,
 			input: {
-			  title: $title,
-			  stateId: $stateId,
-			  dueDate: $dueDate,
-			  description: $description,
-			  priority: $priority
+			  title: $title
+			  , stateId: $stateId
+			  , dueDate: $dueDate
+			  , description: $description
+			  , priority: $priority
 			}
 		  ) {
 			success
@@ -287,10 +287,10 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 			id: $id,
 			input: {
 			  title: $title,
-			  stateId: $stateId,
-			  dueDate: $dueDate,
-			  descriptionData: $descriptionData,
-			  priority: $priority
+			  , stateId: $stateId
+			  , dueDate: $dueDate
+			  , descriptionData: $descriptionData
+			  , priority: $priority
 			}
 		  ) {
 			success
@@ -343,6 +343,9 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	}
 	if updateFields.DueDate != primitive.NewDateTimeFromTime(time.Time{}) {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
+		if updateFields.DueDate.Time().Unix() == 0 {
+			request.Var("dueDate", nil)
+		}
 	}
 	if updateFields.PriorityNormalized != nil {
 		request.Var("priority", int(*updateFields.PriorityNormalized))
