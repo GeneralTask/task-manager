@@ -213,6 +213,7 @@ type linearAssignedIssuesQuery struct {
 			DueDate     graphql.String
 			Url         graphql.String
 			CreatedAt   graphql.String
+			Priority    graphql.Float
 			Assignee    struct {
 				Id          graphql.ID
 				Name        graphql.String
@@ -248,6 +249,7 @@ type linearAssignedIssuesQuery struct {
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 }
 
+// for some reason Linear outputs priority as a Float, and then expects an int on update
 const linearUpdateIssueQueryStr = `
 		mutation IssueUpdate (
 			$title: String
@@ -255,14 +257,16 @@ const linearUpdateIssueQueryStr = `
 			, $stateId: String
 			, $dueDate: TimelessDate
 			, $description: String
+			, $priority: Int
 		) {
 		  issueUpdate(
 			id: $id,
 			input: {
 			  title: $title
-			  stateId: $stateId,
-			  dueDate: $dueDate,
-			  description: $description
+			  , stateId: $stateId
+			  , dueDate: $dueDate
+			  , description: $description
+			  , priority: $priority
 			}
 		  ) {
 			success
@@ -276,14 +280,16 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 			, $stateId: String
 			, $dueDate: TimelessDate
 			, $descriptionData: JSON
+			, $priority: Int
 		) {
 		  issueUpdate(
 			id: $id,
 			input: {
-			  title: $title
-			  stateId: $stateId,
-			  dueDate: $dueDate,
-			  descriptionData: $descriptionData
+			  title: $title,
+			  , stateId: $stateId
+			  , dueDate: $dueDate
+			  , descriptionData: $descriptionData
+			  , priority: $priority
 			}
 		  ) {
 			success
@@ -293,7 +299,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
-	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description})"`
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description, priority: $priority})"`
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
@@ -339,6 +345,9 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 		if updateFields.DueDate.Time().Unix() == 0 {
 			request.Var("dueDate", nil)
 		}
+	}
+	if updateFields.PriorityNormalized != nil {
+		request.Var("priority", int(*updateFields.PriorityNormalized))
 	}
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)
