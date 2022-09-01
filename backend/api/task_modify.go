@@ -120,8 +120,8 @@ func (api *API) TaskModify(c *gin.Context) {
 		if modifyParams.TaskItemChangeableFields.Title != nil {
 			var assignedUser *database.User
 			var tempTitle string
-			assignedUser, tempTitle = getValidExternalOwnerAssignedTask(api.DB, userID, *(modifyParams.TaskItemChangeableFields.Title))
-			if assignedUser != nil && tempTitle != "" {
+			assignedUser, tempTitle, err = getValidExternalOwnerAssignedTask(api.DB, userID, *(modifyParams.TaskItemChangeableFields.Title))
+			if err == nil {
 				updateTask.UserID = assignedUser.ID
 				updateTask.IDTaskSection = constants.IDTaskSectionDefault
 				updateTask.Title = &tempTitle

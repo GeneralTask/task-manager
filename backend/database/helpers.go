@@ -606,9 +606,7 @@ func GetGeneralTaskUserByName(db *mongo.Database, name string) (*User, error) {
 	defer cancel()
 	if err := GetUserCollection(db).FindOne(
 		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"email": name + "@generaltask.com"},
-		}}).Decode(&user); err != nil {
+		bson.M{"email": name + "@generaltask.com"}).Decode(&user); err != nil {
 		return nil, err
 	}
 	return &user, nil

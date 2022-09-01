@@ -25,15 +25,23 @@ func TestGetValidExternalOwnerAssignedTask(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("InvalidCallingUser", func(t *testing.T) {
-		_, title := getValidExternalOwnerAssignedTask(api.DB, primitive.NewObjectID(), "HELLO!")
+		_, title, err := getValidExternalOwnerAssignedTask(api.DB, primitive.NewObjectID(), "HELLO!")
+		assert.Error(t, err)
+		assert.Equal(t, "", title)
+	})
+	t.Run("InvalidDestinationUser", func(t *testing.T) {
+		_, title, err := getValidExternalOwnerAssignedTask(api.DB, primitive.NewObjectID(), "<to example>HELLO!")
+		assert.Error(t, err)
 		assert.Equal(t, "", title)
 	})
 	t.Run("InvalidTitle", func(t *testing.T) {
-		_, title := getValidExternalOwnerAssignedTask(api.DB, julianUser.InsertedID.(primitive.ObjectID), "HELLO!")
+		_, title, err := getValidExternalOwnerAssignedTask(api.DB, julianUser.InsertedID.(primitive.ObjectID), "HELLO!")
+		assert.Error(t, err)
 		assert.Equal(t, "", title)
 	})
 	t.Run("Success", func(t *testing.T) {
-		user, title := getValidExternalOwnerAssignedTask(api.DB, julianUser.InsertedID.(primitive.ObjectID), "<to john>Hello there!")
+		user, title, err := getValidExternalOwnerAssignedTask(api.DB, julianUser.InsertedID.(primitive.ObjectID), "<to john>Hello there!")
+		assert.NoError(t, err)
 		assert.Equal(t, "Hello there! from: julian@generaltask.com", title)
 		assert.Equal(t, johnUser.InsertedID.(primitive.ObjectID), user.ID)
 	})
