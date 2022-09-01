@@ -29,6 +29,7 @@ type API struct {
 	ExternalConfig      external.Config
 	SkipStateTokenCheck bool
 	Logger              zerolog.Logger
+	OverrideTime        *time.Time
 	DB                  *mongo.Database
 	DBCleanup           func()
 }
@@ -41,23 +42,13 @@ func GetAPIWithDBCleanup() (*API, func()) {
 	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger(), DB: dbh.DB}, dbh.CloseConnection
 }
 
-func GetTestAPI() *API {
-	return &API{ExternalConfig: external.GetConfig(), SkipStateTokenCheck: false, Logger: *logging.GetSentryLogger()}
-}
-
-func getTokenFromCookie(c *gin.Context) (*database.InternalAPIToken, error) {
+func getTokenFromCookie(c *gin.Context, db *mongo.Database) (*database.InternalAPIToken, error) {
 	parentCtx := c.Request.Context()
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
 		return nil, errors.New("invalid auth token")
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return nil, err
-	}
-	defer dbCleanup()
 	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var internalToken database.InternalAPIToken
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -81,54 +72,47 @@ func (api *API) Ping(c *gin.Context) {
 	c.JSON(200, "success")
 }
 
-func TokenMiddleware(c *gin.Context) {
-	parentCtx := c.Request.Context()
-	handlerName := c.HandlerName()
-	if handlerName[len(handlerName)-9:] == "Handle404" {
-		// Do nothing if the route isn't recognized
-		return
+func TokenMiddleware(db *mongo.Database) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		parentCtx := c.Request.Context()
+		handlerName := c.HandlerName()
+		if handlerName[len(handlerName)-9:] == "Handle404" {
+			// Do nothing if the route isn't recognized
+			return
+		}
+		token, err := getToken(c)
+		if err != nil {
+			// This means the auth token format was incorrect
+			return
+		}
+		internalAPITokenCollection := database.GetInternalTokenCollection(db)
+		var internalToken database.InternalAPIToken
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
+		if err != nil {
+			log.Error().Err(err).Msg("token auth failed")
+			c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
+			return
+		}
+		c.Set("user", internalToken.UserID)
 	}
-	token, err := getToken(c)
-	if err != nil {
-		// This means the auth token format was incorrect
-		return
-	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"detail": "internal server error"})
-		return
-	}
-	defer dbCleanup()
-	internalAPITokenCollection := database.GetInternalTokenCollection(db)
-	var internalToken database.InternalAPIToken
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
-	if err != nil {
-		log.Error().Err(err).Msg("token auth failed")
-		c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
-		return
-	}
-	c.Set("user", internalToken.UserID)
 }
 
-func LoggingMiddleware(c *gin.Context) {
-	if c.Request.URL.Path == "/log_events/" {
-		// no need to record API calls to the log event endpoint
-		return
+func LoggingMiddleware(db *mongo.Database) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		if c.Request.URL.Path == "/log_events/" {
+			// no need to record API calls to the log event endpoint
+			return
+		}
+		eventType := "api_hit_" + c.Request.URL.Path
+		userID, exists := c.Get("user")
+		if !exists {
+			userID = primitive.NilObjectID
+		}
+		database.InsertLogEvent(db, userID.(primitive.ObjectID), eventType)
+
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		c.AbortWithStatusJSON(500, gin.H{"detail": "internal server error"})
-		return
-	}
-	defer dbCleanup()
-	eventType := "api_hit_" + c.Request.URL.Path
-	userID, exists := c.Get("user")
-	if !exists {
-		userID = primitive.NilObjectID
-	}
-	database.InsertLogEvent(db, userID.(primitive.ObjectID), eventType)
 }
 
 func getToken(c *gin.Context) (string, error) {

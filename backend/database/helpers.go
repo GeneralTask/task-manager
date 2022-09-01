@@ -126,22 +126,16 @@ func FindOneAndUpdateWithCollection(
 	return mongoResult, nil
 }
 
-func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+func GetTask(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
 	parentCtx := ctx
-	db, dbCleanup, err := GetDBConnection()
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
 	taskCollection := GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	mongoResult := FindOneWithCollection(dbCtx, taskCollection, userID, itemID)
 
 	var task Task
 	defer cancel()
-	err = mongoResult.Decode(&task)
+	err := mongoResult.Decode(&task)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
 		return nil, err
@@ -149,19 +143,13 @@ func GetTask(ctx context.Context, itemID primitive.ObjectID, userID primitive.Ob
 	return &task, nil
 }
 
-func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
-	db, dbCleanup, err := GetDBConnection()
+func GetCalendarEvent(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneWithCollection(ctx, eventCollection, userID, itemID)
 
 	var event CalendarEvent
-	err = mongoResult.Decode(&event)
+	err := mongoResult.Decode(&event)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
 		return nil, err
@@ -169,19 +157,13 @@ func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID pri
 	return &event, nil
 }
 
-func GetPullRequestByExternalID(ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
-	db, dbCleanup, err := GetDBConnection()
+func GetPullRequestByExternalID(db *mongo.Database, ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 	var pullRequest PullRequest
 
-	err = FindOneExternalWithCollection(
+	err := FindOneExternalWithCollection(
 		dbCtx,
 		GetPullRequestCollection(db),
 		userID,
@@ -495,6 +477,15 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	return GetTasks(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"is_meeting_preparation_task": true},
+		},
+	)
+}
+
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
 		return "Default", nil
@@ -516,6 +507,31 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, us
 	).Decode(&taskSection)
 
 	return taskSection.Name, err
+}
+
+// Get all events that start until the end of the day
+func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]CalendarEvent, error) {
+	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
+	eventCollection := GetCalendarEventCollection(db)
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := eventCollection.Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"datetime_start": bson.M{"$gte": currentTime}},
+				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
+			},
+		})
+	if err != nil {
+		return nil, err
+	}
+	var events []CalendarEvent
+	dbCtx, cancel = context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &events)
+	return &events, err
 }
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {

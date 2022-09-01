@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -51,13 +52,8 @@ func (linear LinearService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return nil, errors.New("linear does not support signup")
 }
 
-func (linear LinearService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (linear LinearService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return errors.New("internal server error")
-	}
-	defer dbCleanup()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -127,7 +123,7 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 	return string(query.Viewer.Email), nil
 }
 
-func (linear LinearService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+func (linear LinearService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("linear does not support signup")
 }
 
@@ -258,6 +254,7 @@ const linearUpdateIssueQueryStr = `
 			$title: String
 			, $id: String!
 			, $stateId: String
+			, $dueDate: TimelessDate
 			, $description: String
 		) {
 		  issueUpdate(
@@ -265,6 +262,7 @@ const linearUpdateIssueQueryStr = `
 			input: {
 			  title: $title
 			  stateId: $stateId,
+			  dueDate: $dueDate,
 			  description: $description
 			}
 		  ) {
@@ -277,6 +275,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 			$title: String
 			, $id: String!
 			, $stateId: String
+			, $dueDate: TimelessDate
 			, $descriptionData: JSON
 		) {
 		  issueUpdate(
@@ -284,6 +283,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 			input: {
 			  title: $title
 			  stateId: $stateId,
+			  dueDate: $dueDate,
 			  descriptionData: $descriptionData
 			}
 		  ) {
@@ -294,7 +294,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
-	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description})"`
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
@@ -334,6 +334,9 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 				request.Var("stateId", task.PreviousStatus.ExternalID)
 			}
 		}
+	}
+	if updateFields.DueDate != primitive.NewDateTimeFromTime(time.Time{}) {
+		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
 	}
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)
