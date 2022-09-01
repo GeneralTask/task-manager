@@ -2,8 +2,9 @@ package external
 
 import (
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -55,6 +56,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
 		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
+		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		isCompleted := false
 		task := &database.Task{
 			UserID:            userID,
@@ -67,7 +69,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			SourceAccountID:   accountID,
 			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
 			IsCompleted:       &isCompleted,
-			DueDate:           primitive.NewDateTimeFromTime(dueDate),
+			DueDate:           &primitiveDueDate,
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
 				State:      string(linearIssue.State.Name),
