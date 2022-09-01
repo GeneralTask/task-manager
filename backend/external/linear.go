@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -340,7 +341,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 			}
 		}
 	}
-	if updateFields.DueDate != 0 {
+	if updateFields.DueDate != primitive.NewDateTimeFromTime(time.Time{}) {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
 	}
 	if updateFields.PriorityNormalized != nil {
