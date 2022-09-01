@@ -343,9 +343,6 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	}
 	if updateFields.DueDate != primitive.NewDateTimeFromTime(time.Time{}) {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
-		if updateFields.DueDate.Time().Unix() == 0 {
-			request.Var("dueDate", nil)
-		}
 	}
 	if updateFields.PriorityNormalized != nil {
 		request.Var("priority", int(*updateFields.PriorityNormalized))
