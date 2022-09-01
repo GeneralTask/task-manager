@@ -1,8 +1,6 @@
-import React, { Ref, useLayoutEffect, useMemo, useRef } from 'react'
+import React, { useMemo, useRef } from 'react'
 import {
     AllDaysContainer,
-    CALENDAR_DEFAULT_SCROLL_HOUR,
-    CELL_HEIGHT_VALUE,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
@@ -19,7 +17,7 @@ import {
     EVENT_CREATION_INTERVAL_HEIGHT,
 } from './CalendarEvents-styles'
 import { TEvent } from '../../utils/types'
-import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import { useGetEvents } from '../../services/api/events.hooks'
 
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
@@ -90,7 +88,7 @@ const WeekCalendarEvents = ({ date, dayOffset, groups, accountId }: WeekCalendar
     const isWeekCalendar = calendarType === 'week'
 
     return (
-        <DayAndHeaderContainer>
+        <DayAndHeaderContainer ref={eventsContainerRef}>
             {isWeekCalendar && (
                 <CalendarDayHeader>
                     <DayHeaderText isToday={tmpDate.startOf('day').equals(DateTime.now().startOf('day'))}>
@@ -116,7 +114,6 @@ interface CalendarEventsProps {
 }
 
 const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
-    const eventsContainerRef: Ref<HTMLDivElement> = useRef(null)
     const { calendarType, selectedEvent } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
 
@@ -128,7 +125,6 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
     const { data: eventPreviousMonth } = useGetEvents(monthBlocks[0], 'calendar')
     const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
     const { data: eventsNextMonth } = useGetEvents(monthBlocks[2], 'calendar')
-    const { mutate: createEvent } = useCreateEvent()
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
@@ -146,14 +142,8 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numberOfDays])
 
-    useLayoutEffect(() => {
-        if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
-        }
-    }, [])
-
     return (
-        <AllDaysContainer ref={eventsContainerRef} isScrollDisabled={selectedEvent != null}>
+        <AllDaysContainer isScrollDisabled={selectedEvent != null}>
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
@@ -162,7 +152,13 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                 </TimeContainer>
             </TimeAndHeaderContainer>
             {allGroups.map((groups, dayOffset) => (
-                <WeekCalendarEvents key={dayOffset} date={date} dayOffset={dayOffset} groups={groups} accountId={accountId} />
+                <WeekCalendarEvents
+                    key={dayOffset}
+                    date={date}
+                    dayOffset={dayOffset}
+                    groups={groups}
+                    accountId={accountId}
+                />
             ))}
         </AllDaysContainer>
     )
