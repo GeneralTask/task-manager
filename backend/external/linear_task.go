@@ -2,8 +2,9 @@ package external
 
 import (
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -56,18 +57,20 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		stringBody := string(linearIssue.Description)
 		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
 		isCompleted := false
+
 		task := &database.Task{
-			UserID:            userID,
-			IDExternal:        linearIssue.Id.(string),
-			IDTaskSection:     constants.IDTaskSectionDefault,
-			Deeplink:          string(linearIssue.Url),
-			SourceID:          TASK_SOURCE_ID_LINEAR,
-			Title:             &stringTitle,
-			Body:              &stringBody,
-			SourceAccountID:   accountID,
-			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-			IsCompleted:       &isCompleted,
-			DueDate:           primitive.NewDateTimeFromTime(dueDate),
+			UserID:             userID,
+			IDExternal:         linearIssue.Id.(string),
+			IDTaskSection:      constants.IDTaskSectionDefault,
+			Deeplink:           string(linearIssue.Url),
+			SourceID:           TASK_SOURCE_ID_LINEAR,
+			Title:              &stringTitle,
+			Body:               &stringBody,
+			SourceAccountID:    accountID,
+			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
+			IsCompleted:        &isCompleted,
+			DueDate:            primitive.NewDateTimeFromTime(dueDate),
+			PriorityNormalized: (*float64)(&linearIssue.Priority),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
 				State:      string(linearIssue.State.Name),
@@ -104,12 +107,13 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			task.SourceID,
 			task,
 			database.Task{
-				Title:           task.Title,
-				Body:            task.Body,
-				Comments:        task.Comments,
-				Status:          task.Status,
-				DueDate:         task.DueDate,
-				CompletedStatus: task.CompletedStatus,
+				Title:              task.Title,
+				Body:               task.Body,
+				Comments:           task.Comments,
+				Status:             task.Status,
+				DueDate:            task.DueDate,
+				CompletedStatus:    task.CompletedStatus,
+				PriorityNormalized: task.PriorityNormalized,
 			},
 			nil,
 		)
@@ -150,7 +154,6 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 		return errors.New("linear mutation failed to update issue")
 	}
 	return nil
-
 }
 
 func (linearTask LinearTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
