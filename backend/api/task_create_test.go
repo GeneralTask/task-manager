@@ -174,6 +174,8 @@ func TestSlackTaskCreate(t *testing.T) {
 	os.Setenv("SLACK_SIGNING_SECRET", "dummy value")
 	defer os.Unsetenv("SLACK_SIGNING_SECRET")
 
+	userID := primitive.NewObjectID()
+
 	t.Run("InvalidData", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
@@ -271,6 +273,7 @@ func TestSlackTaskCreate(t *testing.T) {
 				ServiceID: external.TASK_SERVICE_ID_SLACK,
 				AccountID: "valid-team-valid-user",
 				Token:     `{"access_token": "example token"}`,
+				UserID:    userID,
 			},
 		)
 
@@ -288,7 +291,11 @@ func TestSlackTaskCreate(t *testing.T) {
 		request.Header.Add("X-Slack-Request-Timestamp", validTimestamp)
 		request.Header.Add("X-Slack-Signature", generateSlackSignature(validTimestamp, payloadUrlEncoded))
 		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		request.Header.Add("SLACK-OVERRIDE-URL", server.URL)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		api.ExternalConfig.SlackOverrideURL = server.URL
+		router := GetRouter(api)
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -313,7 +320,11 @@ func TestSlackTaskCreate(t *testing.T) {
 		request.Header.Add("X-Slack-Request-Timestamp", validTimestamp)
 		request.Header.Add("X-Slack-Signature", generateSlackSignature(validTimestamp, payloadUrlEncoded))
 		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		request.Header.Add("SLACK-OVERRIDE-URL", server.URL)
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		api.ExternalConfig.SlackOverrideURL = server.URL
+		router := GetRouter(api)
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -321,6 +332,12 @@ func TestSlackTaskCreate(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
+
+		tasks, err := database.GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		task := (*tasks)[0]
+		assert.Equal(t, "We're in a good place from backend, so no rush on it :pray:", *task.Title)
 	})
 }
 

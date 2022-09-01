@@ -172,7 +172,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		// thus we make this request manually
 		// overrides for testing
 		url := slack.APIURL + "views.open"
-		override := c.Request.Header.Get("SLACK-OVERRIDE-URL")
+		override := api.ExternalConfig.SlackOverrideURL
 		if override != "" {
 			url = override
 		}
@@ -220,7 +220,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		}
 
 		// require special override because in separate package
-		override := c.Request.Header.Get("SLACK-OVERRIDE-URL")
+		override := api.ExternalConfig.SlackOverrideURL
 		userID := externalToken.UserID
 		source := taskSourceResult.Source.(external.SlackSavedTaskSource)
 		if override != "" {
