@@ -336,6 +336,9 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	}
 	if updateFields.DueDate != nil {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
+		if updateFields.DueDate.Time().Unix() == 0 {
+			request.Var("dueDate", nil)
+		}
 	}
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)
