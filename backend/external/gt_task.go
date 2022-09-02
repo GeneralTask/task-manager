@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -15,18 +17,12 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (generalTask GeneralTaskTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (generalTask GeneralTaskTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyTaskResult(err)
-		return
-	}
-	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -50,11 +46,11 @@ func (generalTask GeneralTaskTaskSource) GetTasks(userID primitive.ObjectID, acc
 	result <- TaskResult{Tasks: tasks, Error: nil}
 }
 
-func (generalTask GeneralTaskTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (generalTask GeneralTaskTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
@@ -73,18 +69,14 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 		IsCompleted:     &completed,
 	}
 	if task.DueDate != nil {
-		newTask.DueDate = primitive.NewDateTimeFromTime(*task.DueDate)
+		dueDate := primitive.NewDateTimeFromTime(*task.DueDate)
+		newTask.DueDate = &dueDate
 	}
 	if task.TimeAllocation != nil {
 		newTask.TimeAllocation = task.TimeAllocation
 	}
 
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return primitive.NilObjectID, err
-	}
-	defer dbCleanup()
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
@@ -92,18 +84,18 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(userID primitive.ObjectID
 	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 
-func (generalTask GeneralTaskTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (generalTask GeneralTaskTaskSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (generalTask GeneralTaskTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (generalTask GeneralTaskTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
+func (generalTask GeneralTaskTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	return nil
 }
 
-func (generalTask GeneralTaskTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (generalTask GeneralTaskTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

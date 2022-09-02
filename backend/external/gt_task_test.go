@@ -11,6 +11,9 @@ import (
 )
 
 func TestLoadGeneralTaskTasks(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	task := createTestTask(userID)
 	taskWrongSource := createTestTask(userID)
@@ -33,7 +36,7 @@ func TestLoadGeneralTaskTasks(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		var tasks = make(chan TaskResult)
-		go GeneralTaskTaskSource{}.GetTasks(userID, GeneralTaskDefaultAccountID, tasks)
+		go GeneralTaskTaskSource{}.GetTasks(db, userID, GeneralTaskDefaultAccountID, tasks)
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
@@ -42,14 +45,14 @@ func TestLoadGeneralTaskTasks(t *testing.T) {
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
 		var tasks = make(chan TaskResult)
-		go GeneralTaskTaskSource{}.GetTasks(primitive.NewObjectID(), GeneralTaskDefaultAccountID, tasks)
+		go GeneralTaskTaskSource{}.GetTasks(db, primitive.NewObjectID(), GeneralTaskDefaultAccountID, tasks)
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("WrongSourceAccountID", func(t *testing.T) {
 		var tasks = make(chan TaskResult)
-		go GeneralTaskTaskSource{}.GetTasks(userID, "other_account_id", tasks)
+		go GeneralTaskTaskSource{}.GetTasks(db, userID, "other_account_id", tasks)
 		result := <-tasks
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.Tasks))
@@ -63,7 +66,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 
 	t.Run("SuccessMinimumFields", func(t *testing.T) {
 		userID := primitive.NewObjectID()
-		_, err := GeneralTaskTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+		_, err := GeneralTaskTaskSource{}.CreateNewTask(db, userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title: "send dogecoin to the moon",
 		})
 		assert.NoError(t, err)
@@ -78,7 +81,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 		dueDate := time.Now()
 		timeAllocation := (time.Duration(2) * time.Hour).Nanoseconds()
-		_, err := GeneralTaskTaskSource{}.CreateNewTask(userID, GeneralTaskDefaultAccountID, TaskCreationObject{
+		_, err := GeneralTaskTaskSource{}.CreateNewTask(db, userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title:          "send tesla stonk to the moon",
 			Body:           "body",
 			DueDate:        &dueDate,

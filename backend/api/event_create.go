@@ -27,12 +27,6 @@ func (api *API) EventCreate(c *gin.Context) {
 		return
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		Handle500(c)
-		return
-	}
-	defer dbCleanup()
 	dbCtx, cancel := context.WithTimeout(c.Request.Context(), constants.DatabaseTimeout)
 	defer cancel()
 
@@ -52,7 +46,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	externalEventID := primitive.NewObjectID()
 	eventCreateObject.ID = externalEventID
 
-	err = taskSourceResult.Source.CreateNewEvent(userID, eventCreateObject.AccountID, eventCreateObject)
+	err = taskSourceResult.Source.CreateNewEvent(api.DB, userID, eventCreateObject.AccountID, eventCreateObject)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update external task source")
 		Handle500(c)
@@ -72,7 +66,7 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	insertedEvent, err := database.UpdateOrCreateCalendarEvent(
-		db,
+		api.DB,
 		userID,
 		externalEventID.Hex(),
 		sourceID,
