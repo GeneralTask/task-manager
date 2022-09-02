@@ -97,7 +97,6 @@ func TestMarkAsComplete(t *testing.T) {
 	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
-		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"/",
@@ -110,7 +109,6 @@ func TestMarkAsComplete(t *testing.T) {
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
-		assert.NoError(t, err)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -126,7 +124,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
-		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"1/",
@@ -138,7 +135,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
-		assert.NoError(t, err)
 		secondAuthToken := login("tester@generaltask.com", "")
 		request, _ := http.NewRequest(
 			"PATCH",
