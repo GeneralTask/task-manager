@@ -145,7 +145,7 @@ func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.
 }
 
 func getGithubFieldKey(githubView database.View, suffix string) string {
-	return githubView.ID.Hex() + suffix
+	return githubView.ID.Hex() + "_" + suffix
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
