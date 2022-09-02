@@ -39,7 +39,7 @@ func TestGetPullRequests(t *testing.T) {
 	defer dbCleanup()
 	repositoryCollection := database.GetRepositoryCollection(db)
 	expectedRepository := database.Repository{
-		FullName:     "ExampleRepository",
+		FullName:     "dankmemes/ExampleRepository",
 		RepositoryID: "1234",
 	}
 	t.Run("Success", func(t *testing.T) {
@@ -1347,11 +1347,11 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(result))
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
-		assert.Equal(t, repository.GetName(), result[0].FullName)
+		assert.Equal(t, repository.GetFullName(), result[0].FullName)
 		assert.Equal(t, repository.GetHTMLURL(), result[0].Deeplink)
 	})
 	t.Run("SuccessUpdate", func(t *testing.T) {
-		repository.Name = updateFullName
+		repository.FullName = updateFullName
 		repository.HTMLURL = updateHTMLURL
 
 		err = updateOrCreateRepository(parentCtx, db, repository, userID)
