@@ -501,6 +501,20 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		GithubID:   githubID.Hex(),
 	}
 	repositoryCollection := database.GetRepositoryCollection(api.DB)
+	// wrong user id
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       primitive.NewObjectID(),
+		RepositoryID: githubID.Hex(),
+		FullName:     "OrganizationTest/RepositoryTestWrong",
+	})
+	assert.NoError(t, err)
+	// wrong repository id
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: primitive.NewObjectID().Hex(),
+		FullName:     "OrganizationTest/RepositoryTestWrongAlso",
+	})
+	assert.NoError(t, err)
 	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
 		UserID:       userID,
 		RepositoryID: githubID.Hex(),

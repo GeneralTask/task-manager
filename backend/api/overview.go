@@ -397,7 +397,7 @@ func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View,
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	repositoryCollection := database.GetRepositoryCollection(api.DB)
 	var repository database.Repository
-	err := repositoryCollection.FindOne(ctx, bson.M{"repository_id": view.GithubID}).Decode(&repository)
+	err := repositoryCollection.FindOne(ctx, bson.M{"$and": []bson.M{{"repository_id": view.GithubID, "user_id": userID}}}).Decode(&repository)
 	if err != nil {
 		return nil, err
 	}
