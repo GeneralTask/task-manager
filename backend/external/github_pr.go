@@ -40,6 +40,7 @@ const (
 	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
 	ActionReviewPR          string = "Review PR"
+	ActionNoneNeeded        string = "Not Actionable"
 )
 
 var ActionOrdering = map[string]int{
@@ -52,6 +53,7 @@ var ActionOrdering = map[string]int{
 	ActionMergePR:           6,
 	ActionWaitingOnReview:   7,
 	ActionWaitingOnAuthor:   8,
+	ActionNoneNeeded:        9,
 }
 
 const (
@@ -242,38 +244,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		result <- nil
 		return
 	}
-	// Only display pull requests where user is the owner, or the user is a reviewer
-	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
-		result <- nil
-		return
-	}
-	reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
-		result <- nil
-		return
-	}
-	requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
-		result <- nil
-		return
-	}
-	pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR")
-		result <- nil
-		return
-	}
-	// check runs are individual tests that make up a check suite associated with a commit
-	checkRunsForCommit, err := listCheckRunsForCommit(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR check runs")
-		result <- nil
-		return
-	}
-	checksDidFail := checkRunsDidFail(checkRunsForCommit)
-	checksDidFinish := checkRunsDidFinish(checkRunsForCommit)
+
 	commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR comments")
@@ -281,16 +252,47 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 
-	pullRequestData := GithubPRData{
-		RequestedReviewers:   requestedReviewers,
-		Reviewers:            reviewers,
-		IsMergeable:          pullRequestFetch.GetMergeable(),
-		IsApproved:           pullRequestIsApproved(reviews),
-		HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
-		ChecksDidFail:        checksDidFail,
-		ChecksDidFinish:      checksDidFinish,
-		IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
-		UserLogin:            githubUser.GetLogin(),
+	requiredAction := ActionNoneNeeded
+	if userIsOwner(githubUser, pullRequest) || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
+		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+			result <- nil
+			return
+		}
+		requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+			result <- nil
+			return
+		}
+		pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR")
+			result <- nil
+			return
+		}
+		// check runs are individual tests that make up a check suite associated with a commit
+		checkRunsForCommit, err := listCheckRunsForCommit(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR check runs")
+			result <- nil
+			return
+		}
+		checksDidFail := checkRunsDidFail(checkRunsForCommit)
+		checksDidFinish := checkRunsDidFinish(checkRunsForCommit)
+
+		requiredAction = getPullRequestRequiredAction(GithubPRData{
+			RequestedReviewers:   requestedReviewers,
+			Reviewers:            reviewers,
+			IsMergeable:          pullRequestFetch.GetMergeable(),
+			IsApproved:           pullRequestIsApproved(reviews),
+			HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
+			ChecksDidFail:        checksDidFail,
+			ChecksDidFinish:      checksDidFinish,
+			IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
+			UserLogin:            githubUser.GetLogin(),
+		})
 	}
 
 	result <- &database.PullRequest{
@@ -302,11 +304,11 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		SourceAccountID:   accountID,
 		CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
 		RepositoryID:      fmt.Sprint(*repository.ID),
-		RepositoryName:    *repository.Name,
+		RepositoryName:    repository.GetFullName(),
 		Number:            *pullRequest.Number,
 		Author:            *pullRequest.User.Login,
 		Branch:            *pullRequest.Head.Ref,
-		RequiredAction:    getPullRequestRequiredAction(pullRequestData),
+		RequiredAction:    requiredAction,
 		CommentCount:      commentCount,
 		LastUpdatedAt:     primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
 	}
@@ -403,7 +405,7 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{
-			"full_name": repository.GetName(),
+			"full_name": repository.GetFullName(),
 			"deeplink":  repository.GetHTMLURL(),
 		}},
 		options.Update().SetUpsert(true),

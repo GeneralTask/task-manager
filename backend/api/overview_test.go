@@ -501,6 +501,20 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		GithubID:   githubID.Hex(),
 	}
 	repositoryCollection := database.GetRepositoryCollection(api.DB)
+	// wrong user id
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       primitive.NewObjectID(),
+		RepositoryID: githubID.Hex(),
+		FullName:     "OrganizationTest/RepositoryTestWrong",
+	})
+	assert.NoError(t, err)
+	// wrong repository id
+	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
+		UserID:       userID,
+		RepositoryID: primitive.NewObjectID().Hex(),
+		FullName:     "OrganizationTest/RepositoryTestWrongAlso",
+	})
+	assert.NoError(t, err)
 	_, err = repositoryCollection.InsertOne(parentCtx, database.Repository{
 		UserID:       userID,
 		RepositoryID: githubID.Hex(),
@@ -636,18 +650,26 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
+
 		before, err := time.Parse("2006-01-02", "2000-01-01")
 		assert.NoError(t, err)
+		primitiveBefore := primitive.NewDateTimeFromTime(before)
+
 		beforeButLater, err := time.Parse("2006-01-02", "2000-02-01")
+		assert.NoError(t, err)
+		primitiveBeforeButLater := primitive.NewDateTimeFromTime(beforeButLater)
+
 		after, err := time.Parse("2006-01-02", "2100-01-01")
 		assert.NoError(t, err)
+		primitiveAfter := primitive.NewDateTimeFromTime(after)
+
 		items := []interface{}{
 			// due before but later
 			database.Task{
 				UserID:      userID,
 				IsCompleted: &notCompleted,
 				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
-				DueDate:     primitive.NewDateTimeFromTime(beforeButLater),
+				DueDate:     &primitiveBeforeButLater,
 				IDOrdering:  0,
 			},
 			// not completed, due before
@@ -655,7 +677,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				UserID:      userID,
 				IsCompleted: &notCompleted,
 				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
-				DueDate:     primitive.NewDateTimeFromTime(before),
+				DueDate:     &primitiveBefore,
 				IDOrdering:  1,
 			},
 			// linear source, due before
@@ -663,7 +685,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				UserID:      userID,
 				IsCompleted: &notCompleted,
 				SourceID:    external.TASK_SOURCE_ID_LINEAR,
-				DueDate:     primitive.NewDateTimeFromTime(before),
+				DueDate:     &primitiveBefore,
 				IDOrdering:  2,
 			},
 			// not completed, no due date
@@ -678,7 +700,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				UserID:      userID,
 				IsCompleted: &completed,
 				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
-				DueDate:     primitive.NewDateTimeFromTime(before),
+				DueDate:     &primitiveBefore,
 				IDOrdering:  4,
 			},
 			// not completed, due after
@@ -686,7 +708,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				UserID:      userID,
 				IsCompleted: &notCompleted,
 				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
-				DueDate:     primitive.NewDateTimeFromTime(after),
+				DueDate:     &primitiveAfter,
 				IDOrdering:  5,
 			},
 			// wrong user ID, due before
@@ -694,7 +716,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				UserID:      primitive.NewObjectID(),
 				IsCompleted: &notCompleted,
 				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
-				DueDate:     primitive.NewDateTimeFromTime(before),
+				DueDate:     &primitiveBefore,
 				IDOrdering:  6,
 			},
 		}

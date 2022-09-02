@@ -89,7 +89,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(db *mongo.Database, userID p
 		taskSection = task.IDTaskSection
 	}
 
-	slackAdditionalInformation, err := GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
+	slackAdditionalInformation, err := slackTask.GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Slack message params")
@@ -137,7 +137,7 @@ func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }
 
-func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackAdditionalInformation, error) {
+func (slackTask SlackSavedTaskSource) GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackAdditionalInformation, error) {
 	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
 	if err != nil {
 		return SlackAdditionalInformation{}, err
@@ -147,6 +147,10 @@ func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID
 	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
 
 	client := slack.New(oauthToken.AccessToken)
+	config := slackTask.Slack.Config.ConfigValues
+	if config.OverrideURL != nil {
+		client = slack.New(oauthToken.AccessToken, slack.OptionAPIURL(*slackTask.Slack.Config.ConfigValues.OverrideURL))
+	}
 	deeplinkChan := make(chan string)
 	usernameChan := make(chan string)
 
