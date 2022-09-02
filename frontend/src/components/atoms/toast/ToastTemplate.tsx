@@ -57,6 +57,7 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
                 {leftAction && (
                     <GTButton
                         icon={leftAction.icon}
+                        iconColor="black"
                         styleType="secondary"
                         onClick={stopPropogationWrapper(leftAction.onClick)}
                         value={leftAction.label}
@@ -65,6 +66,7 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
                 {rightAction && (
                     <GTButton
                         icon={rightAction.icon}
+                        iconColor="black"
                         styleType="secondary"
                         size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}

@@ -5,6 +5,7 @@ import { useGetEvents } from '../services/api/events.hooks'
 import { useInterval } from '.'
 import { TEvent } from '../utils/types'
 import toast, { dismissToast, isActive, updateToast } from '../utils/toast'
+import { icons } from '../styles/images'
 
 const eventBannerLastShownAt = new Map<string, number>()
 
@@ -61,7 +62,11 @@ export default function useEventBanners(date: DateTime) {
                       },
                   }
                 : event.deeplink && {
-                      leftAction: { label: 'Open', onClick: () => window.open(event.deeplink, '_blank') },
+                      leftAction: {
+                          icon: icons.external_link,
+                          label: 'Open',
+                          onClick: () => window.open(event.deeplink, '_blank'),
+                      },
                   }),
         }
         if (isActive(event.id)) {
