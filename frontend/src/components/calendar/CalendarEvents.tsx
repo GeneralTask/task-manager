@@ -148,7 +148,7 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
             const dropPosition = monitor.getClientOffset()
-            if (!eventsContainerRef.current || !dropPosition || !accountId) return
+            if (!eventsContainerRef.current || !dropPosition || !accountId || !item.task) return
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
             const scrollOffset = eventsContainerRef.current.scrollTop
 
