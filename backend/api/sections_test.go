@@ -199,8 +199,7 @@ func TestSections(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		// use API to check updated
-
+		// Check that DB is updated
 		userID := getUserIDFromAuthToken(t, api.DB, authToken)
 		defaultSectionName := database.GetDefaultSectionName(api.DB, userID)
 		assert.Equal(t, "New Default", defaultSectionName)
