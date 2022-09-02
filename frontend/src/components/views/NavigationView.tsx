@@ -49,7 +49,6 @@ const NavigationView = () => {
                 <FeedbackButton />
                 <GTButton
                     value="Settings"
-                    disabled
                     styleType="secondary"
                     fitContent={false}
                     onClick={() => navigate('/settings')}
