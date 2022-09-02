@@ -50,7 +50,7 @@ const (
 	ChoiceKeyAscending                 = "ascending"
 )
 
-var Settings = []SettingDefinition{
+var hardcodedSettings = []SettingDefinition{
 	{
 		FieldKey:      SettingFieldGithubFilteringPreference,
 		FieldName:     "Github PR filtering preference for PR page",
@@ -85,6 +85,10 @@ var Settings = []SettingDefinition{
 	},
 }
 
+func GetSettingsOptions(user primitive.ObjectID) (*[]SettingDefinition, error) {
+	return &hardcodedSettings, nil
+}
+
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
 	parentCtx := context.Background()
 	settingCollection := database.GetUserSettingsCollection(db)
@@ -102,13 +106,19 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 		return &userSetting.FieldValue, nil
 	}
 
+	settingsOptions, err := GetSettingsOptions(userID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load settings")
+		return nil, errors.New("failed to load settings")
+	}
+
 	// Default to first choice value
-	for _, setting := range Settings {
+	for _, setting := range *settingsOptions {
 		if setting.FieldKey == fieldKey {
 			return &setting.DefaultChoice, nil
 		}
 	}
-	logger := logging.GetSentryLogger()
 	logger.Error().Msgf("invalid setting: %s", fieldKey)
 	return nil, fmt.Errorf("invalid setting: %s", fieldKey)
 }
@@ -117,7 +127,14 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	parentCtx := context.Background()
 	keyFound := false
 	valueFound := false
-	for _, setting := range Settings {
+
+	settingsOptions, err := GetSettingsOptions(userID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load settings")
+		return errors.New("internal server error")
+	}
+	for _, setting := range *settingsOptions {
 		if setting.FieldKey == fieldKey {
 			keyFound = true
 			for _, choice := range setting.Choices {
@@ -137,7 +154,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	settingCollection := database.GetUserSettingsCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err := settingCollection.UpdateOne(
+	_, err = settingCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
@@ -150,7 +167,6 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		}},
 		options.Update().SetUpsert(true),
 	)
-	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update user setting")
 		return errors.New("internal server error")
