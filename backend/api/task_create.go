@@ -214,11 +214,18 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		}
 
 		userID := externalToken.UserID
-		_, err = taskSourceResult.Source.CreateNewTask(userID, externalID, taskCreationObject)
+		_, err = taskSourceResult.Source.CreateNewTask(api.DB, userID, externalID, taskCreationObject)
 		if err != nil {
 			c.JSON(503, gin.H{"detail": "failed to create task"})
 			return
 		}
+
+		// send ephemeral response
+		err = external.SendConfirmationResponse(*externalToken, slackMetadataParams.ResponseURL)
+		if err != nil {
+			c.JSON(500, gin.H{"detail": "failed to send ephemeral response"})
+		}
+
 		c.JSON(200, gin.H{})
 		return
 	}
@@ -274,6 +281,14 @@ func (api *API) TaskCreate(c *gin.Context) {
 	} else {
 		// default is currently the only acceptable accountID for general task task source
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
+		var assignedUser *database.User
+		var tempTitle string
+		assignedUser, tempTitle, err = getValidExternalOwnerAssignedTask(api.DB, userID, taskCreateParams.Title)
+		if err == nil {
+			userID = assignedUser.ID
+			IDTaskSection = constants.IDTaskSectionDefault
+			taskCreateParams.Title = tempTitle
+		}
 	}
 
 	var timeAllocation *int64
@@ -288,7 +303,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
 	}
-	taskID, err := taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
+	taskID, err := taskSourceResult.Source.CreateNewTask(api.DB, userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return

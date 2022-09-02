@@ -1,4 +1,4 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
 
 import styled from 'styled-components'
 
@@ -104,23 +104,18 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     overflow: hidden;
     white-space: nowrap;
     margin: 0 12px;
-    align-items: center;
+    ${Typography.label};
     ${(props) => (props.isLongEvent ? 'height: 100%; margin-top: 18px;' : 'display: flex;')}
 `
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
-    font-style: normal;
-    font-size: 14px;
-    font-weight: 600;
-    color: ${EVENT_TITLE_TEXT_COLOR};
+    display: flex;
+    align-items: center;
+    gap: ${Spacing.margin._8};
     margin-right: 8px;
     max-height: 100%;
-    ${(props) => props.isLongEvent && 'font-weight: 600;'}
 `
 export const EventTime = styled.div`
-    font-style: normal;
-    font-size: 13px;
-    font-weight: 600;
-    color: ${EVENT_TIME_TEXT_COLOR};
+    color: ${Colors.text.light};
     float: left;
     max-height: 100%;
 `
@@ -167,7 +162,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;
-    height: 100vh;
+    height: 100%;
     flex: ${(props) => (props.expanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
     display: flex;
@@ -185,4 +180,7 @@ export const TimeAndHeaderContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: fit-content;
+`
+export const IconContainer = styled.div`
+    width: ${Dimensions.iconSize.xSmall};
 `

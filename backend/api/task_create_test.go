@@ -108,6 +108,32 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
+	t.Run("SuccessAssignToOtherUser", func(t *testing.T) {
+		authToken = login("assign_to_other_user@generaltask.com", "")
+
+		ctx := context.Background()
+		userCollection := database.GetUserCollection(db)
+		assert.NoError(t, err)
+		johnUser, err := userCollection.InsertOne(ctx, database.User{
+			Email: "john@generaltask.com",
+		})
+		assert.NoError(t, err)
+
+		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "<to john>buy more dogecoin"}`)), http.StatusOK, nil)
+
+		tasks, err := database.GetActiveTasks(db, johnUser.InsertedID.(primitive.ObjectID))
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		task := (*tasks)[0]
+		assert.Equal(t, "buy more dogecoin from: assign_to_other_user@generaltask.com", *task.Title)
+		assert.Equal(t, "", *task.Body)
+		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
+		// 1 hour is the default
+		assert.Equal(t, int64(3600000000000), *task.TimeAllocation)
+		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
+		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
+		assert.Equal(t, task.UserID, johnUser.InsertedID.(primitive.ObjectID))
+	})
 	t.Run("SuccessCustomSection", func(t *testing.T) {
 		authToken = login("create_task_success_custom_section@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)

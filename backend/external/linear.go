@@ -51,13 +51,8 @@ func (linear LinearService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 	return nil, errors.New("linear does not support signup")
 }
 
-func (linear LinearService) HandleLinkCallback(params CallbackParams, userID primitive.ObjectID) error {
+func (linear LinearService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return errors.New("internal server error")
-	}
-	defer dbCleanup()
 
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -127,7 +122,7 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 	return string(query.Viewer.Email), nil
 }
 
-func (linear LinearService) HandleSignupCallback(params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
+func (linear LinearService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	return primitive.NilObjectID, nil, nil, errors.New("linear does not support signup")
 }
 
@@ -218,6 +213,7 @@ type linearAssignedIssuesQuery struct {
 			DueDate     graphql.String
 			Url         graphql.String
 			CreatedAt   graphql.String
+			Priority    graphql.Float
 			Assignee    struct {
 				Id          graphql.ID
 				Name        graphql.String
@@ -253,19 +249,24 @@ type linearAssignedIssuesQuery struct {
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 }
 
+// for some reason Linear outputs priority as a Float, and then expects an int on update
 const linearUpdateIssueQueryStr = `
 		mutation IssueUpdate (
 			$title: String
 			, $id: String!
 			, $stateId: String
+			, $dueDate: TimelessDate
 			, $description: String
+			, $priority: Int
 		) {
 		  issueUpdate(
 			id: $id,
 			input: {
 			  title: $title
-			  stateId: $stateId,
-			  description: $description
+			  , stateId: $stateId
+			  , dueDate: $dueDate
+			  , description: $description
+			  , priority: $priority
 			}
 		  ) {
 			success
@@ -277,14 +278,18 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 			$title: String
 			, $id: String!
 			, $stateId: String
+			, $dueDate: TimelessDate
 			, $descriptionData: JSON
+			, $priority: Int
 		) {
 		  issueUpdate(
 			id: $id,
 			input: {
-			  title: $title
-			  stateId: $stateId,
-			  descriptionData: $descriptionData
+			  title: $title,
+			  , stateId: $stateId
+			  , dueDate: $dueDate
+			  , descriptionData: $descriptionData
+			  , priority: $priority
 			}
 		  ) {
 			success
@@ -294,7 +299,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
-	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, description: $description})"`
+	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description, priority: $priority})"`
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
@@ -334,6 +339,15 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 				request.Var("stateId", task.PreviousStatus.ExternalID)
 			}
 		}
+	}
+	if updateFields.DueDate != nil {
+		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
+		if updateFields.DueDate.Time().Unix() == 0 {
+			request.Var("dueDate", nil)
+		}
+	}
+	if updateFields.PriorityNormalized != nil {
+		request.Var("priority", int(*updateFields.PriorityNormalized))
 	}
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)

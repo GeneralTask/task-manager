@@ -17,14 +17,14 @@ const BannerContainer = styled.div<{ hasBorder: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._12} ${Spacing.padding._16};
+    padding: ${Spacing.padding._8};
     height: 60px;
 `
 const IconContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.padding._12};
+    gap: ${Spacing.padding._8};
 `
 const Title = styled.span`
     ${Typography.bodySmall};
@@ -59,6 +59,7 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
                 value="Connect"
                 color={Colors.gtColor.primary}
                 onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
+                size="small"
             />
         </BannerContainer>
     )
