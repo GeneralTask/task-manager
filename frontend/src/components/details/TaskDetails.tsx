@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
+import TitleInput from './TitleInput'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -53,20 +54,6 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
         box-shadow: ${Shadows.medium};
     }
 `
-const TitleInput = styled.textarea`
-    background-color: inherit;
-    color: ${Colors.text.light};
-    font: inherit;
-    border: none;
-    resize: none;
-    outline: none;
-    overflow: hidden;
-    margin-bottom: ${Spacing.margin._16};
-    :focus {
-        outline: 1px solid ${Colors.background.dark};
-    }
-    ${Typography.subtitle};
-`
 const MarginLeftAuto = styled.div`
     display: flex;
     flex-direction: row;
@@ -103,7 +90,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [labelEditorShown, setLabelEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
-    const titleRef = useRef<HTMLTextAreaElement>(null)
     const bodyRef = useRef<HTMLTextAreaElement>(null)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
@@ -135,14 +121,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             navigate(link)
         }
     }, [task.isOptimistic, location, link])
-
-    useLayoutEffect(() => {
-        if (titleRef.current) {
-            titleRef.current.style.height = '0px'
-            titleRef.current.style.height =
-                titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
-        }
-    }, [titleInput])
 
     useLayoutEffect(() => {
         if (bodyRef.current && task.slack_message_params) {
@@ -183,11 +161,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         [syncDetails]
     )
 
-    const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-        if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
-        e.stopPropagation()
-    }
-
     const status = task.external_status ? task.external_status.state : ''
 
     return (
@@ -220,15 +193,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 )}
             </DetailsTopContainer>
             <TitleInput
-                disabled={task.isOptimistic}
-                ref={titleRef}
-                data-testid="task-title-input"
-                onKeyDown={handleKeyDown}
                 value={titleInput}
-                onChange={(e) => {
-                    setTitleInput(e.target.value)
-                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                }}
+                setValue={setTitleInput}
+                disabled={task.isOptimistic}
+                onEdit={(titleVal) => onEdit(task.id, titleVal, bodyInput)}
             />
             {task.external_status && (
                 <StatusContainer>
@@ -248,7 +216,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
-                            onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
+                            onEdit(task.id, titleInput, bodyInput)
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
