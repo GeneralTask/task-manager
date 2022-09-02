@@ -33,7 +33,7 @@ const useCalendarDrop = ({
 
     const onDrop = useCallback(
         (item: DropItem, monitor: DropTargetMonitor) => {
-            if (!accountId) return
+            if (!accountId || !item.task) return
             const dropPosition = getDropPosition(monitor)
 
             const start = date.set({
@@ -44,13 +44,19 @@ const useCalendarDrop = ({
             })
             const end = start.plus({ minutes: 30 })
 
+            let description = item.task.body
+            if (description !== '') {
+                description += '\n'
+            }
+            description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
+
             createEvent({
                 createEventPayload: {
                     account_id: accountId,
                     datetime_start: start.toISO(),
                     datetime_end: end.toISO(),
                     summary: item.task?.title,
-                    description: item.task?.body,
+                    description,
                 },
                 date,
             })

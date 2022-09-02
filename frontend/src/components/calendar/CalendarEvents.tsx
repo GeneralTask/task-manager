@@ -1,11 +1,13 @@
 import React, { useMemo, useRef } from 'react'
+import { useGetEvents } from '../../services/api/events.hooks'
+import { TEvent } from '../../utils/types'
 import {
     AllDaysContainer,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
-    CalendarTD,
     CalendarTableStyle,
+    CalendarTD,
     CalendarTimesTableStyle,
     CellTime,
     DayAndHeaderContainer,
@@ -16,15 +18,12 @@ import {
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
 } from './CalendarEvents-styles'
-import { TEvent } from '../../utils/types'
-import { useGetEvents } from '../../services/api/events.hooks'
-
-import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
-import { TimeIndicator } from './TimeIndicator'
-import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useCalendarContext } from './CalendarContext'
+import CollisionGroupColumns from './CollisionGroupColumns'
+import { TimeIndicator } from './TimeIndicator'
+import { findCollisionGroups } from './utils/eventLayout'
 import useCalendarDrop from './utils/useCalendarDrop'
 
 const CalendarDayTable = () => {
