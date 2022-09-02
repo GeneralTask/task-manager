@@ -34,34 +34,52 @@ type SettingChoice struct {
 }
 
 const (
-	// Email done
-	SettingFieldEmailDonePreference = "email_done_preference"
-	ChoiceKeyArchive                = "archive"
-	ChoiceKeyMarkAsRead             = "mark_as_read"
-	// Email ordering
-	SettingFieldEmailOrderingPreference = "email_ordering_preference"
-	ChoiceKeyNewestFirst                = "newest_first"
-	ChoiceKeyOldestFirst                = "oldest_first"
+	// Github PR filtering
+	SettingFieldGithubFilteringPreference = "github_filtering_preference"
+	ChoiceKeyAllPRs                       = "all_prs"
+	ChoiceKeyActionableOnly               = "actionable_only"
+	// Github PR sorting
+	SettingFieldGithubSortingPreference = "github_sorting_preference"
+	ChoiceKeyRequiredAction             = "required_action"
+	ChoiceKeyPRNumber                   = "pr_number"
+	ChoiceKeyCreatedAt                  = "created_at"
+	ChoiceKeyUpdatedAt                  = "updated_at"
+	// Github PR sorting direction
+	SettingFieldGithubSortingDirection = "github_sorting_direction"
+	ChoiceKeyDescending                = "descending"
+	ChoiceKeyAscending                 = "ascending"
 )
 
 var Settings = []SettingDefinition{
 	{
-		FieldKey:      SettingFieldEmailDonePreference,
-		FieldName:     "'Done' action for emails",
-		DefaultChoice: ChoiceKeyArchive,
+		FieldKey:      SettingFieldGithubFilteringPreference,
+		FieldName:     "Github PR filtering preference for PR page",
+		DefaultChoice: ChoiceKeyActionableOnly,
 		Choices: []SettingChoice{
-			{Key: ChoiceKeyArchive, Name: "Archive"},
-			{Key: ChoiceKeyMarkAsRead, Name: "Mark as read"},
+			{Key: ChoiceKeyActionableOnly, Name: "Actionable Only"},
+			{Key: ChoiceKeyAllPRs, Name: "All PRs"},
 		},
-		Hidden: true,
+		Hidden: false,
 	},
 	{
-		FieldKey:      SettingFieldEmailOrderingPreference,
-		FieldName:     "Email ordering",
-		DefaultChoice: ChoiceKeyNewestFirst,
+		FieldKey:      SettingFieldGithubSortingPreference,
+		FieldName:     "Github PR sorting preference for PR page",
+		DefaultChoice: ChoiceKeyRequiredAction,
 		Choices: []SettingChoice{
-			{Key: ChoiceKeyNewestFirst, Name: "Newest first"},
-			{Key: ChoiceKeyOldestFirst, Name: "Oldest first"},
+			{Key: ChoiceKeyRequiredAction, Name: "Required Action"},
+			{Key: ChoiceKeyPRNumber, Name: "PR Number"},
+			{Key: ChoiceKeyCreatedAt, Name: "Created At"},
+			{Key: ChoiceKeyUpdatedAt, Name: "Updated At"},
+		},
+		Hidden: false,
+	},
+	{
+		FieldKey:      SettingFieldGithubSortingDirection,
+		FieldName:     "Github PR sorting direction preference for PR page",
+		DefaultChoice: ChoiceKeyDescending,
+		Choices: []SettingChoice{
+			{Key: ChoiceKeyDescending, Name: "Descending"},
+			{Key: ChoiceKeyAscending, Name: "Ascending"},
 		},
 		Hidden: false,
 	},
