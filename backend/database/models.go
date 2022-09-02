@@ -274,3 +274,9 @@ type Repository struct {
 	RepositoryID string             `bson:"repository_id"`
 	Deeplink     string             `bson:"deeplink"`
 }
+
+type DefaultSectionSettings struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `bson:"user_id"`
+	NameOverride string             `bson:"name_override"`
+}

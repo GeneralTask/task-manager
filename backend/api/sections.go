@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -83,6 +85,38 @@ func (api *API) SectionModify(c *gin.Context) {
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("error")
 		c.JSON(400, gin.H{"detail": "invalid or missing 'name' parameter."})
+		return
+	}
+	if sectionID == constants.IDTaskSectionDefault {
+		log.Info().Msg("inside")
+		settingsCollection := database.GetDefaultSectionSettingsCollection(api.DB)
+
+		userIDRaw, _ := c.Get("user")
+		userID := userIDRaw.(primitive.ObjectID)
+
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		res, err := settingsCollection.UpdateOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"_id": sectionID},
+				{"user_id": userID},
+			}},
+			bson.M{"$set": bson.M{"name_override": params.Name}},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to update internal DB")
+			Handle500(c)
+			return
+		}
+		if res.MatchedCount != 1 {
+			api.Logger.Error().Msgf("failed to update section %+v", res)
+			Handle404(c)
+			return
+		}
+		c.JSON(200, gin.H{})
 		return
 	}
 

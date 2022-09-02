@@ -63,13 +63,6 @@ type Recipient struct {
 
 type TaskGroupType string
 
-const (
-	ScheduledTask          TaskGroupType = "scheduled_task"
-	UnscheduledGroup       TaskGroupType = "unscheduled_group"
-	TaskSectionNameDefault string        = "Default"
-	TaskSectionNameDone    string        = "Done"
-)
-
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)

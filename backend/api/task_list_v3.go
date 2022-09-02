@@ -77,7 +77,7 @@ func (api *API) mergeTasksV3(
 	}
 	sections = append(sections, &TaskSection{
 		ID:     constants.IDTaskSectionDone,
-		Name:   TaskSectionNameDone,
+		Name:   constants.TaskSectionNameDone,
 		Tasks:  completedTaskResults,
 		IsDone: true,
 	})
@@ -94,10 +94,11 @@ func (api *API) extractSectionTasksV3(
 		api.Logger.Error().Err(err).Msg("failed to fetch task sections")
 		return []*TaskSection{}, err
 	}
+	defaultSectionName := database.GetDefaultSectionName(api.DB, userID)
 	resultSections := []*TaskSection{
 		{
 			ID:    constants.IDTaskSectionDefault,
-			Name:  TaskSectionNameDefault,
+			Name:  defaultSectionName,
 			Tasks: []*TaskResult{},
 		},
 	}
