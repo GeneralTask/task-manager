@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -716,14 +715,16 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	var settings DefaultSectionSettings
 	mongoResult := defaultSectionCollection.FindOne(
 		dbCtx,
-		bson.M{"user_id": userID},
+		bson.M{"$and": []bson.M{
+			{"_id": constants.IDTaskSectionDefault},
+			{"user_id": userID},
+		}},
 	)
 	err := mongoResult.Decode(&settings)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update or create task")
 		return constants.TaskSectionNameDefault
 	}
-	log.Println(settings.NameOverride)
 	if settings.NameOverride != "" {
 		return settings.NameOverride
 	} else {
