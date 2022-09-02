@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 
@@ -20,11 +20,11 @@ const StyledTitleInput = styled.textarea`
 `
 
 interface TitleInputProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-    value: string
-    setValue: React.Dispatch<React.SetStateAction<string>>
+    initialValue: string
     onEdit: (newValue: string) => void
 }
-const TitleInput = ({ value, setValue, onEdit, ...rest }: TitleInputProps) => {
+const TitleInput = ({ initialValue, onEdit, ...rest }: TitleInputProps) => {
+    const [titleInputValue, setTitleInputValue] = useState(initialValue)
     const titleInputRef = useRef<HTMLTextAreaElement>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
@@ -38,15 +38,19 @@ const TitleInput = ({ value, setValue, onEdit, ...rest }: TitleInputProps) => {
             titleInputRef.current.style.height =
                 titleInputRef.current.scrollHeight > 300 ? TITLE_MAX_HEIGHT : `${titleInputRef.current.scrollHeight}px`
         }
-    }, [value])
+    }, [titleInputValue])
+
+    useLayoutEffect(() => {
+        setTitleInputValue(initialValue)
+    }, [initialValue])
 
     return (
         <StyledTitleInput
             ref={titleInputRef}
             onKeyDown={handleKeyDown}
-            value={value}
+            value={titleInputValue}
             onChange={(e) => {
-                setValue(e.target.value)
+                setTitleInputValue(e.target.value)
                 onEdit(e.target.value)
             }}
             {...rest}

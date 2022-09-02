@@ -84,7 +84,6 @@ interface TaskDetailsProps {
     link: string
 }
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
-    const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [labelEditorShown, setLabelEditorShown] = useState(false)
@@ -110,7 +109,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     // Update the state when the task changes
     useLayoutEffect(() => {
-        setTitleInput(task.title)
         setBodyInput(task.body)
     }, [task.id])
 
@@ -141,7 +139,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     }, [])
 
     const syncDetails = useCallback(
-        (taskId: string, title: string, body: string) => {
+        (taskId: string, title?: string, body?: string) => {
             setIsEditing(false)
             if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
             modifyTask({ id: taskId, title, body })
@@ -150,7 +148,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     )
 
     const onEdit = useCallback(
-        (taskId: string, title: string, body: string) => {
+        (taskId: string, title?: string, body?: string) => {
             setIsEditing(true)
             if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
             timers.current[taskId] = {
@@ -193,10 +191,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 )}
             </DetailsTopContainer>
             <TitleInput
-                value={titleInput}
-                setValue={setTitleInput}
+                initialValue={task.title}
                 disabled={task.isOptimistic}
-                onEdit={(titleVal) => onEdit(task.id, titleVal, bodyInput)}
+                onEdit={(titleVal) => onEdit(task.id, titleVal)}
             />
             {task.external_status && (
                 <StatusContainer>
@@ -216,7 +213,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         value={bodyInput}
                         onChange={(e) => {
                             setBodyInput(e.target.value)
-                            onEdit(task.id, titleInput, bodyInput)
+                            onEdit(task.id, undefined, bodyInput)
                         }}
                         onKeyDown={(e) => e.stopPropagation()}
                     />
