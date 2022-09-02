@@ -50,43 +50,102 @@ const (
 	ChoiceKeyAscending                 = "ascending"
 )
 
-var hardcodedSettings = []SettingDefinition{
-	{
-		FieldKey:      SettingFieldGithubFilteringPreference,
-		FieldName:     "Github PR filtering preference for PR page",
-		DefaultChoice: ChoiceKeyActionableOnly,
-		Choices: []SettingChoice{
-			{Key: ChoiceKeyActionableOnly, Name: "Actionable Only"},
-			{Key: ChoiceKeyAllPRs, Name: "All PRs"},
-		},
-		Hidden: false,
-	},
-	{
-		FieldKey:      SettingFieldGithubSortingPreference,
-		FieldName:     "Github PR sorting preference for PR page",
-		DefaultChoice: ChoiceKeyRequiredAction,
-		Choices: []SettingChoice{
-			{Key: ChoiceKeyRequiredAction, Name: "Required Action"},
-			{Key: ChoiceKeyPRNumber, Name: "PR Number"},
-			{Key: ChoiceKeyCreatedAt, Name: "Created At"},
-			{Key: ChoiceKeyUpdatedAt, Name: "Updated At"},
-		},
-		Hidden: false,
-	},
-	{
-		FieldKey:      SettingFieldGithubSortingDirection,
-		FieldName:     "Github PR sorting direction preference for PR page",
-		DefaultChoice: ChoiceKeyDescending,
-		Choices: []SettingChoice{
-			{Key: ChoiceKeyDescending, Name: "Descending"},
-			{Key: ChoiceKeyAscending, Name: "Ascending"},
-		},
-		Hidden: false,
+// human readable names aren't defined here because they are not used
+var GithubFilteringSetting = SettingDefinition{
+	FieldKey:      SettingFieldGithubFilteringPreference,
+	DefaultChoice: ChoiceKeyActionableOnly,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyActionableOnly},
+		{Key: ChoiceKeyAllPRs},
 	},
 }
 
-func GetSettingsOptions(user primitive.ObjectID) (*[]SettingDefinition, error) {
-	return &hardcodedSettings, nil
+var GithubSortingPreferenceSetting = SettingDefinition{
+	FieldKey:      SettingFieldGithubSortingPreference,
+	DefaultChoice: ChoiceKeyRequiredAction,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyRequiredAction},
+		{Key: ChoiceKeyPRNumber},
+		{Key: ChoiceKeyCreatedAt},
+		{Key: ChoiceKeyUpdatedAt},
+	},
+}
+
+var GithubSortingDirectionSetting = SettingDefinition{
+	FieldKey:      SettingFieldGithubSortingDirection,
+	DefaultChoice: ChoiceKeyDescending,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyDescending},
+		{Key: ChoiceKeyAscending},
+	},
+}
+
+var hardcodedSettings = []SettingDefinition{
+	GithubFilteringSetting,
+	GithubSortingPreferenceSetting,
+	GithubSortingDirectionSetting,
+}
+
+func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {
+	settingsOptions := hardcodedSettings
+
+	githubViews, err := getGithubViews(db, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, githubView := range *githubViews {
+		settingsOptions = append(
+			settingsOptions,
+			SettingDefinition{
+				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubFilteringPreference),
+				DefaultChoice: GithubFilteringSetting.DefaultChoice,
+				Choices:       GithubFilteringSetting.Choices,
+			},
+			SettingDefinition{
+				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubSortingPreference),
+				DefaultChoice: GithubSortingPreferenceSetting.DefaultChoice,
+				Choices:       GithubSortingPreferenceSetting.Choices,
+			},
+			SettingDefinition{
+				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubSortingDirection),
+				DefaultChoice: GithubSortingDirectionSetting.DefaultChoice,
+				Choices:       GithubSortingDirectionSetting.Choices,
+			},
+		)
+	}
+
+	return &settingsOptions, nil
+}
+
+func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
+	parentCtx := context.Background()
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := database.FindWithCollection(
+		database.GetViewCollection(db),
+		userID,
+		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
+		dbCtx,
+	)
+	if err != nil {
+		return nil, err
+	}
+	var views []database.View
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &views)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load github views")
+		return nil, err
+	}
+	return &views, nil
+}
+
+func getGithubFieldKey(githubView database.View, suffix string) string {
+	return githubView.ID.Hex() + suffix
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
@@ -106,7 +165,7 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 		return &userSetting.FieldValue, nil
 	}
 
-	settingsOptions, err := GetSettingsOptions(userID)
+	settingsOptions, err := GetSettingsOptions(db, userID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load settings")
@@ -128,7 +187,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	keyFound := false
 	valueFound := false
 
-	settingsOptions, err := GetSettingsOptions(userID)
+	settingsOptions, err := GetSettingsOptions(db, userID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load settings")

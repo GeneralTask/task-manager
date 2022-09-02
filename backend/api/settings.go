@@ -11,7 +11,7 @@ import (
 func (api *API) SettingsList(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 	userSettings := []settings.UserSetting{}
-	settingsOptions, err := settings.GetSettingsOptions(userID)
+	settingsOptions, err := settings.GetSettingsOptions(api.DB, userID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load settings")
