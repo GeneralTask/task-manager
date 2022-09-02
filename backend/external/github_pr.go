@@ -302,7 +302,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		SourceAccountID:   accountID,
 		CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
 		RepositoryID:      fmt.Sprint(*repository.ID),
-		RepositoryName:    *repository.Name,
+		RepositoryName:    repository.GetFullName(),
 		Number:            *pullRequest.Number,
 		Author:            *pullRequest.User.Login,
 		Branch:            *pullRequest.Head.Ref,
