@@ -1,6 +1,8 @@
 package utils
 
-import "regexp"
+import (
+	"regexp"
+)
 
 func ExtractSenderName(sendLine string) (string, string) {
 	exp := regexp.MustCompile("([^\"].+[^\\s\"])\"*\\s+<(.+)>")
