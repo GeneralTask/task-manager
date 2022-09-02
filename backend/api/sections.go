@@ -127,7 +127,7 @@ func (api *API) setDefaultSectionName(c *gin.Context, ctx context.Context, name 
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 
-	res, err := settingsCollection.UpdateOne(
+	_, err := settingsCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"_id": constants.IDTaskSectionDefault},
@@ -139,11 +139,6 @@ func (api *API) setDefaultSectionName(c *gin.Context, ctx context.Context, name 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update internal DB")
 		Handle500(c)
-		return
-	}
-	if res.MatchedCount != 1 {
-		api.Logger.Error().Msgf("failed to update section %+v", res)
-		Handle404(c)
 		return
 	}
 	c.JSON(200, gin.H{})
