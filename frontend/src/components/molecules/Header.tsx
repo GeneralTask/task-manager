@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Border, Colors, Spacing, Typography } from '../../styles'
-import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
-import { Icon } from '../atoms/Icon'
-import { icons } from '../../styles/images'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { useNavigate } from 'react-router-dom'
-import RefreshButton from '../atoms/buttons/RefreshButton'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
+import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import RefreshButton from '../atoms/buttons/RefreshButton'
+import { Icon } from '../atoms/Icon'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -39,7 +39,7 @@ const HeaderTextEditable = styled.input`
     ${Typography.title};
 `
 
-const immutableSectionIds = ['000000000000000000000001', '000000000000000000000004']
+const immutableSectionIds = ['000000000000000000000004']
 const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
