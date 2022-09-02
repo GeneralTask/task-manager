@@ -1413,14 +1413,14 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		cursor, err := repositoryCollection.Find(
 			dbCtx,
 			bson.M{"$and": []bson.M{
-				{"repository_id": fmt.Sprint(repository.GetID())},
+				{"repository_id": fmt.Sprint(repositoryID)},
 				{"user_id": userID},
 			}},
 		)
 		assert.NoError(t, err)
 		err = cursor.All(dbCtx, &result)
 		assert.NoError(t, err)
-		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
+		assert.Equal(t, fmt.Sprint(repositoryID), result[0].RepositoryID)
 		assert.Equal(t, *updateFullName, result[0].FullName)
 		assert.Equal(t, *updateHTMLURL, result[0].Deeplink)
 	})
