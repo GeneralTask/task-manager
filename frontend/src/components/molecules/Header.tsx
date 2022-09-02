@@ -39,8 +39,10 @@ const HeaderTextEditable = styled.input`
     ${Typography.title};
 `
 
-const immutableSectionIds = ['000000000000000000000004']
-const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
+const undeletableSectionIds = ['000000000000000000000001', '000000000000000000000004']
+const uneditableSectionIds = ['000000000000000000000004']
+const matchUndeletableSectionId = (id: string) => undeletableSectionIds.includes(id)
+const matchUneditableSectionId = (id: string) => uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
@@ -105,11 +107,15 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
-            {props.taskSectionId && !matchImmutableSectionId(props.taskSectionId) && (
+            {props.taskSectionId && !matchUndeletableSectionId(props.taskSectionId) && (
                 <>
                     <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
                         <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
                     </NoStyleButton>
+                </>
+            )}
+            {props.taskSectionId && !matchUneditableSectionId(props.taskSectionId) && (
+                <>
                     <NoStyleButton onClick={() => setIsEditingTitle(true)}>
                         <Icon size="small" icon={icons.pencil}></Icon>
                     </NoStyleButton>
