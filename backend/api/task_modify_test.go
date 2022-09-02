@@ -16,7 +16,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -98,7 +97,6 @@ func TestMarkAsComplete(t *testing.T) {
 	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -113,7 +111,6 @@ func TestMarkAsComplete(t *testing.T) {
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
 		assert.NoError(t, err)
-		err = settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -129,7 +126,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -142,7 +138,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		secondAuthToken := login("tester@generaltask.com", "")
 		request, _ := http.NewRequest(
@@ -156,7 +151,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"/",
@@ -180,7 +174,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CalendarFailure", func(t *testing.T) {
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+calendarTaskIDHex+"/",
@@ -203,7 +196,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("Mark complete and edit fields success", func(t *testing.T) {
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(

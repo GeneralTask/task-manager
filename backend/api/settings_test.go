@@ -28,8 +28,8 @@ func TestSettingsGet(t *testing.T) {
 		defer cancel()
 		_, err := settingCollection.InsertOne(dbCtx, &database.UserSetting{
 			UserID:     primitive.NewObjectID(),
-			FieldKey:   settings.SettingFieldEmailDonePreference,
-			FieldValue: settings.ChoiceKeyMarkAsRead,
+			FieldKey:   settings.SettingFieldGithubFilteringPreference,
+			FieldValue: settings.ChoiceKeyActionableOnly,
 		})
 		assert.NoError(t, err)
 
@@ -44,7 +44,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"email_ordering_preference\",\"field_name\":\"Email ordering\",\"choices\":[{\"choice_key\":\"newest_first\",\"choice_name\":\"Newest first\"},{\"choice_key\":\"oldest_first\",\"choice_name\":\"Oldest first\"}],\"field_value\":\"newest_first\"}")
+		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"Github PR filtering preference for PR page\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"Actionable Only\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"All PRs\"}],\"field_value\":\"actionable_only\"}")
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -54,8 +54,8 @@ func TestSettingsGet(t *testing.T) {
 		defer cancel()
 		_, err := settingCollection.InsertOne(dbCtx, &database.UserSetting{
 			UserID:     userID,
-			FieldKey:   settings.SettingFieldEmailDonePreference,
-			FieldValue: settings.ChoiceKeyMarkAsRead,
+			FieldKey:   settings.SettingFieldGithubFilteringPreference,
+			FieldValue: settings.ChoiceKeyActionableOnly,
 		})
 		assert.NoError(t, err)
 
@@ -69,7 +69,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"email_ordering_preference\",\"field_name\":\"Email ordering\",\"choices\":[{\"choice_key\":\"newest_first\",\"choice_name\":\"Newest first\"},{\"choice_key\":\"oldest_first\",\"choice_name\":\"Oldest first\"}],\"field_value\":\"newest_first\"}")
+		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"Github PR filtering preference for PR page\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"Actionable Only\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"All PRs\"}],\"field_value\":\"actionable_only\"}")
 	})
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("Unauthorized", func(t *testing.T) {
@@ -144,7 +144,7 @@ func TestSettingsModify(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
-			bytes.NewBuffer([]byte(`{"email_done_preference": "tothemoon"}`)),
+			bytes.NewBuffer([]byte(`{"github_filtering_preference": "tothemoon"}`)),
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -162,7 +162,7 @@ func TestSettingsModify(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
-			bytes.NewBuffer([]byte(`{"email_done_preference": "mark_as_read"}`)),
+			bytes.NewBuffer([]byte(`{"github_filtering_preference": "all_prs"}`)),
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -173,14 +173,14 @@ func TestSettingsModify(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
+		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference)
 		assert.NoError(t, err)
-		assert.Equal(t, settings.ChoiceKeyMarkAsRead, *setting)
+		assert.Equal(t, settings.ChoiceKeyAllPRs, *setting)
 	})
 	t.Run("SuccessAlreadyExists", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyMarkAsRead)
+		settings.UpdateUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference, settings.ChoiceKeyActionableOnly)
 
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
@@ -188,7 +188,7 @@ func TestSettingsModify(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/settings/",
-			bytes.NewBuffer([]byte(`{"email_done_preference": "archive"}`)),
+			bytes.NewBuffer([]byte(`{"github_filtering_preference": "all_prs"}`)),
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -198,8 +198,8 @@ func TestSettingsModify(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldEmailDonePreference)
+		setting, err := settings.GetUserSetting(db, userID, settings.SettingFieldGithubFilteringPreference)
 		assert.NoError(t, err)
-		assert.Equal(t, settings.ChoiceKeyArchive, *setting)
+		assert.Equal(t, settings.ChoiceKeyAllPRs, *setting)
 	})
 }
