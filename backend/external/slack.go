@@ -23,6 +23,7 @@ import (
 type SlackConfigValues struct {
 	UserInfoURL      *string
 	SavedMessagesURL *string
+	OverrideURL      *string
 }
 
 type SlackConfig struct {
