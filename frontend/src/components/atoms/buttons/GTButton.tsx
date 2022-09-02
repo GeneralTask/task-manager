@@ -73,7 +73,7 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.size === 'small' && SmallButtonStyle};
     opacity: ${(props) => (props.disabled ? '0.2' : '1')};
     &:hover {
-        ${(props) => props.disabled && 'box-shadow: none'};
+        ${(props) => props.disabled && `box-shadow: ${Shadows.button.default}`};
         ${(props) =>
             props.disabled &&
             `background-color: ${
