@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { DEFAULT_SECTION_ID, DONE_SECTION_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
@@ -39,8 +40,8 @@ const HeaderTextEditable = styled.input`
     ${Typography.title};
 `
 
-const undeletableSectionIds = ['000000000000000000000001', '000000000000000000000004']
-const uneditableSectionIds = ['000000000000000000000004']
+const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID]
+const uneditableSectionIds = [DONE_SECTION_ID]
 const matchUndeletableSectionId = (id: string) => undeletableSectionIds.includes(id)
 const matchUneditableSectionId = (id: string) => uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
