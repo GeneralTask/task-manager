@@ -166,7 +166,7 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                 millisecond: 0,
             })
             const end = start.plus({ minutes: 30 })
-            let description = item.task?.body
+            let description = item.task.body
             if (description !== '') {
                 description += '\n'
             }
@@ -177,9 +177,9 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                     account_id: accountId,
                     datetime_start: start.toISO(),
                     datetime_end: end.toISO(),
-                    summary: item.task?.title,
+                    summary: item.task.title,
                     description: description,
-                    task_id: item.task?.id,
+                    task_id: item.task.id,
                 },
                 date,
                 linkedTask: item.task,
