@@ -1,32 +1,32 @@
+import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { DropTargetMonitor, useDrop } from 'react-dnd'
+import { CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
+import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import { DropItem, DropType, TEvent } from '../../utils/types'
 import {
     AllDaysContainer,
-    CALENDAR_DEFAULT_SCROLL_HOUR,
-    CELL_HEIGHT_VALUE,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
-    CalendarTD,
     CalendarTableStyle,
+    CalendarTD,
     CalendarTimesTableStyle,
+    CALENDAR_DEFAULT_SCROLL_HOUR,
     CellTime,
+    CELL_HEIGHT_VALUE,
     DayAndHeaderContainer,
     DayContainer,
     DayHeaderText,
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
-import { CALENDAR_DEFAULT_EVENT_DURATION } from '../../constants'
-import { DropItem, DropType, TEvent } from '../../utils/types'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
-import React, { Ref, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
 
-import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
-import { TimeIndicator } from './TimeIndicator'
-import { findCollisionGroups } from './utils/eventLayout'
 import { getMonthsAroundDate } from '../../utils/time'
 import { useCalendarContext } from './CalendarContext'
+import CollisionGroupColumns from './CollisionGroupColumns'
+import { TimeIndicator } from './TimeIndicator'
+import { findCollisionGroups } from './utils/eventLayout'
 
 const CalendarDayTable = () => {
     const hourElements = Array(24)
@@ -148,7 +148,7 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
             const dropPosition = monitor.getClientOffset()
-            if (!eventsContainerRef.current || !dropPosition || !accountId) return
+            if (!eventsContainerRef.current || !dropPosition || !accountId || !item.task) return
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
             const scrollOffset = eventsContainerRef.current.scrollTop
 
@@ -166,15 +166,20 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                 millisecond: 0,
             })
             const end = start.plus({ minutes: 30 })
+            let description = item.task.body
+            if (description !== '') {
+                description += '\n'
+            }
+            description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
 
             createEvent({
                 createEventPayload: {
                     account_id: accountId,
                     datetime_start: start.toISO(),
                     datetime_end: end.toISO(),
-                    summary: item.task?.title,
-                    description: item.task?.body,
-                    task_id: item.task?.id,
+                    summary: item.task.title,
+                    description: description,
+                    task_id: item.task.id,
                 },
                 date,
                 linkedTask: item.task,
