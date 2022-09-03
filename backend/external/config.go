@@ -25,8 +25,9 @@ type Config struct {
 	GoogleAuthorizeConfig OauthConfigWrapper
 	Slack                 SlackConfig
 	SlackApp              SlackConfig
-	GoogleOverrideURLs    GoogleURLOverrides
 	Linear                LinearConfig
+	SlackOverrideURL      string
+	GoogleOverrideURLs    GoogleURLOverrides
 }
 
 func GetConfig() Config {

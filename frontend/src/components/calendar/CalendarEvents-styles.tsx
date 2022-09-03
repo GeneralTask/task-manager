@@ -1,5 +1,4 @@
 import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
-
 import styled from 'styled-components'
 
 export const CELL_HEIGHT_VALUE = 64
@@ -16,6 +15,12 @@ export const CALENDAR_TIME_COLOR = Colors.text.light
 export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = '2.5px'
+export const CALENDAR_DAY_HEADER_HEIGHT = 40
+export const DEFAULT_EVENT_DURATION_IN_MINUTES = 30
+export const DEFAULT_EVENT_HEIGHT = (CELL_HEIGHT_VALUE * DEFAULT_EVENT_DURATION_IN_MINUTES) / 60
+export const EVENT_CREATION_INTERVAL_IN_MINUTES = 15
+export const EVENT_CREATION_INTERVAL_HEIGHT = (CELL_HEIGHT_VALUE * EVENT_CREATION_INTERVAL_IN_MINUTES) / 60
+export const EVENT_CREATION_INTERVAL_PER_HOUR = 60 / EVENT_CREATION_INTERVAL_IN_MINUTES
 
 const WIDTH_CSS_CALCULATION = `(${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/var(--squish-factor)`
 
@@ -180,6 +185,18 @@ export const TimeAndHeaderContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: fit-content;
+`
+export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
+    position: absolute;
+    width: 100%;
+    height: ${DEFAULT_EVENT_HEIGHT}px;
+    border: 2px dashed ${Colors.gtColor.primary};
+    display: ${(props) => (props.isVisible ? 'block' : 'none')};
+    border-radius: ${Border.radius.medium};
+    box-sizing: border-box;
+    top: ${(props) => props.offset}px;
+    z-index: 1;
+    background-color: ${Colors.background.dropIndicator};
 `
 export const IconContainer = styled.div`
     width: ${Dimensions.iconSize.xSmall};

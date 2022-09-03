@@ -170,7 +170,13 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 		// Golang Slack API cannot handle optional fields for modals
 		// thus we make this request manually
-		request, err := http.NewRequest("POST", slack.APIURL+"views.open", bytes.NewBuffer(modalJSON))
+		// overrides for testing
+		url := slack.APIURL + "views.open"
+		override := api.ExternalConfig.SlackOverrideURL
+		if override != "" {
+			url = override
+		}
+		request, err := http.NewRequest("POST", url, bytes.NewBuffer(modalJSON))
 		request.Header.Set("Content-type", "application/json")
 		request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 		client := &http.Client{}
@@ -213,15 +219,25 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			taskCreationObject.Body = details
 		}
 
+		// require special override because in separate package
+		override := api.ExternalConfig.SlackOverrideURL
 		userID := externalToken.UserID
-		_, err = taskSourceResult.Source.CreateNewTask(api.DB, userID, externalID, taskCreationObject)
+		source := taskSourceResult.Source.(external.SlackSavedTaskSource)
+		if override != "" {
+			source.Slack.Config.ConfigValues.OverrideURL = &override
+		}
+		_, err = source.CreateNewTask(api.DB, userID, externalID, taskCreationObject)
 		if err != nil {
 			c.JSON(503, gin.H{"detail": "failed to create task"})
 			return
 		}
 
 		// send ephemeral response
-		err = external.SendConfirmationResponse(*externalToken, slackMetadataParams.ResponseURL)
+		url := slackMetadataParams.ResponseURL
+		if override != "" {
+			url = override
+		}
+		err = external.SendConfirmationResponse(*externalToken, url)
 		if err != nil {
 			c.JSON(500, gin.H{"detail": "failed to send ephemeral response"})
 		}
