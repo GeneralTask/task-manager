@@ -105,7 +105,7 @@ func (api *API) EventsList(c *gin.Context) {
 		for _, event := range calendarResult.CalendarEvents {
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
-			linkedTaskID := ""
+			var linkedTaskID string
 			if event.LinkedTaskID != primitive.NilObjectID {
 				linkedTaskID = event.LinkedTaskID.Hex()
 				if event.LinkedTaskSourceID != "" {
@@ -114,7 +114,6 @@ func (api *API) EventsList(c *gin.Context) {
 				} else {
 					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
 				}
-				linkedTaskID = event.LinkedTaskID.Hex()
 			}
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
