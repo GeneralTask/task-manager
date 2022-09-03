@@ -18,25 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type ViewType string
-
-const (
-	ViewLinearName             = "Linear"
-	ViewSlackName              = "Slack"
-	ViewGithubName             = "Github"
-	ViewMeetingPreparationName = "Meeting Preparation"
-	ViewDueTodayName           = "Due Today"
-)
-
-const (
-	ViewTaskSection        ViewType = "task_section"
-	ViewLinear             ViewType = "linear"
-	ViewSlack              ViewType = "slack"
-	ViewGithub             ViewType = "github"
-	ViewMeetingPreparation ViewType = "meeting_preparation"
-	ViewDueToday           ViewType = "due_today"
-)
-
 type SourcesResult struct {
 	Name             string  `json:"name"`
 	AuthorizationURL *string `json:"authorization_url"`
@@ -50,7 +31,7 @@ type ViewItem interface {
 type OverviewResult[T ViewItem] struct {
 	ID            primitive.ObjectID `json:"id"`
 	Name          string             `json:"name"`
-	Type          ViewType           `json:"type"`
+	Type          constants.ViewType `json:"type"`
 	Logo          string             `json:"logo"`
 	IsLinked      bool               `json:"is_linked"`
 	Sources       []SourcesResult    `json:"sources"`
@@ -69,7 +50,7 @@ type SupportedViewItem struct {
 }
 
 type SupportedView struct {
-	Type             ViewType            `json:"type"`
+	Type             constants.ViewType  `json:"type"`
 	Name             string              `json:"name"`
 	Logo             string              `json:"logo"`
 	IsNested         bool                `json:"is_nested"`
@@ -143,17 +124,17 @@ func (api *API) GetOverviewResults(ctx context.Context, views []database.View, u
 		var singleOverviewResult OrderingIDGetter
 		var err error
 		switch view.Type {
-		case string(ViewTaskSection):
+		case string(constants.ViewTaskSection):
 			singleOverviewResult, err = api.GetTaskSectionOverviewResult(ctx, view, userID)
-		case string(ViewLinear):
+		case string(constants.ViewLinear):
 			singleOverviewResult, err = api.GetLinearOverviewResult(ctx, view, userID)
-		case string(ViewSlack):
+		case string(constants.ViewSlack):
 			singleOverviewResult, err = api.GetSlackOverviewResult(ctx, view, userID)
-		case string(ViewGithub):
+		case string(constants.ViewGithub):
 			singleOverviewResult, err = api.GetGithubOverviewResult(ctx, view, userID)
-		case string(ViewMeetingPreparation):
+		case string(constants.ViewMeetingPreparation):
 			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(ctx, view, userID, timezoneOffset)
-		case string(ViewDueToday):
+		case string(constants.ViewDueToday):
 			singleOverviewResult, err = api.GetDueTodayOverviewResult(ctx, view, userID, timezoneOffset)
 		default:
 			err = errors.New("invalid view type")
@@ -226,7 +207,7 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 		ID:            view.ID,
 		Name:          name,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
-		Type:          ViewTaskSection,
+		Type:          constants.ViewTaskSection,
 		IsLinked:      view.IsLinked,
 		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
@@ -265,15 +246,15 @@ func (api *API) UpdateViewsLinkedStatus(ctx context.Context, views *[]database.V
 			return errors.New("invalid user")
 		}
 		var serviceID string
-		if view.Type == string(ViewTaskSection) {
+		if view.Type == string(constants.ViewTaskSection) {
 			continue
-		} else if view.Type == string(ViewLinear) {
+		} else if view.Type == string(constants.ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
-		} else if view.Type == string(ViewSlack) {
+		} else if view.Type == string(constants.ViewSlack) {
 			serviceID = external.TaskServiceSlack.ID
-		} else if view.Type == string(ViewGithub) {
+		} else if view.Type == string(constants.ViewGithub) {
 			serviceID = external.TaskServiceGithub.ID
-		} else if view.Type == string(ViewMeetingPreparation) {
+		} else if view.Type == string(constants.ViewMeetingPreparation) {
 			continue
 		} else {
 			return errors.New("invalid view type")
@@ -309,13 +290,13 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_LINEAR)
 	result := OverviewResult[TaskResult]{
 		ID:       view.ID,
-		Name:     ViewLinearName,
+		Name:     constants.ViewLinearName,
 		Logo:     external.TaskServiceLinear.LogoV2,
-		Type:     ViewLinear,
+		Type:     constants.ViewLinear,
 		IsLinked: view.IsLinked,
 		Sources: []SourcesResult{
 			{
-				Name:             ViewLinearName,
+				Name:             constants.ViewLinearName,
 				AuthorizationURL: &authURL,
 			},
 		},
@@ -353,13 +334,13 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_SLACK)
 	result := OverviewResult[TaskResult]{
 		ID:       view.ID,
-		Name:     ViewSlackName,
+		Name:     constants.ViewSlackName,
 		Logo:     external.TaskServiceSlack.LogoV2,
-		Type:     ViewSlack,
+		Type:     constants.ViewSlack,
 		IsLinked: view.IsLinked,
 		Sources: []SourcesResult{
 			{
-				Name:             ViewSlackName,
+				Name:             constants.ViewSlackName,
 				AuthorizationURL: &authURL,
 			},
 		},
@@ -406,11 +387,11 @@ func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View,
 		ID:       view.ID,
 		Name:     repository.FullName,
 		Logo:     external.TaskServiceGithub.LogoV2,
-		Type:     ViewGithub,
+		Type:     constants.ViewGithub,
 		IsLinked: view.IsLinked,
 		Sources: []SourcesResult{
 			{
-				Name:             ViewGithubName,
+				Name:             constants.ViewGithubName,
 				AuthorizationURL: &authURL,
 			},
 		},
@@ -493,9 +474,9 @@ func (api *API) GetMeetingPreparationOverviewResult(ctx context.Context, view da
 
 	return &OverviewResult[TaskResult]{
 		ID:            view.ID,
-		Name:          ViewMeetingPreparationName,
+		Name:          constants.ViewMeetingPreparationName,
 		Logo:          external.TaskSourceGoogleCalendar.LogoV2,
-		Type:          ViewMeetingPreparation,
+		Type:          constants.ViewMeetingPreparation,
 		IsLinked:      true,
 		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
@@ -511,9 +492,9 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 	}
 	result := OverviewResult[TaskResult]{
 		ID:            view.ID,
-		Name:          ViewDueTodayName,
+		Name:          constants.ViewDueTodayName,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
-		Type:          ViewDueToday,
+		Type:          constants.ViewDueToday,
 		IsLinked:      view.IsLinked,
 		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
@@ -662,10 +643,10 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "invalid or missing parameter"})
 		return
 	}
-	if viewCreateParams.Type == string(ViewTaskSection) && viewCreateParams.TaskSectionID == nil {
+	if viewCreateParams.Type == string(constants.ViewTaskSection) && viewCreateParams.TaskSectionID == nil {
 		c.JSON(400, gin.H{"detail": "'task_section_id' is required for task section type views"})
 		return
-	} else if viewCreateParams.Type == string(ViewGithub) && viewCreateParams.GithubID == nil {
+	} else if viewCreateParams.Type == string(constants.ViewGithub) && viewCreateParams.GithubID == nil {
 		c.JSON(400, gin.H{"detail": "'id_github' is required for github type views"})
 		return
 	}
@@ -684,16 +665,16 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	var serviceID string
 	taskSectionID := primitive.NilObjectID
 	var githubID string
-	if viewCreateParams.Type == string(ViewTaskSection) {
+	if viewCreateParams.Type == string(constants.ViewTaskSection) {
 		serviceID = external.TASK_SERVICE_ID_GT
 		taskSectionID, err = getValidTaskSection(*viewCreateParams.TaskSectionID, userID, api.DB)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'task_section_id' is not a valid ID"})
 			return
 		}
-	} else if viewCreateParams.Type == string(ViewLinear) {
+	} else if viewCreateParams.Type == string(constants.ViewLinear) {
 		serviceID = external.TASK_SERVICE_ID_LINEAR
-	} else if viewCreateParams.Type == string(ViewGithub) {
+	} else if viewCreateParams.Type == string(constants.ViewGithub) {
 		serviceID = external.TASK_SERVICE_ID_GITHUB
 		isValidGithubRepository, err := isValidGithubRepository(api.DB, userID, *viewCreateParams.GithubID)
 		if err != nil {
@@ -706,7 +687,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			return
 		}
 		githubID = *viewCreateParams.GithubID
-	} else if viewCreateParams.Type != string(ViewLinear) && viewCreateParams.Type != string(ViewSlack) {
+	} else if viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -748,7 +729,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			{"type": params.Type},
 		},
 	}
-	if params.Type == string(ViewTaskSection) {
+	if params.Type == string(constants.ViewTaskSection) {
 		if params.TaskSectionID == nil {
 			return false, errors.New("'task_section_id' is required for task section type views")
 		}
@@ -757,12 +738,12 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			return false, errors.New("'task_section_id' is not a valid ObjectID")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"task_section_id": taskSectionObjectID})
-	} else if params.Type == string(ViewGithub) {
+	} else if params.Type == string(constants.ViewGithub) {
 		if params.GithubID == nil {
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(ViewLinear) && params.Type != string(ViewSlack) {
+	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
@@ -950,7 +931,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 
 	supportedViews := []SupportedView{
 		{
-			Type:     ViewTaskSection,
+			Type:     constants.ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
@@ -958,7 +939,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			Views:    supportedTaskSectionViews,
 		},
 		{
-			Type:             ViewLinear,
+			Type:             constants.ViewLinear,
 			Name:             "Linear",
 			Logo:             "linear",
 			IsNested:         false,
@@ -972,7 +953,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:             ViewSlack,
+			Type:             constants.ViewSlack,
 			Name:             "Slack",
 			Logo:             "slack",
 			IsNested:         false,
@@ -986,7 +967,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
-			Type:             ViewGithub,
+			Type:             constants.ViewGithub,
 			Name:             "GitHub",
 			Logo:             "github",
 			IsNested:         true,
@@ -1077,14 +1058,14 @@ func (api *API) updateIsAddedForSupportedViews(db *mongo.Database, userID primit
 	return nil
 }
 
-func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, view SupportedViewItem) (*database.View, error) {
-	if viewType == ViewTaskSection {
+func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.ObjectID, viewType constants.ViewType, view SupportedViewItem) (*database.View, error) {
+	if viewType == constants.ViewTaskSection {
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == ViewLinear || viewType == ViewSlack {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack {
 		return api.getView(db, userID, viewType, nil)
-	} else if viewType == ViewGithub {
+	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"github_id": view.GithubID},
 		})
@@ -1092,7 +1073,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 	return nil, errors.New("invalid view type")
 }
 
-func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType ViewType, additionalFilters *[]bson.M) (*database.View, error) {
+func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType constants.ViewType, additionalFilters *[]bson.M) (*database.View, error) {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()

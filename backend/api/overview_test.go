@@ -124,7 +124,7 @@ func TestGetOverviewResults(t *testing.T) {
 		expectedViewResult := OverviewResult[TaskResult]{
 			ID:            views[0].ID,
 			Name:          taskSectionName,
-			Type:          ViewTaskSection,
+			Type:          constants.ViewTaskSection,
 			Logo:          "generaltask",
 			IsLinked:      false,
 			Sources:       []SourcesResult{},
@@ -175,7 +175,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          taskSectionName,
-		Type:          ViewTaskSection,
+		Type:          constants.ViewTaskSection,
 		Logo:          "generaltask",
 		IsLinked:      false,
 		Sources:       []SourcesResult{},
@@ -286,7 +286,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          "Linear",
-		Type:          ViewLinear,
+		Type:          constants.ViewLinear,
 		Logo:          "linear",
 		IsLinked:      true,
 		IsReorderable: false,
@@ -398,7 +398,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:       view.ID,
 		Name:     "Slack",
-		Type:     ViewSlack,
+		Type:     constants.ViewSlack,
 		Logo:     "slack",
 		IsLinked: true,
 		Sources: []SourcesResult{
@@ -529,7 +529,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
 		Name:     "OrganizationTest/RepositoryTest",
-		Type:     ViewGithub,
+		Type:     constants.ViewGithub,
 		Logo:     "github",
 		IsLinked: true,
 		Sources: []SourcesResult{
@@ -630,7 +630,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 	expectedViewResult := OverviewResult[TaskResult]{
 		ID:            view.ID,
 		Name:          "Due Today",
-		Type:          ViewDueToday,
+		Type:          constants.ViewDueToday,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		IsLinked:      true,
 		Sources:       []SourcesResult{},
@@ -1092,7 +1092,7 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK, nil)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(constants.ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK, nil)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
@@ -1102,7 +1102,7 @@ func TestOverviewAdd(t *testing.T) {
 			ID:            addedView.ID,
 			UserID:        userID,
 			IDOrdering:    1,
-			Type:          string(ViewTaskSection),
+			Type:          string(constants.ViewTaskSection),
 			IsLinked:      true,
 			TaskSectionID: taskSection1ObjectID,
 			GithubID:      "",
@@ -1126,7 +1126,7 @@ func TestOverviewAdd(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
 
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK, nil)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(constants.ViewTaskSection)+`", "task_section_id": "%s"}`, taskSection1ID))), http.StatusOK, nil)
 		taskSection1ObjectID, err := primitive.ObjectIDFromHex(taskSection1ID)
 		assert.NoError(t, err)
 		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "task_section_id": taskSection1ObjectID}).Decode(&addedView)
@@ -1136,7 +1136,7 @@ func TestOverviewAdd(t *testing.T) {
 			ID:            addedView.ID,
 			UserID:        userID,
 			IDOrdering:    1,
-			Type:          string(ViewTaskSection),
+			Type:          string(constants.ViewTaskSection),
 			IsLinked:      true,
 			TaskSectionID: taskSection1ObjectID,
 			GithubID:      "",
@@ -1149,15 +1149,15 @@ func TestOverviewAdd(t *testing.T) {
 	t.Run("AddLinearViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewLinear)+`"}`)), http.StatusOK, nil)
-		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewLinear)}).Decode(&addedView)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(constants.ViewLinear)+`"}`)), http.StatusOK, nil)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(constants.ViewLinear)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 		assert.Equal(t, database.View{
 			ID:            addedView.ID,
 			UserID:        userID,
 			IDOrdering:    1,
-			Type:          string(ViewLinear),
+			Type:          string(constants.ViewLinear),
 			IsLinked:      false,
 			TaskSectionID: primitive.NilObjectID,
 			GithubID:      "",
@@ -1170,15 +1170,15 @@ func TestOverviewAdd(t *testing.T) {
 	t.Run("AddSlackViewSuccess", func(t *testing.T) {
 		viewCollection.DeleteMany(parentCtx, bson.M{"user_id": userID})
 		var addedView database.View
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(ViewSlack)+`"}`)), http.StatusOK, nil)
-		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewSlack)}).Decode(&addedView)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(`{"type": "`+string(constants.ViewSlack)+`"}`)), http.StatusOK, nil)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(constants.ViewSlack)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 		assert.Equal(t, database.View{
 			ID:            addedView.ID,
 			UserID:        userID,
 			IDOrdering:    1,
-			Type:          string(ViewSlack),
+			Type:          string(constants.ViewSlack),
 			IsLinked:      false,
 			TaskSectionID: primitive.NilObjectID,
 			GithubID:      "",
@@ -1229,9 +1229,9 @@ func TestOverviewAdd(t *testing.T) {
 			RepositoryID: repositoryID,
 		})
 		assert.NoError(t, err)
-		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusBadRequest, nil)
+		ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(constants.ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusBadRequest, nil)
 
-		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)})
+		count, err := viewCollection.CountDocuments(parentCtx, bson.M{"user_id": userID, "type": string(constants.ViewGithub)})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 	})
@@ -1248,9 +1248,9 @@ func TestOverviewAdd(t *testing.T) {
 			RepositoryID: repositoryID,
 		})
 		assert.NoError(t, err)
-		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusOK, nil)
+		body := ServeRequest(t, authToken, "POST", "/overview/views/", bytes.NewBuffer([]byte(fmt.Sprintf(`{"type": "`+string(constants.ViewGithub)+`", "github_id": "%s"}`, repositoryID))), http.StatusOK, nil)
 		var addedView database.View
-		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(ViewGithub)}).Decode(&addedView)
+		err = viewCollection.FindOne(parentCtx, bson.M{"user_id": userID, "type": string(constants.ViewGithub)}).Decode(&addedView)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprintf(`{"id":"%s"}`, addedView.ID.Hex()), string(body))
 
@@ -1258,7 +1258,7 @@ func TestOverviewAdd(t *testing.T) {
 			ID:            addedView.ID,
 			UserID:        userID,
 			IDOrdering:    1,
-			Type:          string(ViewGithub),
+			Type:          string(constants.ViewGithub),
 			IsLinked:      false,
 			TaskSectionID: primitive.NilObjectID,
 			GithubID:      repositoryID,
