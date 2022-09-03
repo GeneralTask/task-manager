@@ -81,6 +81,7 @@ var GithubSortingDirectionSetting = SettingDefinition{
 }
 
 var hardcodedSettings = []SettingDefinition{
+	// these settings are for the Github PR page
 	GithubFilteringSetting,
 	GithubSortingPreferenceSetting,
 	GithubSortingDirectionSetting,

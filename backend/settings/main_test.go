@@ -26,11 +26,13 @@ func TestGetSettingsOptions(t *testing.T) {
 	res, err := viewCollection.InsertOne(parentCtx, view)
 	assert.NoError(t, err)
 	insertedViewID := res.InsertedID.(primitive.ObjectID).Hex()
+	// wrong user ID
 	_, err = viewCollection.InsertOne(parentCtx, database.View{
 		UserID: primitive.NewObjectID(),
 		Type:   string(constants.ViewGithub),
 	})
 	assert.NoError(t, err)
+	// wrong view type
 	_, err = viewCollection.InsertOne(parentCtx, database.View{
 		UserID: userID,
 		Type:   string(constants.ViewLinear),
