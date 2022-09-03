@@ -5,7 +5,7 @@ import checkbox from '../../../public/animations/checkbox.json'
 import styled from 'styled-components'
 import Lottie, { LottieRef } from 'lottie-react'
 
-const ANIM_SPEED = 1.5
+const ANIM_SPEED = 3
 const ANIM_START_FRAME = 3
 const ANIM_END_FRAME = 29
 const ANIM_TOTAL_FRAMES = ANIM_END_FRAME - ANIM_START_FRAME
