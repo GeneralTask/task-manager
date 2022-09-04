@@ -665,7 +665,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsInValidRange", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", "", timeOneHourLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater)
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, 0)
 		assert.NoError(t, err)
@@ -689,7 +689,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, "Event2", res.ViewItems[1].Title)
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
-		insertResult, err := createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "", "", timeZero, timeZero)
+		insertResult, err := createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "", primitive.NewObjectID().Hex(), timeZero, timeZero)
 		assert.NoError(t, err)
 
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, 0)
@@ -700,7 +700,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.NoError(t, err)
-		assert.Equal(t, true, item.IsCompleted)
+		assert.Equal(t, true, *item.IsCompleted)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 		assert.NotNil(t, res)
 		assert.Equal(t, 2, len(res.ViewItems))
@@ -716,6 +716,7 @@ func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collect
 		UserID:        userID,
 		Title:         title,
 		IDExternal:    idExternal,
+		SourceID:      external.TASK_SOURCE_ID_GCAL,
 		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
 		DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
 	})
@@ -728,6 +729,7 @@ func createTestMeetingPreparationTask(ctx context.Context, taskCollection *mongo
 	isCompleted := false
 	return taskCollection.InsertOne(dbCtx, database.Task{
 		UserID:                   userID,
+		SourceID:                 external.TASK_SOURCE_ID_GCAL,
 		Title:                    &title,
 		IsCompleted:              &isCompleted,
 		IsMeetingPreparationTask: true,
