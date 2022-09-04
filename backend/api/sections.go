@@ -137,7 +137,7 @@ func (api *API) setDefaultSectionName(c *gin.Context, ctx context.Context, name 
 		options.Update().SetUpsert(true),
 	)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to update internal DB")
+		api.Logger.Error().Err(err).Msg("failed to set default task section name")
 		Handle500(c)
 		return
 	}
