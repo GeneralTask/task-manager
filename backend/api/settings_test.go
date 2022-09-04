@@ -44,7 +44,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"Github PR filtering preference for PR page\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"Actionable Only\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"All PRs\"}],\"field_value\":\"actionable_only\"}")
+		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"actionable_only\"}")
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
@@ -69,7 +69,7 @@ func TestSettingsGet(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"Github PR filtering preference for PR page\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"Actionable Only\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"All PRs\"}],\"field_value\":\"actionable_only\"}")
+		assert.Contains(t, string(body), "{\"field_key\":\"github_filtering_preference\",\"field_name\":\"\",\"choices\":[{\"choice_key\":\"actionable_only\",\"choice_name\":\"\"},{\"choice_key\":\"all_prs\",\"choice_name\":\"\"}],\"field_value\":\"actionable_only\"}")
 	})
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("Unauthorized", func(t *testing.T) {

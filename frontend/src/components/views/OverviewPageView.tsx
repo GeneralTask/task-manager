@@ -13,6 +13,7 @@ import PullRequestDetails from '../details/PullRequestDetails'
 import { SectionHeader } from '../molecules/Header'
 import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
+import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -27,6 +28,7 @@ const ActionsContainer = styled.div`
 
 const OverviewView = () => {
     const { data: views, isLoading, isFetching } = useGetOverviewViews()
+    useFetchPullRequests()
     const { overviewViewId, overviewItemId } = useParams()
     const navigate = useNavigate()
     const scrollRef = useRef<HTMLDivElement>(null)

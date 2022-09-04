@@ -32,14 +32,16 @@ func (api *API) EventCreate(c *gin.Context) {
 
 	userID := getUserIDFromContext(c)
 
+	linkedTaskSourceID := ""
 	if eventCreateObject.LinkedTaskID != primitive.NilObjectID {
 		// check that the task exists
-		_, err := database.GetTask(api.DB, dbCtx, eventCreateObject.LinkedTaskID, userID)
+		linkedTask, err := database.GetTask(api.DB, dbCtx, eventCreateObject.LinkedTaskID, userID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID.Hex())
 			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID.Hex())})
 			return
 		}
+		linkedTaskSourceID = linkedTask.SourceID
 	}
 
 	// generate ID for event so we can use this when inserting into database
@@ -54,15 +56,16 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	event := database.CalendarEvent{
-		UserID:          userID,
-		IDExternal:      externalEventID.Hex(),
-		SourceID:        sourceID,
-		SourceAccountID: eventCreateObject.AccountID,
-		Title:           eventCreateObject.Summary,
-		Body:            eventCreateObject.Description,
-		DatetimeEnd:     primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
-		DatetimeStart:   primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
-		LinkedTaskID:    eventCreateObject.LinkedTaskID,
+		UserID:             userID,
+		IDExternal:         externalEventID.Hex(),
+		SourceID:           sourceID,
+		SourceAccountID:    eventCreateObject.AccountID,
+		Title:              eventCreateObject.Summary,
+		Body:               eventCreateObject.Description,
+		DatetimeEnd:        primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
+		DatetimeStart:      primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
+		LinkedTaskID:       eventCreateObject.LinkedTaskID,
+		LinkedTaskSourceID: linkedTaskSourceID,
 	}
 
 	insertedEvent, err := database.UpdateOrCreateCalendarEvent(
