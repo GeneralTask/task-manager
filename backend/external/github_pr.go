@@ -290,27 +290,28 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 			HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 			ChecksDidFail:        checksDidFail,
 			ChecksDidFinish:      checksDidFinish,
-			IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
+			IsOwnedByUser:        pullRequest.User.GetLogin() == githubUser.GetLogin(),
 			UserLogin:            githubUser.GetLogin(),
 		})
 	}
 
 	result <- &database.PullRequest{
 		UserID:            userID,
-		IDExternal:        fmt.Sprint(*pullRequest.ID),
-		Deeplink:          *pullRequest.HTMLURL,
+		IDExternal:        fmt.Sprint(pullRequest.GetID()),
+		Deeplink:          pullRequest.GetHTMLURL(),
 		SourceID:          TASK_SOURCE_ID_GITHUB_PR,
-		Title:             *pullRequest.Title,
+		Title:             pullRequest.GetTitle(),
+		Body:              pullRequest.GetBody(),
 		SourceAccountID:   accountID,
-		CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+		CreatedAtExternal: primitive.NewDateTimeFromTime(pullRequest.GetCreatedAt()),
 		RepositoryID:      fmt.Sprint(*repository.ID),
 		RepositoryName:    repository.GetFullName(),
-		Number:            *pullRequest.Number,
-		Author:            *pullRequest.User.Login,
-		Branch:            *pullRequest.Head.Ref,
+		Number:            pullRequest.GetNumber(),
+		Author:            pullRequest.User.GetLogin(),
+		Branch:            pullRequest.Head.GetRef(),
 		RequiredAction:    requiredAction,
 		CommentCount:      commentCount,
-		LastUpdatedAt:     primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
+		LastUpdatedAt:     primitive.NewDateTimeFromTime(pullRequest.GetUpdatedAt()),
 	}
 }
 

@@ -420,6 +420,7 @@ func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View,
 		pullRequestResult := PullRequestResult{
 			ID:     pullRequest.ID.Hex(),
 			Title:  pullRequest.Title,
+			Body:   pullRequest.Body,
 			Number: pullRequest.Number,
 			Status: PullRequestStatus{
 				Text:  pullRequest.RequiredAction,

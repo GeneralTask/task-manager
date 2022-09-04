@@ -103,7 +103,9 @@ func TestGetPullRequests(t *testing.T) {
 
 		assert.NoError(t, result.Error)
 		assert.Equal(t, len(result.PullRequests), 1)
-		assert.Equal(t, ActionAddReviewers, result.PullRequests[0].RequiredAction)
+		pullRequest := result.PullRequests[0]
+		assert.Equal(t, ActionAddReviewers, pullRequest.RequiredAction)
+		assert.Equal(t, "the oopsie must be fixed", pullRequest.Body)
 
 		// Check that repository for PR is created in the database
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)

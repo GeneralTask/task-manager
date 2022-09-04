@@ -554,6 +554,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		falseBool := false
 		trueBool := true
 		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			Body:         "oh no oh jeez",
 			UserID:       userID,
 			IsCompleted:  &falseBool,
 			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
@@ -589,10 +590,12 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.ViewItems = []*PullRequestResult{
 			{
-				ID: pullRequestID.Hex(),
+				ID:   pullRequestID.Hex(),
+				Body: "oh no oh jeez",
 			},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
+		assert.Equal(t, expectedViewResult.ViewItems[0].Body, result.ViewItems[0].Body)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
 		result, err := api.GetGithubOverviewResult(parentCtx, view, primitive.NewObjectID())
