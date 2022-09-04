@@ -549,16 +549,33 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		expectedViewResult.ViewItems = []*PullRequestResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
-	t.Run("SingleGithubViewItem", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		pullRequestCollection := database.GetPullRequestCollection(api.DB)
 		falseBool := false
 		trueBool := true
 		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
-			Body:         "oh no oh jeez",
-			UserID:       userID,
-			IsCompleted:  &falseBool,
-			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
-			RepositoryID: githubID.Hex(),
+			Body:           "oh no oh jeez",
+			UserID:         userID,
+			IsCompleted:    &falseBool,
+			SourceID:       external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID:   githubID.Hex(),
+			RequiredAction: external.ActionAddReviewers,
+		})
+		assert.NoError(t, err)
+		pullResult2, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:         userID,
+			IsCompleted:    &falseBool,
+			SourceID:       external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID:   githubID.Hex(),
+			RequiredAction: external.ActionNoneNeeded,
+		})
+		assert.NoError(t, err)
+		pullResult3, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
+			UserID:         userID,
+			IsCompleted:    &falseBool,
+			SourceID:       external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID:   githubID.Hex(),
+			RequiredAction: external.ActionMergePR,
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different UserID. This PR should not be in the view result.
@@ -585,14 +602,19 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 
 		pullRequestID := pullResult.InsertedID.(primitive.ObjectID)
+		pullRequestID2 := pullResult2.InsertedID.(primitive.ObjectID)
+		pullRequestID3 := pullResult3.InsertedID.(primitive.ObjectID)
 		result, err := api.GetGithubOverviewResult(parentCtx, view, userID)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
+		// verify sorting is happening (more thorough tests exists for the PR endpoint)
 		expectedViewResult.ViewItems = []*PullRequestResult{
 			{
 				ID:   pullRequestID.Hex(),
 				Body: "oh no oh jeez",
 			},
+			{ID: pullRequestID3.Hex()},
+			{ID: pullRequestID2.Hex()},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 		assert.Equal(t, expectedViewResult.ViewItems[0].Body, result.ViewItems[0].Body)
