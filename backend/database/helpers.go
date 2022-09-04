@@ -375,8 +375,7 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Task, error) {
 	parentCtx := context.Background()
 	var tasks []Task
-	taskCollection := GetTaskCollection(db)
-	err := FindWithCollection(parentCtx, taskCollection, userID, additionalFilters, &tasks)
+	err := FindWithCollection(parentCtx, GetTaskCollection(db), userID, additionalFilters, &tasks)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch items for user")
