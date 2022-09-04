@@ -742,14 +742,15 @@ func TestGetDefaultSectionName(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
 	userID := primitive.NewObjectID()
 
-	t.Run("Success", func(t *testing.T) {
+	t.Run("SuccessUnset", func(t *testing.T) {
 		sectionName := GetDefaultSectionName(db, userID)
 		assert.Equal(t, constants.TaskSectionNameDefault, sectionName)
-
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
+	})
+	t.Run("SuccessEmptyString", func(t *testing.T) {
 		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
 			dbCtx,
 			&DefaultSectionSettings{
@@ -759,8 +760,28 @@ func TestGetDefaultSectionName(t *testing.T) {
 			},
 		)
 
-		sectionName = GetDefaultSectionName(db, userID)
+		sectionName := GetDefaultSectionName(db, userID)
 		assert.Equal(t, "New Default", sectionName)
+
+	})
+	t.Run("Success", func(t *testing.T) {
+		otherUserID := primitive.NewObjectID()
+		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
+			dbCtx,
+			&DefaultSectionSettings{
+				ID:     constants.IDTaskSectionDefault,
+				UserID: otherUserID,
+			},
+			&DefaultSectionSettings{
+				ID:           constants.IDTaskSectionDefault,
+				UserID:       otherUserID,
+				NameOverride: "",
+			},
+		)
+
+		sectionName := GetDefaultSectionName(db, otherUserID)
+		assert.Equal(t, "Default", sectionName)
+
 	})
 }
 

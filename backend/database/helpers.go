@@ -706,7 +706,6 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 }
 
 func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
-	logger := logging.GetSentryLogger()
 	parentCtx := context.Background()
 	defaultSectionCollection := GetDefaultSectionSettingsCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -721,6 +720,7 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 		}},
 	)
 	err := mongoResult.Decode(&settings)
+	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update or create task")
 		return constants.TaskSectionNameDefault
