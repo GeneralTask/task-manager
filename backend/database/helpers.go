@@ -374,19 +374,9 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 
 func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Task, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	taskCollection := GetTaskCollection(db)
-	cursor, err := FindWithCollection(taskCollection, userID, additionalFilters, dbCtx)
-	if err != nil {
-		return nil, err
-	}
-
 	var tasks []Task
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tasks)
+	taskCollection := GetTaskCollection(db)
+	err := FindWithCollection(parentCtx, taskCollection, userID, additionalFilters, &tasks)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch items for user")
@@ -398,19 +388,8 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 // will add helpers once we refactor tasks collection
 func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	pullRequestCollection := GetPullRequestCollection(db)
-	cursor, err := FindWithCollection(pullRequestCollection, userID, additionalFilters, dbCtx)
-	if err != nil {
-		return nil, err
-	}
-
 	var pullRequests []PullRequest
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &pullRequests)
+	err := FindWithCollection(parentCtx, GetPullRequestCollection(db), userID, additionalFilters, &pullRequests)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
@@ -419,7 +398,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	return &pullRequests, nil
 }
 
-func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, dbCtx context.Context) (*mongo.Cursor, error) {
+func FindWithCollection(parentCtx context.Context, collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}) error {
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
@@ -430,16 +409,18 @@ func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID,
 			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
 		}
 	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
 	cursor, err := collection.Find(
 		dbCtx,
 		filter,
 	)
-	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch items for user")
-		return nil, err
+		return err
 	}
-	return cursor, nil
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	return cursor.All(dbCtx, result)
 }
 
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
