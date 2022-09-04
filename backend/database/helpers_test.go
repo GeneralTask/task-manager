@@ -737,6 +737,54 @@ func TestGetExternalToken(t *testing.T) {
 	})
 }
 
+func TestGetDefaultSectionName(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	userID := primitive.NewObjectID()
+
+	t.Run("SuccessUnset", func(t *testing.T) {
+		sectionName := GetDefaultSectionName(db, userID)
+		assert.Equal(t, constants.TaskSectionNameDefault, sectionName)
+	})
+	t.Run("SuccessEmptyString", func(t *testing.T) {
+		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
+			dbCtx,
+			&DefaultSectionSettings{
+				ID:           constants.IDTaskSectionDefault,
+				UserID:       userID,
+				NameOverride: "New Default",
+			},
+		)
+
+		sectionName := GetDefaultSectionName(db, userID)
+		assert.Equal(t, "New Default", sectionName)
+
+	})
+	t.Run("Success", func(t *testing.T) {
+		otherUserID := primitive.NewObjectID()
+		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
+			dbCtx,
+			&DefaultSectionSettings{
+				ID:     constants.IDTaskSectionDefault,
+				UserID: otherUserID,
+			},
+			&DefaultSectionSettings{
+				ID:           constants.IDTaskSectionDefault,
+				UserID:       otherUserID,
+				NameOverride: "",
+			},
+		)
+
+		sectionName := GetDefaultSectionName(db, otherUserID)
+		assert.Equal(t, "Default", sectionName)
+
+	})
+}
+
 func createTestCalendarEvent(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {
 	eventsCollection := GetCalendarEventCollection(db)
 	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)

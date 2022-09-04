@@ -993,8 +993,9 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 		return []SupportedViewItem{}, err
 	}
 
+	defaultSectionName := database.GetDefaultSectionName(api.DB, userID)
 	supportedViewItems := []SupportedViewItem{{
-		Name:          TaskSectionNameDefault,
+		Name:          defaultSectionName,
 		TaskSectionID: constants.IDTaskSectionDefault,
 	}}
 	for _, section := range *sections {

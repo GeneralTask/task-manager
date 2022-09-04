@@ -468,7 +468,7 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
-		return "Default", nil
+		return GetDefaultSectionName(db, userID), nil
 	}
 
 	parentCtx := context.Background()
@@ -685,6 +685,33 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
+func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
+	parentCtx := context.Background()
+	defaultSectionCollection := GetDefaultSectionSettingsCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	var settings DefaultSectionSettings
+	mongoResult := defaultSectionCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": constants.IDTaskSectionDefault},
+			{"user_id": userID},
+		}},
+	)
+	err := mongoResult.Decode(&settings)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to update or create task")
+		return constants.TaskSectionNameDefault
+	}
+	if settings.NameOverride != "" {
+		return settings.NameOverride
+	} else {
+		return constants.TaskSectionNameDefault
+	}
+}
+
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }
@@ -703,6 +730,10 @@ func GetViewCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRepositoryCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("repositories")
+}
+
+func GetDefaultSectionSettingsCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("default_section_settings")
 }
 
 func GetUserCollection(db *mongo.Database) *mongo.Collection {
