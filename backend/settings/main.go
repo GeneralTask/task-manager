@@ -122,21 +122,14 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
 	parentCtx := context.Background()
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := database.FindWithCollection(
+	var views []database.View
+	err := database.FindWithCollection(
+		parentCtx,
 		database.GetViewCollection(db),
 		userID,
 		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
-		dbCtx,
+		&views,
 	)
-	if err != nil {
-		return nil, err
-	}
-	var views []database.View
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &views)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load github views")
