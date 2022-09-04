@@ -87,57 +87,64 @@ func TestGetMeetingPreparationTasks(t *testing.T) {
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
-	validMeetingPrepTask, err := GetOrCreateItem(
+	notCompleted := false
+	validMeetingPrepTask, err := GetOrCreateTask(
 		db,
 		userID,
 		"123abc",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abc",
-				SourceID:   "foobar_source",
-				UserID:     userID,
-			},
-			TaskType: TaskType{
-				IsMeetingPreparationTask: true,
-			},
+		&Task{
+			IDExternal:               "123abc",
+			SourceID:                 "foobar_source",
+			UserID:                   userID,
+			IsCompleted:              &notCompleted,
+			IsMeetingPreparationTask: true,
 		},
 	)
 	assert.NoError(t, err)
 	// Not meeting preparation task
-	_, err = GetOrCreateItem(
+	_, err = GetOrCreateTask(
 		db,
 		userID,
 		"123abcde",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal:  "123abcde",
-				SourceID:    "foobar_source",
-				UserID:      userID,
-				IsCompleted: true,
-			},
-			TaskType: TaskType{
-				IsMeetingPreparationTask: false,
-			},
+		&Task{
+			IDExternal:               "123abcde",
+			SourceID:                 "foobar_source",
+			UserID:                   userID,
+			IsCompleted:              &notCompleted,
+			IsMeetingPreparationTask: false,
+		},
+	)
+	assert.NoError(t, err)
+	// Completed meeting preparation task
+	completed := true
+	_, err = GetOrCreateTask(
+		db,
+		userID,
+		"123abcdef",
+		"foobar_source",
+		&Task{
+			IDExternal:               "123abcdef",
+			SourceID:                 "foobar_source",
+			UserID:                   userID,
+			IsCompleted:              &completed,
+			IsMeetingPreparationTask: true,
 		},
 	)
 	assert.NoError(t, err)
 	// Wrong user ID
-	_, err = GetOrCreateItem(
+	_, err = GetOrCreateTask(
 		db,
 		notUserID,
 		"123abe",
 		"foobar_source",
-		&Item{
-			TaskBase: TaskBase{
-				IDExternal: "123abe",
-				SourceID:   "foobar_source",
-				UserID:     notUserID,
-			},
-			TaskType: TaskType{
-				IsMeetingPreparationTask: true,
-			},
+		&Task{
+			IDExternal:               "123abe",
+			SourceID:                 "foobar_source",
+			UserID:                   notUserID,
+			IsCompleted:              &notCompleted,
+			IsMeetingPreparationTask: true,
 		},
 	)
 	assert.NoError(t, err)
