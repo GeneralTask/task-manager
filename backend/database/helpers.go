@@ -702,7 +702,9 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	err := mongoResult.Decode(&settings)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to update or create task")
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msg("failed to query default section settings")
+		}
 		return constants.TaskSectionNameDefault
 	}
 	if settings.NameOverride != "" {
