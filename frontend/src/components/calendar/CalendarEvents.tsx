@@ -73,14 +73,14 @@ const CalendarTimeTable = () => {
 interface WeekCalendarEventsProps {
     date: DateTime
     groups: TEvent[][]
-    accountId: string | undefined
+    primaryAccountID: string | undefined
 }
-const WeekCalendarEvents = ({ date, groups, accountId }: WeekCalendarEventsProps) => {
+const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
     const { calendarType } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
     const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
-        accountId,
+        primaryAccountID,
         date,
         eventsContainerRef,
         isWeekView: isWeekCalendar,
@@ -120,10 +120,10 @@ const WeekCalendarEvents = ({ date, groups, accountId }: WeekCalendarEventsProps
 
 interface CalendarEventsProps {
     date: DateTime
-    accountId: string | undefined
+    primaryAccountID: string | undefined
 }
 
-const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
+const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     const { calendarType, selectedEvent } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
 
@@ -166,7 +166,7 @@ const CalendarEvents = ({ date, accountId }: CalendarEventsProps) => {
                     key={dayOffset}
                     date={date.plus({ days: dayOffset })}
                     groups={groups}
-                    accountId={accountId}
+                    primaryAccountID={primaryAccountID}
                 />
             ))}
         </AllDaysContainer>

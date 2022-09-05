@@ -9,14 +9,14 @@ import { useEffect } from 'react'
 import { getDiffBetweenISOTimes } from "../../../utils/time"
 
 interface CalendarDropArgs {
-    accountId: string | undefined
+    primaryAccountID: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
     isWeekView: boolean
 }
 
 const useCalendarDrop = ({
-    accountId,
+    primaryAccountID,
     date,
     eventsContainerRef,
     isWeekView,
@@ -60,16 +60,16 @@ const useCalendarDrop = ({
                 mouseFromEventTopOffset = initialClientOffset.y - initialSourceClientOffset.y - eventBodyTop - (EVENT_CREATION_INTERVAL_HEIGHT / 2)
             }
         }
-        if (!eventsContainerRef?.current || !clientOffset || !accountId) return 0
+        if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
         const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
         const scrollOffset = eventsContainerRef.current.scrollTop - (isWeekView ? CALENDAR_DAY_HEADER_HEIGHT : 0)
         const yPosInEventsContainer = clientOffset.y - eventsContainerOffset + scrollOffset - mouseFromEventTopOffset
         return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
-    }, [accountId, isWeekView])
+    }, [primaryAccountID, isWeekView])
 
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
-            if (!accountId) return
+            if (!primaryAccountID) return
             const itemType = monitor.getItemType()
             const dropPosition = getDropPosition(monitor)
             const start = getStartTimeFromDropPosition(dropPosition)
@@ -85,7 +85,7 @@ const useCalendarDrop = ({
 
                     createEvent({
                         createEventPayload: {
-                            account_id: accountId,
+                            account_id: primaryAccountID,
                             datetime_start: start.toISO(),
                             datetime_end: end.toISO(),
                             summary: item.task.title,
@@ -103,7 +103,7 @@ const useCalendarDrop = ({
                     modifyEvent({
                         event: item.event,
                         payload: {
-                            account_id: accountId,
+                            account_id: primaryAccountID, // TODO: change this to event account ID
                             datetime_start: start.toISO(),
                             datetime_end: end.toISO(),
                         },
@@ -113,7 +113,7 @@ const useCalendarDrop = ({
                 }
             }
         },
-        [date, accountId, createEvent]
+        [date, primaryAccountID, createEvent]
     )
 
     const [isOver, drop] = useDrop(
@@ -121,7 +121,7 @@ const useCalendarDrop = ({
             accept: [DropType.TASK, DropType.EVENT],
             collect: monitor => monitor.isOver(),
             drop: onDrop,
-            canDrop: () => accountId !== undefined,
+            canDrop: () => primaryAccountID !== undefined,
             hover: (item, monitor) => {
                 setDropPreviewPosition(getDropPosition(monitor))
                 const itemType = monitor.getItemType()
@@ -132,7 +132,7 @@ const useCalendarDrop = ({
                 }
             },
         }),
-        [accountId, onDrop, date]
+        [primaryAccountID, onDrop, date]
     )
 
     useEffect(() => {
