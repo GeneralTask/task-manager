@@ -113,7 +113,9 @@ func TestPullRequestList(t *testing.T) {
 				Name: repositoryName1,
 				PullRequests: []*PullRequestResult{
 					{
-						ID: pullRequest7.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest7.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Review PR",
 							Color: "yellow",
@@ -122,7 +124,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest1.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest1.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Add Reviewers",
 							Color: "yellow",
@@ -131,7 +135,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest2.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest2.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Fix Failed CI",
 							Color: "red",
@@ -140,7 +146,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest5.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest5.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Address Comments",
 							Color: "yellow",
@@ -149,7 +157,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest6.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest6.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Fix Merge Conflicts",
 							Color: "red",
@@ -158,7 +168,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest8.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest8.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Waiting on CI",
 							Color: "gray",
@@ -167,7 +179,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest3.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest3.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Merge PR",
 							Color: "green",
@@ -176,7 +190,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest4.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest4.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Waiting on Review",
 							Color: "gray",
@@ -185,7 +201,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest9.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest9.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Waiting on Author",
 							Color: "gray",
@@ -200,7 +218,9 @@ func TestPullRequestList(t *testing.T) {
 				Name: repositoryName2,
 				PullRequests: []*PullRequestResult{
 					{
-						ID: pullRequest10.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest10.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Add Reviewers",
 							Color: "yellow",
@@ -209,7 +229,9 @@ func TestPullRequestList(t *testing.T) {
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
 					},
 					{
-						ID: pullRequest11.ID.Hex(),
+						Title: "fix the oopsie",
+						Body:  "oopsie whoopsie",
+						ID:    pullRequest11.ID.Hex(),
 						Status: PullRequestStatus{
 							Text:  "Add Reviewers",
 							Color: "yellow",
@@ -232,6 +254,8 @@ func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, reposi
 		externalID,
 		"foobar_source",
 		&database.PullRequest{
+			Title:          "fix the oopsie",
+			Body:           "oopsie whoopsie",
 			IDExternal:     externalID,
 			IsCompleted:    &isCompleted,
 			SourceID:       "foobar_source",

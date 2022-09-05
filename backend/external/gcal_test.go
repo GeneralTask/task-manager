@@ -22,6 +22,9 @@ import (
 
 func TestCalendar(t *testing.T) {
 	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
 	t.Run("Success", func(t *testing.T) {
 		standardEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
@@ -37,9 +40,6 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
@@ -81,7 +81,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -121,9 +121,6 @@ func TestCalendar(t *testing.T) {
 		oldEndtime, _ := time.Parse(time.RFC3339, "2021-03-06T15:35:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
@@ -170,7 +167,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -210,9 +207,6 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
@@ -236,7 +230,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -270,7 +264,7 @@ func TestCalendar(t *testing.T) {
 		}
 		defer server.Close()
 		var calendarResult = make(chan CalendarResult)
-		go googleCalendar.GetEvents(primitive.NewObjectID(), "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, primitive.NewObjectID(), "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.CalendarEvents))
@@ -300,9 +294,6 @@ func TestCalendar(t *testing.T) {
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 
-		db, dbCleanup, err := database.GetDBConnection()
-		assert.NoError(t, err)
-		defer dbCleanup()
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
@@ -346,7 +337,7 @@ func TestCalendar(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
 			},
 		}
-		go googleCalendar.GetEvents(userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.CalendarEvents))
@@ -373,6 +364,8 @@ func TestCalendar(t *testing.T) {
 }
 
 func TestCreateNewEvent(t *testing.T) {
+	db, dbCleanup, _ := database.GetDBConnection()
+	defer dbCleanup()
 	t.Run("ExternalError", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 
@@ -396,7 +389,7 @@ func TestCreateNewEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
 			},
 		}
-		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
+		err := googleCalendar.CreateNewEvent(db, userID, "exampleAccountID", eventCreateObj)
 		assert.Error(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
@@ -433,7 +426,7 @@ func TestCreateNewEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
 			},
 		}
-		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
+		err := googleCalendar.CreateNewEvent(db, userID, "exampleAccountID", eventCreateObj)
 		assert.NoError(t, err)
 	})
 	t.Run("SuccessWithConferenceCall", func(t *testing.T) {
@@ -473,12 +466,14 @@ func TestCreateNewEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
 			},
 		}
-		err := googleCalendar.CreateNewEvent(userID, "exampleAccountID", eventCreateObj)
+		err := googleCalendar.CreateNewEvent(db, userID, "exampleAccountID", eventCreateObj)
 		assert.NoError(t, err)
 	})
 }
 
 func TestDeleteEvent(t *testing.T) {
+	db, dbCleanup, _ := database.GetDBConnection()
+	defer dbCleanup()
 	t.Run("ExternalError", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 		gcalEventID := "event-id-1"
@@ -491,7 +486,7 @@ func TestDeleteEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
-		err := googleCalendar.DeleteEvent(userID, "exampleAccountID", gcalEventID)
+		err := googleCalendar.DeleteEvent(db, userID, "exampleAccountID", gcalEventID)
 		assert.Error(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
@@ -507,12 +502,14 @@ func TestDeleteEvent(t *testing.T) {
 				OverrideURLs: GoogleURLOverrides{CalendarDeleteURL: &server.URL},
 			},
 		}
-		err := googleCalendar.DeleteEvent(userID, accountID, gcalEventID)
+		err := googleCalendar.DeleteEvent(db, userID, accountID, gcalEventID)
 		assert.NoError(t, err)
 	})
 }
 
 func TestModifyEvent(t *testing.T) {
+	db, dbCleanup, _ := database.GetDBConnection()
+	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	accountID := "duccount_id"
 	eventID := "event_id"
@@ -532,7 +529,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
 	t.Run("SuccessWithStartDate", func(t *testing.T) {
@@ -547,7 +544,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
 	t.Run("SuccessWithEndDate", func(t *testing.T) {
@@ -562,7 +559,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
 	t.Run("SuccessWithStartAndEndDate", func(t *testing.T) {
@@ -580,7 +577,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
 	t.Run("SuccessWithSummaryAndDescription", func(t *testing.T) {
@@ -598,7 +595,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
 	t.Run("EmptyModifyObject", func(t *testing.T) {
@@ -607,7 +604,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, &expectedEvent, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.NoError(t, err)
 	})
 	t.Run("ExternalError", func(t *testing.T) {
@@ -621,7 +618,7 @@ func TestModifyEvent(t *testing.T) {
 		googleCalendar, server := getEventModifyGoogleCalendar(t, nil, accountID, eventID)
 		defer server.Close()
 
-		err := googleCalendar.ModifyEvent(userID, accountID, eventID, &eventModifyObj)
+		err := googleCalendar.ModifyEvent(db, userID, accountID, eventID, &eventModifyObj)
 		assert.Error(t, err)
 	})
 }

@@ -54,8 +54,8 @@ func (api *API) TasksListV3(c *gin.Context) {
 
 func (api *API) mergeTasksV3(
 	db *mongo.Database,
-	activeTasks *[]database.Item,
-	completedTasks *[]database.Item,
+	activeTasks *[]database.Task,
+	completedTasks *[]database.Task,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
 	completedTaskResults := []*TaskResult{}
@@ -77,7 +77,7 @@ func (api *API) mergeTasksV3(
 	}
 	sections = append(sections, &TaskSection{
 		ID:     constants.IDTaskSectionDone,
-		Name:   TaskSectionNameDone,
+		Name:   constants.TaskSectionNameDone,
 		Tasks:  completedTaskResults,
 		IsDone: true,
 	})
@@ -87,17 +87,18 @@ func (api *API) mergeTasksV3(
 func (api *API) extractSectionTasksV3(
 	db *mongo.Database,
 	userID primitive.ObjectID,
-	fetchedTasks *[]database.Item,
+	fetchedTasks *[]database.Task,
 ) ([]*TaskSection, error) {
 	userSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch task sections")
 		return []*TaskSection{}, err
 	}
+	defaultSectionName := database.GetDefaultSectionName(api.DB, userID)
 	resultSections := []*TaskSection{
 		{
 			ID:    constants.IDTaskSectionDefault,
-			Name:  TaskSectionNameDefault,
+			Name:  defaultSectionName,
 			Tasks: []*TaskResult{},
 		},
 	}

@@ -30,6 +30,7 @@ type RepositoryResult struct {
 type PullRequestResult struct {
 	ID            string            `json:"id"`
 	Title         string            `json:"title"`
+	Body          string            `json:"body"`
 	Number        int               `json:"number"`
 	Status        PullRequestStatus `json:"status"`
 	Author        string            `json:"author"`
@@ -136,6 +137,7 @@ func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResul
 	return PullRequestResult{
 		ID:     pullRequest.ID.Hex(),
 		Title:  pullRequest.Title,
+		Body:   pullRequest.Body,
 		Number: pullRequest.Number,
 		Status: PullRequestStatus{
 			Text:  pullRequest.RequiredAction,

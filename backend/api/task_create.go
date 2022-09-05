@@ -80,7 +80,7 @@ type SlackInputValue struct {
 // @Param        X-Slack-Request-Timestamp   header     string  true  "Source ID"
 // @Param        X-Slack-Signature   	     header     string  true  "Oauth Code"
 // @Param        payload  				     body       SlackRequestParams 			 true "Slack message payload"
-// @Param        payload  				     body       database.SlackMessageParams  true "Slack message payload"
+// @Param        payload  				     body       external.SlackMessageParams  true "Slack message payload"
 // @Success      200 {object} string "success"
 // @Failure      400 {object} string "invalid params"
 // @Failure      500 {object} string "internal server error"
@@ -170,7 +170,13 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 		// Golang Slack API cannot handle optional fields for modals
 		// thus we make this request manually
-		request, err := http.NewRequest("POST", slack.APIURL+"views.open", bytes.NewBuffer(modalJSON))
+		// overrides for testing
+		url := slack.APIURL + "views.open"
+		override := api.ExternalConfig.SlackOverrideURL
+		if override != "" {
+			url = override
+		}
+		request, err := http.NewRequest("POST", url, bytes.NewBuffer(modalJSON))
 		request.Header.Set("Content-type", "application/json")
 		request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 		client := &http.Client{}
@@ -213,12 +219,29 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			taskCreationObject.Body = details
 		}
 
+		// require special override because in separate package
+		override := api.ExternalConfig.SlackOverrideURL
 		userID := externalToken.UserID
-		_, err = taskSourceResult.Source.CreateNewTask(userID, externalID, taskCreationObject)
+		source := taskSourceResult.Source.(external.SlackSavedTaskSource)
+		if override != "" {
+			source.Slack.Config.ConfigValues.OverrideURL = &override
+		}
+		_, err = source.CreateNewTask(api.DB, userID, externalID, taskCreationObject)
 		if err != nil {
 			c.JSON(503, gin.H{"detail": "failed to create task"})
 			return
 		}
+
+		// send ephemeral response
+		url := slackMetadataParams.ResponseURL
+		if override != "" {
+			url = override
+		}
+		err = external.SendConfirmationResponse(*externalToken, url)
+		if err != nil {
+			c.JSON(500, gin.H{"detail": "failed to send ephemeral response"})
+		}
+
 		c.JSON(200, gin.H{})
 		return
 	}
@@ -274,6 +297,14 @@ func (api *API) TaskCreate(c *gin.Context) {
 	} else {
 		// default is currently the only acceptable accountID for general task task source
 		taskCreateParams.AccountID = external.GeneralTaskDefaultAccountID
+		var assignedUser *database.User
+		var tempTitle string
+		assignedUser, tempTitle, err = getValidExternalOwnerAssignedTask(api.DB, userID, taskCreateParams.Title)
+		if err == nil {
+			userID = assignedUser.ID
+			IDTaskSection = constants.IDTaskSectionDefault
+			taskCreateParams.Title = tempTitle
+		}
 	}
 
 	var timeAllocation *int64
@@ -288,7 +319,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
 	}
-	taskID, err := taskSourceResult.Source.CreateNewTask(userID, taskCreateParams.AccountID, taskCreationObject)
+	taskID, err := taskSourceResult.Source.CreateNewTask(api.DB, userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return

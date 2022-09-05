@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Border, Colors, Spacing, Typography } from '../../styles'
-import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
-import { Icon } from '../atoms/Icon'
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useNavigate } from 'react-router-dom'
-import RefreshButton from '../atoms/buttons/RefreshButton'
+import styled from 'styled-components'
+import { DEFAULT_SECTION_ID, DONE_SECTION_ID } from '../../constants'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
+import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import RefreshButton from '../atoms/buttons/RefreshButton'
+import { Icon } from '../atoms/Icon'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -39,8 +40,10 @@ const HeaderTextEditable = styled.input`
     ${Typography.title};
 `
 
-const immutableSectionIds = ['000000000000000000000001', '000000000000000000000004']
-const matchImmutableSectionId = (id: string) => immutableSectionIds.includes(id)
+const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID]
+const uneditableSectionIds = [DONE_SECTION_ID]
+const matchUndeletableSectionId = (id: string) => undeletableSectionIds.includes(id)
+const matchUneditableSectionId = (id: string) => uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
@@ -105,11 +108,15 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
-            {props.taskSectionId && !matchImmutableSectionId(props.taskSectionId) && (
+            {props.taskSectionId && !matchUndeletableSectionId(props.taskSectionId) && (
                 <>
                     <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
                         <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
                     </NoStyleButton>
+                </>
+            )}
+            {props.taskSectionId && !matchUneditableSectionId(props.taskSectionId) && (
+                <>
                     <NoStyleButton onClick={() => setIsEditingTitle(true)}>
                         <Icon size="small" icon={icons.pencil}></Icon>
                     </NoStyleButton>

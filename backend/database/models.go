@@ -72,76 +72,36 @@ type Oauth1RequestSecret struct {
 	RequestSecret string             `bson:"request_secret"`
 }
 
-type Item struct {
-	TaskBase           `bson:",inline"`
-	TaskType           `bson:"task_type"`
-	Task               `bson:"task,omitempty"`
-	SlackMessageParams `bson:"slack_message_params,omitempty"`
-}
-
-// Note that this model is used in the request for Slack, and thus should match
-// the payload from the Slack request.
-type SlackMessageParams struct {
-	Channel SlackChannel `json:"channel,omitempty"`
-	User    SlackUser    `json:"user,omitempty"`
-	Team    SlackTeam    `json:"team,omitempty"`
-	Message SlackMessage `json:"message,omitempty"`
-}
-
-type SlackTeam struct {
-	ID     string `json:"id,omitempty"`
-	Domain string `json:"domain,omitempty"`
-}
-
-type SlackChannel struct {
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
-
-type SlackUser struct {
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-}
-
-type SlackMessage struct {
-	Type     string `json:"type,omitempty"`
-	User     string `json:"user,omitempty"`
-	TimeSent string `json:"ts,omitempty"`
-	Text     string `json:"text,omitempty"`
-}
-
-type TaskType struct {
-	IsTask    bool `bson:"is_task"`
-	IsMessage bool `bson:"is_message"`
-}
-
-type TaskTypeChangeable struct {
-	IsTask        *bool `bson:"is_task,omitempty"`
-	IsMessage     *bool `bson:"is_message,omitempty"`
-	IsEvent       *bool `bson:"is_event,omitempty"`
-	IsPullRequest bool  `bson:"is_pull_request,omitempty"`
-}
-
-// Task json & mongo model
-type TaskBase struct {
-	ID               primitive.ObjectID `bson:"_id,omitempty"`
-	UserID           primitive.ObjectID `bson:"user_id"`
-	IDExternal       string             `bson:"id_external"`
-	IDOrdering       int                `bson:"id_ordering"`
-	IDTaskSection    primitive.ObjectID `bson:"id_task_section"`
-	IsCompleted      bool               `bson:"is_completed"`
-	Sender           string             `bson:"sender"`
-	SourceID         string             `bson:"source_id"`
-	SourceAccountID  string             `bson:"source_account_id"`
-	Deeplink         string             `bson:"deeplink"`
-	Title            string             `bson:"title"`
-	Body             string             `bson:"body"`
-	HasBeenReordered bool               `bson:"has_been_reordered"`
-	DueDate          primitive.DateTime `bson:"due_date"`
+type Task struct {
+	ID               primitive.ObjectID  `bson:"_id,omitempty"`
+	UserID           primitive.ObjectID  `bson:"user_id,omitempty"`
+	IDExternal       string              `bson:"id_external,omitempty"`
+	IDOrdering       int                 `bson:"id_ordering,omitempty"`
+	IDTaskSection    primitive.ObjectID  `bson:"id_task_section,omitempty"`
+	IsCompleted      *bool               `bson:"is_completed,omitempty"`
+	Sender           string              `bson:"sender,omitempty"`
+	SourceID         string              `bson:"source_id,omitempty"`
+	SourceAccountID  string              `bson:"source_account_id,omitempty"`
+	Deeplink         string              `bson:"deeplink,omitempty"`
+	Title            *string             `bson:"title,omitempty"`
+	Body             *string             `bson:"body,omitempty"`
+	HasBeenReordered bool                `bson:"has_been_reordered,omitempty"`
+	DueDate          *primitive.DateTime `bson:"due_date,omitempty"`
 	//time in nanoseconds
-	TimeAllocation    int64              `bson:"time_allocated"`
-	CreatedAtExternal primitive.DateTime `bson:"created_at_external"`
-	CompletedAt       primitive.DateTime `bson:"completed_at"`
+	TimeAllocation     *int64              `bson:"time_allocated,omitempty"`
+	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
+	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
+	PriorityID         *string             `bson:"priority_id,omitempty"`
+	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
+	TaskNumber         *int                `bson:"task_number,omitempty"`
+	Comments           *[]Comment          `bson:"comments,omitempty"`
+	Status             *ExternalTaskStatus `bson:"status,omitempty"`
+	// Used to cache the current status before marking the task as done
+	PreviousStatus           *ExternalTaskStatus      `bson:"previous_status,omitempty"`
+	CompletedStatus          *ExternalTaskStatus      `bson:"completed_status,omitempty"`
+	SlackMessageParams       SlackMessageParams       `bson:"slack_message_params,omitempty"`
+	MeetingPreparationParams MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
+	IsMeetingPreparationTask bool                     `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 type PullRequest struct {
@@ -163,6 +123,7 @@ type PullRequest struct {
 	RequiredAction    string             `bson:"required_action,omitempty"`
 	CommentCount      int                `bson:"comment_count,omitempty"`
 	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
+	LastFetched       primitive.DateTime `bson:"last_fetched,omitempty"`
 	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
 	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
 }
@@ -179,16 +140,52 @@ type CalendarEvent struct {
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
-	TimeAllocation int64              `bson:"time_allocated"`
-	CallLogo       string             `bson:"call_logo,omitempty"`
-	CallPlatform   string             `bson:"call_platform,omitempty"`
-	CallURL        string             `bson:"call_url,omitempty"`
-	LinkedTaskID   primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	TimeAllocation     int64              `bson:"time_allocated"`
+	CallLogo           string             `bson:"call_logo,omitempty"`
+	CallPlatform       string             `bson:"call_platform,omitempty"`
+	CallURL            string             `bson:"call_url,omitempty"`
+	LinkedTaskID       primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedTaskSourceID string             `bson:"linked_task_source_id,omitempty"`
 }
 
-type MessageChangeable struct {
-	TaskType    *TaskTypeChangeable `bson:"task_type,omitempty"`
-	IsCompleted *bool               `bson:"is_completed,omitempty"`
+type MeetingPreparationParams struct {
+	CalendarEventID               primitive.ObjectID `bson:"event_id"`
+	IDExternal                    string             `bson:"id_external"`
+	DatetimeStart                 primitive.DateTime `bson:"datetime_start"`
+	DatetimeEnd                   primitive.DateTime `bson:"datetime_end"`
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
+}
+
+// Note that this model is used in the request for Slack, and thus should match
+// the payload from the Slack request.
+type SlackMessageParams struct {
+	Channel     SlackChannel `bson:"channel,omitempty" json:"channel,omitempty"`
+	User        SlackUser    `bson:"user,omitempty" json:"user,omitempty"`
+	Team        SlackTeam    `bson:"team,omitempty" json:"team,omitempty"`
+	Message     SlackMessage `bson:"message,omitempty" json:"message,omitempty"`
+	ResponseURL string       `bson:"response_url,omitempty" json:"response_url,omitempty"`
+}
+
+type SlackTeam struct {
+	ID     string `bson:"id,omitempty" json:"id,omitempty"`
+	Domain string `bson:"domain,omitempty" json:"domain,omitempty"`
+}
+
+type SlackChannel struct {
+	ID   string `bson:"id,omitempty" json:"id,omitempty"`
+	Name string `bson:"name,omitempty" json:"name,omitempty"`
+}
+
+type SlackUser struct {
+	ID   string `bson:"id,omitempty" json:"id,omitempty"`
+	Name string `bson:"name,omitempty" json:"name,omitempty"`
+}
+
+type SlackMessage struct {
+	Type     string `bson:"type,omitempty" json:"type,omitempty"`
+	User     string `bson:"user,omitempty" json:"user,omitempty"`
+	TimeSent string `bson:"ts,omitempty" json:"ts,omitempty"`
+	Text     string `bson:"text,omitempty" json:"text,omitempty"`
 }
 
 type ExternalUser struct {
@@ -208,38 +205,6 @@ type ExternalTaskStatus struct {
 	ExternalID string `bson:"external_id"`
 	State      string `bson:"state"`
 	Type       string `bson:"type"`
-}
-
-type Task struct {
-	PriorityID         string             `bson:"priority_id"`
-	PriorityNormalized float64            `bson:"priority_normalized"`
-	TaskNumber         int                `bson:"task_number"`
-	Comments           *[]Comment         `bson:"comments"`
-	Status             ExternalTaskStatus `bson:"status"`
-	// Used to cache the current status before marking the task as done
-	PreviousStatus  ExternalTaskStatus `bson:"previous_status"`
-	CompletedStatus ExternalTaskStatus `bson:"completed_status"`
-}
-
-type TaskChangeable struct {
-	PriorityID         *string             `bson:"priority_id,omitempty"`
-	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
-	TaskNumber         *int                `bson:"task_number,omitempty"`
-	Comments           *[]Comment          `bson:"comments,omitempty"`
-	Status             *ExternalTaskStatus `bson:"status,omitempty"`
-	// Used to cache the current status before marking the task as done
-	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
-}
-
-type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `bson:"task,omitempty"`
-	Title          *string            `json:"title" bson:"title,omitempty"`
-	Body           *string            `json:"body" bson:"body,omitempty"`
-	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
-	TimeAllocation *int64             `json:"time_duration" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime `json:"completed_at" bson:"completed_at"`
 }
 
 type UserSetting struct {
@@ -309,4 +274,10 @@ type Repository struct {
 	FullName     string             `bson:"full_name"`
 	RepositoryID string             `bson:"repository_id"`
 	Deeplink     string             `bson:"deeplink"`
+}
+
+type DefaultSectionSettings struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `bson:"user_id"`
+	NameOverride string             `bson:"name_override"`
 }

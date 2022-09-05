@@ -2,9 +2,10 @@ package external
 
 import (
 	"context"
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/testutils"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -31,6 +32,7 @@ func TestLoadLinearTasks(t *testing.T) {
 						"description": "test description",
 						"url": "https://example.com/",
 						"createdAt": "2022-06-06T23:13:24.037Z",
+						"priority": 3.0,
 						"assignee": {
 							"id": "6942069420",
 							"name": "Test User"
@@ -87,7 +89,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, `non-200 OK status code: 400 Bad Request body: ""`, result.Error.Error())
@@ -105,7 +107,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, "invalid character 'o' looking for beginning of value", result.Error.Error())
@@ -124,7 +126,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, `non-200 OK status code: 409 Conflict body: ""`, result.Error.Error())
@@ -143,7 +145,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		}}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NotEqual(t, nil, result.Error)
 		assert.Equal(t, "invalid character 'o' in literal true (expecting 'r')", result.Error.Error())
@@ -161,50 +163,49 @@ func TestLoadLinearTasks(t *testing.T) {
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
-		expectedTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:        0,
-				IDExternal:        "test-issue-id-1",
-				IDTaskSection:     constants.IDTaskSectionDefault,
-				Deeplink:          "https://example.com/",
-				Title:             "test title",
-				Body:              "test description",
-				SourceID:          TASK_SOURCE_ID_LINEAR,
-				SourceAccountID:   "wrong",
-				UserID:            userID,
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		title := "test title"
+		description := "test description"
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		priority := 3.0
+		expectedTask := database.Task{
+			IDOrdering:         0,
+			IDExternal:         "test-issue-id-1",
+			IDTaskSection:      constants.IDTaskSectionDefault,
+			Deeplink:           "https://example.com/",
+			Title:              &title,
+			Body:               &description,
+			SourceID:           TASK_SOURCE_ID_LINEAR,
+			SourceAccountID:    "wrong",
+			UserID:             userID,
+			DueDate:            &dueDate,
+			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
+			PriorityNormalized: &priority,
+			Status: &database.ExternalTaskStatus{
+				ExternalID: "state-id",
+				State:      "Todo",
+				Type:       "started",
 			},
-			TaskType: database.TaskType{
-				IsTask: true,
+			CompletedStatus: &database.ExternalTaskStatus{
+				ExternalID: "merge-workflow-state-id",
+				State:      "Done",
+				Type:       "completed",
 			},
-			Task: database.Task{
-				Status: database.ExternalTaskStatus{
-					ExternalID: "state-id",
-					State:      "Todo",
-					Type:       "started",
-				},
-				CompletedStatus: database.ExternalTaskStatus{
-					ExternalID: "merge-workflow-state-id",
-					State:      "Done",
-					Type:       "completed",
-				},
-				Comments: &[]database.Comment{
-					{
-						Body: "test comment body",
-						User: database.ExternalUser{
-							ExternalID:  "test-commenter-id",
-							Name:        "Test Commenter",
-							DisplayName: "test comm",
-							Email:       "testCommenter@generaltask.com",
-						},
-						CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
+			Comments: &[]database.Comment{
+				{
+					Body: "test comment body",
+					User: database.ExternalUser{
+						ExternalID:  "test-commenter-id",
+						Name:        "Test Commenter",
+						DisplayName: "test comm",
+						Email:       "testCommenter@generaltask.com",
 					},
+					CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
 				},
 			},
 		}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
@@ -221,7 +222,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			}
 		}
 
-		var taskFromDB database.Item
+		var taskFromDB database.Task
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -244,38 +245,38 @@ func TestLoadLinearTasks(t *testing.T) {
 
 		createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
 		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
-		expectedTask := database.Item{
-			TaskBase: database.TaskBase{
-				IDOrdering:        0,
-				IDExternal:        "test-issue-id-1",
-				IDTaskSection:     constants.IDTaskSectionDefault,
-				IsCompleted:       true,
-				Deeplink:          "https://example.com/",
-				Title:             "wrong test title",
-				Body:              "wrong test description",
-				SourceID:          TASK_SOURCE_ID_LINEAR,
-				SourceAccountID:   "sample_account@email.com",
-				UserID:            userID,
-				CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		completed := true
+		title := "wrong test title"
+		description := "wrong test description"
+		priority := 3.0
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		expectedTask := database.Task{
+			IDOrdering:         0,
+			IDExternal:         "test-issue-id-1",
+			IDTaskSection:      constants.IDTaskSectionDefault,
+			IsCompleted:        &completed,
+			Deeplink:           "https://example.com/",
+			Title:              &title,
+			Body:               &description,
+			SourceID:           TASK_SOURCE_ID_LINEAR,
+			SourceAccountID:    "sample_account@email.com",
+			UserID:             userID,
+			DueDate:            &dueDate,
+			PriorityNormalized: &priority,
+			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
+			Status: &database.ExternalTaskStatus{
+				ExternalID: "state-id",
+				State:      "Todo",
+				Type:       "started",
 			},
-			TaskType: database.TaskType{
-				IsTask: true,
+			CompletedStatus: &database.ExternalTaskStatus{
+				ExternalID: "merge-workflow-state-id",
+				State:      "Done",
+				Type:       "completed",
 			},
-			Task: database.Task{
-				Status: database.ExternalTaskStatus{
-					ExternalID: "state-id",
-					State:      "Todo",
-					Type:       "started",
-				},
-				CompletedStatus: database.ExternalTaskStatus{
-					ExternalID: "merge-workflow-state-id",
-					State:      "Done",
-					Type:       "completed",
-				},
-				Comments: nil,
-			},
+			Comments: nil,
 		}
-		database.GetOrCreateItem(
+		database.GetOrCreateTask(
 			db,
 			userID,
 			"test-issue-id-1",
@@ -283,8 +284,10 @@ func TestLoadLinearTasks(t *testing.T) {
 			&expectedTask,
 		)
 		// switch a few fields from their existing db value to their expected output value
-		expectedTask.Title = "test title"
-		expectedTask.TaskBase.Body = "test description"
+		testTitle := "test title"
+		testDescription := "test description"
+		expectedTask.Title = &testTitle
+		expectedTask.Body = &testDescription
 		expectedTask.Comments = &[]database.Comment{
 			{
 				Body: "test comment body",
@@ -299,14 +302,14 @@ func TestLoadLinearTasks(t *testing.T) {
 		}
 
 		var taskResult = make(chan TaskResult)
-		go linearTask.GetTasks(userID, "sample_account@email.com", taskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 1, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
-		assert.False(t, result.Tasks[0].IsCompleted)
+		assert.False(t, *result.Tasks[0].IsCompleted)
 
-		var taskFromDB database.Item
+		var taskFromDB database.Task
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
@@ -315,7 +318,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
-		assert.False(t, taskFromDB.IsCompleted)
+		assert.False(t, *taskFromDB.IsCompleted)
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 }
@@ -329,43 +332,41 @@ func TestModifyLinearTask(t *testing.T) {
 
 	userID := primitive.NewObjectID()
 	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
-	expectedTask := database.Item{
-		TaskBase: database.TaskBase{
-			IDOrdering:        0,
-			IDExternal:        "test-issue-id-1",
-			IDTaskSection:     constants.IDTaskSectionDefault,
-			IsCompleted:       true,
-			Deeplink:          "https://example.com/",
-			Title:             "test title",
-			Body:              "test description",
-			SourceID:          TASK_SOURCE_ID_LINEAR,
-			SourceAccountID:   "sample_account@email.com",
-			UserID:            userID,
-			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+	completed := true
+	testTitle := "test title"
+	testDescription := "test description"
+	dueDate := primitive.NewDateTimeFromTime(time.Time{})
+	expectedTask := database.Task{
+		IDOrdering:        0,
+		IDExternal:        "test-issue-id-1",
+		IDTaskSection:     constants.IDTaskSectionDefault,
+		IsCompleted:       &completed,
+		Deeplink:          "https://example.com/",
+		Title:             &testTitle,
+		Body:              &testDescription,
+		SourceID:          TASK_SOURCE_ID_LINEAR,
+		SourceAccountID:   "sample_account@email.com",
+		UserID:            userID,
+		DueDate:           &dueDate,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		Status: &database.ExternalTaskStatus{
+			ExternalID: "merge-workflow-state-id",
+			State:      "Done",
+			Type:       "completed",
 		},
-		TaskType: database.TaskType{
-			IsTask: true,
+		PreviousStatus: &database.ExternalTaskStatus{
+			ExternalID: "state-id",
+			State:      "Todo",
+			Type:       "started",
 		},
-		Task: database.Task{
-			Status: database.ExternalTaskStatus{
-				ExternalID: "merge-workflow-state-id",
-				State:      "Done",
-				Type:       "completed",
-			},
-			PreviousStatus: database.ExternalTaskStatus{
-				ExternalID: "state-id",
-				State:      "Todo",
-				Type:       "started",
-			},
-			CompletedStatus: database.ExternalTaskStatus{
-				ExternalID: "merge-workflow-state-id",
-				State:      "Done",
-				Type:       "completed",
-			},
-			Comments: nil,
+		CompletedStatus: &database.ExternalTaskStatus{
+			ExternalID: "merge-workflow-state-id",
+			State:      "Done",
+			Type:       "completed",
 		},
+		Comments: nil,
 	}
-	database.GetOrCreateItem(
+	database.GetOrCreateTask(
 		db,
 		userID,
 		"test-issue-id-1",
@@ -385,7 +386,7 @@ func TestModifyLinearTask(t *testing.T) {
 		}}
 
 		isCompleted := true
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{IsCompleted: &isCompleted}, &database.Item{})
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, &database.Task{})
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
@@ -402,9 +403,15 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
-			Title: &newName,
-			Body:  &newBody,
+		newDueDate, err := time.Parse("2006-01-02", "2022-09-12")
+		assert.NoError(t, err)
+		dueDatePrimitive := primitive.NewDateTimeFromTime(newDueDate)
+		priority := 3.0
+		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			Title:              &newName,
+			Body:               &newBody,
+			DueDate:            &dueDatePrimitive,
+			PriorityNormalized: &priority,
 		}, nil)
 		assert.NoError(t, err)
 	})
@@ -423,11 +430,11 @@ func TestModifyLinearTask(t *testing.T) {
 		newBody := "New Body"
 		isCompleted := true
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
 			IsCompleted: &isCompleted,
-		}, &database.Item{})
+		}, &database.Task{})
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `decoding response: EOF`, err.Error())
 	})
@@ -444,11 +451,11 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
-
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.NoError(t, err)
 	})
@@ -465,11 +472,12 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := ""
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.NoError(t, err)
 	})
@@ -486,11 +494,12 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := ""
 		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.EqualErrorf(t, err, err.Error(), "cannot set linear issue title to empty string")
 	})
@@ -507,11 +516,12 @@ func TestModifyLinearTask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:   &newName,
 			Body:    &newBody,
-			DueDate: primitive.NewDateTimeFromTime(time.Now()),
+			DueDate: &dueDate,
 		}, nil)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, `decoding response: EOF`, err.Error())
@@ -540,11 +550,12 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
-			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			DueDate:     &dueDate,
 			IsCompleted: &isCompleted,
 		}, &expectedTask)
 		assert.NoError(t, err)
@@ -564,18 +575,19 @@ func TestModifyLinearTask(t *testing.T) {
 		newName := "New Title"
 		newBody := "New Body"
 		isCompleted := false
+		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
-		var taskFromDB database.Item
+		var taskFromDB database.Task
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(
 			dbCtx,
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
-		err := linearTask.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.TaskItemChangeableFields{
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
 			Title:       &newName,
 			Body:        &newBody,
-			DueDate:     primitive.NewDateTimeFromTime(time.Now()),
+			DueDate:     &dueDate,
 			IsCompleted: &isCompleted,
 		}, &expectedTask)
 		assert.NotEqual(t, nil, err)
@@ -583,16 +595,16 @@ func TestModifyLinearTask(t *testing.T) {
 	})
 }
 
-func assertTasksEqual(t *testing.T, a *database.Item, b *database.Item) {
+func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
 	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.TaskBase.Body, b.TaskBase.Body)
+	assert.Equal(t, a.Body, b.Body)
 	assert.Equal(t, a.SourceID, b.SourceID)
-	assert.Equal(t, a.TaskType, b.TaskType)
 	assert.Equal(t, a.DueDate, b.DueDate)
+	assert.Equal(t, a.PriorityNormalized, b.PriorityNormalized)
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
 	assert.Equal(t, a.Status, b.Status)
 	assert.Equal(t, a.CompletedStatus, b.CompletedStatus)

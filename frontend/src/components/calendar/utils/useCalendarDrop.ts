@@ -8,7 +8,7 @@ import { useCreateEvent, useModifyEvent } from "../../../services/api/events.hoo
 import { useEffect } from 'react'
 import { getDiffBetweenISOTimes } from "../../../utils/time"
 
-interface CalendarDropProps {
+interface CalendarDropArgs {
     accountId: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
@@ -20,7 +20,7 @@ const useCalendarDrop = ({
     date,
     eventsContainerRef,
     isWeekView,
-}: CalendarDropProps) => {
+}: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
@@ -69,20 +69,27 @@ const useCalendarDrop = ({
 
     const onDrop = useCallback(
         async (item: DropItem, monitor: DropTargetMonitor) => {
-            const itemType = monitor.getItemType()
             if (!accountId) return
+            const itemType = monitor.getItemType()
             const dropPosition = getDropPosition(monitor)
             const start = getStartTimeFromDropPosition(dropPosition)
             switch (itemType) {
                 case DropType.TASK: {
+                    if (!item.task) return
                     const end = start.plus({ minutes: 30 })
+                    let description = item.task.body
+                    if (description !== '') {
+                        description += '\n'
+                    }
+                    description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
+
                     createEvent({
-                        payload: {
+                        createEventPayload: {
                             account_id: accountId,
                             datetime_start: start.toISO(),
                             datetime_end: end.toISO(),
                             summary: item.task?.title,
-                            description: item.task?.body,
+                            description,
                         },
                         date,
                     })
@@ -104,15 +111,13 @@ const useCalendarDrop = ({
                 }
             }
         },
-        [date, accountId]
+        [date, accountId, createEvent]
     )
 
     const [isOver, drop] = useDrop(
         () => ({
             accept: [DropType.TASK, DropType.EVENT],
-            collect: (monitor) => {
-                return monitor.isOver()
-            },
+            collect: monitor => monitor.isOver(),
             drop: onDrop,
             canDrop: () => accountId !== undefined,
             hover: (item, monitor) => {
