@@ -361,6 +361,7 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
+				{"is_deleted": bson.M{"$ne": true}},
 			},
 		},
 	)
