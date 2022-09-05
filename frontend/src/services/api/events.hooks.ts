@@ -9,24 +9,6 @@ import { useGTQueryClient } from "../queryUtils"
 import { v4 as uuidv4 } from 'uuid'
 import { EVENTS_REFETCH_INTERVAL } from "../../constants"
 
-export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType, params.startISO], (queryFunctionContext) => getEvents(params, queryFunctionContext), {
-        refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
-        refetchIntervalInBackground: true,
-    })
-}
-const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
-    try {
-        const res = await apiClient.get('/events/', {
-            params: { datetime_start: params.startISO, datetime_end: params.endISO },
-            signal,
-        })
-        return castImmutable(res.data)
-    } catch {
-        throw new Error('getEvents failed')
-    }
-}
-
 interface TEventAttendee {
     name: string
     email: string
@@ -44,11 +26,6 @@ interface TCreateEventPayload {
     add_conference_call?: boolean
     task_id?: string
 }
-interface CreateEventParams {
-    payload: TCreateEventPayload
-    date: DateTime
-}
-
 interface TModifyEventPayload {
     account_id: string
     datetime_start?: string
@@ -73,21 +50,39 @@ interface TDeleteEventData {
     datetime_end: string
 }
 
-
 interface CreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
     linkedTask?: TTask
 }
+
+export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    return useQuery<TEvent[]>(['events', calendarType, params.startISO], (queryFunctionContext) => getEvents(params, queryFunctionContext), {
+        refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
+    })
+}
+const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/events/', {
+            params: { datetime_start: params.startISO, datetime_end: params.endISO },
+            signal,
+        })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getEvents failed')
+    }
+}
+
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(({ payload }: CreateEventParams) => createEvent(payload),
+    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
         {
             onMutate: async ({ createEventPayload, date, linkedTask }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
-                const start = DateTime.fromISO(payload.datetime_start)
-                const end = DateTime.fromISO(payload.datetime_end)
+                const start = DateTime.fromISO(createEventPayload.datetime_start)
+                const end = DateTime.fromISO(createEventPayload.datetime_end)
                 const timeBlocks = getMonthsAroundDate(date, 1)
                 const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]

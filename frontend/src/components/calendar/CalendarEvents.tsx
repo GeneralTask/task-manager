@@ -77,7 +77,6 @@ interface WeekCalendarEventsProps {
 }
 const WeekCalendarEvents = ({ date, groups, accountId }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
-    const tmpDate = date.plus({ days: dayOffset })
     const { calendarType } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
     const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
@@ -98,7 +97,7 @@ const WeekCalendarEvents = ({ date, groups, accountId }: WeekCalendarEventsProps
             )}
             <DayContainer>
                 {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={tmpDate} />
+                    <CollisionGroupColumns key={index} events={group} date={date} />
                 ))}
                 {isOver &&
                     (eventPreview ? (

@@ -88,10 +88,12 @@ const useCalendarDrop = ({
                             account_id: accountId,
                             datetime_start: start.toISO(),
                             datetime_end: end.toISO(),
-                            summary: item.task?.title,
+                            summary: item.task.title,
                             description,
+                            task_id: item.task.id,
                         },
                         date,
+                        linkedTask: item.task,
                     })
                     break
                 }
