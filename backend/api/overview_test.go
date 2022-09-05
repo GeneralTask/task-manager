@@ -636,6 +636,156 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	})
 }
 
+func TestGetMeetingPreparationOverviewResult(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	view := database.View{UserID: userID}
+	taskCollection := database.GetTaskCollection(db)
+	calendarEventCollection := database.GetCalendarEventCollection(db)
+
+	// Set artificial time for testing
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	testTime := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
+	timezoneOffset := time.Hour * 12
+	api.OverrideTime = &testTime
+
+	timeOneHourAgo := api.GetCurrentTime().Add(-1 * time.Hour)
+	timeOneHourLater := api.GetCurrentTime().Add(1 * time.Hour)
+	timeTwoHoursLater := api.GetCurrentTime().Add(2 * time.Hour)
+	// given the 12 hour timezone offset, 13 hours ahead of time should be the next day
+	timeEarlyTomorrow := api.GetCurrentTime().Add(13 * time.Hour)
+	timeOneDayLater := api.GetCurrentTime().Add(24 * time.Hour)
+	timeZero := time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
+
+	t.Run("InvalidUser", func(t *testing.T) {
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, primitive.NewObjectID(), timezoneOffset)
+		assert.Error(t, err)
+		assert.Equal(t, "invalid user", err.Error())
+		assert.Nil(t, res)
+	})
+	t.Run("NoEvents", func(t *testing.T) {
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, 0, len(res.ViewItems))
+	})
+	t.Run("EventStartTimeHasPassed", func(t *testing.T) {
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater)
+		assert.NoError(t, err)
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, 0, len(res.ViewItems))
+	})
+	t.Run("EventStartTimeIsNextDay", func(t *testing.T) {
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater)
+		assert.NoError(t, err)
+		err = createTestEvent(parentCtx, calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow)
+		assert.NoError(t, err)
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, 0, len(res.ViewItems))
+	})
+	t.Run("EventStartTimeIsInValidRange", func(t *testing.T) {
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater)
+		assert.NoError(t, err)
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, 1, len(res.ViewItems))
+		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+	})
+	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
+		idExternal := primitive.NewObjectID().Hex()
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater)
+		assert.NoError(t, err)
+
+		_, err = createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater)
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, 2, len(res.ViewItems))
+		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+	})
+	t.Run("MeetingHasEnded", func(t *testing.T) {
+		insertResult, err := createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "reticulate splines", primitive.NewObjectID().Hex(), false, timeZero, timeZero)
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+
+		var item database.Task
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.Equal(t, true, *item.IsCompleted)
+		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
+		assert.NotNil(t, res)
+		assert.Equal(t, 2, len(res.ViewItems))
+		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+	})
+	t.Run("MeetingPrepTaskCompletedAlready", func(t *testing.T) {
+		insertResult, err := createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "to the moon", primitive.NewObjectID().Hex(), true, timeZero, timeZero)
+		assert.NoError(t, err)
+
+		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
+		assert.NoError(t, err)
+
+		var item database.Task
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
+		assert.NoError(t, err)
+		assert.Equal(t, true, *item.IsCompleted)
+		assert.Equal(t, false, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
+		assert.NotNil(t, res)
+		assert.Equal(t, 2, len(res.ViewItems))
+		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+	})
+}
+
+func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time) error {
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err := calendarEventCollection.InsertOne(dbCtx, database.CalendarEvent{
+		UserID:        userID,
+		Title:         title,
+		IDExternal:    idExternal,
+		SourceID:      external.TASK_SOURCE_ID_GCAL,
+		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
+		DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
+	})
+	return err
+}
+
+func createTestMeetingPreparationTask(ctx context.Context, taskCollection *mongo.Collection, userID primitive.ObjectID, title string, IDExternal string, isCompleted bool, dateTimeStart time.Time, dateTimeEnd time.Time) (*mongo.InsertOneResult, error) {
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	return taskCollection.InsertOne(dbCtx, database.Task{
+		UserID:                   userID,
+		SourceID:                 external.TASK_SOURCE_ID_GCAL,
+		Title:                    &title,
+		IsCompleted:              &isCompleted,
+		IsMeetingPreparationTask: true,
+		MeetingPreparationParams: database.MeetingPreparationParams{
+			IDExternal:    IDExternal,
+			DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
+		},
+	})
+}
+
 func TestGetDueTodayOverviewResult(t *testing.T) {
 	parentCtx := context.Background()
 	api, dbCleanup := GetAPIWithDBCleanup()

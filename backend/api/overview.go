@@ -594,6 +594,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 				CalendarEventID:               event.ID,
 				IDExternal:                    event.IDExternal,
 				DatetimeStart:                 event.DatetimeStart,
+				DatetimeEnd:                   event.DatetimeEnd,
 				HasBeenAutomaticallyCompleted: false,
 			},
 		})
@@ -610,7 +611,7 @@ func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.O
 	result := []*TaskResult{}
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
-		if task.MeetingPreparationParams.DatetimeEnd.Time().After(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
 			_, err := taskCollection.UpdateOne(
