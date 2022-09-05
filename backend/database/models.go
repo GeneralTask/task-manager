@@ -73,20 +73,20 @@ type Oauth1RequestSecret struct {
 }
 
 type Task struct {
-	ID               primitive.ObjectID `bson:"_id,omitempty"`
-	UserID           primitive.ObjectID `bson:"user_id,omitempty"`
-	IDExternal       string             `bson:"id_external,omitempty"`
-	IDOrdering       int                `bson:"id_ordering,omitempty"`
-	IDTaskSection    primitive.ObjectID `bson:"id_task_section,omitempty"`
-	IsCompleted      *bool              `bson:"is_completed,omitempty"`
-	Sender           string             `bson:"sender,omitempty"`
-	SourceID         string             `bson:"source_id,omitempty"`
-	SourceAccountID  string             `bson:"source_account_id,omitempty"`
-	Deeplink         string             `bson:"deeplink,omitempty"`
-	Title            *string            `bson:"title,omitempty"`
-	Body             *string            `bson:"body,omitempty"`
-	HasBeenReordered bool               `bson:"has_been_reordered,omitempty"`
-	DueDate          primitive.DateTime `bson:"due_date,omitempty"`
+	ID               primitive.ObjectID  `bson:"_id,omitempty"`
+	UserID           primitive.ObjectID  `bson:"user_id,omitempty"`
+	IDExternal       string              `bson:"id_external,omitempty"`
+	IDOrdering       int                 `bson:"id_ordering,omitempty"`
+	IDTaskSection    primitive.ObjectID  `bson:"id_task_section,omitempty"`
+	IsCompleted      *bool               `bson:"is_completed,omitempty"`
+	Sender           string              `bson:"sender,omitempty"`
+	SourceID         string              `bson:"source_id,omitempty"`
+	SourceAccountID  string              `bson:"source_account_id,omitempty"`
+	Deeplink         string              `bson:"deeplink,omitempty"`
+	Title            *string             `bson:"title,omitempty"`
+	Body             *string             `bson:"body,omitempty"`
+	HasBeenReordered bool                `bson:"has_been_reordered,omitempty"`
+	DueDate          *primitive.DateTime `bson:"due_date,omitempty"`
 	//time in nanoseconds
 	TimeAllocation     *int64              `bson:"time_allocated,omitempty"`
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
@@ -140,19 +140,20 @@ type CalendarEvent struct {
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
-	TimeAllocation int64              `bson:"time_allocated"`
-	CallLogo       string             `bson:"call_logo,omitempty"`
-	CallPlatform   string             `bson:"call_platform,omitempty"`
-	CallURL        string             `bson:"call_url,omitempty"`
-	LinkedTaskID   primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	TimeAllocation     int64              `bson:"time_allocated"`
+	CallLogo           string             `bson:"call_logo,omitempty"`
+	CallPlatform       string             `bson:"call_platform,omitempty"`
+	CallURL            string             `bson:"call_url,omitempty"`
+	LinkedTaskID       primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedTaskSourceID string             `bson:"linked_task_source_id,omitempty"`
 }
 
 type MeetingPreparationParams struct {
 	CalendarEventID               primitive.ObjectID `bson:"event_id"`
 	IDExternal                    string             `bson:"id_external"`
 	DatetimeStart                 primitive.DateTime `bson:"datetime_start"`
-	DatetimeEnd                   primitive.DateTime
-	HasBeenAutomaticallyCompleted bool `bson:"has_been_automatically_completed"`
+	DatetimeEnd                   primitive.DateTime `bson:"datetime_end"`
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match
@@ -274,4 +275,10 @@ type Repository struct {
 	FullName     string             `bson:"full_name"`
 	RepositoryID string             `bson:"repository_id"`
 	Deeplink     string             `bson:"deeplink"`
+}
+
+type DefaultSectionSettings struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `bson:"user_id"`
+	NameOverride string             `bson:"name_override"`
 }

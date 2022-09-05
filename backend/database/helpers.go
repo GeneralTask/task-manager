@@ -374,19 +374,8 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 
 func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Task, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	taskCollection := GetTaskCollection(db)
-	cursor, err := FindWithCollection(taskCollection, userID, additionalFilters, dbCtx)
-	if err != nil {
-		return nil, err
-	}
-
 	var tasks []Task
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tasks)
+	err := FindWithCollection(parentCtx, GetTaskCollection(db), userID, additionalFilters, &tasks)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch items for user")
@@ -398,19 +387,8 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 // will add helpers once we refactor tasks collection
 func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	pullRequestCollection := GetPullRequestCollection(db)
-	cursor, err := FindWithCollection(pullRequestCollection, userID, additionalFilters, dbCtx)
-	if err != nil {
-		return nil, err
-	}
-
 	var pullRequests []PullRequest
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &pullRequests)
+	err := FindWithCollection(parentCtx, GetPullRequestCollection(db), userID, additionalFilters, &pullRequests)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
@@ -419,7 +397,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	return &pullRequests, nil
 }
 
-func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, dbCtx context.Context) (*mongo.Cursor, error) {
+func FindWithCollection(parentCtx context.Context, collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}) error {
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
@@ -430,16 +408,18 @@ func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID,
 			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
 		}
 	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
 	cursor, err := collection.Find(
 		dbCtx,
 		filter,
 	)
-	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch items for user")
-		return nil, err
+		return err
 	}
-	return cursor, nil
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	return cursor.All(dbCtx, result)
 }
 
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
@@ -488,7 +468,7 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
-		return "Default", nil
+		return GetDefaultSectionName(db, userID), nil
 	}
 
 	parentCtx := context.Background()
@@ -598,6 +578,20 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 	return &userObject, nil
 }
 
+func GetGeneralTaskUserByName(db *mongo.Database, name string) (*User, error) {
+	parentCtx := context.Background()
+	var user User
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	if err := GetUserCollection(db).FindOne(
+		dbCtx,
+		bson.M{"email": name + "@generaltask.com"}).Decode(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
 	stateToken := &StateToken{UseDeeplink: useDeeplink}
@@ -691,6 +685,35 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
+func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
+	parentCtx := context.Background()
+	defaultSectionCollection := GetDefaultSectionSettingsCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	var settings DefaultSectionSettings
+	mongoResult := defaultSectionCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": constants.IDTaskSectionDefault},
+			{"user_id": userID},
+		}},
+	)
+	err := mongoResult.Decode(&settings)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msg("failed to query default section settings")
+		}
+		return constants.TaskSectionNameDefault
+	}
+	if settings.NameOverride != "" {
+		return settings.NameOverride
+	} else {
+		return constants.TaskSectionNameDefault
+	}
+}
+
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }
@@ -709,6 +732,10 @@ func GetViewCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRepositoryCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("repositories")
+}
+
+func GetDefaultSectionSettingsCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("default_section_settings")
 }
 
 func GetUserCollection(db *mongo.Database) *mongo.Collection {

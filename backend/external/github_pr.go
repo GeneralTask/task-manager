@@ -40,6 +40,7 @@ const (
 	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
 	ActionReviewPR          string = "Review PR"
+	ActionNoneNeeded        string = "Not Actionable"
 )
 
 var ActionOrdering = map[string]int{
@@ -52,6 +53,7 @@ var ActionOrdering = map[string]int{
 	ActionMergePR:           6,
 	ActionWaitingOnReview:   7,
 	ActionWaitingOnAuthor:   8,
+	ActionNoneNeeded:        9,
 }
 
 const (
@@ -86,34 +88,29 @@ type GithubPRRequestData struct {
 	Repository  *github.Repository
 	PullRequest *github.PullRequest
 	Token       *oauth2.Token
+	UserTeams   []*github.Team
 }
 
-func (gitPR GithubPRSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (gitPR GithubPRSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (gitPR GithubPRSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	result <- emptyTaskResult(nil)
 }
 
-func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	parentCtx := context.Background()
 	logger := logging.GetSentryLogger()
 
 	var githubClient *github.Client
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
-	db, dbCleanup, err := database.GetDBConnection()
-	defer dbCleanup()
-	if err != nil {
-		result <- emptyPullRequestResult(err)
-		return
-	}
 
 	var token *oauth2.Token
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
+		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
@@ -136,6 +133,13 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 	if err != nil || githubUser == nil {
 		logger.Error().Err(err).Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
+		return
+	}
+
+	userTeams, err := getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github user teams")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"))
 		return
 	}
 
@@ -170,6 +174,7 @@ func (gitPR GithubPRSource) GetPullRequests(userID primitive.ObjectID, accountID
 				Repository:  repository,
 				PullRequest: pullRequest,
 				Token:       token,
+				UserTeams:   userTeams,
 			}
 			requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
 			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
@@ -239,38 +244,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		result <- nil
 		return
 	}
-	// Only display pull requests where user is the owner, or the user is a reviewer
-	if !userIsOwner(githubUser, pullRequest) && !userIsReviewer(githubUser, pullRequest, reviews) {
-		result <- nil
-		return
-	}
-	reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
-		result <- nil
-		return
-	}
-	requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
-		result <- nil
-		return
-	}
-	pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR")
-		result <- nil
-		return
-	}
-	// check runs are individual tests that make up a check suite associated with a commit
-	checkRunsForCommit, err := listCheckRunsForCommit(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR check runs")
-		result <- nil
-		return
-	}
-	checksDidFail := checkRunsDidFail(checkRunsForCommit)
-	checksDidFinish := checkRunsDidFinish(checkRunsForCommit)
+
 	commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR comments")
@@ -278,34 +252,66 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 
-	pullRequestData := GithubPRData{
-		RequestedReviewers:   requestedReviewers,
-		Reviewers:            reviewers,
-		IsMergeable:          pullRequestFetch.GetMergeable(),
-		IsApproved:           pullRequestIsApproved(reviews),
-		HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
-		ChecksDidFail:        checksDidFail,
-		ChecksDidFinish:      checksDidFinish,
-		IsOwnedByUser:        *pullRequest.User.Login == *githubUser.Login,
-		UserLogin:            githubUser.GetLogin(),
+	requiredAction := ActionNoneNeeded
+	if userIsOwner(githubUser, pullRequest) || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
+		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+			result <- nil
+			return
+		}
+		requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+			result <- nil
+			return
+		}
+		pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR")
+			result <- nil
+			return
+		}
+		// check runs are individual tests that make up a check suite associated with a commit
+		checkRunsForCommit, err := listCheckRunsForCommit(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to fetch Github PR check runs")
+			result <- nil
+			return
+		}
+		checksDidFail := checkRunsDidFail(checkRunsForCommit)
+		checksDidFinish := checkRunsDidFinish(checkRunsForCommit)
+
+		requiredAction = getPullRequestRequiredAction(GithubPRData{
+			RequestedReviewers:   requestedReviewers,
+			Reviewers:            reviewers,
+			IsMergeable:          pullRequestFetch.GetMergeable(),
+			IsApproved:           pullRequestIsApproved(reviews),
+			HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
+			ChecksDidFail:        checksDidFail,
+			ChecksDidFinish:      checksDidFinish,
+			IsOwnedByUser:        pullRequest.User.GetLogin() == githubUser.GetLogin(),
+			UserLogin:            githubUser.GetLogin(),
+		})
 	}
 
 	result <- &database.PullRequest{
 		UserID:            userID,
-		IDExternal:        fmt.Sprint(*pullRequest.ID),
-		Deeplink:          *pullRequest.HTMLURL,
+		IDExternal:        fmt.Sprint(pullRequest.GetID()),
+		Deeplink:          pullRequest.GetHTMLURL(),
 		SourceID:          TASK_SOURCE_ID_GITHUB_PR,
-		Title:             *pullRequest.Title,
+		Title:             pullRequest.GetTitle(),
+		Body:              pullRequest.GetBody(),
 		SourceAccountID:   accountID,
-		CreatedAtExternal: primitive.NewDateTimeFromTime(*pullRequest.CreatedAt),
+		CreatedAtExternal: primitive.NewDateTimeFromTime(pullRequest.GetCreatedAt()),
 		RepositoryID:      fmt.Sprint(*repository.ID),
-		RepositoryName:    *repository.Name,
-		Number:            *pullRequest.Number,
-		Author:            *pullRequest.User.Login,
-		Branch:            *pullRequest.Head.Ref,
-		RequiredAction:    getPullRequestRequiredAction(pullRequestData),
+		RepositoryName:    repository.GetFullName(),
+		Number:            pullRequest.GetNumber(),
+		Author:            pullRequest.User.GetLogin(),
+		Branch:            pullRequest.Head.GetRef(),
+		RequiredAction:    requiredAction,
 		CommentCount:      commentCount,
-		LastUpdatedAt:     primitive.NewDateTimeFromTime(*pullRequest.UpdatedAt),
+		LastUpdatedAt:     primitive.NewDateTimeFromTime(pullRequest.GetUpdatedAt()),
 	}
 }
 
@@ -368,12 +374,24 @@ func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAu
 	return githubUser, err
 }
 
+func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string) ([]*github.Team, error) {
+	err := setOverrideURL(githubClient, overrideURL)
+	if err != nil {
+		return nil, err
+	}
+	userTeams, _, err := githubClient.Teams.ListUserTeams(context, nil)
+	return userTeams, err
+}
+
 func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) ([]*github.Repository, error) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
 		return nil, err
 	}
-	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, nil)
+	// we sort by "pushed" to put the more active repos near the front of the results
+	// 30 results are returned by default, which should be enough, but we can increase to 100 if needed
+	repositoryListOptions := github.RepositoryListOptions{Sort: "pushed"}
+	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, &repositoryListOptions)
 	return repositories, err
 }
 
@@ -388,7 +406,7 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{
-			"full_name": repository.GetName(),
+			"full_name": repository.GetFullName(),
 			"deeplink":  repository.GetHTMLURL(),
 		}},
 		options.Update().SetUpsert(true),
@@ -458,13 +476,20 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 // Github API does not consider users who have submitted a review as reviewers
-func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview) bool {
+func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, userTeams []*github.Team) bool {
 	if pullRequest == nil || githubUser == nil {
 		return false
 	}
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
+		}
+	}
+	for _, userTeam := range userTeams {
+		for _, team := range pullRequest.RequestedTeams {
+			if team.ID != nil && userTeam.ID != nil && *team.ID == *userTeam.ID {
+				return true
+			}
 		}
 	}
 	// If user submitted a review, we consider them a reviewer as well
@@ -599,23 +624,23 @@ func getPullRequestRequiredAction(data GithubPRData) string {
 	return action
 }
 
-func (gitPR GithubPRSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (gitPR GithubPRSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (gitPR GithubPRSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (gitPR GithubPRSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (gitPR GithubPRSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
+func (gitPR GithubPRSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	// allow users to mark PR as done in GT even if it's not done in Github
 	return nil
 }
 
-func (gitPR GithubPRSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (gitPR GithubPRSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

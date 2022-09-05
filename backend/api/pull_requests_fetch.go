@@ -71,7 +71,7 @@ func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken)
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var pullRequests = make(chan external.PullRequestResult)
-			go taskSourceResult.Source.GetPullRequests(userID.(primitive.ObjectID), token.AccountID, pullRequests)
+			go taskSourceResult.Source.GetPullRequests(api.DB, userID.(primitive.ObjectID), token.AccountID, pullRequests)
 			pullRequestChannels = append(pullRequestChannels, pullRequests)
 		}
 	}

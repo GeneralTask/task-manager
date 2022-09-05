@@ -2,10 +2,15 @@ package api
 
 import (
 	"errors"
+	"regexp"
+	"strings"
 	"time"
 
+	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func getUserIDFromContext(c *gin.Context) primitive.ObjectID {
@@ -35,6 +40,11 @@ func (result OverviewResult[T]) GetOrderingID() int {
 	return result.IDOrdering
 }
 
+func (api *API) GetCurrentLocalizedTime(timezoneOffset time.Duration) time.Time {
+	localZone := time.FixedZone("", int(-1*timezoneOffset.Seconds()))
+	return api.GetCurrentTime().In(localZone)
+}
+
 func (api *API) GetCurrentTime() time.Time {
 	if api.OverrideTime != nil {
 		return *api.OverrideTime
@@ -53,4 +63,30 @@ func GetTimezoneOffsetFromHeader(c *gin.Context) (time.Duration, error) {
 		return duration, errors.New("Timezone-Offset header is invalid")
 	}
 	return duration, nil
+}
+
+func getValidExternalOwnerAssignedTask(db *mongo.Database, userID primitive.ObjectID, taskTitle string) (*database.User, string, error) {
+	fromToken, err := database.GetUser(db, userID)
+	if err != nil {
+		return nil, "", err
+	}
+
+	if strings.HasSuffix(fromToken.Email, "@generaltask.com") && strings.HasPrefix(taskTitle, "<to ") {
+		regex, err := regexp.Compile(`<to [a-zA-Z]+>`)
+		if err != nil {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msg("error compiling regex")
+		}
+		name := regex.FindString(taskTitle)
+		name = strings.Trim(name, "<to ")
+		name = strings.Trim(name, ">")
+		matchingUser, err := database.GetGeneralTaskUserByName(db, name)
+		if err != nil {
+			return nil, "", err
+		}
+
+		taskTitle = regex.ReplaceAllString(taskTitle, "") + " from: " + fromToken.Email
+		return matchingUser, taskTitle, nil
+	}
+	return nil, "", errors.New("unable to perform with non General Task users")
 }

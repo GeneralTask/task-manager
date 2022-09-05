@@ -16,7 +16,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -98,8 +97,6 @@ func TestMarkAsComplete(t *testing.T) {
 	router := GetRouter(api)
 
 	t.Run("MissingCompletionFlag", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"/",
@@ -112,8 +109,6 @@ func TestMarkAsComplete(t *testing.T) {
 
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
-		assert.NoError(t, err)
-		err = settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -129,8 +124,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidHex", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		assert.NoError(t, err)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"1/",
@@ -142,8 +135,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("InvalidUser", func(t *testing.T) {
-		err := settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
-		assert.NoError(t, err)
 		secondAuthToken := login("tester@generaltask.com", "")
 		request, _ := http.NewRequest(
 			"PATCH",
@@ -156,7 +147,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"/",
@@ -180,7 +170,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("CalendarFailure", func(t *testing.T) {
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+calendarTaskIDHex+"/",
@@ -203,7 +192,6 @@ func TestMarkAsComplete(t *testing.T) {
 	})
 
 	t.Run("Mark complete and edit fields success", func(t *testing.T) {
-		settings.UpdateUserSetting(db, userID, settings.SettingFieldEmailDonePreference, settings.ChoiceKeyArchive)
 		dueDate, err := time.Parse(time.RFC3339, "2021-12-06T07:39:00-15:13")
 		assert.NoError(t, err)
 		request, _ := http.NewRequest(
@@ -553,6 +541,8 @@ func TestEditFields(t *testing.T) {
 	taskPriorityNormalized := 5.0
 	taskNumber := 3
 
+	timeNow := primitive.NewDateTimeFromTime(time.Now())
+
 	sampleTask := database.Task{
 		IDExternal:         "ID External",
 		IDOrdering:         1,
@@ -565,7 +555,7 @@ func TestEditFields(t *testing.T) {
 		Title:              &taskTitle,
 		Body:               &taskBody,
 		HasBeenReordered:   false,
-		DueDate:            primitive.NewDateTimeFromTime(time.Now()),
+		DueDate:            &timeNow,
 		TimeAllocation:     &taskTime,
 		CreatedAtExternal:  primitive.NewDateTimeFromTime(time.Now()),
 		PriorityID:         &taskPriorityID,
@@ -713,7 +703,8 @@ func TestEditFields(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})
 	t.Run("Edit Due Date Empty", func(t *testing.T) {
@@ -853,9 +844,11 @@ func TestEditFields(t *testing.T) {
 		newTitle := "New Title"
 		newBody := "New Body"
 		newTimeAllocation := int64(20 * 1000 * 1000)
+		expectedDueDate := primitive.NewDateTimeFromTime(dueDate)
+
 		expectedTask.Title = &newTitle
 		expectedTask.Body = &newBody
-		expectedTask.DueDate = primitive.NewDateTimeFromTime(dueDate)
+		expectedTask.DueDate = &expectedDueDate
 		expectedTask.TimeAllocation = &newTimeAllocation
 
 		utils.AssertTasksEqual(t, &expectedTask, &task)
@@ -925,5 +918,43 @@ func TestEditFields(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"parameter missing\"}", string(body))
+	})
+	t.Run("Assign to other General Task user", func(t *testing.T) {
+		ctx := context.Background()
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+
+		userCollection := database.GetUserCollection(api.DB)
+		assert.NoError(t, err)
+		_, err := userCollection.InsertOne(ctx, database.User{
+			Email: "john@generaltask.com",
+		})
+		assert.NoError(t, err)
+
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"title":"<to john>Hello!"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		var task database.Task
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, "Hello! from: approved@generaltask.com", *task.Title)
 	})
 }

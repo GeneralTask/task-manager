@@ -1,12 +1,14 @@
+import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
 import React, { useEffect, useMemo, useState } from 'react'
-import { TOverviewView } from '../../utils/types'
-import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
-import { ViewHeader, ViewContainer, PaginateTextButton, OptimisticItemsContainer } from './styles'
-import ExternalViewItems from './viewItems/ExternalViewItems'
-import Spinner from '../atoms/Spinner'
+
 import AuthBanner from './AuthBanner'
+import ExternalViewItems from './viewItems/ExternalViewItems'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
 import MeetingPreparationViewItem from './viewItems/MeetingPreparationViewItem'
+import Spinner from '../atoms/Spinner'
+import { TOverviewView } from '../../utils/types'
+import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
+import { useParams } from 'react-router-dom'
 
 const PAGE_SIZE = 5
 
@@ -15,7 +17,8 @@ interface OverviewViewProps {
     scrollRef: React.RefObject<HTMLDivElement>
 }
 const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
-    const [visibleItemsCount, setVisibleItemsCount] = useState(Math.min(view.view_items.length, PAGE_SIZE))
+    const { overviewViewId, overviewItemId } = useParams()
+    const [visibleItemsCount, setVisibleItemsCount] = useState(0)
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
@@ -42,8 +45,17 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     }, [view.type])
 
     useEffect(() => {
-        setVisibleItemsCount(Math.max(visibleItemsCount, Math.min(view.view_items.length, PAGE_SIZE)))
-    }, [view.is_linked, view.view_items])
+        setVisibleItemsCount(
+            Math.max(
+                // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
+                Math.min(visibleItemsCount, view.view_items.length),
+                // If view.view_items.length drops below PAGE_SIZE, set visibleItemsCount to view.view_items.length
+                Math.min(view.view_items.length, PAGE_SIZE),
+                // if the selected item is in this view, ensure it is visible
+                view.id === overviewViewId ? view.view_items.findIndex((item) => item.id === overviewItemId) + 1 : 0
+            )
+        )
+    }, [view.is_linked, view.view_items, overviewViewId, overviewItemId])
 
     return (
         <ViewContainer>

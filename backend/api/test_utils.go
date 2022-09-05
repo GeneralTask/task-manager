@@ -103,7 +103,6 @@ func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken str
 	return &externalAPITokenStruct
 }
 
-
 func newStateToken(db *mongo.Database, authToken string, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
 	var userID *primitive.ObjectID
