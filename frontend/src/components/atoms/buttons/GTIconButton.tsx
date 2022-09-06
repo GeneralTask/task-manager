@@ -7,7 +7,7 @@ import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
 const Button = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing._8};
     border-radius: 50%;
     :hover {
         background: ${Colors.background.dark};
