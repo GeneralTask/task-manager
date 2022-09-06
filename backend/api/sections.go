@@ -130,7 +130,6 @@ func (api *API) setDefaultSectionName(c *gin.Context, ctx context.Context, name 
 	_, err := settingsCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"_id": constants.IDTaskSectionDefault},
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{"name_override": name}},
