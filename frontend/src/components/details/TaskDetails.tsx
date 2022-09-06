@@ -6,7 +6,6 @@ import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos, icons, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -16,6 +15,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -208,11 +208,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             />
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <GTButton
-                                        styleType="secondary"
-                                        value={task.source.name}
-                                        icon={icons.external_link}
-                                    />
+                                    <GTIconButton icon={icons.external_link} />
                                 </NoStyleAnchor>
                             )}
                         </MarginLeftAuto>
