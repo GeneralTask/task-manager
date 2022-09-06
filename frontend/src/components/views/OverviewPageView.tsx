@@ -7,7 +7,7 @@ import TaskDetails from '../details/TaskDetails'
 import EditViewsButtons from '../overview/EditViewsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import { TPullRequest, TTask } from '../../utils/types'
+import { TMeetingPreparationTask, TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import PullRequestDetails from '../details/PullRequestDetails'
 import { SectionHeader } from '../molecules/Header'
@@ -53,6 +53,20 @@ const OverviewView = () => {
                 if (item.id !== overviewItemId) continue
                 if (view.type === 'github') {
                     return <PullRequestDetails pullRequest={item as TPullRequest} />
+                }
+                if (view.type === 'meeting_preparation') {
+                    const meetingTask = item as TMeetingPreparationTask
+                    const startTime = new Date(meetingTask.datetime_start)
+                    const endTime = new Date(meetingTask.datetime_end)
+                    return (
+                        <TaskDetails
+                            task={item as TTask}
+                            link={`/overview/${view.id}/${item.id}`}
+                            isMeetingPreparation
+                            startTime={startTime}
+                            endTime={endTime}
+                        />
+                    )
                 }
                 return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
             }

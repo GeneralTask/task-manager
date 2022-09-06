@@ -78,3 +78,8 @@ export const mini = css`
     line-height: ${lineHeight.xs};
     font-weight: ${weight.regular};
 `
+export const tag = css`
+    font-size: ${fontSize.xs};
+    line-height: ${lineHeight.s};
+    font-weight: ${weight.medium};
+`

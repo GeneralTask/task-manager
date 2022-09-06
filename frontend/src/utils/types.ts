@@ -40,6 +40,11 @@ export interface TTask {
     slack_message_params?: TSlackMessageParams
 }
 
+export interface TMeetingPreparationTask extends TTask {
+    datetime_start: string
+    datetime_end: string
+}
+
 export interface TSlackMessageParams {
     channel: {
         id: string
@@ -193,7 +198,7 @@ export interface TUserInfo {
     opted_into_marketing: boolean
 }
 
-export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
+export type TOverviewItem = TTask & TPullRequest & TMeetingPreparationTask // TODO: change this to more general type
 
 export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation'
 

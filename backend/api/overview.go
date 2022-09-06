@@ -10,6 +10,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -545,7 +546,10 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 
 func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	taskCollection := database.GetTaskCollection(db)
+	logger := logging.GetSentryLogger()
+	logger.Debug().Msgf("events count: %d", len(*events))
 	for _, event := range *events {
+		logger.Debug().Msgf("event: %v", event.Title)
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
 		// Check if meeting prep task exists
@@ -628,15 +632,6 @@ func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.O
 		}
 		result = append(result, api.taskBaseToTaskResult(&task, userID))
 	}
-	// dummy result
-	start := "2020-01-01T00:00:00Z"
-	end := "2020-01-01T00:00:00Z"
-	result = append(result, &TaskResult{
-		Title:         "This is a title",
-		Body:          "Even better",
-		DatetimeStart: &start,
-		DatetimeEnd:   &end,
-	})
 	return result, nil
 }
 

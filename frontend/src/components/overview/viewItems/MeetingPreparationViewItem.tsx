@@ -16,6 +16,7 @@ const MeetingPreparationViewItem = ({ view }: ViewItemsProps) => {
                         index={index}
                         isSelected={overviewViewId === view.id && overviewItemId === item.id}
                         link={`/overview/${view.id}/${item.id}`}
+                        meetingPreparationStartTime={new Date(item.datetime_start)}
                     />
                 ))
             ) : (
