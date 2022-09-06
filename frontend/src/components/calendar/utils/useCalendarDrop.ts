@@ -67,52 +67,51 @@ const useCalendarDrop = ({
         return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
     }, [primaryAccountID, isWeekView])
 
-    const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
-            if (!primaryAccountID) return
-            const itemType = monitor.getItemType()
-            const dropPosition = getDropPosition(monitor)
-            const start = getStartTimeFromDropPosition(dropPosition)
-            switch (itemType) {
-                case DropType.TASK: {
-                    if (!item.task) return
-                    const end = start.plus({ minutes: 30 })
-                    let description = item.task.body
-                    if (description !== '') {
-                        description += '\n'
-                    }
-                    description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
+    const onDrop = useCallback((item: DropItem, monitor: DropTargetMonitor) => {
+        if (!primaryAccountID) return
+        const itemType = monitor.getItemType()
+        const dropPosition = getDropPosition(monitor)
+        const start = getStartTimeFromDropPosition(dropPosition)
+        switch (itemType) {
+            case DropType.TASK: {
+                if (!item.task) return
+                const end = start.plus({ minutes: 30 })
+                let description = item.task.body
+                if (description !== '') {
+                    description += '\n'
+                }
+                description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
 
-                    createEvent({
-                        createEventPayload: {
-                            account_id: primaryAccountID,
-                            datetime_start: start.toISO(),
-                            datetime_end: end.toISO(),
-                            summary: item.task.title,
-                            description,
-                            task_id: item.task.id,
-                        },
-                        date,
-                        linkedTask: item.task,
-                    })
-                    break
-                }
-                case DropType.EVENT: {
-                    if (!item.event) return
-                    const end = start.plus(getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end))
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: primaryAccountID, // TODO: change this to event account ID
-                            datetime_start: start.toISO(),
-                            datetime_end: end.toISO(),
-                        },
-                        date,
-                    })
-                    break
-                }
+                createEvent({
+                    createEventPayload: {
+                        account_id: primaryAccountID,
+                        datetime_start: start.toISO(),
+                        datetime_end: end.toISO(),
+                        summary: item.task.title,
+                        description,
+                        task_id: item.task.id,
+                    },
+                    date,
+                    linkedTask: item.task,
+                })
+                break
             }
-        },
+            case DropType.EVENT: {
+                if (!item.event) return
+                const end = start.plus(getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end))
+                modifyEvent({
+                    event: item.event,
+                    payload: {
+                        account_id: primaryAccountID, // TODO: change this to event account ID
+                        datetime_start: start.toISO(),
+                        datetime_end: end.toISO(),
+                    },
+                    date,
+                })
+                break
+            }
+        }
+    },
         [date, primaryAccountID, createEvent]
     )
 
