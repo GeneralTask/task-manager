@@ -1,28 +1,36 @@
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import React from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../../styles'
-import { icons } from '../../../styles/images'
+import { Spacing, Typography } from '../../../styles'
 import GTButton from '../buttons/GTButton'
-import NoStyleButton from '../buttons/NoStyleButton'
-import { Icon } from '../Icon'
 
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: ${Spacing._16};
-    padding: ${Spacing._8};
-    color: ${Colors.text.white};
+    gap: ${Spacing._8};
+    padding-right: 0;
+    padding-left: ${Spacing._8};
     ${Typography.body};
-`
-const MessageSpan = styled.span`
-    white-space: nowrap;
     min-width: 0;
+`
+const MessageContainer = styled.div`
+    min-width: 0;
+    flex-shrink: 1;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+`
+const TitleText = styled.div`
+    margin-right: ${Spacing._4};
+    ${Typography.bold};
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex-shrink: 1;
-    margin-right: ${Spacing._24};
-    margin-left: ${Spacing._8};
+    height: fit-content;
+`
+const MessageText = styled.div`
+    min-width: fit-content;
+    height: fit-content;
 `
 const ButtonsContainer = styled.div`
     display: flex;
@@ -39,24 +47,29 @@ const stopPropogationWrapper = (onClick: (e: React.MouseEvent) => void) => {
     }
 }
 
-interface ToastTemplateProps {
-    message: string
-    leftAction?: {
-        label: string
-        onClick: () => void
-    }
-    rightAction?: {
-        label: string
-        onClick: () => void
-    }
+interface ToastAction {
+    label: string
+    icon?: IconProp | string
+    onClick: () => void
 }
-const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps) => {
+interface ToastTemplateProps {
+    title?: string
+    message: string
+    leftAction?: ToastAction
+    rightAction?: ToastAction
+}
+const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
         <ToastContainer>
-            <MessageSpan>{message}</MessageSpan>
+            <MessageContainer>
+                {title && <TitleText>{title}</TitleText>}
+                <MessageText>{message}</MessageText>
+            </MessageContainer>
             <ButtonsContainer>
                 {leftAction && (
                     <GTButton
+                        icon={leftAction.icon}
+                        iconColor="black"
                         styleType="secondary"
                         onClick={stopPropogationWrapper(leftAction.onClick)}
                         value={leftAction.label}
@@ -64,15 +77,14 @@ const ToastTemplate = ({ message, leftAction, rightAction }: ToastTemplateProps)
                 )}
                 {rightAction && (
                     <GTButton
+                        icon={rightAction.icon}
+                        iconColor="black"
                         styleType="secondary"
                         size="small"
                         onClick={stopPropogationWrapper(rightAction.onClick)}
                         value={rightAction.label}
                     />
                 )}
-                <NoStyleButton>
-                    <Icon icon={icons.x} size="medium" color={Colors.icon.white} />
-                </NoStyleButton>
             </ButtonsContainer>
         </ToastContainer>
     )
