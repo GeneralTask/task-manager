@@ -47,9 +47,9 @@ const TaskSectionView = () => {
     const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
-    const { data: taskSections, isLoading: isLoadingTasks, isFetching: isFetchingTasks } = useGetTasks()
+    const { data: taskSections, isLoading: isLoadingTasks } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
-    const { isFetching: isFetchingExternal } = useFetchExternalTasks()
+    useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
@@ -106,7 +106,6 @@ const TaskSectionView = () => {
                                 <SectionHeader
                                     sectionName={section.name}
                                     allowRefresh={true}
-                                    isRefreshing={isFetchingExternal || isFetchingTasks}
                                     taskSectionId={section.id}
                                 />
                                 {!section.is_done && <CreateNewTask sectionId={section.id} />}
