@@ -4,6 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/rs/zerolog/log"
@@ -16,18 +18,11 @@ type LinearTaskSource struct {
 	Linear LinearService
 }
 
-func (linearTask LinearTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
-		return
-	}
-	defer dbCleanup()
-
+func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -60,18 +55,23 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
+		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
+		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		isCompleted := false
+
 		task := &database.Task{
-			UserID:            userID,
-			IDExternal:        linearIssue.Id.(string),
-			IDTaskSection:     constants.IDTaskSectionDefault,
-			Deeplink:          string(linearIssue.Url),
-			SourceID:          TASK_SOURCE_ID_LINEAR,
-			Title:             &stringTitle,
-			Body:              &stringBody,
-			SourceAccountID:   accountID,
-			CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
-			IsCompleted:       &isCompleted,
+			UserID:             userID,
+			IDExternal:         linearIssue.Id.(string),
+			IDTaskSection:      constants.IDTaskSectionDefault,
+			Deeplink:           string(linearIssue.Url),
+			SourceID:           TASK_SOURCE_ID_LINEAR,
+			Title:              &stringTitle,
+			Body:               &stringBody,
+			SourceAccountID:    accountID,
+			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
+			IsCompleted:        &isCompleted,
+			DueDate:            &primitiveDueDate,
+			PriorityNormalized: (*float64)(&linearIssue.Priority),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
 				State:      string(linearIssue.State.Name),
@@ -108,11 +108,13 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 			task.SourceID,
 			task,
 			database.Task{
-				Title:           task.Title,
-				Body:            task.Body,
-				Comments:        task.Comments,
-				Status:          task.Status,
-				CompletedStatus: task.CompletedStatus,
+				Title:              task.Title,
+				Body:               task.Body,
+				Comments:           task.Comments,
+				Status:             task.Status,
+				DueDate:            task.DueDate,
+				CompletedStatus:    task.CompletedStatus,
+				PriorityNormalized: task.PriorityNormalized,
 			},
 			nil,
 		)
@@ -131,17 +133,11 @@ func (linearTask LinearTaskSource) GetTasks(userID primitive.ObjectID, accountID
 	result <- TaskResult{Tasks: tasks}
 }
 
-func (linearTask LinearTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
+func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -159,21 +155,20 @@ func (linearTask LinearTaskSource) ModifyTask(userID primitive.ObjectID, account
 		return errors.New("linear mutation failed to update issue")
 	}
 	return nil
-
 }
 
-func (linearTask LinearTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (linearTask LinearTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (linearTask LinearTaskSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (linearTask LinearTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (linearTask LinearTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (linearTask LinearTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }

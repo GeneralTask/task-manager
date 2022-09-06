@@ -1,6 +1,7 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import React from 'react'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import styled, { css } from 'styled-components'
+
 import { Icon } from '../Icon'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import NoStyleButton from './NoStyleButton'
@@ -70,6 +71,15 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
     ${(props) => props.size === 'large' && LargeButtonStyle};
     ${(props) => props.size === 'small' && SmallButtonStyle};
+    opacity: ${(props) => (props.disabled ? '0.2' : '1')};
+    &:hover {
+        ${(props) => props.disabled && `box-shadow: ${Shadows.button.default}`};
+        ${(props) =>
+            props.disabled &&
+            `background-color: ${
+                props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
+            }`};
+    }
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

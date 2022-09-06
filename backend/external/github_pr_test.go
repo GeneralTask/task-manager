@@ -28,7 +28,7 @@ func TestMarkGithubPRTaskAsDone(t *testing.T) {
 		userID := primitive.NewObjectID()
 
 		isCompleted := true
-		err := githubSource.ModifyTask(userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, nil)
+		err := githubSource.ModifyTask(nil, userID, "sample_account@email.com", "6942069420", &database.Task{IsCompleted: &isCompleted}, nil)
 		assert.NoError(t, err)
 	})
 }
@@ -39,58 +39,73 @@ func TestGetPullRequests(t *testing.T) {
 	defer dbCleanup()
 	repositoryCollection := database.GetRepositoryCollection(db)
 	expectedRepository := database.Repository{
-		FullName:     "ExampleRepository",
+		FullName:     "dankmemes/ExampleRepository",
 		RepositoryID: "1234",
 	}
-	t.Run("Success", func(t *testing.T) {
-		userId := primitive.NewObjectID()
-		fetchExternalAPITokenValue := false
 
-		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
-		userURL := &githubUserServer.URL
-		defer githubUserServer.Close()
+	githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
+	userURL := &githubUserServer.URL
+	defer githubUserServer.Close()
 
-		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
-		userRepositoriesURL := &githubUserRepositoriesServer.URL
-		defer githubUserRepositoriesServer.Close()
+	githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
+	userRepositoriesURL := &githubUserRepositoriesServer.URL
+	defer githubUserRepositoriesServer.Close()
 
-		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserPullRequestsPayload)
-		userPullRequestsURL := &githubUserPullRequestsServer.URL
-		defer githubUserPullRequestsServer.Close()
+	githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserPullRequestsPayload)
+	userPullRequestsURL := &githubUserPullRequestsServer.URL
+	defer githubUserPullRequestsServer.Close()
 
-		githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyPullRequestReviewersPayload)
-		pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
-		defer githubPullRequestReviewersServer.Close()
+	githubPullRequestReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyPullRequestReviewersPayload)
+	pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
+	defer githubPullRequestReviewersServer.Close()
 
-		githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyCheckRunsForRefPayload)
-		listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
-		defer githubListCheckRunsForRefServer.Close()
+	githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyCheckRunsForRefPayload)
+	listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
+	defer githubListCheckRunsForRefServer.Close()
 
-		githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
-		listPullRequestCommentsURL := &githubListPullRequestCommentsServer.URL
-		defer githubListPullRequestCommentsServer.Close()
+	githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+	listPullRequestCommentsURL := &githubListPullRequestCommentsServer.URL
+	defer githubListPullRequestCommentsServer.Close()
 
-		var pullRequests = make(chan PullRequestResult)
-		githubPR := GithubPRSource{
-			Github: GithubService{
-				Config: GithubConfig{
-					ConfigValues: GithubConfigValues{
-						FetchExternalAPIToken:       &fetchExternalAPITokenValue,
-						GetUserURL:                  userURL,
-						ListRepositoriesURL:         userRepositoriesURL,
-						ListPullRequestsURL:         userPullRequestsURL,
-						ListPullRequestCommentsURL:  listPullRequestCommentsURL,
-						ListPullRequestReviewersURL: pullRequestReviewersURL,
-						ListCheckRunsForRefURL:      listCheckRunsForRefURL,
-					},
+	githubListUserTeamsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+	listUserTeamsURL := &githubListUserTeamsServer.URL
+	defer githubListUserTeamsServer.Close()
+
+	githubPullRequestModifiedServer := testutils.GetMockAPIServer(t, 200, ``)
+	pullRequestModifiedURL := &githubPullRequestModifiedServer.URL
+	defer githubPullRequestModifiedServer.Close()
+
+	fetchExternalAPITokenValue := false
+	githubPR := GithubPRSource{
+		Github: GithubService{
+			Config: GithubConfig{
+				ConfigValues: GithubConfigValues{
+					FetchExternalAPIToken:       &fetchExternalAPITokenValue,
+					GetUserURL:                  userURL,
+					ListRepositoriesURL:         userRepositoriesURL,
+					ListPullRequestsURL:         userPullRequestsURL,
+					ListPullRequestCommentsURL:  listPullRequestCommentsURL,
+					ListPullRequestReviewersURL: pullRequestReviewersURL,
+					ListCheckRunsForRefURL:      listCheckRunsForRefURL,
+					ListUserTeamsURL:            listUserTeamsURL,
+					PullRequestModifiedURL:      pullRequestModifiedURL,
 				},
 			},
-		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		},
+	}
+
+	t.Run("Success", func(t *testing.T) {
+		userId := primitive.NewObjectID()
+
+		var pullRequests = make(chan PullRequestResult)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 
 		assert.NoError(t, result.Error)
 		assert.Equal(t, len(result.PullRequests), 1)
+		pullRequest := result.PullRequests[0]
+		assert.Equal(t, ActionAddReviewers, pullRequest.RequiredAction)
+		assert.Equal(t, "the oopsie must be fixed", pullRequest.Body)
 
 		// Check that repository for PR is created in the database
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
@@ -100,36 +115,94 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 	})
-	t.Run("NoPullRequests", func(t *testing.T) {
+	t.Run("SuccessNotRelevantPR", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		fetchExternalAPITokenValue := false
 
-		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
-		userURL := &githubUserServer.URL
-		defer githubUserServer.Close()
-
-		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, testutils.UserRepositoriesPayload)
-		userRepositoriesURL := &githubUserRepositoriesServer.URL
-		defer githubUserRepositoriesServer.Close()
-
-		githubUserPullRequestsServer := testutils.GetMockAPIServer(t, 200, `[]`)
-		userPullRequestsURL := &githubUserPullRequestsServer.URL
-		defer githubUserPullRequestsServer.Close()
+		githubUserNotRelevantPullRequestsServer := testutils.GetMockAPIServer(t, 200, testutils.UserNotRelevantPullRequestsPayload)
+		userNotRelevantPullRequestsURL := &githubUserNotRelevantPullRequestsServer.URL
+		defer githubUserNotRelevantPullRequestsServer.Close()
+		githubPR.Github.Config.ConfigValues.ListPullRequestsURL = userNotRelevantPullRequestsURL
 
 		var pullRequests = make(chan PullRequestResult)
-		githubPR := GithubPRSource{
-			Github: GithubService{
-				Config: GithubConfig{
-					ConfigValues: GithubConfigValues{
-						FetchExternalAPIToken: &fetchExternalAPITokenValue,
-						GetUserURL:            userURL,
-						ListRepositoriesURL:   userRepositoriesURL,
-						ListPullRequestsURL:   userPullRequestsURL,
-					},
-				},
-			},
-		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
+		result := <-pullRequests
+
+		assert.NoError(t, result.Error)
+		assert.Equal(t, len(result.PullRequests), 1)
+		assert.Equal(t, ActionNoneNeeded, result.PullRequests[0].RequiredAction)
+
+		// Check that repository for PR is created in the database
+		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+		defer cancel()
+		var repository database.Repository
+		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
+		assert.Equal(t, expectedRepository.FullName, repository.FullName)
+		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
+
+		githubPR.Github.Config.ConfigValues.ListPullRequestsURL = userPullRequestsURL
+	})
+	t.Run("SuccessConditionalRequest", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+
+		pullRequestCollection := database.GetPullRequestCollection(db)
+		falseBool := false
+		// wrong id_external
+		_, err := pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
+			UserID:      userID,
+			IDExternal:  "oh no oopsie",
+			IsCompleted: &falseBool,
+		})
+		assert.NoError(t, err)
+		// wrong user_id
+		_, err = pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
+			UserID:      primitive.NewObjectID(),
+			IDExternal:  "oh no oopsie",
+			IsCompleted: &falseBool,
+		})
+		assert.NoError(t, err)
+		// correct values to find in DB
+		_, err = pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
+			UserID:      userID,
+			IDExternal:  "1",
+			IsCompleted: &falseBool,
+			Title:       "something cached in the db",
+		})
+		assert.NoError(t, err)
+
+		githubPullRequestNotModifiedServer := testutils.GetMockAPIServer(t, 304, ``)
+		pullRequestNotModifiedURL := &githubPullRequestNotModifiedServer.URL
+		defer githubPullRequestNotModifiedServer.Close()
+		githubPR.Github.Config.ConfigValues.PullRequestModifiedURL = pullRequestNotModifiedURL
+
+		var pullRequests = make(chan PullRequestResult)
+		go githubPR.GetPullRequests(db, userID, "exampleAccountID", pullRequests)
+		result := <-pullRequests
+
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.PullRequests))
+		// if it fetched from the proper API, it wouldn't still have this title
+		assert.Equal(t, "something cached in the db", result.PullRequests[0].Title)
+
+		// run it again now with a "has been modified" server response
+		githubPR.Github.Config.ConfigValues.PullRequestModifiedURL = pullRequestModifiedURL
+
+		pullRequests = make(chan PullRequestResult)
+		go githubPR.GetPullRequests(db, userID, "exampleAccountID", pullRequests)
+		result = <-pullRequests
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 1, len(result.PullRequests))
+		assert.Equal(t, "Fix big oopsie", result.PullRequests[0].Title)
+	})
+	t.Run("NoPullRequests", func(t *testing.T) {
+		userId := primitive.NewObjectID()
+
+		githubUserNoPullRequestsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		userNoPullRequestsURL := &githubUserNoPullRequestsServer.URL
+		defer githubUserNoPullRequestsServer.Close()
+		githubPR.Github.Config.ConfigValues.ListPullRequestsURL = userNoPullRequestsURL
+
+		var pullRequests = make(chan PullRequestResult)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.PullRequests))
@@ -141,32 +214,19 @@ func TestGetPullRequests(t *testing.T) {
 		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
+
+		githubPR.Github.Config.ConfigValues.ListPullRequestReviewURL = userPullRequestsURL
 	})
 	t.Run("NoRepositories", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		fetchExternalAPITokenValue := false
 
-		githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
-		userURL := &githubUserServer.URL
-		defer githubUserServer.Close()
-
-		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, `[]`)
-		userRepositoriesURL := &githubUserRepositoriesServer.URL
-		defer githubUserRepositoriesServer.Close()
+		githubUserNoRepositoriesServer := testutils.GetMockAPIServer(t, 200, `[]`)
+		userNoRepositoriesURL := &githubUserNoRepositoriesServer.URL
+		defer githubUserNoRepositoriesServer.Close()
+		githubPR.Github.Config.ConfigValues.ListRepositoriesURL = userNoRepositoriesURL
 
 		var pullRequests = make(chan PullRequestResult)
-		githubPR := GithubPRSource{
-			Github: GithubService{
-				Config: GithubConfig{
-					ConfigValues: GithubConfigValues{
-						FetchExternalAPIToken: &fetchExternalAPITokenValue,
-						GetUserURL:            userURL,
-						ListRepositoriesURL:   userRepositoriesURL,
-					},
-				},
-			},
-		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 		assert.NoError(t, result.Error)
 		assert.Equal(t, 0, len(result.PullRequests))
@@ -177,22 +237,16 @@ func TestGetPullRequests(t *testing.T) {
 		count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userId}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
+
+		githubPR.Github.Config.ConfigValues.ListRepositoriesURL = userRepositoriesURL
 	})
 	t.Run("ExternalError", func(t *testing.T) {
 		userId := primitive.NewObjectID()
-		fetchExternalAPITokenValue := false
+
+		githubPR.Github.Config.ConfigValues.GetUserURL = nil
 
 		var pullRequests = make(chan PullRequestResult)
-		githubPR := GithubPRSource{
-			Github: GithubService{
-				Config: GithubConfig{
-					ConfigValues: GithubConfigValues{
-						FetchExternalAPIToken: &fetchExternalAPITokenValue,
-					},
-				},
-			},
-		}
-		go githubPR.GetPullRequests(userId, "exampleAccountID", pullRequests)
+		go githubPR.GetPullRequests(db, userId, "exampleAccountID", pullRequests)
 		result := <-pullRequests
 
 		assert.Equal(t, result.Error.Error(), "failed to fetch Github user")
@@ -204,6 +258,8 @@ func TestGetPullRequests(t *testing.T) {
 		count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userId}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
+
+		githubPR.Github.Config.ConfigValues.GetUserURL = userURL
 	})
 }
 
@@ -315,7 +371,7 @@ func TestGithubRepositories(t *testing.T) {
 		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
 
 		assert.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("GET %s/user/repos: 401  []", *userRepositoriesURL), err.Error())
+		assert.Equal(t, fmt.Sprintf("GET %s/user/repos?sort=pushed: 401  []", *userRepositoriesURL), err.Error())
 		assert.Nil(t, githubRepositories)
 	})
 	t.Run("BadResponse", func(t *testing.T) {
@@ -579,27 +635,34 @@ func TestUserIsReviewer(t *testing.T) {
 		RequestedReviewers: []*github.User{testGithubUserReviewer},
 	}
 	t.Run("UserIsReviewer", func(t *testing.T) {
-		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
+		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews, []*github.Team{}))
+	})
+	t.Run("UserIsReviewerViaTeam", func(t *testing.T) {
+		teamID := int64(69420)
+		githubPullRequest2 := &github.PullRequest{
+			RequestedTeams: []*github.Team{{ID: &teamID}},
+		}
+		assert.True(t, userIsReviewer(testGithubUserReviewer, githubPullRequest2, reviews, []*github.Team{{ID: &teamID}}))
 	})
 	// Github API does not consider users who have submitted a review as reviewers, but we still want to show them as a reviewer in our app.
 	t.Run("UserSubmittedReview", func(t *testing.T) {
 		reviews = append(reviews, &github.PullRequestReview{
 			User: testGithubUserSubmittedReview,
 		})
-		assert.True(t, userIsReviewer(testGithubUserSubmittedReview, githubPullRequest, reviews))
+		assert.True(t, userIsReviewer(testGithubUserSubmittedReview, githubPullRequest, reviews, []*github.Team{}))
 	})
 	t.Run("UserIsNotReviewerAndNotSubmittedReview", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUserNotReviewer, githubPullRequest, reviews))
+		assert.False(t, userIsReviewer(testGithubUserNotReviewer, githubPullRequest, reviews, []*github.Team{}))
 	})
 	t.Run("NilPullRequest", func(t *testing.T) {
-		assert.False(t, userIsReviewer(testGithubUserReviewer, nil, reviews))
+		assert.False(t, userIsReviewer(testGithubUserReviewer, nil, reviews, []*github.Team{}))
 	})
 	t.Run("NilUser", func(t *testing.T) {
-		assert.False(t, userIsReviewer(nil, githubPullRequest, reviews))
+		assert.False(t, userIsReviewer(nil, githubPullRequest, reviews, []*github.Team{}))
 	})
 	t.Run("NilFields", func(t *testing.T) {
 		testGithubUserReviewer.ID = nil
-		assert.False(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews))
+		assert.False(t, userIsReviewer(testGithubUserReviewer, githubPullRequest, reviews, []*github.Team{}))
 	})
 }
 
@@ -770,6 +833,17 @@ func TestGetReviewerCount(t *testing.T) {
 	}
 	t.Run("SingleListReview", func(t *testing.T) {
 		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestReviewersPayload)
+		reviewersURL := &githubReviewersServer.URL
+		defer githubReviewersServer.Close()
+
+		reviews := []*github.PullRequestReview{}
+		reviewerCount, err := getReviewerCount(context, githubClient, repository, pullRequest, reviews, reviewersURL)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, reviewerCount)
+	})
+	t.Run("SingleTeamReview", func(t *testing.T) {
+		githubReviewersServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestTeamReviewersPayload)
 		reviewersURL := &githubReviewersServer.URL
 		defer githubReviewersServer.Close()
 
@@ -1200,11 +1274,11 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(result))
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
-		assert.Equal(t, repository.GetName(), result[0].FullName)
+		assert.Equal(t, repository.GetFullName(), result[0].FullName)
 		assert.Equal(t, repository.GetHTMLURL(), result[0].Deeplink)
 	})
 	t.Run("SuccessUpdate", func(t *testing.T) {
-		repository.Name = updateFullName
+		repository.FullName = updateFullName
 		repository.HTMLURL = updateHTMLURL
 
 		err = updateOrCreateRepository(parentCtx, db, repository, userID)
@@ -1266,14 +1340,14 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		cursor, err := repositoryCollection.Find(
 			dbCtx,
 			bson.M{"$and": []bson.M{
-				{"repository_id": fmt.Sprint(repository.GetID())},
+				{"repository_id": fmt.Sprint(repositoryID)},
 				{"user_id": userID},
 			}},
 		)
 		assert.NoError(t, err)
 		err = cursor.All(dbCtx, &result)
 		assert.NoError(t, err)
-		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
+		assert.Equal(t, fmt.Sprint(repositoryID), result[0].RepositoryID)
 		assert.Equal(t, *updateFullName, result[0].FullName)
 		assert.Equal(t, *updateHTMLURL, result[0].Deeplink)
 	})

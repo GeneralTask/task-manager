@@ -30,6 +30,18 @@ yarn install
 yarn start
 ```
 
+When running `yarn install`, you may see the following error:
+```
+error An unexpected error occurred: "https://npm.fontawesome.com/@fortawesome/pro-light-svg-icons/-/6.1.2/pro-light-svg-icons-6.1.2.tgz: Request failed \"401 Unauthorized\"".
+```
+
+This means you need the font awesome API keys. Please reach out to your mentor to get access to those keys. You will need to these commands:
+
+```
+npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+npm config set "//npm.fontawesome.com/:_authToken" [AUTH TOKEN HERE]
+```
+
 ## Pre-Commit
 
 Install pre-commit by

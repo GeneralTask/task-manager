@@ -13,10 +13,8 @@ export const PR_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
 export const TASK_MARK_AS_DONE_TIMEOUT = 0.25
-export const TASK_MARK_AS_READ_TIMEOUT = 0.5
 export const DETAILS_SYNC_TIMEOUT = 1
 export const SINGLE_SECOND_INTERVAL = 1
-export const CALENDAR_DEFAULT_EVENT_DURATION = 30
 export const EVENT_UNDO_TIMEOUT = 5
 
 // Backend Endpoints
@@ -41,6 +39,7 @@ export const TERMS_OF_SERVICE_ROUTE = 'terms-of-service'
 export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 
 export const NO_EVENT_TITLE = '(no title)'
+export const DEFAULT_SECTION_ID = '000000000000000000000001'
 export const DONE_SECTION_ID = '000000000000000000000004'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'

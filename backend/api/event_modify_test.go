@@ -65,7 +65,7 @@ func TestEventModify(t *testing.T) {
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		event, err := database.GetCalendarEvent(dbCtx, eventObjectID, userID)
+		event, err := database.GetCalendarEvent(api.DB, dbCtx, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "initial summary", event.Title)
 		assert.Equal(t, "initial description", event.Body)
@@ -91,7 +91,7 @@ func TestEventModify(t *testing.T) {
 
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
-		event, err := database.GetCalendarEvent(dbCtx, eventObjectID, userID)
+		event, err := database.GetCalendarEvent(api.DB, dbCtx, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "new summary", event.Title)
 		assert.Equal(t, "new description", event.Body)

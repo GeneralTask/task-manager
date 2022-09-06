@@ -63,13 +63,6 @@ type Recipient struct {
 
 type TaskGroupType string
 
-const (
-	ScheduledTask          TaskGroupType = "scheduled_task"
-	UnscheduledGroup       TaskGroupType = "unscheduled_group"
-	TaskSectionNameDefault string        = "Default"
-	TaskSectionNameDone    string        = "Done"
-)
-
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
@@ -106,7 +99,7 @@ func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			go taskSourceResult.Source.GetTasks(userID.(primitive.ObjectID), token.AccountID, tasks)
+			go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
 			taskChannels = append(taskChannels, tasks)
 		}
 	}
@@ -204,10 +197,12 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 
 func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
-	if t.DueDate.Time().Unix() == int64(0) {
-		dueDate = ""
-	} else {
-		dueDate = t.DueDate.Time().Format("2006-01-02")
+	if t.DueDate != nil {
+		if t.DueDate.Time().Unix() == int64(0) {
+			dueDate = ""
+		} else {
+			dueDate = t.DueDate.Time().Format("2006-01-02")
+		}
 	}
 
 	taskSourceResult, err := api.ExternalConfig.GetSourceResult(t.SourceID)

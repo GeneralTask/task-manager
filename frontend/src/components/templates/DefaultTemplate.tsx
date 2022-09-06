@@ -9,14 +9,12 @@ import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { useAppSelector } from '../../redux/hooks'
-import { DateTime } from 'luxon'
-import { useEventBanners } from '../../hooks'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
     grid-template-columns: ${NAVIGATION_BAR_WIDTH} minmax(300px, auto) max-content;
     grid-auto-flow: column;
-    grid-template-rows: 1fr;
+    grid-template-rows: 100%;
     height: 100vh;
     background-color: ${Colors.background.light};
     position: relative;
@@ -42,7 +40,7 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
+    const { calendarType } = useCalendarContext()
     useEventBanners(DateTime.now())
     return (
         <DefaultTemplateContainer>
@@ -66,8 +64,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 textColor={Colors.text.black}
             />
             <NavigationView />
-            {!isCalendarExpanded && <TasksandDetails>{children}</TasksandDetails>}
-            <CalendarView isExpanded={isCalendarExpanded} />
+            {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
+            <CalendarView initialType="day" />
         </DefaultTemplateContainer>
     )
 }

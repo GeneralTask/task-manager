@@ -1,10 +1,10 @@
 import produce, { castImmutable } from "immer"
-import { useMutation, useQuery } from "react-query"
+import { QueryFunctionContext, useMutation, useQuery } from "react-query"
 import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
-import { TASK_MARK_AS_DONE_TIMEOUT } from "../../constants"
+import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
 import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
 
 export interface TCreateTaskData {
@@ -50,9 +50,9 @@ export interface TReorderTaskData {
 export const useGetTasks = () => {
     return useQuery<TTaskSection[], void>('tasks', getTasks)
 }
-const getTasks = async () => {
+const getTasks = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/tasks/v3/')
+        const res = await apiClient.get('/tasks/v3/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('getTasks failed')
@@ -65,11 +65,13 @@ export const useFetchExternalTasks = () => {
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
         },
+        refetchInterval: TASK_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
     })
 }
-const fetchExternalTasks = async () => {
+const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
     try {
-        const res = await apiClient.get('/tasks/fetch/')
+        const res = await apiClient.get('/tasks/fetch/', { signal })
         return castImmutable(res.data)
     } catch {
         throw new Error('fetchTasks failed')
@@ -83,8 +85,10 @@ export const useCreateTask = () => {
         onMutate: async (data: TCreateTaskData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await queryClient.cancelQueries('tasks')
-            await queryClient.cancelQueries('overview')
+            await Promise.all([
+                queryClient.cancelQueries('overview-supported-views'),
+                queryClient.cancelQueries('overview'),
+            ])
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
@@ -152,7 +156,7 @@ export const useCreateTask = () => {
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, optimisticId, createData.taskSectionId)
-                    if (!task) return
+                    if (!task?.id) return
                     task.id = response.task_id
                     task.isOptimistic = false
                 })
@@ -195,8 +199,10 @@ export const useModifyTask = () => {
             modifyTask(data),
         {
             onMutate: async (data: TModifyTaskData) => {
-                await queryClient.cancelQueries('overview')
-                await queryClient.cancelQueries('tasks')
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 if (!sections) return
@@ -239,14 +245,23 @@ export const useMarkTaskDone = () => {
         onMutate: async (data: TMarkTaskDoneData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await queryClient.cancelQueries('tasks')
-            await queryClient.cancelQueries('overview')
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('overview'),
+            ])
 
             if (sections) {
-
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                    if (task) task.is_done = data.isDone
+                    if (task) {
+                        task.is_done = data.isDone
+                        if (task.is_done) {
+                            if (task.source.name === 'Linear' && task.external_status) {
+                                task.external_status.state = 'Done'
+                                task.external_status.type = 'completed'
+                            }
+                        }
+                    }
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -278,7 +293,12 @@ export const useMarkTaskDone = () => {
                     }))
                     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    draft[sectionIndex].view_items[taskIndex].is_done = data.isDone
+                    const task = draft[sectionIndex].view_items[taskIndex]
+                    task.is_done = data.isDone
+                    if (task.is_done && task.source.name === 'Linear' && task.external_status) {
+                        task.external_status.state = 'Done'
+                        task.external_status.type = 'completed'
+                    }
                 })
 
                 queryClient.setQueryData('overview', newViews)
@@ -326,8 +346,10 @@ export const useReorderTask = () => {
             onMutate: async (data: TReorderTaskData) => {
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                await queryClient.cancelQueries('tasks')
-                await queryClient.cancelQueries('overview')
+                await Promise.all([
+                    queryClient.cancelQueries('overview-supported-views'),
+                    queryClient.cancelQueries('overview'),
+                ])
 
                 if (sections) {
                     const newSections = produce(sections, (draft) => {

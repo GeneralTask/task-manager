@@ -103,46 +103,8 @@ func getGoogleTokenFromAuthToken(t *testing.T, db *mongo.Database, authToken str
 	return &externalAPITokenStruct
 }
 
-func getGmailChangeLabelServer(t *testing.T, expectedLabelToChange string, addLabel bool) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		var labelsKey string
-		if addLabel {
-			labelsKey = "addLabelIds"
-		} else {
-			labelsKey = "removeLabelIds"
-		}
-		assert.Equal(t, "{\""+labelsKey+"\":[\""+expectedLabelToChange+"\"]}\n", string(body))
-		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
-	}))
-}
-
-func getGmailArchiveServer(t *testing.T, expectedLabel string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(r.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"removeLabelIds\":[\""+expectedLabel+"\"]}\n", string(body))
-		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
-	}))
-}
-
-func getGmailInternalErrorServer(t *testing.T) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(500)
-		w.Write([]byte(`{}`))
-	}))
-}
-
-func newStateToken(authToken string, useDeeplink bool) (*string, error) {
+func newStateToken(db *mongo.Database, authToken string, useDeeplink bool) (*string, error) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
 	var userID *primitive.ObjectID
 	if authToken != "" {
 		internalAPITokenCollection := database.GetInternalTokenCollection(db)
