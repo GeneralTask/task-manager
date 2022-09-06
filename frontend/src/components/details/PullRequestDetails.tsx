@@ -2,12 +2,12 @@ import React from 'react'
 import { Icon } from '../atoms/Icon'
 import { TPullRequest } from '../../utils/types'
 import { icons, logos } from '../../styles/images'
-import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Status } from '../pull-requests/styles'
 import BranchName from '../pull-requests/BranchName'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -70,12 +70,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 </MarginRight8>
                 <MarginLeftAuto>
                     <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTButton
-                            styleType="secondary"
-                            value="Open in GitHub"
-                            icon={icons.external_link}
-                            iconColor="black"
-                        />
+                        <GTIconButton icon={icons.external_link} />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
             </DetailsTopContainer>
