@@ -7,13 +7,8 @@ import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
 const Button = styled(NoStyleButton)`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
     padding: ${Spacing.padding._8};
     border-radius: 50%;
-    position: relative;
     :hover {
         background: ${Colors.background.dark};
     }
