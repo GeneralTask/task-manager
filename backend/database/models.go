@@ -73,11 +73,14 @@ type Oauth1RequestSecret struct {
 }
 
 type Task struct {
-	ID               primitive.ObjectID  `bson:"_id,omitempty"`
-	UserID           primitive.ObjectID  `bson:"user_id,omitempty"`
+	ID         primitive.ObjectID   `bson:"_id,omitempty"`
+	UserID     primitive.ObjectID   `bson:"user_id,omitempty"`
+	SubTaskIDs []primitive.ObjectID `bson:"sub_task_ids,omitempty"`
+	IsSubTask  bool                 `bson:"parent_task_id,omitempty"`
+	// if sub task, taskSectionID is parent task ID
+	IDTaskSection    primitive.ObjectID  `bson:"id_task_section,omitempty"`
 	IDExternal       string              `bson:"id_external,omitempty"`
 	IDOrdering       int                 `bson:"id_ordering,omitempty"`
-	IDTaskSection    primitive.ObjectID  `bson:"id_task_section,omitempty"`
 	IsCompleted      *bool               `bson:"is_completed,omitempty"`
 	Sender           string              `bson:"sender,omitempty"`
 	SourceID         string              `bson:"source_id,omitempty"`
