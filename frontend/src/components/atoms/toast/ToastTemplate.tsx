@@ -8,17 +8,29 @@ const ToastContainer = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing.margin._8};
-    padding: 0 ${Spacing.padding._8};
+    padding-right: 0;
+    padding-left: ${Spacing.padding._8};
     ${Typography.body};
+    min-width: 0;
 `
 const MessageContainer = styled.div`
     min-width: 0;
     flex-shrink: 1;
     margin-right: auto;
+    display: flex;
+    align-items: center;
 `
-const TitleSpan = styled.span`
+const TitleText = styled.div`
     margin-right: ${Spacing.margin._4};
     ${Typography.bold};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: fit-content;
+`
+const MessageText = styled.div`
+    min-width: fit-content;
+    height: fit-content;
 `
 const ButtonsContainer = styled.div`
     display: flex;
@@ -50,8 +62,8 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
     return (
         <ToastContainer>
             <MessageContainer>
-                {title && <TitleSpan>{title}</TitleSpan>}
-                {message}
+                {title && <TitleText>{title}</TitleText>}
+                <MessageText>{message}</MessageText>
             </MessageContainer>
             <ButtonsContainer>
                 {leftAction && (
