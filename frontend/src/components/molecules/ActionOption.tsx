@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import ActionValue from '../atoms/ActionValue'
 import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
-import LabelEditor from './LabelEditor'
+import SectionEditor from './SectionEditor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import React from 'react'
 import { Spacing } from '../../styles'
@@ -36,7 +36,7 @@ const TooltipContainer = styled.div`
     justify-content: center;
 `
 
-const LabelContainer = styled.div`
+const SectionContainer = styled.div`
     margin-right: ${Spacing.margin._8};
 `
 interface ActionOptionProps {
@@ -46,10 +46,10 @@ interface ActionOptionProps {
     setIsShown: (isShown: boolean) => void
 }
 
-const label = ReactDOMServer.renderToString(
+const section = ReactDOMServer.renderToString(
     <TooltipContainer>
-        <LabelContainer>Label</LabelContainer>
-        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.showLabelEditor}</KeyboardShortcutContainer>
+        <SectionContainer>Change Section</SectionContainer>
+        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.showSectionEditor}</KeyboardShortcutContainer>
     </TooltipContainer>
 )
 
@@ -73,8 +73,8 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
 
     const { icon, popover, actionString } = (() => {
         return {
-            icon: icons.label,
-            popover: <LabelEditor task_id={task.id} closeLabelEditor={() => setIsShown(false)} />,
+            icon: icons.folder,
+            popover: <SectionEditor task_id={task.id} closeSectionEditor={() => setIsShown(false)} />,
             actionString: '',
         }
     })()
@@ -82,7 +82,7 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
     return (
         <ButtonAndPopoverContainer ref={actionRef}>
             <ActionButton onClick={() => setIsShown(!isShown)}>
-                <TooltipWrapper inline dataTip={label} tooltipId="tooltip">
+                <TooltipWrapper inline dataTip={section} tooltipId="tooltip">
                     {actionString ? <ActionValue value={actionString} /> : <Icon icon={icon} size="small" />}
                 </TooltipWrapper>
             </ActionButton>

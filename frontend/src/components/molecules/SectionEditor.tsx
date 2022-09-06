@@ -6,7 +6,7 @@ import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { getTaskIndexFromSections } from '../../utils/utils'
 
-const LabelEditorContainer = styled.div`
+const SectionEditorContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: ${Dimensions.TASK_ACTION_WIDTH};
@@ -58,11 +58,11 @@ const SectionName = styled.span`
     text-align: left;
 `
 
-interface LabelEditorProps {
+interface SectionEditorProps {
     task_id: string
-    closeLabelEditor: () => void
+    closeSectionEditor: () => void
 }
-export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorProps): JSX.Element {
+export default function SectionEditor({ task_id, closeSectionEditor }: SectionEditorProps): JSX.Element {
     const { mutate: reorderTask } = useReorderTask()
     const { data } = useGetTasks()
 
@@ -81,7 +81,7 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
                 orderingId: 1,
                 dragSectionId: currentSectionId,
             })
-            closeLabelEditor()
+            closeSectionEditor()
         }
 
         return (
@@ -100,11 +100,11 @@ export default function LabelEditor({ task_id, closeLabelEditor }: LabelEditorPr
     })
 
     return (
-        <LabelEditorContainer onClick={(e) => e.stopPropagation()}>
+        <SectionEditorContainer onClick={(e) => e.stopPropagation()}>
             <TopNav>
-                <Header>Set Label</Header>
+                <Header>Set Section</Header>
             </TopNav>
             <OptionsContainer>{options}</OptionsContainer>
-        </LabelEditorContainer>
+        </SectionEditorContainer>
     )
 }

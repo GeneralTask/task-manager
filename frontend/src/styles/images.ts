@@ -4,6 +4,7 @@ import {
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
+    faFolder,
     faMessage,
     faSquare,
     faXmark
@@ -20,7 +21,6 @@ import {
     faCircleSmall,
     faCopy,
     faCubes,
-    faFolder,
     faGear,
     faGripDotsVertical,
     faInbox,
