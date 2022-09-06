@@ -7,9 +7,9 @@ import GTButton from '../buttons/GTButton'
 const ToastContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
     padding-right: 0;
-    padding-left: ${Spacing.padding._8};
+    padding-left: ${Spacing._8};
     ${Typography.body};
     min-width: 0;
 `
@@ -21,7 +21,7 @@ const MessageContainer = styled.div`
     align-items: center;
 `
 const TitleText = styled.div`
-    margin-right: ${Spacing.margin._4};
+    margin-right: ${Spacing._4};
     ${Typography.bold};
     white-space: nowrap;
     overflow: hidden;
@@ -36,7 +36,7 @@ const ButtonsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: ${Spacing.margin._4};
+    gap: ${Spacing._4};
     max-width: 75%;
 `
 

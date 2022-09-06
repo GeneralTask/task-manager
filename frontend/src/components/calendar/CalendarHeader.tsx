@@ -10,7 +10,7 @@ import { useKeyboardShortcut } from '../../hooks'
 import { useCalendarContext } from './CalendarContext'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
+    padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -25,10 +25,10 @@ export const ButtonContainer = styled.div`
 export const CursorPointerDiv = styled.div`
     display: flex;
     flex-direction: row;
-    margin: ${Spacing.margin._4};
+    margin: ${Spacing._4};
     cursor: pointer;
     height: fit-content;
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing._4};
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -47,14 +47,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.text.white};
     background-color: ${Colors.gtColor.primary};
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing._4} ${Spacing._8};
     &:hover {
         background-color: ${Colors.gtColor.secondary};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing._4};
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -62,7 +62,7 @@ export const ArrowButton = styled(ButtonStyles)`
 
 export const CaretButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing._4};
     &:hover {
         background-color: ${Colors.background.dark};
     }

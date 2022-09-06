@@ -15,7 +15,7 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.background.light};
     min-width: 300px;
-    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
+    padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -31,7 +31,7 @@ const TitleContainer = styled.div`
     resize: none;
     outline: none;
     overflow: hidden;
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing._16};
     ${Typography.subtitle};
 `
 const MarginLeftAuto = styled.div`
@@ -41,7 +41,7 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8};
+    margin-right: ${Spacing._8};
 `
 const MaxWidth200 = styled.div`
     max-width: 200px;
@@ -49,10 +49,10 @@ const MaxWidth200 = styled.div`
 const InfoContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
     align-items: center;
     color: ${Colors.text.light};
-    margin-bottom: ${Spacing.margin._8};
+    margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
 

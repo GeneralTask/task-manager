@@ -17,12 +17,12 @@ const CompanyPolicyContainer = styled.div`
 `
 const Body = styled.div`
     max-width: 800px;
-    margin: ${Spacing.margin._40} 0px;
+    margin: ${Spacing._32} 0px;
 `
 const PolicyHeader = styled.div`
     display: flex;
-    gap: ${Spacing.margin._8};
-    margin-bottom: ${Spacing.margin._24};
+    gap: ${Spacing._8};
+    margin-bottom: ${Spacing._24};
     align-items: center;
 `
 
