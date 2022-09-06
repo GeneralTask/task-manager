@@ -21,6 +21,7 @@ type EventListParams struct {
 
 type EventResult struct {
 	ID             primitive.ObjectID   `json:"id"`
+	AccountID      string               `json:"account_id"`
 	Deeplink       string               `json:"deeplink"`
 	Title          string               `json:"title"`
 	Body           string               `json:"body"`
@@ -117,6 +118,7 @@ func (api *API) EventsList(c *gin.Context) {
 			}
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
+				AccountID:     event.SourceAccountID,
 				Deeplink:      event.Deeplink,
 				Title:         event.Title,
 				Body:          event.Body,
