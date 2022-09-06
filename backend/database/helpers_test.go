@@ -829,7 +829,6 @@ func TestGetDefaultSectionName(t *testing.T) {
 		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
 			dbCtx,
 			&DefaultSectionSettings{
-				ID:           constants.IDTaskSectionDefault,
 				UserID:       userID,
 				NameOverride: "New Default",
 			},
@@ -844,11 +843,9 @@ func TestGetDefaultSectionName(t *testing.T) {
 		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
 			dbCtx,
 			&DefaultSectionSettings{
-				ID:     constants.IDTaskSectionDefault,
 				UserID: otherUserID,
 			},
 			&DefaultSectionSettings{
-				ID:           constants.IDTaskSectionDefault,
 				UserID:       otherUserID,
 				NameOverride: "",
 			},

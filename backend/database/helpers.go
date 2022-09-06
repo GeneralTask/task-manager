@@ -695,7 +695,6 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	mongoResult := defaultSectionCollection.FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"_id": constants.IDTaskSectionDefault},
 			{"user_id": userID},
 		}},
 	)
