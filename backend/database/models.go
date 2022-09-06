@@ -277,7 +277,6 @@ type Repository struct {
 }
 
 type DefaultSectionSettings struct {
-	ID           primitive.ObjectID `bson:"_id,omitempty"`
 	UserID       primitive.ObjectID `bson:"user_id"`
 	NameOverride string             `bson:"name_override"`
 }
