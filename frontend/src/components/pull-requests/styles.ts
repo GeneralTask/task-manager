@@ -18,7 +18,7 @@ export const Column = styled.div<{ type: TColumnWidths }>`
     flex-direction: column;
     justify-content: center;
     width: ${props => ColumnWidths[props.type]};
-    padding: ${Spacing.extraSmall};
+    padding: ${Spacing._8};
     overflow: hidden;
     white-space: nowrap;
 `
@@ -28,7 +28,7 @@ export const Status = styled.div<{ type: TStatusColors }>`
     background: ${props => Colors.status[props.type].light};
     border: ${Border.stroke.medium} solid ${props => Colors.status[props.type].default};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.mini} ${Spacing.extraSmall};
+    padding: ${Spacing._4} ${Spacing._8};
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -39,13 +39,13 @@ export const Status = styled.div<{ type: TStatusColors }>`
 export const Repository = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.extraSmall};
+    gap: ${Spacing._8};
 `
 
 export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
     height: ${PULL_REQUEST_HEIGHT};
-    padding: ${Spacing.mini};
+    padding: ${Spacing._4};
     background-color: ${(props) =>
         props.isSelected ? Colors.background.medium : Colors.background.white};
     box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
@@ -61,7 +61,7 @@ export const HeaderContainer = styled.div`
     background-color: ${Colors.background.medium};
     border-radius: ${Border.radius.large};
     color: ${Colors.text.light};
-    padding: ${Spacing.regular} ${Spacing.extraSmall};
+    padding: ${Spacing._16} ${Spacing._8};
 `
 
 export const RepositoryName = styled.div`
@@ -78,7 +78,7 @@ export const TruncatedText = styled.span`
 export const CommentsCountContainer = styled.div`
     display: flex;
     align-items: flex-start;
-    gap: ${Spacing.extraSmall};
+    gap: ${Spacing._8};
     line-height: 1;
 `
 
@@ -88,8 +88,8 @@ export const BranchNameContainer = styled.div`
     color: ${Colors.gtColor.primary};
     border: ${Border.stroke.medium} solid ${Colors.border.gray};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.mini} ${Spacing.mini};
-    gap: ${Spacing.mini};
+    padding: ${Spacing._4} ${Spacing._4};
+    gap: ${Spacing._4};
     cursor: pointer;
 `
 

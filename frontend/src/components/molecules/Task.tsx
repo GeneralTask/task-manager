@@ -17,7 +17,7 @@ const IconContainer = styled.div`
     margin-left: auto;
 `
 const Title = styled.span`
-    margin-left: ${Spacing.extraSmall};
+    margin-left: ${Spacing._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

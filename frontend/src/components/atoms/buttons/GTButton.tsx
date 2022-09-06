@@ -35,13 +35,13 @@ const SecondaryButtonStyles = css`
     }
 `
 const LargeButtonStyle = css`
-    padding: ${Spacing.extraSmall} ${Spacing.regular};
-    gap: ${Spacing.extraSmall};
+    padding: ${Spacing._8} ${Spacing._16};
+    gap: ${Spacing._8};
     ${Typography.body}
 `
 const SmallButtonStyle = css`
-    padding: ${Spacing.mini} ${Spacing.extraSmall};
-    gap: ${Spacing.mini};
+    padding: ${Spacing._4} ${Spacing._8};
+    gap: ${Spacing._4};
     ${Typography.bodySmall}
 `
 

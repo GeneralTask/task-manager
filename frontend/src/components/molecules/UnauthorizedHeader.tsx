@@ -20,7 +20,7 @@ const IconContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.extraSmall} ${Spacing.regular};
+    padding: ${Spacing._8} ${Spacing._16};
 `
 const UnauthorizedHeader = () => {
     const navigate = useNavigate()

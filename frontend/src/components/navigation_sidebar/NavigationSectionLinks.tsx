@@ -17,7 +17,7 @@ const AddSectionContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.mini} ${Spacing.small};
+    padding: ${Spacing._4} ${Spacing._12};
     width: 100%;
     box-sizing: border-box;
     ${Typography.bodySmall};
@@ -30,7 +30,7 @@ const InputContainer = styled.div`
         box-sizing: border-box;
         width: 100%;
     }
-    margin-left: ${Spacing.extraSmall};
+    margin-left: ${Spacing._8};
     ${Typography.bodySmall};
 `
 

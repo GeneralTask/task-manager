@@ -7,7 +7,7 @@ const WaitlistButtonStyled = styled.button`
     background-color: ${Colors.gtColor.primary};
     border: none;
     color: ${Colors.text.white};
-    padding: 0px ${Spacing.extraSmall};
+    padding: 0px ${Spacing._8};
     cursor: pointer;
     ${Typography.bodySmall};
 `

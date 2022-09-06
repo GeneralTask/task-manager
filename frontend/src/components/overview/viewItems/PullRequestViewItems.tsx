@@ -8,7 +8,7 @@ import PullRequest from '../../pull-requests/PullRequest'
 import EmptyViewItem from './EmptyViewItem'
 
 const DividerMargin = styled.div`
-    margin: 0 ${Spacing.regular};
+    margin: 0 ${Spacing._16};
 `
 
 interface PullRequestViewItemsProps {

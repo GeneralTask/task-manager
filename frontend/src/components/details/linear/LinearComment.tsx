@@ -8,16 +8,16 @@ import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 const CommentContainer = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.large};
-    padding: ${Spacing.extraSmall};
+    padding: ${Spacing._8};
 `
 const TopContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.extraSmall};
-    padding: ${Spacing.mini};
+    gap: ${Spacing._8};
+    padding: ${Spacing._4};
 `
 const BodyContainer = styled.div`
-    padding: ${Spacing.mini};
+    padding: ${Spacing._4};
 `
 const BlackText = styled.span`
     color: ${Colors.text.black};

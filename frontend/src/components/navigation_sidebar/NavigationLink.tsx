@@ -15,12 +15,12 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.mini} ${Spacing.small};
+    padding: ${Spacing._4} ${Spacing._12};
     width: 100%;
     border-radius: ${Border.radius.small};
     background-color: ${(props) => (props.isSelected || props.isOver ? Colors.background.dark : 'inherit')};
     box-sizing: border-box;
-    gap: ${Spacing.extraSmall};
+    gap: ${Spacing._8};
 `
 const SectionTitle = styled.span`
     color: ${Colors.text.light};

@@ -15,12 +15,12 @@ const SectionHeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: ${Spacing.regular};
+    margin-bottom: ${Spacing._16};
     min-height: 50px;
-    gap: ${Spacing.mini};
+    gap: ${Spacing._4};
 `
 const HeaderText = styled.span`
-    margin-right: ${Spacing.extraSmall};
+    margin-right: ${Spacing._8};
     padding-left: 6px; /* TODO: remove margins and padding from Header */
     border: ${Border.stroke.large} solid transparent;
     overflow-wrap: break-word;
@@ -28,8 +28,8 @@ const HeaderText = styled.span`
     ${Typography.title};
 `
 const HeaderTextEditable = styled.input`
-    margin-right: ${Spacing.extraSmall};
-    padding-left: ${Spacing.mini};
+    margin-right: ${Spacing._8};
+    padding-left: ${Spacing._4};
     border: none;
     outline: none;
     &:focus {

@@ -20,32 +20,32 @@ import { AUTHORIZATION_COOKE } from '../../constants'
 const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
-    padding: ${Spacing.regular};
+    padding: ${Spacing._16};
     height: 100%;
     box-sizing: border-box;
     min-height: 0;
 `
 const TermsOfServiceHeader = styled.div`
-    margin-top: ${Spacing.medium};
-    margin-bottom: ${Spacing.regular};
+    margin-top: ${Spacing._24};
+    margin-bottom: ${Spacing._16};
 `
 const TitleLargeContainer = styled.div`
-    margin-bottom: ${Spacing.extraSmall};
+    margin-bottom: ${Spacing._8};
 `
 const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
-    margin-top: ${Spacing.extraSmall};
-    padding: ${Spacing.extraSmall};
+    margin-top: ${Spacing._8};
+    padding: ${Spacing._8};
     border-top: ${Border.stroke.medium} solid ${Colors.border.gray};
     border-bottom: ${Border.stroke.medium} solid ${Colors.border.gray};
 `
 const LinkContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.regular};
-    margin-top: ${Spacing.regular};
-    margin-right: ${Spacing.regular};
+    gap: ${Spacing._16};
+    margin-top: ${Spacing._16};
+    margin-right: ${Spacing._16};
 `
 const VerticalFlex = styled.div`
     display: flex;
@@ -54,10 +54,10 @@ const VerticalFlex = styled.div`
 const HorizontalFlex = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.extraSmall};
+    margin-top: ${Spacing._8};
 `
 const AgreementText = styled.div<{ required?: boolean }>`
-    margin-left: ${Spacing.extraSmall};
+    margin-left: ${Spacing._8};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     color: ${Colors.text.light};
@@ -70,8 +70,8 @@ const RedAsterisk = styled.span`
 const SubmitButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.extraSmall};
-    margin-top: ${Spacing.regular};
+    gap: ${Spacing._8};
+    margin-top: ${Spacing._16};
 `
 
 const TermsOfServiceSummaryView = () => {

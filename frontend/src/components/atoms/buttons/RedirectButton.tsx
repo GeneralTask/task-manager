@@ -11,7 +11,7 @@ const NoDecorationLink = styled(Link)`
 `
 const PurpleText = styled.span`
     color: ${Colors.gtColor.primary};
-    margin-right: ${Spacing.mini};
+    margin-right: ${Spacing._4};
     ${Typography.bodySmall};
 `
 const VerticalFlex = styled.div`
