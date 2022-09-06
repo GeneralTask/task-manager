@@ -8,7 +8,9 @@ import NavigationView from '../views/NavigationView'
 import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
-import { useAppSelector } from '../../redux/hooks'
+import { useCalendarContext } from '../calendar/CalendarContext'
+import { useEventBanners } from '../../hooks'
+import { DateTime } from 'luxon'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
