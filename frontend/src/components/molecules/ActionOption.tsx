@@ -24,8 +24,8 @@ const ActionButton = styled(NoStyleButton)`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: ${Spacing.padding._4};
-    margin-right: ${Spacing.margin._8};
+    padding: ${Spacing.mini};
+    margin-right: ${Spacing.extraSmall};
     position: relative;
 `
 
@@ -37,7 +37,7 @@ const TooltipContainer = styled.div`
 `
 
 const LabelContainer = styled.div`
-    margin-right: ${Spacing.margin._8};
+    margin-right: ${Spacing.extraSmall};
 `
 interface ActionOptionProps {
     task: TTask

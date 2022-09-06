@@ -128,7 +128,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                     </EventDate>
                 </EventDateContainer>
                 <Description>{event.body}</Description>
-                <Flex gap={Spacing.margin._8}>
+                <Flex gap={Spacing.extraSmall}>
                     {event.linked_task_id && (
                         <GTButton
                             styleType="secondary"

@@ -9,10 +9,10 @@ const DropdownContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing.mini} ${Spacing.extraSmall};
     border-radius: ${Border.radius.small};
     border: ${Border.stroke.large} solid transparent;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing.extraSmall};
 `
 const LinksContainer = styled.div`
     display: flex;
@@ -28,7 +28,7 @@ const SectionTitle = styled.span`
     ${Typography.eyebrow};
 `
 const AddSectionContainer = styled.div`
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing.mini};
     border-radius: 50%;
     &:hover {
         background-color: ${Colors.background.dark};

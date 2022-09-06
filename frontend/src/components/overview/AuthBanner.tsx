@@ -17,14 +17,14 @@ const BannerContainer = styled.div<{ hasBorder: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing.extraSmall};
     height: 60px;
 `
 const IconContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing.extraSmall};
 `
 const Title = styled.span`
     ${Typography.bodySmall};

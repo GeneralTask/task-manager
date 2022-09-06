@@ -14,13 +14,13 @@ const NavigationViewContainer = styled.div`
     min-width: 0px;
     min-height: 0px;
     background-color: ${Colors.background.medium};
-    padding: ${Spacing.padding._12};
+    padding: ${Spacing.small};
     box-sizing: border-box;
 `
 const NavigationViewHeader = styled.div`
     flex-basis: 24px;
     width: 100%;
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing.regular};
 `
 const OverflowContainer = styled.div`
     flex: 1;
@@ -29,8 +29,8 @@ const OverflowContainer = styled.div`
 const GapView = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.margin._8};
-    padding-bottom: ${Spacing.padding._8};
+    gap: ${Spacing.extraSmall};
+    padding-bottom: ${Spacing.extraSmall};
     margin-top: auto;
 `
 

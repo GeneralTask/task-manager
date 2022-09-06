@@ -10,13 +10,13 @@ const CreateNewTaskContainer = styled.div`
     display: flex;
     flex-shrink: 0;
     flex-direction: row;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing.extraSmall};
     background-color: ${Colors.background.medium};
     height: ${Dimensions.TASK_HEIGHT};
     align-items: center;
-    padding: 0px ${Spacing.padding._8};
+    padding: 0px ${Spacing.extraSmall};
     border-radius: ${Border.radius.medium};
-    margin-bottom: ${Spacing.padding._8};
+    margin-bottom: ${Spacing.extraSmall};
 `
 const TaskInput = styled.input`
     border: none;

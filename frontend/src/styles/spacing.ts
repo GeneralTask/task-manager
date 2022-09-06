@@ -1,21 +1,9 @@
-export const margin = {
-    _4: '4px',
-    _8: '8px',
-    _12: '12px',
-    _16: '16px',
-    _20: '20px',
-    _24: '24px',
-    _32: '32px',
-    _40: '40px',
-}
-
-export const padding = {
-    _4: '4px',
-    _8: '8px',
-    _12: '12px',
-    _16: '16px',
-    _20: '20px',
-    _24: '24px',
-    _32: '32px',
-    _40: '40px',
-}
+export const mini = '4px'
+export const extraSmall = '8px'
+export const small = '12px'
+export const regular = '16px'
+export const medium = '24px'
+export const large = '32px'
+export const extraLarge = '64px'
+export const jumbo = '88px'
+export const mammoth = '128px'

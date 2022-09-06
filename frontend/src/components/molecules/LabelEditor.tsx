@@ -24,7 +24,7 @@ const OptionsContainer = styled.div`
     max-height: 500px;
 `
 const TopNav = styled.div`
-    padding: ${Spacing.padding._12} ${Spacing.padding._16};
+    padding: ${Spacing.small} ${Spacing.regular};
     border-bottom: 1px solid ${Colors.background.medium};
 `
 const Header = styled.div`
@@ -34,7 +34,7 @@ const ListItem = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._12} ${Spacing.padding._16};
+    padding: ${Spacing.small} ${Spacing.regular};
     border-bottom: 1px solid ${Colors.background.medium};
     &:hover {
         background-color: ${Colors.background.medium};
@@ -46,7 +46,7 @@ const SectionTitleBox = styled.div<{ isSelected: boolean }>`
     flex: 1;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing.extraSmall};
     color: ${(props) => (props.isSelected ? Colors.gtColor.primary : Colors.text.light)};
     min-width: 0;
 `

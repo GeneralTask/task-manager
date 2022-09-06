@@ -22,8 +22,8 @@ const OverviewPageContainer = styled.div`
 const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
-    margin-bottom: ${Spacing.margin._8};
-    gap: ${Spacing.margin._16};
+    margin-bottom: ${Spacing.extraSmall};
+    gap: ${Spacing.regular};
 `
 
 const OverviewView = () => {

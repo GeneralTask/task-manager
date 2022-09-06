@@ -26,7 +26,7 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.background.light};
     min-width: 300px;
-    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
+    padding: ${Spacing.large} ${Spacing.regular} ${Spacing.regular};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -43,7 +43,7 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.padding._12};
+    padding: ${Spacing.small};
     font: inherit;
     color: ${Colors.text.light};
     ${Typography.bodySmall};
@@ -61,7 +61,7 @@ const TitleInput = styled.textarea`
     resize: none;
     outline: none;
     overflow: hidden;
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing.regular};
     :focus {
         outline: 1px solid ${Colors.background.dark};
     }
@@ -74,15 +74,15 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8};
+    margin-right: ${Spacing.extraSmall};
 `
 const StatusContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing.extraSmall};
     align-items: center;
     color: ${Colors.text.light};
-    margin-bottom: ${Spacing.margin._8};
+    margin-bottom: ${Spacing.extraSmall};
     ${Typography.bodySmall};
 `
 

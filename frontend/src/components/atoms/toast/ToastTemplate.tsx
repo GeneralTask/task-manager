@@ -10,8 +10,8 @@ const ToastContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: ${Spacing.margin._16};
-    padding: ${Spacing.padding._8};
+    gap: ${Spacing.regular};
+    padding: ${Spacing.extraSmall};
     color: ${Colors.text.white};
     ${Typography.body};
 `
@@ -21,14 +21,14 @@ const MessageSpan = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._24};
-    margin-left: ${Spacing.margin._8};
+    margin-right: ${Spacing.medium};
+    margin-left: ${Spacing.extraSmall};
 `
 const ButtonsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: ${Spacing.margin._4};
+    gap: ${Spacing.mini};
     max-width: 75%;
 `
 

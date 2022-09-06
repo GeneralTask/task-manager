@@ -115,7 +115,7 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     display: flex;
     align-items: center;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing.extraSmall};
     margin-right: 8px;
     max-height: 100%;
 `
@@ -160,7 +160,7 @@ export const CalendarDayHeader = styled.div`
 `
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing.mini} ${Spacing.extraSmall};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};

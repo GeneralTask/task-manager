@@ -20,32 +20,32 @@ import { AUTHORIZATION_COOKE } from '../../constants'
 const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
-    padding: ${Spacing.padding._16};
+    padding: ${Spacing.regular};
     height: 100%;
     box-sizing: border-box;
     min-height: 0;
 `
 const TermsOfServiceHeader = styled.div`
-    margin-top: ${Spacing.margin._24};
-    margin-bottom: ${Spacing.margin._16};
+    margin-top: ${Spacing.medium};
+    margin-bottom: ${Spacing.regular};
 `
 const TitleLargeContainer = styled.div`
-    margin-bottom: ${Spacing.margin._8};
+    margin-bottom: ${Spacing.extraSmall};
 `
 const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
-    margin-top: ${Spacing.margin._8};
-    padding: ${Spacing.padding._8};
+    margin-top: ${Spacing.extraSmall};
+    padding: ${Spacing.extraSmall};
     border-top: ${Border.stroke.medium} solid ${Colors.border.gray};
     border-bottom: ${Border.stroke.medium} solid ${Colors.border.gray};
 `
 const LinkContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._16};
-    margin-top: ${Spacing.margin._16};
-    margin-right: ${Spacing.margin._16};
+    gap: ${Spacing.regular};
+    margin-top: ${Spacing.regular};
+    margin-right: ${Spacing.regular};
 `
 const VerticalFlex = styled.div`
     display: flex;
@@ -54,10 +54,10 @@ const VerticalFlex = styled.div`
 const HorizontalFlex = styled.div`
     display: flex;
     flex-direction: row;
-    margin-top: ${Spacing.margin._8};
+    margin-top: ${Spacing.extraSmall};
 `
 const AgreementText = styled.div<{ required?: boolean }>`
-    margin-left: ${Spacing.margin._8};
+    margin-left: ${Spacing.extraSmall};
     font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
         Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     color: ${Colors.text.light};
@@ -70,8 +70,8 @@ const RedAsterisk = styled.span`
 const SubmitButtonContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._8};
-    margin-top: ${Spacing.margin._16};
+    gap: ${Spacing.extraSmall};
+    margin-top: ${Spacing.regular};
 `
 
 const TermsOfServiceSummaryView = () => {

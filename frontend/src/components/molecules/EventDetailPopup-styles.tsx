@@ -20,7 +20,7 @@ Handles edge cases for events below max height (window height - popup height) */
 export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     position: absolute;
     box-sizing: border-box;
-    padding: ${Spacing.padding._16} ${Spacing.padding._16};
+    padding: ${Spacing.regular} ${Spacing.regular};
     width: ${MAX_POPUP_LENGTH}px;
     left: ${(props) =>
         props.xCoord <= MAX_POPUP_LENGTH
@@ -36,7 +36,7 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     border-radius: ${Border.radius.small};
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing.extraSmall};
 `
 export const EventHeader = styled.div`
     display: flex;
@@ -51,10 +51,10 @@ export const EventDateContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing.extraSmall};
 `
 export const IconButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing.extraSmall};
     border-radius: 50vh;
     &:hover {
         background-color: ${Colors.background.medium};
@@ -83,5 +83,5 @@ export const FlexAnchor = styled(NoStyleAnchor)`
     flex: 1;
 `
 export const CopyButton = styled(IconButton)`
-    margin: 0 ${Spacing.margin._8};
+    margin: 0 ${Spacing.extraSmall};
 `

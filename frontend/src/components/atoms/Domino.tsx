@@ -4,9 +4,9 @@ import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
     cursor: grab;
-    height: ${Spacing.margin._16};
-    padding-left: ${Spacing.padding._4};
-    padding-right: ${Spacing.padding._12};
+    height: ${Spacing.regular};
+    padding-left: ${Spacing.mini};
+    padding-right: ${Spacing.small};
 `
 const DominoContainer = styled.div`
     height: 100%;

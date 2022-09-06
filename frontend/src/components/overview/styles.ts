@@ -3,19 +3,19 @@ import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 export const ViewContainer = styled.div`
-    padding: ${Spacing.padding._12};
+    padding: ${Spacing.small};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
-    margin: ${Spacing.margin._16} 0;
+    margin: ${Spacing.regular} 0;
     box-shadow: ${Shadows.light};
 `
 export const ViewHeader = styled.div`
-    margin-bottom: ${Spacing.margin._8};
+    margin-bottom: ${Spacing.extraSmall};
     color: ${Colors.text.light};
     ${Typography.subtitle};
 `
 export const RemoveButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing.extraSmall};
     border-radius: ${Border.radius.small};
     &:hover {
         background-color: ${Colors.background.dark};
@@ -28,9 +28,9 @@ export const SelectedView = styled.div`
     box-sizing: border-box;
     border-radius: ${Border.radius.large};
     border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
-    padding: ${Spacing.padding._12};
-    margin: ${Spacing.margin._4} 0;
-    gap: ${Spacing.margin._12};
+    padding: ${Spacing.small};
+    margin: ${Spacing.mini} 0;
+    gap: ${Spacing.small};
     color: ${Colors.text.light};
     ${Typography.body};
 `
@@ -41,7 +41,7 @@ export const PaginateTextButton = styled(NoStyleButton)`
     color: #069;
     text-decoration: underline;
     cursor: pointer;
-    margin: ${Spacing.margin._4} ${Spacing.margin._8} 0;
+    margin: ${Spacing.mini} ${Spacing.extraSmall} 0;
     ${Typography.bodySmall};
 `
 export const OptimisticItemsContainer = styled.div`

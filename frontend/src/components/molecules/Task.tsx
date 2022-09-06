@@ -17,7 +17,7 @@ const IconContainer = styled.div`
     margin-left: auto;
 `
 const Title = styled.span`
-    margin-left: ${Spacing.margin._8};
+    margin-left: ${Spacing.extraSmall};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -25,7 +25,7 @@ const Title = styled.span`
 `
 const DominoContainer = styled.div`
     position: absolute;
-    left: ${Spacing.margin._4};
+    left: 2px;
 `
 
 interface TaskProps {

@@ -23,10 +23,10 @@ const SettingsViewContainer = styled.div`
     min-width: ${DEFAULT_VIEW_WIDTH};
 `
 const AccountsContainer = styled.div`
-    margin-top: ${Spacing.margin._16};
+    margin-top: ${Spacing.regular};
 `
 const AccountSpacing = styled.div`
-    margin-top: ${Spacing.margin._16};
+    margin-top: ${Spacing.regular};
 `
 const AccountContainer = styled.div`
     display: flex;
@@ -37,16 +37,16 @@ const AccountContainer = styled.div`
     height: 100%;
 `
 const IconContainer = styled.div`
-    margin-left: ${Spacing.margin._16};
-    margin-right: ${Spacing.margin._16};
+    margin-left: ${Spacing.regular};
+    margin-right: ${Spacing.regular};
 `
 const AccountButtonContainer = styled.div<{ important?: boolean }>`
-    margin-right: ${Spacing.margin._16};
+    margin-right: ${Spacing.regular};
     background-color: ${(props) => (props.important ? Colors.status.red.light : Colors.background.medium)};
     outline: 1px solid ${(props) => (props.important ? Colors.status.red.default : Colors.background.medium)};
     color: ${Colors.text.black};
     border-radius: ${Border.radius.small};
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing.mini} ${Spacing.extraSmall};
     min-width: fit-content;
 `
 const AccountNameSpan = styled.span`
@@ -56,7 +56,7 @@ const AccountNameSpan = styled.span`
 const FullWidth = styled.div`
     display: flex;
     justify-content: end;
-    margin-right: ${Spacing.margin._16};
+    margin-right: ${Spacing.regular};
 `
 const ShowLinkAccountsButtonContainer = styled.div`
     width: ${signInWithGoogleButtonDimensions.width};
@@ -70,7 +70,7 @@ const TextAlignCenter = styled.span`
 const GapView = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing.extraSmall};
 `
 
 const SettingsView = () => {

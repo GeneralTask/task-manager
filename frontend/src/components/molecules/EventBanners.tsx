@@ -51,7 +51,7 @@ const MessageView = styled.div`
     align-items: center;
     justify-content: center;
     flex-shrink: 1;
-    margin-right: ${Spacing.margin._12};
+    margin-right: ${Spacing.small};
     min-width: 0px;
 `
 const MessageText = styled.span`
