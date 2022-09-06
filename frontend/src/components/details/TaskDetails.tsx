@@ -100,7 +100,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
-    const [labelEditorShown, setLabelEditorShown] = useState(false)
+    const [sectionEditorShown, setSectionEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
@@ -201,10 +201,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
                             <ActionOption
-                                isShown={labelEditorShown}
-                                setIsShown={setLabelEditorShown}
+                                isShown={sectionEditorShown}
+                                setIsShown={setSectionEditorShown}
                                 task={task}
-                                keyboardShortcut="showLabelEditor"
+                                keyboardShortcut="showSectionEditor"
                             />
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
