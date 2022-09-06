@@ -37,6 +37,7 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             },
             {
                 autoClose: 2000,
+                theme: 'dark',
             }
         )
     }
