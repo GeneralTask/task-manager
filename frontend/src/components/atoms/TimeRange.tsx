@@ -12,15 +12,15 @@ const TimeText = styled.span`
     ${Typography.tag}
 `
 interface TimeRangeProps {
-    start: Date
-    end: Date
+    start: DateTime
+    end: DateTime
 }
 const TimeRange = ({ start, end }: TimeRangeProps) => {
-    const formattedStart = DateTime.fromJSDate(start).toLocaleString(DateTime.TIME_SIMPLE)
-    const formattedEnd = DateTime.fromJSDate(end).toLocaleString(DateTime.TIME_SIMPLE)
+    const formattedStart = start.toLocaleString(DateTime.TIME_SIMPLE)
+    const formattedEnd = end.toLocaleString(DateTime.TIME_SIMPLE)
     return (
         <TimeContainer>
-            <TimeText>{formattedStart + '-' + formattedEnd}</TimeText>
+            <TimeText>{formattedStart + ' - ' + formattedEnd}</TimeText>
         </TimeContainer>
     )
 }

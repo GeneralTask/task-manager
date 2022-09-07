@@ -19,6 +19,7 @@ import GTIconButton from '../atoms/buttons/GTIconButton'
 import TimeRange from '../atoms/TimeRange'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { useInterval } from '../../hooks'
+import { DateTime } from 'luxon'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -105,8 +106,8 @@ interface TaskDetailsProps {
     task: TTask
     link: string
     isMeetingPreparation?: boolean
-    startTime?: Date
-    endTime?: Date
+    startTime?: DateTime
+    endTime?: DateTime
 }
 const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endTime }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
@@ -128,8 +129,7 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
 
     useInterval(() => {
         if (!startTime) return
-        const diff = startTime.getTime() - Date.now()
-        const minutes = Math.floor(diff / 1000 / 60) + 1
+        const minutes = Math.ceil(startTime.diffNow('minutes').minutes)
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
         } else if (minutes <= 30) {

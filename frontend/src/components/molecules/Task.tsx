@@ -41,7 +41,7 @@ interface TaskProps {
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
-    meetingPreparationStartTime?: Date
+    meetingPreparationStartTime?: DateTime
 }
 
 const Task = ({
@@ -63,8 +63,7 @@ const Task = ({
 
     useInterval(() => {
         if (meetingPreparationStartTime === undefined) return
-        const diff = meetingPreparationStartTime.getTime() - Date.now()
-        const minutes = Math.floor(diff / 1000 / 60) + 1
+        const minutes = Math.ceil(meetingPreparationStartTime.diffNow('minutes').minutes)
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
             setIsMeetingTextColor(true)
@@ -73,7 +72,7 @@ const Task = ({
             setIsMeetingTextColor(true)
         } else {
             //show meeting time
-            const timeString = DateTime.fromJSDate(meetingPreparationStartTime).toLocaleString(DateTime.TIME_SIMPLE)
+            const timeString = meetingPreparationStartTime.toLocaleString(DateTime.TIME_SIMPLE)
             setMeetingStartText(timeString)
             setIsMeetingTextColor(false)
         }

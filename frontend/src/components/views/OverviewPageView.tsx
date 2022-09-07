@@ -15,6 +15,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { DateTime } from 'luxon'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -58,8 +59,8 @@ const OverviewView = () => {
                 }
                 if (view.type === 'meeting_preparation') {
                     const meetingTask = item as TMeetingPreparationTask
-                    const startTime = new Date(meetingTask.datetime_start)
-                    const endTime = new Date(meetingTask.datetime_end)
+                    const startTime = DateTime.fromISO(meetingTask.datetime_start)
+                    const endTime = DateTime.fromISO(meetingTask.datetime_end)
                     return (
                         <TaskDetails
                             task={item as TTask}
