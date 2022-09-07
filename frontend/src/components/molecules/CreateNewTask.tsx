@@ -31,7 +31,7 @@ const TaskInput = styled.input`
 const Tooltip = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing.padding._8};
+    gap: ${Spacing._8};
     ${Typography.bodySmall};
 `
 
