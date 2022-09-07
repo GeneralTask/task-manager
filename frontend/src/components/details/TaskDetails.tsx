@@ -18,7 +18,6 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
 import TimeRange from '../atoms/TimeRange'
 import { MeetingStartText } from '../atoms/MeetingStartText'
-import { DateTime } from 'luxon'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16

@@ -1,6 +1,6 @@
 import { DropType, TTask } from '../../utils/types'
 import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
 import Domino from '../atoms/Domino'
@@ -16,8 +16,9 @@ import { DateTime } from 'luxon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { useInterval } from '../../hooks'
 
-const IconContainer = styled.div`
+const IconContainer = styled.span`
     margin-left: auto;
+    min-width: fit-content;
 `
 const Title = styled.span`
     margin-left: ${Spacing.margin._8};
@@ -25,6 +26,7 @@ const Title = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     ${Typography.bodySmall};
+    padding-right: ${Spacing.padding._8};
 `
 const DominoContainer = styled.div`
     position: absolute;
