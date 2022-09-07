@@ -918,7 +918,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 
 	supportedViews := []SupportedView{
 		{
-			Type:     constants.ViewTaskSection,
+			Type:     constants.ViewMeetingPreparation,
 			Name:     "Meeting Preparation for the day",
 			Logo:     external.TaskSourceGoogleCalendar.LogoV2,
 			IsNested: false,
