@@ -14,7 +14,7 @@ const NavigationViewContainer = styled.div`
     min-width: 0px;
     min-height: 0px;
     background-color: ${Colors.background.medium};
-    padding: ${Spacing._12};
+    padding: ${Spacing._16};
     box-sizing: border-box;
 `
 const NavigationViewHeader = styled.div`
@@ -48,7 +48,7 @@ const NavigationView = () => {
             <GapView>
                 <FeedbackButton />
                 <GTButton
-                    value="Settings"
+                    value="Account settings"
                     styleType="secondary"
                     fitContent={false}
                     onClick={() => navigate('/settings')}
