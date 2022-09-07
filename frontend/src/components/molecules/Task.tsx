@@ -78,10 +78,6 @@ const Task = ({
         }
     }
     useInterval(meetingPrepFunc, 1000)
-    // useEffect(() => {
-    //     const interval = setInterval(, 1000)
-    //     return () => clearInterval(interval)
-    // }, [])
 
     // Add event listener to check if scrolling occurs in task section
     useEffect(() => {

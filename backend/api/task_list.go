@@ -137,7 +137,7 @@ func (api *API) adjustForCompletedTasks(
 			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}
-		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] {
+		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] && !currentTask.IsMeetingPreparationTask {
 			err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), currentTask.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete task")

@@ -586,6 +586,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			continue
 		}
 		// Create meeting prep task for event if one does not exist
+		logger.Debug().Msgf("creating meeting prep task for event: %v", event.Title)
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
 			Title:                    &event.Title,
@@ -613,11 +614,14 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
+	logger := logging.GetSentryLogger()
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
 		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
+			logger.Debug().Msgf("auto-completing meeting prep task: %v", task.Title)
+
 			_, err := taskCollection.UpdateOne(
 				dbCtx,
 				bson.M{"$and": []bson.M{

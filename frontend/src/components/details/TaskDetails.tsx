@@ -125,7 +125,6 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
     const location = useLocation()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const [counter, setCounter] = useState(0)
 
     useEffect(() => {
@@ -134,15 +133,10 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
             const minutes = Math.floor(diff / 1000 / 60)
             if (minutes < 0) {
                 setMeetingStartText('Meeting is now')
-                setIsMeetingTextColor(true)
             } else if (minutes <= 30) {
                 setMeetingStartText(`Starts in ${minutes} minutes`)
-                setIsMeetingTextColor(true)
             } else {
-                //show meeting time
-                const timeString = DateTime.fromJSDate(startTime).toLocaleString(DateTime.TIME_SIMPLE)
-                setMeetingStartText(timeString)
-                setIsMeetingTextColor(false)
+                setMeetingStartText('')
             }
         }
     }, [counter, startTime])
@@ -242,12 +236,14 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
-                            <ActionOption
-                                isShown={labelEditorShown}
-                                setIsShown={setLabelEditorShown}
-                                task={task}
-                                keyboardShortcut="showLabelEditor"
-                            />
+                            {!isMeetingPreparation && (
+                                <ActionOption
+                                    isShown={labelEditorShown}
+                                    setIsShown={setLabelEditorShown}
+                                    task={task}
+                                    keyboardShortcut="showLabelEditor"
+                                />
+                            )}
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
                                     <GTButton
@@ -275,7 +271,7 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
             {startTime && endTime && (
                 <MeetingPreparationTimeContainer>
                     <TimeRange start={startTime} end={endTime} />
-                    <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
+                    <MeetingStartText isTextColored>{meetingStartText}</MeetingStartText>
                 </MeetingPreparationTimeContainer>
             )}
             {task.external_status && (
