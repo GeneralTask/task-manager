@@ -361,15 +361,15 @@ func TestTaskReorder(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 
-		parentTaskID := primitive.NewObjectID()
-		newParentTaskID := primitive.NewObjectID()
+		parentTaskID := primitive.NewObjectID().Hex()
+		newParentTaskID := primitive.NewObjectID().Hex()
 
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
 			database.Task{
 				UserID:       newUserID,
 				IDOrdering:   2,
-				ParentTaskID: parentTaskID,
+				ParentTaskID: &parentTaskID,
 				SourceID:     external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -383,7 +383,7 @@ func TestTaskReorder(t *testing.T) {
 			database.Task{
 				UserID:       primitive.NewObjectID(),
 				IDOrdering:   3,
-				ParentTaskID: parentTaskID,
+				ParentTaskID: &parentTaskID,
 				SourceID:     external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -397,7 +397,7 @@ func TestTaskReorder(t *testing.T) {
 			database.Task{
 				UserID:           newUserID,
 				IDOrdering:       1,
-				ParentTaskID:     newParentTaskID,
+				ParentTaskID:     &newParentTaskID,
 				SourceID:         external.TASK_SOURCE_ID_LINEAR,
 				HasBeenReordered: false,
 			},
@@ -412,7 +412,7 @@ func TestTaskReorder(t *testing.T) {
 			database.Task{
 				UserID:       newUserID,
 				IDOrdering:   2,
-				ParentTaskID: newParentTaskID,
+				ParentTaskID: &newParentTaskID,
 				SourceID:     external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -425,7 +425,7 @@ func TestTaskReorder(t *testing.T) {
 			dbCtx,
 			database.Task{
 				UserID:       newUserID,
-				ParentTaskID: parentTaskID,
+				ParentTaskID: &parentTaskID,
 				SourceID:     external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
@@ -453,7 +453,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, parentTaskID, task.ParentTaskID)
+		assert.Equal(t, parentTaskID, *task.ParentTaskID)
 		assert.True(t, task.HasBeenReordered)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)

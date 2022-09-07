@@ -101,6 +101,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			}
 			task.Comments = &dbComments
 		}
+		emptyParent := ""
 		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
@@ -115,6 +116,9 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 				DueDate:            task.DueDate,
 				CompletedStatus:    task.CompletedStatus,
 				PriorityNormalized: task.PriorityNormalized,
+				// unset the task relations: will be set below
+				ParentTaskID: &emptyParent,
+				SubTaskIDs:   &[]string{},
 			},
 			nil,
 		)
@@ -130,7 +134,62 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		tasks = append(tasks, task)
 	}
 
+	tasks, err = assignChildParentRelation(db, userID, tasks, issuesQuery)
+	if err != nil {
+		logger.Error().Err(err).Msg("could not assign child/parent relationship")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+
 	result <- TaskResult{Tasks: tasks}
+}
+
+func assignChildParentRelation(db *mongo.Database, userID primitive.ObjectID, tasks []*database.Task, issuesQuery *linearAssignedIssuesQuery) ([]*database.Task, error) {
+	// not the most efficient, but nice in terms of readability
+	parentToChildren := make(map[primitive.ObjectID][]string)
+	idToParent := make(map[primitive.ObjectID]*database.Task)
+	for _, linearIssue := range issuesQuery.Issues.Nodes {
+		if linearIssue.Parent.Id == nil {
+			continue
+		}
+		childIDExternal := linearIssue.Id.(string)
+		parentIDExternal := linearIssue.Parent.Id.(string)
+
+		// we need to be sure that the user has been assigned both the parent and child task
+		var parentTask *database.Task
+		var childTask *database.Task
+		for _, task := range tasks {
+			if task.IDExternal == parentIDExternal {
+				parentTask = task
+			}
+			if task.IDExternal == childIDExternal {
+				childTask = task
+			}
+		}
+		if parentTask != nil && childTask != nil {
+			parentHex := parentTask.ID.Hex()
+			childTask.ParentTaskID = &parentHex
+			// update child task with new parent ID
+			_, err := database.UpdateOrCreateTask(db, userID, childTask.IDExternal, childTask.SourceID, nil, childTask, nil)
+			if err != nil {
+				return tasks, err
+			}
+			parentToChildren[parentTask.ID] = append(parentToChildren[parentTask.ID], childTask.ID.Hex())
+			idToParent[parentTask.ID] = parentTask
+		}
+	}
+
+	// update parents with list of valid children
+	for parentID, childrenIDs := range parentToChildren {
+		parentTask := idToParent[parentID]
+		parentTask.SubTaskIDs = &childrenIDs
+		_, err := database.UpdateOrCreateTask(db, userID, parentTask.IDExternal, parentTask.SourceID, nil, parentTask, nil)
+		if err != nil {
+			return tasks, err
+		}
+	}
+
+	return tasks, nil
 }
 
 func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {

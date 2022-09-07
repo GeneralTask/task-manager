@@ -885,7 +885,7 @@ func TestAddSubTask(t *testing.T) {
 		taskResult := taskCollection.FindOne(dbCtx, bson.M{"_id": parentTaskID})
 		err = taskResult.Decode(&task)
 		assert.NoError(t, err)
-		assert.Equal(t, []primitive.ObjectID{childTaskID}, task.SubTaskIDs)
+		assert.Equal(t, []string{childTaskID.Hex()}, *task.SubTaskIDs)
 	})
 	t.Run("SuccessAppend", func(t *testing.T) {
 		newChild := primitive.NewObjectID()
@@ -896,7 +896,7 @@ func TestAddSubTask(t *testing.T) {
 		taskResult := taskCollection.FindOne(dbCtx, bson.M{"_id": parentTaskID})
 		err = taskResult.Decode(&task)
 		assert.NoError(t, err)
-		assert.Equal(t, []primitive.ObjectID{childTaskID, newChild}, task.SubTaskIDs)
+		assert.Equal(t, []string{childTaskID.Hex(), newChild.Hex()}, *task.SubTaskIDs)
 	})
 }
 
