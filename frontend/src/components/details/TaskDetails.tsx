@@ -127,7 +127,7 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
 
     useInterval(() => {
-        if (startTime === undefined) return
+        if (!startTime) return
         const diff = startTime.getTime() - Date.now()
         const minutes = Math.floor(diff / 1000 / 60) + 1
         if (minutes < 0) {
