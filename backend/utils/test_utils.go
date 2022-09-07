@@ -25,9 +25,13 @@ func AssertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	if (a.SlackMessageParams != nil) || (b.SlackMessageParams != nil) {
 		expectedSlack := a.SlackMessageParams
 		actualSlack := b.SlackMessageParams
-		assert.Equal(t, expectedSlack.Channel, actualSlack.Channel)
-		assert.Equal(t, expectedSlack.User, actualSlack.User)
-		assert.Equal(t, expectedSlack.Team, actualSlack.Team)
-		assert.Equal(t, expectedSlack.Message, actualSlack.Message)
+		assert.NotNil(t, expectedSlack)
+		assert.NotNil(t, actualSlack)
+		if expectedSlack != nil && actualSlack != nil {
+			assert.Equal(t, expectedSlack.Channel, actualSlack.Channel)
+			assert.Equal(t, expectedSlack.User, actualSlack.User)
+			assert.Equal(t, expectedSlack.Team, actualSlack.Team)
+			assert.Equal(t, expectedSlack.Message, actualSlack.Message)
+		}
 	}
 }

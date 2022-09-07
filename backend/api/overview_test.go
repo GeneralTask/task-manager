@@ -803,7 +803,7 @@ func createTestMeetingPreparationTask(ctx context.Context, taskCollection *mongo
 		Title:                    &title,
 		IsCompleted:              &isCompleted,
 		IsMeetingPreparationTask: true,
-		MeetingPreparationParams: database.MeetingPreparationParams{
+		MeetingPreparationParams: &database.MeetingPreparationParams{
 			IDExternal:    IDExternal,
 			DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
