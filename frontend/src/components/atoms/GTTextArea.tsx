@@ -11,7 +11,7 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.padding._8} ${Spacing.padding._8} 0;
+    padding: ${Spacing._8} ${Spacing._8} 0;
     border-radius: ${Border.radius.small};
     :focus,
     :hover {
