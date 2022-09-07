@@ -41,8 +41,8 @@ type TaskResult struct {
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
-	DatetimeStart      *string                      `json:"datetime_start,omitempty"`
-	DatetimeEnd        *string                      `json:"datetime_end,omitempty"`
+	DatetimeStart      string                      `json:"datetime_start,omitempty"`
+	DatetimeEnd        string                      `json:"datetime_end,omitempty"`
 }
 
 type TaskSection struct {
