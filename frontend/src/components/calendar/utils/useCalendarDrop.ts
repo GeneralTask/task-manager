@@ -93,6 +93,7 @@ const useCalendarDrop = ({
                         datetime_end: end.toISO(),
                         summary: item.task?.title,
                         description,
+                        task_id: item.task.id,
                     },
                     date,
                     linkedTask: item.task,

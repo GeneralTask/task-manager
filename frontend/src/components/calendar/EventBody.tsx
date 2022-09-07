@@ -129,7 +129,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>
+                    <EventTitle>
                         {props.event.linked_task_id && (
                             <IconContainer>
                                 <Icon size="xSmall" icon={logos[props.event.logo]} />
@@ -140,7 +140,11 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>
-            <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} isSelected={selectedEvent?.id === props.event.id} />
+            <EventFill
+                squareStart={startedBeforeToday}
+                squareEnd={endedAfterToday}
+                isSelected={selectedEvent?.id === props.event.id}
+            />
             <ResizeHandle event={props.event} />
         </EventBodyStyle>
     )

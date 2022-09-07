@@ -104,6 +104,7 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
     },
 }))<EventBodyStyleProps>`
     position: absolute;
+    display: flex;
     cursor: pointer;
 `
 export const EventInfoContainer = styled.div`
@@ -113,27 +114,30 @@ export const EventInfoContainer = styled.div`
     width: 100%;
     position: absolute;
     z-index: 1;
-    border-radius: ${Border.radius.medium};
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
+    display: flex;
+    text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin: 0 12px;
-    align-items: center;
-    ${(props) => (props.isLongEvent ? 'height: 100%;' : 'display: flex;')}
-`
-export const EventTitle = styled.div<{ isLongEvent: boolean }>`
-    ${Typography.bodySmall}
-    color: ${EVENT_TITLE_TEXT_COLOR};
-    margin-right: ${Spacing._8};
-    gap: ${Spacing._8};
-    max-height: 100%;
+    margin: 0 ${Spacing._12};
+    ${Typography.label};
     ${(props) =>
-        props.isLongEvent &&
-        `
-        font-weight: ${Typography.weight.semibold};
+        props.isLongEvent
+            ? `
         margin-top: ${Spacing._12};
-    `}
+        height: 100%;
+        flex-direction: column;
+        gap: ${Spacing._4};
+        `
+            : 'flex-direction: row;'}
+`
+export const EventTitle = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    margin-right: 8px;
+    max-height: 100%;
 `
 export const EventTime = styled.div`
     color: ${Colors.text.light};
@@ -147,13 +151,13 @@ export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; 
     border: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.gray : EVENT_CONTAINER_COLOR)};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
-    border-top-left-radius: ${(props) => (props.squareStart ? '0' : '10px')};
-    border-top-right-radius: ${(props) => (props.squareStart ? '0' : '10px')};
-    border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
-    border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : '10px')};
+    border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
+    border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
+    border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
+    border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
 `
 export const EventFillContinues = styled(EventFill)`
-    border-radius: 8px 8px 0 0;
+    border-radius: ${Border.radius.mini} ${Border.radius.mini} 0 0;
 `
 export const DateHeader = styled.div`
     font-style: normal;
