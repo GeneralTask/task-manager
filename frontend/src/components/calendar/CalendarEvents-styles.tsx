@@ -95,12 +95,14 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
         height: props.eventBodyHeight - EVENT_BOTTOM_PADDING,
         top: props.topOffset,
         left: `calc(
-            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${props.leftOffset}
+            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
+            props.leftOffset
+        }
         )`,
         opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
         zIndex: props.isBeingDragged ? 1 : 0,
     },
-})) <EventBodyStyleProps>`
+}))<EventBodyStyleProps>`
     position: absolute;
     cursor: pointer;
 `
@@ -121,9 +123,7 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     ${(props) => (props.isLongEvent ? 'height: 100%;' : 'display: flex;')}
 `
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
-    font-style: normal;
-    font-size: 14px;
-    font-weight: 600;
+    ${Typography.bodySmall}
     color: ${EVENT_TITLE_TEXT_COLOR};
     margin-right: ${Spacing._8};
     gap: ${Spacing._8};
@@ -132,7 +132,7 @@ export const EventTitle = styled.div<{ isLongEvent: boolean }>`
         props.isLongEvent &&
         `
         font-weight: ${Typography.weight.semibold};
-        margin-top: ${Spacing.margin._12};
+        margin-top: ${Spacing._12};
     `}
 `
 export const EventTime = styled.div`

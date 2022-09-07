@@ -79,16 +79,23 @@ const useCalendarDrop = ({
         const dropTime = getTimeFromDropPosition(dropPosition)
         switch (itemType) {
             case DropType.TASK: {
+                if (!item.task) return
                 const end = dropTime.plus({ minutes: 30 })
+                let description = item.task.body
+                if (description !== '') {
+                    description += '\n'
+                }
+                description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                 createEvent({
-                    payload: {
+                    createEventPayload: {
                         account_id: primaryAccountID,
                         datetime_start: dropTime.toISO(),
                         datetime_end: end.toISO(),
                         summary: item.task?.title,
-                        description: item.task?.body,
+                        description,
                     },
                     date,
+                    linkedTask: item.task,
                 })
                 break
             }
