@@ -58,6 +58,9 @@ const SYNC_MESSAGES = {
     COMPLETE: '',
 }
 
+const TITLE_MAX_HEIGHT = 208
+const BODY_MAX_HEIGHT = 200
+
 interface TaskDetailsProps {
     task: TTask
     link: string
@@ -155,7 +158,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 initialValue={task.title}
                 disabled={task.isOptimistic}
                 onEdit={(val) => onEdit({ id: task.id, title: val })}
-                maxHeight={208}
+                maxHeight={TITLE_MAX_HEIGHT}
                 fontSize="large"
             />
             {task.external_status && (
@@ -173,7 +176,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         placeholder="Add details"
                         isFullHeight={!task.slack_message_params}
                         onEdit={(val) => onEdit({ id: task.id, body: val })}
-                        maxHeight={200}
+                        maxHeight={BODY_MAX_HEIGHT}
                         fontSize="small"
                     />
                     {task.comments && <LinearCommentList comments={task.comments} />}

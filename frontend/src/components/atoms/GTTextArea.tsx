@@ -7,7 +7,7 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
     background-color: inherit;
     color: ${Colors.text.black};
     font: inherit;
-    border: ${Border.stroke.medium} solid transparent;
+    border: none;
     resize: none;
     outline: none;
     overflow: auto;
@@ -17,6 +17,7 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
     :hover {
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         box-shadow: ${Shadows.light};
+        background-color: ${Colors.background.white};
     }
     ${({ fontSize }) => (fontSize === 'small' ? Typography.bodySmall : Typography.subtitle)};
 `
@@ -28,12 +29,12 @@ interface GTTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaEleme
     isFullHeight?: boolean
     fontSize: 'small' | 'large'
 }
-const GTTextArea = ({ initialValue, onEdit, maxHeight, isFullHeight, fontSize, ...rest }: GTTextAreaProps) => {
+const GTTextArea = ({ initialValue, onEdit, maxHeight, isFullHeight = false, fontSize, ...rest }: GTTextAreaProps) => {
     const [textAreaValue, setTextAreaValue] = useState(initialValue)
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-        if (textAreaRef.current && (e.key === 'Enter' || e.key === 'Escape')) textAreaRef.current.blur()
+        if (textAreaRef.current && e.key === 'Escape') textAreaRef.current.blur()
         e.stopPropagation()
     }
 
@@ -56,7 +57,7 @@ const GTTextArea = ({ initialValue, onEdit, maxHeight, isFullHeight, fontSize, .
             ref={textAreaRef}
             onKeyDown={handleKeyDown}
             value={textAreaValue}
-            isFullHeight={isFullHeight || false}
+            isFullHeight={isFullHeight}
             fontSize={fontSize}
             onChange={(e) => {
                 setTextAreaValue(e.target.value)
