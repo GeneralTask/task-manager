@@ -33,12 +33,12 @@ const SectionTitle = styled.span`
     white-space: nowrap;
     flex: 1;
     user-select: none;
-    ${Typography.body};
+    ${Typography.bodySmall};
 `
 const SectionTitleItemCount = styled.span`
     margin-left: auto;
     user-select: none;
-    ${Typography.body};
+    ${Typography.bodySmall};
 `
 export const NavigationLinkTemplate = styled.div`
     width: 100%;
@@ -107,7 +107,7 @@ const NavigationLink = ({
     return (
         <NavigationLinkTemplate onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
-                {icon && <Icon size="small" icon={icon} color={Colors.icon.black} />}
+                {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
                 <SectionTitle>{title}</SectionTitle>
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>

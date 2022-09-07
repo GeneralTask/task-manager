@@ -29,7 +29,7 @@ const InputContainer = styled.div`
         font-family: inherit;
         box-sizing: border-box;
         width: 100%;
-        ${Typography.body};
+        ${Typography.bodySmall};
     }
 `
 
@@ -116,7 +116,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="small" icon={icons.folder} color={Colors.icon.black} />
+                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
                             </div>
                             <InputContainer>
                                 <NoStyleInput
