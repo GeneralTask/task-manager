@@ -25,6 +25,7 @@ type EventResult struct {
 	Deeplink       string               `json:"deeplink"`
 	Title          string               `json:"title"`
 	Body           string               `json:"body"`
+	CanModify      bool                 `json:"can_modify"`
 	ConferenceCall utils.ConferenceCall `json:"conference_call"`
 	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
 	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
@@ -122,6 +123,7 @@ func (api *API) EventsList(c *gin.Context) {
 				Deeplink:      event.Deeplink,
 				Title:         event.Title,
 				Body:          event.Body,
+				CanModify:     event.CanModify,
 				DatetimeEnd:   event.DatetimeEnd,
 				DatetimeStart: event.DatetimeStart,
 				ConferenceCall: utils.ConferenceCall{
