@@ -16,7 +16,7 @@ import { DateTime } from 'luxon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { useInterval } from '../../hooks'
 
-const IconContainer = styled.span`
+const RightContainer = styled.span`
     margin-left: auto;
     min-width: fit-content;
 `
@@ -161,13 +161,13 @@ const Task = ({
                     onMarkComplete={taskFadeOut}
                 />
                 <Title data-testid="task-title">{task.title}</Title>
-                <IconContainer>
+                <RightContainer>
                     {meetingStartText ? (
                         <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                     ) : (
                         <Icon icon={logos[task.source.logo_v2]} size="small" />
                     )}
-                </IconContainer>
+                </RightContainer>
             </ItemContainer>
         </TaskTemplate>
     )
