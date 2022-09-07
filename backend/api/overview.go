@@ -10,6 +10,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -530,7 +531,10 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 
 func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	taskCollection := database.GetTaskCollection(db)
+	logger := logging.GetSentryLogger()
+	logger.Debug().Msgf("events count: %d", len(*events))
 	for _, event := range *events {
+		logger.Debug().Msgf("event: %v", event.Title)
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
 		// Check if meeting prep task exists
@@ -567,6 +571,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			continue
 		}
 		// Create meeting prep task for event if one does not exist
+		logger.Debug().Msgf("creating meeting prep task for event: %v", event.Title)
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
 			Title:                    &event.Title,
@@ -594,11 +599,14 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
+	logger := logging.GetSentryLogger()
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
 		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
+			logger.Debug().Msgf("auto-completing meeting prep task: %v", task.Title)
+
 			_, err := taskCollection.UpdateOne(
 				dbCtx,
 				bson.M{"$and": []bson.M{
@@ -674,7 +682,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			return
 		}
 		githubID = *viewCreateParams.GithubID
-	} else if viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) {
+	} else if viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) && viewCreateParams.Type != string(constants.ViewMeetingPreparation) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -730,7 +738,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) {
+	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewMeetingPreparation) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
@@ -919,6 +927,19 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 	supportedViews := []SupportedView{
 		{
 			Type:     constants.ViewTaskSection,
+			Name:     "Meeting Preparation for the day",
+			Logo:     external.TaskSourceGoogleCalendar.LogoV2,
+			IsNested: false,
+			IsLinked: true,
+			Views: []SupportedViewItem{
+				{
+					Name:    constants.ViewMeetingPreparationName,
+					IsAdded: false,
+				},
+			},
+		},
+		{
+			Type:     constants.ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
@@ -1051,7 +1072,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation  {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{

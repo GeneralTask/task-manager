@@ -495,6 +495,8 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 	eventCollection := GetCalendarEventCollection(db)
 	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
 	defer cancel()
+	logger := logging.GetSentryLogger()
+	logger.Debug().Msgf("Getting events until end of day: %s", timeEndOfDay)
 	cursor, err := eventCollection.Find(
 		dbCtx,
 		bson.M{
