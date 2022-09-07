@@ -2,6 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
+import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
 const MeetingPreparationViewItem = ({ view }: ViewItemsProps) => {
@@ -21,7 +22,10 @@ const MeetingPreparationViewItem = ({ view }: ViewItemsProps) => {
                     />
                 ))
             ) : (
-                <div>oopsie no tasks</div>
+                <EmptyViewItem
+                    header="You have no more meeting preparation tasks!"
+                    body="When you have an upcoming calendar event, they will appear here."
+                />
             )}
         </>
     )

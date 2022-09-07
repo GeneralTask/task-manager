@@ -90,7 +90,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	// check if all edit fields are empty
-	if !ValidateFields(c, &modifyParams.TaskItemChangeableFields, taskSourceResult) {
+	if !ValidateFields(c, &modifyParams.TaskItemChangeableFields, taskSourceResult, task.IsMeetingPreparationTask) {
 		return
 	}
 
@@ -142,8 +142,8 @@ func (api *API) TaskModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, taskSourceResult *external.TaskSourceResult) bool {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && !taskSourceResult.Details.IsCompletable {
+func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, taskSourceResult *external.TaskSourceResult, isMeetingPreparationTask bool) bool {
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && !taskSourceResult.Details.IsCompletable && !isMeetingPreparationTask {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
 	}

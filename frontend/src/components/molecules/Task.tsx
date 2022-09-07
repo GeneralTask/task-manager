@@ -11,7 +11,7 @@ import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import { DONE_SECTION_ID } from '../../constants'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { DateTime } from 'luxon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { useInterval } from '../../hooks'
@@ -61,25 +61,23 @@ const Task = ({
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
 
-    const meetingPrepFunc = () => {
-        if (meetingPreparationStartTime != undefined) {
-            const diff = meetingPreparationStartTime.getTime() - Date.now()
-            const minutes = Math.floor(diff / 1000 / 60)
-            if (minutes < 0) {
-                setMeetingStartText('Meeting is now')
-                setIsMeetingTextColor(true)
-            } else if (minutes <= 30) {
-                setMeetingStartText(`Starts in ${minutes} minutes`)
-                setIsMeetingTextColor(true)
-            } else {
-                //show meeting time
-                const timeString = DateTime.fromJSDate(meetingPreparationStartTime).toLocaleString(DateTime.TIME_SIMPLE)
-                setMeetingStartText(timeString)
-                setIsMeetingTextColor(false)
-            }
+    useInterval(() => {
+        if (meetingPreparationStartTime === undefined) return
+        const diff = meetingPreparationStartTime.getTime() - Date.now()
+        const minutes = Math.floor(diff / 1000 / 60) + 1
+        if (minutes < 0) {
+            setMeetingStartText('Meeting is now')
+            setIsMeetingTextColor(true)
+        } else if (minutes <= 30) {
+            setMeetingStartText(`Starts in ${minutes} minutes`)
+            setIsMeetingTextColor(true)
+        } else {
+            //show meeting time
+            const timeString = DateTime.fromJSDate(meetingPreparationStartTime).toLocaleString(DateTime.TIME_SIMPLE)
+            setMeetingStartText(timeString)
+            setIsMeetingTextColor(false)
         }
-    }
-    useInterval(meetingPrepFunc, 1000)
+    }, SINGLE_SECOND_INTERVAL)
 
     // Add event listener to check if scrolling occurs in task section
     useEffect(() => {

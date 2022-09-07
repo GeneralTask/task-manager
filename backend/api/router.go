@@ -21,7 +21,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.Use(CORSMiddleware)
 
 	// Introduce fake lag when running local server to more accurately simulate prod
-	router.Use(FakeLagMiddleware)
+	// router.Use(FakeLagMiddleware)
 
 	// Swagger API (only on local)
 	if config.GetEnvironment() == config.Dev {

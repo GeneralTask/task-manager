@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
-import { DETAILS_SYNC_TIMEOUT } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos, icons, linearStatus } from '../../styles/images'
@@ -18,6 +18,7 @@ import SlackMessage from './slack/SlackMessage'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import TimeRange from '../atoms/TimeRange'
 import { MeetingStartText } from '../atoms/MeetingStartText'
+import { useInterval } from '../../hooks'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -124,28 +125,19 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
     const location = useLocation()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const [counter, setCounter] = useState(0)
 
-    useEffect(() => {
-        if (startTime != undefined) {
-            const diff = startTime.getTime() - Date.now()
-            const minutes = Math.floor(diff / 1000 / 60) + 1
-            if (minutes < 0) {
-                setMeetingStartText('Meeting is now')
-            } else if (minutes <= 30) {
-                setMeetingStartText(`Starts in ${minutes} minutes`)
-            } else {
-                setMeetingStartText('')
-            }
+    useInterval(() => {
+        if (startTime === undefined) return
+        const diff = startTime.getTime() - Date.now()
+        const minutes = Math.floor(diff / 1000 / 60) + 1
+        if (minutes < 0) {
+            setMeetingStartText('Meeting is now')
+        } else if (minutes <= 30) {
+            setMeetingStartText(`Starts in ${minutes} minutes`)
+        } else {
+            setMeetingStartText('')
         }
-    }, [counter, startTime])
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCounter((counter) => counter + 1)
-        }, 1000)
-        return () => clearInterval(interval)
-    }, [])
+    }, SINGLE_SECOND_INTERVAL)
 
     useEffect(() => {
         if (isEditing || isLoading) {
