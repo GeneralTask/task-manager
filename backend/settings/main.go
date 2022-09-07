@@ -143,7 +143,7 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 		)
 	}
 
-	taskSections, err := getTaskSections(db, userID)
+	taskSections, err := database.GetTaskSections(db, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -189,25 +189,6 @@ func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.
 
 func getGithubFieldKey(githubView database.View, suffix string) string {
 	return githubView.ID.Hex() + "_" + suffix
-}
-
-func getTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]database.TaskSection, error) {
-	parentCtx := context.Background()
-
-	var sections []database.TaskSection
-	err := database.FindWithCollection(
-		parentCtx,
-		database.GetTaskSectionCollection(db),
-		userID,
-		&[]bson.M{{"user_id": userID}},
-		&sections,
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to load task sections")
-		return nil, err
-	}
-	return &sections, nil
 }
 
 func getTaskSectionFieldKey(taskSection database.TaskSection, suffix string, settingType string) string {
