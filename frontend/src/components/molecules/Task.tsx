@@ -26,7 +26,7 @@ const Title = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     ${Typography.bodySmall};
-    padding-right: ${Spacing.padding._8};
+    padding-right: ${Spacing._8};
 `
 const DominoContainer = styled.div`
     position: absolute;

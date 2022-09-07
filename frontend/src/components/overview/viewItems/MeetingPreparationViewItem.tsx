@@ -11,6 +11,7 @@ const MeetingPreparationViewItem = ({ view }: ViewItemsProps) => {
             {view.view_items.length > 0 ? (
                 view.view_items.map((item, index) => (
                     <Task
+                        key={item.id}
                         task={item as TTask}
                         dragDisabled={true}
                         index={index}
