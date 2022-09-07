@@ -12,8 +12,13 @@ export function getMonthsAroundDate(date: DateTime, numMonths = 1): DateRange[] 
     const endOfFirstMonth = date.endOf('month').minus({ months: numMonths })
 
     return [...Array(numMonths * 2 + 1).keys()].map((i: number): DateRange => ({
-            start: startOfFirstMonth.plus({ months: i }).startOf('month'),
-            end: endOfFirstMonth.plus({ months: i }).endOf('month'),
-        }))
+        start: startOfFirstMonth.plus({ months: i }).startOf('month'),
+        end: endOfFirstMonth.plus({ months: i }).endOf('month'),
+    }))
 }
 
+export function getDiffBetweenISOTimes(start: string, end: string) {
+    const startDateTime = DateTime.fromISO(start)
+    const endDateTime = DateTime.fromISO(end)
+    return endDateTime.diff(startDateTime)
+}

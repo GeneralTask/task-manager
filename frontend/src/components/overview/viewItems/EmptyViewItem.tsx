@@ -6,8 +6,8 @@ const EmptyViewContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: ${Spacing.padding._12} ${Spacing.padding._16};
-    gap: ${Spacing.padding._4};
+    padding: ${Spacing._12} ${Spacing._16};
+    gap: ${Spacing._4};
     border-radius: ${Border.radius.mini};
     border: 1px solid ${Colors.border.extra_light};
 `

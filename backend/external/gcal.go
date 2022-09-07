@@ -89,6 +89,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			SourceAccountID: accountID,
 			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+			CanModify:       event.GuestsCanModify || event.Organizer.Self,
 			CallURL:         conferenceCall.URL,
 			CallLogo:        conferenceCall.Logo,
 			CallPlatform:    conferenceCall.Platform,

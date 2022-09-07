@@ -12,7 +12,7 @@ const DetailsViewContainer = styled.div`
     min-width: 300px;
     justify-content: center;
     align-items: center;
-    gap: ${Spacing.margin._16};
+    gap: ${Spacing._16};
 `
 const Text = styled.span`
     color: ${Colors.text.light};

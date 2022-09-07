@@ -4,8 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { Colors } from '../../styles'
 import CreateNewTask from '../molecules/CreateNewTask'
-import { DateTime } from 'luxon'
-import EventBanner from '../molecules/EventBanners'
 import Loading from '../atoms/Loading'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
@@ -18,7 +16,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const BannerAndSectionContainer = styled.div`
+const TaskSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
     border-right: 1px solid ${Colors.background.dark};
@@ -44,7 +42,6 @@ const BottomDropArea = styled.div`
 
 const TaskSectionView = () => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
-    const bannerTaskSectionRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasks()
@@ -95,8 +92,7 @@ const TaskSectionView = () => {
 
     return (
         <>
-            <BannerAndSectionContainer ref={bannerTaskSectionRef}>
-                <EventBanner date={DateTime.now()} />
+            <TaskSectionContainer>
                 <ScrollableListTemplate ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
                         {isLoadingTasks || !section ? (
@@ -141,7 +137,7 @@ const TaskSectionView = () => {
                         )}
                     </TaskSectionViewContainer>
                 </ScrollableListTemplate>
-            </BannerAndSectionContainer>
+            </TaskSectionContainer>
             {task && section ? (
                 <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />
             ) : (
