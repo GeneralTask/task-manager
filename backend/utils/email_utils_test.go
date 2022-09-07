@@ -7,6 +7,7 @@ import (
 )
 
 func TestExtractEmailDomain(t *testing.T) {
+	assert.Equal(t, "jasonscharff", ExtractEmailDomain("jasonscharff"))
 	assert.Equal(t, "gmail.com", ExtractEmailDomain("jasonscharff@gmail.com"))
 	assert.Equal(t, "robinhood.com", ExtractEmailDomain("john@robinhood.com"))
 	assert.Equal(t, "robinhood.com", ExtractEmailDomain("john@robinhood.com testing"))
@@ -32,4 +33,10 @@ func TestExtractSenders(t *testing.T) {
 	name, email = ExtractSenderName("jasonscharff@gmail.com")
 	assert.Equal(t, "jasonscharff@gmail.com", name)
 	assert.Equal(t, "jasonscharff@gmail.com", email)
+}
+
+func TestIsEmailValid(t *testing.T) {
+	assert.False(t, IsEmailValid("a"))
+	assert.False(t, IsEmailValid("julian"))
+	assert.True(t, IsEmailValid("julian@gmail.com"))
 }

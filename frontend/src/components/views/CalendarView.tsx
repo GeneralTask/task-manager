@@ -8,27 +8,31 @@ import { DateTime } from 'luxon'
 import { Icon } from '../atoms/Icon'
 import { getMonthsAroundDate } from '../../utils/time'
 import { icons } from '../../styles/images'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
-import { useAppDispatch } from '../../redux/hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 const CollapsedCalendarView = styled.div`
-    padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
+    padding: ${Spacing._16} ${Spacing._4} 0;
     background-color: ${Colors.background.medium};
     display: flex;
     justify-content: center;
     cursor: pointer;
 `
 
+export type TCalendarType = 'day' | 'week'
+
 interface CalendarViewProps {
-    isExpanded: boolean
+    initialType: TCalendarType
+    showMainHeader?: boolean
+    showDateHeader?: boolean
+    isInitiallyCollapsed?: boolean
 }
-const CalendarView = ({ isExpanded }: CalendarViewProps) => {
+const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitiallyCollapsed }: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -37,16 +41,13 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false)
-    const dispatch = useAppDispatch()
-
-    const handleCollapseCalendar = () => {
-        dispatch(setExpandedCalendar(false))
-        setIsCalendarCollapsed(true)
-    }
-
+    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed, setShowMainHeader, setShowDateHeader } =
+        useCalendarContext()
     useEffect(() => {
-        dispatch(setExpandedCalendar(false))
+        setCalendarType(initialType)
+        if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
+        if (showDateHeader !== undefined) setShowDateHeader(showDateHeader)
+        if (isInitiallyCollapsed !== undefined) setIsCollapsed(isInitiallyCollapsed)
     }, [])
 
     useInterval(
@@ -59,25 +60,23 @@ const CalendarView = ({ isExpanded }: CalendarViewProps) => {
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
-    const firstLinkedCalendarAccount = useMemo(
+    const primaryAccountID = useMemo(
         () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
         [linkedAccounts]
     )
 
-    useKeyboardShortcut('calendar', () =>
-        isCalendarCollapsed ? setIsCalendarCollapsed(false) : handleCollapseCalendar()
-    )
+    useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
 
-    return isCalendarCollapsed ? (
-        <CollapsedCalendarView onClick={() => setIsCalendarCollapsed(false)}>
+    return isCollapsed ? (
+        <CollapsedCalendarView onClick={() => setIsCollapsed(false)}>
             <CaretButton>
                 <Icon icon={icons.calendar_blank} size="small" />
             </CaretButton>
         </CollapsedCalendarView>
     ) : (
-        <CalendarContainer expanded={isExpanded}>
-            <CalendarHeader collapseCalendar={handleCollapseCalendar} date={date} setDate={setDate} />
-            <CalendarEvents date={date} numDays={isExpanded ? 7 : 1} accountId={firstLinkedCalendarAccount} />
+        <CalendarContainer expanded={calendarType === 'week'}>
+            <CalendarHeader date={date} setDate={setDate} />
+            <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )
 }

@@ -5,8 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/chidiwilliams/flatbson"
-
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func UpdateOrCreateItem(
+func UpdateOrCreateTask(
 	db *mongo.Database,
 	userID primitive.ObjectID,
 	IDExternal string,
@@ -23,117 +21,22 @@ func UpdateOrCreateItem(
 	fieldsToInsertIfMissing interface{},
 	fieldsToUpdate interface{},
 	additionalFilters *[]bson.M,
-	flattenFields bool,
-) (*Item, error) {
-	var err error
-	if flattenFields {
-		if fieldsToInsertIfMissing != nil {
-			fieldsToInsertIfMissing, err = FlattenStruct(fieldsToInsertIfMissing)
-			if err != nil {
-				return nil, err
-			}
-		}
-		if fieldsToUpdate != nil {
-			fieldsToUpdate, err = FlattenStruct(fieldsToUpdate)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	parentCtx := context.Background()
+) (*Task, error) {
 	taskCollection := GetTaskCollection(db)
-	dbQuery := getDBQuery(userID, IDExternal, sourceID, additionalFilters)
-	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	logger := logging.GetSentryLogger()
-	if fieldsToInsertIfMissing != nil {
-		_, err = taskCollection.UpdateOne(
-			dbCtx,
-			dbQuery,
-			bson.M{"$setOnInsert": fieldsToInsertIfMissing},
-			options.Update().SetUpsert(true),
-		)
-		if err != nil {
-			logger.Error().Err(err).Msg("failed to update or create task")
-			return nil, err
-		}
-	}
 
-	mongoResult := taskCollection.FindOneAndUpdate(
-		dbCtx,
-		dbQuery,
-		bson.M{"$set": fieldsToUpdate},
-	)
-
-	var item Item
-	err = mongoResult.Decode(&item)
+	mongoResult, err := FindOneAndUpdateWithCollection(taskCollection, userID, IDExternal, sourceID, fieldsToInsertIfMissing, fieldsToUpdate, additionalFilters)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to update or create item")
-		return nil, err
-	}
-	return &item, nil
-}
-
-func GetItem(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Item, error) {
-	parentCtx := ctx
-	db, dbCleanup, err := GetDBConnection()
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
-		return nil, err
-	}
-	defer dbCleanup()
-	taskCollection := GetTaskCollection(db)
-
-	var message Item
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": itemID},
-			{"user_id": userID},
-		}}).Decode(&message)
-	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get item: %+v", itemID)
-		return nil, err
-	}
-	return &message, nil
-}
-
-func GetOrCreateItem(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Item, error) {
-	parentCtx := context.Background()
-	taskCollection := GetTaskCollection(db)
-	dbQuery := getDBQuery(userID, IDExternal, sourceID, nil)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err := taskCollection.UpdateOne(
-		dbCtx,
-		dbQuery,
-		bson.M{"$setOnInsert": fieldsToInsertIfMissing},
-		options.Update().SetUpsert(true),
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to get or create task")
 		return nil, err
 	}
 
-	var item Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = taskCollection.FindOne(
-		dbCtx,
-		dbQuery,
-	).Decode(&item)
+	var task Task
+	err = mongoResult.Decode(&task)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to get task")
+		logger.Error().Err(err).Msg("failed to update or create task")
 		return nil, err
 	}
-
-	return &item, nil
+	return &task, nil
 }
 
 func UpdateOrCreateCalendarEvent(
@@ -145,10 +48,13 @@ func UpdateOrCreateCalendarEvent(
 	additionalFilters *[]bson.M,
 ) (*CalendarEvent, error) {
 	eventCollection := GetCalendarEventCollection(db)
-	mongoResult := FindOneAndUpdateWithCollection(eventCollection, userID, IDExternal, sourceID, fields, additionalFilters)
+	mongoResult, err := FindOneAndUpdateWithCollection(eventCollection, userID, IDExternal, sourceID, nil, fields, additionalFilters)
+	if err != nil {
+		return nil, err
+	}
 
 	var event CalendarEvent
-	err := mongoResult.Decode(&event)
+	err = mongoResult.Decode(&event)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to update or create event")
@@ -157,24 +63,167 @@ func UpdateOrCreateCalendarEvent(
 	return &event, nil
 }
 
-func GetCalendarEvent(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
-	db, dbCleanup, err := GetDBConnection()
-	logger := logging.GetSentryLogger()
+func UpdateOrCreatePullRequest(
+	db *mongo.Database,
+	userID primitive.ObjectID,
+	IDExternal string,
+	sourceID string,
+	fields interface{},
+	additionalFilters *[]bson.M,
+) (*PullRequest, error) {
+	pullRequestCollection := GetPullRequestCollection(db)
+	mongoResult, err := FindOneAndUpdateWithCollection(pullRequestCollection, userID, IDExternal, sourceID, nil, fields, additionalFilters)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to establish DB connection")
 		return nil, err
 	}
-	defer dbCleanup()
+
+	var pullRequest PullRequest
+	err = mongoResult.Decode(&pullRequest)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to update or create pull request")
+		return nil, err
+	}
+	return &pullRequest, nil
+}
+
+func FindOneAndUpdateWithCollection(
+	collection *mongo.Collection,
+	userID primitive.ObjectID,
+	IDExternal string,
+	sourceID string,
+	fieldsToInsertIfMissing interface{},
+	fields interface{},
+	additionalFilters *[]bson.M,
+) (*mongo.SingleResult, error) {
+	parentCtx := context.Background()
+	dbQuery := getDBQuery(userID, IDExternal, sourceID, additionalFilters)
+	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	if fieldsToInsertIfMissing != nil {
+		_, err := collection.UpdateOne(
+			dbCtx,
+			dbQuery,
+			bson.M{"$setOnInsert": fieldsToInsertIfMissing},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msg("failed to update or create task")
+			return nil, err
+		}
+	}
+
+	mongoResult := collection.FindOneAndUpdate(
+		dbCtx,
+		dbQuery,
+		bson.M{"$set": fields},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	)
+
+	return mongoResult, nil
+}
+
+func GetTask(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*Task, error) {
+	parentCtx := ctx
+	logger := logging.GetSentryLogger()
+	taskCollection := GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	mongoResult := FindOneWithCollection(dbCtx, taskCollection, userID, itemID)
+
+	var task Task
+	defer cancel()
+	err := mongoResult.Decode(&task)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
+		return nil, err
+	}
+	return &task, nil
+}
+
+func GetCalendarEvent(db *mongo.Database, ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
+	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := FindOneWithCollection(ctx, eventCollection, userID, itemID)
 
 	var event CalendarEvent
-	err = mongoResult.Decode(&event)
+	err := mongoResult.Decode(&event)
 	if err != nil {
 		logger.Error().Err(err).Msgf("failed to get event: %+v", itemID)
 		return nil, err
 	}
 	return &event, nil
+}
+
+func GetPullRequestByExternalID(db *mongo.Database, ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
+	logger := logging.GetSentryLogger()
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	var pullRequest PullRequest
+
+	err := FindOneExternalWithCollection(
+		dbCtx,
+		GetPullRequestCollection(db),
+		userID,
+		externalID,
+	).Decode(&pullRequest)
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
+		}
+		return nil, err
+	}
+	return &pullRequest, nil
+}
+
+func FindOneExternalWithCollection(
+	ctx context.Context,
+	collection *mongo.Collection,
+	userID primitive.ObjectID,
+	externalID string) *mongo.SingleResult {
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	return collection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"id_external": externalID},
+			{"user_id": userID},
+		}})
+}
+
+func FindOneWithCollection(
+	ctx context.Context,
+	collection *mongo.Collection,
+	userID primitive.ObjectID,
+	itemID primitive.ObjectID) *mongo.SingleResult {
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	return collection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"user_id": userID},
+		}})
+}
+
+func GetOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Task, error) {
+	taskCollection := GetTaskCollection(db)
+	mongoResult := GetOrCreateWithCollection(taskCollection, userID, IDExternal, sourceID, fieldsToInsertIfMissing)
+	if mongoResult == nil {
+		return nil, errors.New("unable to create task")
+	}
+
+	var task Task
+	err := mongoResult.Decode(&task)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to get task")
+		return nil, err
+	}
+
+	return &task, nil
 }
 
 func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*CalendarEvent, error) {
@@ -195,46 +244,6 @@ func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDE
 	return &event, nil
 }
 
-func UpdateOrCreatePullRequest(
-	db *mongo.Database,
-	userID primitive.ObjectID,
-	IDExternal string,
-	sourceID string,
-	fields interface{},
-	additionalFilters *[]bson.M,
-) (*PullRequest, error) {
-	pullRequestCollection := GetPullRequestCollection(db)
-	mongoResult := FindOneAndUpdateWithCollection(pullRequestCollection, userID, IDExternal, sourceID, fields, additionalFilters)
-
-	var pullRequest PullRequest
-	err := mongoResult.Decode(&pullRequest)
-	if err != nil {
-		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("failed to update or create pull request")
-		return nil, err
-	}
-	return &pullRequest, nil
-}
-
-func GetPullRequest(ctx context.Context, itemID primitive.ObjectID, userID primitive.ObjectID) (*PullRequest, error) {
-	db, dbCleanup, err := GetDBConnection()
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-	pullRequestCollection := GetPullRequestCollection(db)
-	mongoResult := FindOneWithCollection(ctx, pullRequestCollection, userID, itemID)
-
-	var pullRequest PullRequest
-	err = mongoResult.Decode(&pullRequest)
-	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get pull request: %+v", itemID)
-		return nil, err
-	}
-	return &pullRequest, nil
-}
-
 func GetOrCreatePullRequest(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*PullRequest, error) {
 	pullRequestCollection := GetPullRequestCollection(db)
 	mongoResult := GetOrCreateWithCollection(pullRequestCollection, userID, IDExternal, sourceID, fieldsToInsertIfMissing)
@@ -253,45 +262,6 @@ func GetOrCreatePullRequest(db *mongo.Database, userID primitive.ObjectID, IDExt
 	}
 
 	return &pullRequest, nil
-}
-
-func FindOneAndUpdateWithCollection(
-	collection *mongo.Collection,
-	userID primitive.ObjectID,
-	IDExternal string,
-	sourceID string,
-	fields interface{},
-	additionalFilters *[]bson.M,
-) *mongo.SingleResult {
-	parentCtx := context.Background()
-	dbQuery := getDBQuery(userID, IDExternal, sourceID, additionalFilters)
-	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	mongoResult := collection.FindOneAndUpdate(
-		dbCtx,
-		dbQuery,
-		bson.M{"$set": fields},
-		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
-	)
-
-	return mongoResult
-}
-
-func FindOneWithCollection(
-	ctx context.Context,
-	collection *mongo.Collection,
-	userID primitive.ObjectID,
-	itemID primitive.ObjectID) *mongo.SingleResult {
-	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-	defer cancel()
-	return collection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": itemID},
-			{"user_id": userID},
-		}})
 }
 
 func GetOrCreateWithCollection(
@@ -341,30 +311,20 @@ func getDBQuery(userID primitive.ObjectID, IDExternal string, sourceID string, a
 	return dbQuery
 }
 
-func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := GetTaskCollection(db).Find(
-		dbCtx,
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-				{"is_completed": false},
-				{"task_type.is_task": true},
-			},
-		},
-	)
-	logger := logging.GetSentryLogger()
+	taskCollection := GetTaskCollection(db)
+	cursor, err := GetActiveItemsWithCollection(taskCollection, userID)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
-	var tasks []Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+
+	var tasks []Task
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
+		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
@@ -373,9 +333,29 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, err
 
 func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]PullRequest, error) {
 	parentCtx := context.Background()
+	pullRequestCollection := GetPullRequestCollection(db)
+	cursor, err := GetActiveItemsWithCollection(pullRequestCollection, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var pullRequests []PullRequest
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	cursor, err := GetPullRequestCollection(db).Find(
+	err = cursor.All(dbCtx, &pullRequests)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch PRs for user")
+		return nil, err
+	}
+	return &pullRequests, nil
+}
+
+func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive.ObjectID) (*mongo.Cursor, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := collection.Find(
 		dbCtx,
 		bson.M{
 			"$and": []bson.M{
@@ -384,93 +364,65 @@ func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]PullRequest
 			},
 		},
 	)
-	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch PRs for user")
 		return nil, err
 	}
-	var pullRequests []PullRequest
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &pullRequests)
-	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch PRs for user")
-		return nil, err
-	}
-	return &pullRequests, nil
+	return cursor, nil
 }
 
-func GetItems(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Item, error) {
+func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Task, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	filter := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-		},
-	}
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, additionalFilter := range *additionalFilters {
-			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
-		}
-	}
-	cursor, err := GetTaskCollection(db).Find(
-		dbCtx,
-		filter,
-	)
-	logger := logging.GetSentryLogger()
+	var tasks []Task
+	err := FindWithCollection(parentCtx, GetTaskCollection(db), userID, additionalFilters, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
-	var items []Item
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &items)
-	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch items for user")
-		return nil, err
-	}
-	return &items, nil
+	return &tasks, nil
 }
 
 // will add helpers once we refactor tasks collection
 func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
 	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	filter := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-		},
-	}
-	// TODO move to helper
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, additionalFilter := range *additionalFilters {
-			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
-		}
-	}
-	cursor, err := GetPullRequestCollection(db).Find(
-		dbCtx,
-		filter,
-	)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
-		return nil, err
-	}
 	var pullRequests []PullRequest
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &pullRequests)
+	err := FindWithCollection(parentCtx, GetPullRequestCollection(db), userID, additionalFilters, &pullRequests)
 	if err != nil {
+		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
 		return nil, err
 	}
 	return &pullRequests, nil
 }
 
-func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, error) {
+func FindWithCollection(parentCtx context.Context, collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}) error {
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := collection.Find(
+		dbCtx,
+		filter,
+	)
+	if err != nil {
+		return err
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	return cursor.All(dbCtx, result)
+}
+
+func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	parentCtx := context.Background()
 
 	findOptions := options.Find()
@@ -485,30 +437,38 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Item, 
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": true},
-				{"task_type.is_task": true},
 			},
 		},
 		findOptions,
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
-	var tasks []Item
+	var tasks []Task
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	err = cursor.All(dbCtx, &tasks)
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to fetch tasks for user")
+		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
 	return &tasks, nil
 }
 
+func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	return GetTasks(db, userID,
+		&[]bson.M{
+			{"is_completed": false},
+			{"is_meeting_preparation_task": true},
+		},
+	)
+}
+
 func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, userID primitive.ObjectID) (string, error) {
 	if taskSectionID == constants.IDTaskSectionDefault {
-		return "Default", nil
+		return GetDefaultSectionName(db, userID), nil
 	}
 
 	parentCtx := context.Background()
@@ -527,6 +487,31 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, us
 	).Decode(&taskSection)
 
 	return taskSection.Name, err
+}
+
+// Get all events that start until the end of the day
+func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]CalendarEvent, error) {
+	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
+	eventCollection := GetCalendarEventCollection(db)
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := eventCollection.Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"datetime_start": bson.M{"$gte": currentTime}},
+				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
+			},
+		})
+	if err != nil {
+		return nil, err
+	}
+	var events []CalendarEvent
+	dbCtx, cancel = context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &events)
+	return &events, err
 }
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
@@ -555,12 +540,11 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 	return &sections, nil
 }
 
-func MarkItemComplete(db *mongo.Database, itemID primitive.ObjectID) error {
+func MarkCompleteWithCollection(collection *mongo.Collection, itemID primitive.ObjectID) error {
 	parentCtx := context.Background()
-	tasksCollection := GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	res, err := tasksCollection.UpdateOne(
+	res, err := collection.UpdateOne(
 		dbCtx,
 		bson.M{"_id": itemID},
 		bson.M{"$set": bson.M{
@@ -573,29 +557,6 @@ func MarkItemComplete(db *mongo.Database, itemID primitive.ObjectID) error {
 	}
 	if res.MatchedCount != 1 {
 		return errors.New("did not find item to mark complete")
-	}
-	return nil
-}
-
-// TODO make generic once we refactor Tasks
-func MarkPRComplete(db *mongo.Database, pullRequestID primitive.ObjectID) error {
-	parentCtx := context.Background()
-	pullRequestCollection := GetPullRequestCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	res, err := pullRequestCollection.UpdateOne(
-		dbCtx,
-		bson.M{"_id": pullRequestID},
-		bson.M{"$set": bson.M{
-			"is_completed": true,
-			"completed_at": primitive.NewDateTimeFromTime(time.Now()),
-		}},
-	)
-	if err != nil {
-		return err
-	}
-	if res.MatchedCount != 1 {
-		return errors.New("did not find pull request to mark complete")
 	}
 	return nil
 }
@@ -615,6 +576,20 @@ func GetUser(db *mongo.Database, userID primitive.ObjectID) (*User, error) {
 		return nil, err
 	}
 	return &userObject, nil
+}
+
+func GetGeneralTaskUserByName(db *mongo.Database, name string) (*User, error) {
+	parentCtx := context.Background()
+	var user User
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	if err := GetUserCollection(db).FindOne(
+		dbCtx,
+		bson.M{"email": name + "@generaltask.com"}).Decode(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func CreateStateToken(db *mongo.Database, userID *primitive.ObjectID, useDeeplink bool) (*string, error) {
@@ -668,7 +643,7 @@ func DeleteStateToken(db *mongo.Database, stateTokenID primitive.ObjectID, userI
 	result, err := GetStateTokenCollection(db).DeleteOne(dbCtx, deletionQuery)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("Failed to delete state token")
+		logger.Error().Err(err).Msg("failed to delete state token")
 		return err
 	}
 	if result.DeletedCount != 1 {
@@ -710,6 +685,34 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
+func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
+	parentCtx := context.Background()
+	defaultSectionCollection := GetDefaultSectionSettingsCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	var settings DefaultSectionSettings
+	mongoResult := defaultSectionCollection.FindOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+		}},
+	)
+	err := mongoResult.Decode(&settings)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msg("failed to query default section settings")
+		}
+		return constants.TaskSectionNameDefault
+	}
+	if settings.NameOverride != "" {
+		return settings.NameOverride
+	} else {
+		return constants.TaskSectionNameDefault
+	}
+}
+
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }
@@ -728,6 +731,10 @@ func GetViewCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRepositoryCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("repositories")
+}
+
+func GetDefaultSectionSettingsCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("default_section_settings")
 }
 
 func GetUserCollection(db *mongo.Database) *mongo.Collection {
@@ -775,14 +782,4 @@ func IsValidPagination(pagination Pagination) bool {
 		return false
 	}
 	return *pagination.Limit > 0 && *pagination.Page > 0
-}
-
-func FlattenStruct(s interface{}) (map[string]interface{}, error) {
-	flattened, err := flatbson.Flatten(s)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msgf("Could not flatten %+v", s)
-		return nil, err
-	}
-	return flattened, nil
 }

@@ -2,11 +2,9 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -22,16 +20,17 @@ type EventListParams struct {
 }
 
 type EventResult struct {
-	ID                 primitive.ObjectID   `json:"id"`
-	Deeplink           string               `json:"deeplink"`
-	Title              string               `json:"title"`
-	Body               string               `json:"body"`
-	ConferenceCall     utils.ConferenceCall `json:"conference_call"`
-	DatetimeEnd        primitive.DateTime   `json:"datetime_end,omitempty"`
-	DatetimeStart      primitive.DateTime   `json:"datetime_start,omitempty"`
-	LinkedTaskID       string               `json:"linked_task_id"`
-	LinkedTaskDeeplink string               `json:"linked_task_deeplink"`
-	Logo               string               `json:"logo"`
+	ID             primitive.ObjectID   `json:"id"`
+	AccountID      string               `json:"account_id"`
+	Deeplink       string               `json:"deeplink"`
+	Title          string               `json:"title"`
+	Body           string               `json:"body"`
+	CanModify      bool                 `json:"can_modify"`
+	ConferenceCall utils.ConferenceCall `json:"conference_call"`
+	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
+	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
+	LinkedTaskID   string               `json:"linked_task_id"`
+	Logo           string               `json:"logo"`
 }
 
 func (api *API) EventsList(c *gin.Context) {
@@ -94,7 +93,7 @@ func (api *API) EventsList(c *gin.Context) {
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			go taskSourceResult.Source.GetEvents(userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
+			go taskSourceResult.Source.GetEvents(api.DB, userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 		}
 	}
@@ -106,25 +105,25 @@ func (api *API) EventsList(c *gin.Context) {
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			linkedTaskDeeplink := ""
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
+			var linkedTaskID string
 			if event.LinkedTaskID != primitive.NilObjectID {
-				linkedTask, err := database.GetItem(dbCtx, event.LinkedTaskID, event.UserID)
-				// if linked_task exists
-				if err == nil {
-					linkedTaskDeeplink = getLinkedTaskDeeplink(linkedTask)
-					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(linkedTask.SourceID)
+				linkedTaskID = event.LinkedTaskID.Hex()
+				if event.LinkedTaskSourceID != "" {
+					taskSourceResult, _ = api.ExternalConfig.GetSourceResult(event.LinkedTaskSourceID)
 					logo = taskSourceResult.Details.LogoV2
 				} else {
-					api.Logger.Error().Err(err).Msgf("linked task not found: %s", event.LinkedTaskID.Hex())
+					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
 				}
 			}
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
+				AccountID:     event.SourceAccountID,
 				Deeplink:      event.Deeplink,
 				Title:         event.Title,
 				Body:          event.Body,
+				CanModify:     event.CanModify,
 				DatetimeEnd:   event.DatetimeEnd,
 				DatetimeStart: event.DatetimeStart,
 				ConferenceCall: utils.ConferenceCall{
@@ -132,9 +131,8 @@ func (api *API) EventsList(c *gin.Context) {
 					Platform: event.CallPlatform,
 					URL:      event.CallURL,
 				},
-				LinkedTaskDeeplink: linkedTaskDeeplink,
-				Logo:               logo,
-				LinkedTaskID:       event.LinkedTaskID.Hex(),
+				Logo:         logo,
+				LinkedTaskID: linkedTaskID,
 			})
 		}
 	}
@@ -146,12 +144,4 @@ func (api *API) EventsList(c *gin.Context) {
 	})
 
 	c.JSON(200, calendarEvents)
-}
-
-func getLinkedTaskDeeplink(linkedTask *database.Item) string {
-	sectionID := linkedTask.IDTaskSection.Hex()
-	if linkedTask.IsCompleted {
-		sectionID = constants.IDTaskSectionDone.Hex()
-	}
-	return fmt.Sprintf("%stasks/%s/%s", config.GetConfigValue("HOME_URL"), sectionID, linkedTask.ID.Hex())
 }

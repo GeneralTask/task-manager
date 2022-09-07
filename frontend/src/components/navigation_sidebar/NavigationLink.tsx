@@ -4,24 +4,23 @@ import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
-import { useAppDispatch } from '../../redux/hooks'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4} ${Spacing.padding._12};
+    padding: ${Spacing._4} ${Spacing._12};
     width: 100%;
     border-radius: ${Border.radius.small};
     background-color: ${(props) => (props.isSelected || props.isOver ? Colors.background.dark : 'inherit')};
     box-sizing: border-box;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
 `
 const SectionTitle = styled.span`
     color: ${Colors.text.light};
@@ -67,7 +66,7 @@ const NavigationLink = ({
     testId,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
-    const dispatch = useAppDispatch()
+    const { setIsCollapsed } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
@@ -98,7 +97,7 @@ const NavigationLink = ({
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
-        dispatch(setExpandedCalendar(false))
+        setIsCollapsed(true)
         navigate(link)
     }
 

@@ -1,6 +1,3 @@
-import { DateTime } from 'luxon'
-import React, { useRef, MouseEvent, useLayoutEffect, useEffect, useState } from 'react'
-import { TEvent } from '../../utils/types'
 import {
     CELL_HEIGHT_VALUE,
     EventBodyStyle,
@@ -9,28 +6,30 @@ import {
     EventInfoContainer,
     EventTime,
     EventTitle,
+    IconContainer,
 } from './CalendarEvents-styles'
+import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+import { DateTime } from 'luxon'
 import EventDetailPopup from '../molecules/EventDetailPopup'
 import ResizeHandle from './ResizeHandle'
+import { Icon } from '../atoms/Icon'
+import { TEvent } from '../../utils/types'
+import { logos } from '../../styles/images'
+import { useCalendarContext } from './CalendarContext'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 interface EventBodyProps {
     event: TEvent
-    eventDetailId: string
-    setEventDetailId: (id: string) => void
     collisionGroupSize: number
     leftOffset: number
     date: DateTime
-    isSelected: boolean
-    isScrollDisabled: boolean
-    setIsScrollDisabled: (id: boolean) => void
-    isEventSelected: boolean
-    setIsEventSelected: (id: boolean) => void
     isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
+    const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const eventRef = useRef<HTMLDivElement>(null)
     const popupRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
@@ -69,23 +68,17 @@ function EventBody(props: EventBodyProps): JSX.Element {
         return () => window.removeEventListener('resize', handleWindowResize)
     }, [])
 
-    const onClose = (e: MouseEvent) => {
-        if (eventRef.current?.contains(e.target as Node)) return
-        props.setEventDetailId('')
-        props.setIsEventSelected(false)
-        props.setIsScrollDisabled(false)
+    const onClose = (e?: MouseEvent) => {
+        if (e && eventRef.current?.contains(e.target as Node)) return
+        setSelectedEvent(null)
     }
     const onClick = (e: MouseEvent) => {
         // Prevent popup from closing when user clicks on the popup component
         if (popupRef.current?.contains(e.target as Node)) return
-        if (props.eventDetailId === props.event.id) {
-            props.setEventDetailId('')
-            props.setIsEventSelected(false)
-            props.setIsScrollDisabled(false)
+        if (selectedEvent?.id === props.event.id) {
+            setSelectedEvent(null)
         } else {
-            props.setEventDetailId(props.event.id)
-            props.setIsScrollDisabled(!props.isScrollDisabled)
-            props.setIsEventSelected(!props.isEventSelected)
+            setSelectedEvent(props.event)
         }
 
         if (!eventRef.current) return
@@ -122,7 +115,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             isBeingDragged={props.isBeingDragged}
         >
             <EventInfoContainer onClick={onClick}>
-                {props.eventDetailId === props.event.id && (
+                {selectedEvent?.id === props.event.id && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
@@ -132,17 +125,22 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         eventHeight={eventBodyHeight}
                         eventWidth={eventWidth}
                         windowHeight={windowHeight}
-                        setIsScrollDisabled={props.setIsScrollDisabled}
-                        setEventDetailId={props.setEventDetailId}
                         ref={popupRef}
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>{props.event.title || '(no title)'}</EventTitle>
+                    <EventTitle isLongEvent={isLongEvent}>
+                        {props.event.linked_task_id && (
+                            <IconContainer>
+                                <Icon size="xSmall" icon={logos[props.event.logo]} />
+                            </IconContainer>
+                        )}
+                        {props.event.title || '(no title)'}
+                    </EventTitle>
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>
-            <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} isSelected={props.isSelected} />
+            <EventFill squareStart={startedBeforeToday} squareEnd={endedAfterToday} isSelected={selectedEvent?.id === props.event.id} />
             <ResizeHandle event={props.event} />
         </EventBodyStyle>
     )

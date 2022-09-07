@@ -3,11 +3,12 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"os"
-	"time"
 )
 
 const MilitaryTimeOnly = "03:04:05"

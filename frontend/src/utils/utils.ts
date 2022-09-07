@@ -1,5 +1,6 @@
-import { DateTime } from 'luxon';
 import { TTask, TTaskSection } from './types'
+
+import { DateTime } from 'luxon';
 import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js

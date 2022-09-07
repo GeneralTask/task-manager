@@ -1,17 +1,16 @@
 import { Colors, Spacing } from '../../styles'
 import React, { useCallback } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
-import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
-import { setExpandedCalendar } from '../../redux/tasksPageSlice'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
+import { useCalendarContext } from './CalendarContext'
 
 export const PaddedContainer = styled.div`
-    padding: ${Spacing.padding._16} ${Spacing.padding._4} ${Spacing.padding._16} ${Spacing.padding._24};
+    padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
 `
 export const HeaderBodyContainer = styled.div`
     display: flex;
@@ -26,10 +25,10 @@ export const ButtonContainer = styled.div`
 export const CursorPointerDiv = styled.div`
     display: flex;
     flex-direction: row;
-    margin: ${Spacing.margin._4};
+    margin: ${Spacing._4};
     cursor: pointer;
     height: fit-content;
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing._4};
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -48,14 +47,14 @@ const ButtonStyles = styled.button`
 export const HoverButton = styled(ButtonStyles)`
     color: ${Colors.text.white};
     background-color: ${Colors.gtColor.primary};
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing._4} ${Spacing._8};
     &:hover {
         background-color: ${Colors.gtColor.secondary};
     }
 `
 export const ArrowButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing._4};
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -63,7 +62,7 @@ export const ArrowButton = styled(ButtonStyles)`
 
 export const CaretButton = styled(ButtonStyles)`
     background-color: inherit;
-    padding: ${Spacing.padding._4};
+    padding: ${Spacing._4};
     &:hover {
         background-color: ${Colors.background.dark};
     }
@@ -75,13 +74,23 @@ const HeaderIconsContainer = styled.div`
 `
 
 interface CalendarHeaderProps {
-    collapseCalendar: () => void
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
 }
-export default function CalendarHeader({ collapseCalendar, date, setDate }: CalendarHeaderProps): JSX.Element {
-    const isCalendarExpanded = useAppSelector((state) => state.tasks_page.expanded_calendar)
-    const dispatch = useAppDispatch()
+export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
+    const { showMainHeader, showDateHeader, calendarType, setCalendarType, setIsCollapsed, isCollapsed } =
+        useCalendarContext()
+    const isCalendarExpanded = calendarType === 'week' && !isCollapsed
+
+    const toggleCalendar = () => {
+        if (calendarType === 'week') {
+            setCalendarType('day')
+            setDate(DateTime.now())
+        } else {
+            setCalendarType('week')
+            setDate(date.minus({ days: date.weekday % 7 }))
+        }
+    }
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -96,58 +105,60 @@ export default function CalendarHeader({ collapseCalendar, date, setDate }: Cale
             }),
         [date, setDate, isCalendarExpanded]
     )
-    const expandCalendar = (expanded: boolean) => {
-        dispatch(setExpandedCalendar(expanded))
-        setDate(expanded ? date.minus({ days: date.weekday % 7 }) : DateTime.now())
-    }
-
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
+    if (!showMainHeader && !showDateHeader) return null
     return (
         <div>
-            <PaddedContainer>
-                <HeaderBodyContainer>
-                    <TitleSmall>Calendar</TitleSmall>
-                    <HeaderIconsContainer>
-                        <ArrowButton onClick={() => expandCalendar(!isCalendarExpanded)}>
-                            {isCalendarExpanded ? (
-                                <Icon icon={icons.arrows_in} size="xSmall" />
-                            ) : (
-                                <Icon icon={icons.arrows_out} size="xSmall" />
-                            )}
-                        </ArrowButton>
-                        <CaretButton onClick={() => collapseCalendar()}>
-                            <Icon icon={icons.caret_right} size="xSmall" />
-                        </CaretButton>
-                    </HeaderIconsContainer>
-                </HeaderBodyContainer>
-            </PaddedContainer>
-            <Divider color={Colors.border.light} />
-            <PaddedContainer>
-                <HeaderBodyContainer>
-                    <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
-                    <ButtonContainer>
-                        <HoverButton
-                            onClick={() =>
-                                setDate(
-                                    isCalendarExpanded
-                                        ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
-                                        : DateTime.now()
-                                )
-                            }
-                        >
-                            Today
-                        </HoverButton>
-                        <CaretButton onClick={selectPrevious}>
-                            <Icon icon={icons.caret_left} size="xSmall" />
-                        </CaretButton>
-                        <CaretButton onClick={selectNext}>
-                            <Icon icon={icons.caret_right} size="xSmall" />
-                        </CaretButton>
-                    </ButtonContainer>
-                </HeaderBodyContainer>
-            </PaddedContainer>
+            {showMainHeader && (
+                <>
+                    <PaddedContainer>
+                        <HeaderBodyContainer>
+                            <TitleSmall>Calendar</TitleSmall>
+                            <HeaderIconsContainer>
+                                <ArrowButton onClick={toggleCalendar}>
+                                    {calendarType == 'week' ? (
+                                        <Icon icon={icons.arrows_in} size="xSmall" />
+                                    ) : (
+                                        <Icon icon={icons.arrows_out} size="xSmall" />
+                                    )}
+                                </ArrowButton>
+                                <CaretButton onClick={() => setIsCollapsed(true)}>
+                                    <Icon icon={icons.caret_right} size="xSmall" />
+                                </CaretButton>
+                            </HeaderIconsContainer>
+                        </HeaderBodyContainer>
+                    </PaddedContainer>
+                    <Divider color={Colors.border.light} />
+                </>
+            )}
+            {showDateHeader && (
+                <PaddedContainer>
+                    <HeaderBodyContainer>
+                        <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
+                        <ButtonContainer>
+                            <HoverButton
+                                onClick={() =>
+                                    setDate(
+                                        isCalendarExpanded
+                                            ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
+                                            : DateTime.now()
+                                    )
+                                }
+                            >
+                                Today
+                            </HoverButton>
+                            <CaretButton onClick={selectPrevious}>
+                                <Icon icon={icons.caret_left} size="xSmall" />
+                            </CaretButton>
+                            <CaretButton onClick={selectNext}>
+                                <Icon icon={icons.caret_right} size="xSmall" />
+                            </CaretButton>
+                        </ButtonContainer>
+                    </HeaderBodyContainer>
+                </PaddedContainer>
+            )}
         </div>
     )
 }

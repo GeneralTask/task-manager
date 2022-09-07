@@ -8,19 +8,19 @@ import { useCreateEvent, useModifyEvent } from "../../../services/api/events.hoo
 import { useEffect } from 'react'
 import { getDiffBetweenISOTimes } from "../../../utils/time"
 
-interface CalendarDropProps {
-    accountId: string | undefined
+interface CalendarDropArgs {
+    primaryAccountID: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
     isWeekView: boolean
 }
 
 const useCalendarDrop = ({
-    accountId,
+    primaryAccountID,
     date,
     eventsContainerRef,
     isWeekView,
-}: CalendarDropProps) => {
+}: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
@@ -65,112 +65,110 @@ const useCalendarDrop = ({
         if (itemType === DropType.EVENT || itemType === DropType.EVENT_RESIZE_HANDLE) {
             mouseFromEventTopOffset -= (EVENT_CREATION_INTERVAL_HEIGHT / 2)
         }
-        if (!eventsContainerRef?.current || !clientOffset || !accountId) return 0
+        if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
         const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
         const scrollOffset = eventsContainerRef.current.scrollTop - (isWeekView ? CALENDAR_DAY_HEADER_HEIGHT : 0)
         const yPosInEventsContainer = clientOffset.y - eventsContainerOffset + scrollOffset - mouseFromEventTopOffset
         return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
-    }, [accountId, isWeekView])
+    }, [primaryAccountID, isWeekView])
 
-    const onDrop = useCallback(
-        async (item: DropItem, monitor: DropTargetMonitor) => {
-            const itemType = monitor.getItemType()
-            if (!accountId) return
+    const onDrop = useCallback((item: DropItem, monitor: DropTargetMonitor) => {
+        const itemType = monitor.getItemType()
+        if (!primaryAccountID) return
+        const dropPosition = getDropPosition(monitor)
+        const dropTime = getTimeFromDropPosition(dropPosition)
+        switch (itemType) {
+            case DropType.TASK: {
+                const end = dropTime.plus({ minutes: 30 })
+                createEvent({
+                    payload: {
+                        account_id: primaryAccountID,
+                        datetime_start: dropTime.toISO(),
+                        datetime_end: end.toISO(),
+                        summary: item.task?.title,
+                        description: item.task?.body,
+                    },
+                    date,
+                })
+                break
+            }
+            case DropType.EVENT: {
+                if (!item.event) return
+                const end = dropTime.plus(getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end))
+                modifyEvent({
+                    event: item.event,
+                    payload: {
+                        account_id: primaryAccountID,
+                        datetime_start: dropTime.toISO(),
+                        datetime_end: end.toISO(),
+                    },
+                    date,
+                })
+                break
+            }
+            case DropType.EVENT_RESIZE_HANDLE: {
+                if (!item.event) return
+                const eventStart = DateTime.fromISO(item.event.datetime_start)
+                // if end is after start, use drop location, otherwise set to 15 minutes after event started
+                const end = (dropTime.diff(eventStart).milliseconds > 0)
+                    ? dropTime
+                    : eventStart.plus({ minutes: EVENT_CREATION_INTERVAL_IN_MINUTES })
+                modifyEvent({
+                    event: item.event,
+                    payload: {
+                        account_id: primaryAccountID,
+                        datetime_end: end.toISO(),
+                    },
+                    date,
+                })
+            }
+        }
+    },
+        [date, primaryAccountID]
+    )
+
+    const [isOver, drop] = useDrop(() => ({
+        accept: [DropType.TASK, DropType.EVENT, DropType.EVENT_RESIZE_HANDLE],
+        collect: (monitor) => {
+            return monitor.isOver()
+        },
+        drop: onDrop,
+        canDrop: () => primaryAccountID !== undefined,
+        hover: (item, monitor) => {
             const dropPosition = getDropPosition(monitor)
-            const dropTime = getTimeFromDropPosition(dropPosition)
+            const itemType = monitor.getItemType()
             switch (itemType) {
                 case DropType.TASK: {
-                    const end = dropTime.plus({ minutes: 30 })
-                    createEvent({
-                        payload: {
-                            account_id: accountId,
-                            datetime_start: dropTime.toISO(),
-                            datetime_end: end.toISO(),
-                            summary: item.task?.title,
-                            description: item.task?.body,
-                        },
-                        date,
-                    })
+                    setEventPreview(undefined)
+                    setDropPreviewPosition(dropPosition)
                     break
                 }
                 case DropType.EVENT: {
                     if (!item.event) return
-                    const end = dropTime.plus(getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end))
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: accountId,
-                            datetime_start: dropTime.toISO(),
-                            datetime_end: end.toISO(),
-                        },
-                        date,
-                    })
+                    setDropPreviewPosition(dropPosition)
+                    setEventPreview(item.event)
                     break
                 }
                 case DropType.EVENT_RESIZE_HANDLE: {
                     if (!item.event) return
                     const eventStart = DateTime.fromISO(item.event.datetime_start)
-                    // if end is after start, use drop location, otherwise set to 15 minutes after event started
+                    // index of 15 minute block of the start time
+                    const eventStartPosition = eventStart.diff(date.startOf('day'), 'minutes').minutes / EVENT_CREATION_INTERVAL_IN_MINUTES
+                    setDropPreviewPosition(eventStartPosition)
+                    const dropTime = getTimeFromDropPosition(dropPosition)
                     const end = (dropTime.diff(eventStart).milliseconds > 0)
                         ? dropTime
                         : eventStart.plus({ minutes: EVENT_CREATION_INTERVAL_IN_MINUTES })
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: accountId,
-                            datetime_end: end.toISO(),
-                        },
-                        date,
+                    setEventPreview({
+                        ...item.event,
+                        datetime_end: end.toISO(),
                     })
+                    break
                 }
             }
         },
-        [date, accountId]
-    )
-
-    const [isOver, drop] = useDrop(
-        () => ({
-            accept: [DropType.TASK, DropType.EVENT, DropType.EVENT_RESIZE_HANDLE],
-            collect: (monitor) => {
-                return monitor.isOver()
-            },
-            drop: onDrop,
-            canDrop: () => accountId !== undefined,
-            hover: (item, monitor) => {
-                const dropPosition = getDropPosition(monitor)
-                const itemType = monitor.getItemType()
-                switch (itemType) {
-                    case DropType.TASK: {
-                        setEventPreview(undefined)
-                        setDropPreviewPosition(dropPosition)
-                        break
-                    }
-                    case DropType.EVENT: {
-                        if (!item.event) return
-                        setDropPreviewPosition(dropPosition)
-                        setEventPreview(item.event)
-                        break
-                    }
-                    case DropType.EVENT_RESIZE_HANDLE: {
-                        if (!item.event) return
-                        const eventStart = DateTime.fromISO(item.event.datetime_start)
-                        // index of 15 minute block of the start time
-                        const eventStartPosition = eventStart.diff(date.startOf('day'), 'minutes').minutes / EVENT_CREATION_INTERVAL_IN_MINUTES
-                        setDropPreviewPosition(eventStartPosition)
-                        const dropTime = getTimeFromDropPosition(dropPosition)
-                        const end = (dropTime.diff(eventStart).milliseconds > 0)
-                            ? dropTime
-                            : eventStart.plus({ minutes: EVENT_CREATION_INTERVAL_IN_MINUTES })
-                        setEventPreview({
-                            ...item.event,
-                            datetime_end: end.toISO(),
-                        })
-                        break
-                    }
-                }
-            },
-        }),
-        [accountId, onDrop, date]
+    }),
+        [primaryAccountID, onDrop, date]
     )
 
     useEffect(() => {

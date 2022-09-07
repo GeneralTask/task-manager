@@ -1,26 +1,13 @@
+import { TEvent, TTask } from "../../utils/types"
 import produce, { castImmutable } from "immer"
-import { useMutation, useQuery } from "react-query"
+import { QueryFunctionContext, useMutation, useQuery } from "react-query"
 
 import { DateTime } from "luxon"
-import { TEvent } from "../../utils/types"
 import apiClient from "../../utils/api"
 import { getMonthsAroundDate } from "../../utils/time"
 import { useGTQueryClient } from "../queryUtils"
 import { v4 as uuidv4 } from 'uuid'
-
-export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType, params.startISO], () => getEvents(params))
-}
-const getEvents = async (params: { startISO: string; endISO: string }) => {
-    try {
-        const res = await apiClient.get('/events/', {
-            params: { datetime_start: params.startISO, datetime_end: params.endISO },
-        })
-        return castImmutable(res.data)
-    } catch {
-        throw new Error('getEvents failed')
-    }
-}
+import { EVENTS_REFETCH_INTERVAL } from "../../constants"
 
 interface TEventAttendee {
     name: string
@@ -37,12 +24,29 @@ interface TCreateEventPayload {
     time_zone?: string
     attendees?: TEventAttendee[]
     add_conference_call?: boolean
+    task_id?: string
 }
-interface CreateEventParams {
-    payload: TCreateEventPayload
+interface TModifyEventPayload {
+    account_id: string
+    datetime_start?: string
+    datetime_end?: string
+    summary?: string
+    location?: string
+    description?: string
+    time_zone?: string
+    attendees?: TEventAttendee[]
+    add_conference_call?: boolean
+}
+interface TModifyEventData {
+    event: TEvent
+    payload: TModifyEventPayload
     date: DateTime
 }
-
+interface CreateEventParams {
+    createEventPayload: TCreateEventPayload
+    date: DateTime
+    linkedTask?: TTask
+}
 interface TModifyEventPayload {
     account_id: string
     datetime_start?: string
@@ -67,15 +71,33 @@ interface TDeleteEventData {
     datetime_end: string
 }
 
+export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
+    return useQuery<TEvent[]>(['events', calendarType, params.startISO], (queryFunctionContext) => getEvents(params, queryFunctionContext), {
+        refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
+        refetchIntervalInBackground: true,
+    })
+}
+const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/events/', {
+            params: { datetime_start: params.startISO, datetime_end: params.endISO },
+            signal,
+        })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getEvents failed')
+    }
+}
+
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(({ payload }: CreateEventParams) => createEvent(payload),
+    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
         {
-            onMutate: async ({ payload, date }: CreateEventParams) => {
+            onMutate: async ({ createEventPayload, date, linkedTask }: CreateEventParams) => {
                 await queryClient.cancelQueries('events')
 
-                const start = DateTime.fromISO(payload.datetime_start)
-                const end = DateTime.fromISO(payload.datetime_end)
+                const start = DateTime.fromISO(createEventPayload.datetime_start)
+                const end = DateTime.fromISO(createEventPayload.datetime_end)
                 const timeBlocks = getMonthsAroundDate(date, 1)
                 const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
                 const block = timeBlocks[blockIndex]
@@ -90,12 +112,18 @@ export const useCreateEvent = () => {
 
                 const newEvent: TEvent = {
                     id: uuidv4(),
-                    title: payload.summary ?? '',
-                    body: payload.description ?? '',
+                    title: createEventPayload.summary ?? '',
+                    body: createEventPayload.description ?? '',
+                    logo: linkedTask?.source.logo_v2 ?? 'gcal',
                     deeplink: '',
-                    datetime_start: payload.datetime_start,
-                    datetime_end: payload.datetime_end,
-                    conference_call: null,
+                    datetime_start: createEventPayload.datetime_start,
+                    datetime_end: createEventPayload.datetime_end,
+                    conference_call: {
+                        url: '',
+                        logo: '',
+                        platform: '',
+                    },
+                    linked_task_id: linkedTask?.id ?? '',
                 }
 
                 const newEvents = produce(events, (draft) => {

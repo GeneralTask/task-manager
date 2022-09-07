@@ -2,9 +2,10 @@ package migrations
 
 import (
 	"context"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/external"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"

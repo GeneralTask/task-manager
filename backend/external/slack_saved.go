@@ -1,9 +1,11 @@
 package external
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -41,19 +43,13 @@ type SlackAdditionalInformation struct {
 	Deeplink string
 }
 
-func (slackTask SlackSavedTaskSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (slackTask SlackSavedTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(nil)
 }
 
-func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (slackTask SlackSavedTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
 	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to connect to db")
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_SLACK_SAVED)
-	}
-	defer dbCleanup()
 
 	taskCollection := database.GetTaskCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -68,7 +64,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 			{"is_completed": false},
 		}},
 	)
-	var tasks []*database.Item
+	var tasks []*database.Task
 	if err != nil || cursor.All(dbCtx, &tasks) != nil {
 		logger.Error().Err(err).Msg("failed to fetch slack tasks")
 		result <- emptyTaskResult(err)
@@ -77,47 +73,39 @@ func (slackTask SlackSavedTaskSource) GetTasks(userID primitive.ObjectID, accoun
 	result <- TaskResult{Tasks: tasks, Error: nil}
 }
 
-func (slackTask SlackSavedTaskSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (slackTask SlackSavedTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (slackTask SlackSavedTaskSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.TaskItemChangeableFields, task *database.Item) error {
+func (slackTask SlackSavedTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	return nil
 }
 
-func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (slackTask SlackSavedTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	parentCtx := context.Background()
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return primitive.NilObjectID, err
-	}
-	defer dbCleanup()
 
 	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
 	}
 
-	slackAdditionalInformation, err := GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
+	slackAdditionalInformation, err := slackTask.GetSlackAdditionalInformation(db, userID, accountID, task.SlackMessageParams)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Slack message params")
 	}
 
-	newTask := database.Item{
-		TaskBase: database.TaskBase{
-			UserID:          userID,
-			IDTaskSection:   taskSection,
-			SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
-			Title:           task.Title,
-			Body:            task.Body,
-			SourceAccountID: accountID,
-			Deeplink:        slackAdditionalInformation.Deeplink,
-			Sender:          slackAdditionalInformation.Username,
-		},
-		TaskType: database.TaskType{
-			IsTask: true,
-		},
+	completed := false
+	newTask := database.Task{
+		UserID:          userID,
+		IDTaskSection:   taskSection,
+		SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
+		Title:           &task.Title,
+		Body:            &task.Body,
+		SourceAccountID: accountID,
+		Deeplink:        slackAdditionalInformation.Deeplink,
+		Sender:          slackAdditionalInformation.Username,
+		IsCompleted:     &completed,
 		SlackMessageParams: database.SlackMessageParams{
 			Channel: task.SlackMessageParams.Channel,
 			User:    task.SlackMessageParams.User,
@@ -133,15 +121,15 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(userID primitive.ObjectID, a
 	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 
-func (slackTask SlackSavedTaskSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+func (slackTask SlackSavedTaskSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (slackTask SlackSavedTaskSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (slackTask SlackSavedTaskSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	return errors.New("has not been implemented yet")
 }
 
-func (slackTask SlackSavedTaskSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+func (slackTask SlackSavedTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }
 
@@ -149,7 +137,7 @@ func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }
 
-func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackAdditionalInformation, error) {
+func (slackTask SlackSavedTaskSource) GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID, accountID string, slackParams database.SlackMessageParams) (SlackAdditionalInformation, error) {
 	externalToken, err := getExternalToken(db, userID, accountID, TASK_SERVICE_ID_SLACK)
 	if err != nil {
 		return SlackAdditionalInformation{}, err
@@ -159,6 +147,10 @@ func GetSlackAdditionalInformation(db *mongo.Database, userID primitive.ObjectID
 	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
 
 	client := slack.New(oauthToken.AccessToken)
+	config := slackTask.Slack.Config.ConfigValues
+	if config.OverrideURL != nil {
+		client = slack.New(oauthToken.AccessToken, slack.OptionAPIURL(*slackTask.Slack.Config.ConfigValues.OverrideURL))
+	}
 	deeplinkChan := make(chan string)
 	usernameChan := make(chan string)
 
@@ -202,6 +194,30 @@ func getSlackUsername(client *slack.Client, userID string, result chan<- string)
 	}
 	result <- userProfile.Profile.DisplayName
 	return
+}
+
+func SendConfirmationResponse(externalToken database.ExternalAPIToken, responseURL string) error {
+	var oauthToken oauth2.Token
+	err := json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest("POST", responseURL, bytes.NewBuffer(getSlackSuccessResponse()))
+	request.Header.Set("Content-type", "application/json")
+	request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getSlackSuccessResponse() []byte {
+	return []byte(`{
+		"text": "Task successfully created!"
+	}`)
 }
 
 func GetSlackModal(triggerID string, formData string, message string) []byte {

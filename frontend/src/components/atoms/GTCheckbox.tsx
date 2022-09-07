@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import Lottie, { LottieRef } from 'lottie-react'
 
 const ANIM_SPEED = 1.5
-const ANIM_START_FRAME = 4
+const ANIM_START_FRAME = 3
 const ANIM_END_FRAME = 29
 const ANIM_TOTAL_FRAMES = ANIM_END_FRAME - ANIM_START_FRAME
 
@@ -33,23 +33,28 @@ interface GTCheckboxProps {
     isChecked: boolean
     onChange: (checked: boolean) => void
     disabled?: boolean
+    animated?: boolean
 }
-const GTCheckbox = ({ isChecked, onChange, disabled }: GTCheckboxProps) => {
+const GTCheckbox = ({ isChecked, onChange, disabled, animated }: GTCheckboxProps) => {
     const animRef: LottieRef = useRef(null)
 
     const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
         onChange(!isChecked)
         if (!isChecked) {
-            animRef.current?.play()
+            if (animated) {
+                animRef.current?.play()
+            } else {
+                animRef.current?.goToAndStop(ANIM_END_FRAME, true)
+            }
         } else {
-            animRef.current?.goToAndStop(0, true)
+            animRef.current?.goToAndStop(ANIM_START_FRAME, true)
         }
     }
 
     useEffect(() => {
         if (!animRef.current) return
-        animRef.current.goToAndStop(isChecked ? ANIM_TOTAL_FRAMES : 0, true)
+        animRef.current.goToAndStop(isChecked ? ANIM_TOTAL_FRAMES : ANIM_START_FRAME, true)
         animRef.current.setSpeed(ANIM_SPEED)
     }, [])
 

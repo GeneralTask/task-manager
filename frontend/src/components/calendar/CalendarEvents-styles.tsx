@@ -1,5 +1,4 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-
+import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
 
 export const CELL_HEIGHT_VALUE = 64
@@ -96,14 +95,12 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
         height: props.eventBodyHeight - EVENT_BOTTOM_PADDING,
         top: props.topOffset,
         left: `calc(
-            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
-            props.leftOffset
-        }
+            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${props.leftOffset}
         )`,
         opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
         zIndex: props.isBeingDragged ? 1 : 0,
     },
-}))<EventBodyStyleProps>`
+})) <EventBodyStyleProps>`
     position: absolute;
     cursor: pointer;
 `
@@ -128,20 +125,18 @@ export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     font-size: 14px;
     font-weight: 600;
     color: ${EVENT_TITLE_TEXT_COLOR};
-    margin-right: ${Spacing.margin._8};
+    margin-right: ${Spacing._8};
+    gap: ${Spacing._8};
     max-height: 100%;
     ${(props) =>
         props.isLongEvent &&
         `
-        font-weight: 600;
+        font-weight: ${Typography.weight.semibold};
         margin-top: ${Spacing.margin._12};
     `}
 `
 export const EventTime = styled.div`
-    font-style: normal;
-    font-size: 13px;
-    font-weight: 600;
-    color: ${EVENT_TIME_TEXT_COLOR};
+    color: ${Colors.text.light};
     float: left;
     max-height: 100%;
 `
@@ -181,14 +176,14 @@ export const CalendarDayHeader = styled.div`
 `
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ expanded: boolean }>`
     min-width: 300px;
-    height: 100vh;
+    height: 100%;
     flex: ${(props) => (props.expanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
     display: flex;
@@ -218,4 +213,7 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     top: ${(props) => props.offset}px;
     z-index: 1;
     background-color: ${Colors.background.dropIndicator};
+`
+export const IconContainer = styled.div`
+    width: ${Dimensions.iconSize.xSmall};
 `
