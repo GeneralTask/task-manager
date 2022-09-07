@@ -21,6 +21,7 @@ type TaskCreateParams struct {
 	DueDate       *time.Time `json:"due_date"`
 	TimeDuration  *int       `json:"time_duration"`
 	IDTaskSection *string    `json:"id_task_section"`
+	ParentTaskID  *string    `json:"parent_task_id"`
 }
 
 func (api *API) TaskCreate(c *gin.Context) {
@@ -85,17 +86,37 @@ func (api *API) TaskCreate(c *gin.Context) {
 		timeAllocationTemp := (time.Duration(*taskCreateParams.TimeDuration) * time.Second).Nanoseconds()
 		timeAllocation = &timeAllocationTemp
 	}
+
+	var parentID primitive.ObjectID
+	if taskCreateParams.ParentTaskID != nil {
+		parentID, err = primitive.ObjectIDFromHex(*taskCreateParams.ParentTaskID)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "'parent_task_id' is not a valid ID"})
+			return
+		}
+	}
+
 	taskCreationObject := external.TaskCreationObject{
 		Title:          taskCreateParams.Title,
 		Body:           taskCreateParams.Body,
 		DueDate:        taskCreateParams.DueDate,
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
+		ParentTaskID:   parentID,
 	}
 	taskID, err := taskSourceResult.Source.CreateNewTask(api.DB, userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return
+	}
+	if parentID != primitive.NilObjectID {
+		err = database.AddSubTask(api.DB, userID, parentID, taskID)
+		// if error, log and return
+		// if this proves to be common, should explore deletion of newly created task
+		if err != nil {
+			c.JSON(503, gin.H{"detail": "failed to add as subtask"})
+			return
+		}
 	}
 	c.JSON(200, gin.H{"task_id": taskID})
 }

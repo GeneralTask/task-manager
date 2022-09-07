@@ -713,6 +713,29 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	}
 }
 
+func AddSubTask(db *mongo.Database, userID primitive.ObjectID, parentID primitive.ObjectID, childID primitive.ObjectID) error {
+	parentCtx := context.Background()
+	taskCollection := GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	result, err := taskCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": parentID},
+			{"user_id": userID},
+		}},
+		bson.M{"$push": bson.M{"sub_task_ids": childID}},
+	)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount != 1 {
+		return errors.New("task not found")
+	}
+	return nil
+}
+
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }

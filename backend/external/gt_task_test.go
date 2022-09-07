@@ -81,11 +81,13 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		userID := primitive.NewObjectID()
 		dueDate := time.Now()
 		timeAllocation := (time.Duration(2) * time.Hour).Nanoseconds()
+		parentTaskID := primitive.NewObjectID()
 		_, err := GeneralTaskTaskSource{}.CreateNewTask(db, userID, GeneralTaskDefaultAccountID, TaskCreationObject{
 			Title:          "send tesla stonk to the moon",
 			Body:           "body",
 			DueDate:        &dueDate,
 			TimeAllocation: &timeAllocation,
+			ParentTaskID:   parentTaskID,
 		})
 		assert.NoError(t, err)
 		tasks, err := database.GetActiveTasks(db, userID)
@@ -95,6 +97,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.Equal(t, "send tesla stonk to the moon", *task.Title)
 		assert.Equal(t, "body", *task.Body)
 		assert.Equal(t, timeAllocation, *task.TimeAllocation)
+		assert.Equal(t, parentTaskID, task.ParentTaskID)
 	})
 }
 

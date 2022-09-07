@@ -84,6 +84,37 @@ func TestCreateTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
 	})
+	t.Run("BadParentTaskID", func(t *testing.T) {
+		authToken = login("create_task_bad_task_id@generaltask.com", "")
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "foobar", "parent_task_id": "bad value"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
+	})
+	t.Run("NoParentTaskInDB", func(t *testing.T) {
+		authToken = login("no_parent_task_in_db@generaltask.com", "")
+		parentTaskID := primitive.NewObjectID()
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "foobar", "parent_task_id": "`+parentTaskID.Hex()+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusServiceUnavailable, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"failed to add as subtask\"}", string(body))
+	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
 		authToken = login("create_task_success_title_only@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
@@ -150,5 +181,33 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		assert.Equal(t, customSectionID, task.IDTaskSection)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
+	})
+	t.Run("SuccessSubTask", func(t *testing.T) {
+		authToken = login("create_sub_task@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+		taskCollection := database.GetTaskCollection(db)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		title := "title"
+		completed := true
+		res, err := taskCollection.InsertOne(dbCtx, &database.Task{UserID: userID, Title: &title, IsCompleted: &completed})
+		assert.NoError(t, err)
+		parentTaskID := res.InsertedID.(primitive.ObjectID)
+
+		body := ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "parent_task_id": "`+parentTaskID.Hex()+`"}`)), http.StatusOK, nil)
+
+		tasks, err := database.GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 4, len(*tasks))
+		task := (*tasks)[3]
+		assert.Equal(t, "buy more dogecoin", *task.Title)
+		assert.Equal(t, "seriously!", *task.Body)
+		assert.Equal(t, int64(300000000000), *task.TimeAllocation)
+		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
+		assert.Equal(t, parentTaskID, task.ParentTaskID)
+		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
+
+		parentTask, err := database.GetTask(db, dbCtx, parentTaskID, userID)
+		assert.Equal(t, []primitive.ObjectID{task.ID}, parentTask.SubTaskIDs)
 	})
 }

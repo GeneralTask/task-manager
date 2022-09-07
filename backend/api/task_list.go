@@ -41,6 +41,7 @@ type TaskResult struct {
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
+	ParentTaskID       *primitive.ObjectID          `json:"parent_task_id,omitempty"`
 }
 
 type TaskSection struct {
@@ -265,6 +266,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			Team:    t.SlackMessageParams.Team,
 			Message: t.SlackMessageParams.Message,
 		}
+	}
+
+	if t.ParentTaskID != primitive.NilObjectID {
+		taskResult.ParentTaskID = &t.ParentTaskID
 	}
 
 	return taskResult
