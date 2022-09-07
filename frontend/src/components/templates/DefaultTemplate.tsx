@@ -9,6 +9,8 @@ import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import { useEventBanners } from '../../hooks'
+import { DateTime } from 'luxon'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -41,6 +43,7 @@ interface DefaultTemplateProps {
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     const { calendarType } = useCalendarContext()
+    useEventBanners(DateTime.now())
     return (
         <DefaultTemplateContainer>
             <ReactTooltip

@@ -35,13 +35,13 @@ const SecondaryButtonStyles = css`
     }
 `
 const LargeButtonStyle = css`
-    padding: ${Spacing.padding._8} ${Spacing.padding._16};
-    gap: ${Spacing.padding._8};
+    padding: ${Spacing._8} ${Spacing._16};
+    gap: ${Spacing._8};
     ${Typography.body}
 `
 const SmallButtonStyle = css`
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
-    gap: ${Spacing.padding._4};
+    padding: ${Spacing._4} ${Spacing._8};
+    gap: ${Spacing._4};
     ${Typography.bodySmall}
 `
 
@@ -71,6 +71,15 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
     ${(props) => props.size === 'large' && LargeButtonStyle};
     ${(props) => props.size === 'small' && SmallButtonStyle};
+    opacity: ${(props) => (props.disabled ? '0.2' : '1')};
+    &:hover {
+        ${(props) => props.disabled && `box-shadow: ${Shadows.button.default}`};
+        ${(props) =>
+            props.disabled &&
+            `background-color: ${
+                props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
+            }`};
+    }
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

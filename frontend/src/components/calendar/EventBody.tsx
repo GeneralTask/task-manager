@@ -25,6 +25,7 @@ interface EventBodyProps {
     collisionGroupSize: number
     leftOffset: number
     date: DateTime
+    isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
@@ -110,6 +111,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             eventBodyHeight={eventBodyHeight}
             eventHasEnded={eventHasEnded}
             ref={eventRef}
+            isBeingDragged={props.isBeingDragged}
         >
             <EventInfoContainer onClick={onClick}>
                 {selectedEvent?.id === props.event.id && (

@@ -52,10 +52,10 @@ const Button = styled.button`
     }
 `
 const ExpandButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing._8};
 `
 const IconContainer = styled.div`
-    margin: ${Spacing.margin._8};
+    margin: ${Spacing._8};
 `
 
 interface Props {

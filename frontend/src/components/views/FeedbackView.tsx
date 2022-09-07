@@ -10,13 +10,13 @@ import GTButton from '../atoms/buttons/GTButton'
 import toast from '../../utils/toast'
 
 const FeedbackHeader = styled.div`
-    margin-bottom: ${Spacing.margin._24};
+    margin-bottom: ${Spacing._24};
     display: flex;
     flex-direction: column;
 `
 const TextAreaContainer = styled.div`
     flex: 1;
-    margin: ${Spacing.margin._4} 0;
+    margin: ${Spacing._4} 0;
     border: ${Border.stroke.medium} solid ${Colors.background.dark};
     border-radius: ${Border.radius.small};
 `
@@ -37,6 +37,7 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             },
             {
                 autoClose: 2000,
+                theme: 'dark',
             }
         )
     }
