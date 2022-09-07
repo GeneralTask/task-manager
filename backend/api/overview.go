@@ -417,22 +417,7 @@ func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View,
 	// TODO we should change our Github logic to include all a user's repos in a DB
 	// then we should split the Github into per repo (this is currently all the user's repo PRs)
 	for _, pullRequest := range *githubPRs {
-		pullRequestResult := PullRequestResult{
-			ID:     pullRequest.ID.Hex(),
-			Title:  pullRequest.Title,
-			Body:   pullRequest.Body,
-			Number: pullRequest.Number,
-			Status: PullRequestStatus{
-				Text:  pullRequest.RequiredAction,
-				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
-			},
-			Author:        pullRequest.Author,
-			NumComments:   pullRequest.CommentCount,
-			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
-			Branch:        pullRequest.Branch,
-			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
-		}
+		pullRequestResult := getResultFromPullRequest(pullRequest)
 		pullResults = append(pullResults, &pullRequestResult)
 	}
 	api.sortPullRequestResults(pullResults)

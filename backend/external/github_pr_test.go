@@ -718,7 +718,8 @@ func TestGetComments(t *testing.T) {
 	pullRequest := &github.PullRequest{
 		Number: github.Int(1),
 	}
-
+	expectedCreatedAtTime, _ := time.Parse(time.RFC3339, "2011-01-26T19:01:12Z")
+	expectedCreatedAt := primitive.NewDateTimeFromTime(expectedCreatedAtTime)
 	t.Run("SingleListComment", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
 		commentsURL := &githubCommentsServer.URL
@@ -733,7 +734,6 @@ func TestGetComments(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(comments))
-		expectedCreatedAt, _ := time.Parse(time.RFC3339, "2011-01-26T19:01:12Z") //2011-01-26T19:01:12Z
 		expectedComment := database.PullRequestComment{
 			Type:            constants.COMMENT_TYPE_INLINE,
 			Body:            "This is a comment",
@@ -741,7 +741,7 @@ func TestGetComments(t *testing.T) {
 			Filepath:        "tothemoon.txt",
 			LineNumberStart: 69,
 			LineNumberEnd:   420,
-			CreatedAt:       primitive.NewDateTimeFromTime(expectedCreatedAt),
+			CreatedAt:       expectedCreatedAt,
 		}
 		assert.Equal(t, expectedComment, comments[0])
 	})
@@ -759,7 +759,13 @@ func TestGetComments(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(comments))
-		assert.Equal(t, "", comments[0])
+		expectedComment := database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      "This is a issue comment",
+			Author:    "gigachad2022",
+			CreatedAt: expectedCreatedAt,
+		}
+		assert.Equal(t, expectedComment, comments[0])
 	})
 	t.Run("SingleReviewComment", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
@@ -770,14 +776,24 @@ func TestGetComments(t *testing.T) {
 		issueCommentsURL := &githubIssueCommentsServer.URL
 		defer githubCommentsServer.Close()
 
+		reviewTime := time.Now()
+		author := "elonmusk69420"
 		reviews := []*github.PullRequestReview{{
-			Body: github.String("This is a review comment"),
+			Body:        github.String("This is a review comment"),
+			SubmittedAt: &reviewTime,
+			User:        &github.User{Login: &author},
 		}}
 		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(comments))
-		assert.Equal(t, "", comments[0])
+		expectedComment := database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      "This is a review comment",
+			Author:    "elonmusk69420",
+			CreatedAt: primitive.NewDateTimeFromTime(reviewTime),
+		}
+		assert.Equal(t, expectedComment, comments[0])
 	})
 	t.Run("ComboComments", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)

@@ -558,7 +558,7 @@ func getComments(context context.Context, githubClient *github.Client, repositor
 			continue
 		}
 		result = append(result, database.PullRequestComment{
-			Type:      constants.COMMENT_TYPE_TOPLEVEL + "review",
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
 			Body:      review.GetBody(),
 			Author:    review.User.GetLogin(),
 			CreatedAt: primitive.NewDateTimeFromTime(review.GetSubmittedAt()),

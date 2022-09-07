@@ -553,6 +553,8 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		pullRequestCollection := database.GetPullRequestCollection(api.DB)
 		falseBool := false
 		trueBool := true
+		commentCreatedAtTime, _ := time.Parse(time.RFC3339, "2022-04-20T19:01:12Z")
+		commentCreatedAt := primitive.NewDateTimeFromTime(commentCreatedAtTime)
 		pullResult, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
 			Body:           "oh no oh jeez",
 			UserID:         userID,
@@ -560,6 +562,15 @@ func TestGetGithubOverviewResult(t *testing.T) {
 			SourceID:       external.TASK_SOURCE_ID_GITHUB_PR,
 			RepositoryID:   githubID.Hex(),
 			RequiredAction: external.ActionAddReviewers,
+			Comments: []database.PullRequestComment{{
+				Type:            constants.COMMENT_TYPE_INLINE,
+				Body:            "This is a comment",
+				Author:          "chad1616",
+				Filepath:        "tothemoon.txt",
+				LineNumberStart: 69,
+				LineNumberEnd:   420,
+				CreatedAt:       commentCreatedAt,
+			}},
 		})
 		assert.NoError(t, err)
 		pullResult2, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
@@ -612,12 +623,22 @@ func TestGetGithubOverviewResult(t *testing.T) {
 			{
 				ID:   pullRequestID.Hex(),
 				Body: "oh no oh jeez",
+				Comments: []PullRequestComment{{
+					Type:            constants.COMMENT_TYPE_INLINE,
+					Body:            "This is a comment",
+					Author:          "chad1616",
+					Filepath:        "tothemoon.txt",
+					LineNumberStart: 69,
+					LineNumberEnd:   420,
+					CreatedAt:       "2022-04-20T19:01:12Z",
+				}},
 			},
 			{ID: pullRequestID3.Hex()},
 			{ID: pullRequestID2.Hex()},
 		}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 		assert.Equal(t, expectedViewResult.ViewItems[0].Body, result.ViewItems[0].Body)
+		assert.Equal(t, expectedViewResult.ViewItems[0].Comments, result.ViewItems[0].Comments)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
 		result, err := api.GetGithubOverviewResult(parentCtx, view, primitive.NewObjectID())
