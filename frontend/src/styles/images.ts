@@ -7,6 +7,7 @@ import {
     faFolder,
     faMessage,
     faSquare,
+    faPlus,
     faXmark
 } from '@fortawesome/pro-regular-svg-icons'
 import {
@@ -26,7 +27,6 @@ import {
     faInbox,
     faList,
     faPencil,
-    faPlus,
     faTag,
     faTimer,
     faTrash
