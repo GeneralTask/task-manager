@@ -125,10 +125,10 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     ${(props) =>
         props.isLongEvent
             ? `
-        margin-top: ${Spacing._12};
-        height: 100%;
-        flex-direction: column;
-        gap: ${Spacing._4};
+            margin-top: ${Spacing._12};
+            height: 100%;
+            flex-direction: column;
+            gap: ${Spacing._4};
         `
             : 'flex-direction: row;'}
 `
