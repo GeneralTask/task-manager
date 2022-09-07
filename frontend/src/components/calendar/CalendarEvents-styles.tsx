@@ -4,14 +4,13 @@ import styled from 'styled-components'
 export const CELL_HEIGHT_VALUE = 64
 export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`
 export const TABLE_WIDTH_PERCENTAGE = '100%'
-export const CELL_TIME_WIDTH = '43px'
+export const CELL_TIME_WIDTH = '50px'
 export const CELL_BORDER_WIDTH = '3px'
 export const CELL_LEFT_MARGIN = '6px'
 export const EVENT_CONTAINER_COLOR = Colors.background.light
 export const EVENT_TITLE_TEXT_COLOR = Colors.text.light
 export const EVENT_TIME_TEXT_COLOR = Colors.text.light
 export const CALENDAR_TD_COLOR = Colors.background.dark
-export const CALENDAR_TIME_COLOR = Colors.text.light
 export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
@@ -65,18 +64,11 @@ export const CalendarTD = styled.td`
     height: 100%;
 `
 export const CalendarCell = styled.div`
-    width: 100%;
-    height: 100%;
-    font-size: 13px;
-    font-weight: 600;
-    color: ${CALENDAR_TIME_COLOR};
-`
-export const CellTime = styled.div`
     width: ${CELL_TIME_WIDTH};
-    height: 40px;
-    margin-top: 4px;
-    margin-right: 4px;
-    text-align: right;
+    padding-top: ${Spacing._12};
+    ${Typography.mini}
+    color: ${Colors.text.light};
+    text-align: center;
 `
 interface EventBodyStyleProps {
     eventBodyHeight: number
@@ -155,17 +147,6 @@ export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; 
     border-top-right-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
     border-bottom-left-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
     border-bottom-right-radius: ${(props) => (props.squareEnd ? '0' : Border.radius.mini)};
-`
-export const EventFillContinues = styled(EventFill)`
-    border-radius: ${Border.radius.mini} ${Border.radius.mini} 0 0;
-`
-export const DateHeader = styled.div`
-    font-style: normal;
-    font-weight: 600;
-    font-size: 14px;
-    height: 20px;
-    color: ${EVENT_TITLE_TEXT_COLOR};
-    text-align: center;
 `
 export const CalendarDayHeader = styled.div`
     display: flex;

@@ -9,7 +9,6 @@ import {
     CalendarTableStyle,
     CalendarTD,
     CalendarTimesTableStyle,
-    CellTime,
     DayAndHeaderContainer,
     DayContainer,
     DayHeaderText,
@@ -56,9 +55,7 @@ const CalendarTimeTable = () => {
             return (
                 <CalendarRow key={index}>
                     <CalendarTD>
-                        <CalendarCell>
-                            <CellTime>{timeString}</CellTime>
-                        </CalendarCell>
+                        <CalendarCell>{timeString}</CalendarCell>
                     </CalendarTD>
                 </CalendarRow>
             )
@@ -121,8 +118,8 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                     ))}
                 <TimeIndicator />
                 <CalendarDayTable />
-            </DayContainer >
-        </DayAndHeaderContainer >
+            </DayContainer>
+        </DayAndHeaderContainer>
     )
 }
 
