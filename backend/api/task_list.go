@@ -41,6 +41,8 @@ type TaskResult struct {
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
+	DatetimeStart      string                      `json:"datetime_start,omitempty"`
+	DatetimeEnd        string                      `json:"datetime_end,omitempty"`
 }
 
 type TaskSection struct {
@@ -135,7 +137,7 @@ func (api *API) adjustForCompletedTasks(
 			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}
-		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] {
+		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] && !currentTask.IsMeetingPreparationTask {
 			err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), currentTask.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete task")
@@ -265,6 +267,11 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			Team:    t.SlackMessageParams.Team,
 			Message: t.SlackMessageParams.Message,
 		}
+	}
+
+	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
+		taskResult.DatetimeStart = t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339)
+		taskResult.DatetimeEnd = t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339)
 	}
 
 	return taskResult
