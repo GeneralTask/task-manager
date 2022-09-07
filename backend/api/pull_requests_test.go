@@ -131,6 +131,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -151,6 +153,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -171,6 +175,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -191,6 +197,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -211,6 +219,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -231,6 +241,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -251,6 +263,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -271,6 +285,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -291,6 +307,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 				},
 			},
@@ -317,6 +335,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timePullRequestUpdated).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 					{
 						Title: "fix the oopsie",
@@ -337,6 +357,8 @@ func TestPullRequestList(t *testing.T) {
 						}},
 						CreatedAt:     "1970-01-01T00:00:00Z",
 						LastUpdatedAt: primitive.NewDateTimeFromTime(timeHourEarlier).Time().UTC().Format(time.RFC3339),
+						Additions:     690,
+						Deletions:     42,
 					},
 				},
 			},
@@ -374,6 +396,8 @@ func createTestPullRequest(db *mongo.Database, userID primitive.ObjectID, reposi
 				LineNumberEnd:   420,
 				CreatedAt:       commentCreatedAt,
 			}},
+			Additions: 690,
+			Deletions: 42,
 		},
 	)
 }
