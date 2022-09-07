@@ -39,12 +39,24 @@ func TestGetSettingsOptions(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
+	taskSectionCollection := database.GetTaskSectionCollection(db)
+	res, err = taskSectionCollection.InsertOne(parentCtx, database.TaskSection{UserID: userID})
+	assert.NoError(t, err)
+	// wrong user ID
+	_, err = taskSectionCollection.InsertOne(parentCtx, database.TaskSection{UserID: primitive.NewObjectID()})
+	assert.NoError(t, err)
+	insertedSectionID := res.InsertedID.(primitive.ObjectID).Hex()
+
 	t.Run("Success", func(t *testing.T) {
 		settings, err := GetSettingsOptions(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 6, len(*settings))
+		assert.Equal(t, 10, len(*settings))
 		assert.Equal(t, insertedViewID+"_github_filtering_preference", (*settings)[3].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_sorting_preference", (*settings)[4].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_sorting_direction", (*settings)[5].FieldKey)
+		assert.Equal(t, insertedSectionID+"_task_sorting_preference_main", (*settings)[6].FieldKey)
+		assert.Equal(t, insertedSectionID+"_task_sorting_direction_main", (*settings)[7].FieldKey)
+		assert.Equal(t, insertedSectionID+"_task_sorting_preference_overview", (*settings)[8].FieldKey)
+		assert.Equal(t, insertedSectionID+"_task_sorting_direction_overview", (*settings)[9].FieldKey)
 	})
 }

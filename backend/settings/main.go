@@ -48,6 +48,12 @@ const (
 	SettingFieldGithubSortingDirection = "github_sorting_direction"
 	ChoiceKeyDescending                = "descending"
 	ChoiceKeyAscending                 = "ascending"
+	// Task sorting
+	SettingFieldTaskSortingPreference = "task_sorting_preference"
+	SettingFieldTaskSortingDirection  = "task_sorting_direction"
+	ChoiceKeyManual                   = "manual"
+	ChoiceKeyDueDate                  = "due_date"
+	ChoiceKeyPriority                 = "priority"
 )
 
 // human readable names aren't defined here because they are not used
@@ -79,6 +85,27 @@ var GithubSortingDirectionSetting = SettingDefinition{
 		{Key: ChoiceKeyAscending},
 	},
 }
+
+var TaskSortingPreferenceSetting = SettingDefinition{
+	FieldKey:      SettingFieldTaskSortingPreference,
+	DefaultChoice: ChoiceKeyManual,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyManual},
+		{Key: ChoiceKeyDueDate},
+		{Key: ChoiceKeyPriority},
+	},
+}
+
+var TaskSortingDirectionSetting = SettingDefinition{
+	FieldKey:      SettingFieldTaskSortingDirection,
+	DefaultChoice: ChoiceKeyDescending,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyDescending},
+		{Key: ChoiceKeyAscending},
+	},
+}
+
+var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
 	// these settings are for the Github PR page
@@ -116,6 +143,28 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 		)
 	}
 
+	taskSections, err := getTaskSections(db, userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, taskSection := range *taskSections {
+		for _, settingType := range TaskSectionSettingTypes {
+			settingsOptions = append(
+				settingsOptions,
+				SettingDefinition{
+					FieldKey:      getTaskSectionFieldKey(taskSection, SettingFieldTaskSortingPreference, settingType),
+					DefaultChoice: TaskSortingPreferenceSetting.DefaultChoice,
+					Choices:       TaskSortingPreferenceSetting.Choices,
+				},
+				SettingDefinition{
+					FieldKey:      getTaskSectionFieldKey(taskSection, SettingFieldTaskSortingDirection, settingType),
+					DefaultChoice: TaskSortingDirectionSetting.DefaultChoice,
+					Choices:       TaskSortingDirectionSetting.Choices,
+				},
+			)
+		}
+	}
+
 	return &settingsOptions, nil
 }
 
@@ -140,6 +189,29 @@ func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.
 
 func getGithubFieldKey(githubView database.View, suffix string) string {
 	return githubView.ID.Hex() + "_" + suffix
+}
+
+func getTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]database.TaskSection, error) {
+	parentCtx := context.Background()
+
+	var sections []database.TaskSection
+	err := database.FindWithCollection(
+		parentCtx,
+		database.GetTaskSectionCollection(db),
+		userID,
+		&[]bson.M{{"user_id": userID}},
+		&sections,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load task sections")
+		return nil, err
+	}
+	return &sections, nil
+}
+
+func getTaskSectionFieldKey(taskSection database.TaskSection, suffix string, settingType string) string {
+	return taskSection.ID.Hex() + "_" + suffix + "_" + settingType
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
