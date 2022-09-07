@@ -8,6 +8,7 @@ import Spinner from '../atoms/Spinner'
 import { TOverviewView } from '../../utils/types'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { useParams } from 'react-router-dom'
+import MeetingPreparationViewItem from './viewItems/MeetingPreparationViewItem'
 
 const PAGE_SIZE = 5
 
@@ -36,6 +37,8 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                 return ExternalViewItems
             case 'github':
                 return PullRequestViewItems
+            case 'meeting_preparation':
+                return MeetingPreparationViewItem
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }

@@ -16,6 +16,8 @@ import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import TimeRange from '../atoms/TimeRange'
+import { MeetingStartText } from '../atoms/MeetingStartText'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
@@ -86,6 +88,12 @@ const StatusContainer = styled.div`
     ${Typography.bodySmall};
 `
 
+const MeetingPreparationTimeContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing._24};
+`
+
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
     ERROR: 'There was an error syncing with our servers',
@@ -95,8 +103,11 @@ const SYNC_MESSAGES = {
 interface TaskDetailsProps {
     task: TTask
     link: string
+    isMeetingPreparation?: boolean
+    startTime?: Date
+    endTime?: Date
 }
-const TaskDetails = ({ task, link }: TaskDetailsProps) => {
+const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endTime }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -111,6 +122,30 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const navigate = useNavigate()
     const location = useLocation()
+
+    const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
+    const [counter, setCounter] = useState(0)
+
+    useEffect(() => {
+        if (startTime != undefined) {
+            const diff = startTime.getTime() - Date.now()
+            const minutes = Math.floor(diff / 1000 / 60) + 1
+            if (minutes < 0) {
+                setMeetingStartText('Meeting is now')
+            } else if (minutes <= 30) {
+                setMeetingStartText(`Starts in ${minutes} minutes`)
+            } else {
+                setMeetingStartText('')
+            }
+        }
+    }, [counter, startTime])
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCounter((counter) => counter + 1)
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [])
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -200,12 +235,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
-                            <ActionOption
-                                isShown={sectionEditorShown}
-                                setIsShown={setSectionEditorShown}
-                                task={task}
-                                keyboardShortcut="showSectionEditor"
-                            />
+                            {!isMeetingPreparation && (
+                                <ActionOption
+                                    isShown={sectionEditorShown}
+                                    setIsShown={setSectionEditorShown}
+                                    task={task}
+                                    keyboardShortcut="showSectionEditor"
+                                />
+                            )}
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
                                     <GTIconButton icon={icons.external_link} />
@@ -216,7 +253,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 )}
             </DetailsTopContainer>
             <TitleInput
-                disabled={task.isOptimistic}
+                disabled={task.isOptimistic || isMeetingPreparation}
                 ref={titleRef}
                 data-testid="task-title-input"
                 onKeyDown={handleKeyDown}
@@ -226,6 +263,12 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
+            {startTime && endTime && (
+                <MeetingPreparationTimeContainer>
+                    <TimeRange start={startTime} end={endTime} />
+                    <MeetingStartText isTextColored>{meetingStartText}</MeetingStartText>
+                </MeetingPreparationTimeContainer>
+            )}
             {task.external_status && (
                 <StatusContainer>
                     <Icon icon={linearStatus[task.external_status.type]} size="small" />

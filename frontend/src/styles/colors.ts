@@ -57,6 +57,7 @@ export const text = {
     black: BLACK,
     light: GRAY._500,
     white: WHITE,
+    orange: ORANGE._1,
 }
 
 export const icon = {
