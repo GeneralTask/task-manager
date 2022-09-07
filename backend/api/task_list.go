@@ -270,10 +270,8 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	}
 
 	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
-		startTime := t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339)
-		endTime := t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339)
-		taskResult.DatetimeStart = &startTime
-		taskResult.DatetimeEnd = &endTime
+		taskResult.DatetimeStart = t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339)
+		taskResult.DatetimeEnd = t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339)
 	}
 
 	return taskResult

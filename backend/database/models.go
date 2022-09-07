@@ -278,7 +278,6 @@ type View struct {
 	IsLinked                 bool               `bson:"is_linked"`
 	GithubID                 string             `bson:"github_id"`
 	TaskSectionID            primitive.ObjectID `bson:"task_section_id"`
-	IsMeetingPreparationView bool               `bson:"is_meeting_preparation_view"`
 }
 
 type Repository struct {
