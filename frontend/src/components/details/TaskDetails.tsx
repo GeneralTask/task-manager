@@ -104,7 +104,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const syncDetails = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
-            if (timers.current[id]) clearTimeout(timers.current[id].timeout)
+            const whichEdit = `${title !== undefined}${body !== undefined}`
+            if (timers.current[id + whichEdit]) clearTimeout(timers.current[id + whichEdit].timeout)
             modifyTask({ id, title, body })
         },
         [task.id, modifyTask]
@@ -113,8 +114,11 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const onEdit = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(true)
-            if (timers.current[id]) clearTimeout(timers.current[id].timeout)
-            timers.current[id] = {
+
+            const whichEdit = `${title !== undefined}${body !== undefined}`
+
+            if (timers.current[id + whichEdit]) clearTimeout(timers.current[id + whichEdit].timeout)
+            timers.current[id + whichEdit] = {
                 timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
                 callback: () => syncDetails({ id, title, body }),
             }
@@ -156,7 +160,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             <TitleInput
                 initialValue={task.title}
                 disabled={task.isOptimistic}
-                onEdit={(titleVal) => onEdit({ id: task.id, title: titleVal })}
+                onEdit={(val) => onEdit({ id: task.id, title: val })}
             />
             {task.external_status && (
                 <StatusContainer>
@@ -171,7 +175,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     <BodyInput
                         initialValue={task.body}
                         isFullHeight={!task.slack_message_params}
-                        onEdit={(bodyVal) => onEdit({ id: task.id, body: bodyVal })}
+                        onEdit={(val) => onEdit({ id: task.id, body: val })}
                     />
                     {task.comments && <LinearCommentList comments={task.comments} />}
                     {task.slack_message_params && (
