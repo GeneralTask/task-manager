@@ -323,6 +323,37 @@ func TestLoadLinearTasks(t *testing.T) {
 	})
 }
 
+func TestAssignChildParentRelation(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+
+	t.Run("EmptyNoError", func(t *testing.T) {
+		tasks := []*database.Task{}
+		nodeIssues := linearAssignedIssuesQuery{}
+		_, err := assignChildParentRelation(db, userID, tasks, &nodeIssues)
+		assert.NoError(t, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		tasks := []*database.Task{
+			{
+				IDExternal: "parent_task",
+			},
+			{
+				IDExternal: "child_task",
+			},
+		}
+		nodeIssues := linearAssignedIssuesQuery{
+			Issues: {
+				Nodes: {},
+			},
+		}
+		_, err := assignChildParentRelation(db, userID, tasks, &nodeIssues)
+		assert.NoError(t, err)
+	})
+}
+
 func TestModifyLinearTask(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
