@@ -129,7 +129,7 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
     useEffect(() => {
         if (startTime != undefined) {
             const diff = startTime.getTime() - Date.now()
-            const minutes = Math.floor(diff / 1000 / 60)
+            const minutes = Math.floor(diff / 1000 / 60) + 1
             if (minutes < 0) {
                 setMeetingStartText('Meeting is now')
             } else if (minutes <= 30) {
