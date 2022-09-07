@@ -27,14 +27,16 @@ func TestCalendar(t *testing.T) {
 	defer dbCleanup()
 	t.Run("Success", func(t *testing.T) {
 		standardEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Standard Event",
-			Description:    "event <strong>description</strong>",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "standard_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+			Created:         "2021-02-25T17:53:01.000Z",
+			Summary:         "Standard Event",
+			Description:     "event <strong>description</strong>",
+			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:        "generaltask.com",
+			Id:              "standard_event",
+			GuestsCanModify: false,
+			Organizer:       &calendar.EventOrganizer{Self: true},
+			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
@@ -48,6 +50,7 @@ func TestCalendar(t *testing.T) {
 			Body:          "event <strong>description</strong>",
 			SourceID:      TASK_SOURCE_ID_GCAL,
 			UserID:        userID,
+			CanModify:     true,
 			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
@@ -107,14 +110,16 @@ func TestCalendar(t *testing.T) {
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
 		standardEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Standard Event",
-			Description:    "new description",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "standard_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+			Created:         "2021-02-25T17:53:01.000Z",
+			Summary:         "Standard Event",
+			Description:     "new description",
+			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:        "generaltask.com",
+			Id:              "standard_event",
+			GuestsCanModify: false,
+			Organizer:       &calendar.EventOrganizer{Self: true},
+			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
 		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
@@ -193,13 +198,15 @@ func TestCalendar(t *testing.T) {
 	})
 	t.Run("RescheduledEvent", func(t *testing.T) {
 		standardEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Standard Event",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "standard_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+			Created:         "2021-02-25T17:53:01.000Z",
+			Summary:         "Standard Event",
+			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:        "generaltask.com",
+			Id:              "standard_event",
+			GuestsCanModify: false,
+			Organizer:       &calendar.EventOrganizer{Self: true},
+			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
 		// Start time in DB is different to simulate rescheduling a meeting
@@ -271,13 +278,15 @@ func TestCalendar(t *testing.T) {
 	})
 	t.Run("Conference event", func(t *testing.T) {
 		standardEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Standard Event",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "standard_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+			Created:         "2021-02-25T17:53:01.000Z",
+			Summary:         "Standard Event",
+			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:        "generaltask.com",
+			Id:              "standard_event",
+			GuestsCanModify: false,
+			Organizer:       &calendar.EventOrganizer{Self: true},
+			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 			ConferenceData: &calendar.ConferenceData{
 				EntryPoints: []*calendar.EntryPoint{
 					{
