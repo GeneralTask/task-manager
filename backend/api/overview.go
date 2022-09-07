@@ -10,7 +10,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -531,10 +530,7 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 
 func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	taskCollection := database.GetTaskCollection(db)
-	logger := logging.GetSentryLogger()
-	logger.Debug().Msgf("events count: %d", len(*events))
 	for _, event := range *events {
-		logger.Debug().Msgf("event: %v", event.Title)
 		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 		defer cancel()
 		// Check if meeting prep task exists
@@ -571,7 +567,6 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			continue
 		}
 		// Create meeting prep task for event if one does not exist
-		logger.Debug().Msgf("creating meeting prep task for event: %v", event.Title)
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
 			Title:                    &event.Title,
@@ -599,14 +594,11 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
-	logger := logging.GetSentryLogger()
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
 		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 			defer cancel()
-			logger.Debug().Msgf("auto-completing meeting prep task: %v", task.Title)
-
 			_, err := taskCollection.UpdateOne(
 				dbCtx,
 				bson.M{"$and": []bson.M{
