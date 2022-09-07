@@ -16,8 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
-import TitleInput from './TitleInput'
-import BodyInput from './BodyInput'
+import GTTextArea from '../atoms/GTTextArea'
 
 const DetailsViewContainer = styled.div`
     flex: 1;
@@ -26,6 +25,7 @@ const DetailsViewContainer = styled.div`
     background-color: ${Colors.background.light};
     min-width: 300px;
     padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
+    gap: ${Spacing.margin._8};
 `
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -157,10 +157,12 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     </>
                 )}
             </DetailsTopContainer>
-            <TitleInput
+            <GTTextArea
                 initialValue={task.title}
                 disabled={task.isOptimistic}
                 onEdit={(val) => onEdit({ id: task.id, title: val })}
+                maxHeight={208}
+                fontSize="large"
             />
             {task.external_status && (
                 <StatusContainer>
@@ -172,10 +174,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <Spinner />
             ) : (
                 <>
-                    <BodyInput
+                    <GTTextArea
                         initialValue={task.body}
+                        placeholder="Add details"
                         isFullHeight={!task.slack_message_params}
                         onEdit={(val) => onEdit({ id: task.id, body: val })}
+                        maxHeight={200}
+                        fontSize="small"
                     />
                     {task.comments && <LinearCommentList comments={task.comments} />}
                     {task.slack_message_params && (
