@@ -9,7 +9,8 @@ const TimeContainer = styled.div`
 `
 const TimeText = styled.span`
     color: ${Colors.text.light};
-    ${Typography.tag}
+    ${Typography.label};
+    ${Typography.bold};
 `
 interface TimeRangeProps {
     start: DateTime
