@@ -105,27 +105,38 @@ type Task struct {
 }
 
 type PullRequest struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty"`
-	UserID            primitive.ObjectID `bson:"user_id,omitempty"`
-	IDExternal        string             `bson:"id_external,omitempty"`
-	IDOrdering        int                `bson:"id_ordering,omitempty"`
-	IsCompleted       *bool              `bson:"is_completed,omitempty"`
-	SourceID          string             `bson:"source_id,omitempty"`
-	SourceAccountID   string             `bson:"source_account_id,omitempty"`
-	Deeplink          string             `bson:"deeplink,omitempty"`
-	Title             string             `bson:"title,omitempty"`
-	Body              string             `bson:"body,omitempty"`
-	RepositoryID      string             `bson:"repository_id,omitempty"`
-	RepositoryName    string             `bson:"repository_name,omitempty"`
-	Number            int                `bson:"number,omitempty"`
-	Author            string             `bson:"author,omitempty"`
-	Branch            string             `bson:"branch,omitempty"`
-	RequiredAction    string             `bson:"required_action,omitempty"`
-	CommentCount      int                `bson:"comment_count,omitempty"`
-	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
-	LastFetched       primitive.DateTime `bson:"last_fetched,omitempty"`
-	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
-	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
+	ID                primitive.ObjectID   `bson:"_id,omitempty"`
+	UserID            primitive.ObjectID   `bson:"user_id,omitempty"`
+	IDExternal        string               `bson:"id_external,omitempty"`
+	IDOrdering        int                  `bson:"id_ordering,omitempty"`
+	IsCompleted       *bool                `bson:"is_completed,omitempty"`
+	SourceID          string               `bson:"source_id,omitempty"`
+	SourceAccountID   string               `bson:"source_account_id,omitempty"`
+	Deeplink          string               `bson:"deeplink,omitempty"`
+	Title             string               `bson:"title,omitempty"`
+	Body              string               `bson:"body,omitempty"`
+	RepositoryID      string               `bson:"repository_id,omitempty"`
+	RepositoryName    string               `bson:"repository_name,omitempty"`
+	Number            int                  `bson:"number,omitempty"`
+	Author            string               `bson:"author,omitempty"`
+	Branch            string               `bson:"branch,omitempty"`
+	RequiredAction    string               `bson:"required_action,omitempty"`
+	Comments          []PullRequestComment `bson:"comments,omitempty"`
+	CommentCount      int                  `bson:"comment_count,omitempty"`
+	CreatedAtExternal primitive.DateTime   `bson:"created_at_external,omitempty"`
+	LastFetched       primitive.DateTime   `bson:"last_fetched,omitempty"`
+	LastUpdatedAt     primitive.DateTime   `bson:"last_updated_at,omitempty"`
+	CompletedAt       primitive.DateTime   `bson:"completed_at,omitempty"`
+}
+
+type PullRequestComment struct {
+	Type            string             `bson:"type,omitempty"`
+	Body            string             `bson:"body,omitempty"`
+	Author          string             `bson:"author,omitempty"`
+	Filepath        string             `bson:"filepath,omitempty"`
+	LineNumberStart int                `bson:"line_number_start,omitempty"`
+	LineNumberEnd   int                `bson:"line_number_end,omitempty"`
+	CreatedAt       primitive.DateTime `bson:"last_updated_at,omitempty"`
 }
 
 type CalendarEvent struct {
