@@ -104,8 +104,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const syncDetails = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
-            const whichEdit = `${title !== undefined}${body !== undefined}`
-            if (timers.current[id + whichEdit]) clearTimeout(timers.current[id + whichEdit].timeout)
+            const timerId = id + (title === undefined ? 'body' : 'title')
+            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             modifyTask({ id, title, body })
         },
         [task.id, modifyTask]
@@ -114,11 +114,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const onEdit = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(true)
-
-            const whichEdit = `${title !== undefined}${body !== undefined}`
-
-            if (timers.current[id + whichEdit]) clearTimeout(timers.current[id + whichEdit].timeout)
-            timers.current[id + whichEdit] = {
+            const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
+            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
+            timers.current[timerId] = {
                 timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
                 callback: () => syncDetails({ id, title, body }),
             }
