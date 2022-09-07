@@ -44,6 +44,10 @@ func TestGetPullRequests(t *testing.T) {
 		RepositoryID: "1234",
 	}
 
+	githubCompareServer := testutils.GetMockAPIServer(t, 200, testutils.CompareResponsePayload)
+	compareURL := &githubCompareServer.URL
+	defer githubCompareServer.Close()
+
 	githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 	userURL := &githubUserServer.URL
 	defer githubUserServer.Close()
@@ -90,6 +94,7 @@ func TestGetPullRequests(t *testing.T) {
 			Config: GithubConfig{
 				ConfigValues: GithubConfigValues{
 					FetchExternalAPIToken:       &fetchExternalAPITokenValue,
+					CompareURL:                  compareURL,
 					GetUserURL:                  userURL,
 					ListRepositoriesURL:         userRepositoriesURL,
 					ListPullRequestsURL:         userPullRequestsURL,
@@ -128,6 +133,8 @@ func TestGetPullRequests(t *testing.T) {
 			CreatedAt:       primitive.NewDateTimeFromTime(expectedCreatedAt),
 		}}
 		assert.Equal(t, expectedComments, pullRequest.Comments)
+		assert.Equal(t, 93, pullRequest.Additions)
+		assert.Equal(t, 462, pullRequest.Deletions)
 
 		// Check that repository for PR is created in the database
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)

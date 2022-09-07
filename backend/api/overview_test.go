@@ -571,6 +571,8 @@ func TestGetGithubOverviewResult(t *testing.T) {
 				LineNumberEnd:   420,
 				CreatedAt:       commentCreatedAt,
 			}},
+			Additions: 690,
+			Deletions: 42,
 		})
 		assert.NoError(t, err)
 		pullResult2, err := pullRequestCollection.InsertOne(parentCtx, database.PullRequest{
@@ -632,6 +634,8 @@ func TestGetGithubOverviewResult(t *testing.T) {
 					LineNumberEnd:   420,
 					CreatedAt:       "2022-04-20T19:01:12Z",
 				}},
+				Additions: 690,
+				Deletions: 42,
 			},
 			{ID: pullRequestID3.Hex()},
 			{ID: pullRequestID2.Hex()},
