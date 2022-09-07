@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 
-const TITLE_MAX_HEIGHT = '208px'
+const TITLE_MAX_HEIGHT = 208
 
 const StyledTitleInput = styled.textarea`
     background-color: inherit;
@@ -36,7 +36,9 @@ const TitleInput = ({ initialValue, onEdit, ...rest }: TitleInputProps) => {
         if (titleInputRef.current) {
             titleInputRef.current.style.height = '0px'
             titleInputRef.current.style.height =
-                titleInputRef.current.scrollHeight > 300 ? TITLE_MAX_HEIGHT : `${titleInputRef.current.scrollHeight}px`
+                titleInputRef.current.scrollHeight > TITLE_MAX_HEIGHT
+                    ? `${TITLE_MAX_HEIGHT}px`
+                    : `${titleInputRef.current.scrollHeight}px`
         }
     }, [titleInputValue])
 
