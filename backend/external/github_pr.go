@@ -553,7 +553,6 @@ func getComments(context context.Context, githubClient *github.Client, repositor
 		})
 	}
 	for _, review := range reviews {
-		fmt.Println("review!", review)
 		if review.GetBody() == "" {
 			continue
 		}

@@ -778,11 +778,14 @@ func TestGetComments(t *testing.T) {
 
 		reviewTime := time.Now()
 		author := "elonmusk69420"
-		reviews := []*github.PullRequestReview{{
-			Body:        github.String("This is a review comment"),
-			SubmittedAt: &reviewTime,
-			User:        &github.User{Login: &author},
-		}}
+		reviews := []*github.PullRequestReview{
+			{
+				Body:        github.String("This is a review comment"),
+				SubmittedAt: &reviewTime,
+				User:        &github.User{Login: &author},
+			},
+			{SubmittedAt: &reviewTime}, // empty body comment should be skipped
+		}
 		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
