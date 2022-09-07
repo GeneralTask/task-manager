@@ -238,6 +238,12 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 
+	err := setOverrideURL(githubClient, gitPR.Github.Config.ConfigValues.ListPullRequestReviewURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to set override url for Github PR reviews")
+		result <- nil
+		return
+	}
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR reviews")
@@ -245,7 +251,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 
-	commentCount, err := getCommentCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
+	comments, err := getComments(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github PR comments")
 		result <- nil
@@ -310,7 +316,8 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		Author:            pullRequest.User.GetLogin(),
 		Branch:            pullRequest.Head.GetRef(),
 		RequiredAction:    requiredAction,
-		CommentCount:      commentCount,
+		Comments:          comments,
+		CommentCount:      len(comments),
 		LastUpdatedAt:     primitive.NewDateTimeFromTime(pullRequest.GetUpdatedAt()),
 	}
 }
@@ -510,28 +517,53 @@ func pullRequestIsApproved(pullRequestReviews []*github.PullRequestReview) bool 
 	return false
 }
 
-func getCommentCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURLPRComments *string, overrideURLIssueComments *string) (int, error) {
+func getComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURLPRComments *string, overrideURLIssueComments *string) ([]database.PullRequestComment, error) {
 	if repository == nil {
-		return 0, errors.New("repository is nil")
+		return nil, errors.New("repository is nil")
 	}
 	if pullRequest == nil {
-		return 0, errors.New("pull request is nil")
+		return nil, errors.New("pull request is nil")
 	}
+	result := []database.PullRequestComment{}
 	comments, err := listComments(context, githubClient, repository, pullRequest, overrideURLPRComments)
 	if err != nil {
-		return 0, err
+		return nil, err
+	}
+	for _, comment := range comments {
+		result = append(result, database.PullRequestComment{
+			Type:            constants.COMMENT_TYPE_INLINE,
+			Body:            comment.GetBody(),
+			Author:          comment.User.GetLogin(),
+			Filepath:        comment.GetPath(),
+			LineNumberStart: comment.GetStartLine(),
+			LineNumberEnd:   comment.GetLine(),
+			CreatedAt:       primitive.NewDateTimeFromTime(comment.GetCreatedAt()),
+		})
 	}
 	issueComments, err := listIssueComments(context, githubClient, repository, pullRequest, overrideURLIssueComments)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	reviewCommentCount := 0
+	for _, issueComment := range issueComments {
+		result = append(result, database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      issueComment.GetBody(),
+			Author:    issueComment.User.GetLogin(),
+			CreatedAt: primitive.NewDateTimeFromTime(issueComment.GetCreatedAt()),
+		})
+	}
 	for _, review := range reviews {
-		if review.GetBody() != "" {
-			reviewCommentCount += 1
+		if review.GetBody() == "" {
+			continue
 		}
+		result = append(result, database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      review.GetBody(),
+			Author:    review.User.GetLogin(),
+			CreatedAt: primitive.NewDateTimeFromTime(review.GetSubmittedAt()),
+		})
 	}
-	return len(comments) + len(issueComments) + reviewCommentCount, nil
+	return result, nil
 }
 
 func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
