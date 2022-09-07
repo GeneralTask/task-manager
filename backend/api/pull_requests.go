@@ -39,6 +39,8 @@ type PullRequestResult struct {
 	CreatedAt     string               `json:"created_at"`
 	Branch        string               `json:"branch"`
 	Deeplink      string               `json:"deeplink"`
+	Additions     int                  `json:"additions"`
+	Deletions     int                  `json:"deletions"`
 	LastUpdatedAt string               `json:"last_updated_at"`
 }
 
@@ -172,6 +174,8 @@ func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResul
 		CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		Branch:        pullRequest.Branch,
 		Deeplink:      pullRequest.Deeplink,
+		Additions:     pullRequest.Additions,
+		Deletions:     pullRequest.Deletions,
 		LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 }

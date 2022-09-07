@@ -123,6 +123,8 @@ type PullRequest struct {
 	RequiredAction    string               `bson:"required_action,omitempty"`
 	Comments          []PullRequestComment `bson:"comments,omitempty"`
 	CommentCount      int                  `bson:"comment_count,omitempty"`
+	Additions         int                  `bson:"additions,omitempty"`
+	Deletions         int                  `bson:"deletions, omitempty"`
 	CreatedAtExternal primitive.DateTime   `bson:"created_at_external,omitempty"`
 	LastFetched       primitive.DateTime   `bson:"last_fetched,omitempty"`
 	LastUpdatedAt     primitive.DateTime   `bson:"last_updated_at,omitempty"`
@@ -270,14 +272,14 @@ type Recipient struct {
 }
 
 type View struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	UserID        primitive.ObjectID `bson:"user_id"`
-	IDOrdering    int                `bson:"id_ordering"`
-	Type          string             `bson:"type"`
-	IsReorderable bool               `bson:"is_reorderable"`
-	IsLinked      bool               `bson:"is_linked"`
-	GithubID      string             `bson:"github_id"`
-	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
+	ID                       primitive.ObjectID `bson:"_id,omitempty"`
+	UserID                   primitive.ObjectID `bson:"user_id"`
+	IDOrdering               int                `bson:"id_ordering"`
+	Type                     string             `bson:"type"`
+	IsReorderable            bool               `bson:"is_reorderable"`
+	IsLinked                 bool               `bson:"is_linked"`
+	GithubID                 string             `bson:"github_id"`
+	TaskSectionID            primitive.ObjectID `bson:"task_section_id"`
 }
 
 type Repository struct {
