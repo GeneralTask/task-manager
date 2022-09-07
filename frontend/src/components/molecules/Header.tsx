@@ -59,7 +59,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
     const refetchStaleQueries = useRefetchStaleQueries()
-    const isFetching = useIsFetching()
+    const isFetching = useIsFetching() !== 0
 
     useEffect(() => {
         setSectionName(props.sectionName)
@@ -104,8 +104,8 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     return (
         <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
             {headerText}
-            {props.allowRefresh && (isHovering || !!isFetching) && (
-                <RefreshButton onClick={refetchStaleQueries} isRefreshing={!!isFetching}>
+            {props.allowRefresh && (isHovering || isFetching) && (
+                <RefreshButton onClick={refetchStaleQueries} isRefreshing={isFetching}>
                     <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
