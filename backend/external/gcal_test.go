@@ -118,7 +118,7 @@ func TestCalendar(t *testing.T) {
 			HtmlLink:        "generaltask.com",
 			Id:              "standard_event",
 			GuestsCanModify: false,
-			Organizer:       &calendar.EventOrganizer{Self: true},
+			Organizer:       &calendar.EventOrganizer{Self: false},
 			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
@@ -135,6 +135,7 @@ func TestCalendar(t *testing.T) {
 			SourceID:        TASK_SOURCE_ID_GCAL,
 			UserID:          userID,
 			SourceAccountID: "exampleAccountID",
+			CanModify:       false,
 			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
 			DatetimeEnd:     primitive.NewDateTimeFromTime(oldEndtime),
 		}
@@ -204,8 +205,8 @@ func TestCalendar(t *testing.T) {
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:        "generaltask.com",
 			Id:              "standard_event",
-			GuestsCanModify: false,
-			Organizer:       &calendar.EventOrganizer{Self: true},
+			GuestsCanModify: true,
+			Organizer:       &calendar.EventOrganizer{Self: false},
 			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
@@ -222,6 +223,7 @@ func TestCalendar(t *testing.T) {
 			SourceID:        TASK_SOURCE_ID_GCAL,
 			UserID:          userID,
 			SourceAccountID: "exampleAccountID",
+			CanModify:       true,
 			DatetimeStart:   primitive.NewDateTimeFromTime(oldStartTime),
 			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
 		}
@@ -284,7 +286,7 @@ func TestCalendar(t *testing.T) {
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:        "generaltask.com",
 			Id:              "standard_event",
-			GuestsCanModify: false,
+			GuestsCanModify: true,
 			Organizer:       &calendar.EventOrganizer{Self: true},
 			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 			ConferenceData: &calendar.ConferenceData{
@@ -310,6 +312,7 @@ func TestCalendar(t *testing.T) {
 			Title:         "Standard Event",
 			SourceID:      TASK_SOURCE_ID_GCAL,
 			UserID:        userID,
+			CanModify:     true,
 			CallURL:       "https://meet.google.com/example-conference-id?authuser=exampleAccountID",
 			CallPlatform:  "sample-platform",
 			CallLogo:      "sample-icon-uri",
@@ -638,6 +641,7 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.Title, b.Title)
 	assert.Equal(t, a.SourceID, b.SourceID)
+	assert.Equal(t, a.CanModify, b.CanModify)
 	assert.Equal(t, a.CallLogo, b.CallLogo)
 	assert.Equal(t, a.CallPlatform, b.CallPlatform)
 	assert.Equal(t, a.CallURL, b.CallURL)
