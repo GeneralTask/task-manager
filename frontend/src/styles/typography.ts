@@ -81,3 +81,8 @@ export const mini = css`
 export const bold = css`
     font-weight: ${weight.bold};
 `
+export const tag = css`
+    font-size: ${fontSize.xs};
+    line-height: ${lineHeight.s};
+    font-weight: ${weight.medium};
+`
