@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -234,6 +235,7 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
+	fmt.Println("UPDATE IN DB:", task.ID, userID, updateFields, *updateFields.Body, *updateFields.Title)
 	res, err := taskCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{

@@ -557,7 +557,6 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 				bson.M{"_id": meetingTask.ID},
 				bson.M{"$set": bson.M{
 					"title": event.Title,
-					"body":  event.Body,
 					"meeting_preparation_params.datetime_start": event.DatetimeStart,
 				}},
 			)
@@ -575,7 +574,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			IsCompleted:              &isCompleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
-			MeetingPreparationParams: database.MeetingPreparationParams{
+			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
 				IDExternal:                    event.IDExternal,
 				DatetimeStart:                 event.DatetimeStart,
@@ -1064,7 +1063,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation  {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
