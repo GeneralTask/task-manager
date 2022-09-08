@@ -95,7 +95,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                 return { opacity: isDragging ? 0.5 : 1 }
             },
         }),
-        [task.id, index, sectionId]
+        [task, index, sectionId]
     )
 
     const [isVisible, setIsVisible] = useState(true)
