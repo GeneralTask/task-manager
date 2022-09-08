@@ -12,6 +12,7 @@ import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 
 
 import { DateTime } from 'luxon'
 import EventDetailPopup from '../molecules/EventDetailPopup'
+import ResizeHandle from './ResizeHandle'
 import { Icon } from '../atoms/Icon'
 import { TEvent } from '../../utils/types'
 import { logos } from '../../styles/images'
@@ -128,7 +129,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>
+                    <EventTitle>
                         {props.event.linked_task_id && (
                             <IconContainer>
                                 <Icon size="xSmall" icon={logos[props.event.logo]} />
@@ -144,6 +145,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 squareEnd={endedAfterToday}
                 isSelected={selectedEvent?.id === props.event.id}
             />
+            <ResizeHandle event={props.event} />
         </EventBodyStyle>
     )
 }
