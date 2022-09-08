@@ -1,8 +1,6 @@
-import { faLoveseat } from '@fortawesome/pro-regular-svg-icons'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
-import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
@@ -52,6 +50,7 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                 return { icon: null, name: null, authUrl: null }
         }
     })()
+    const title = userDidConnect ? `Connecting ${name} to General Task...` : `Connect ${name} to General Task`
 
     const onClick = () => {
         if (!authUrl) return
@@ -62,8 +61,6 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
         }
         openPopupWindow(authUrl, onClose)
     }
-
-    const title = userDidConnect ? `Connecting ${name} to General Task...` : `Connect ${name} to General Task`
 
     if (!icon || !name || !authUrl) return null
     return (
