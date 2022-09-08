@@ -138,7 +138,7 @@ func getValidTask(taskIDHex string, userID primitive.ObjectID, db *mongo.Databas
 	defer cancel()
 	count, err := taskCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": parentID}}})
 	if err != nil || count == int64(0) {
-		return primitive.NilObjectID, errors.New("task ID not found")
+		return primitive.NilObjectID, errors.New("task not found")
 	}
 	return parentID, nil
 }

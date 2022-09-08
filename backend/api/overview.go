@@ -179,14 +179,10 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 	})
 
 	// Reset ID orderings to begin at 1
-	taskResults := []*TaskResult{}
+	taskResults := api.taskListToTaskResultList(tasks, userID)
 	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
-	for _, task := range *tasks {
-		// if the task has a parent, should be encapsulated in other task results (via subtasks)
-		if task.ParentTaskID != primitive.NilObjectID {
-			continue
-		}
+	for _, task := range taskResults {
 		if task.IDOrdering != orderingID {
 			task.IDOrdering = orderingID
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
@@ -205,7 +201,6 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 			}
 		}
 		orderingID++
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -322,14 +317,7 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 	if err != nil {
 		return nil, err
 	}
-	taskResults := []*TaskResult{}
-	for _, task := range *linearTasks {
-		// if the task has a parent, should be encapsulated in other task results (via subtasks)
-		if task.ParentTaskID != primitive.NilObjectID {
-			continue
-		}
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
+	taskResults := api.taskListToTaskResultList(linearTasks, userID)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
@@ -370,14 +358,7 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 	if err != nil {
 		return nil, err
 	}
-	taskResults := []*TaskResult{}
-	for _, task := range *slackTasks {
-		// if the task has a parent, should be encapsulated in other task results (via subtasks)
-		if task.ParentTaskID != primitive.NilObjectID {
-			continue
-		}
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
+	taskResults := api.taskListToTaskResultList(slackTasks, userID)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
@@ -516,14 +497,7 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 	if err != nil {
 		return nil, err
 	}
-	taskResults := []*TaskResult{}
-	for _, task := range *dueTasks {
-		// if the task has a parent, should be encapsulated in other task results (via subtasks)
-		if task.ParentTaskID != primitive.NilObjectID {
-			continue
-		}
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
+	taskResults := api.taskListToTaskResultList(dueTasks, userID)
 	taskResults = reorderTaskResultsByDueDate(taskResults)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
@@ -1080,7 +1054,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation  {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{

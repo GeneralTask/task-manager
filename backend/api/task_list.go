@@ -203,6 +203,35 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 	return nil
 }
 
+func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResult {
+	parentToChild := make(map[primitive.ObjectID][]*TaskResult)
+	baseNodes := []*TaskResult{}
+	for _, task := range *tasks {
+		result := api.taskBaseToTaskResult(&task, userID)
+		if task.ParentTaskID != primitive.NilObjectID {
+			value, exists := parentToChild[task.ParentTaskID]
+			if exists {
+				parentToChild[task.ParentTaskID] = append(value, result)
+			} else {
+				parentToChild[task.ParentTaskID] = []*TaskResult{result}
+			}
+		} else {
+			baseNodes = append(baseNodes, result)
+		}
+	}
+
+	// nodes with no valid parent will not appear in task results
+	taskResults := []*TaskResult{}
+	for _, node := range baseNodes {
+		value, exists := parentToChild[node.ID]
+		if exists {
+			node.SubTasks = value
+		}
+		taskResults = append(taskResults, node)
+	}
+	return taskResults
+}
+
 func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
 	if t.DueDate != nil {
@@ -281,11 +310,6 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
 			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
 		}
-	}
-
-	subtaskResults := api.getSubtaskResults(t, userID)
-	if subtaskResults != nil {
-		taskResult.SubTasks = subtaskResults
 	}
 
 	return taskResult
