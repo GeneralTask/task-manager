@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small' | 'large' }>`
-    ${({ isFullHeight }) => isFullHeight && `flex: 1;`}
+    ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
     background-color: inherit;
     color: ${Colors.text.black};
     font: inherit;
@@ -39,7 +39,7 @@ const GTTextArea = ({ initialValue, onEdit, maxHeight, isFullHeight = false, fon
     }
 
     useLayoutEffect(() => {
-        if (textAreaRef.current) {
+        if (!isFullHeight && textAreaRef.current) {
             textAreaRef.current.style.height = '0px'
             textAreaRef.current.style.height =
                 maxHeight && textAreaRef.current.scrollHeight > maxHeight

@@ -51,6 +51,11 @@ const StatusContainer = styled.div`
     margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
+const BodyContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+`
 
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
@@ -171,14 +176,16 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <Spinner />
             ) : (
                 <>
-                    <GTTextArea
-                        initialValue={task.body}
-                        placeholder="Add details"
-                        isFullHeight={!task.slack_message_params}
-                        onEdit={(val) => onEdit({ id: task.id, body: val })}
-                        maxHeight={BODY_MAX_HEIGHT}
-                        fontSize="small"
-                    />
+                    <BodyContainer>
+                        <GTTextArea
+                            initialValue={task.body}
+                            placeholder="Add details"
+                            isFullHeight={!task.slack_message_params}
+                            onEdit={(val) => onEdit({ id: task.id, body: val })}
+                            maxHeight={BODY_MAX_HEIGHT}
+                            fontSize="small"
+                        />
+                    </BodyContainer>
                     {task.comments && <LinearCommentList comments={task.comments} />}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
