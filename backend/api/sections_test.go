@@ -3,12 +3,13 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/GeneralTask/task-manager/backend/database"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
 
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,6 +18,7 @@ import (
 func TestSections(t *testing.T) {
 	authToken := login("test_sections@generaltask.com", "")
 	createdTaskID := ""
+	createdTaskID2 := ""
 	UnauthorizedTest(t, "GET", "/sections/", nil)
 	UnauthorizedTest(t, "POST", "/sections/create/", nil)
 	UnauthorizedTest(t, "PATCH", "/sections/modify/123/", nil)
@@ -32,7 +34,7 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter\"}", string(body))
 	})
 	t.Run("BadPayloadCreate", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -48,7 +50,7 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter\"}", string(body))
 	})
 	t.Run("CreateSuccess", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -65,6 +67,14 @@ func TestSections(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
+		// create a second one
+		request, _ = http.NewRequest(
+			"POST",
+			"/sections/create/",
+			bytes.NewBuffer([]byte(`{"name": "important videos 2"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusCreated, recorder.Code)
 	})
 	t.Run("SuccessGet", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -80,9 +90,12 @@ func TestSections(t *testing.T) {
 		var sectionResult []SectionResult
 		err = json.Unmarshal(body, &sectionResult)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(sectionResult))
+		assert.Equal(t, 2, len(sectionResult))
+		// should be in same order as created until ordering ID is set
 		assert.Equal(t, "important videos", sectionResult[0].Name)
+		assert.Equal(t, "important videos 2", sectionResult[1].Name)
 		createdTaskID = sectionResult[0].ID.Hex()
+		createdTaskID2 = sectionResult[1].ID.Hex()
 	})
 	t.Run("EmptyPayloadModify", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -95,7 +108,7 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing task section modify parameter\"}", string(body))
 	})
 	t.Run("BadPayloadModify", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -111,7 +124,7 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter.\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or missing task section modify parameter\"}", string(body))
 	})
 	t.Run("ModifyBadURL", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -133,7 +146,7 @@ func TestSections(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/sections/modify/"+createdTaskID+"/",
-			bytes.NewBuffer([]byte(`{"name": "things i dont want to do"}`)))
+			bytes.NewBuffer([]byte(`{"name": "things i dont want to do", "id_ordering": 1}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
@@ -155,7 +168,20 @@ func TestSections(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
-		// use API to check updated
+		// update the other id ordering too, pushing the other one to spot 2
+		request, _ = http.NewRequest(
+			"PATCH",
+			"/sections/modify/"+createdTaskID2+"/",
+			bytes.NewBuffer([]byte(`{"id_ordering": 1}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder = httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err = ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		// use API to check updated, verify id_ordering sort is correct
 		request, _ = http.NewRequest("GET", "/sections/", nil)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder = httptest.NewRecorder()
@@ -166,9 +192,9 @@ func TestSections(t *testing.T) {
 		var sectionResult []SectionResult
 		err = json.Unmarshal(body, &sectionResult)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(sectionResult))
-		assert.Equal(t, "things i dont want to do", sectionResult[0].Name)
-		createdTaskID = sectionResult[0].ID.Hex()
+		assert.Equal(t, 2, len(sectionResult))
+		assert.Equal(t, "important videos 2", sectionResult[0].Name)
+		assert.Equal(t, "things i dont want to do", sectionResult[1].Name)
 	})
 	t.Run("ModifyDefaultSuccess", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
@@ -244,6 +270,7 @@ func TestSections(t *testing.T) {
 		var sectionResult []SectionResult
 		err = json.Unmarshal(body, &sectionResult)
 		assert.NoError(t, err)
-		assert.Equal(t, 0, len(sectionResult))
+		// only one left now
+		assert.Equal(t, 1, len(sectionResult))
 	})
 }

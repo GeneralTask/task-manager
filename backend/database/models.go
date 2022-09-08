@@ -250,9 +250,10 @@ type LogEvent struct {
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	UserID primitive.ObjectID `bson:"user_id"`
-	Name   string             `bson:"name"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	IDOrdering int                `bson:"id_ordering"`
+	UserID     primitive.ObjectID `bson:"user_id"`
+	Name       string             `bson:"name"`
 }
 
 type Pagination struct {
@@ -272,14 +273,14 @@ type Recipient struct {
 }
 
 type View struct {
-	ID                       primitive.ObjectID `bson:"_id,omitempty"`
-	UserID                   primitive.ObjectID `bson:"user_id"`
-	IDOrdering               int                `bson:"id_ordering"`
-	Type                     string             `bson:"type"`
-	IsReorderable            bool               `bson:"is_reorderable"`
-	IsLinked                 bool               `bson:"is_linked"`
-	GithubID                 string             `bson:"github_id"`
-	TaskSectionID            primitive.ObjectID `bson:"task_section_id"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	IDOrdering    int                `bson:"id_ordering"`
+	Type          string             `bson:"type"`
+	IsReorderable bool               `bson:"is_reorderable"`
+	IsLinked      bool               `bson:"is_linked"`
+	GithubID      string             `bson:"github_id"`
+	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
 }
 
 type Repository struct {

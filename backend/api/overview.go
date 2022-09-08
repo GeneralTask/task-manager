@@ -15,7 +15,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type SourcesResult struct {
@@ -780,58 +779,10 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = viewCollection.UpdateMany(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": bson.M{"$ne": viewID}},
-			{"user_id": userID},
-			{"id_ordering": bson.M{"$gte": viewModifyParams.IDOrdering}},
-		}},
-		bson.M{"$inc": bson.M{"id_ordering": 1}},
-	)
+	err = database.AdjustOrderingIDsForCollection(viewCollection, userID, viewID, viewModifyParams.IDOrdering)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to modify view id_orderings")
 		Handle500(c)
 		return
-	}
-
-	// Normalize ordering IDs
-	var views []database.View
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
-	options := options.Find().SetSort(bson.M{"id_ordering": 1})
-	cursor, err := viewCollection.Find(dbCtx, bson.M{"user_id": userID}, options)
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to get views")
-		Handle500(c)
-		return
-	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &views)
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to get views")
-		Handle500(c)
-		return
-	}
-
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	for index, view := range views {
-		newIDOrdering := index + 1
-		if view.IDOrdering != newIDOrdering {
-			viewCollection.UpdateOne(
-				dbCtx,
-				bson.M{"$and": []bson.M{
-					{"_id": view.ID},
-					{"user_id": userID}},
-				},
-				bson.M{"$set": bson.M{"id_ordering": newIDOrdering}},
-			)
-		}
 	}
 	c.JSON(200, gin.H{})
 }
@@ -1064,7 +1015,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation  {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
