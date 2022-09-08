@@ -22,7 +22,7 @@ import { Icon } from '../atoms/Icon'
 import ReactDOM from 'react-dom'
 import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
-import { useClickOutside, useNavigateToTask } from '../../hooks'
+import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
@@ -89,6 +89,14 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                 }
             )
         }
+
+        // if *anything* drags, close the popup
+        const isDragging = useIsDragging()
+        if (isDragging) {
+            onClose()
+            return null
+        }
+
         const portal = ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
