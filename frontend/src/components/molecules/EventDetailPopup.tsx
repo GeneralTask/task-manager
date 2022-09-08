@@ -10,7 +10,7 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
 
@@ -22,10 +22,9 @@ import { Icon } from '../atoms/Icon'
 import ReactDOM from 'react-dom'
 import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
-import { useClickOutside, useNavigateToTask } from '../../hooks'
+import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { useDragDropManager } from 'react-dnd'
 
 interface EventDetailProps {
     event: TEvent
@@ -92,18 +91,11 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
         }
 
         // if *anything* drags, close the popup
-        const dragDropManager = useDragDropManager()
-        useEffect(() => {
-            const monitor = dragDropManager.getMonitor()
-            const unsubscribe = monitor.subscribeToStateChange(() => {
-                if (monitor.isDragging()) {
-                    onClose()
-                }
-            })
-            return () => {
-                unsubscribe()
-            }
-        }, [dragDropManager])
+        const isDragging = useIsDragging()
+        if (isDragging) {
+            onClose()
+            return null
+        }
 
         return ReactDOM.createPortal(
             <EventBoxStyle
