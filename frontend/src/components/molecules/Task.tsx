@@ -12,6 +12,7 @@ import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { DONE_SECTION_ID } from '../../constants'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 
 const IconContainer = styled.div`
     margin-left: auto;
@@ -23,9 +24,8 @@ const Title = styled.span`
     text-overflow: ellipsis;
     ${Typography.bodySmall};
 `
-const DominoContainer = styled.div`
-    position: absolute;
-    left: 2px;
+const EmptyDominoContainer = styled.div`
+    width: 18px;
 `
 
 interface TaskProps {
@@ -98,6 +98,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         [task, index, sectionId]
     )
 
+    // hide default drag preview
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
+
     const [isVisible, setIsVisible] = useState(true)
 
     const taskFadeOut = () => {
@@ -111,12 +116,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                {isHovered && !dragDisabled && (
-                    <DominoContainer>
-                        <Domino ref={drag} />
-                    </DominoContainer>
-                )}
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
+                {isHovered && !dragDisabled ? <Domino /> : <EmptyDominoContainer />}
                 <MarkTaskDoneButton
                     taskId={task.id}
                     sectionId={sectionId}
@@ -134,4 +135,4 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     )
 }
 
-export default Task
+export default React.memo(Task)

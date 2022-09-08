@@ -14,6 +14,7 @@ import Settings from '../views/SettingsView'
 import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 import TaskSection from '../views/TaskSectionView'
 import OverviewPageView from '../views/OverviewPageView'
+import DragLayer from '../molecules/DragLayer'
 
 const MainScreen = () => {
     const location = useLocation()
@@ -44,6 +45,7 @@ const MainScreen = () => {
                 <>{currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer />
+            <DragLayer />
         </DndProvider>
     )
 }
