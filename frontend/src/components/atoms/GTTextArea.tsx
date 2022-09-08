@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
-const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small' | 'large' }>`
+const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small' | 'medium' | 'large' }>`
     ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
     background-color: inherit;
     color: ${Colors.text.black};
@@ -19,7 +19,9 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
         box-shadow: ${Shadows.light};
         background-color: ${Colors.background.white};
     }
-    ${({ fontSize }) => (fontSize === 'small' ? Typography.bodySmall : Typography.subtitle)};
+    ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
+    ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
+    ${({ fontSize }) => fontSize === 'large' && Typography.title};
 `
 
 interface GTTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -27,7 +29,7 @@ interface GTTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaEleme
     onEdit: (newValue: string) => void
     maxHeight?: number
     isFullHeight?: boolean
-    fontSize: 'small' | 'large'
+    fontSize: 'small' | 'medium' | 'large'
 }
 const GTTextArea = ({ initialValue, onEdit, maxHeight, isFullHeight = false, fontSize, ...rest }: GTTextAreaProps) => {
     const [textAreaValue, setTextAreaValue] = useState(initialValue)

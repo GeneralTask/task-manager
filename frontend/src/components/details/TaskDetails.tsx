@@ -156,7 +156,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 disabled={task.isOptimistic}
                 onEdit={(val) => onEdit({ id: task.id, title: val })}
                 maxHeight={TITLE_MAX_HEIGHT}
-                fontSize="large"
+                fontSize="medium"
             />
             {task.external_status && (
                 <StatusContainer>

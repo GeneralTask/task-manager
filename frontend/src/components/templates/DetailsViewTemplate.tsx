@@ -10,6 +10,7 @@ const DetailsViewContainer = styled.div`
     background-color: ${Colors.background.light};
     min-width: 300px;
     padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
+    gap: ${Spacing._8};
 `
 
 const DetailsViewTemplate = ({ children }: { children: React.ReactNode }) => {
