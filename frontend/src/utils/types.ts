@@ -1,5 +1,5 @@
-import { TLogoImage } from "../styles/images"
 import { TStatusColors } from "../styles/colors"
+import { TLogoImage } from "../styles/images"
 
 export type EmptyString = ''
 
@@ -137,6 +137,7 @@ export interface TTaskSection {
     name: string
     tasks: TTask[]
     is_done: boolean
+    is_deleted: boolean
 }
 
 export interface TSettingChoice {
