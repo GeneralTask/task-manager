@@ -15,6 +15,7 @@ import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { DateTime } from 'luxon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { useInterval } from '../../hooks'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 
 const RightContainer = styled.span`
     margin-left: auto;
@@ -28,9 +29,8 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const DominoContainer = styled.div`
-    position: absolute;
-    left: 2px;
+const EmptyDominoContainer = styled.div`
+    width: 18px;
 `
 
 interface TaskProps {
@@ -89,7 +89,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
 
     //Auto-scroll to task if it is selected and out of view
     const elementRef = useCallback(
-        (node) => {
+        (node: HTMLDivElement) => {
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver(
                 (entries) => {
@@ -120,8 +120,13 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                 return { opacity: isDragging ? 0.5 : 1 }
             },
         }),
-        [task.id, index, sectionId]
+        [task, index, sectionId]
     )
+
+    // hide default drag preview
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
 
     const [isVisible, setIsVisible] = useState(true)
 
@@ -136,12 +141,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={dragPreview}>
-                {isHovered && !dragDisabled && (
-                    <DominoContainer>
-                        <Domino ref={drag} />
-                    </DominoContainer>
-                )}
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
+                {isHovered && !dragDisabled ? <Domino /> : <EmptyDominoContainer />}
                 <MarkTaskDoneButton
                     taskId={task.id}
                     sectionId={sectionId}
@@ -163,4 +164,4 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     )
 }
 
-export default Task
+export default React.memo(Task)

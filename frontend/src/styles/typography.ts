@@ -23,7 +23,7 @@ const lineHeight = {
     l: '40px',
     xl: '56px',
 }
-const weight = {
+export const weight = {
     regular: '400',
     medium: '510',
     semibold: '590',

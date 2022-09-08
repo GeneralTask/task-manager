@@ -4,16 +4,17 @@ import {
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
+    faCheck,
+    faCheckSquare,
     faFolder,
     faMessage,
     faSquare,
+    faPlus,
     faXmark
 } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBadgeCheck,
     faBars,
-    faCheck,
-    faCheckSquare,
     faChevronDown,
     faChevronLeft,
     faChevronRight,
@@ -26,7 +27,6 @@ import {
     faInbox,
     faList,
     faPencil,
-    faPlus,
     faTag,
     faTimer,
     faTrash

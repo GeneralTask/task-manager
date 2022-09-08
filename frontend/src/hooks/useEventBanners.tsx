@@ -77,6 +77,7 @@ export default function useEventBanners(date: DateTime) {
                 toast(toastProps, {
                     toastId: event.id,
                     autoClose: false,
+                    closeOnClick: false,
                     theme: 'light',
                 })
                 eventBannerLastShownAt.set(event.id, timeUntilEvent)
