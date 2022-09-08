@@ -66,7 +66,7 @@ const NavigationLink = ({
     testId,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
-    const { setIsCollapsed } = useCalendarContext()
+    const { setCalendarType } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
@@ -97,7 +97,7 @@ const NavigationLink = ({
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
-        setIsCollapsed(true)
+        setCalendarType('day')
         navigate(link)
     }
 

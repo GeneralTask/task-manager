@@ -258,6 +258,13 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 
+	additions, deletions, err := getAdditionsDeletions(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.CompareURL)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch Github PR additions / deletions")
+		result <- nil
+		return
+	}
+
 	requiredAction := ActionNoneNeeded
 	if userIsOwner(githubUser, pullRequest) || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
 		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
@@ -318,6 +325,8 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		RequiredAction:    requiredAction,
 		Comments:          comments,
 		CommentCount:      len(comments),
+		Additions:         additions,
+		Deletions:         deletions,
 		LastUpdatedAt:     primitive.NewDateTimeFromTime(pullRequest.GetUpdatedAt()),
 	}
 }
@@ -564,6 +573,24 @@ func getComments(context context.Context, githubClient *github.Client, repositor
 		})
 	}
 	return result, nil
+}
+
+func getAdditionsDeletions(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURLCompare *string) (int, int, error) {
+	err := setOverrideURL(githubClient, overrideURLCompare)
+	if err != nil {
+		return 0, 0, err
+	}
+	comparison, _, err := githubClient.Repositories.CompareCommits(context, repository.Owner.GetLogin(), repository.GetName(), pullRequest.Base.GetRef(), pullRequest.Head.GetRef(), nil)
+	if err != nil {
+		return 0, 0, err
+	}
+	additions := 0
+	deletions := 0
+	for _, file := range comparison.Files {
+		additions += file.GetAdditions()
+		deletions += file.GetDeletions()
+	}
+	return additions, deletions, nil
 }
 
 func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {
