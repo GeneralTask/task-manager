@@ -10,7 +10,7 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
 
@@ -25,6 +25,7 @@ import { TEvent } from '../../utils/types'
 import { useClickOutside, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import { useDragDropManager } from 'react-dnd'
 
 interface EventDetailProps {
     event: TEvent
@@ -89,6 +90,21 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 }
             )
         }
+
+        // if *anything* drags, close the popup
+        const dragDropManager = useDragDropManager()
+        useEffect(() => {
+            const monitor = dragDropManager.getMonitor()
+            const unsubscribe = monitor.subscribeToStateChange(() => {
+                if (monitor.isDragging()) {
+                    onClose()
+                }
+            })
+            return () => {
+                unsubscribe()
+            }
+        }, [dragDropManager])
+
         return ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
