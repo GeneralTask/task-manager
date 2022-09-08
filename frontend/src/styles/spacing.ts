@@ -1,21 +1,9 @@
-export const margin = {
-    _4: '4px',
-    _8: '8px',
-    _12: '12px',
-    _16: '16px',
-    _20: '20px',
-    _24: '24px',
-    _32: '32px',
-    _40: '40px',
-}
-
-export const padding = {
-    _4: '4px',
-    _8: '8px',
-    _12: '12px',
-    _16: '16px',
-    _20: '20px',
-    _24: '24px',
-    _32: '32px',
-    _40: '40px',
-}
+export const _4 = '4px' // mini
+export const _8 = '8px' // extra small
+export const _12 = '12px' // small
+export const _16 = '16px' // regular
+export const _24 = '24px' // medium
+export const _32 = '32px' // large
+export const _64 = '64px' // extra large
+export const _88 = '88px' // jumbo
+export const _128 = '128px' // mammoth

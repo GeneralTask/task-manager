@@ -8,25 +8,18 @@ import React, { Suspense, lazy } from 'react'
 import LandingScreen from './src/components/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'
 import PrivateOutlet from './src/services/PrivateOutlet'
-import { Provider } from 'react-redux'
-import store from './src/redux/store'
+import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
 const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
 
 const App = () => {
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                refetchOnWindowFocus: false,
-            },
-        },
-    })
+    const queryClient = new QueryClient()
 
     return (
         <QueryClientProvider client={queryClient}>
-            <Provider store={store}>
+            <CalendarContextProvider>
                 <BrowserRouter>
                     <Suspense fallback={<Loading />}>
                         <Routes>
@@ -61,7 +54,7 @@ const App = () => {
                         </Routes>
                     </Suspense>
                 </BrowserRouter>
-            </Provider>
+            </CalendarContextProvider>
         </QueryClientProvider>
     )
 }

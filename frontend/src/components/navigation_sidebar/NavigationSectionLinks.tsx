@@ -17,21 +17,20 @@ const AddSectionContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing.padding._4} ${Spacing.padding._12};
+    padding: ${Spacing._8};
+    gap: ${Spacing._12};
     width: 100%;
     box-sizing: border-box;
-    ${Typography.bodySmall};
 `
 const InputContainer = styled.div`
     & input {
-        color: ${Colors.text.light};
+        color: ${Colors.text.black};
         border: none;
         font-family: inherit;
         box-sizing: border-box;
         width: 100%;
+        ${Typography.bodySmall};
     }
-    margin-left: ${Spacing.margin._8};
-    ${Typography.bodySmall};
 `
 
 const NavigationSectionLinks = () => {
@@ -117,7 +116,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} />
+                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
                             </div>
                             <InputContainer>
                                 <NoStyleInput

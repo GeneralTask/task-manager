@@ -27,18 +27,12 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background())
+func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		result <- emptyCalendarResult(err)
 		return
 	}
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyCalendarResult(err)
-		return
-	}
-	defer dbCleanup()
 
 	calendarResponse, err := calendarService.Events.
 		List("primary").
@@ -95,6 +89,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 			SourceAccountID: accountID,
 			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
 			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+			CanModify:       event.GuestsCanModify || event.Organizer.Self,
 			CallURL:         conferenceCall.URL,
 			CallLogo:        conferenceCall.Logo,
 			CallPlatform:    conferenceCall.Platform,
@@ -117,20 +112,20 @@ func (googleCalendar GoogleCalendarSource) GetEvents(userID primitive.ObjectID, 
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
-func (googleCalendar GoogleCalendarSource) GetTasks(userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+func (googleCalendar GoogleCalendarSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
 	result <- emptyTaskResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) GetPullRequests(userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+func (googleCalendar GoogleCalendarSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
 	result <- emptyPullRequestResult(nil)
 }
 
-func (googleCalendar GoogleCalendarSource) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
+func (googleCalendar GoogleCalendarSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
-func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.ObjectID, accountID string, event EventCreateObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background())
+func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
@@ -167,9 +162,9 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(userID primitive.Objec
 	return nil
 }
 
-func (googleCalendar GoogleCalendarSource) DeleteEvent(userID primitive.ObjectID, accountID string, externalID string) error {
+func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error {
 	// TODO: create a EventDeleteURL
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background())
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarDeleteURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
@@ -240,7 +235,7 @@ func GetConferenceCall(event *calendar.Event, accountID string) *utils.Conferenc
 	return &utils.ConferenceCall{}
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyTask(userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
+func (googleCalendar GoogleCalendarSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		return errors.New("cannot mark calendar event as done")
 	}
@@ -258,8 +253,8 @@ func createGcalAttendees(attendees *[]Attendee) *[]*calendar.EventAttendee {
 	return &attendeesList
 }
 
-func (googleCalendar GoogleCalendarSource) ModifyEvent(userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background())
+func (googleCalendar GoogleCalendarSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarModifyURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		return err
 	}
@@ -306,15 +301,10 @@ func createConferenceCallRequest() *calendar.ConferenceData {
 	}
 }
 
-func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context) (*calendar.Service, error) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return nil, err
-	}
-	defer dbCleanup()
-
+func createGcalService(overrideURL *string, userID primitive.ObjectID, accountID string, ctx context.Context, db *mongo.Database) (*calendar.Service, error) {
 	var calendarService *calendar.Service
 	logger := logging.GetSentryLogger()
+	var err error
 	if overrideURL != nil {
 		extCtx, cancel := context.WithTimeout(ctx, constants.ExternalTimeout)
 		defer cancel()

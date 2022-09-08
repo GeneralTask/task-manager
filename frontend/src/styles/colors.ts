@@ -34,6 +34,7 @@ const PURPLE = {
     _1: '#5634CF',
     _2: '#EEEBFA',
     _3: '#452AA5',
+    _4: '#E1D7FD33'
 }
 
 
@@ -43,9 +44,11 @@ export const background = {
     medium: GRAY._100,
     dark: GRAY._200,
     black: BLACK,
+    dropIndicator: PURPLE._4,
 }
 
 export const border = {
+    extra_light: GRAY._100,
     light: GRAY._200,
     gray: GRAY._500,
 }

@@ -6,7 +6,6 @@ import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos, icons, linearStatus } from '../../styles/images'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -16,18 +15,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 
 // This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
 const BODY_HEIGHT_OFFSET = 16
 
-const DetailsViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: ${Colors.background.light};
-    min-width: 300px;
-    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
-`
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -43,7 +36,7 @@ const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing.padding._12};
+    padding: ${Spacing._12};
     font: inherit;
     color: ${Colors.text.light};
     ${Typography.bodySmall};
@@ -61,7 +54,7 @@ const TitleInput = styled.textarea`
     resize: none;
     outline: none;
     overflow: hidden;
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing._16};
     :focus {
         outline: 1px solid ${Colors.background.dark};
     }
@@ -74,15 +67,15 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 const MarginRight8 = styled.div`
-    margin-right: ${Spacing.margin._8};
+    margin-right: ${Spacing._8};
 `
 const StatusContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
     align-items: center;
     color: ${Colors.text.light};
-    margin-bottom: ${Spacing.margin._8};
+    margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
 
@@ -100,7 +93,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
-    const [labelEditorShown, setLabelEditorShown] = useState(false)
+    const [sectionEditorShown, setSectionEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
@@ -191,7 +184,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const status = task.external_status ? task.external_status.state : ''
 
     return (
-        <DetailsViewContainer data-testid="details-view-container">
+        <DetailsViewTemplate data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
@@ -201,18 +194,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
                             <ActionOption
-                                isShown={labelEditorShown}
-                                setIsShown={setLabelEditorShown}
+                                isShown={sectionEditorShown}
+                                setIsShown={setSectionEditorShown}
                                 task={task}
-                                keyboardShortcut="showLabelEditor"
+                                keyboardShortcut="showSectionEditor"
                             />
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <GTButton
-                                        styleType="secondary"
-                                        value={task.source.name}
-                                        icon={icons.external_link}
-                                    />
+                                    <GTIconButton icon={icons.external_link} />
                                 </NoStyleAnchor>
                             )}
                         </MarginLeftAuto>
@@ -258,7 +247,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
-        </DetailsViewContainer>
+        </DetailsViewTemplate>
     )
 }
 

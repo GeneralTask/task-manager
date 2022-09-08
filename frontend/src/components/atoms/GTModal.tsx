@@ -19,15 +19,17 @@ const ModalContainer = styled.div<{ type: TModalSize }>`
     justify-content: space-between;
 `
 const Header = styled.div`
-    color: ${Colors.text.light};
-    margin-bottom: ${Spacing.margin._16};
+    color: ${Colors.text.black};
+    margin-bottom: ${Spacing._16};
     display: flex;
     justify-content: space-between;
     align-items: center;
     ${Typography.title};
 `
 const Body = styled.div`
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: ${Spacing._16};
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -35,10 +37,10 @@ const Body = styled.div`
 const Footer = styled.div`
     display: flex;
     justify-content: space-between;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
 `
 const CloseButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing._8};
     border-radius: ${Border.radius.small};
     &:hover {
         background-color: ${Colors.background.dark};
@@ -46,7 +48,7 @@ const CloseButton = styled(NoStyleButton)`
 `
 const ButtonsGroup = styled.div`
     display: flex;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
 `
 
 const SHARED_MODAL_CONTENT_STYLE = {
@@ -54,7 +56,7 @@ const SHARED_MODAL_CONTENT_STYLE = {
     border: 'none',
     height: 'fit-content',
     boxShadow: Shadows.medium,
-    padding: Spacing.padding._16,
+    padding: Spacing._16,
     borderRadius: Border.radius.large,
 }
 
@@ -84,6 +86,9 @@ const GTModal = (props: GTModalProps) => {
         }
     }
     return (
+        // ignoring TS warning here because react-modal typing does not support react 18, even though the library does
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         <Modal isOpen={props.isOpen} style={getModalStyle(props.type)} onRequestClose={handleClose}>
             <ModalContainer type={props.type}>
                 <Header>

@@ -1,24 +1,20 @@
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import {
-    faGithub,
-    faGoogle,
-    faSlack
-} from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDownLeftAndArrowUpRightToCenter,
     faArrowRotateRight,
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
+    faCheck,
+    faCheckSquare,
+    faFolder,
     faMessage,
     faSquare,
+    faPlus,
     faXmark
 } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBadgeCheck,
     faBars,
-    faCheck,
-    faCheckSquare,
     faChevronDown,
     faChevronLeft,
     faChevronRight,
@@ -26,21 +22,22 @@ import {
     faCircleSmall,
     faCopy,
     faCubes,
-    faFolder,
     faGear,
     faGripDotsVertical,
     faInbox,
     faList,
     faPencil,
-    faPlus,
     faTag,
     faTimer,
     faTrash
 } from '@fortawesome/pro-solid-svg-icons'
+import {
+    faGithub,
+    faGoogle,
+    faSlack
+} from '@fortawesome/free-brands-svg-icons'
 
-
-
-export const logos: { [key: string]: IconProp | string } = {
+export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
     github: faGithub,
     gmail: faGoogle,
@@ -48,7 +45,7 @@ export const logos: { [key: string]: IconProp | string } = {
     google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
     slack: faSlack,
-}
+})
 
 export const icons = Object.freeze({
     arrows_in: faArrowDownLeftAndArrowUpRightToCenter,

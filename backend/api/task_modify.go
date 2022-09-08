@@ -16,24 +16,24 @@ import (
 )
 
 type TaskChangeable struct {
-	PriorityID         *string                      `bson:"priority_id,omitempty"`
-	PriorityNormalized *float64                     `bson:"priority_normalized,omitempty"`
-	TaskNumber         *int                         `bson:"task_number,omitempty"`
-	Comments           *[]database.Comment          `bson:"comments,omitempty"`
-	Status             *database.ExternalTaskStatus `bson:"status,omitempty"`
+	PriorityID         *string                      `json:"priority_id,omitempty" bson:"priority_id,omitempty"`
+	PriorityNormalized *float64                     `json:"priority_normalized,omitempty" bson:"priority_normalized,omitempty"`
+	TaskNumber         *int                         `json:"task_number,omitempty" bson:"task_number,omitempty"`
+	Comments           *[]database.Comment          `json:"comments,omitempty" bson:"comments,omitempty"`
+	Status             *database.ExternalTaskStatus `json:"status,omitempty" bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus  *database.ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *database.ExternalTaskStatus `bson:"completed_status,omitempty"`
+	PreviousStatus  *database.ExternalTaskStatus `json:"previous_status,omitempty" bson:"previous_status,omitempty"`
+	CompletedStatus *database.ExternalTaskStatus `json:"completed_status,omitempty" bson:"completed_status,omitempty"`
 }
 
 type TaskItemChangeableFields struct {
-	Task           TaskChangeable     `bson:"task,omitempty"`
-	Title          *string            `json:"title" bson:"title,omitempty"`
-	Body           *string            `json:"body" bson:"body,omitempty"`
-	DueDate        primitive.DateTime `json:"due_date" bson:"due_date,omitempty"`
-	TimeAllocation *int64             `json:"time_duration" bson:"time_allocated,omitempty"`
-	IsCompleted    *bool              `json:"is_completed" bson:"is_completed,omitempty"`
-	CompletedAt    primitive.DateTime `json:"completed_at" bson:"completed_at"`
+	Task           TaskChangeable      `json:"task,omitempty" bson:"task,omitempty"`
+	Title          *string             `json:"title,omitempty" bson:"title,omitempty"`
+	Body           *string             `json:"body,omitempty" bson:"body,omitempty"`
+	DueDate        *primitive.DateTime `json:"due_date,omitempty" bson:"due_date,omitempty"`
+	TimeAllocation *int64              `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
+	IsCompleted    *bool               `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
+	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
 }
 
 type TaskModifyParams struct {
@@ -42,6 +42,7 @@ type TaskModifyParams struct {
 	TaskItemChangeableFields
 }
 
+// dueDate must be of form 2006-03-02T15:04:05Z
 func (api *API) TaskModify(c *gin.Context) {
 	taskIDHex := c.Param("task_id")
 	taskID, err := primitive.ObjectIDFromHex(taskIDHex)
@@ -69,7 +70,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetTask(c.Request.Context(), taskID, userID)
+	task, err := database.GetTask(api.DB, c.Request.Context(), taskID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
@@ -109,11 +110,23 @@ func (api *API) TaskModify(c *gin.Context) {
 			PreviousStatus:     modifyParams.TaskItemChangeableFields.Task.PreviousStatus,
 			CompletedStatus:    modifyParams.TaskItemChangeableFields.Task.CompletedStatus,
 		}
-		err = taskSourceResult.Source.ModifyTask(userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
+
+		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to update external task source")
 			Handle500(c)
 			return
+		}
+
+		if modifyParams.TaskItemChangeableFields.Title != nil {
+			var assignedUser *database.User
+			var tempTitle string
+			assignedUser, tempTitle, err = getValidExternalOwnerAssignedTask(api.DB, userID, *(modifyParams.TaskItemChangeableFields.Title))
+			if err == nil {
+				updateTask.UserID = assignedUser.ID
+				updateTask.IDTaskSection = constants.IDTaskSectionDefault
+				updateTask.Title = &tempTitle
+			}
 		}
 		api.UpdateTaskInDB(c, task, userID, &updateTask)
 	}
@@ -206,26 +219,6 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 	return nil
 }
 
-func GetTask(api *API, c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID) (*database.Task, error) {
-	parentCtx := c.Request.Context()
-	taskCollection := database.GetTaskCollection(api.DB)
-
-	var task database.Task
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := taskCollection.FindOne(
-		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": taskID},
-			{"user_id": userID},
-		}}).Decode(&task)
-	if err != nil {
-		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
-		return nil, err
-	}
-	return &task, nil
-}
-
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primitive.ObjectID, updateFields *database.Task) {
 	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
@@ -239,13 +232,6 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 		}
 	}
 
-	flattenedTaskChangeableFields, err := database.FlattenStruct(updateFields)
-	if err != nil {
-		api.Logger.Error().Err(err).Msgf("failed to flatten struct %+v", updateFields)
-		Handle500(c)
-		return
-	}
-
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	res, err := taskCollection.UpdateOne(
@@ -254,7 +240,7 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 			{"_id": task.ID},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": flattenedTaskChangeableFields},
+		bson.M{"$set": updateFields},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update internal DB")

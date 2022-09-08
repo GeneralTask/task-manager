@@ -3,9 +3,28 @@ import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
 import { useParams } from 'react-router-dom'
+import EmptyViewItem from './EmptyViewItem'
 
 const ExternalViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
     const { overviewViewId, overviewItemId } = useParams()
+
+    if (view.view_items.length === 0) {
+        if (view.type === 'slack') {
+            return (
+                <EmptyViewItem
+                    header="You have no more slack messages!"
+                    body="When you create a task from a slack message, it will appear here."
+                />
+            )
+        } else if (view.type === 'linear') {
+            return (
+                <EmptyViewItem
+                    header="You have no more linear tasks!"
+                    body="When new linear tasks get assigned to you, they will appear here."
+                />
+            )
+        }
+    }
 
     return (
         <>
