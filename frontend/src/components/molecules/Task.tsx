@@ -11,11 +11,15 @@ import { logos } from '../../styles/images'
 import styled from 'styled-components'
 import { useDrag } from 'react-dnd'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import { DONE_SECTION_ID } from '../../constants'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DateTime } from 'luxon'
+import { MeetingStartText } from '../atoms/MeetingStartText'
+import { useInterval } from '../../hooks'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 
-const IconContainer = styled.div`
+const RightContainer = styled.span`
     margin-left: auto;
+    min-width: fit-content;
 `
 const Title = styled.span`
     margin-left: ${Spacing._8};
@@ -23,6 +27,7 @@ const Title = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     ${Typography.bodySmall};
+    padding-right: ${Spacing._8};
 `
 const EmptyDominoContainer = styled.div`
     width: 18px;
@@ -36,6 +41,7 @@ interface TaskProps {
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
+    meetingPreparationStartTime?: DateTime
 }
 
 const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
@@ -43,6 +49,25 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
+    const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
+    const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
+    const { meeting_preparation_params } = task
+    const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
+
+    useInterval(() => {
+        if (!meeting_preparation_params) return
+        const minutes = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
+        if (minutes < 0) {
+            setMeetingStartText('Meeting is now')
+            setIsMeetingTextColor(true)
+        } else if (minutes <= 30) {
+            setMeetingStartText(`Starts in ${minutes} minutes`)
+            setIsMeetingTextColor(true)
+        } else {
+            setMeetingStartText(dateTimeStart.toLocaleString(DateTime.TIME_SIMPLE))
+            setIsMeetingTextColor(false)
+        }
+    }, SINGLE_SECOND_INTERVAL)
 
     // Add event listener to check if scrolling occurs in task section
     useEffect(() => {
@@ -127,9 +152,13 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     onMarkComplete={taskFadeOut}
                 />
                 <Title data-testid="task-title">{task.title}</Title>
-                <IconContainer>
-                    <Icon icon={logos[task.source.logo_v2]} size="small" />
-                </IconContainer>
+                <RightContainer>
+                    {meetingStartText ? (
+                        <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
+                    ) : (
+                        <Icon icon={logos[task.source.logo_v2]} size="small" />
+                    )}
+                </RightContainer>
             </ItemContainer>
         </TaskTemplate>
     )

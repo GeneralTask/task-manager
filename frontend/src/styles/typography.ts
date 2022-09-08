@@ -81,3 +81,4 @@ export const mini = css`
 export const bold = css`
     font-weight: ${weight.bold};
 `
+
