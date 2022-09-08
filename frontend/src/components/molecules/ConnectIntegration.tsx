@@ -7,10 +7,10 @@ import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import { TSupportedType } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import GTContainer from '../atoms/GTContainer'
+import GTShadowContainer from '../atoms/GTShadowContainer'
 import { Icon } from '../atoms/Icon'
 
-const Container = styled(GTContainer)`
+const Container = styled(GTShadowContainer)`
     display: flex;
     align-items: center;
     ${Typography.bodySmall}
