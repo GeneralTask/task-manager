@@ -34,7 +34,7 @@ interface ConnectIntegrationProps {
 }
 
 const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
-    const [userDidConnect, setUserDidConnect] = useState(false)
+    const [userIsConnecting, setUserIsConnecting] = useState(false)
 
     const refetchStaleQueries = useRefetchStaleQueries()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -50,14 +50,14 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                 return { icon: null, name: null, authUrl: null }
         }
     })()
-    const title = userDidConnect ? `Connecting ${name} to General Task...` : `Connect ${name} to General Task`
+    const title = userIsConnecting ? `Connecting ${name} to General Task...` : `Connect ${name} to General Task`
 
     const onClick = () => {
         if (!authUrl) return
-        setUserDidConnect(true)
+        setUserIsConnecting(true)
         const onClose = () => {
             refetchStaleQueries()
-            setUserDidConnect(false)
+            setUserIsConnecting(false)
         }
         openPopupWindow(authUrl, onClose)
     }
@@ -69,7 +69,13 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                 <Icon icon={icon} size="xSmall" color={Colors.icon.black} />
                 {title}
             </IconAndText>
-            <GTButton value="Connect" color={Colors.gtColor.primary} size="small" onClick={onClick} />
+            <GTButton
+                disabled={userIsConnecting}
+                value="Connect"
+                color={Colors.gtColor.primary}
+                size="small"
+                onClick={onClick}
+            />
         </Container>
     )
 }
