@@ -12,7 +12,8 @@ import {
 } from './EventDetailPopup-styles'
 import React, { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
-import toast, { ToastId, dismissToast } from '../../utils/toast'
+import toast, { dismissToast } from '../../utils/toast'
+import { Id as ToastId } from 'react-toastify'
 
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
