@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useLayoutEffect, useMemo, useRef } from 'react'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { TEvent } from '../../utils/types'
 import {
@@ -9,7 +9,6 @@ import {
     CalendarTableStyle,
     CalendarTD,
     CalendarTimesTableStyle,
-    CellTime,
     DayAndHeaderContainer,
     DayContainer,
     DayHeaderText,
@@ -17,6 +16,8 @@ import {
     TimeContainer,
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
+    CALENDAR_DEFAULT_SCROLL_HOUR,
+    CELL_HEIGHT_VALUE,
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
 import { DateTime } from 'luxon'
@@ -54,9 +55,7 @@ const CalendarTimeTable = () => {
             return (
                 <CalendarRow key={index}>
                     <CalendarTD>
-                        <CalendarCell>
-                            <CellTime>{timeString}</CellTime>
-                        </CalendarCell>
+                        <CalendarCell>{timeString}</CalendarCell>
                     </CalendarTD>
                 </CalendarRow>
             )
@@ -85,6 +84,12 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         eventsContainerRef,
         isWeekView: isWeekCalendar,
     })
+
+    useLayoutEffect(() => {
+        if (eventsContainerRef.current) {
+            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+        }
+    }, [])
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
@@ -126,7 +131,6 @@ interface CalendarEventsProps {
 const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     const { calendarType, selectedEvent } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
-
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))

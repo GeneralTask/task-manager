@@ -42,18 +42,33 @@ interface TModifyEventData {
     payload: TModifyEventPayload
     date: DateTime
 }
+interface CreateEventParams {
+    createEventPayload: TCreateEventPayload
+    date: DateTime
+    linkedTask?: TTask
+}
+interface TModifyEventPayload {
+    account_id: string
+    datetime_start?: string
+    datetime_end?: string
+    summary?: string
+    location?: string
+    description?: string
+    time_zone?: string
+    attendees?: TEventAttendee[]
+    add_conference_call?: boolean
+}
+interface TModifyEventData {
+    event: TEvent
+    payload: TModifyEventPayload
+    date: DateTime
+}
 
 interface TDeleteEventData {
     id: string
     date: DateTime
     datetime_start: string
     datetime_end: string
-}
-
-interface CreateEventParams {
-    createEventPayload: TCreateEventPayload
-    date: DateTime
-    linkedTask?: TTask
 }
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {

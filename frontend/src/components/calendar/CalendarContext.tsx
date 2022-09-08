@@ -8,11 +8,13 @@ export interface ContextValues {
     showMainHeader: boolean
     showDateHeader: boolean
     isCollapsed: boolean
+    isTaskDraggingOverDetailsView: boolean
     selectedEvent: TEvent | null
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
     setIsCollapsed: (isCollapsed: boolean) => void
+    setIsTaskDraggingOverDetailsView: (isTaskDraggingOverDetailsView: boolean) => void
     setSelectedEvent: (event: TEvent | null) => void
 }
 const CalendarContext = createContext<ContextValues>({
@@ -20,11 +22,13 @@ const CalendarContext = createContext<ContextValues>({
     showMainHeader: true,
     showDateHeader: true,
     isCollapsed: false,
+    isTaskDraggingOverDetailsView: false,
     selectedEvent: null,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
     setIsCollapsed: emptyFunction,
+    setIsTaskDraggingOverDetailsView: emptyFunction,
     setSelectedEvent: emptyFunction,
 })
 
@@ -40,6 +44,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
+    const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
@@ -51,11 +56,13 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         showMainHeader,
         showDateHeader,
         isCollapsed,
+        isTaskDraggingOverDetailsView,
         selectedEvent,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
         setIsCollapsed: collapseAndSetType,
+        setIsTaskDraggingOverDetailsView,
         setSelectedEvent,
     }
 
