@@ -44,26 +44,19 @@ interface TaskProps {
     meetingPreparationStartTime?: DateTime
 }
 
-const Task = ({
-    task,
-    dragDisabled,
-    index,
-    sectionId,
-    sectionScrollingRef,
-    isSelected,
-    link,
-    meetingPreparationStartTime,
-}: TaskProps) => {
+const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
+    const { meeting_preparation_params } = task
+    const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
 
     useInterval(() => {
-        if (meetingPreparationStartTime === undefined) return
-        const minutes = Math.ceil(meetingPreparationStartTime.diffNow('minutes').minutes)
+        if (!meeting_preparation_params) return
+        const minutes = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
             setIsMeetingTextColor(true)
@@ -71,9 +64,7 @@ const Task = ({
             setMeetingStartText(`Starts in ${minutes} minutes`)
             setIsMeetingTextColor(true)
         } else {
-            //show meeting time
-            const timeString = meetingPreparationStartTime.toLocaleString(DateTime.TIME_SIMPLE)
-            setMeetingStartText(timeString)
+            setMeetingStartText(dateTimeStart.toLocaleString(DateTime.TIME_SIMPLE))
             setIsMeetingTextColor(false)
         }
     }, SINGLE_SECOND_INTERVAL)

@@ -105,11 +105,8 @@ const SYNC_MESSAGES = {
 interface TaskDetailsProps {
     task: TTask
     link: string
-    isMeetingPreparation?: boolean
-    startTime?: DateTime
-    endTime?: DateTime
 }
-const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endTime }: TaskDetailsProps) => {
+const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [titleInput, setTitleInput] = useState('')
     const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
@@ -126,10 +123,13 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
     const location = useLocation()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
+    const { is_meeting_preparation_task, meeting_preparation_params } = task
+    const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
+    const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     useInterval(() => {
-        if (!startTime) return
-        const minutes = Math.ceil(startTime.diffNow('minutes').minutes)
+        if (!task.meeting_preparation_params) return
+        const minutes = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
         } else if (minutes <= 30) {
@@ -227,7 +227,7 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         <MarginLeftAuto>
-                            {!isMeetingPreparation && (
+                            {!is_meeting_preparation_task && (
                                 <ActionOption
                                     isShown={sectionEditorShown}
                                     setIsShown={setSectionEditorShown}
@@ -245,7 +245,7 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
                 )}
             </DetailsTopContainer>
             <TitleInput
-                disabled={task.isOptimistic || isMeetingPreparation}
+                disabled={task.isOptimistic || is_meeting_preparation_task}
                 ref={titleRef}
                 data-testid="task-title-input"
                 onKeyDown={handleKeyDown}
@@ -255,9 +255,9 @@ const TaskDetails = ({ task, link, isMeetingPreparation = false, startTime, endT
                     onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
                 }}
             />
-            {startTime && endTime && (
+            {meeting_preparation_params && (
                 <MeetingPreparationTimeContainer>
-                    <TimeRange start={startTime} end={endTime} />
+                    <TimeRange start={dateTimeStart} end={dateTimeEnd} />
                     <MeetingStartText isTextColored>{meetingStartText}</MeetingStartText>
                 </MeetingPreparationTimeContainer>
             )}

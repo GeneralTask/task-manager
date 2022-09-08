@@ -7,7 +7,7 @@ import TaskDetails from '../details/TaskDetails'
 import EditViewsButtons from '../overview/EditViewsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import { TMeetingPreparationTask, TPullRequest, TTask } from '../../utils/types'
+import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import PullRequestDetails from '../details/PullRequestDetails'
 import { SectionHeader } from '../molecules/Header'
@@ -15,7 +15,6 @@ import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
-import { DateTime } from 'luxon'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -58,18 +57,7 @@ const OverviewView = () => {
                     return <PullRequestDetails pullRequest={item as TPullRequest} />
                 }
                 if (view.type === 'meeting_preparation') {
-                    const meetingTask = item as TMeetingPreparationTask
-                    const startTime = DateTime.fromISO(meetingTask.datetime_start)
-                    const endTime = DateTime.fromISO(meetingTask.datetime_end)
-                    return (
-                        <TaskDetails
-                            task={item as TTask}
-                            link={`/overview/${view.id}/${item.id}`}
-                            isMeetingPreparation
-                            startTime={startTime}
-                            endTime={endTime}
-                        />
-                    )
+                    return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
                 }
                 return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
             }

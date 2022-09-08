@@ -35,12 +35,14 @@ export interface TTask {
     source: TTaskSource
     sender: string
     is_done: boolean
+    is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
     isOptimistic?: boolean
     slack_message_params?: TSlackMessageParams
+    meeting_preparation_params?: TMeetingPreparationParams
 }
 
-export interface TMeetingPreparationTask extends TTask {
+export interface TMeetingPreparationParams {
     datetime_start: string
     datetime_end: string
 }
@@ -200,7 +202,7 @@ export interface TUserInfo {
     opted_into_marketing: boolean
 }
 
-export type TOverviewItem = TTask & TPullRequest & TMeetingPreparationTask // TODO: change this to more general type
+export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
 
 export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation'
 
