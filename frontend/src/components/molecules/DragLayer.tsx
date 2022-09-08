@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useDragLayer } from 'react-dnd'
 import styled from 'styled-components'
+import { useIsDragging } from '../../hooks'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropType } from '../../utils/types'
 import Task from './Task'
@@ -22,13 +23,13 @@ const DragItem = styled.div`
 // This defines the appearance of dragged items in the app
 const DragLayer = () => {
     const dragItemRef = useRef<HTMLDivElement>(null)
-    const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer((monitor) => ({
+    const { itemType, item, initialOffset, currentOffset } = useDragLayer((monitor) => ({
         item: monitor.getItem(),
         itemType: monitor.getItemType(),
         initialOffset: monitor.getInitialSourceClientOffset(),
         currentOffset: monitor.getSourceClientOffset(),
-        isDragging: monitor.isDragging(),
     }))
+    const isDragging = useIsDragging()
 
     // update the position of the drag item. This is much more performant than passing the coords into DragItem
     useEffect(() => {
