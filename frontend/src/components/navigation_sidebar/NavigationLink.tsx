@@ -15,15 +15,19 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing._4} ${Spacing._12};
+    padding: ${Spacing._8};
     width: 100%;
     border-radius: ${Border.radius.small};
-    background-color: ${(props) => (props.isSelected || props.isOver ? Colors.background.dark : 'inherit')};
+    background-color: ${(props) =>
+        props.isOver ? Colors.background.dark : props.isSelected ? Colors.background.white : 'inherit'};
+    color: ${Colors.text.black};
     box-sizing: border-box;
-    gap: ${Spacing._8};
+    gap: ${Spacing._12};
+    :hover {
+        background-color: ${Colors.background.dark};
+    }
 `
 const SectionTitle = styled.span`
-    color: ${Colors.text.light};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -32,7 +36,6 @@ const SectionTitle = styled.span`
     ${Typography.bodySmall};
 `
 const SectionTitleItemCount = styled.span`
-    color: ${Colors.text.light};
     margin-left: auto;
     user-select: none;
     ${Typography.bodySmall};
@@ -66,7 +69,7 @@ const NavigationLink = ({
     testId,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
-    const { setIsCollapsed } = useCalendarContext()
+    const { setCalendarType } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
@@ -97,14 +100,14 @@ const NavigationLink = ({
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
-        setIsCollapsed(true)
+        setCalendarType('day')
         navigate(link)
     }
 
     return (
         <NavigationLinkTemplate onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
-                {icon && <Icon size="xSmall" icon={icon} />}
+                {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
                 <SectionTitle>{title}</SectionTitle>
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>

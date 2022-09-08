@@ -51,6 +51,7 @@ const StyledToastContainer = styled(ToastContainer).attrs({
             Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
             'Segoe UI Symbol';
         min-width: 0;
+        cursor: auto;
     }
 `
 

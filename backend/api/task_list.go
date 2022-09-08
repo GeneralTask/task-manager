@@ -26,23 +26,28 @@ type externalStatus struct {
 	Type  string `json:"type,omitempty"`
 }
 
+type MeetingPreparationParams struct {
+	DatetimeStart string `json:"datetime_start"`
+	DatetimeEnd   string `json:"datetime_end"`
+}
+
 type TaskResult struct {
-	ID                 primitive.ObjectID           `json:"id"`
-	IDOrdering         int                          `json:"id_ordering"`
-	Source             TaskSource                   `json:"source"`
-	Deeplink           string                       `json:"deeplink"`
-	Title              string                       `json:"title"`
-	Body               string                       `json:"body"`
-	Sender             string                       `json:"sender"`
-	DueDate            string                       `json:"due_date"`
-	TimeAllocation     int64                        `json:"time_allocated"`
-	SentAt             string                       `json:"sent_at"`
-	IsDone             bool                         `json:"is_done"`
-	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
-	Comments           *[]database.Comment          `json:"comments,omitempty"`
-	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
-	DatetimeStart      string                      `json:"datetime_start,omitempty"`
-	DatetimeEnd        string                      `json:"datetime_end,omitempty"`
+	ID                       primitive.ObjectID           `json:"id"`
+	IDOrdering               int                          `json:"id_ordering"`
+	Source                   TaskSource                   `json:"source"`
+	Deeplink                 string                       `json:"deeplink"`
+	Title                    string                       `json:"title"`
+	Body                     string                       `json:"body"`
+	Sender                   string                       `json:"sender"`
+	DueDate                  string                       `json:"due_date"`
+	TimeAllocation           int64                        `json:"time_allocated"`
+	SentAt                   string                       `json:"sent_at"`
+	IsDone                   bool                         `json:"is_done"`
+	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
+	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
+	Comments                 *[]database.Comment          `json:"comments,omitempty"`
+	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
+	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
 }
 
 type TaskSection struct {
@@ -239,18 +244,19 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		body = *t.Body
 	}
 	taskResult := &TaskResult{
-		ID:             t.ID,
-		IDOrdering:     t.IDOrdering,
-		Source:         taskSource,
-		Deeplink:       t.Deeplink,
-		Title:          title,
-		Body:           body,
-		TimeAllocation: timeAllocation,
-		Sender:         t.Sender,
-		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-		DueDate:        dueDate,
-		IsDone:         completed,
-		Comments:       t.Comments,
+		ID:                       t.ID,
+		IDOrdering:               t.IDOrdering,
+		Source:                   taskSource,
+		Deeplink:                 t.Deeplink,
+		Title:                    title,
+		Body:                     body,
+		TimeAllocation:           timeAllocation,
+		Sender:                   t.Sender,
+		SentAt:                   t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		DueDate:                  dueDate,
+		IsDone:                   completed,
+		Comments:                 t.Comments,
+		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
 	}
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
@@ -270,8 +276,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	}
 
 	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
-		taskResult.DatetimeStart = t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339)
-		taskResult.DatetimeEnd = t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339)
+		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
+			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
+		}
 	}
 
 	return taskResult

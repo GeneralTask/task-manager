@@ -16,17 +16,9 @@ import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
 import GTTextArea from '../atoms/GTTextArea'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 
-const DetailsViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: ${Colors.background.light};
-    min-width: 300px;
-    padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
-    gap: ${Spacing._8};
-`
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -135,7 +127,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const status = task.external_status ? task.external_status.state : ''
 
     return (
-        <DetailsViewContainer data-testid="details-view-container">
+        <DetailsViewTemplate data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
@@ -192,7 +184,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
-        </DetailsViewContainer>
+        </DetailsViewTemplate>
     )
 }
 

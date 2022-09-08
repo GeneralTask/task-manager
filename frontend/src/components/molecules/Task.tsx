@@ -64,7 +64,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
 
     //Auto-scroll to task if it is selected and out of view
     const elementRef = useCallback(
-        (node) => {
+        (node: HTMLDivElement) => {
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver(
                 (entries) => {
@@ -95,7 +95,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                 return { opacity: isDragging ? 0.5 : 1 }
             },
         }),
-        [task.id, index, sectionId]
+        [task, index, sectionId]
     )
 
     const [isVisible, setIsVisible] = useState(true)
