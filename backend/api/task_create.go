@@ -89,7 +89,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 
 	var parentID primitive.ObjectID
 	if taskCreateParams.ParentTaskID != nil {
-		parentID, err = primitive.ObjectIDFromHex(*taskCreateParams.ParentTaskID)
+		parentID, err = getValidTask(*taskCreateParams.ParentTaskID, userID, api.DB)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'parent_task_id' is not a valid ID"})
 			return
@@ -109,15 +109,6 @@ func (api *API) TaskCreate(c *gin.Context) {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
 		return
 	}
-	if parentID != primitive.NilObjectID {
-		err = database.AddSubTask(api.DB, userID, parentID, taskID)
-		// if error, log and return
-		// if this proves to be common, should explore deletion of newly created task
-		if err != nil {
-			c.JSON(503, gin.H{"detail": "failed to add as subtask"})
-			return
-		}
-	}
 	c.JSON(200, gin.H{"task_id": taskID})
 }
 
@@ -135,4 +126,19 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 		return primitive.NilObjectID, errors.New("task section ID not found")
 	}
 	return IDTaskSection, nil
+}
+
+func getValidTask(taskIDHex string, userID primitive.ObjectID, db *mongo.Database) (primitive.ObjectID, error) {
+	parentID, err := primitive.ObjectIDFromHex(taskIDHex)
+	if err != nil {
+		return primitive.NilObjectID, errors.New("malformatted parent id")
+	}
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	count, err := taskCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": parentID}}})
+	if err != nil || count == int64(0) {
+		return primitive.NilObjectID, errors.New("task ID not found")
+	}
+	return parentID, nil
 }

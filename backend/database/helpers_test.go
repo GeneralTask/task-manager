@@ -857,49 +857,6 @@ func TestGetDefaultSectionName(t *testing.T) {
 	})
 }
 
-func TestAddSubTask(t *testing.T) {
-	parentCtx := context.Background()
-	db, dbCleanup, err := GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	userID := primitive.NewObjectID()
-
-	taskCollection := GetTaskCollection(db)
-	title := "title"
-	res, err := taskCollection.InsertOne(dbCtx, &Task{UserID: userID, Title: &title})
-	assert.NoError(t, err)
-	parentTaskID := res.InsertedID.(primitive.ObjectID)
-	childTaskID := primitive.NewObjectID()
-
-	t.Run("NoDocumentMatch", func(t *testing.T) {
-		err := AddSubTask(db, userID, primitive.NewObjectID(), childTaskID)
-		assert.Error(t, err)
-	})
-	t.Run("Success", func(t *testing.T) {
-		err := AddSubTask(db, userID, parentTaskID, childTaskID)
-		assert.NoError(t, err)
-
-		var task Task
-		taskResult := taskCollection.FindOne(dbCtx, bson.M{"_id": parentTaskID})
-		err = taskResult.Decode(&task)
-		assert.NoError(t, err)
-		assert.Equal(t, []primitive.ObjectID{childTaskID}, task.SubTaskIDs)
-	})
-	t.Run("SuccessAppend", func(t *testing.T) {
-		newChild := primitive.NewObjectID()
-		err := AddSubTask(db, userID, parentTaskID, newChild)
-		assert.NoError(t, err)
-
-		var task Task
-		taskResult := taskCollection.FindOne(dbCtx, bson.M{"_id": parentTaskID})
-		err = taskResult.Decode(&task)
-		assert.NoError(t, err)
-		assert.Equal(t, []primitive.ObjectID{childTaskID, newChild}, task.SubTaskIDs)
-	})
-}
-
 func createTestCalendarEvent(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {
 	eventsCollection := GetCalendarEventCollection(db)
 	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)

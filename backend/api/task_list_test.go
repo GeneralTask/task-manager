@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -78,5 +79,58 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, body, result.Body)
 		assert.Equal(t, externalStatus.State, result.ExternalStatus.State)
 		assert.Equal(t, slackMessageParams.Channel.ID, result.SlackMessageParams.Channel.ID)
+	})
+	t.Run("SubtaskSuccess", func(t *testing.T) {
+		dueDate := time.Unix(420, 0)
+		timeAllocation := int64(420)
+		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
+		notCompleted := false
+		title := "hello!"
+		body := "example body"
+		externalStatus := database.ExternalTaskStatus{
+			ExternalID: "example ID",
+			State:      "example state",
+			Type:       "example type",
+		}
+		slackMessageParams := database.SlackMessageParams{
+			Channel: database.SlackChannel{
+				ID: "slackID",
+			},
+		}
+
+		parentTaskID := primitive.NewObjectID()
+		parentCtx := context.Background()
+		taskCollection := database.GetTaskCollection(api.DB)
+		insertResult, err := taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_LINEAR,
+			ParentTaskID:  parentTaskID,
+		})
+		assert.NoError(t, err)
+
+		result := api.taskBaseToTaskResult(&database.Task{
+			ID:                 parentTaskID,
+			UserID:             userID,
+			SourceID:           external.TASK_SOURCE_ID_LINEAR,
+			DueDate:            &primitiveDueDate,
+			TimeAllocation:     &timeAllocation,
+			IsCompleted:        &notCompleted,
+			Title:              &title,
+			Body:               &body,
+			Status:             &externalStatus,
+			SlackMessageParams: slackMessageParams,
+		}, userID)
+
+		// TODO change to a helper method to compare taskResults
+		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
+		assert.Equal(t, timeAllocation, result.TimeAllocation)
+		assert.False(t, result.IsDone)
+		assert.Equal(t, title, result.Title)
+		assert.Equal(t, body, result.Body)
+		assert.Equal(t, externalStatus.State, result.ExternalStatus.State)
+		assert.Equal(t, slackMessageParams.Channel.ID, result.SlackMessageParams.Channel.ID)
+		assert.Equal(t, insertResult.InsertedID.(primitive.ObjectID), result.SubTasks[0].ID)
 	})
 }

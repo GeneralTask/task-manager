@@ -183,6 +183,10 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
 	for _, task := range *tasks {
+		// if the task has a parent, should be encapsulated in other task results (via subtasks)
+		if task.ParentTaskID != primitive.NilObjectID {
+			continue
+		}
 		if task.IDOrdering != orderingID {
 			task.IDOrdering = orderingID
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
@@ -320,6 +324,10 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 	}
 	taskResults := []*TaskResult{}
 	for _, task := range *linearTasks {
+		// if the task has a parent, should be encapsulated in other task results (via subtasks)
+		if task.ParentTaskID != primitive.NilObjectID {
+			continue
+		}
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	result.IsLinked = view.IsLinked
@@ -364,6 +372,10 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 	}
 	taskResults := []*TaskResult{}
 	for _, task := range *slackTasks {
+		// if the task has a parent, should be encapsulated in other task results (via subtasks)
+		if task.ParentTaskID != primitive.NilObjectID {
+			continue
+		}
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	result.IsLinked = view.IsLinked
@@ -506,6 +518,10 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 	}
 	taskResults := []*TaskResult{}
 	for _, task := range *dueTasks {
+		// if the task has a parent, should be encapsulated in other task results (via subtasks)
+		if task.ParentTaskID != primitive.NilObjectID {
+			continue
+		}
 		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	taskResults = reorderTaskResultsByDueDate(taskResults)

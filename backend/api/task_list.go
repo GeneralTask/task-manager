@@ -41,7 +41,7 @@ type TaskResult struct {
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
-	ParentTaskID       *primitive.ObjectID          `json:"parent_task_id,omitempty"`
+	SubTasks           []*TaskResult                `json:"sub_tasks,omitempty"`
 }
 
 type TaskSection struct {
@@ -268,9 +268,23 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		}
 	}
 
-	if t.ParentTaskID != primitive.NilObjectID {
-		taskResult.ParentTaskID = &t.ParentTaskID
+	subtaskResults := api.getSubtaskResults(t, userID)
+	if subtaskResults != nil {
+		taskResult.SubTasks = subtaskResults
 	}
 
 	return taskResult
+}
+
+func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID) []*TaskResult {
+	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}})
+	if err == nil && len(*subtasks) > 0 {
+		subtaskResults := []*TaskResult{}
+		for _, subtask := range *subtasks {
+			subtaskResults = append(subtaskResults, api.taskBaseToTaskResult(&subtask, userID))
+		}
+		return subtaskResults
+	} else {
+		return nil
+	}
 }

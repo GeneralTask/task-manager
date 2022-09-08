@@ -110,10 +110,33 @@ func TestCreateTask(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusServiceUnavailable, recorder.Code)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"failed to add as subtask\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
+	})
+	t.Run("WrongUserIDForParent", func(t *testing.T) {
+		authToken = login("wrong_user_id_for_parent@generaltask.com", "")
+		taskCollection := database.GetTaskCollection(db)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		title := "title"
+		completed := true
+		res, err := taskCollection.InsertOne(dbCtx, &database.Task{UserID: primitive.NewObjectID(), Title: &title, IsCompleted: &completed})
+		assert.NoError(t, err)
+		parentTaskID := res.InsertedID.(primitive.ObjectID)
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create/gt_task/",
+			bytes.NewBuffer([]byte(`{"title": "buy more dogecoin", "body": "seriously!", "due_date": "2020-12-09T16:09:53+00:00", "time_duration": 300, "parent_task_id": "`+parentTaskID.Hex()+`"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
 	})
 	t.Run("SuccessTitleOnly", func(t *testing.T) {
 		authToken = login("create_task_success_title_only@generaltask.com", "")
@@ -206,8 +229,5 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		assert.Equal(t, parentTaskID, task.ParentTaskID)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
-
-		parentTask, err := database.GetTask(db, dbCtx, parentTaskID, userID)
-		assert.Equal(t, []primitive.ObjectID{task.ID}, parentTask.SubTaskIDs)
 	})
 }

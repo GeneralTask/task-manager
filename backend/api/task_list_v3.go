@@ -60,6 +60,10 @@ func (api *API) mergeTasksV3(
 ) ([]*TaskSection, error) {
 	completedTaskResults := []*TaskResult{}
 	for index, task := range *completedTasks {
+		// if the task has a parent, should be encapsulated in other task results (via subtasks)
+		if task.ParentTaskID != primitive.NilObjectID {
+			continue
+		}
 		taskResult := api.taskBaseToTaskResult(&task, userID)
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
@@ -111,6 +115,10 @@ func (api *API) extractSectionTasksV3(
 	}
 	// this is inefficient but easy to understand - can optimize later as needed
 	for _, task := range *fetchedTasks {
+		// if the task has a parent, should be encapsulated in other task results (via subtasks)
+		if task.ParentTaskID != primitive.NilObjectID {
+			continue
+		}
 		taskResult := api.taskBaseToTaskResult(&task, userID)
 		addedToSection := false
 		for _, resultSection := range resultSections {
