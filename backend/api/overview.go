@@ -583,11 +583,13 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		}
 		// Create meeting prep task for event if one does not exist
 		isCompleted := false
+		isDeleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
 			Title:                    &event.Title,
 			Body:                     &event.Body,
 			UserID:                   userID,
 			IsCompleted:              &isCompleted,
+			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: database.MeetingPreparationParams{

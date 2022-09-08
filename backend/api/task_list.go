@@ -38,16 +38,18 @@ type TaskResult struct {
 	TimeAllocation     int64                        `json:"time_allocated"`
 	SentAt             string                       `json:"sent_at"`
 	IsDone             bool                         `json:"is_done"`
+	IsDeleted          bool                         `json:"is_deleted"`
 	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
 	Comments           *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+	ID        primitive.ObjectID `json:"id"`
+	Name      string             `json:"name"`
+	Tasks     []*TaskResult      `json:"tasks"`
+	IsDone    bool               `json:"is_done"`
+	IsDeleted bool               `json:"is_deleted"`
 }
 
 type Recipients struct {
@@ -228,6 +230,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	if t.IsCompleted != nil {
 		completed = *t.IsCompleted
 	}
+	deleted := false
+	if t.IsDeleted != nil {
+		deleted = *t.IsDeleted
+	}
 	title := ""
 	if t.Title != nil {
 		title = *t.Title
@@ -248,6 +254,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:        dueDate,
 		IsDone:         completed,
+		IsDeleted:      deleted,
 		Comments:       t.Comments,
 	}
 

@@ -458,6 +458,41 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	parentCtx := context.Background()
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_COMPLETED_TASKS))
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	cursor, err := GetTaskCollection(db).Find(
+		dbCtx,
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_deleted": true},
+			},
+		},
+		findOptions,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch deleted tasks for user")
+		return nil, err
+	}
+	var tasks []Task
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &tasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch deleted tasks for user")
+		return nil, err
+	}
+	return &tasks, nil
+}
+
 func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	return GetTasks(db, userID,
 		&[]bson.M{
