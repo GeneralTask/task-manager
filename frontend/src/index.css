@@ -1,5 +1,6 @@
 :root {
     --animate-duration: 250ms !important;
+    --shadow-light: 0px 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 #event-details-popup {
