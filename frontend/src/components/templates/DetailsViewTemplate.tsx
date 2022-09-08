@@ -9,7 +9,7 @@ const DetailsViewContainer = styled.div`
     flex-direction: column;
     background-color: ${Colors.background.light};
     min-width: 300px;
-    padding: ${Spacing.padding._40} ${Spacing.padding._16} ${Spacing.padding._16};
+    padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
 `
 
 const DetailsViewTemplate = ({ children }: { children: React.ReactNode }) => {

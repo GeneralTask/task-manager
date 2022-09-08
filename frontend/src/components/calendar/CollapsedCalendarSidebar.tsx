@@ -12,7 +12,7 @@ const flicker = keyframes`
     from {opacity: 1;}
 `
 const Sidebar = styled.div<{ showFlicker: boolean }>`
-    padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
+    padding: ${Spacing._16} ${Spacing._4} 0;
     background-color: ${Colors.background.medium};
     display: flex;
     justify-content: center;
