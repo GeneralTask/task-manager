@@ -91,7 +91,7 @@ const useCalendarDrop = ({
                         account_id: primaryAccountID,
                         datetime_start: dropTime.toISO(),
                         datetime_end: end.toISO(),
-                        summary: item.task?.title,
+                        summary: item.task.title,
                         description,
                         task_id: item.task.id,
                     },
