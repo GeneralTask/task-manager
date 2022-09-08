@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { useEffect, useRef } from 'react'
 import { useDrop } from 'react-dnd'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
+import { DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT } from '../constants'
 import { DropType } from '../utils/types'
 
 const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElement>) => {
@@ -24,7 +25,7 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
             },
             hover: (_, monitor) => {
                 if (!isCollapsed || !hoverStarted.current) return
-                if (monitor.getItemType() === DropType.TASK && monitor.isOver() && DateTime.now().diff(hoverStarted.current, 'seconds').seconds < 2) return
+                if (monitor.getItemType() === DropType.TASK && monitor.isOver() && DateTime.now().diff(hoverStarted.current, 'seconds').seconds < DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT) return
                 setIsCollapsed(false)
                 hoverStarted.current = undefined
             }
