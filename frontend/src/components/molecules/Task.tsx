@@ -24,9 +24,8 @@ const Title = styled.span`
     text-overflow: ellipsis;
     ${Typography.bodySmall};
 `
-const DominoContainer = styled.div`
-    position: absolute;
-    left: 2px;
+const EmptyDominoContainer = styled.div`
+    width: 18px;
 `
 
 interface TaskProps {
@@ -118,11 +117,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             onMouseEnter={() => setIsHovered(true)}
         >
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
-                {isHovered && !dragDisabled && (
-                    <DominoContainer>
-                        <Domino />
-                    </DominoContainer>
-                )}
+                {isHovered && !dragDisabled ? <Domino /> : <EmptyDominoContainer />}
                 <MarkTaskDoneButton
                     taskId={task.id}
                     sectionId={sectionId}
