@@ -42,6 +42,7 @@ const StyledToastContainer = styled(ToastContainer).attrs({
     .toast {
         box-shadow: ${Shadows.medium};
         border-radius: ${Border.radius.small};
+        cursor: auto;
     }
     .toast-body {
         position: relative;
@@ -51,7 +52,6 @@ const StyledToastContainer = styled(ToastContainer).attrs({
             Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
             'Segoe UI Symbol';
         min-width: 0;
-        cursor: auto;
     }
 `
 

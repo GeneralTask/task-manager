@@ -355,6 +355,131 @@ func TestTaskReorder(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
 	})
+	t.Run("SuccessSubTask", func(t *testing.T) {
+		newAuthToken := login("approved_sub_task@generaltask.com", "")
+		newUserID := getUserIDFromAuthToken(t, db, newAuthToken)
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+
+		parentTaskID := primitive.NewObjectID()
+		newParentTaskID := primitive.NewObjectID()
+
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			database.Task{
+				UserID:       newUserID,
+				IDOrdering:   2,
+				ParentTaskID: parentTaskID,
+				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+			},
+		)
+		assert.NoError(t, err)
+		taskToBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err = taskCollection.InsertOne(
+			dbCtx,
+			database.Task{
+				UserID:       primitive.NewObjectID(),
+				IDOrdering:   3,
+				ParentTaskID: parentTaskID,
+				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+			},
+		)
+		assert.NoError(t, err)
+		taskToNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err = taskCollection.InsertOne(
+			dbCtx,
+			database.Task{
+				UserID:           newUserID,
+				IDOrdering:       1,
+				ParentTaskID:     newParentTaskID,
+				SourceID:         external.TASK_SOURCE_ID_LINEAR,
+				HasBeenReordered: false,
+			},
+		)
+		assert.NoError(t, err)
+		taskToAlsoNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err = taskCollection.InsertOne(
+			dbCtx,
+			database.Task{
+				UserID:       newUserID,
+				IDOrdering:   2,
+				ParentTaskID: newParentTaskID,
+				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+			},
+		)
+		assert.NoError(t, err)
+		taskToAlsoAlsoNotBeMovedID := insertResult.InsertedID.(primitive.ObjectID)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err = taskCollection.InsertOne(
+			dbCtx,
+			database.Task{
+				UserID:       newUserID,
+				ParentTaskID: parentTaskID,
+				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+			},
+		)
+		assert.NoError(t, err)
+		taskID := insertResult.InsertedID.(primitive.ObjectID)
+		taskIDHex := taskID.Hex()
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest("PATCH", "/tasks/modify/"+taskIDHex+"/", bytes.NewBuffer([]byte(`{"id_ordering": 2}`)))
+		request.Header.Add("Authorization", "Bearer "+newAuthToken)
+		request.Header.Add("Content-Type", "application/json")
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		var task database.Task
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, task.IDOrdering)
+		assert.Equal(t, parentTaskID, task.ParentTaskID)
+		assert.True(t, task.HasBeenReordered)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToBeMovedID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 3, task.IDOrdering)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToNotBeMovedID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 3, task.IDOrdering)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToAlsoNotBeMovedID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, task.IDOrdering)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskToAlsoAlsoNotBeMovedID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, task.IDOrdering)
+	})
 	t.Run("WrongUser", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()

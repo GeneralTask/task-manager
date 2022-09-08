@@ -14,5 +14,5 @@ const updateToast = (id: ToastId, toastTemplateProps: ToastTemplateProps, option
 const dismissToast = toastifyToast.dismiss
 const isActive = toastifyToast.isActive
 
-export { ToastId, updateToast, isActive, dismissToast }
+export { updateToast, isActive, dismissToast }
 export default toast
