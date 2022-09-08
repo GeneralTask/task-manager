@@ -56,9 +56,6 @@ const OverviewView = () => {
                 if (view.type === 'github') {
                     return <PullRequestDetails pullRequest={item as TPullRequest} />
                 }
-                if (view.type === 'meeting_preparation') {
-                    return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
-                }
                 return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
             }
         }
