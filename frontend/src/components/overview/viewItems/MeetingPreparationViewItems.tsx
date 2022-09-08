@@ -5,7 +5,7 @@ import Task from '../../molecules/Task'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const MeetingPreparationViewItem = ({ view }: ViewItemsProps) => {
+const MeetingPreparationViewItems = ({ view }: ViewItemsProps) => {
     const { overviewViewId, overviewItemId } = useParams()
     return (
         <>
@@ -30,4 +30,4 @@ const MeetingPreparationViewItem = ({ view }: ViewItemsProps) => {
     )
 }
 
-export default MeetingPreparationViewItem
+export default MeetingPreparationViewItems
