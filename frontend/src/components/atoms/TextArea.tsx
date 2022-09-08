@@ -13,7 +13,7 @@ const TextAreaStyled = styled.textarea`
     border: none;
     box-shadow: none;
     outline: none;
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing._8};
     font-style: normal;
     background-color: inherit;
     font-family: inherit;

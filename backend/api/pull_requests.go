@@ -28,16 +28,30 @@ type RepositoryResult struct {
 }
 
 type PullRequestResult struct {
-	ID            string            `json:"id"`
-	Title         string            `json:"title"`
-	Number        int               `json:"number"`
-	Status        PullRequestStatus `json:"status"`
-	Author        string            `json:"author"`
-	NumComments   int               `json:"num_comments"`
-	CreatedAt     string            `json:"created_at"`
-	Branch        string            `json:"branch"`
-	Deeplink      string            `json:"deeplink"`
-	LastUpdatedAt string            `json:"last_updated_at"`
+	ID            string               `json:"id"`
+	Title         string               `json:"title"`
+	Body          string               `json:"body"`
+	Number        int                  `json:"number"`
+	Status        PullRequestStatus    `json:"status"`
+	Author        string               `json:"author"`
+	Comments      []PullRequestComment `json:"comments"`
+	NumComments   int                  `json:"num_comments"`
+	CreatedAt     string               `json:"created_at"`
+	Branch        string               `json:"branch"`
+	Deeplink      string               `json:"deeplink"`
+	Additions     int                  `json:"additions"`
+	Deletions     int                  `json:"deletions"`
+	LastUpdatedAt string               `json:"last_updated_at"`
+}
+
+type PullRequestComment struct {
+	Type            string `json:"type"`
+	Body            string `json:"body"`
+	Author          string `json:"author"`
+	Filepath        string `json:"filepath"`
+	LineNumberStart int    `json:"line_number_start"`
+	LineNumberEnd   int    `json:"line_number_end"`
+	CreatedAt       string `json:"last_updated_at"`
 }
 
 type PullRequestStatus struct {
@@ -133,19 +147,35 @@ func (api *API) sortPullRequestResults(prResults []*PullRequestResult) {
 }
 
 func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResult {
+	comments := []PullRequestComment{}
+	for _, comment := range pullRequest.Comments {
+		comments = append(comments, PullRequestComment{
+			Type:            comment.Type,
+			Body:            comment.Body,
+			Author:          comment.Author,
+			Filepath:        comment.Filepath,
+			LineNumberStart: comment.LineNumberStart,
+			LineNumberEnd:   comment.LineNumberEnd,
+			CreatedAt:       comment.CreatedAt.Time().UTC().Format(time.RFC3339),
+		})
+	}
 	return PullRequestResult{
 		ID:     pullRequest.ID.Hex(),
 		Title:  pullRequest.Title,
+		Body:   pullRequest.Body,
 		Number: pullRequest.Number,
 		Status: PullRequestStatus{
 			Text:  pullRequest.RequiredAction,
 			Color: getColorFromRequiredAction(pullRequest.RequiredAction),
 		},
 		Author:        pullRequest.Author,
+		Comments:      comments,
 		NumComments:   pullRequest.CommentCount,
 		CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		Branch:        pullRequest.Branch,
 		Deeplink:      pullRequest.Deeplink,
+		Additions:     pullRequest.Additions,
+		Deletions:     pullRequest.Deletions,
 		LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 }

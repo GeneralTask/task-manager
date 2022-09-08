@@ -48,41 +48,151 @@ const (
 	SettingFieldGithubSortingDirection = "github_sorting_direction"
 	ChoiceKeyDescending                = "descending"
 	ChoiceKeyAscending                 = "ascending"
+	// Task sorting
+	SettingFieldTaskSortingPreference = "task_sorting_preference"
+	SettingFieldTaskSortingDirection  = "task_sorting_direction"
+	ChoiceKeyManual                   = "manual"
+	ChoiceKeyDueDate                  = "due_date"
+	ChoiceKeyPriority                 = "priority"
 )
 
-var Settings = []SettingDefinition{
-	{
-		FieldKey:      SettingFieldGithubFilteringPreference,
-		FieldName:     "Github PR filtering preference for PR page",
-		DefaultChoice: ChoiceKeyActionableOnly,
-		Choices: []SettingChoice{
-			{Key: ChoiceKeyActionableOnly, Name: "Actionable Only"},
-			{Key: ChoiceKeyAllPRs, Name: "All PRs"},
-		},
-		Hidden: false,
+// human readable names aren't defined here because they are not used
+var GithubFilteringSetting = SettingDefinition{
+	FieldKey:      SettingFieldGithubFilteringPreference,
+	DefaultChoice: ChoiceKeyActionableOnly,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyActionableOnly},
+		{Key: ChoiceKeyAllPRs},
 	},
-	{
-		FieldKey:      SettingFieldGithubSortingPreference,
-		FieldName:     "Github PR sorting preference for PR page",
-		DefaultChoice: ChoiceKeyRequiredAction,
-		Choices: []SettingChoice{
-			{Key: ChoiceKeyRequiredAction, Name: "Required Action"},
-			{Key: ChoiceKeyPRNumber, Name: "PR Number"},
-			{Key: ChoiceKeyCreatedAt, Name: "Created At"},
-			{Key: ChoiceKeyUpdatedAt, Name: "Updated At"},
-		},
-		Hidden: false,
+}
+
+var GithubSortingPreferenceSetting = SettingDefinition{
+	FieldKey:      SettingFieldGithubSortingPreference,
+	DefaultChoice: ChoiceKeyRequiredAction,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyRequiredAction},
+		{Key: ChoiceKeyPRNumber},
+		{Key: ChoiceKeyCreatedAt},
+		{Key: ChoiceKeyUpdatedAt},
 	},
-	{
-		FieldKey:      SettingFieldGithubSortingDirection,
-		FieldName:     "Github PR sorting direction preference for PR page",
-		DefaultChoice: ChoiceKeyDescending,
-		Choices: []SettingChoice{
-			{Key: ChoiceKeyDescending, Name: "Descending"},
-			{Key: ChoiceKeyAscending, Name: "Ascending"},
-		},
-		Hidden: false,
+}
+
+var GithubSortingDirectionSetting = SettingDefinition{
+	FieldKey:      SettingFieldGithubSortingDirection,
+	DefaultChoice: ChoiceKeyDescending,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyDescending},
+		{Key: ChoiceKeyAscending},
 	},
+}
+
+var TaskSortingPreferenceSetting = SettingDefinition{
+	FieldKey:      SettingFieldTaskSortingPreference,
+	DefaultChoice: ChoiceKeyManual,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyManual},
+		{Key: ChoiceKeyDueDate},
+		{Key: ChoiceKeyPriority},
+	},
+}
+
+var TaskSortingDirectionSetting = SettingDefinition{
+	FieldKey:      SettingFieldTaskSortingDirection,
+	DefaultChoice: ChoiceKeyDescending,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyDescending},
+		{Key: ChoiceKeyAscending},
+	},
+}
+
+var TaskSectionSettingTypes = []string{"main", "overview"}
+
+var hardcodedSettings = []SettingDefinition{
+	// these settings are for the Github PR page
+	GithubFilteringSetting,
+	GithubSortingPreferenceSetting,
+	GithubSortingDirectionSetting,
+}
+
+func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {
+	settingsOptions := hardcodedSettings
+
+	githubViews, err := getGithubViews(db, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, githubView := range *githubViews {
+		settingsOptions = append(
+			settingsOptions,
+			SettingDefinition{
+				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubFilteringPreference),
+				DefaultChoice: GithubFilteringSetting.DefaultChoice,
+				Choices:       GithubFilteringSetting.Choices,
+			},
+			SettingDefinition{
+				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubSortingPreference),
+				DefaultChoice: GithubSortingPreferenceSetting.DefaultChoice,
+				Choices:       GithubSortingPreferenceSetting.Choices,
+			},
+			SettingDefinition{
+				FieldKey:      getGithubFieldKey(githubView, SettingFieldGithubSortingDirection),
+				DefaultChoice: GithubSortingDirectionSetting.DefaultChoice,
+				Choices:       GithubSortingDirectionSetting.Choices,
+			},
+		)
+	}
+
+	taskSections, err := database.GetTaskSections(db, userID)
+	if err != nil {
+		return nil, err
+	}
+	for _, taskSection := range *taskSections {
+		for _, settingType := range TaskSectionSettingTypes {
+			settingsOptions = append(
+				settingsOptions,
+				SettingDefinition{
+					FieldKey:      getTaskSectionFieldKey(taskSection, SettingFieldTaskSortingPreference, settingType),
+					DefaultChoice: TaskSortingPreferenceSetting.DefaultChoice,
+					Choices:       TaskSortingPreferenceSetting.Choices,
+				},
+				SettingDefinition{
+					FieldKey:      getTaskSectionFieldKey(taskSection, SettingFieldTaskSortingDirection, settingType),
+					DefaultChoice: TaskSortingDirectionSetting.DefaultChoice,
+					Choices:       TaskSortingDirectionSetting.Choices,
+				},
+			)
+		}
+	}
+
+	return &settingsOptions, nil
+}
+
+func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
+	parentCtx := context.Background()
+
+	var views []database.View
+	err := database.FindWithCollection(
+		parentCtx,
+		database.GetViewCollection(db),
+		userID,
+		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
+		&views,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load github views")
+		return nil, err
+	}
+	return &views, nil
+}
+
+func getGithubFieldKey(githubView database.View, suffix string) string {
+	return githubView.ID.Hex() + "_" + suffix
+}
+
+func getTaskSectionFieldKey(taskSection database.TaskSection, suffix string, settingType string) string {
+	return taskSection.ID.Hex() + "_" + suffix + "_" + settingType
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
@@ -102,13 +212,19 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 		return &userSetting.FieldValue, nil
 	}
 
+	settingsOptions, err := GetSettingsOptions(db, userID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load settings")
+		return nil, errors.New("failed to load settings")
+	}
+
 	// Default to first choice value
-	for _, setting := range Settings {
+	for _, setting := range *settingsOptions {
 		if setting.FieldKey == fieldKey {
 			return &setting.DefaultChoice, nil
 		}
 	}
-	logger := logging.GetSentryLogger()
 	logger.Error().Msgf("invalid setting: %s", fieldKey)
 	return nil, fmt.Errorf("invalid setting: %s", fieldKey)
 }
@@ -117,7 +233,14 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	parentCtx := context.Background()
 	keyFound := false
 	valueFound := false
-	for _, setting := range Settings {
+
+	settingsOptions, err := GetSettingsOptions(db, userID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load settings")
+		return errors.New("internal server error")
+	}
+	for _, setting := range *settingsOptions {
 		if setting.FieldKey == fieldKey {
 			keyFound = true
 			for _, choice := range setting.Choices {
@@ -137,7 +260,7 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 	settingCollection := database.GetUserSettingsCollection(db)
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
-	_, err := settingCollection.UpdateOne(
+	_, err = settingCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
@@ -150,7 +273,6 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		}},
 		options.Update().SetUpsert(true),
 	)
-	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to update user setting")
 		return errors.New("internal server error")

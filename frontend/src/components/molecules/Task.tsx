@@ -17,7 +17,7 @@ const IconContainer = styled.div`
     margin-left: auto;
 `
 const Title = styled.span`
-    margin-left: ${Spacing.margin._8};
+    margin-left: ${Spacing._8};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -25,7 +25,7 @@ const Title = styled.span`
 `
 const DominoContainer = styled.div`
     position: absolute;
-    left: ${Spacing.margin._4};
+    left: 2px;
 `
 
 interface TaskProps {
@@ -64,7 +64,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
 
     //Auto-scroll to task if it is selected and out of view
     const elementRef = useCallback(
-        (node) => {
+        (node: HTMLDivElement) => {
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver(
                 (entries) => {

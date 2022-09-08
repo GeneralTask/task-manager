@@ -105,27 +105,40 @@ type Task struct {
 }
 
 type PullRequest struct {
-	ID                primitive.ObjectID `bson:"_id,omitempty"`
-	UserID            primitive.ObjectID `bson:"user_id,omitempty"`
-	IDExternal        string             `bson:"id_external,omitempty"`
-	IDOrdering        int                `bson:"id_ordering,omitempty"`
-	IsCompleted       *bool              `bson:"is_completed,omitempty"`
-	SourceID          string             `bson:"source_id,omitempty"`
-	SourceAccountID   string             `bson:"source_account_id,omitempty"`
-	Deeplink          string             `bson:"deeplink,omitempty"`
-	Title             string             `bson:"title,omitempty"`
-	Body              string             `bson:"body,omitempty"`
-	RepositoryID      string             `bson:"repository_id,omitempty"`
-	RepositoryName    string             `bson:"repository_name,omitempty"`
-	Number            int                `bson:"number,omitempty"`
-	Author            string             `bson:"author,omitempty"`
-	Branch            string             `bson:"branch,omitempty"`
-	RequiredAction    string             `bson:"required_action,omitempty"`
-	CommentCount      int                `bson:"comment_count,omitempty"`
-	CreatedAtExternal primitive.DateTime `bson:"created_at_external,omitempty"`
-	LastFetched       primitive.DateTime `bson:"last_fetched,omitempty"`
-	LastUpdatedAt     primitive.DateTime `bson:"last_updated_at,omitempty"`
-	CompletedAt       primitive.DateTime `bson:"completed_at,omitempty"`
+	ID                primitive.ObjectID   `bson:"_id,omitempty"`
+	UserID            primitive.ObjectID   `bson:"user_id,omitempty"`
+	IDExternal        string               `bson:"id_external,omitempty"`
+	IDOrdering        int                  `bson:"id_ordering,omitempty"`
+	IsCompleted       *bool                `bson:"is_completed,omitempty"`
+	SourceID          string               `bson:"source_id,omitempty"`
+	SourceAccountID   string               `bson:"source_account_id,omitempty"`
+	Deeplink          string               `bson:"deeplink,omitempty"`
+	Title             string               `bson:"title,omitempty"`
+	Body              string               `bson:"body,omitempty"`
+	RepositoryID      string               `bson:"repository_id,omitempty"`
+	RepositoryName    string               `bson:"repository_name,omitempty"`
+	Number            int                  `bson:"number,omitempty"`
+	Author            string               `bson:"author,omitempty"`
+	Branch            string               `bson:"branch,omitempty"`
+	RequiredAction    string               `bson:"required_action,omitempty"`
+	Comments          []PullRequestComment `bson:"comments,omitempty"`
+	CommentCount      int                  `bson:"comment_count,omitempty"`
+	Additions         int                  `bson:"additions,omitempty"`
+	Deletions         int                  `bson:"deletions, omitempty"`
+	CreatedAtExternal primitive.DateTime   `bson:"created_at_external,omitempty"`
+	LastFetched       primitive.DateTime   `bson:"last_fetched,omitempty"`
+	LastUpdatedAt     primitive.DateTime   `bson:"last_updated_at,omitempty"`
+	CompletedAt       primitive.DateTime   `bson:"completed_at,omitempty"`
+}
+
+type PullRequestComment struct {
+	Type            string             `bson:"type,omitempty"`
+	Body            string             `bson:"body,omitempty"`
+	Author          string             `bson:"author,omitempty"`
+	Filepath        string             `bson:"filepath,omitempty"`
+	LineNumberStart int                `bson:"line_number_start,omitempty"`
+	LineNumberEnd   int                `bson:"line_number_end,omitempty"`
+	CreatedAt       primitive.DateTime `bson:"last_updated_at,omitempty"`
 }
 
 type CalendarEvent struct {
@@ -140,19 +153,21 @@ type CalendarEvent struct {
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds
-	TimeAllocation int64              `bson:"time_allocated"`
-	CallLogo       string             `bson:"call_logo,omitempty"`
-	CallPlatform   string             `bson:"call_platform,omitempty"`
-	CallURL        string             `bson:"call_url,omitempty"`
-	LinkedTaskID   primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	TimeAllocation     int64              `bson:"time_allocated"`
+	CallLogo           string             `bson:"call_logo,omitempty"`
+	CallPlatform       string             `bson:"call_platform,omitempty"`
+	CallURL            string             `bson:"call_url,omitempty"`
+	CanModify          bool               `bson:"can_modify,omitempty"`
+	LinkedTaskID       primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedTaskSourceID string             `bson:"linked_task_source_id,omitempty"`
 }
 
 type MeetingPreparationParams struct {
 	CalendarEventID               primitive.ObjectID `bson:"event_id"`
 	IDExternal                    string             `bson:"id_external"`
 	DatetimeStart                 primitive.DateTime `bson:"datetime_start"`
-	DatetimeEnd                   primitive.DateTime
-	HasBeenAutomaticallyCompleted bool `bson:"has_been_automatically_completed"`
+	DatetimeEnd                   primitive.DateTime `bson:"datetime_end"`
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match
@@ -257,14 +272,14 @@ type Recipient struct {
 }
 
 type View struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	UserID        primitive.ObjectID `bson:"user_id"`
-	IDOrdering    int                `bson:"id_ordering"`
-	Type          string             `bson:"type"`
-	IsReorderable bool               `bson:"is_reorderable"`
-	IsLinked      bool               `bson:"is_linked"`
-	GithubID      string             `bson:"github_id"`
-	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
+	ID                       primitive.ObjectID `bson:"_id,omitempty"`
+	UserID                   primitive.ObjectID `bson:"user_id"`
+	IDOrdering               int                `bson:"id_ordering"`
+	Type                     string             `bson:"type"`
+	IsReorderable            bool               `bson:"is_reorderable"`
+	IsLinked                 bool               `bson:"is_linked"`
+	GithubID                 string             `bson:"github_id"`
+	TaskSectionID            primitive.ObjectID `bson:"task_section_id"`
 }
 
 type Repository struct {
@@ -273,4 +288,10 @@ type Repository struct {
 	FullName     string             `bson:"full_name"`
 	RepositoryID string             `bson:"repository_id"`
 	Deeplink     string             `bson:"deeplink"`
+}
+
+type DefaultSectionSettings struct {
+	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	UserID       primitive.ObjectID `bson:"user_id"`
+	NameOverride string             `bson:"name_override"`
 }

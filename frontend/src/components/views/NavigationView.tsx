@@ -16,7 +16,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     min-width: 0px;
     min-height: 0px;
     background-color: ${Colors.background.medium};
-    padding: ${Spacing.padding._12};
+    padding: ${Spacing._12};
     box-sizing: border-box;
     z-index: 1;
     ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.secondary.hover}`}
@@ -24,7 +24,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
 const NavigationViewHeader = styled.div`
     flex-basis: 24px;
     width: 100%;
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing._16};
 `
 const OverflowContainer = styled.div`
     flex: 1;
@@ -33,8 +33,8 @@ const OverflowContainer = styled.div`
 const GapView = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing.margin._8};
-    padding-bottom: ${Spacing.padding._8};
+    gap: ${Spacing._8};
+    padding-bottom: ${Spacing._8};
     margin-top: auto;
 `
 

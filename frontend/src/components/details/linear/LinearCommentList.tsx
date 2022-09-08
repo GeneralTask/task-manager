@@ -9,13 +9,13 @@ const CommentListContainer = styled.div`
     flex-direction: column;
     max-height: 400px;
     overflow-y: auto;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
 `
 
 const DividerView = styled.div`
     height: 1px;
     background-color: ${Colors.background.dark};
-    margin: ${Spacing.margin._8};
+    margin: ${Spacing._8};
 `
 
 interface LinearCommentListProps {

@@ -3,19 +3,11 @@ import React, { useCallback } from 'react'
 
 import CreateNewTask from '../../molecules/CreateNewTask'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
-import { TASK_HEIGHT } from '../../../styles/dimensions'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'
-import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
-
-const EmptyDropContainer = styled.div`
-    height: ${TASK_HEIGHT};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`
+import EmptyViewItem from './EmptyViewItem'
 
 const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
@@ -64,7 +56,10 @@ const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsP
                     onReorder={handleReorderTask}
                     indicatorType="WHOLE"
                 >
-                    <EmptyDropContainer>No tasks</EmptyDropContainer>
+                    <EmptyViewItem
+                        header="You've completed all your tasks!"
+                        body="Create new tasks to see them here."
+                    />
                 </ReorderDropContainer>
             )}
         </>

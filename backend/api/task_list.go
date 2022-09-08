@@ -26,21 +26,28 @@ type externalStatus struct {
 	Type  string `json:"type,omitempty"`
 }
 
+type MeetingPreparationParams struct {
+	DatetimeStart string `json:"datetime_start"`
+	DatetimeEnd   string `json:"datetime_end"`
+}
+
 type TaskResult struct {
-	ID                 primitive.ObjectID           `json:"id"`
-	IDOrdering         int                          `json:"id_ordering"`
-	Source             TaskSource                   `json:"source"`
-	Deeplink           string                       `json:"deeplink"`
-	Title              string                       `json:"title"`
-	Body               string                       `json:"body"`
-	Sender             string                       `json:"sender"`
-	DueDate            string                       `json:"due_date"`
-	TimeAllocation     int64                        `json:"time_allocated"`
-	SentAt             string                       `json:"sent_at"`
-	IsDone             bool                         `json:"is_done"`
-	ExternalStatus     *externalStatus              `json:"external_status,omitempty"`
-	Comments           *[]database.Comment          `json:"comments,omitempty"`
-	SlackMessageParams *database.SlackMessageParams `json:"slack_message_params,omitempty"`
+	ID                       primitive.ObjectID           `json:"id"`
+	IDOrdering               int                          `json:"id_ordering"`
+	Source                   TaskSource                   `json:"source"`
+	Deeplink                 string                       `json:"deeplink"`
+	Title                    string                       `json:"title"`
+	Body                     string                       `json:"body"`
+	Sender                   string                       `json:"sender"`
+	DueDate                  string                       `json:"due_date"`
+	TimeAllocation           int64                        `json:"time_allocated"`
+	SentAt                   string                       `json:"sent_at"`
+	IsDone                   bool                         `json:"is_done"`
+	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
+	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
+	Comments                 *[]database.Comment          `json:"comments,omitempty"`
+	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
+	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
 }
 
 type TaskSection struct {
@@ -62,13 +69,6 @@ type Recipient struct {
 }
 
 type TaskGroupType string
-
-const (
-	ScheduledTask          TaskGroupType = "scheduled_task"
-	UnscheduledGroup       TaskGroupType = "unscheduled_group"
-	TaskSectionNameDefault string        = "Default"
-	TaskSectionNameDone    string        = "Done"
-)
 
 func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
@@ -142,7 +142,7 @@ func (api *API) adjustForCompletedTasks(
 			// we don't ever need to mark GT tasks or Gmail tasks as done here as they would have already been marked done
 			continue
 		}
-		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] {
+		if !newTaskIDs[currentTask.ID] && !failedFetchSources[currentTask.SourceID] && !currentTask.IsMeetingPreparationTask {
 			err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), currentTask.ID)
 			if err != nil {
 				api.Logger.Error().Err(err).Msg("failed to complete task")
@@ -244,18 +244,19 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		body = *t.Body
 	}
 	taskResult := &TaskResult{
-		ID:             t.ID,
-		IDOrdering:     t.IDOrdering,
-		Source:         taskSource,
-		Deeplink:       t.Deeplink,
-		Title:          title,
-		Body:           body,
-		TimeAllocation: timeAllocation,
-		Sender:         t.Sender,
-		SentAt:         t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-		DueDate:        dueDate,
-		IsDone:         completed,
-		Comments:       t.Comments,
+		ID:                       t.ID,
+		IDOrdering:               t.IDOrdering,
+		Source:                   taskSource,
+		Deeplink:                 t.Deeplink,
+		Title:                    title,
+		Body:                     body,
+		TimeAllocation:           timeAllocation,
+		Sender:                   t.Sender,
+		SentAt:                   t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		DueDate:                  dueDate,
+		IsDone:                   completed,
+		Comments:                 t.Comments,
+		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
 	}
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
@@ -271,6 +272,13 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			User:    t.SlackMessageParams.User,
 			Team:    t.SlackMessageParams.Team,
 			Message: t.SlackMessageParams.Message,
+		}
+	}
+
+	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
+		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
+			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
+			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
 		}
 	}
 
