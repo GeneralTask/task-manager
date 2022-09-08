@@ -49,7 +49,7 @@ type TaskSection struct {
 	Name      string             `json:"name"`
 	Tasks     []*TaskResult      `json:"tasks"`
 	IsDone    bool               `json:"is_done"`
-	IsDeleted bool               `json:"is_deleted"`
+	IsDeleted bool               `json:"is_trash"`
 }
 
 type Recipients struct {

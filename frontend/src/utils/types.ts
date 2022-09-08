@@ -137,7 +137,7 @@ export interface TTaskSection {
     name: string
     tasks: TTask[]
     is_done: boolean
-    is_deleted: boolean
+    is_trash: boolean
 }
 
 export interface TSettingChoice {

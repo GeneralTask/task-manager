@@ -99,7 +99,7 @@ const NavigationSectionLinks = () => {
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
-                    ?.filter((section) => !section.is_done && !section.is_deleted)
+                    ?.filter((section) => !section.is_done && !section.is_trash)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
@@ -148,7 +148,7 @@ const NavigationSectionLinks = () => {
                         />
                     ))}
                 {taskSections
-                    ?.filter((section) => section.is_deleted)
+                    ?.filter((section) => section.is_trash)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
