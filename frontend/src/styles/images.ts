@@ -4,6 +4,8 @@ import {
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
+    faCheck,
+    faCheckSquare,
     faFolder,
     faMessage,
     faSquare,
@@ -13,8 +15,6 @@ import {
 import {
     faBadgeCheck,
     faBars,
-    faCheck,
-    faCheckSquare,
     faChevronDown,
     faChevronLeft,
     faChevronRight,
