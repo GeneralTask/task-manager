@@ -3,13 +3,12 @@ import React from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { Icon } from '../atoms/Icon'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 
-const DetailsViewContainer = styled.div`
+const EmptyMessage = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: ${Colors.background.light};
-    min-width: 300px;
     justify-content: center;
     align-items: center;
     gap: ${Spacing._16};
@@ -26,10 +25,12 @@ interface EmptyDetailsProps {
 
 const EmptyDetails = ({ icon, text }: EmptyDetailsProps) => {
     return (
-        <DetailsViewContainer>
-            <Icon size="xLarge" icon={icon} />
-            <Text>{text}</Text>
-        </DetailsViewContainer>
+        <DetailsViewTemplate>
+            <EmptyMessage>
+                <Icon size="xLarge" icon={icon} />
+                <Text>{text}</Text>
+            </EmptyMessage>
+        </DetailsViewTemplate>
     )
 }
 

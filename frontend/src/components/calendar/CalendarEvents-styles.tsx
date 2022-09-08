@@ -166,7 +166,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
 `
-export const CalendarContainer = styled.div<{ expanded: boolean }>`
+export const CalendarContainer = styled.div<{ expanded: boolean; hasShadow: boolean }>`
     min-width: 300px;
     height: 100%;
     flex: ${(props) => (props.expanded ? '1' : '0')};
