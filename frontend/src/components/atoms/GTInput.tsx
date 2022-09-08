@@ -11,7 +11,6 @@ const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     outline: none;
     overflow: auto;
     padding: ${Spacing._8};
-    width: fit-content;
     border-radius: ${Border.radius.small};
     :focus,
     :hover {
@@ -37,7 +36,7 @@ const GTInput = ({ initialValue, onEdit, fontSize, ...rest }: GTTextAreaProps) =
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (inputRef.current && e.key === 'Escape') inputRef.current.blur()
+        if (inputRef.current && (e.key === 'Escape' || e.key === 'Enter')) inputRef.current.blur()
         e.stopPropagation()
     }
 

@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small' | 'medium' | 'large' }>`
-    ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
     background-color: inherit;
     color: ${Colors.text.black};
     font: inherit;
@@ -15,10 +14,14 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
     border-radius: ${Border.radius.small};
     :focus,
     :hover {
-        outline: ${Border.stroke.medium} solid ${Colors.border.light};
-        box-shadow: ${Shadows.light};
-        background-color: ${Colors.background.white};
+        ${({ disabled }) =>
+            !disabled &&
+            `
+            outline: ${Border.stroke.medium} solid ${Colors.border.light};
+            box-shadow: ${Shadows.light};
+            background-color: ${Colors.background.white};`}
     }
+    ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
