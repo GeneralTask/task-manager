@@ -16,14 +16,14 @@ const SupportedView = styled.div<{ isIndented?: boolean }>`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: ${Spacing.padding._8};
-    ${(props) => props.isIndented && `padding-left: ${Spacing.padding._40}`}
+    padding: ${Spacing._8};
+    ${(props) => props.isIndented && `padding-left: ${Spacing._32}`}
 `
 const SupportedViewContent = styled.div`
     display: flex;
     align-items: center;
     color: ${Colors.text.black};
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
     ${Typography.bodySmall};
 `
 interface AddViewsModalProps {

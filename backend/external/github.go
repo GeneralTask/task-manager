@@ -23,6 +23,7 @@ import (
 
 type GithubConfigValues struct {
 	FetchExternalAPIToken       *bool
+	CompareURL                  *string
 	GetUserURL                  *string
 	ListPullRequestsURL         *string
 	ListPullRequestReviewURL    *string

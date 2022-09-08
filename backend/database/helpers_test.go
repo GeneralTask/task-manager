@@ -81,6 +81,81 @@ func TestGetTasks(t *testing.T) {
 	})
 }
 
+func TestGetMeetingPreparationTasks(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	notCompleted := false
+	validMeetingPrepTask, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abc",
+		"foobar_source",
+		&Task{
+			IDExternal:               "123abc",
+			SourceID:                 "foobar_source",
+			UserID:                   userID,
+			IsCompleted:              &notCompleted,
+			IsMeetingPreparationTask: true,
+		},
+	)
+	assert.NoError(t, err)
+	// Not meeting preparation task
+	_, err = GetOrCreateTask(
+		db,
+		userID,
+		"123abcde",
+		"foobar_source",
+		&Task{
+			IDExternal:               "123abcde",
+			SourceID:                 "foobar_source",
+			UserID:                   userID,
+			IsCompleted:              &notCompleted,
+			IsMeetingPreparationTask: false,
+		},
+	)
+	assert.NoError(t, err)
+	// Completed meeting preparation task
+	completed := true
+	_, err = GetOrCreateTask(
+		db,
+		userID,
+		"123abcdef",
+		"foobar_source",
+		&Task{
+			IDExternal:               "123abcdef",
+			SourceID:                 "foobar_source",
+			UserID:                   userID,
+			IsCompleted:              &completed,
+			IsMeetingPreparationTask: true,
+		},
+	)
+	assert.NoError(t, err)
+	// Wrong user ID
+	_, err = GetOrCreateTask(
+		db,
+		notUserID,
+		"123abe",
+		"foobar_source",
+		&Task{
+			IDExternal:               "123abe",
+			SourceID:                 "foobar_source",
+			UserID:                   notUserID,
+			IsCompleted:              &notCompleted,
+			IsMeetingPreparationTask: true,
+		},
+	)
+	assert.NoError(t, err)
+	t.Run("Success", func(t *testing.T) {
+		tasks, err := GetMeetingPreparationTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, validMeetingPrepTask.ID, (*tasks)[0].ID)
+	})
+}
+
 func TestGetPullRequests(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -754,7 +829,6 @@ func TestGetDefaultSectionName(t *testing.T) {
 		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
 			dbCtx,
 			&DefaultSectionSettings{
-				ID:           constants.IDTaskSectionDefault,
 				UserID:       userID,
 				NameOverride: "New Default",
 			},
@@ -769,11 +843,9 @@ func TestGetDefaultSectionName(t *testing.T) {
 		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
 			dbCtx,
 			&DefaultSectionSettings{
-				ID:     constants.IDTaskSectionDefault,
 				UserID: otherUserID,
 			},
 			&DefaultSectionSettings{
-				ID:           constants.IDTaskSectionDefault,
 				UserID:       otherUserID,
 				NameOverride: "",
 			},
