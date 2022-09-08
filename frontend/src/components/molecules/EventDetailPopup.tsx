@@ -10,7 +10,7 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
+import React, { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { ToastId, dismissToast } from '../../utils/toast'
 
@@ -37,8 +37,8 @@ interface EventDetailProps {
     windowHeight: number
 }
 
-const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }: EventDetailProps, ref) => {
+const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }, ref) => {
         const { setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
@@ -97,7 +97,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             return null
         }
 
-        return ReactDOM.createPortal(
+        const portal = ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
                 yCoord={yCoord}
@@ -179,6 +179,8 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             </EventBoxStyle>,
             document.getElementById('event-details-popup') as HTMLElement
         )
+
+        return <>{portal}</>
     }
 )
 

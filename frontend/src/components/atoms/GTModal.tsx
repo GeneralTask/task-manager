@@ -86,6 +86,9 @@ const GTModal = (props: GTModalProps) => {
         }
     }
     return (
+        // ignoring TS warning here because react-modal typing does not support react 18, even though the library does
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         <Modal isOpen={props.isOpen} style={getModalStyle(props.type)} onRequestClose={handleClose}>
             <ModalContainer type={props.type}>
                 <Header>
