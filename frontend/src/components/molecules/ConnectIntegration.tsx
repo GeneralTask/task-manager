@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { FIVE_SECOND_TIMEOUT } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -13,8 +14,12 @@ import { Icon } from '../atoms/Icon'
 const Container = styled(GTShadowContainer)`
     display: flex;
     align-items: center;
-    ${Typography.bodySmall}
+    ${Typography.bodySmall};
     box-sizing: border-box;
+    height: fit-content;
+`
+const Text = styled.span`
+    padding: ${Spacing._4} ${Spacing._8};
 `
 const IconAndText = styled.span`
     display: flex;
@@ -35,7 +40,6 @@ interface ConnectIntegrationProps {
 
 const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
     const [userIsConnecting, setUserIsConnecting] = useState(false)
-
     const refetchStaleQueries = useRefetchStaleQueries()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { icon, name, authUrl } = (() => {
@@ -46,36 +50,61 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                     name: 'GitHub',
                     authUrl: getAuthorizationUrl(supportedTypes || [], 'Github'),
                 }
+            case 'google_calendar':
+                return {
+                    icon: logos.gcal,
+                    name: 'Google Calendar',
+                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Google'),
+                }
             default:
                 return { icon: null, name: null, authUrl: null }
         }
     })()
-    const title = userIsConnecting ? `Connecting ${name} to General Task...` : `Connect ${name} to General Task`
+    let title: string | undefined = undefined
+    if (userIsConnecting) {
+        if (type === 'github') {
+            title = 'Connecting to GitHub...'
+        } else if (type === 'google_calendar') {
+            title = 'Connecting to Google Calendar...'
+        }
+    } else {
+        if (type === 'github') {
+            title = 'Connect to GitHub'
+        } else if (type === 'google_calendar') {
+            title = 'Google Calendar'
+        }
+    }
+
+    const hideConnectButton = userIsConnecting && type === 'google_calendar'
 
     const onClick = () => {
         if (!authUrl) return
         setUserIsConnecting(true)
         const onClose = () => {
             refetchStaleQueries()
-            setUserIsConnecting(false)
+            setTimeout(() => {
+                setUserIsConnecting(false)
+            }, FIVE_SECOND_TIMEOUT * 1000)
         }
         openPopupWindow(authUrl, onClose)
     }
 
-    if (!icon || !name || !authUrl) return null
+    if (!icon || !name || !authUrl || !title) return null
     return (
         <Container>
             <IconAndText>
                 <Icon icon={icon} size="xSmall" color={Colors.icon.black} />
-                {title}
+                <Text>{title}</Text>
             </IconAndText>
-            <GTButton
-                disabled={userIsConnecting}
-                value="Connect"
-                color={Colors.gtColor.primary}
-                size="small"
-                onClick={onClick}
-            />
+            {!hideConnectButton && (
+                <GTButton
+                    disabled={userIsConnecting}
+                    value="Connect"
+                    color={Colors.gtColor.primary}
+                    size="small"
+                    onClick={onClick}
+                />
+            )}
         </Container>
     )
 }
