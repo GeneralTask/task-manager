@@ -438,6 +438,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": true},
+				{"is_deleted": bson.M{"$ne": true}},
 			},
 		},
 		findOptions,
