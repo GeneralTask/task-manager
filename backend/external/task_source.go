@@ -1,8 +1,9 @@
 package external
 
 import (
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,6 +26,7 @@ type TaskCreationObject struct {
 	DueDate            *time.Time
 	TimeAllocation     *int64
 	IDTaskSection      primitive.ObjectID
+	ParentTaskID       primitive.ObjectID
 	SlackMessageParams database.SlackMessageParams
 }
 

@@ -73,33 +73,37 @@ type Oauth1RequestSecret struct {
 }
 
 type Task struct {
-	ID               primitive.ObjectID  `bson:"_id,omitempty"`
-	UserID           primitive.ObjectID  `bson:"user_id,omitempty"`
-	IDExternal       string              `bson:"id_external,omitempty"`
-	IDOrdering       int                 `bson:"id_ordering,omitempty"`
-	IDTaskSection    primitive.ObjectID  `bson:"id_task_section,omitempty"`
-	IsCompleted      *bool               `bson:"is_completed,omitempty"`
-	Sender           string              `bson:"sender,omitempty"`
-	SourceID         string              `bson:"source_id,omitempty"`
-	SourceAccountID  string              `bson:"source_account_id,omitempty"`
-	Deeplink         string              `bson:"deeplink,omitempty"`
-	Title            *string             `bson:"title,omitempty"`
-	Body             *string             `bson:"body,omitempty"`
-	HasBeenReordered bool                `bson:"has_been_reordered,omitempty"`
-	DueDate          *primitive.DateTime `bson:"due_date,omitempty"`
-	//time in nanoseconds
-	TimeAllocation     *int64              `bson:"time_allocated,omitempty"`
+	ID     primitive.ObjectID `bson:"_id,omitempty"`
+	UserID primitive.ObjectID `bson:"user_id,omitempty"`
+	// required for sub-task experience
+	ParentTaskID primitive.ObjectID `bson:"parent_task_id,omitempty"`
+	// generic task values (for all sources)
+	IDExternal         string              `bson:"id_external,omitempty"`
+	IDOrdering         int                 `bson:"id_ordering,omitempty"`
+	IDTaskSection      primitive.ObjectID  `bson:"id_task_section,omitempty"`
+	IsCompleted        *bool               `bson:"is_completed,omitempty"`
+	Sender             string              `bson:"sender,omitempty"`
+	SourceID           string              `bson:"source_id,omitempty"`
+	SourceAccountID    string              `bson:"source_account_id,omitempty"`
+	Deeplink           string              `bson:"deeplink,omitempty"`
+	Title              *string             `bson:"title,omitempty"`
+	Body               *string             `bson:"body,omitempty"`
+	HasBeenReordered   bool                `bson:"has_been_reordered,omitempty"`
+	DueDate            *primitive.DateTime `bson:"due_date,omitempty"`
+	TimeAllocation     *int64              `bson:"time_allocated,omitempty"` // time in nanoseconds
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
 	PriorityID         *string             `bson:"priority_id,omitempty"`
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
-	Status             *ExternalTaskStatus `bson:"status,omitempty"`
-	// Used to cache the current status before marking the task as done
-	PreviousStatus           *ExternalTaskStatus      `bson:"previous_status,omitempty"`
-	CompletedStatus          *ExternalTaskStatus      `bson:"completed_status,omitempty"`
-	SlackMessageParams       SlackMessageParams       `bson:"slack_message_params,omitempty"`
+	// used to cache the current status before marking the task as done
+	Status          *ExternalTaskStatus `bson:"status,omitempty"`
+	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
+	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
+	// info required for Slack integration
+	SlackMessageParams SlackMessageParams `bson:"slack_message_params,omitempty"`
+	// meeting prep fields
 	MeetingPreparationParams MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 	IsMeetingPreparationTask bool                     `bson:"is_meeting_preparation_task,omitempty"`
 }
