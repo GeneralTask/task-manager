@@ -417,22 +417,7 @@ func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View,
 	// TODO we should change our Github logic to include all a user's repos in a DB
 	// then we should split the Github into per repo (this is currently all the user's repo PRs)
 	for _, pullRequest := range *githubPRs {
-		pullRequestResult := PullRequestResult{
-			ID:     pullRequest.ID.Hex(),
-			Title:  pullRequest.Title,
-			Body:   pullRequest.Body,
-			Number: pullRequest.Number,
-			Status: PullRequestStatus{
-				Text:  pullRequest.RequiredAction,
-				Color: getColorFromRequiredAction(pullRequest.RequiredAction),
-			},
-			Author:        pullRequest.Author,
-			NumComments:   pullRequest.CommentCount,
-			CreatedAt:     pullRequest.CreatedAtExternal.Time().Format(time.RFC3339),
-			Branch:        pullRequest.Branch,
-			Deeplink:      pullRequest.Deeplink,
-			LastUpdatedAt: pullRequest.LastUpdatedAt.Time().UTC().Format(time.RFC3339),
-		}
+		pullRequestResult := getResultFromPullRequest(pullRequest)
 		pullResults = append(pullResults, &pullRequestResult)
 	}
 	api.sortPullRequestResults(pullResults)
@@ -689,7 +674,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 			return
 		}
 		githubID = *viewCreateParams.GithubID
-	} else if viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) {
+	} else if viewCreateParams.Type != string(constants.ViewLinear) && viewCreateParams.Type != string(constants.ViewSlack) && viewCreateParams.Type != string(constants.ViewMeetingPreparation) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
@@ -745,7 +730,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) {
+	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewMeetingPreparation) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(ctx, dbQuery)
@@ -933,6 +918,19 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 
 	supportedViews := []SupportedView{
 		{
+			Type:     constants.ViewMeetingPreparation,
+			Name:     "Meeting Preparation for the day",
+			Logo:     external.TaskSourceGoogleCalendar.LogoV2,
+			IsNested: false,
+			IsLinked: true,
+			Views: []SupportedViewItem{
+				{
+					Name:    constants.ViewMeetingPreparationName,
+					IsAdded: false,
+				},
+			},
+		},
+		{
 			Type:     constants.ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
@@ -1066,7 +1064,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation  {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{

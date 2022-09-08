@@ -5,9 +5,10 @@ import { Spacing } from '../../../styles'
 import { TOverviewView, TPullRequest } from '../../../utils/types'
 import { Divider } from '../../atoms/SectionDivider'
 import PullRequest from '../../pull-requests/PullRequest'
+import EmptyViewItem from './EmptyViewItem'
 
 const DividerMargin = styled.div`
-    margin: 0 ${Spacing.margin._16};
+    margin: 0 ${Spacing._16};
 `
 
 interface PullRequestViewItemsProps {
@@ -15,6 +16,15 @@ interface PullRequestViewItemsProps {
 }
 const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
     const { overviewViewId, overviewItemId } = useParams()
+
+    if (view.view_items.length === 0) {
+        return (
+            <EmptyViewItem
+                header="You have no more pull requests!"
+                body="When new pull requests get assigned to you, they will appear here."
+            />
+        )
+    }
 
     return (
         <>

@@ -24,7 +24,7 @@ const PullRequestsView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
-    const { isFetching: isFetchingPullRequests } = useFetchPullRequests()
+    useFetchPullRequests()
 
     const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
     useItemSelectionController(pullRequests, (itemId: string) => navigate(`/pull-requests/${itemId}`))
@@ -51,11 +51,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader
-                        sectionName="Pull Requests"
-                        allowRefresh={true}
-                        isRefreshing={isFetchingPullRequests}
-                    />
+                    <SectionHeader sectionName="Pull Requests" allowRefresh={true} />
                     {repositories.map((repository) => (
                         <Repository key={repository.id}>
                             <RepositoryName>{repository.name}</RepositoryName>

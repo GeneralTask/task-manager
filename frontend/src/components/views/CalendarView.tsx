@@ -17,7 +17,7 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
 const CollapsedCalendarView = styled.div`
-    padding: ${Spacing.padding._16} ${Spacing.padding._4} 0;
+    padding: ${Spacing._16} ${Spacing._4} 0;
     background-color: ${Colors.background.medium};
     display: flex;
     justify-content: center;
@@ -60,7 +60,7 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
-    const firstLinkedCalendarAccount = useMemo(
+    const primaryAccountID = useMemo(
         () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
         [linkedAccounts]
     )
@@ -76,7 +76,7 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
     ) : (
         <CalendarContainer expanded={calendarType === 'week'}>
             <CalendarHeader date={date} setDate={setDate} />
-            <CalendarEvents date={date} accountId={firstLinkedCalendarAccount} />
+            <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -43,6 +44,10 @@ func TestGetPullRequests(t *testing.T) {
 		RepositoryID: "1234",
 	}
 
+	githubCompareServer := testutils.GetMockAPIServer(t, 200, testutils.CompareResponsePayload)
+	compareURL := &githubCompareServer.URL
+	defer githubCompareServer.Close()
+
 	githubUserServer := testutils.GetMockAPIServer(t, 200, testutils.UserResponsePayload)
 	userURL := &githubUserServer.URL
 	defer githubUserServer.Close()
@@ -59,13 +64,21 @@ func TestGetPullRequests(t *testing.T) {
 	pullRequestReviewersURL := &githubPullRequestReviewersServer.URL
 	defer githubPullRequestReviewersServer.Close()
 
+	githubPullRequestReviewServer := testutils.GetMockAPIServer(t, 200, `[]`)
+	pullRequestReviewURL := &githubPullRequestReviewServer.URL
+	defer githubPullRequestReviewServer.Close()
+
 	githubListCheckRunsForRefServer := testutils.GetMockAPIServer(t, 200, testutils.EmptyCheckRunsForRefPayload)
 	listCheckRunsForRefURL := &githubListCheckRunsForRefServer.URL
 	defer githubListCheckRunsForRefServer.Close()
 
-	githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+	githubListPullRequestCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
 	listPullRequestCommentsURL := &githubListPullRequestCommentsServer.URL
 	defer githubListPullRequestCommentsServer.Close()
+
+	githubListIssueCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
+	listIssueCommentsURL := &githubListIssueCommentsServer.URL
+	defer githubListIssueCommentsServer.Close()
 
 	githubListUserTeamsServer := testutils.GetMockAPIServer(t, 200, `[]`)
 	listUserTeamsURL := &githubListUserTeamsServer.URL
@@ -81,10 +94,13 @@ func TestGetPullRequests(t *testing.T) {
 			Config: GithubConfig{
 				ConfigValues: GithubConfigValues{
 					FetchExternalAPIToken:       &fetchExternalAPITokenValue,
+					CompareURL:                  compareURL,
 					GetUserURL:                  userURL,
 					ListRepositoriesURL:         userRepositoriesURL,
 					ListPullRequestsURL:         userPullRequestsURL,
 					ListPullRequestCommentsURL:  listPullRequestCommentsURL,
+					ListIssueCommentsURL:        listIssueCommentsURL,
+					ListPullRequestReviewURL:    pullRequestReviewURL,
 					ListPullRequestReviewersURL: pullRequestReviewersURL,
 					ListCheckRunsForRefURL:      listCheckRunsForRefURL,
 					ListUserTeamsURL:            listUserTeamsURL,
@@ -106,6 +122,19 @@ func TestGetPullRequests(t *testing.T) {
 		pullRequest := result.PullRequests[0]
 		assert.Equal(t, ActionAddReviewers, pullRequest.RequiredAction)
 		assert.Equal(t, "the oopsie must be fixed", pullRequest.Body)
+		expectedCreatedAt, _ := time.Parse(time.RFC3339, "2011-01-26T19:01:12Z") //2011-01-26T19:01:12Z
+		expectedComments := []database.PullRequestComment{{
+			Type:            constants.COMMENT_TYPE_INLINE,
+			Body:            "This is a comment",
+			Author:          "chad1616",
+			Filepath:        "tothemoon.txt",
+			LineNumberStart: 69,
+			LineNumberEnd:   420,
+			CreatedAt:       primitive.NewDateTimeFromTime(expectedCreatedAt),
+		}}
+		assert.Equal(t, expectedComments, pullRequest.Comments)
+		assert.Equal(t, 93, pullRequest.Additions)
+		assert.Equal(t, 462, pullRequest.Deletions)
 
 		// Check that repository for PR is created in the database
 		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
@@ -215,7 +244,7 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 
-		githubPR.Github.Config.ConfigValues.ListPullRequestReviewURL = userPullRequestsURL
+		githubPR.Github.Config.ConfigValues.ListPullRequestsURL = userPullRequestsURL
 	})
 	t.Run("NoRepositories", func(t *testing.T) {
 		userId := primitive.NewObjectID()
@@ -684,7 +713,7 @@ func TestPullRequestIsApproved(t *testing.T) {
 	})
 }
 
-func TestCommentCount(t *testing.T) {
+func TestGetComments(t *testing.T) {
 	context := context.Background()
 	githubClient := github.NewClient(nil)
 	repository := &github.Repository{
@@ -696,7 +725,8 @@ func TestCommentCount(t *testing.T) {
 	pullRequest := &github.PullRequest{
 		Number: github.Int(1),
 	}
-
+	expectedCreatedAtTime, _ := time.Parse(time.RFC3339, "2011-01-26T19:01:12Z")
+	expectedCreatedAt := primitive.NewDateTimeFromTime(expectedCreatedAtTime)
 	t.Run("SingleListComment", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
 		commentsURL := &githubCommentsServer.URL
@@ -707,10 +737,20 @@ func TestCommentCount(t *testing.T) {
 		defer githubCommentsServer.Close()
 
 		reviews := []*github.PullRequestReview{}
-		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1, count)
+		assert.Equal(t, 1, len(comments))
+		expectedComment := database.PullRequestComment{
+			Type:            constants.COMMENT_TYPE_INLINE,
+			Body:            "This is a comment",
+			Author:          "chad1616",
+			Filepath:        "tothemoon.txt",
+			LineNumberStart: 69,
+			LineNumberEnd:   420,
+			CreatedAt:       expectedCreatedAt,
+		}
+		assert.Equal(t, expectedComment, comments[0])
 	})
 	t.Run("SingleIssueComment", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
@@ -722,10 +762,17 @@ func TestCommentCount(t *testing.T) {
 		defer githubCommentsServer.Close()
 
 		reviews := []*github.PullRequestReview{}
-		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1, count)
+		assert.Equal(t, 1, len(comments))
+		expectedComment := database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      "This is a issue comment",
+			Author:    "gigachad2022",
+			CreatedAt: expectedCreatedAt,
+		}
+		assert.Equal(t, expectedComment, comments[0])
 	})
 	t.Run("SingleReviewComment", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, `[]`)
@@ -736,13 +783,27 @@ func TestCommentCount(t *testing.T) {
 		issueCommentsURL := &githubIssueCommentsServer.URL
 		defer githubCommentsServer.Close()
 
-		reviews := []*github.PullRequestReview{{
-			Body: github.String("This is a review comment"),
-		}}
-		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		reviewTime := time.Now()
+		author := "elonmusk69420"
+		reviews := []*github.PullRequestReview{
+			{
+				Body:        github.String("This is a review comment"),
+				SubmittedAt: &reviewTime,
+				User:        &github.User{Login: &author},
+			},
+			{SubmittedAt: &reviewTime}, // empty body comment should be skipped
+		}
+		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1, count)
+		assert.Equal(t, 1, len(comments))
+		expectedComment := database.PullRequestComment{
+			Type:      constants.COMMENT_TYPE_TOPLEVEL,
+			Body:      "This is a review comment",
+			Author:    "elonmusk69420",
+			CreatedAt: primitive.NewDateTimeFromTime(reviewTime),
+		}
+		assert.Equal(t, expectedComment, comments[0])
 	})
 	t.Run("ComboComments", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, testutils.PullRequestCommentsPayload)
@@ -756,10 +817,10 @@ func TestCommentCount(t *testing.T) {
 		reviews := []*github.PullRequestReview{{
 			Body: github.String("This is a review comment"),
 		}}
-		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 3, count)
+		assert.Equal(t, 3, len(comments))
 	})
 	t.Run("BadStatusCode", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 503, "[]")
@@ -773,11 +834,11 @@ func TestCommentCount(t *testing.T) {
 		reviews := []*github.PullRequestReview{{
 			Body: github.String("This is a review comment"),
 		}}
-		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.Error(t, err)
 		assert.Equal(t, fmt.Sprintf("GET %s/repos/chad1616/ExampleRepository/pulls/1/comments: 503  []", *commentsURL), err.Error())
-		assert.Zero(t, count)
+		assert.Zero(t, len(comments))
 	})
 	t.Run("BadResponse", func(t *testing.T) {
 		githubCommentsServer := testutils.GetMockAPIServer(t, 200, "oopsie")
@@ -791,27 +852,27 @@ func TestCommentCount(t *testing.T) {
 		reviews := []*github.PullRequestReview{{
 			Body: github.String("This is a review comment"),
 		}}
-		count, err := getCommentCount(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
+		comments, err := getComments(context, githubClient, repository, pullRequest, reviews, commentsURL, issueCommentsURL)
 
 		assert.Error(t, err)
 		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
-		assert.Zero(t, count)
+		assert.Zero(t, len(comments))
 	})
 	t.Run("RepositoryIsNil", func(t *testing.T) {
 		reviews := []*github.PullRequestReview{}
-		count, err := getCommentCount(context, githubClient, nil, pullRequest, reviews, nil, nil)
+		comments, err := getComments(context, githubClient, nil, pullRequest, reviews, nil, nil)
 
 		assert.Error(t, err)
 		assert.Equal(t, "repository is nil", err.Error())
-		assert.Equal(t, 0, count)
+		assert.Equal(t, 0, len(comments))
 	})
 	t.Run("PullRequestIsNil", func(t *testing.T) {
 		reviews := []*github.PullRequestReview{}
-		count, err := getCommentCount(context, githubClient, repository, nil, reviews, nil, nil)
+		comments, err := getComments(context, githubClient, repository, nil, reviews, nil, nil)
 
 		assert.Error(t, err)
 		assert.Equal(t, "pull request is nil", err.Error())
-		assert.Equal(t, 0, count)
+		assert.Equal(t, 0, len(comments))
 	})
 }
 

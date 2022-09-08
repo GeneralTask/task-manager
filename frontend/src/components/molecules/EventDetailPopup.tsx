@@ -85,6 +85,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                 {
                     autoClose: EVENT_UNDO_TIMEOUT * 1000,
                     pauseOnFocusLoss: false,
+                    theme: 'dark',
                 }
             )
         }
@@ -128,7 +129,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     </EventDate>
                 </EventDateContainer>
                 <Description>{event.body}</Description>
-                <Flex gap={Spacing.margin._8}>
+                <Flex gap={Spacing._8}>
                     {event.linked_task_id && (
                         <GTButton
                             styleType="secondary"

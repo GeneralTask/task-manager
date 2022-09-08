@@ -516,25 +516,17 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
 	parentCtx := context.Background()
-	sectionCollection := GetTaskSectionCollection(db)
-
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := sectionCollection.Find(
-		dbCtx,
-		bson.M{"user_id": userID},
+	var sections []TaskSection
+	err := FindWithCollection(
+		parentCtx,
+		GetTaskSectionCollection(db),
+		userID,
+		&[]bson.M{{"user_id": userID}},
+		&sections,
 	)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch sections for user")
-		return nil, err
-	}
-	var sections []TaskSection
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &sections)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch sections for user")
+		logger.Error().Err(err).Msg("failed to load task sections")
 		return nil, err
 	}
 	return &sections, nil
@@ -695,7 +687,6 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	mongoResult := defaultSectionCollection.FindOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
-			{"_id": constants.IDTaskSectionDefault},
 			{"user_id": userID},
 		}},
 	)

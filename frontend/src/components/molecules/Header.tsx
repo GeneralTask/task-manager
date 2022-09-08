@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID } from '../../constants'
@@ -15,12 +16,12 @@ const SectionHeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing._16};
     min-height: 50px;
-    gap: ${Spacing.padding._4};
+    gap: ${Spacing._4};
 `
 const HeaderText = styled.span`
-    margin-right: ${Spacing.margin._8};
+    margin-right: ${Spacing._8};
     padding-left: 6px; /* TODO: remove margins and padding from Header */
     border: ${Border.stroke.large} solid transparent;
     overflow-wrap: break-word;
@@ -28,8 +29,8 @@ const HeaderText = styled.span`
     ${Typography.title};
 `
 const HeaderTextEditable = styled.input`
-    margin-right: ${Spacing.margin._8};
-    padding-left: ${Spacing.padding._4};
+    margin-right: ${Spacing._8};
+    padding-left: ${Spacing._4};
     border: none;
     outline: none;
     &:focus {
@@ -47,7 +48,6 @@ const matchUneditableSectionId = (id: string) => uneditableSectionIds.includes(i
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
-    isRefreshing?: boolean
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
@@ -59,6 +59,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
     const refetchStaleQueries = useRefetchStaleQueries()
+    const isFetching = useIsFetching() !== 0
 
     useEffect(() => {
         setSectionName(props.sectionName)
@@ -103,24 +104,20 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     return (
         <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
             {headerText}
-            {props.allowRefresh && (isHovering || props.isRefreshing) && (
-                <RefreshButton onClick={refetchStaleQueries} isRefreshing={props.isRefreshing}>
+            {props.allowRefresh && (isHovering || isFetching) && (
+                <RefreshButton onClick={refetchStaleQueries} isRefreshing={isFetching}>
                     <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
             {props.taskSectionId && !matchUndeletableSectionId(props.taskSectionId) && (
-                <>
-                    <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
-                        <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
-                    </NoStyleButton>
-                </>
+                <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
+                    <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
+                </NoStyleButton>
             )}
             {props.taskSectionId && !matchUneditableSectionId(props.taskSectionId) && (
-                <>
-                    <NoStyleButton onClick={() => setIsEditingTitle(true)}>
-                        <Icon size="small" icon={icons.pencil}></Icon>
-                    </NoStyleButton>
-                </>
+                <NoStyleButton onClick={() => setIsEditingTitle(true)}>
+                    <Icon size="small" icon={icons.pencil}></Icon>
+                </NoStyleButton>
             )}
         </SectionHeaderContainer>
     )

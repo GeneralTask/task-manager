@@ -20,7 +20,7 @@ const ModalContainer = styled.div<{ type: TModalSize }>`
 `
 const Header = styled.div`
     color: ${Colors.text.black};
-    margin-bottom: ${Spacing.margin._16};
+    margin-bottom: ${Spacing._16};
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -29,7 +29,7 @@ const Header = styled.div`
 const Body = styled.div`
     overflow-y: auto;
     overflow-x: hidden;
-    padding: ${Spacing.padding._16};
+    padding: ${Spacing._16};
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -37,10 +37,10 @@ const Body = styled.div`
 const Footer = styled.div`
     display: flex;
     justify-content: space-between;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
 `
 const CloseButton = styled(NoStyleButton)`
-    padding: ${Spacing.padding._8};
+    padding: ${Spacing._8};
     border-radius: ${Border.radius.small};
     &:hover {
         background-color: ${Colors.background.dark};
@@ -48,7 +48,7 @@ const CloseButton = styled(NoStyleButton)`
 `
 const ButtonsGroup = styled.div`
     display: flex;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
 `
 
 const SHARED_MODAL_CONTENT_STYLE = {
@@ -56,7 +56,7 @@ const SHARED_MODAL_CONTENT_STYLE = {
     border: 'none',
     height: 'fit-content',
     boxShadow: Shadows.medium,
-    padding: Spacing.padding._16,
+    padding: Spacing._16,
     borderRadius: Border.radius.large,
 }
 

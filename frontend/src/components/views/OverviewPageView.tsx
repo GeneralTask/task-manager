@@ -14,6 +14,7 @@ import { SectionHeader } from '../molecules/Header'
 import EmptyDetails from '../details/EmptyDetails'
 import { icons } from '../../styles/images'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 
 const OverviewPageContainer = styled.div`
     display: flex;
@@ -22,12 +23,13 @@ const OverviewPageContainer = styled.div`
 const ActionsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
-    margin-bottom: ${Spacing.margin._8};
-    gap: ${Spacing.margin._16};
+    margin-bottom: ${Spacing._8};
+    gap: ${Spacing._16};
 `
 
 const OverviewView = () => {
-    const { data: views, isLoading, isFetching } = useGetOverviewViews()
+    const { data: views, isLoading } = useGetOverviewViews()
+    useFetchExternalTasks()
     useFetchPullRequests()
     const { overviewViewId, overviewItemId } = useParams()
     const navigate = useNavigate()
@@ -77,7 +79,7 @@ const OverviewView = () => {
         <>
             <OverviewPageContainer>
                 <ScrollableListTemplate ref={scrollRef}>
-                    <SectionHeader sectionName="Overview" allowRefresh={true} isRefreshing={isFetching} />
+                    <SectionHeader sectionName="Overview" allowRefresh={true} />
                     <ActionsContainer>
                         <EditViewsButtons />
                     </ActionsContainer>

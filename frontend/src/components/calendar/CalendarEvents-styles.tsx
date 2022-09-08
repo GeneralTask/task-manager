@@ -82,6 +82,7 @@ interface EventBodyStyleProps {
     squishFactor: number
     leftOffset: number
     eventHasEnded: boolean
+    isBeingDragged?: boolean
 }
 export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     --squish-factor: ${({ squishFactor }) => squishFactor};
@@ -93,8 +94,9 @@ export const EventBodyStyle = styled.div<EventBodyStyleProps>`
     left: calc(
         100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${WIDTH_CSS_CALCULATION}) * var(--left-offset)
     );
-    opacity: ${({ eventHasEnded }) => (eventHasEnded ? 0.5 : 1)};
     cursor: pointer;
+    opacity: ${({ eventHasEnded, isBeingDragged }) => (eventHasEnded && !isBeingDragged ? 0.5 : 1)};
+    z-index: ${({ isBeingDragged }) => (isBeingDragged ? 1 : 0)};
 `
 export const EventInfoContainer = styled.div`
     display: flex;
@@ -115,7 +117,7 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
 export const EventTitle = styled.div<{ isLongEvent: boolean }>`
     display: flex;
     align-items: center;
-    gap: ${Spacing.margin._8};
+    gap: ${Spacing._8};
     margin-right: 8px;
     max-height: 100%;
 `
@@ -152,7 +154,7 @@ export const CalendarDayHeader = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    height: 40px;
+    height: ${CALENDAR_DAY_HEADER_HEIGHT}px;
     position: sticky;
     background-color: ${Colors.background.medium};
     top: 0;
@@ -160,7 +162,7 @@ export const CalendarDayHeader = styled.div`
 `
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
-    padding: ${Spacing.padding._4} ${Spacing.padding._8};
+    padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
