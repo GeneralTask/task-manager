@@ -1,11 +1,10 @@
-import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
+import CalendarHeader from '../calendar/CalendarHeader'
 import { Colors, Spacing } from '../../styles'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarEvents from '../calendar/CalendarEvents'
 import { DateTime } from 'luxon'
-import { Icon } from '../atoms/Icon'
 import { getMonthsAroundDate } from '../../utils/time'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
@@ -15,12 +14,11 @@ import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 
 const CollapsedCalendarView = styled.div`
     padding: ${Spacing._16} ${Spacing._4} 0;
     background-color: ${Colors.background.medium};
-    display: flex;
-    justify-content: center;
     cursor: pointer;
 `
 
@@ -69,9 +67,7 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
 
     return isCollapsed ? (
         <CollapsedCalendarView onClick={() => setIsCollapsed(false)}>
-            <CaretButton>
-                <Icon icon={icons.calendar_blank} size="small" />
-            </CaretButton>
+            <GTIconButton icon={icons.calendar_blank} size="small" />
         </CollapsedCalendarView>
     ) : (
         <CalendarContainer expanded={calendarType === 'week'}>
