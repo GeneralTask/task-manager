@@ -91,8 +91,6 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             )
         }
 
-        const sanitizedDescription = sanitizeHtml(event.body)
-
         return ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
@@ -132,7 +130,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                         {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                     </EventDate>
                 </EventDateContainer>
-                <Description dangerouslySetInnerHTML={{ __html: sanitizedDescription }} />
+                <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
                 <Flex gap={Spacing._8}>
                     {event.linked_task_id && (
                         <GTButton
