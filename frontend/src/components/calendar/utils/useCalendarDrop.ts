@@ -85,6 +85,7 @@ const useCalendarDrop = ({
                 if (description !== '') {
                     description += '\n'
                 }
+                description = description.replaceAll('\n', '<br>')
                 description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                 createEvent({
                     createEventPayload: {

@@ -25,6 +25,7 @@ import { TEvent } from '../../utils/types'
 import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import sanitizeHtml from 'sanitize-html'
 
 interface EventDetailProps {
     event: TEvent
@@ -136,7 +137,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                         {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                     </EventDate>
                 </EventDateContainer>
-                <Description>{event.body}</Description>
+                <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
                 <Flex gap={Spacing._8}>
                     {event.linked_task_id && (
                         <GTButton
