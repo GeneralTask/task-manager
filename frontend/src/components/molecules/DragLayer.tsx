@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useDragLayer } from 'react-dnd'
 import styled from 'styled-components'
 import { useIsDragging } from '../../hooks'

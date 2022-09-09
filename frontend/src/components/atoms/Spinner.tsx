@@ -1,4 +1,4 @@
-import React from 'react'
+import { memo } from 'react'
 import styled from 'styled-components'
 import Loading from './Loading'
 const SpinnerContainer = styled.div`
@@ -101,4 +101,4 @@ const Spinner = () => (
     </Loading>
 )
 
-export default React.memo(Spinner)
+export default memo(Spinner)

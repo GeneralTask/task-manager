@@ -1,5 +1,5 @@
 import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import AuthBanner from './AuthBanner'
 import ExternalViewItems from './viewItems/ExternalViewItems'

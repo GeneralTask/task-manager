@@ -1,6 +1,6 @@
 import { Images } from '../../../styles'
 import { LOGIN_URL } from '../../../constants'
-import React from 'react'
+
 import styled from 'styled-components'
 
 export const signInWithGoogleButtonDimensions = {

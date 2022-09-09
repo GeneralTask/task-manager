@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface SingleViewTemplateProps {
     children: JSX.Element
 }

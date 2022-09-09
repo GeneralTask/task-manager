@@ -1,4 +1,4 @@
-import React, { MouseEvent, MouseEventHandler, useEffect } from 'react'
+import { MouseEvent, MouseEventHandler, useEffect } from 'react'
 
 export default function useClickOutside(ref: React.RefObject<HTMLElement>, handler: MouseEventHandler): void {
     useEffect(() => {

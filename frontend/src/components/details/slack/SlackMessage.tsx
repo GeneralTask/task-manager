@@ -1,4 +1,3 @@
-import React from 'react'
 import { TSlackMessageParams } from '../../../utils/types'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'

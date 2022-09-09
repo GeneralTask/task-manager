@@ -1,6 +1,5 @@
 import { Colors, Spacing, Typography } from '../../../styles'
 
-import React from 'react'
 import styled from 'styled-components'
 
 const WaitlistButtonStyled = styled.button`

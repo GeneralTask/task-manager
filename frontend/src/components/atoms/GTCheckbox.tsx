@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { checkboxSize } from '../../styles/dimensions'
 import NoStyleButton from './buttons/NoStyleButton'
 import checkbox from '../../../public/animations/checkbox.json'

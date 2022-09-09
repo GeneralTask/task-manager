@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { TEvent, TLinkedAccount } from '../../utils/types'
 import {

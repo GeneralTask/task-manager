@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import { ReactElement } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography, Border, Shadows, Dimensions } from '../../styles'
 import NoStyleButton from './buttons/NoStyleButton'

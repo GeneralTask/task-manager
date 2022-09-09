@@ -1,4 +1,3 @@
-import React from 'react'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import styled, { css } from 'styled-components'
 
