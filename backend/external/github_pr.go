@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 	"strings"
@@ -110,7 +112,9 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	var token *oauth2.Token
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		// need to do this to ensure `token` is the same `token` initialized above vs creating a new one with the := operator
+		var err error
+		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
@@ -365,6 +369,7 @@ func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID 
 	// Github API does not support conditional requests, so this logic is required
 	request, _ := http.NewRequest("GET", requestURL, nil)
 	request.Header.Set("Accept", "application/vnd.github+json")
+	fmt.Println("token:", token)
 	if token != nil {
 		request.Header.Set("Authorization", "token "+token.AccessToken)
 	}
@@ -378,6 +383,12 @@ func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID 
 		return true, dbPR
 	}
 
+	fmt.Println("status code:", resp.StatusCode)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err == nil {
+
+		fmt.Println("body:", string(body)[:int(math.Min(float64(150), float64(len(string(body)))))])
+	}
 	return (resp.StatusCode != http.StatusNotModified), dbPR
 }
 
