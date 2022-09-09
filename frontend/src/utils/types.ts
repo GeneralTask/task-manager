@@ -90,10 +90,12 @@ export interface TEvent {
     id: string
     title: string
     body: string
+    account_id: string
     logo: TLogoImage
     deeplink: string
     datetime_start: string
     datetime_end: string
+    can_modify: boolean
     conference_call: TConferenceCall
     linked_task_id: string
 }
