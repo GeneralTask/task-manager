@@ -9,6 +9,7 @@ import { TOverviewView } from '../../utils/types'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { useParams } from 'react-router-dom'
 import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
+import { useLayoutEffect } from 'react'
 
 const PAGE_SIZE = 5
 
@@ -44,7 +45,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
         }
     }, [view.type])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setVisibleItemsCount(
             Math.max(
                 // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
