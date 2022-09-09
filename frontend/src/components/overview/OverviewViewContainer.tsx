@@ -9,6 +9,7 @@ import { TOverviewView } from '../../utils/types'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { useParams } from 'react-router-dom'
 import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
+import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 
 const PAGE_SIZE = 5
 

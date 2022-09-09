@@ -69,3 +69,6 @@ export const KEYBOARD_SHORTCUTS = Object.freeze({
 export type TKeyboardShortcuts = keyof typeof KEYBOARD_SHORTCUTS
 
 export const TASK_HEIGHT = '36px'
+
+export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
+export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
