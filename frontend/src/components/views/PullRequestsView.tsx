@@ -1,7 +1,7 @@
 import { Repository, RepositoryName } from '../pull-requests/styles'
 
 import PullRequest from '../pull-requests/PullRequest'
-import React, { useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import { SectionHeader } from '../molecules/Header'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'

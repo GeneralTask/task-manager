@@ -1,5 +1,5 @@
 import { Colors, Spacing } from '../../styles'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { TitleMedium, TitleSmall } from '../atoms/title/Title'
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'

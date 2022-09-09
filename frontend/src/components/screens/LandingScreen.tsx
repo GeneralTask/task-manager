@@ -1,6 +1,6 @@
 import { Colors, Typography } from '../../styles'
 import { Controller, useForm } from 'react-hook-form'
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import Cookies from 'js-cookie'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'

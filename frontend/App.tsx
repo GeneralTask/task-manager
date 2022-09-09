@@ -3,7 +3,7 @@ import './src/index.css'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import React, { Suspense, lazy } from 'react'
+import { Suspense, lazy } from 'react'
 
 import LandingScreen from './src/components/screens/LandingScreen'
 import Loading from './src/components/atoms/Loading'

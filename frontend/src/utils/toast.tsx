@@ -1,8 +1,6 @@
 import { Id as ToastId, ToastOptions, toast as toastifyToast } from 'react-toastify'
 import ToastTemplate, { ToastTemplateProps } from '../components/atoms/toast/ToastTemplate'
 
-import React from 'react'
-
 const toast = (toastTemplateProps: ToastTemplateProps, options?: ToastOptions): ToastId => {
     return toastifyToast(<ToastTemplate {...toastTemplateProps} />, options)
 }

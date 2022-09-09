@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { TLinearComment } from '../../../utils/types'
 import LinearComment from './LinearComment'
 import styled from 'styled-components'

@@ -1,5 +1,5 @@
 import { DropType, TTask } from '../../utils/types'
-import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { Spacing, Typography } from '../../styles'
 import { useNavigate } from 'react-router-dom'
 
@@ -167,4 +167,4 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     )
 }
 
-export default React.memo(Task)
+export default memo(Task)

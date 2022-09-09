@@ -2,10 +2,11 @@ import { Border, Colors, Spacing } from '../../styles'
 
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import React from 'react'
+
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import { useState } from 'react'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;
@@ -70,8 +71,8 @@ interface Props {
 
 function GTInputSelect(props: Props): JSX.Element {
     const { onChange, onSubmit, placeholder, inputIcon, options, invalidInput } = props
-    const [valid, setValid] = React.useState(true)
-    const [expanded, setExpanded] = React.useState(true)
+    const [valid, setValid] = useState(true)
+    const [expanded, setExpanded] = useState(true)
 
     function optionsList(): JSX.Element[] {
         const { options } = props

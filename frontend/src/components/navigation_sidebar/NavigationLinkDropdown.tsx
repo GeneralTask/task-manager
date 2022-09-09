@@ -1,5 +1,5 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'

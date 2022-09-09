@@ -1,5 +1,5 @@
 import { DropItem, DropType, TTask } from '../../../utils/types'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 
 import CreateNewTask from '../../molecules/CreateNewTask'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'

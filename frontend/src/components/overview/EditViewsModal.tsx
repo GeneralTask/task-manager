@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import GTModal from '../atoms/GTModal'
 import GTButton from '../atoms/buttons/GTButton'
 import EditViewsSelectedView from './EditViewsSelectedView'

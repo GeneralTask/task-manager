@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import AddViewsModal from './AddViewsModal'

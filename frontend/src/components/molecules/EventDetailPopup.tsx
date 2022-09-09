@@ -10,7 +10,7 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
+import { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
 import toast, { dismissToast } from '../../utils/toast'
 import { Id as ToastId } from 'react-toastify'

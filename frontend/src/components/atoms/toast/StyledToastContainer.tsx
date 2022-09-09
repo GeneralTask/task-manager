@@ -1,4 +1,3 @@
-import React from 'react'
 import { Theme, ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
 import { cssTransition } from 'react-toastify'

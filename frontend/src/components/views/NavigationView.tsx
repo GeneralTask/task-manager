@@ -1,4 +1,3 @@
-import React from 'react'
 import { Colors, Shadows, Spacing } from '../../styles'
 import FeedbackButton from '../molecules/FeedbackButton'
 import { Icon } from '../atoms/Icon'

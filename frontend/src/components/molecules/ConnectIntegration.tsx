@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components'
 import { FIVE_SECOND_TIMEOUT } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'

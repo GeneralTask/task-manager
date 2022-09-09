@@ -1,5 +1,5 @@
 import { Border, Colors, Spacing } from '../../styles'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { TitleSmall } from '../atoms/title/Title'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import TextArea from '../atoms/TextArea'
