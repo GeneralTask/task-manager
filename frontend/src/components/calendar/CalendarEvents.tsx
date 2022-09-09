@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { TEvent } from '../../utils/types'
+import { TEvent, TLinkedAccount } from '../../utils/types'
 import {
     AllDaysContainer,
     CalendarCell,
@@ -27,6 +27,15 @@ import { getMonthsAroundDate } from '../../utils/time'
 import { useCalendarContext } from './CalendarContext'
 import useCalendarDrop from './utils/useCalendarDrop'
 import EventBody from './EventBody'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import ConnectIntegration from '../molecules/ConnectIntegration'
+import styled from 'styled-components'
+
+const ConnectContainer = styled.div`
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+`
 
 const CalendarDayTable = () => {
     const hourElements = Array(24)
@@ -123,12 +132,19 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
     )
 }
 
+const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Google')
+}
+
 interface CalendarEventsProps {
     date: DateTime
     primaryAccountID: string | undefined
 }
 
 const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
+    const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
+    const scrollRef = useRef<HTMLDivElement>(null)
+
     const { calendarType, selectedEvent } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
     const monthBlocks = useMemo(() => {
@@ -156,8 +172,14 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numberOfDays])
 
+    const showOauthPrompt = !isLinkedAccountsLoading && !isGoogleCalendarLinked(linkedAccounts ?? [])
+
+    if (showOauthPrompt && scrollRef.current) {
+        scrollRef.current.scrollTop = 0
+    }
+
     return (
-        <AllDaysContainer isScrollDisabled={selectedEvent != null}>
+        <AllDaysContainer ref={scrollRef} isScrollDisabled={selectedEvent != null || showOauthPrompt}>
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
@@ -165,6 +187,11 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
+            {showOauthPrompt && (
+                <ConnectContainer>
+                    <ConnectIntegration type="google_calendar" />
+                </ConnectContainer>
+            )}
             {allGroups.map((groups, dayOffset) => (
                 <WeekCalendarEvents
                     key={dayOffset}
