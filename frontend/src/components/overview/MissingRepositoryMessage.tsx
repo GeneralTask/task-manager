@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
