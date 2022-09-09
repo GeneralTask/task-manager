@@ -29,8 +29,8 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const EmptyDominoContainer = styled.div`
-    width: 18px;
+const DominoContainer = styled.div<{ isVisible: boolean }>`
+    opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
 `
 
 interface TaskProps {
@@ -115,6 +115,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         () => ({
             type: DropType.TASK,
             item: { id: task.id, sectionId, task },
+            canDrag: !dragDisabled,
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
                 return { opacity: isDragging ? 0.5 : 1 }
@@ -142,7 +143,9 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             onMouseEnter={() => setIsHovered(true)}
         >
             <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
-                {isHovered && !dragDisabled ? <Domino /> : <EmptyDominoContainer />}
+                <DominoContainer isVisible={isHovered && !dragDisabled}>
+                    <Domino />
+                </DominoContainer>
                 <MarkTaskDoneButton
                     taskId={task.id}
                     sectionId={sectionId}
