@@ -254,9 +254,10 @@ type LogEvent struct {
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	UserID primitive.ObjectID `bson:"user_id"`
-	Name   string             `bson:"name"`
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	IDOrdering int                `bson:"id_ordering"`
+	UserID     primitive.ObjectID `bson:"user_id"`
+	Name       string             `bson:"name"`
 }
 
 type Pagination struct {
