@@ -171,7 +171,7 @@ func GetTaskByExternalID(db *mongo.Database, ctx context.Context, externalID str
 	).Decode(&task)
 	if err != nil {
 		if err != mongo.ErrNoDocuments {
-			logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
+			logger.Error().Err(err).Msgf("failed to get task: %+v", externalID)
 		}
 		return nil, err
 	}
