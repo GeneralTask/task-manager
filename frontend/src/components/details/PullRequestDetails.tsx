@@ -1,4 +1,3 @@
-import React from 'react'
 import { Icon } from '../atoms/Icon'
 import { TPullRequest } from '../../utils/types'
 import { icons, logos } from '../../styles/images'
@@ -63,7 +62,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 </MarginRight8>
                 <MarginLeftAuto>
                     <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTIconButton icon={icons.external_link} />
+                        <GTIconButton icon={icons.external_link} size="small" />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
             </DetailsTopContainer>

@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import { forwardRef } from 'react'
 import { TLinearComment } from '../../../utils/types'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../styles'

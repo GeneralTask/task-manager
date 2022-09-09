@@ -75,6 +75,9 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 	if task.TimeAllocation != nil {
 		newTask.TimeAllocation = task.TimeAllocation
 	}
+	if task.ParentTaskID != primitive.NilObjectID {
+		newTask.ParentTaskID = task.ParentTaskID
+	}
 
 	parentCtx := context.Background()
 	taskCollection := database.GetTaskCollection(db)

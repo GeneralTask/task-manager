@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import Loading from '../atoms/Loading'
 import SingleViewTemplate from '../templates/SingleViewTemplate'

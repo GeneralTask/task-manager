@@ -106,7 +106,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(db *mongo.Database, userID p
 		Deeplink:        slackAdditionalInformation.Deeplink,
 		Sender:          slackAdditionalInformation.Username,
 		IsCompleted:     &completed,
-		SlackMessageParams: database.SlackMessageParams{
+		SlackMessageParams: &database.SlackMessageParams{
 			Channel: task.SlackMessageParams.Channel,
 			User:    task.SlackMessageParams.User,
 			Team:    task.SlackMessageParams.Team,

@@ -35,9 +35,16 @@ export interface TTask {
     source: TTaskSource
     sender: string
     is_done: boolean
+    is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
     isOptimistic?: boolean
     slack_message_params?: TSlackMessageParams
+    meeting_preparation_params?: TMeetingPreparationParams
+}
+
+export interface TMeetingPreparationParams {
+    datetime_start: string
+    datetime_end: string
 }
 
 export interface TSlackMessageParams {
@@ -83,10 +90,12 @@ export interface TEvent {
     id: string
     title: string
     body: string
+    account_id: string
     logo: TLogoImage
     deeplink: string
     datetime_start: string
     datetime_end: string
+    can_modify: boolean
     conference_call: TConferenceCall
     linked_task_id: string
 }
@@ -198,7 +207,7 @@ export interface TUserInfo {
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
 
-export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack'
+export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation'
 
 export interface TOverviewView {
     id: string

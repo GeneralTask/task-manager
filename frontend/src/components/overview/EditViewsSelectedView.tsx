@@ -1,4 +1,3 @@
-import React from 'react'
 import { useDrag } from 'react-dnd'
 import { useRemoveView } from '../../services/api/overview.hooks'
 import { logos, icons } from '../../styles/images'

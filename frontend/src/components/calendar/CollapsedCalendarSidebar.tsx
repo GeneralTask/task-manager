@@ -1,12 +1,10 @@
-import React from 'react'
 import { useDrop } from 'react-dnd'
 import styled, { css, keyframes } from 'styled-components'
 import { Spacing, Colors, Shadows } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { useCalendarContext } from './CalendarContext'
-import { CaretButton } from './CalendarHeader'
 
 const flicker = keyframes`
     from {opacity: 1;}
@@ -14,8 +12,6 @@ const flicker = keyframes`
 const Sidebar = styled.div<{ showFlicker: boolean }>`
     padding: ${Spacing._16} ${Spacing._4} 0;
     background-color: ${Colors.background.medium};
-    display: flex;
-    justify-content: center;
     cursor: pointer;
     z-index: 1;
     position: relative;
@@ -55,9 +51,7 @@ const CollapsedCalendarSidebar = ({ onClick }: CalendarHeaderProps) => {
     )
     return (
         <Sidebar onClick={onClick} showFlicker={isTaskDraggingOverDetailsView} ref={drop}>
-            <CaretButton>
-                <Icon icon={icons.calendar_blank} size="small" />
-            </CaretButton>
+            <GTIconButton icon={icons.calendar_blank} size="small" />
         </Sidebar>
     )
 }

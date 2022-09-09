@@ -5,7 +5,7 @@ import { Icon } from '../atoms/Icon'
 import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
 import SectionEditor from './SectionEditor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import React from 'react'
+
 import { Spacing } from '../../styles'
 import { TTask } from '../../utils/types'
 import { icons } from '../../styles/images'

@@ -107,7 +107,7 @@ const useCalendarDrop = ({
                 modifyEvent({
                     event: item.event,
                     payload: {
-                        account_id: primaryAccountID,
+                        account_id: item.event.account_id,
                         datetime_start: dropTime.toISO(),
                         datetime_end: end.toISO(),
                     },
@@ -125,7 +125,7 @@ const useCalendarDrop = ({
                 modifyEvent({
                     event: item.event,
                     payload: {
-                        account_id: primaryAccountID,
+                        account_id: item.event.account_id,
                         datetime_end: end.toISO(),
                     },
                     date,

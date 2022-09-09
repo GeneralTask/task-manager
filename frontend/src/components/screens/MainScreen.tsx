@@ -9,11 +9,12 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import Loading from '../atoms/Loading'
 import PullRequestsView from '../views/PullRequestsView'
-import React from 'react'
+
 import Settings from '../views/SettingsView'
 import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 import TaskSection from '../views/TaskSectionView'
 import OverviewPageView from '../views/OverviewPageView'
+import DragLayer from '../molecules/DragLayer'
 
 const MainScreen = () => {
     const location = useLocation()
@@ -44,6 +45,7 @@ const MainScreen = () => {
                 <>{currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer />
+            <DragLayer />
         </DndProvider>
     )
 }

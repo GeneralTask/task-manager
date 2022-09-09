@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { CELL_HEIGHT_VALUE } from './CalendarEvents-styles'
 import { Colors } from '../../styles'

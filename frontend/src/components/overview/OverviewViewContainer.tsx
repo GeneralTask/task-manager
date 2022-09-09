@@ -1,5 +1,5 @@
 import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import AuthBanner from './AuthBanner'
 import ExternalViewItems from './viewItems/ExternalViewItems'
@@ -8,6 +8,7 @@ import Spinner from '../atoms/Spinner'
 import { TOverviewView } from '../../utils/types'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { useParams } from 'react-router-dom'
+import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
 
 const PAGE_SIZE = 5
 
@@ -36,6 +37,8 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                 return ExternalViewItems
             case 'github':
                 return PullRequestViewItems
+            case 'meeting_preparation':
+                return MeetingPreparationViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }

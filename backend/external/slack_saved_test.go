@@ -93,7 +93,7 @@ func TestCreateSlackTask(t *testing.T) {
 		Body:            &testBody,
 		SourceAccountID: GeneralTaskDefaultAccountID,
 		IsCompleted:     &completed,
-		SlackMessageParams: database.SlackMessageParams{
+		SlackMessageParams: &database.SlackMessageParams{
 			Channel: database.SlackChannel{
 				ID:   "channel ID",
 				Name: "channel name",

@@ -51,12 +51,14 @@ export const border = {
     extra_light: GRAY._100,
     light: GRAY._200,
     gray: GRAY._500,
+    purple: PURPLE._1,
 }
 
 export const text = {
     black: BLACK,
     light: GRAY._500,
     white: WHITE,
+    orange: ORANGE._1,
 }
 
 export const icon = {

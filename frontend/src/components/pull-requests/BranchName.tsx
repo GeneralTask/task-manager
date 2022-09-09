@@ -1,7 +1,7 @@
 import { BranchNameContainer, TruncatedText } from './styles'
 
 import { Icon } from '../atoms/Icon'
-import React from 'react'
+
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import { icons } from '../../styles/images'
 import toast from '../../utils/toast'

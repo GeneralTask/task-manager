@@ -1,5 +1,5 @@
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 
 import Cookies from 'js-cookie'

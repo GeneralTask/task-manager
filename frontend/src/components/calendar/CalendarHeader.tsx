@@ -1,76 +1,38 @@
-import { Colors, Spacing } from '../../styles'
-import React, { useCallback } from 'react'
-import { TitleMedium, TitleSmall } from '../atoms/title/Title'
+import { Colors, Spacing, Typography } from '../../styles'
+import { useCallback } from 'react'
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
-import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
 import { useCalendarContext } from './CalendarContext'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import GTButton from '../atoms/buttons/GTButton'
 
-export const PaddedContainer = styled.div`
+const PaddedContainer = styled.div`
     padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
 `
-export const HeaderBodyContainer = styled.div`
+const HeaderBodyContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
 `
-export const ButtonContainer = styled.div`
+const ButtonContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
 `
-export const CursorPointerDiv = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin: ${Spacing._4};
-    cursor: pointer;
-    height: fit-content;
-    padding: ${Spacing._4};
-    &:hover {
-        background-color: ${Colors.background.dark};
-    }
-`
-const ButtonStyles = styled.button`
-    cursor: pointer;
-    height: fit-content;
-    width: fit-content;
-    border: none;
-    border-radius: 50vh;
-    padding: 0px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-`
-export const HoverButton = styled(ButtonStyles)`
-    color: ${Colors.text.white};
-    background-color: ${Colors.gtColor.primary};
-    padding: ${Spacing._4} ${Spacing._8};
-    &:hover {
-        background-color: ${Colors.gtColor.secondary};
-    }
-`
-export const ArrowButton = styled(ButtonStyles)`
-    background-color: inherit;
-    padding: ${Spacing._4};
-    &:hover {
-        background-color: ${Colors.background.dark};
-    }
-`
-
-export const CaretButton = styled(ButtonStyles)`
-    background-color: inherit;
-    padding: ${Spacing._4};
-    &:hover {
-        background-color: ${Colors.background.dark};
-    }
-`
-
 const HeaderIconsContainer = styled.div`
     display: flex;
     align-items: center;
+`
+const Title = styled.span`
+    color: ${Colors.text.black};
+    ${Typography.bodySmall};
+`
+const TitleBold = styled(Title)<{ purple: boolean }>`
+    ${({ purple }) => purple && `color: ${Colors.gtColor.primary};`}
+    ${Typography.bold};
 `
 
 interface CalendarHeaderProps {
@@ -115,18 +77,18 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
-                            <TitleSmall>Calendar</TitleSmall>
+                            <Title>Calendar</Title>
                             <HeaderIconsContainer>
-                                <ArrowButton onClick={toggleCalendar}>
-                                    {calendarType == 'week' ? (
-                                        <Icon icon={icons.arrows_in} size="xSmall" />
-                                    ) : (
-                                        <Icon icon={icons.arrows_out} size="xSmall" />
-                                    )}
-                                </ArrowButton>
-                                <CaretButton onClick={() => setIsCollapsed(true)}>
-                                    <Icon icon={icons.caret_right} size="xSmall" />
-                                </CaretButton>
+                                <GTIconButton
+                                    onClick={toggleCalendar}
+                                    icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
+                                    size="xSmall"
+                                />
+                                <GTIconButton
+                                    onClick={() => setIsCollapsed(true)}
+                                    icon={icons.caret_right}
+                                    size="xSmall"
+                                />
                             </HeaderIconsContainer>
                         </HeaderBodyContainer>
                     </PaddedContainer>
@@ -136,9 +98,12 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
             {showDateHeader && (
                 <PaddedContainer>
                     <HeaderBodyContainer>
-                        <TitleMedium>{`${date.toFormat('ccc, LLL d')}`}</TitleMedium>
+                        <TitleBold purple={date.hasSame(DateTime.now(), 'day')}>{`${date.toFormat(
+                            'ccc, LLL d'
+                        )}`}</TitleBold>
                         <ButtonContainer>
-                            <HoverButton
+                            <GTButton
+                                value="Today"
                                 onClick={() =>
                                     setDate(
                                         isCalendarExpanded
@@ -146,15 +111,11 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
                                             : DateTime.now()
                                     )
                                 }
-                            >
-                                Today
-                            </HoverButton>
-                            <CaretButton onClick={selectPrevious}>
-                                <Icon icon={icons.caret_left} size="xSmall" />
-                            </CaretButton>
-                            <CaretButton onClick={selectNext}>
-                                <Icon icon={icons.caret_right} size="xSmall" />
-                            </CaretButton>
+                                size="small"
+                                styleType="secondary"
+                            />
+                            <GTIconButton onClick={selectPrevious} icon={icons.caret_left} size="xSmall" />
+                            <GTIconButton onClick={selectNext} icon={icons.caret_right} size="xSmall" />
                         </ButtonContainer>
                     </HeaderBodyContainer>
                 </PaddedContainer>

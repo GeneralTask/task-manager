@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import { Fragment } from 'react'
 import styled from 'styled-components'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'

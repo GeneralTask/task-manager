@@ -2,7 +2,7 @@ import { PrivacyPolicy, TermsOfService } from '../atoms/CompanyPoliciesHTML'
 
 import { CompanyPolicyPages } from '../../utils/enums'
 import { Icon } from '../atoms/Icon'
-import React from 'react'
+
 import { Spacing } from '../../styles'
 import { TitleLarge } from '../atoms/title/Title'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'

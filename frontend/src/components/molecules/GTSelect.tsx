@@ -1,5 +1,5 @@
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import React, { ReactNode, useRef } from 'react'
+import { memo, ReactNode, useRef } from 'react'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 
@@ -89,4 +89,4 @@ const GTSelect = ({ options, onClose, location, title, parentRef }: GTSelectProp
     )
 }
 
-export default React.memo(GTSelect)
+export default memo(GTSelect)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -97,12 +97,19 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             )}
             <div style={{ flex: 1 }}></div>
             {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
-                <GTIconButton onClick={() => handleDelete(props.taskSectionId)} icon={icons.trash} iconColor="red" />
+                <GTIconButton
+                    onClick={() => handleDelete(props.taskSectionId)}
+                    icon={icons.trash}
+                    iconColor="red"
+                    size="small"
+                />
             )}
             {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
-                <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} />
+                <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
             )}
-            {isEditingTitle && <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} />}
+            {isEditingTitle && (
+                <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
+            )}
         </SectionHeaderContainer>
     )
 }

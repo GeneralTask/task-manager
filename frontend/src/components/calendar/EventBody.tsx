@@ -8,7 +8,7 @@ import {
     EventTitle,
     IconContainer,
 } from './CalendarEvents-styles'
-import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { DateTime } from 'luxon'
 import EventDetailPopup from '../molecules/EventDetailPopup'

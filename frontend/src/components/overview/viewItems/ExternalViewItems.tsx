@@ -1,4 +1,3 @@
-import React from 'react'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewItemsProps } from './viewItems.types'

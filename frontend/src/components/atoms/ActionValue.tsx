@@ -1,6 +1,5 @@
 import { Border, Colors, Spacing } from '../../styles'
 
-import React from 'react'
 import styled from 'styled-components'
 
 const ActionValueContainer = styled.div`
