@@ -751,6 +751,8 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.NotNil(t, res)
 		assert.Equal(t, 1, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		// shouldn't set the body to anything
+		assert.Equal(t, "", res.ViewItems[0].Body)
 	})
 	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
@@ -766,6 +768,8 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 2, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
 		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+		// shouldn't update the body to anything
+		assert.Equal(t, "", res.ViewItems[0].Body)
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
 		insertResult, err := createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "reticulate splines", primitive.NewObjectID().Hex(), false, timeZero, timeZero)
@@ -813,6 +817,7 @@ func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collect
 	_, err := calendarEventCollection.InsertOne(dbCtx, database.CalendarEvent{
 		UserID:        userID,
 		Title:         title,
+		Body:          "event body",
 		IDExternal:    idExternal,
 		SourceID:      external.TASK_SOURCE_ID_GCAL,
 		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),

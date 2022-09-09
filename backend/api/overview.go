@@ -559,7 +559,6 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		isCompleted := false
 		_, err = taskCollection.InsertOne(ctx, database.Task{
 			Title:                    &event.Title,
-			Body:                     &event.Body,
 			UserID:                   userID,
 			IsCompleted:              &isCompleted,
 			SourceID:                 event.SourceID,
