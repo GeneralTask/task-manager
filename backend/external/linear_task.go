@@ -157,7 +157,11 @@ func assignChildParentRelation(db *mongo.Database, userID primitive.ObjectID, ta
 		parentTask, err := database.GetTaskByExternalID(db, dbCtx, parentIDExternal, userID)
 		// if parent task not owned by user, don't error out
 		if err != nil {
-			continue
+			if err == mongo.ErrNoDocuments {
+				continue
+			} else {
+				return nil, err
+			}
 		}
 
 		var childTask *database.Task
