@@ -54,8 +54,8 @@ export const CalendarRow = styled.tr`
 `
 export const CalendarTD = styled.td<{ borderLeft?: boolean }>`
     display: block;
-    border-top: 1px solid ${Colors.background.dark};
-    ${({ borderLeft }) => borderLeft && `border-left: 1px solid ${Colors.background.dark};`}
+    border-top: ${Border.stroke.medium} solid ${Colors.background.dark};
+    ${({ borderLeft }) => borderLeft && `border-left: ${Border.stroke.medium} solid ${Colors.background.dark};`}
     height: 100%;
 `
 export const CalendarCell = styled.div`
