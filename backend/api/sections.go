@@ -139,23 +139,6 @@ func (api *API) SectionModify(c *gin.Context) {
 		return
 	}
 	if params.IDOrdering != 0 {
-		// Move back other tasks to ensure ordering is preserved (gaps are removed in GET task list)
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err = sectionCollection.UpdateMany(
-			dbCtx,
-			bson.M{"$and": []bson.M{
-				{"_id": bson.M{"$ne": sectionID}},
-				{"id_ordering": bson.M{"$gte": params.IDOrdering}},
-				{"user_id": userID},
-			}},
-			bson.M{"$inc": bson.M{"id_ordering": 1}},
-		)
-		if err != nil {
-			api.Logger.Error().Err(err).Msg("failed to bulk update sections")
-			Handle500(c)
-			return
-		}
 		err = database.AdjustOrderingIDsForCollection(sectionCollection, userID, sectionID, params.IDOrdering)
 		if err != nil {
 			Handle500(c)
