@@ -178,10 +178,10 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 	})
 
 	// Reset ID orderings to begin at 1
-	taskResults := []*TaskResult{}
+	taskResults := api.taskListToTaskResultList(tasks, userID)
 	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
-	for _, task := range *tasks {
+	for _, task := range taskResults {
 		if task.IDOrdering != orderingID {
 			task.IDOrdering = orderingID
 			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
@@ -200,7 +200,6 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 			}
 		}
 		orderingID++
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
 	}
 	return &OverviewResult[TaskResult]{
 		ID:            view.ID,
@@ -317,10 +316,7 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 	if err != nil {
 		return nil, err
 	}
-	taskResults := []*TaskResult{}
-	for _, task := range *linearTasks {
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
+	taskResults := api.taskListToTaskResultList(linearTasks, userID)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
@@ -361,10 +357,7 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 	if err != nil {
 		return nil, err
 	}
-	taskResults := []*TaskResult{}
-	for _, task := range *slackTasks {
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
+	taskResults := api.taskListToTaskResultList(slackTasks, userID)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
@@ -503,10 +496,7 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 	if err != nil {
 		return nil, err
 	}
-	taskResults := []*TaskResult{}
-	for _, task := range *dueTasks {
-		taskResults = append(taskResults, api.taskBaseToTaskResult(&task, userID))
-	}
+	taskResults := api.taskListToTaskResultList(dueTasks, userID)
 	taskResults = reorderTaskResultsByDueDate(taskResults)
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
@@ -556,7 +546,6 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 				bson.M{"_id": meetingTask.ID},
 				bson.M{"$set": bson.M{
 					"title": event.Title,
-					"body":  event.Body,
 					"meeting_preparation_params.datetime_start": event.DatetimeStart,
 				}},
 			)
@@ -574,7 +563,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			IsCompleted:              &isCompleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
-			MeetingPreparationParams: database.MeetingPreparationParams{
+			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
 				IDExternal:                    event.IDExternal,
 				DatetimeStart:                 event.DatetimeStart,

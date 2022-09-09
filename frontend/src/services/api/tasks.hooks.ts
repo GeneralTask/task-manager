@@ -114,6 +114,7 @@ export const useCreateTask = () => {
                         sender: '',
                         is_done: false,
                         isOptimistic: true,
+                        is_meeting_preparation_task: false,
                     }
                     section.tasks = [newTask, ...section.tasks]
                 })

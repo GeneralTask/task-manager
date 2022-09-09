@@ -3,10 +3,9 @@ import React from 'react'
 import styled from 'styled-components'
 
 const DominoOuterContainer = styled.div`
-    cursor: grab;
     height: ${Spacing._16};
-    padding-left: ${Spacing._4};
-    padding-right: ${Spacing._12};
+    margin-right: ${Spacing._12};
+    margin-left: -${Spacing._4};
 `
 const DominoContainer = styled.div`
     height: 100%;

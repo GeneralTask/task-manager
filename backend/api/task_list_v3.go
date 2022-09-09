@@ -58,9 +58,9 @@ func (api *API) mergeTasksV3(
 	completedTasks *[]database.Task,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
+	taskResults := api.taskListToTaskResultList(completedTasks, userID)
 	completedTaskResults := []*TaskResult{}
-	for index, task := range *completedTasks {
-		taskResult := api.taskBaseToTaskResult(&task, userID)
+	for index, taskResult := range taskResults {
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
 	}
@@ -110,9 +110,18 @@ func (api *API) extractSectionTasksV3(
 		})
 	}
 	// this is inefficient but easy to understand - can optimize later as needed
+	taskResults := api.taskListToTaskResultList(fetchedTasks, userID)
+	idToTask := make(map[primitive.ObjectID]database.Task)
 	for _, task := range *fetchedTasks {
-		taskResult := api.taskBaseToTaskResult(&task, userID)
+		idToTask[task.ID] = task
+	}
+
+	for _, taskResult := range taskResults {
 		addedToSection := false
+		task, ok := idToTask[taskResult.ID]
+		if !ok {
+			continue
+		}
 		for _, resultSection := range resultSections {
 			if task.IDTaskSection == resultSection.ID {
 				resultSection.Tasks = append(resultSection.Tasks, taskResult)

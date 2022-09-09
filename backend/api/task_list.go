@@ -48,6 +48,7 @@ type TaskResult struct {
 	Comments                 *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
+	SubTasks                 []*TaskResult                `json:"sub_tasks,omitempty"`
 }
 
 type TaskSection struct {
@@ -202,6 +203,35 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 	return nil
 }
 
+func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResult {
+	parentToChild := make(map[primitive.ObjectID][]*TaskResult)
+	baseNodes := []*TaskResult{}
+	for _, task := range *tasks {
+		result := api.taskBaseToTaskResult(&task, userID)
+		if task.ParentTaskID != primitive.NilObjectID {
+			value, exists := parentToChild[task.ParentTaskID]
+			if exists {
+				parentToChild[task.ParentTaskID] = append(value, result)
+			} else {
+				parentToChild[task.ParentTaskID] = []*TaskResult{result}
+			}
+		} else {
+			baseNodes = append(baseNodes, result)
+		}
+	}
+
+	// nodes with no valid parent will not appear in task results
+	taskResults := []*TaskResult{}
+	for _, node := range baseNodes {
+		value, exists := parentToChild[node.ID]
+		if exists {
+			node.SubTasks = value
+		}
+		taskResults = append(taskResults, node)
+	}
+	return taskResults
+}
+
 func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID) *TaskResult {
 	var dueDate string
 	if t.DueDate != nil {
@@ -266,7 +296,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		}
 	}
 
-	if t.SlackMessageParams != (database.SlackMessageParams{}) {
+	if t.SlackMessageParams != nil && *t.SlackMessageParams != (database.SlackMessageParams{}) {
 		taskResult.SlackMessageParams = &database.SlackMessageParams{
 			Channel: t.SlackMessageParams.Channel,
 			User:    t.SlackMessageParams.User,
@@ -275,7 +305,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		}
 	}
 
-	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
+	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
 			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
 			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
@@ -283,4 +313,17 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	}
 
 	return taskResult
+}
+
+func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID) []*TaskResult {
+	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}})
+	if err == nil && len(*subtasks) > 0 {
+		subtaskResults := []*TaskResult{}
+		for _, subtask := range *subtasks {
+			subtaskResults = append(subtaskResults, api.taskBaseToTaskResult(&subtask, userID))
+		}
+		return subtaskResults
+	} else {
+		return nil
+	}
 }

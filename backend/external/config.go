@@ -238,7 +238,7 @@ var TaskSourceGoogleCalendar = TaskSourceDetails{
 	Name:                   "Google Calendar",
 	Logo:                   "/images/gcal.svg",
 	LogoV2:                 "gcal",
-	IsCompletable:          false,
+	IsCompletable:          true,
 	CanCreateTask:          false,
 	IsReplyable:            false,
 	CanCreateCalendarEvent: true,
