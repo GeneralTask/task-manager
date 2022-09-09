@@ -108,9 +108,15 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	defer cancel()
 
 	var token *oauth2.Token
+	fmt.Println("fetch token", gitPR.Github.Config.ConfigValues.FetchExternalAPIToken)
+	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil {
+		fmt.Println("fetch token", *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken)
+	}
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		var err error
+		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
+		fmt.Println("get token:", token, err)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
@@ -122,9 +128,11 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		}
 
 		githubClient = getGithubClientFromToken(extCtx, token)
+		fmt.Println("the plot thickens", token)
 	} else {
 		githubClient = github.NewClient(nil)
 	}
+	fmt.Println("INITIAL TOKEN:", token)
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
@@ -166,7 +174,9 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		}
 		newLastUpdated := primitive.NewDateTimeFromTime(time.Now())
 		isListModified := pullRequestListModified(db, parentCtx, userID, token, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsModifiedURL)
+		fmt.Println("isListModified:", isListModified)
 		if !isListModified {
+			fmt.Println("NOT MODIFIED")
 			dbPullRequests, err := database.GetPullRequests(db, userID, &[]bson.M{{"repository_id": fmt.Sprint(repository.GetID())}})
 			if err != nil {
 				logger.Error().Err(err).Msg("failed to load PRs from db")
@@ -403,6 +413,7 @@ func pullRequestListModified(db *mongo.Database, ctx context.Context, userID pri
 	if overrideURL != nil {
 		requestURL = *overrideURL
 	}
+	fmt.Println("calling!", requestURL, dbRepository.LastUpdatedPullRequests)
 	return isGithubResourceModified(requestURL, token, dbRepository.LastUpdatedPullRequests.Time())
 }
 
@@ -412,7 +423,9 @@ func isGithubResourceModified(requestURL string, token *oauth2.Token, lastFetche
 	request.Header.Set("Accept", "application/vnd.github+json")
 	if token != nil {
 		request.Header.Set("Authorization", "token "+token.AccessToken)
+		fmt.Println("setting auth token:", token.AccessToken)
 	}
+	fmt.Println("token:", token)
 	if !lastFetched.IsZero() {
 		request.Header.Set("If-Modified-Since", (lastFetched.Format("Mon, 02 Jan 2006 15:04:05 MST")))
 	}
@@ -423,8 +436,10 @@ func isGithubResourceModified(requestURL string, token *oauth2.Token, lastFetche
 		logger.Error().Err(err).Msg("error with github http request")
 		return true
 	}
-
-	return (resp.StatusCode != http.StatusNotModified)
+	fmt.Println("status code!", resp.StatusCode)
+	// body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("is modified:", resp.StatusCode != http.StatusNotModified)
+	return resp.StatusCode != http.StatusNotModified
 }
 
 func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
@@ -461,12 +476,12 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 	repositoryCollection := database.GetRepositoryCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
-	updatedFields := bson.M{
+	updateFields := bson.M{
 		"full_name": repository.GetFullName(),
 		"deeplink":  repository.GetHTMLURL(),
 	}
 	if lastUpdated != nil {
-		updatedFields["last_updated_pull_requests"] = lastUpdated
+		updateFields["last_updated_pull_requests"] = lastUpdated
 	}
 	_, err := repositoryCollection.UpdateOne(
 		dbCtx,
@@ -474,10 +489,7 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 			{"repository_id": fmt.Sprint(repository.GetID())},
 			{"user_id": userID},
 		}},
-		bson.M{"$set": bson.M{
-			"full_name": repository.GetFullName(),
-			"deeplink":  repository.GetHTMLURL(),
-		}},
+		bson.M{"$set": updateFields},
 		options.Update().SetUpsert(true),
 	)
 	return err

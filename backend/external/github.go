@@ -147,7 +147,9 @@ func getGithubClientFromToken(ctx context.Context, token *oauth2.Token) *github.
 	tokenSource := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token.AccessToken},
 	)
+	fmt.Println("token NOW:", token)
 	tokenClient := oauth2.NewClient(ctx, tokenSource)
+	fmt.Println("token NOW 2:", token)
 	return github.NewClient(tokenClient)
 }
 
