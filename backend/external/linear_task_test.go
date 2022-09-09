@@ -64,6 +64,48 @@ func TestLoadLinearTasks(t *testing.T) {
 								}
 							]
 						}
+					},
+					{
+						"id": "test-issue-id-2",
+						"title": "test title 2",
+						"description": "test description 2",
+						"url": "https://example.com/",
+						"createdAt": "2022-06-06T23:13:24.037Z",
+						"priority": 3.0,
+						"assignee": {
+							"id": "6942069420",
+							"name": "Test User"
+						},
+						"state": {
+							"id": "state-id",
+							"name": "Todo",
+							"type": "started"
+						},
+						"team": {
+							"name": "Backend",
+							"mergeWorkflowState": {
+								"name": "Done",
+								"id": "merge-workflow-state-id",
+								"type": "completed"
+							}
+						},
+						"comments": {
+							"nodes": [
+								{
+									"body": "test comment body",
+									"createdAt": "2019-04-21T00:00:00.000Z",
+									"user": {
+										"id": "test-commenter-id",
+										"name": "Test Commenter",
+										"displayName": "test comm",
+										"email": "testCommenter@generaltask.com"
+									}
+								}
+							]
+						},
+						"parent": {
+							"id": "test-issue-id-1"
+						}
 					}
 				]
 			}
@@ -208,7 +250,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
-		assert.Equal(t, 1, len(result.Tasks))
+		assert.Equal(t, 2, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 		assert.Equal(t, expectedTask.Status, result.Tasks[0].Status)
 		assert.Equal(t, expectedTask.CompletedStatus, result.Tasks[0].CompletedStatus)
@@ -221,6 +263,7 @@ func TestLoadLinearTasks(t *testing.T) {
 				assert.Equal(t, expectedComments, actualComments)
 			}
 		}
+		assert.Equal(t, result.Tasks[0].ID.Hex(), *result.Tasks[1].ParentTaskIDHex)
 
 		var taskFromDB database.Task
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -305,7 +348,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
 		assert.NoError(t, result.Error)
-		assert.Equal(t, 1, len(result.Tasks))
+		assert.Equal(t, 2, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 		assert.False(t, *result.Tasks[0].IsCompleted)
 

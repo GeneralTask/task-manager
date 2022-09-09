@@ -194,6 +194,7 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 	t.Run("SuccessTaskViewItems", func(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
 		isCompleted := false
+		parentTaskID := primitive.NewObjectID().Hex()
 		items := []interface{}{
 			database.Task{
 				UserID:        userID,
@@ -218,12 +219,12 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 			},
 			// shouldn't appear in overview result because subtask
 			database.Task{
-				UserID:        userID,
-				IsCompleted:   &isCompleted,
-				IDTaskSection: taskSectionID,
-				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
-				IDOrdering:    4,
-				ParentTaskID:  primitive.NewObjectID(),
+				UserID:          userID,
+				IsCompleted:     &isCompleted,
+				IDTaskSection:   taskSectionID,
+				SourceID:        external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:      4,
+				ParentTaskIDHex: &parentTaskID,
 			},
 		}
 		taskResult, err := taskCollection.InsertMany(parentCtx, items)
@@ -336,13 +337,14 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
+		parentTaskID := primitive.NewObjectID().Hex()
 		// Insert completed Linear subtask. This task should not be in the view result.
 		_, err = taskCollection.InsertOne(parentCtx, database.Task{
-			UserID:        userID,
-			IsCompleted:   &completed,
-			IDTaskSection: primitive.NilObjectID,
-			SourceID:      external.TASK_SOURCE_ID_LINEAR,
-			ParentTaskID:  primitive.NewObjectID(),
+			UserID:          userID,
+			IsCompleted:     &completed,
+			IDTaskSection:   primitive.NilObjectID,
+			SourceID:        external.TASK_SOURCE_ID_LINEAR,
+			ParentTaskIDHex: &parentTaskID,
 		})
 		assert.NoError(t, err)
 
@@ -462,12 +464,13 @@ func TestGetSlackOverviewResult(t *testing.T) {
 			SourceID:      "randomSource",
 		})
 		assert.NoError(t, err)
+		parentTaskID := primitive.NewObjectID().Hex()
 		_, err = taskCollection.InsertOne(parentCtx, database.Task{
-			UserID:        userID,
-			IsCompleted:   &notCompleted,
-			IDTaskSection: primitive.NilObjectID,
-			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
-			ParentTaskID:  primitive.NewObjectID(),
+			UserID:          userID,
+			IsCompleted:     &notCompleted,
+			IDTaskSection:   primitive.NilObjectID,
+			SourceID:        external.TASK_SOURCE_ID_SLACK_SAVED,
+			ParentTaskIDHex: &parentTaskID,
 		})
 		assert.NoError(t, err)
 		_, err = taskCollection.InsertOne(parentCtx, database.Task{
@@ -895,6 +898,8 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		primitiveAfter := primitive.NewDateTimeFromTime(after)
 
+		parentTaskID := primitive.NewObjectID().Hex()
+
 		items := []interface{}{
 			// due before but later
 			database.Task{
@@ -953,12 +958,12 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 			},
 			// subtask, due before
 			database.Task{
-				UserID:       userID,
-				IsCompleted:  &notCompleted,
-				SourceID:     external.TASK_SOURCE_ID_GT_TASK,
-				DueDate:      &primitiveBefore,
-				ParentTaskID: primitive.NewObjectID(),
-				IDOrdering:   7,
+				UserID:          userID,
+				IsCompleted:     &notCompleted,
+				SourceID:        external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:         &primitiveBefore,
+				ParentTaskIDHex: &parentTaskID,
+				IDOrdering:      7,
 			},
 		}
 		taskResult, err := taskCollection.InsertMany(parentCtx, items)

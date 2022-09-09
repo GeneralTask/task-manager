@@ -1,6 +1,7 @@
 package external
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -101,6 +102,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			}
 			task.Comments = &dbComments
 		}
+		emptyParent := ""
 		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
@@ -115,6 +117,9 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 				DueDate:            task.DueDate,
 				CompletedStatus:    task.CompletedStatus,
 				PriorityNormalized: task.PriorityNormalized,
+				// we cannot get the task ID via external ID, as it might not be created
+				// unset the task parent: will be set below
+				ParentTaskIDHex: &emptyParent,
 			},
 			nil,
 		)
@@ -130,7 +135,50 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		tasks = append(tasks, task)
 	}
 
+	tasks, err = assignChildParentRelation(db, userID, tasks, issuesQuery)
+	if err != nil {
+		logger.Error().Err(err).Msg("could not assign child/parent relationship")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+
 	result <- TaskResult{Tasks: tasks}
+}
+
+func assignChildParentRelation(db *mongo.Database, userID primitive.ObjectID, tasks []*database.Task, issuesQuery *linearAssignedIssuesQuery) ([]*database.Task, error) {
+	for _, linearIssue := range issuesQuery.Issues.Nodes {
+		if linearIssue.Parent.Id == nil {
+			continue
+		}
+		parentCtx := context.Background()
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		parentIDExternal := linearIssue.Parent.Id.(string)
+		parentTask, err := database.GetTaskByExternalID(db, dbCtx, parentIDExternal, userID)
+		// if parent task not owned by user, don't error out
+		if err != nil {
+			continue
+		}
+
+		var childTask *database.Task
+		for _, task := range tasks {
+			if task.IDExternal == linearIssue.Id.(string) {
+				childTask = task
+				break
+			}
+		}
+
+		if parentTask != nil && childTask != nil {
+			parentIDHex := parentTask.ID.Hex()
+			childTask.ParentTaskIDHex = &parentIDHex
+			_, err := database.UpdateOrCreateTask(db, userID, childTask.IDExternal, childTask.SourceID, nil, childTask, nil)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return tasks, nil
 }
 
 func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {

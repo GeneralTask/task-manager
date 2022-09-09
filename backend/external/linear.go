@@ -245,6 +245,9 @@ type linearAssignedIssuesQuery struct {
 					}
 				}
 			}
+			Parent struct {
+				Id graphql.ID
+			}
 		}
 	} `graphql:"issues(filter: {state: {type: {nin: [\"completed\", \"canceled\"]}}, assignee: {email: {eq: $email}}})"`
 }

@@ -106,6 +106,7 @@ func TestTaskListToTaskResultList(t *testing.T) {
 		}
 
 		parentTaskID := primitive.NewObjectID()
+		parentTaskIDHex := parentTaskID.Hex()
 		results := api.taskListToTaskResultList(&[]database.Task{
 			{
 				ID:                 parentTaskID,
@@ -120,11 +121,11 @@ func TestTaskListToTaskResultList(t *testing.T) {
 				SlackMessageParams: &slackMessageParams,
 			},
 			{
-				UserID:        userID,
-				IsCompleted:   &notCompleted,
-				IDTaskSection: primitive.NilObjectID,
-				SourceID:      external.TASK_SOURCE_ID_LINEAR,
-				ParentTaskID:  parentTaskID,
+				UserID:          userID,
+				IsCompleted:     &notCompleted,
+				IDTaskSection:   primitive.NilObjectID,
+				SourceID:        external.TASK_SOURCE_ID_LINEAR,
+				ParentTaskIDHex: &parentTaskIDHex,
 			}}, userID)
 
 		result := results[0]
@@ -182,12 +183,13 @@ func TestGetSubtaskResults(t *testing.T) {
 		parentCtx := context.Background()
 		taskCollection := database.GetTaskCollection(api.DB)
 		parentTaskID := primitive.NewObjectID()
+		parentTaskIDHex := parentTaskID.Hex()
 		insertResult, err := taskCollection.InsertOne(parentCtx, database.Task{
-			UserID:        userID,
-			IsCompleted:   &notCompleted,
-			IDTaskSection: primitive.NilObjectID,
-			SourceID:      external.TASK_SOURCE_ID_LINEAR,
-			ParentTaskID:  parentTaskID,
+			UserID:          userID,
+			IsCompleted:     &notCompleted,
+			IDTaskSection:   primitive.NilObjectID,
+			SourceID:        external.TASK_SOURCE_ID_LINEAR,
+			ParentTaskIDHex: &parentTaskIDHex,
 		})
 		assert.NoError(t, err)
 

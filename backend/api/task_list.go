@@ -204,16 +204,16 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 }
 
 func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResult {
-	parentToChild := make(map[primitive.ObjectID][]*TaskResult)
+	parentToChild := make(map[string][]*TaskResult)
 	baseNodes := []*TaskResult{}
 	for _, task := range *tasks {
 		result := api.taskBaseToTaskResult(&task, userID)
-		if task.ParentTaskID != primitive.NilObjectID {
-			value, exists := parentToChild[task.ParentTaskID]
+		if task.ParentTaskIDHex != nil && *task.ParentTaskIDHex != "" {
+			value, exists := parentToChild[*task.ParentTaskIDHex]
 			if exists {
-				parentToChild[task.ParentTaskID] = append(value, result)
+				parentToChild[*task.ParentTaskIDHex] = append(value, result)
 			} else {
-				parentToChild[task.ParentTaskID] = []*TaskResult{result}
+				parentToChild[*task.ParentTaskIDHex] = []*TaskResult{result}
 			}
 		} else {
 			baseNodes = append(baseNodes, result)
@@ -223,7 +223,7 @@ func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitiv
 	// nodes with no valid parent will not appear in task results
 	taskResults := []*TaskResult{}
 	for _, node := range baseNodes {
-		value, exists := parentToChild[node.ID]
+		value, exists := parentToChild[node.ID.Hex()]
 		if exists {
 			node.SubTasks = value
 		}
@@ -316,7 +316,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 }
 
 func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID) []*TaskResult {
-	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}})
+	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID.Hex()}})
 	if err == nil && len(*subtasks) > 0 {
 		subtaskResults := []*TaskResult{}
 		for _, subtask := range *subtasks {

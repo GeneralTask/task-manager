@@ -132,7 +132,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	// handle reorder task
-	if modifyParams.IDOrdering != nil || (modifyParams.IDTaskSection != nil || task.ParentTaskID != primitive.NilObjectID) {
+	if modifyParams.IDOrdering != nil || (modifyParams.IDTaskSection != nil || (task.ParentTaskIDHex != nil && *task.ParentTaskIDHex != "")) {
 		err = api.ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
 		if err != nil {
 			return
@@ -206,8 +206,8 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 		{"id_ordering": bson.M{"$gte": IDOrdering}},
 		{"user_id": userID},
 	}
-	if task.ParentTaskID != primitive.NilObjectID {
-		dbQuery = append(dbQuery, bson.M{"parent_task_id": task.ParentTaskID})
+	if task.ParentTaskIDHex != nil && *task.ParentTaskIDHex != "" {
+		dbQuery = append(dbQuery, bson.M{"parent_task_id": task.ParentTaskIDHex})
 	} else {
 		dbQuery = append(dbQuery, bson.M{"id_task_section": IDTaskSection})
 	}

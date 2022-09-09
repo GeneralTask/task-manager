@@ -227,7 +227,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, "seriously!", *task.Body)
 		assert.Equal(t, int64(300000000000), *task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
-		assert.Equal(t, parentTaskID, task.ParentTaskID)
+		assert.Equal(t, parentTaskID.Hex(), *task.ParentTaskIDHex)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
 }

@@ -97,7 +97,7 @@ func TestCreateGeneralTaskTask(t *testing.T) {
 		assert.Equal(t, "send tesla stonk to the moon", *task.Title)
 		assert.Equal(t, "body", *task.Body)
 		assert.Equal(t, timeAllocation, *task.TimeAllocation)
-		assert.Equal(t, parentTaskID, task.ParentTaskID)
+		assert.Equal(t, parentTaskID.Hex(), *task.ParentTaskIDHex)
 	})
 }
 

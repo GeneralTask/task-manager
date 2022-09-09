@@ -76,7 +76,8 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 		newTask.TimeAllocation = task.TimeAllocation
 	}
 	if task.ParentTaskID != primitive.NilObjectID {
-		newTask.ParentTaskID = task.ParentTaskID
+		hexID := task.ParentTaskID.Hex()
+		newTask.ParentTaskIDHex = &hexID
 	}
 
 	parentCtx := context.Background()

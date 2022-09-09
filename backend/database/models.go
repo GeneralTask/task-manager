@@ -76,7 +76,7 @@ type Task struct {
 	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 	// required for sub-task experience
-	ParentTaskID primitive.ObjectID `bson:"parent_task_id,omitempty"`
+	ParentTaskIDHex *string `bson:"parent_task_id,omitempty"`
 	// generic task values (for all sources)
 	IDExternal         string              `bson:"id_external,omitempty"`
 	IDOrdering         int                 `bson:"id_ordering,omitempty"`

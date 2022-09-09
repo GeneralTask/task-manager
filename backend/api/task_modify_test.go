@@ -363,15 +363,17 @@ func TestTaskReorder(t *testing.T) {
 		defer cancel()
 
 		parentTaskID := primitive.NewObjectID()
+		parentTaskIDHex := parentTaskID.Hex()
 		newParentTaskID := primitive.NewObjectID()
+		newParentTaskIDHex := newParentTaskID.Hex()
 
 		insertResult, err := taskCollection.InsertOne(
 			dbCtx,
 			database.Task{
-				UserID:       newUserID,
-				IDOrdering:   2,
-				ParentTaskID: parentTaskID,
-				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+				UserID:          newUserID,
+				IDOrdering:      2,
+				ParentTaskIDHex: &parentTaskIDHex,
+				SourceID:        external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -382,10 +384,10 @@ func TestTaskReorder(t *testing.T) {
 		insertResult, err = taskCollection.InsertOne(
 			dbCtx,
 			database.Task{
-				UserID:       primitive.NewObjectID(),
-				IDOrdering:   3,
-				ParentTaskID: parentTaskID,
-				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+				UserID:          primitive.NewObjectID(),
+				IDOrdering:      3,
+				ParentTaskIDHex: &parentTaskIDHex,
+				SourceID:        external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -398,7 +400,7 @@ func TestTaskReorder(t *testing.T) {
 			database.Task{
 				UserID:           newUserID,
 				IDOrdering:       1,
-				ParentTaskID:     newParentTaskID,
+				ParentTaskIDHex:  &parentTaskIDHex,
 				SourceID:         external.TASK_SOURCE_ID_LINEAR,
 				HasBeenReordered: false,
 			},
@@ -411,10 +413,10 @@ func TestTaskReorder(t *testing.T) {
 		insertResult, err = taskCollection.InsertOne(
 			dbCtx,
 			database.Task{
-				UserID:       newUserID,
-				IDOrdering:   2,
-				ParentTaskID: newParentTaskID,
-				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+				UserID:          newUserID,
+				IDOrdering:      2,
+				ParentTaskIDHex: &newParentTaskIDHex,
+				SourceID:        external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -425,9 +427,9 @@ func TestTaskReorder(t *testing.T) {
 		insertResult, err = taskCollection.InsertOne(
 			dbCtx,
 			database.Task{
-				UserID:       newUserID,
-				ParentTaskID: parentTaskID,
-				SourceID:     external.TASK_SOURCE_ID_LINEAR,
+				UserID:          newUserID,
+				ParentTaskIDHex: &parentTaskIDHex,
+				SourceID:        external.TASK_SOURCE_ID_LINEAR,
 			},
 		)
 		assert.NoError(t, err)
@@ -454,7 +456,7 @@ func TestTaskReorder(t *testing.T) {
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": taskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, task.IDOrdering)
-		assert.Equal(t, parentTaskID, task.ParentTaskID)
+		assert.Equal(t, parentTaskID.Hex(), *task.ParentTaskIDHex)
 		assert.True(t, task.HasBeenReordered)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -570,7 +572,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
 	})
 	t.Run("OnlyReorderTaskSections", func(t *testing.T) {
-
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
@@ -609,7 +610,6 @@ func TestTaskReorder(t *testing.T) {
 		assert.True(t, task.HasBeenReordered)
 	})
 	t.Run("OnlyReorderingID", func(t *testing.T) {
-
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		insertResult, err := taskCollection.InsertOne(

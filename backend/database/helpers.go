@@ -157,6 +157,27 @@ func GetCalendarEvent(db *mongo.Database, ctx context.Context, itemID primitive.
 	return &event, nil
 }
 
+func GetTaskByExternalID(db *mongo.Database, ctx context.Context, externalID string, userID primitive.ObjectID) (*Task, error) {
+	logger := logging.GetSentryLogger()
+	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
+	defer cancel()
+	var task Task
+
+	err := FindOneExternalWithCollection(
+		dbCtx,
+		GetTaskCollection(db),
+		userID,
+		externalID,
+	).Decode(&task)
+	if err != nil {
+		if err != mongo.ErrNoDocuments {
+			logger.Error().Err(err).Msgf("failed to get pull request: %+v", externalID)
+		}
+		return nil, err
+	}
+	return &task, nil
+}
+
 func GetPullRequestByExternalID(db *mongo.Database, ctx context.Context, externalID string, userID primitive.ObjectID) (*PullRequest, error) {
 	logger := logging.GetSentryLogger()
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
