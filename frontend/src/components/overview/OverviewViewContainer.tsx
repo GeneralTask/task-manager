@@ -1,5 +1,5 @@
 import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
-import { useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 
 import AuthBanner from './AuthBanner'
 import ExternalViewItems from './viewItems/ExternalViewItems'
@@ -9,7 +9,6 @@ import { TOverviewView } from '../../utils/types'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 import { useParams } from 'react-router-dom'
 import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
-import { useLayoutEffect } from 'react'
 
 const PAGE_SIZE = 5
 
