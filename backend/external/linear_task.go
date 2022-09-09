@@ -50,6 +50,13 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		return
 	}
 
+	_, err = getLinearWorkflowStates(client)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to get linear workflow states")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))

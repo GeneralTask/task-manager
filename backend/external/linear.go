@@ -204,6 +204,19 @@ type linearUserInfoQuery struct {
 	}
 }
 
+type linearWorkflowStatesQuery struct {
+	WorkflowStates struct {
+		Nodes []struct {
+			Id   graphql.ID
+			Name graphql.String
+			Type graphql.String
+			Team struct {
+				Name graphql.String
+			}
+		}
+	}
+}
+
 type linearAssignedIssuesQuery struct {
 	Issues struct {
 		Nodes []struct {
@@ -377,6 +390,17 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 	}
 	var query linearAssignedIssuesQuery
 	err := client.Query(context.Background(), &query, variables)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch issues assigned to user")
+		return nil, err
+	}
+	return &query, nil
+}
+
+func getLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery, error) {
+	var query linearWorkflowStatesQuery
+	err := client.Query(context.Background(), &query, nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch issues assigned to user")
