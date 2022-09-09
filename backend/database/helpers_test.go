@@ -439,6 +439,42 @@ func TestGetCalendarEvent(t *testing.T) {
 	})
 }
 
+func TestGetTaskByExternalID(t *testing.T) {
+	ctx := context.Background()
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	task, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abc",
+		"foobar_source",
+		&Task{
+			IDExternal: "123abc",
+			SourceID:   "foobar_source",
+			UserID:     userID,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("WrongID", func(t *testing.T) {
+		respTask, err := GetTaskByExternalID(db, ctx, "wrong ID", userID)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respTask)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		respTask, err := GetTaskByExternalID(db, ctx, task.IDExternal, primitive.NewObjectID())
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respTask)
+	})
+	t.Run("Success", func(t *testing.T) {
+		respTask, err := GetTaskByExternalID(db, ctx, task.IDExternal, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, task.ID, respTask.ID)
+	})
+}
+
 func TestGetPullRequestByExternalID(t *testing.T) {
 	ctx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
