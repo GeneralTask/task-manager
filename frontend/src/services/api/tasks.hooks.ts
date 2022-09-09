@@ -17,7 +17,7 @@ export interface TCreateTaskResponse {
     task_id: string
 }
 
-interface TModifyTaskData {
+export interface TModifyTaskData {
     id: string
     title?: string
     dueDate?: string

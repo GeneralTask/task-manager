@@ -9,7 +9,9 @@ import {
     faFolder,
     faMessage,
     faSquare,
+    faPencil,
     faPlus,
+    faTrash,
     faXmark
 } from '@fortawesome/pro-regular-svg-icons'
 import {
@@ -26,10 +28,8 @@ import {
     faGripDotsVertical,
     faInbox,
     faList,
-    faPencil,
     faTag,
-    faTimer,
-    faTrash
+    faTimer
 } from '@fortawesome/pro-solid-svg-icons'
 import {
     faGithub,
