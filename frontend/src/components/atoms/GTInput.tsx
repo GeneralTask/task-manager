@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
@@ -26,14 +26,14 @@ const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
 `
 
-interface GTTextAreaProps extends React.TextareaHTMLAttributes<HTMLInputElement> {
+interface GTInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     initialValue: string
     onEdit: (newValue: string) => void
     fontSize: 'small' | 'medium' | 'large'
 }
-const GTInput = ({ initialValue, onEdit, fontSize, ...rest }: GTTextAreaProps) => {
+const GTInput = forwardRef(({ initialValue, onEdit, fontSize, ...rest }: GTInputProps, ref) => {
     const [inputValue, setInputValue] = useState(initialValue)
-    const inputRef = useRef<HTMLInputElement>(null)
+    const inputRef = useRef<HTMLInputElement | null>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (inputRef.current && (e.key === 'Escape' || e.key === 'Enter')) inputRef.current.blur()
@@ -46,7 +46,14 @@ const GTInput = ({ initialValue, onEdit, fontSize, ...rest }: GTTextAreaProps) =
 
     return (
         <StyledInput
-            ref={inputRef}
+            ref={(node) => {
+                inputRef.current = node
+                if (typeof ref === 'function') {
+                    ref(node)
+                } else if (ref !== null) {
+                    ref.current = node
+                }
+            }}
             onKeyDown={handleKeyDown}
             value={inputValue}
             fontSize={fontSize}
@@ -57,6 +64,6 @@ const GTInput = ({ initialValue, onEdit, fontSize, ...rest }: GTTextAreaProps) =
             {...rest}
         />
     )
-}
+})
 
 export default GTInput

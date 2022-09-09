@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
@@ -34,43 +34,52 @@ interface GTTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaEleme
     isFullHeight?: boolean
     fontSize: 'small' | 'medium' | 'large'
 }
-const GTTextArea = ({ initialValue, onEdit, maxHeight, isFullHeight = false, fontSize, ...rest }: GTTextAreaProps) => {
-    const [textAreaValue, setTextAreaValue] = useState(initialValue)
-    const textAreaRef = useRef<HTMLTextAreaElement>(null)
+const GTTextArea = forwardRef(
+    ({ initialValue, onEdit, maxHeight, isFullHeight = false, fontSize, ...rest }: GTTextAreaProps, ref) => {
+        const [textAreaValue, setTextAreaValue] = useState(initialValue)
+        const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
-    const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-        if (textAreaRef.current && e.key === 'Escape') textAreaRef.current.blur()
-        e.stopPropagation()
-    }
-
-    useLayoutEffect(() => {
-        if (!isFullHeight && textAreaRef.current) {
-            textAreaRef.current.style.height = '0px'
-            textAreaRef.current.style.height =
-                maxHeight && textAreaRef.current.scrollHeight > maxHeight
-                    ? `${maxHeight}px`
-                    : `${textAreaRef.current.scrollHeight}px`
+        const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+            if (textAreaRef.current && e.key === 'Escape') textAreaRef.current.blur()
+            e.stopPropagation()
         }
-    }, [textAreaValue])
 
-    useLayoutEffect(() => {
-        setTextAreaValue(initialValue)
-    }, [initialValue])
+        useLayoutEffect(() => {
+            if (!isFullHeight && textAreaRef.current) {
+                textAreaRef.current.style.height = '0px'
+                textAreaRef.current.style.height =
+                    maxHeight && textAreaRef.current.scrollHeight > maxHeight
+                        ? `${maxHeight}px`
+                        : `${textAreaRef.current.scrollHeight}px`
+            }
+        }, [textAreaValue])
 
-    return (
-        <StyledTextArea
-            ref={textAreaRef}
-            onKeyDown={handleKeyDown}
-            value={textAreaValue}
-            isFullHeight={isFullHeight}
-            fontSize={fontSize}
-            onChange={(e) => {
-                setTextAreaValue(e.target.value)
-                onEdit(e.target.value)
-            }}
-            {...rest}
-        />
-    )
-}
+        useLayoutEffect(() => {
+            setTextAreaValue(initialValue)
+        }, [initialValue])
+
+        return (
+            <StyledTextArea
+                ref={(node) => {
+                    textAreaRef.current = node
+                    if (typeof ref === 'function') {
+                        ref(node)
+                    } else if (ref !== null) {
+                        ref.current = node
+                    }
+                }}
+                onKeyDown={handleKeyDown}
+                value={textAreaValue}
+                isFullHeight={isFullHeight}
+                fontSize={fontSize}
+                onChange={(e) => {
+                    setTextAreaValue(e.target.value)
+                    onEdit(e.target.value)
+                }}
+                {...rest}
+            />
+        )
+    }
+)
 
 export default GTTextArea
