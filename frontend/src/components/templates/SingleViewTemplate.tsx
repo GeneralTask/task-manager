@@ -1,8 +1,15 @@
+import styled from 'styled-components'
+
+const SingleViewContainer = styled.div`
+    width: 100vw;
+    height: 100vh;
+`
+
 interface SingleViewTemplateProps {
-    children: JSX.Element
+    children: React.ReactNode
 }
 const SingleViewTemplate = ({ children }: SingleViewTemplateProps) => {
-    return <div>{children}</div>
+    return <SingleViewContainer>{children}</SingleViewContainer>
 }
 
 export default SingleViewTemplate

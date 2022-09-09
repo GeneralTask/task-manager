@@ -16,18 +16,19 @@ export type TCalendarType = 'day' | 'week'
 
 interface CalendarViewProps {
     initialType: TCalendarType
-    showMainHeader?: boolean
-    showDateHeader?: boolean
+    initialShowMainHeader?: boolean
+    initialShowDateHeader?: boolean
     isInitiallyCollapsed?: boolean
-    showContainerShadow?: boolean
+    hideContainerShadow?: boolean
 }
 const CalendarView = ({
     initialType,
-    showMainHeader,
-    showDateHeader,
+    initialShowMainHeader,
     isInitiallyCollapsed,
-    showContainerShadow = true,
+    hideContainerShadow = false,
 }: CalendarViewProps) => {
+    const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
+    const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -36,8 +37,7 @@ const CalendarView = ({
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
-    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed, setShowMainHeader, setShowDateHeader } =
-        useCalendarContext()
+    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed } = useCalendarContext()
     useEffect(() => {
         setCalendarType(initialType)
         if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
@@ -62,16 +62,16 @@ const CalendarView = ({
 
     useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
 
-    const { isTaskDraggingOverDetailsView } = useCalendarContext()
-
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
-        <CalendarContainer
-            isExpanded={calendarType === 'week'}
-            showShadow={isTaskDraggingOverDetailsView && showContainerShadow}
-        >
-            <CalendarHeader date={date} setDate={setDate} />
+        <CalendarContainer isExpanded={calendarType === 'week'} showShadow={!hideContainerShadow}>
+            <CalendarHeader
+                date={date}
+                setDate={setDate}
+                showMainHeader={showMainHeader}
+                showDateHeader={showDateHeader}
+            />
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )

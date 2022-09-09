@@ -8,6 +8,8 @@ import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { useCalendarContext } from './CalendarContext'
+import { FOCUS_MODE_ROUTE } from '../../constants'
+import NoStyleLink from '../atoms/NoStyleLink'
 
 const PaddedContainer = styled.div`
     padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
@@ -30,7 +32,7 @@ const Title = styled.span`
     color: ${Colors.text.black};
     ${Typography.bodySmall};
 `
-const TitleBold = styled(Title)<{ purple: boolean }>`
+const TitleBold = styled(Title) <{ purple: boolean }>`
     ${({ purple }) => purple && `color: ${Colors.gtColor.primary};`}
     ${Typography.bold};
 `
@@ -38,10 +40,16 @@ const TitleBold = styled(Title)<{ purple: boolean }>`
 interface CalendarHeaderProps {
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
+    showMainHeader?: boolean
+    showDateHeader?: boolean
 }
-export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
-    const { showMainHeader, showDateHeader, calendarType, setCalendarType, setIsCollapsed, isCollapsed } =
-        useCalendarContext()
+export default function CalendarHeader({
+    date,
+    setDate,
+    showMainHeader = true,
+    showDateHeader = true,
+}: CalendarHeaderProps) {
+    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
 
     const toggleCalendar = () => {
@@ -77,7 +85,9 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
-                            <Title>Calendar</Title>
+                            <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                                <GTButton value="Enter Focus Mode" size="small" styleType="secondary" />
+                            </NoStyleLink>
                             <HeaderIconsContainer>
                                 <GTIconButton
                                     onClick={toggleCalendar}

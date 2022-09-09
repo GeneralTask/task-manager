@@ -1,23 +1,24 @@
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
+import { DateTime } from 'luxon'
+import { useEventBanners } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import Loading from '../atoms/Loading'
-import StyledToastContainer from '../atoms/toast/StyledToastContainer'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
 import Settings from '../views/SettingsView'
 import TaskSection from '../views/TaskSectionView'
+import FocusModeScreen from './FocusModeScreen'
 
 const MainScreen = () => {
     const location = useLocation()
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    useEventBanners(DateTime.now())
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
@@ -29,6 +30,8 @@ const MainScreen = () => {
                 return <PullRequestsView />
             case 'settings':
                 return <Settings />
+            case 'focus-mode':
+                return <FocusModeScreen />
             default:
                 return <OverviewPageView />
         }
@@ -36,15 +39,14 @@ const MainScreen = () => {
 
     if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
-
+    if (location.pathname.split('/')[1] === 'focus-mode') return currentPage
     return (
-        <DndProvider backend={HTML5Backend}>
+        <>
             <DefaultTemplate>
                 <>{currentPage}</>
             </DefaultTemplate>
-            <StyledToastContainer />
             <DragLayer />
-        </DndProvider>
+        </>
     )
 }
 
