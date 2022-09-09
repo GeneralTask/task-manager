@@ -10,9 +10,10 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import React, { MouseEvent, useLayoutEffect, useRef, useState } from 'react'
+import React, { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import { icons, logos } from '../../styles/images'
-import toast, { ToastId, dismissToast } from '../../utils/toast'
+import toast, { dismissToast } from '../../utils/toast'
+import { Id as ToastId } from 'react-toastify'
 
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
@@ -22,9 +23,10 @@ import { Icon } from '../atoms/Icon'
 import ReactDOM from 'react-dom'
 import { Spacing } from '../../styles'
 import { TEvent } from '../../utils/types'
-import { useClickOutside, useNavigateToTask } from '../../hooks'
+import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import sanitizeHtml from 'sanitize-html'
 
 interface EventDetailProps {
     event: TEvent
@@ -37,8 +39,8 @@ interface EventDetailProps {
     windowHeight: number
 }
 
-const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }: EventDetailProps, ref) => {
+const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
+    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }, ref) => {
         const { setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
@@ -89,7 +91,15 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                 }
             )
         }
-        return ReactDOM.createPortal(
+
+        // if *anything* drags, close the popup
+        const isDragging = useIsDragging()
+        if (isDragging) {
+            onClose()
+            return null
+        }
+
+        const portal = ReactDOM.createPortal(
             <EventBoxStyle
                 xCoord={xCoord}
                 yCoord={yCoord}
@@ -128,7 +138,7 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
                         {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                     </EventDate>
                 </EventDateContainer>
-                <Description>{event.body}</Description>
+                <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
                 <Flex gap={Spacing._8}>
                     {event.linked_task_id && (
                         <GTButton
@@ -171,6 +181,8 @@ const EventDetailPopup = React.forwardRef<HTMLDivElement, EventDetailProps>(
             </EventBoxStyle>,
             document.getElementById('event-details-popup') as HTMLElement
         )
+
+        return <>{portal}</>
     }
 )
 

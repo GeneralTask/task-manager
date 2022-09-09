@@ -21,6 +21,7 @@ type TaskCreateParams struct {
 	DueDate       *time.Time `json:"due_date"`
 	TimeDuration  *int       `json:"time_duration"`
 	IDTaskSection *string    `json:"id_task_section"`
+	ParentTaskID  *string    `json:"parent_task_id"`
 }
 
 func (api *API) TaskCreate(c *gin.Context) {
@@ -85,12 +86,23 @@ func (api *API) TaskCreate(c *gin.Context) {
 		timeAllocationTemp := (time.Duration(*taskCreateParams.TimeDuration) * time.Second).Nanoseconds()
 		timeAllocation = &timeAllocationTemp
 	}
+
+	var parentID primitive.ObjectID
+	if taskCreateParams.ParentTaskID != nil {
+		parentID, err = getValidTask(*taskCreateParams.ParentTaskID, userID, api.DB)
+		if err != nil {
+			c.JSON(400, gin.H{"detail": "'parent_task_id' is not a valid ID"})
+			return
+		}
+	}
+
 	taskCreationObject := external.TaskCreationObject{
 		Title:          taskCreateParams.Title,
 		Body:           taskCreateParams.Body,
 		DueDate:        taskCreateParams.DueDate,
 		TimeAllocation: timeAllocation,
 		IDTaskSection:  IDTaskSection,
+		ParentTaskID:   parentID,
 	}
 	taskID, err := taskSourceResult.Source.CreateNewTask(api.DB, userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
@@ -114,4 +126,19 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 		return primitive.NilObjectID, errors.New("task section ID not found")
 	}
 	return IDTaskSection, nil
+}
+
+func getValidTask(taskIDHex string, userID primitive.ObjectID, db *mongo.Database) (primitive.ObjectID, error) {
+	parentID, err := primitive.ObjectIDFromHex(taskIDHex)
+	if err != nil {
+		return primitive.NilObjectID, errors.New("malformatted parent id")
+	}
+	taskCollection := database.GetTaskCollection(db)
+	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
+	defer cancel()
+	count, err := taskCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": parentID}}})
+	if err != nil || count == int64(0) {
+		return primitive.NilObjectID, errors.New("task not found")
+	}
+	return parentID, nil
 }
