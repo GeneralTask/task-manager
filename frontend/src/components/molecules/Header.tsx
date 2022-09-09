@@ -31,6 +31,8 @@ const HeaderText = styled.span`
     ${Typography.title};
 `
 
+const MAX_SECTION_NAME_LENGTH = 200
+
 const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID]
 const uneditableSectionIds = [DONE_SECTION_ID]
 const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
@@ -77,7 +79,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         <GTInput
             initialValue={sectionName}
             fontSize="large"
-            onEdit={(val) => setSectionName(val.substring(0, 200))}
+            onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus
         />
