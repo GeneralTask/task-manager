@@ -169,7 +169,8 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
 	})
 
-	t.Run("CalendarFailure", func(t *testing.T) {
+	t.Run("CalendarSuccess", func(t *testing.T) {
+		// tasks with source gcal are meeting prep tasks that can be completed
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/tasks/modify/"+calendarTaskIDHex+"/",
@@ -183,12 +184,12 @@ func TestMarkAsComplete(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		assert.Equal(t, http.StatusOK, recorder.Code)
 
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err = taskCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&task)
-		assert.Equal(t, false, *task.IsCompleted)
+		assert.Equal(t, true, *task.IsCompleted)
 	})
 
 	t.Run("Mark complete and edit fields success", func(t *testing.T) {
