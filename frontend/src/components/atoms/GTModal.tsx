@@ -61,6 +61,9 @@ const SHARED_MODAL_CONTENT_STYLE = {
 }
 
 const getModalStyle = (modalSize: TModalSize): Modal.Styles => ({
+    overlay: {
+        zIndex: 1000,
+    },
     content: {
         ...SHARED_MODAL_CONTENT_STYLE,
         maxHeight: Dimensions.modalSize[modalSize].max_height,
