@@ -26,6 +26,7 @@ type GithubConfigValues struct {
 	CompareURL                  *string
 	GetUserURL                  *string
 	ListPullRequestsURL         *string
+	ListPullRequestsModifiedURL *string
 	ListPullRequestReviewURL    *string
 	ListPullRequestReviewersURL *string
 	ListCheckRunsForRefURL      *string

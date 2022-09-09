@@ -129,7 +129,9 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 
+	numRequests := 0
 	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
+	numRequests += 1
 	if err != nil || githubUser == nil {
 		logger.Error().Err(err).Msg("failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
@@ -137,6 +139,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	}
 
 	userTeams, err := getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL)
+	numRequests += 1
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github user teams")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"))
@@ -144,24 +147,41 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	}
 
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
+	numRequests += 1
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
 
+	var pullRequests []*database.PullRequest
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
-		err := updateOrCreateRepository(parentCtx, db, repository, userID)
+		err := updateOrCreateRepository(parentCtx, db, repository, userID, nil)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create repository")
 			result <- emptyPullRequestResult(err)
 			return
 		}
+		newLastUpdated := primitive.NewDateTimeFromTime(time.Now())
+		isListModified := pullRequestListModified(db, parentCtx, userID, token, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsModifiedURL)
+		if !isListModified {
+			dbPullRequests, err := database.GetPullRequests(db, userID, &[]bson.M{{"repository_id": fmt.Sprint(repository.GetID())}})
+			if err != nil {
+				logger.Error().Err(err).Msg("failed to load PRs from db")
+				result <- emptyPullRequestResult(err)
+				return
+			}
+			for _, dbPullRequest := range *dbPullRequests {
+				pullRequests = append(pullRequests, &dbPullRequest)
+			}
+			continue
+		}
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
+		numRequests += 1
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
@@ -180,9 +200,14 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
 			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
 		}
+		err = updateOrCreateRepository(parentCtx, db, repository, userID, &newLastUpdated)
+		if err != nil {
+			logger.Error().Err(err).Msg("failed to update or create repository")
+			return
+		}
 	}
+	fmt.Println("NUM REQUESTS:", numRequests)
 
-	var pullRequests []*database.PullRequest
 	for index, pullRequestChan := range pullRequestChannels {
 		pullRequest := <-pullRequestChan
 		// if nil, this means that the request ran into an error: continue and keep processing the rest
@@ -362,23 +387,44 @@ func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID 
 		requestURL = *overrideURL
 	}
 
+	return isGithubResourceModified(requestURL, token, dbPR.LastFetched.Time()), dbPR
+}
+
+func pullRequestListModified(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, token *oauth2.Token, repository *github.Repository, overrideURL *string) bool {
+	logger := logging.GetSentryLogger()
+
+	dbRepository, err := getRepository(ctx, db, userID, fmt.Sprint(repository.GetID()))
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch repository from db")
+		return true
+	}
+
+	requestURL := GithubAPIBaseURL + "repos/" + *repository.Owner.Login + "/" + *repository.Name + "/pulls"
+	if overrideURL != nil {
+		requestURL = *overrideURL
+	}
+	return isGithubResourceModified(requestURL, token, dbRepository.LastUpdatedPullRequests.Time())
+}
+
+func isGithubResourceModified(requestURL string, token *oauth2.Token, lastFetched time.Time) bool {
 	// Github API does not support conditional requests, so this logic is required
 	request, _ := http.NewRequest("GET", requestURL, nil)
 	request.Header.Set("Accept", "application/vnd.github+json")
 	if token != nil {
 		request.Header.Set("Authorization", "token "+token.AccessToken)
 	}
-	if !dbPR.LastFetched.Time().IsZero() {
-		request.Header.Set("If-Modified-Since", (dbPR.LastFetched.Time().Format("Mon, 02 Jan 2006 15:04:05 MST")))
+	if !lastFetched.IsZero() {
+		request.Header.Set("If-Modified-Since", (lastFetched.Format("Mon, 02 Jan 2006 15:04:05 MST")))
 	}
 	client := &http.Client{}
 	resp, err := client.Do(request)
+	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("error with github http request")
-		return true, dbPR
+		return true
 	}
 
-	return (resp.StatusCode != http.StatusNotModified), dbPR
+	return (resp.StatusCode != http.StatusNotModified)
 }
 
 func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
@@ -411,10 +457,17 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	return repositories, err
 }
 
-func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
+func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID, lastUpdated *primitive.DateTime) error {
 	repositoryCollection := database.GetRepositoryCollection(db)
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
+	updatedFields := bson.M{
+		"full_name": repository.GetFullName(),
+		"deeplink":  repository.GetHTMLURL(),
+	}
+	if lastUpdated != nil {
+		updatedFields["last_updated_pull_requests"] = lastUpdated
+	}
 	_, err := repositoryCollection.UpdateOne(
 		dbCtx,
 		bson.M{"$and": []bson.M{
@@ -428,6 +481,15 @@ func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repositor
 		options.Update().SetUpsert(true),
 	)
 	return err
+}
+
+func getRepository(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, repositoryID string) (database.Repository, error) {
+	var repository database.Repository
+	err := database.GetRepositoryCollection(db).FindOne(ctx, bson.M{"$and": []bson.M{
+		{"repository_id": repositoryID},
+		{"user_id": userID},
+	}}).Decode(&repository)
+	return repository, err
 }
 
 func getGithubPullRequests(ctx context.Context, githubClient *github.Client, repository *github.Repository, overrideURL *string) ([]*github.PullRequest, error) {
