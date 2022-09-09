@@ -102,20 +102,18 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
                             'ccc, LLL d'
                         )}`}</TitleBold>
                         <ButtonContainer>
-                            {!date.hasSame(DateTime.now(), 'day') && (
-                                <GTButton
-                                    value="Today"
-                                    onClick={() =>
-                                        setDate(
-                                            isCalendarExpanded
-                                                ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
-                                                : DateTime.now()
-                                        )
-                                    }
-                                    size="small"
-                                    styleType="secondary"
-                                />
-                            )}
+                            <GTButton
+                                value="Today"
+                                onClick={() =>
+                                    setDate(
+                                        isCalendarExpanded
+                                            ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
+                                            : DateTime.now()
+                                    )
+                                }
+                                size="small"
+                                styleType="secondary"
+                            />
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} size="xSmall" />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} size="xSmall" />
                         </ButtonContainer>
