@@ -1,4 +1,3 @@
-import React from 'react'
 import { Icon } from '../atoms/Icon'
 import { TPullRequest } from '../../utils/types'
 import { icons, logos } from '../../styles/images'

@@ -1,4 +1,3 @@
-import React from 'react'
 import { useDrop } from 'react-dnd'
 import styled, { css, keyframes } from 'styled-components'
 import { Spacing, Colors, Shadows } from '../../styles'

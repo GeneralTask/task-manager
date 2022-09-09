@@ -110,7 +110,9 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	var token *oauth2.Token
 	if gitPR.Github.Config.ConfigValues.FetchExternalAPIToken != nil && *gitPR.Github.Config.ConfigValues.FetchExternalAPIToken {
 		externalAPITokenCollection := database.GetExternalTokenCollection(db)
-		token, err := GetGithubToken(externalAPITokenCollection, userID, accountID)
+		// need to do this to ensure `token` is the same `token` initialized above vs creating a new one with the := operator
+		var err error
+		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))

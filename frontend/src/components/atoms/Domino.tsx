@@ -1,12 +1,12 @@
 import { Colors, Spacing } from '../../styles'
-import React from 'react'
+
 import styled from 'styled-components'
+import { forwardRef, memo } from 'react'
 
 const DominoOuterContainer = styled.div`
-    cursor: grab;
     height: ${Spacing._16};
-    padding-left: ${Spacing._4};
-    padding-right: ${Spacing._12};
+    margin-right: ${Spacing._12};
+    margin-left: -${Spacing._4};
 `
 const DominoContainer = styled.div`
     height: 100%;
@@ -24,7 +24,7 @@ const Dot = styled.div`
     margin: 1px;
 `
 
-const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
+const Domino = forwardRef<HTMLDivElement>((_, ref) => {
     return (
         <DominoOuterContainer ref={ref} data-testid="drag-domino">
             <DominoContainer>
@@ -38,4 +38,4 @@ const Domino = React.forwardRef<HTMLDivElement>((_, ref) => {
     )
 })
 
-export default React.memo(Domino)
+export default memo(Domino)

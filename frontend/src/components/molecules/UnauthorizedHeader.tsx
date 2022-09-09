@@ -2,7 +2,7 @@ import { Colors } from '../../styles'
 import { Divider } from '../atoms/SectionDivider'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import React from 'react'
+
 import { Spacing } from '../../styles'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'

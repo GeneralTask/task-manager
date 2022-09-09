@@ -1,5 +1,5 @@
 import CalendarHeader from '../calendar/CalendarHeader'
-import React, { useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState } from 'react'
 
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarEvents from '../calendar/CalendarEvents'
@@ -68,4 +68,4 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
     )
 }
 
-export default React.memo(CalendarView)
+export default memo(CalendarView)

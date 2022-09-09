@@ -1,5 +1,5 @@
 import { Colors, Spacing, Typography } from '../../styles'
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { DateTime } from 'luxon'
 import { Divider } from '../atoms/SectionDivider'
 import { icons } from '../../styles/images'

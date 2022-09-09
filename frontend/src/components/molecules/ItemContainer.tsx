@@ -1,7 +1,7 @@
 import { Border, Colors, Spacing } from '../../styles'
 
-import React from 'react'
 import styled from 'styled-components'
+import { forwardRef } from 'react'
 
 const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>`
     position: relative;
@@ -23,7 +23,7 @@ interface ItemContainerProps {
     onClick: () => void
     children: React.ReactNode
 }
-const ItemContainer = React.forwardRef<HTMLDivElement, ItemContainerProps>(
+const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
     ({ isSelected, isHovered, onClick, children }, ref) => (
         <ItemContainerDiv
             isSelected={isSelected}

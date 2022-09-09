@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React from 'react'
+
 import { TEvent } from '../../utils/types'
 import EventBody from './EventBody'
 import EventBodyDraggable from './EventBodyDraggable'
@@ -17,12 +17,12 @@ const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element =
             {eventColumns.map((column, index) =>
                 column.map((event) => (
                     <EventBodyDraggable key={event.id} event={event}>
-                      <EventBody
-                          event={event}
-                          leftOffset={index}
-                          collisionGroupSize={eventColumns.length}
-                          date={props.date}
-                      />
+                        <EventBody
+                            event={event}
+                            leftOffset={index}
+                            collisionGroupSize={eventColumns.length}
+                            date={props.date}
+                        />
                     </EventBodyDraggable>
                 ))
             )}

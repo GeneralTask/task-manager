@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import GTButton from '../atoms/buttons/GTButton'
 import FeedbackView from '../views/FeedbackView'
 

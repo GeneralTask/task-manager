@@ -3,7 +3,7 @@ import { Spacing, Typography } from '../../styles'
 import { Colors } from '../../styles'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import React from 'react'
+
 import styled from 'styled-components/'
 import { useNavigate } from 'react-router-dom'
 import { logos } from '../../styles/images'

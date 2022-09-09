@@ -1,7 +1,7 @@
 import { Border, Colors, Typography } from '../../styles'
 
 import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
-import React from 'react'
+
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
 

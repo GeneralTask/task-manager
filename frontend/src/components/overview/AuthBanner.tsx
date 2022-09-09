@@ -1,4 +1,3 @@
-import React from 'react'
 import { Colors, Spacing, Typography, Border } from '../../styles'
 import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'

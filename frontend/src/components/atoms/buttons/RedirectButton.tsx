@@ -2,7 +2,7 @@ import { Colors, Spacing, Typography } from '../../../styles'
 
 import { Icon } from '../Icon'
 import { Link } from 'react-router-dom'
-import React from 'react'
+
 import { icons } from '../../../styles/images'
 import styled from 'styled-components'
 

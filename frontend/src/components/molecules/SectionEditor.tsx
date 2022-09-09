@@ -1,4 +1,3 @@
-import React from 'react'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import styled from 'styled-components'

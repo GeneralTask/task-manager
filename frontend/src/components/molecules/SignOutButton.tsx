@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { authSignOut } from '../../utils/auth'
 import GTButton from '../atoms/buttons/GTButton'
 import GTModal from '../atoms/GTModal'

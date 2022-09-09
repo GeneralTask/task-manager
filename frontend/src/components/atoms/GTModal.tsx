@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import { ReactElement } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography, Border, Shadows, Dimensions } from '../../styles'
 import NoStyleButton from './buttons/NoStyleButton'
@@ -61,6 +61,9 @@ const SHARED_MODAL_CONTENT_STYLE = {
 }
 
 const getModalStyle = (modalSize: TModalSize): Modal.Styles => ({
+    overlay: {
+        zIndex: 1000,
+    },
     content: {
         ...SHARED_MODAL_CONTENT_STYLE,
         maxHeight: Dimensions.modalSize[modalSize].max_height,
