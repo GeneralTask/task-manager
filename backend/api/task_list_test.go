@@ -69,7 +69,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			Title:              &title,
 			Body:               &body,
 			Status:             &externalStatus,
-			SlackMessageParams: slackMessageParams,
+			SlackMessageParams: &slackMessageParams,
 		}, userID)
 		// TODO change to a helper method to compare taskResults
 		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
@@ -117,7 +117,7 @@ func TestTaskListToTaskResultList(t *testing.T) {
 				Title:              &title,
 				Body:               &body,
 				Status:             &externalStatus,
-				SlackMessageParams: slackMessageParams,
+				SlackMessageParams: &slackMessageParams,
 			},
 			{
 				UserID:        userID,
@@ -174,7 +174,7 @@ func TestGetSubtaskResults(t *testing.T) {
 				Title:              &title,
 				Body:               &body,
 				Status:             &externalStatus,
-				SlackMessageParams: slackMessageParams,
+				SlackMessageParams: &slackMessageParams,
 			}, userID)
 		assert.Equal(t, 0, len(results))
 	})
@@ -202,7 +202,7 @@ func TestGetSubtaskResults(t *testing.T) {
 				Title:              &title,
 				Body:               &body,
 				Status:             &externalStatus,
-				SlackMessageParams: slackMessageParams,
+				SlackMessageParams: &slackMessageParams,
 			}, userID)
 		assert.Equal(t, 1, len(results))
 		assert.Equal(t, insertResult.InsertedID.(primitive.ObjectID), results[0].ID)

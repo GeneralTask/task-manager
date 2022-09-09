@@ -102,10 +102,10 @@ type Task struct {
 	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
 	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
 	// info required for Slack integration
-	SlackMessageParams SlackMessageParams `bson:"slack_message_params,omitempty"`
+	SlackMessageParams *SlackMessageParams `bson:"slack_message_params,omitempty"`
 	// meeting prep fields
-	MeetingPreparationParams MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
-	IsMeetingPreparationTask bool                     `bson:"is_meeting_preparation_task,omitempty"`
+	MeetingPreparationParams *MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
+	IsMeetingPreparationTask bool                      `bson:"is_meeting_preparation_task,omitempty"`
 }
 
 type PullRequest struct {
@@ -167,11 +167,11 @@ type CalendarEvent struct {
 }
 
 type MeetingPreparationParams struct {
-	CalendarEventID               primitive.ObjectID `bson:"event_id"`
-	IDExternal                    string             `bson:"id_external"`
-	DatetimeStart                 primitive.DateTime `bson:"datetime_start"`
-	DatetimeEnd                   primitive.DateTime `bson:"datetime_end"`
-	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed"`
+	CalendarEventID               primitive.ObjectID `bson:"event_id,omitempty"`
+	IDExternal                    string             `bson:"id_external,omitempty"`
+	DatetimeStart                 primitive.DateTime `bson:"datetime_start,omitempty"`
+	DatetimeEnd                   primitive.DateTime `bson:"datetime_end,omitempty"`
+	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed,omitempty"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match
@@ -276,14 +276,14 @@ type Recipient struct {
 }
 
 type View struct {
-	ID                       primitive.ObjectID `bson:"_id,omitempty"`
-	UserID                   primitive.ObjectID `bson:"user_id"`
-	IDOrdering               int                `bson:"id_ordering"`
-	Type                     string             `bson:"type"`
-	IsReorderable            bool               `bson:"is_reorderable"`
-	IsLinked                 bool               `bson:"is_linked"`
-	GithubID                 string             `bson:"github_id"`
-	TaskSectionID            primitive.ObjectID `bson:"task_section_id"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id"`
+	IDOrdering    int                `bson:"id_ordering"`
+	Type          string             `bson:"type"`
+	IsReorderable bool               `bson:"is_reorderable"`
+	IsLinked      bool               `bson:"is_linked"`
+	GithubID      string             `bson:"github_id"`
+	TaskSectionID primitive.ObjectID `bson:"task_section_id"`
 }
 
 type Repository struct {

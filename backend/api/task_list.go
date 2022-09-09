@@ -296,7 +296,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		}
 	}
 
-	if t.SlackMessageParams != (database.SlackMessageParams{}) {
+	if t.SlackMessageParams != nil && *t.SlackMessageParams != (database.SlackMessageParams{}) {
 		taskResult.SlackMessageParams = &database.SlackMessageParams{
 			Channel: t.SlackMessageParams.Channel,
 			User:    t.SlackMessageParams.User,
@@ -305,7 +305,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		}
 	}
 
-	if t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
+	if t.MeetingPreparationParams != nil && *t.MeetingPreparationParams != (database.MeetingPreparationParams{}) && t.IsMeetingPreparationTask {
 		taskResult.MeetingPreparationParams = &MeetingPreparationParams{
 			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
 			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),

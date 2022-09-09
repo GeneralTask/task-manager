@@ -547,7 +547,6 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 				bson.M{"_id": meetingTask.ID},
 				bson.M{"$set": bson.M{
 					"title": event.Title,
-					"body":  event.Body,
 					"meeting_preparation_params.datetime_start": event.DatetimeStart,
 				}},
 			)
@@ -565,7 +564,7 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 			IsCompleted:              &isCompleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
-			MeetingPreparationParams: database.MeetingPreparationParams{
+			MeetingPreparationParams: &database.MeetingPreparationParams{
 				CalendarEventID:               event.ID,
 				IDExternal:                    event.IDExternal,
 				DatetimeStart:                 event.DatetimeStart,
