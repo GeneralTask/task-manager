@@ -3,6 +3,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
+import { TIconSize } from '../../../styles/dimensions'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
@@ -16,12 +17,13 @@ const Button = styled(NoStyleButton)`
 
 interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon: IconProp | string
+    size: TIconSize
     iconColor?: TIconColor
 }
-const GTIconButton = ({ icon, iconColor, onClick, ...props }: GTIconButtonProps) => {
+const GTIconButton = ({ icon, size, iconColor, onClick, ...props }: GTIconButtonProps) => {
     return (
         <Button onClick={onClick} {...props}>
-            <Icon icon={icon} color={iconColor} size="small" />
+            <Icon icon={icon} color={iconColor} size={size} />
         </Button>
     )
 }

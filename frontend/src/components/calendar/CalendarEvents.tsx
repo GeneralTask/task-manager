@@ -37,13 +37,16 @@ const ConnectContainer = styled.div`
     z-index: 100;
 `
 
-const CalendarDayTable = () => {
+interface CalendarDayTableProps {
+    hasBorder: boolean
+}
+const CalendarDayTable = ({ hasBorder }: CalendarDayTableProps) => {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
             return (
                 <CalendarRow key={index}>
-                    <CalendarTD />
+                    <CalendarTD borderLeft={hasBorder} />
                 </CalendarRow>
             )
         })
@@ -126,7 +129,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                     ))}
                 <TimeIndicator />
-                <CalendarDayTable />
+                <CalendarDayTable hasBorder={isWeekCalendar} />
             </DayContainer>
         </DayAndHeaderContainer>
     )
