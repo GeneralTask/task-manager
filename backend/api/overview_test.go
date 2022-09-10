@@ -726,7 +726,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeHasPassed", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID)
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -734,9 +734,9 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsNextDay", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater, primitive.NilObjectID)
 		assert.NoError(t, err)
-		err = createTestEvent(parentCtx, calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow)
+		err = createTestEvent(parentCtx, calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID)
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -744,7 +744,10 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsInValidRange", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID)
+		assert.NoError(t, err)
+		// shouldn't show task to cal events
+		err = createTestEvent(parentCtx, calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID())
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -756,7 +759,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	})
 	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID)
 		assert.NoError(t, err)
 
 		_, err = createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater)
@@ -811,7 +814,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	})
 }
 
-func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time) error {
+func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID) error {
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := calendarEventCollection.InsertOne(dbCtx, database.CalendarEvent{
@@ -822,6 +825,7 @@ func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collect
 		SourceID:      external.TASK_SOURCE_ID_GCAL,
 		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
 		DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
+		LinkedTaskID:  linkedTaskID,
 	})
 	return err
 }
