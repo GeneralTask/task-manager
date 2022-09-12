@@ -201,6 +201,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		var taskResult = make(chan TaskResult)
 		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
 		result := <-taskResult
+
 		assert.Error(t, result.Error)
 		assert.Equal(t, "could not match team with status", result.Error.Error())
 		assert.Equal(t, 0, len(result.Tasks))
