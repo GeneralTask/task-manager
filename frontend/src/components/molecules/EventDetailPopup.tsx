@@ -1,3 +1,14 @@
+import { EVENT_UNDO_TIMEOUT } from '../../constants'
+import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
+import { useDeleteEvent } from '../../services/api/events.hooks'
+import { Spacing } from '../../styles'
+import { icons, logos } from '../../styles/images'
+import toast, { dismissToast } from '../../utils/toast'
+import { TEvent } from '../../utils/types'
+import Flex from '../atoms/Flex'
+import { Icon } from '../atoms/Icon'
+import GTButton from '../atoms/buttons/GTButton'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import {
     CopyButton,
     Description,
@@ -10,22 +21,10 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
-import { icons, logos } from '../../styles/images'
-import toast, { dismissToast } from '../../utils/toast'
-import { Id as ToastId } from 'react-toastify'
-
 import { DateTime } from 'luxon'
-import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import Flex from '../atoms/Flex'
-import GTButton from '../atoms/buttons/GTButton'
-import { Icon } from '../atoms/Icon'
+import { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { Spacing } from '../../styles'
-import { TEvent } from '../../utils/types'
-import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
-import { useDeleteEvent } from '../../services/api/events.hooks'
-import { useCalendarContext } from '../calendar/CalendarContext'
+import { Id as ToastId } from 'react-toastify'
 import sanitizeHtml from 'sanitize-html'
 
 interface EventDetailProps {
@@ -91,7 +90,6 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                 }
             )
         }
-
         // if *anything* drags, close the popup
         const isDragging = useIsDragging()
         if (isDragging) {

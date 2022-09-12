@@ -1,13 +1,14 @@
 import { Colors, Shadows, Spacing } from '../../styles'
-import FeedbackButton from '../molecules/FeedbackButton'
-import { Icon } from '../atoms/Icon'
-import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import styled from 'styled-components'
-import GTButton from '../atoms/buttons/GTButton'
-import { useNavigate } from 'react-router-dom'
 import { logos } from '../../styles/images'
-import { useDrop } from 'react-dnd'
 import { DropType } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
+import GTButton from '../atoms/buttons/GTButton'
+import CommandPalette from '../molecules/CommandPalette'
+import FeedbackButton from '../molecules/FeedbackButton'
+import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import { useDrop } from 'react-dnd'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
@@ -21,6 +22,9 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.secondary.hover}`}
 `
 const NavigationViewHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-basis: 24px;
     width: 100%;
     margin-bottom: ${Spacing._16};
@@ -52,6 +56,7 @@ const NavigationView = () => {
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
                 <Icon size="medium" icon={logos.generaltask} color={Colors.icon.purple} />
+                <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>
                 <NavigationSectionLinks />

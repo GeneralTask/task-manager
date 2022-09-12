@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react'
-import { useIsFetching } from 'react-query'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { Border, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import RefreshButton from '../atoms/buttons/RefreshButton'
 import GTInput from '../atoms/GTInput'
 import { Icon } from '../atoms/Icon'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import RefreshButton from '../atoms/buttons/RefreshButton'
+import { useEffect, useState } from 'react'
+import { useIsFetching } from 'react-query'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -73,7 +73,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         setIsEditingTitle(false)
     }
 
-    useKeyboardShortcut('refresh', refetchStaleQueries, false)
+    useKeyboardShortcut('refresh', refetchStaleQueries)
 
     const headerText = isEditingTitle ? (
         <GTInput

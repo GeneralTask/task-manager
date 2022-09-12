@@ -1,6 +1,7 @@
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { stopKeydownPropogation } from '../../utils/utils'
 import React, { forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small' | 'medium' | 'large' }>`
     background-color: inherit;
@@ -41,7 +42,7 @@ const GTTextArea = forwardRef(
 
         const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
             if (textAreaRef.current && e.key === 'Escape') textAreaRef.current.blur()
-            e.stopPropagation()
+            stopKeydownPropogation(e)
         }
 
         useLayoutEffect(() => {

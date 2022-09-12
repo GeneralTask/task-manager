@@ -1,20 +1,18 @@
-import { useCallback, useEffect, useRef } from 'react'
-
-import ActionValue from '../atoms/ActionValue'
-import { Icon } from '../atoms/Icon'
-import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
-import SectionEditor from './SectionEditor'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-
-import { Spacing } from '../../styles'
-import { TTask } from '../../utils/types'
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
+import KEYBOARD_SHORTCUTS, { TShortcutName } from '../../constants/shortcuts'
 import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import { Spacing } from '../../styles'
+import { icons } from '../../styles/images'
+import { TTask } from '../../utils/types'
+import ActionValue from '../atoms/ActionValue'
+import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
+import TooltipWrapper from '../atoms/TooltipWrapper'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import SectionEditor from './SectionEditor'
+import { useCallback, useEffect, useRef } from 'react'
 import * as ReactDOMServer from 'react-dom/server'
+import styled from 'styled-components'
 
 const ButtonAndPopoverContainer = styled.div`
     position: relative;
@@ -42,14 +40,14 @@ const SectionContainer = styled.div`
 interface ActionOptionProps {
     task: TTask
     isShown: boolean
-    keyboardShortcut: TKeyboardShortcuts
+    keyboardShortcut: TShortcutName
     setIsShown: (isShown: boolean) => void
 }
 
 const section = ReactDOMServer.renderToString(
     <TooltipContainer>
-        <SectionContainer>Change Section</SectionContainer>
-        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.showSectionEditor}</KeyboardShortcutContainer>
+        <SectionContainer>{KEYBOARD_SHORTCUTS.showSectionEditor.label}</SectionContainer>
+        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.showSectionEditor.keyLabel}</KeyboardShortcutContainer>
     </TooltipContainer>
 )
 

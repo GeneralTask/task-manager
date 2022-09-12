@@ -4,15 +4,17 @@ import {
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
+    faCalendarDays,
     faCheck,
     faCheckSquare,
     faFolder,
+    faMagnifyingGlass,
     faMessage,
-    faSquare,
     faPencil,
     faPlus,
+    faSquare,
     faTrash,
-    faXmark
+    faXmark,
 } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBadgeCheck,
@@ -29,7 +31,7 @@ import {
     faInbox,
     faList,
     faTag,
-    faTimer
+    faTimer,
 } from '@fortawesome/pro-solid-svg-icons'
 import {
     faGithub,
@@ -51,6 +53,7 @@ export const icons = Object.freeze({
     arrows_in: faArrowDownLeftAndArrowUpRightToCenter,
     arrows_out: faArrowUpRightAndArrowDownLeftFromCenter,
     calendar_blank: faCalendar,
+    calendar_days: faCalendarDays,
     caret_down: faChevronDown,
     caret_left: faChevronLeft,
     caret_right: faChevronRight,
@@ -68,6 +71,7 @@ export const icons = Object.freeze({
     inbox: faInbox,
     label: faTag,
     list: faList,
+    magnifying_glass: faMagnifyingGlass,
     plus: faPlus,
     pencil: faPencil,
     repository: faCubes,

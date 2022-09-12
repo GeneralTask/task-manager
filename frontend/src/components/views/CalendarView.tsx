@@ -1,17 +1,16 @@
-import CalendarHeader from '../calendar/CalendarHeader'
-import { memo, useEffect, useMemo, useState } from 'react'
-
-import { CalendarContainer } from '../calendar/CalendarEvents-styles'
-import CalendarEvents from '../calendar/CalendarEvents'
-import { DateTime } from 'luxon'
-import { getMonthsAroundDate } from '../../utils/time'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetEvents } from '../../services/api/events.hooks'
-import { useIdleTimer } from 'react-idle-timer'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import { useGetEvents } from '../../services/api/events.hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { getMonthsAroundDate } from '../../utils/time'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import CalendarEvents from '../calendar/CalendarEvents'
+import { CalendarContainer } from '../calendar/CalendarEvents-styles'
+import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
+import { DateTime } from 'luxon'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { useIdleTimer } from 'react-idle-timer'
 
 export type TCalendarType = 'day' | 'week'
 
@@ -54,7 +53,10 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
         [linkedAccounts]
     )
 
-    useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
+    useKeyboardShortcut(
+        'calendar',
+        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed])
+    )
 
     const { isTaskDraggingOverDetailsView } = useCalendarContext()
 

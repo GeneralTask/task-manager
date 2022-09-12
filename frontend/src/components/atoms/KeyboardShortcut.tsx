@@ -1,30 +1,27 @@
-import { Border, Colors, Typography } from '../../styles'
-
-import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
-
-import styled from 'styled-components'
+import KEYBOARD_SHORTCUTS, { TShortcutName } from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import styled from 'styled-components'
 
-export const KeyboardShortcutContainer = styled.div<{ isPressed?: boolean }>`
+export const KeyboardShortcutContainer = styled.div<{ isSelected?: boolean }>`
     border-radius: ${Border.radius.mini};
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 20px;
-    height: 20px;
-    background-color: ${(props) => (props.isPressed ? Colors.background.medium : Colors.background.medium)};
+    background-color: ${Colors.background.medium};
     color: ${Colors.text.light};
     user-select: none;
     ${Typography.bodySmall};
+    padding: 0 ${Spacing._8};
 `
 
 // gets triggered when the lowercase letter is pressed (including with CAPS LOCK, but not when you hit shift+key)
 interface KeyboardShortcutProps {
-    shortcut: TKeyboardShortcuts
+    shortcut: TShortcutName
     onKeyPress: () => void
     disabled?: boolean
 }
 export default function KeyboardShortcut({ shortcut, onKeyPress, disabled }: KeyboardShortcutProps): JSX.Element {
-    const isKeyDown = useKeyboardShortcut(shortcut, onKeyPress, !!disabled, true)
-    return <KeyboardShortcutContainer isPressed={isKeyDown}>{KEYBOARD_SHORTCUTS[shortcut]}</KeyboardShortcutContainer>
+    useKeyboardShortcut(shortcut, onKeyPress, !!disabled)
+    return <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS[shortcut].keyLabel}</KeyboardShortcutContainer>
 }

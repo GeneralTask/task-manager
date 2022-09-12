@@ -1,9 +1,8 @@
 import App from '../App'
-
-import { createRoot } from 'react-dom/client'
+import { isDevelopmentMode } from './environment'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
-import { isDevelopmentMode } from './environment'
+import { createRoot } from 'react-dom/client'
 
 if (!isDevelopmentMode) {
     Sentry.init({

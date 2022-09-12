@@ -1,11 +1,11 @@
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
-
-import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
 import { TIconSize } from '../../../styles/dimensions'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import { forwardRef } from 'react'
+import styled from 'styled-components'
 
 const Button = styled(NoStyleButton)`
     padding: ${Spacing._8};
@@ -20,12 +20,14 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     size: TIconSize
     iconColor?: TIconColor
 }
-const GTIconButton = ({ icon, size, iconColor, onClick, ...props }: GTIconButtonProps) => {
-    return (
-        <Button onClick={onClick} {...props}>
-            <Icon icon={icon} color={iconColor} size={size} />
-        </Button>
-    )
-}
+const GTIconButton = forwardRef(
+    ({ icon, size, iconColor, onClick, ...props }: GTIconButtonProps, ref: React.Ref<HTMLButtonElement>) => {
+        return (
+            <Button ref={ref} onClick={onClick} {...props}>
+                <Icon icon={icon} color={iconColor} size={size} />
+            </Button>
+        )
+    }
+)
 
 export default GTIconButton

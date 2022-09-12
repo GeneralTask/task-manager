@@ -1,13 +1,13 @@
-import { Colors, Spacing, Typography } from '../../styles'
-import { useCallback } from 'react'
-import { DateTime } from 'luxon'
-import { Divider } from '../atoms/SectionDivider'
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
-import { useCalendarContext } from './CalendarContext'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import { Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import { useCalendarContext } from './CalendarContext'
+import { DateTime } from 'luxon'
+import { useCallback } from 'react'
+import styled from 'styled-components'
 
 const PaddedContainer = styled.div`
     padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
@@ -53,6 +53,10 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
             setDate(date.minus({ days: date.weekday % 7 }))
         }
     }
+    const selectToday = useCallback(() => {
+        setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
+    }, [setDate, isCalendarExpanded])
+
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -67,6 +71,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
             }),
         [date, setDate, isCalendarExpanded]
     )
+    useKeyboardShortcut('today', selectToday)
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
@@ -102,18 +107,7 @@ export default function CalendarHeader({ date, setDate }: CalendarHeaderProps) {
                             'ccc, LLL d'
                         )}`}</TitleBold>
                         <ButtonContainer>
-                            <GTButton
-                                value="Today"
-                                onClick={() =>
-                                    setDate(
-                                        isCalendarExpanded
-                                            ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
-                                            : DateTime.now()
-                                    )
-                                }
-                                size="small"
-                                styleType="secondary"
-                            />
+                            <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} size="xSmall" />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} size="xSmall" />
                         </ButtonContainer>

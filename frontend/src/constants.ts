@@ -44,31 +44,5 @@ export const NO_EVENT_TITLE = '(no title)'
 export const DEFAULT_SECTION_ID = '000000000000000000000001'
 export const DONE_SECTION_ID = '000000000000000000000004'
 
-const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
-export const KEYBOARD_SHORTCUTS = Object.freeze({
-    arrowUp: 'ArrowUp',
-    arrowDown: 'ArrowDown',
-    calendar: 'C',
-    close: 'Escape',
-    createTask: 'T',
-    down: 'K',
-    markComplete: 'D',
-    next: 'ArrowDown',
-    nextDate: 'N',
-    previous: 'ArrowUp',
-    previousDate: 'P',
-    refresh: CMD_CTRL_KEY + '+R',
-    select: 'Enter',
-    send: CMD_CTRL_KEY + '+Enter',
-    showDatePicker: 'S',
-    showSectionEditor: 'L',
-    showTimeEstimationPicker: 'F',
-    up: 'J',
-})
-
-export type TKeyboardShortcuts = keyof typeof KEYBOARD_SHORTCUTS
-
-export const TASK_HEIGHT = '36px'
-
 export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
