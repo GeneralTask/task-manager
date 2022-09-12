@@ -1,3 +1,6 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Command } from 'cmdk'
+import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut } from '../../hooks'
@@ -10,9 +13,6 @@ import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Command } from 'cmdk'
-import React, { useCallback, useEffect, useMemo } from 'react'
-import styled from 'styled-components'
 
 const COMMAND_PALETTE_WIDTH = '356px'
 const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
@@ -20,7 +20,8 @@ const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
 const CommandDialog = styled(Command.Dialog)`
     position: absolute;
     top: 15%;
-    left: calc(50% - ${COMMAND_PALETTE_WIDTH} / 2);
+    left: 50%;
+    transform: translateX(-50%);
     width: ${COMMAND_PALETTE_WIDTH};
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.medium};
@@ -83,7 +84,7 @@ const IconContainer = styled.div`
 
 const CommandPalette = () => {
     const { setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
-    const [selectedShortcut, setSelectedShortcut] = React.useState('apple')
+    const [selectedShortcut, setSelectedShortcut] = useState<string>()
 
     useKeyboardShortcut(
         'closeCommandPalette',
