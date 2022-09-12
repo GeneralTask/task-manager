@@ -3,6 +3,7 @@ import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pul
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
 import { TLinkedAccount } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
@@ -56,7 +57,10 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Pull Requests" allowRefresh={true} />
+                    <Flex justifyContentSpaceBetween alignItemsCenter>
+                        <SectionHeader sectionName="Pull Requests" allowRefresh={true} />
+                        <div>hi</div>
+                    </Flex>
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
