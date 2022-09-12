@@ -144,16 +144,33 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 		logger.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
-	issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to update linear issue")
-		return err
+
+	if updateFields.Comments != nil && len(*updateFields.Comments) > 0 {
+		latestComment := (*updateFields.Comments)[len(*updateFields.Comments)-1]
+		if latestComment.Body != "" {
+			err := addLinearComment(client, issueID, latestComment)
+			if err != nil {
+				logger.Error().Err(err).Msg("failed to create linear comment")
+				return err
+			}
+		}
 	}
-	log.Debug().Interface("issueUpdate", issueUpdate)
-	if !issueUpdate.IssueUpdate.Success {
-		logger.Error().Msg("linear mutation failed to update issue")
-		return errors.New("linear mutation failed to update issue")
+
+	// need to check if remaining fields are empty, as comments have already been processed
+	updateFields.Comments = nil
+	if (*updateFields != database.Task{}) {
+		issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
+		if err != nil {
+			logger.Error().Err(err).Msg("unable to update linear issue")
+			return err
+		}
+		log.Debug().Interface("issueUpdate", issueUpdate)
+		if !issueUpdate.IssueUpdate.Success {
+			logger.Error().Msg("linear mutation failed to update issue")
+			return errors.New("linear mutation failed to update issue")
+		}
 	}
+
 	return nil
 }
 

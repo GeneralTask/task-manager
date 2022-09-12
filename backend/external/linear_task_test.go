@@ -503,6 +503,48 @@ func TestModifyLinearTask(t *testing.T) {
 		}, nil)
 		assert.EqualErrorf(t, err, err.Error(), "cannot set linear issue title to empty string")
 	})
+	t.Run("AddCommentFailed", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": false}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comments := []database.Comment{
+			{
+				Body: "example comment",
+			},
+		}
+
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			Comments: &comments,
+		}, nil)
+		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
+	})
+	t.Run("AddCommentSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"commentCreate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comments := []database.Comment{
+			{
+				Body: "example comment",
+			},
+		}
+
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			Comments: &comments,
+		}, nil)
+		assert.NoError(t, err)
+	})
 	t.Run("UpdateTitleBodyBadResponse", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
 		defer taskUpdateServer.Close()
