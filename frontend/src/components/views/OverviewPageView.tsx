@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
-import { Colors, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import TaskDetails from '../details/TaskDetails'
 import EditViewsButtons from '../overview/EditViewsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
@@ -18,7 +18,6 @@ import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 
 const OverviewPageContainer = styled.div`
     display: flex;
-    border-right: 1px solid ${Colors.background.dark};
 `
 const ActionsContainer = styled.div`
     display: flex;
