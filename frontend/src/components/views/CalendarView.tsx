@@ -19,8 +19,15 @@ interface CalendarViewProps {
     showMainHeader?: boolean
     showDateHeader?: boolean
     isInitiallyCollapsed?: boolean
+    showContainerShadow?: boolean
 }
-const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitiallyCollapsed }: CalendarViewProps) => {
+const CalendarView = ({
+    initialType,
+    showMainHeader,
+    showDateHeader,
+    isInitiallyCollapsed,
+    showContainerShadow = true,
+}: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -63,7 +70,10 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
-        <CalendarContainer expanded={calendarType === 'week'} hasShadow={isTaskDraggingOverDetailsView}>
+        <CalendarContainer
+            isExpanded={calendarType === 'week'}
+            showShadow={isTaskDraggingOverDetailsView && showContainerShadow}
+        >
             <CalendarHeader date={date} setDate={setDate} />
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>

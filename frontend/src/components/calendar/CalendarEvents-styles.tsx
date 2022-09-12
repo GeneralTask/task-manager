@@ -81,11 +81,9 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
         width: getEventWidth(props.squishFactor),
         height: props.eventBodyHeight - EVENT_BOTTOM_PADDING,
         top: props.topOffset,
-        left: `calc(
-            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
+        left: `calc(100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
             props.leftOffset
-        }
-        )`,
+        })`,
         opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
         zIndex: props.isBeingDragged ? 1 : 0,
     },
@@ -162,14 +160,14 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
 `
-export const CalendarContainer = styled.div<{ expanded: boolean; hasShadow: boolean }>`
+export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean }>`
     min-width: 300px;
     height: 100%;
-    flex: ${(props) => (props.expanded ? '1' : '0')};
+    flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
     display: flex;
     z-index: 1;
-    box-shadow: ${Shadows.light};
+    box-shadow: ${({ showShadow }) => (showShadow ? Shadows.light : 'none')};
     flex-direction: column;
 `
 export const DayAndHeaderContainer = styled.div`
