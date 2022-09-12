@@ -19,7 +19,6 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const TaskSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    border-right: 1px solid ${Colors.background.dark};
     margin-right: auto;
     flex-shrink: 0;
     position: relative;

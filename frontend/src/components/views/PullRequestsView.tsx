@@ -9,7 +9,6 @@ import Spinner from '../atoms/Spinner'
 import PullRequestDetails from '../details/PullRequestDetails'
 import { useNavigate, useParams } from 'react-router-dom'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import { Colors } from '../../styles'
 import styled from 'styled-components'
 import EmptyDetails from '../details/EmptyDetails'
 import { logos } from '../../styles/images'
@@ -20,7 +19,6 @@ import ConnectIntegration from '../molecules/ConnectIntegration'
 const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
-    border-right: 1px solid ${Colors.background.dark};
 `
 
 const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
