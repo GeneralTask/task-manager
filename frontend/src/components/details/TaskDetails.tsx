@@ -1,13 +1,13 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import ActionOption from '../molecules/ActionOption'
 import { Icon } from '../atoms/Icon'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
 import ReactTooltip from 'react-tooltip'
 import { TTask } from '../../utils/types'
 import { logos, icons, linearStatus } from '../../styles/images'
-import { useModifyTask } from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
 import Spinner from '../atoms/Spinner'
@@ -15,6 +15,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LinearCommentList from './linear/LinearCommentList'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import SlackMessage from './slack/SlackMessage'
+import GTTextArea from '../atoms/GTTextArea'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import TimeRange from '../atoms/TimeRange'
@@ -22,47 +23,11 @@ import { MeetingStartText } from '../atoms/MeetingStartText'
 import { useInterval } from '../../hooks'
 import { DateTime } from 'luxon'
 
-// This constant is used to shrink the task body so that the text is centered AND a scrollbar doesn't appear when typing.
-const BODY_HEIGHT_OFFSET = 16
-
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     height: 50px;
-`
-const BodyTextArea = styled.textarea<{ isFullHeight: boolean }>`
-    ${({ isFullHeight }) => isFullHeight && `flex: 1;`}
-    display: block;
-    background-color: inherit;
-    border: ${Border.stroke.medium} solid transparent;
-    border-radius: ${Border.radius.large};
-    resize: none;
-    outline: none;
-    overflow: auto;
-    padding: ${Spacing._12};
-    font: inherit;
-    color: ${Colors.text.light};
-    ${Typography.bodySmall};
-    :focus,
-    :hover {
-        border: ${Border.stroke.medium} solid ${Colors.background.dark};
-        box-shadow: ${Shadows.medium};
-    }
-`
-const TitleInput = styled.textarea`
-    background-color: inherit;
-    color: ${Colors.text.light};
-    font: inherit;
-    border: none;
-    resize: none;
-    outline: none;
-    overflow: hidden;
-    margin-bottom: ${Spacing._16};
-    :focus {
-        outline: 1px solid ${Colors.background.dark};
-    }
-    ${Typography.subtitle};
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -82,6 +47,11 @@ const StatusContainer = styled.div`
     margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
+const BodyContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+`
 
 const MeetingPreparationTimeContainer = styled.div`
     display: flex;
@@ -95,19 +65,17 @@ const SYNC_MESSAGES = {
     COMPLETE: '',
 }
 
+const TITLE_MAX_HEIGHT = 208
+const BODY_MAX_HEIGHT = 200
+
 interface TaskDetailsProps {
     task: TTask
     link: string
 }
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
-    const [titleInput, setTitleInput] = useState('')
-    const [bodyInput, setBodyInput] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [sectionEditorShown, setSectionEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
-
-    const titleRef = useRef<HTMLTextAreaElement>(null)
-    const bodyRef = useRef<HTMLTextAreaElement>(null)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
@@ -142,12 +110,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         }
     }, [isError, isLoading, isEditing])
 
-    // Update the state when the task changes
-    useLayoutEffect(() => {
-        setTitleInput(task.title)
-        setBodyInput(task.body)
-    }, [task.id])
-
     /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
     so we can then navigate to the correct link */
     useEffect(() => {
@@ -155,22 +117,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             navigate(link)
         }
     }, [task.isOptimistic, location, link])
-
-    useLayoutEffect(() => {
-        if (titleRef.current) {
-            titleRef.current.style.height = '0px'
-            titleRef.current.style.height =
-                titleRef.current.scrollHeight > 300 ? '300px' : `${titleRef.current.scrollHeight}px`
-        }
-    }, [titleInput])
-
-    useLayoutEffect(() => {
-        if (bodyRef.current && task.slack_message_params) {
-            bodyRef.current.style.height = '0px'
-            bodyRef.current.style.height =
-                bodyRef.current.scrollHeight > 300 ? '300px' : `${bodyRef.current.scrollHeight - BODY_HEIGHT_OFFSET}px`
-        }
-    }, [bodyInput])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -183,30 +129,27 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     }, [])
 
     const syncDetails = useCallback(
-        (taskId: string, title: string, body: string) => {
+        ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
-            if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
-            modifyTask({ id: taskId, title, body })
+            const timerId = id + (title === undefined ? 'body' : 'title')
+            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
+            modifyTask({ id, title, body })
         },
         [task.id, modifyTask]
     )
 
     const onEdit = useCallback(
-        (taskId: string, title: string, body: string) => {
+        ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(true)
-            if (timers.current[taskId]) clearTimeout(timers.current[taskId].timeout)
-            timers.current[taskId] = {
-                timeout: setTimeout(() => syncDetails(taskId, title, body), DETAILS_SYNC_TIMEOUT * 1000),
-                callback: () => syncDetails(taskId, title, body),
+            const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
+            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
+            timers.current[timerId] = {
+                timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
+                callback: () => syncDetails({ id, title, body }),
             }
         },
         [syncDetails]
     )
-
-    const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-        if (titleRef.current && (e.key === 'Enter' || e.key === 'Escape')) titleRef.current.blur()
-        e.stopPropagation()
-    }
 
     const status = task.external_status ? task.external_status.state : ''
 
@@ -230,23 +173,19 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             )}
                             {task.deeplink && (
                                 <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
-                                    <GTIconButton icon={icons.external_link} />
+                                    <GTIconButton icon={icons.external_link} size="small" />
                                 </NoStyleAnchor>
                             )}
                         </MarginLeftAuto>
                     </>
                 )}
             </DetailsTopContainer>
-            <TitleInput
+            <GTTextArea
+                initialValue={task.title}
                 disabled={task.isOptimistic || is_meeting_preparation_task}
-                ref={titleRef}
-                data-testid="task-title-input"
-                onKeyDown={handleKeyDown}
-                value={titleInput}
-                onChange={(e) => {
-                    setTitleInput(e.target.value)
-                    onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                }}
+                onEdit={(val) => onEdit({ id: task.id, title: val })}
+                maxHeight={TITLE_MAX_HEIGHT}
+                fontSize="medium"
             />
             {meeting_preparation_params && (
                 <MeetingPreparationTimeContainer>
@@ -264,18 +203,16 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <Spinner />
             ) : (
                 <>
-                    <BodyTextArea
-                        ref={bodyRef}
-                        data-testid="task-body-input"
-                        placeholder="Add task details"
-                        isFullHeight={!task.slack_message_params}
-                        value={bodyInput}
-                        onChange={(e) => {
-                            setBodyInput(e.target.value)
-                            onEdit(task.id, titleRef.current?.value || '', bodyRef.current?.value || '')
-                        }}
-                        onKeyDown={(e) => e.stopPropagation()}
-                    />
+                    <BodyContainer>
+                        <GTTextArea
+                            initialValue={task.body}
+                            placeholder="Add details"
+                            isFullHeight={!task.slack_message_params}
+                            onEdit={(val) => onEdit({ id: task.id, body: val })}
+                            maxHeight={BODY_MAX_HEIGHT}
+                            fontSize="small"
+                        />
+                    </BodyContainer>
                     {task.comments && <LinearCommentList comments={task.comments} />}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />

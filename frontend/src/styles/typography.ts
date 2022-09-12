@@ -31,52 +31,52 @@ export const weight = {
 }
 
 export const header = css`
-    font-size: ${fontSize.xxl};
-    line-height: ${lineHeight.xl};
-    font-weight: ${weight.bold};
-    letter-spacing: -.02em; // -2%
+    font-size: ${fontSize.xxl};     // 48px
+    line-height: ${lineHeight.xl};  // 56px
+    font-weight: ${weight.bold};    // 700
+    letter-spacing: -.02em;         // -2%
 `
 export const title = css`
-    font-size: ${fontSize.xl};
-    line-height: ${lineHeight.l};
-    font-weight: ${weight.semibold};
-    letter-spacing: -.01em; // -1%
+    font-size: ${fontSize.xl};      // 32px
+    line-height: ${lineHeight.l};   // 40px
+    font-weight: ${weight.semibold};// 590
+    letter-spacing: -.01em;         // -1%
 `
 export const subtitle = css`
-    font-size: ${fontSize.l};
-    line-height: ${lineHeight.m};
-    font-weight: ${weight.medium};
-    letter-spacing: -.01em; // -1%
+    font-size: ${fontSize.l};       // 20px
+    line-height: ${lineHeight.m};   // 24px
+    font-weight: ${weight.medium};  // 510
+    letter-spacing: -.01em;         // -1%
 `
 export const body = css`
-    font-size: ${fontSize.m};
-    line-height: ${lineHeight.m};
-    font-weight: ${weight.regular};
-    letter-spacing: -.01em; // -1%
+    font-size: ${fontSize.m};       // 16px
+    line-height: ${lineHeight.m};   // 24px
+    font-weight: ${weight.regular}; // 400
+    letter-spacing: -.01em;         // -1%
 `
 export const bodySmall = css`
-    font-size: ${fontSize.s};
-    line-height: ${lineHeight.m};
-    font-weight: ${weight.regular};
-    letter-spacing: -.01em; // -1%
+    font-size: ${fontSize.s};       // 14px
+    line-height: ${lineHeight.m};   // 24px
+    font-weight: ${weight.regular}; // 400
+    letter-spacing: -.01em;         // -1%
 `
 export const label = css`
-    font-size: ${fontSize.xs};
-    line-height: ${lineHeight.s};
-    font-weight: ${weight.regular};
-    letter-spacing: -.01em; // -1%
+    font-size: ${fontSize.xs};      // 12px
+    line-height: ${lineHeight.s};   // 16px
+    font-weight: ${weight.regular}; // 400
+    letter-spacing: -.01em;         // -1%
 `
 export const eyebrow = css`
-    font-size: ${fontSize.xs};
-    line-height: ${lineHeight.s};
-    font-weight: ${weight.regular};
-    letter-spacing: .12em; // 12%
-    text-transform: uppercase;
+    font-size: ${fontSize.xs};      // 12px
+    line-height: ${lineHeight.s};   // 16px
+    font-weight: ${weight.regular}; // 400
+    letter-spacing: .12em;          // 12%
+    text-transform: uppercase;      // UPPERCASE
 `
 export const mini = css`
-    font-size: ${fontSize.xxs};
-    line-height: ${lineHeight.xs};
-    font-weight: ${weight.regular};
+    font-size: ${fontSize.xxs};     // 10px
+    line-height: ${lineHeight.xs};  // 14px
+    font-weight: ${weight.regular}; // 400
 `
 export const bold = css`
     font-weight: ${weight.bold};

@@ -7,11 +7,6 @@ export const TABLE_WIDTH_PERCENTAGE = '100%'
 export const CELL_TIME_WIDTH = '50px'
 export const CELL_BORDER_WIDTH = '3px'
 export const CELL_LEFT_MARGIN = '6px'
-export const EVENT_CONTAINER_COLOR = Colors.background.light
-export const EVENT_TITLE_TEXT_COLOR = Colors.text.light
-export const EVENT_TIME_TEXT_COLOR = Colors.text.light
-export const CALENDAR_TD_COLOR = Colors.background.dark
-export const CALENDAR_INDICATOR_COLOR = Colors.status.red.default
 export const CALENDAR_DEFAULT_SCROLL_HOUR = 8
 export const EVENT_BOTTOM_PADDING = 2.5
 export const CALENDAR_DAY_HEADER_HEIGHT = 40
@@ -57,10 +52,10 @@ export const CalendarRow = styled.tr`
     display: block;
     height: ${CELL_HEIGHT};
 `
-export const CalendarTD = styled.td`
+export const CalendarTD = styled.td<{ borderLeft?: boolean }>`
     display: block;
-    border-top: 1px solid ${CALENDAR_TD_COLOR};
-    border-left: 1px solid ${CALENDAR_TD_COLOR};
+    border-top: ${Border.stroke.medium} solid ${Colors.background.dark};
+    ${({ borderLeft }) => borderLeft && `border-left: ${Border.stroke.medium} solid ${Colors.background.dark};`}
     height: 100%;
 `
 export const CalendarCell = styled.div`
@@ -86,11 +81,9 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
         width: getEventWidth(props.squishFactor),
         height: props.eventBodyHeight - EVENT_BOTTOM_PADDING,
         top: props.topOffset,
-        left: `calc(
-            100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
+        left: `calc(100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
             props.leftOffset
-        }
-        )`,
+        })`,
         opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
         zIndex: props.isBeingDragged ? 1 : 0,
     },
@@ -128,7 +121,7 @@ export const EventTitle = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
-    margin-right: 8px;
+    margin-right: ${Spacing._8};
     max-height: 100%;
 `
 export const EventTime = styled.div`
@@ -141,7 +134,7 @@ export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; 
     height: 100%;
     background: ${Colors.background.white};
     border: ${Border.stroke.medium} solid
-        ${(props) => (props.isSelected ? Colors.border.purple : EVENT_CONTAINER_COLOR)};
+        ${(props) => (props.isSelected ? Colors.border.purple : Colors.background.light)};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};
@@ -167,14 +160,14 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
 `
-export const CalendarContainer = styled.div<{ expanded: boolean; hasShadow: boolean }>`
+export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean }>`
     min-width: 300px;
     height: 100%;
-    flex: ${(props) => (props.expanded ? '1' : '0')};
+    flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
     display: flex;
     z-index: 1;
-    box-shadow: ${Shadows.light};
+    box-shadow: ${({ showShadow }) => (showShadow ? Shadows.light : 'none')};
     flex-direction: column;
 `
 export const DayAndHeaderContainer = styled.div`

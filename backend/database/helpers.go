@@ -502,6 +502,7 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 				{"user_id": userID},
 				{"datetime_start": bson.M{"$gte": currentTime}},
 				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
+				{"linked_task_id": bson.M{"$exists": false}},
 			},
 		})
 	if err != nil {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -6,16 +6,18 @@ import { DEFAULT_SECTION_ID, DONE_SECTION_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import RefreshButton from '../atoms/buttons/RefreshButton'
+import GTInput from '../atoms/GTInput'
 import { Icon } from '../atoms/Icon'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: ${Spacing._16};
     min-height: 50px;
     gap: ${Spacing._4};
@@ -28,23 +30,13 @@ const HeaderText = styled.span`
     min-width: 0;
     ${Typography.title};
 `
-const HeaderTextEditable = styled.input`
-    margin-right: ${Spacing._8};
-    padding-left: ${Spacing._4};
-    border: none;
-    outline: none;
-    &:focus {
-        border: ${Border.stroke.large} solid ${Colors.background.dark};
-    }
-    background-color: transparent;
-    width: 100%;
-    ${Typography.title};
-`
+
+const MAX_SECTION_NAME_LENGTH = 200
 
 const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID]
 const uneditableSectionIds = [DONE_SECTION_ID]
-const matchUndeletableSectionId = (id: string) => undeletableSectionIds.includes(id)
-const matchUneditableSectionId = (id: string) => uneditableSectionIds.includes(id)
+const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
+const isEditable = (id: string) => !uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
     allowRefresh: boolean
@@ -56,7 +48,6 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
-    const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
     const refetchStaleQueries = useRefetchStaleQueries()
     const isFetching = useIsFetching() !== 0
@@ -81,19 +72,14 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         }
         setIsEditingTitle(false)
     }
-    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (sectionTitleRef.current && (e.key === 'Enter' || e.key === 'Escape')) sectionTitleRef.current.blur()
-        e.stopPropagation()
-    }
 
     useKeyboardShortcut('refresh', refetchStaleQueries, false)
 
     const headerText = isEditingTitle ? (
-        <HeaderTextEditable
-            ref={sectionTitleRef}
-            value={sectionName}
-            onChange={(e) => setSectionName(e.target.value.substring(0, 200))}
-            onKeyDown={handleKeyDown}
+        <GTInput
+            initialValue={sectionName}
+            fontSize="large"
+            onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
             onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
             autoFocus
         />
@@ -104,20 +90,25 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     return (
         <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
             {headerText}
-            {props.allowRefresh && (isHovering || isFetching) && (
+            {props.allowRefresh && (isHovering || isFetching) && !isEditingTitle && (
                 <RefreshButton onClick={refetchStaleQueries} isRefreshing={isFetching}>
                     <Icon size="small" icon={icons.spinner} />
                 </RefreshButton>
             )}
-            {props.taskSectionId && !matchUndeletableSectionId(props.taskSectionId) && (
-                <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
-                    <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
-                </NoStyleButton>
+            <div style={{ flex: 1 }}></div>
+            {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
+                <GTIconButton
+                    onClick={() => handleDelete(props.taskSectionId)}
+                    icon={icons.trash}
+                    iconColor="red"
+                    size="small"
+                />
             )}
-            {props.taskSectionId && !matchUneditableSectionId(props.taskSectionId) && (
-                <NoStyleButton onClick={() => setIsEditingTitle(true)}>
-                    <Icon size="small" icon={icons.pencil}></Icon>
-                </NoStyleButton>
+            {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
+                <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
+            )}
+            {isEditingTitle && (
+                <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
             )}
         </SectionHeaderContainer>
     )
