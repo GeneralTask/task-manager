@@ -1,20 +1,19 @@
-import { Repository, RepositoryName } from '../pull-requests/styles'
-
-import PullRequest from '../pull-requests/PullRequest'
-import { useEffect, useMemo } from 'react'
-import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import { SectionHeader } from '../molecules/Header'
-import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
-import Spinner from '../atoms/Spinner'
-import PullRequestDetails from '../details/PullRequestDetails'
-import { useNavigate, useParams } from 'react-router-dom'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
-import styled from 'styled-components'
-import EmptyDetails from '../details/EmptyDetails'
-import { logos } from '../../styles/images'
+import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { logos } from '../../styles/images'
 import { TLinkedAccount } from '../../utils/types'
+import Spinner from '../atoms/Spinner'
+import EmptyDetails from '../details/EmptyDetails'
+import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
+import { SectionHeader } from '../molecules/Header'
+import PullRequestList from '../pull-requests/PullRequestList'
+import { Repository, RepositoryName } from '../pull-requests/styles'
+import ScrollableListTemplate from '../templates/ScrollableListTemplate'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
 const PullRequestsContainer = styled.div`
     display: flex;
@@ -34,17 +33,17 @@ const PullRequestsView = () => {
     const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
     useItemSelectionController(pullRequests, (itemId: string) => navigate(`/pull-requests/${itemId}`))
 
-    const expandedPullRequest = useMemo(() => {
+    const selectedPullRequest = useMemo(() => {
         if (pullRequests.length === 0) return null
         return pullRequests.find((pr) => pr.id === params.pullRequest) ?? pullRequests[0]
     }, [params.pullRequest, JSON.stringify(pullRequests)])
 
     const isGithubLinked = isGithubLinkedAccount(linkedAccounts ?? [])
     useEffect(() => {
-        if (expandedPullRequest) {
-            navigate(`/pull-requests/${expandedPullRequest.id}`)
+        if (selectedPullRequest) {
+            navigate(`/pull-requests/${selectedPullRequest.id}`)
         }
-    }, [expandedPullRequest])
+    }, [selectedPullRequest])
 
     if (!repositories) {
         if (isLoading) {
@@ -67,16 +66,7 @@ const PullRequestsView = () => {
                                 {repository.pull_requests.length === 0 ? (
                                     'No pull requests'
                                 ) : (
-                                    <>
-                                        {repository.pull_requests.map((pr) => (
-                                            <PullRequest
-                                                key={pr.id}
-                                                pullRequest={pr}
-                                                link={`/pull-requests/${pr.id}`}
-                                                isSelected={pr === expandedPullRequest}
-                                            />
-                                        ))}
-                                    </>
+                                    <PullRequestList pullRequests={repository.pull_requests} />
                                 )}
                                 <br />
                             </Repository>
@@ -84,8 +74,8 @@ const PullRequestsView = () => {
                     )}
                 </ScrollableListTemplate>
             </PullRequestsContainer>
-            {expandedPullRequest ? (
-                <PullRequestDetails pullRequest={expandedPullRequest} />
+            {selectedPullRequest ? (
+                <PullRequestDetails pullRequest={selectedPullRequest} />
             ) : (
                 <EmptyDetails icon={logos.github} text="You have no pull requests" />
             )}
