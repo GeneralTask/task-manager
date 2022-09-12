@@ -25,12 +25,11 @@
     "singleQuote": true,
     "printWidth": 120,
     "importOrder": [
-      "^@core/(.*)$",
-      "^@server/(.*)$",
-      "^@ui/(.*)$",
+      "^react",
+      "<THIRD_PARTY_MODULES>",
       "^[./]"
     ],
-    "importOrderSeparation": true,
+    "importOrderSeparation": false,
     "importOrderSortSpecifiers": true
   },
   "dependencies": {
