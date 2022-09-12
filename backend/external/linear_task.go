@@ -50,6 +50,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		return
 	}
 
+	client, err = getLinearClient(linearTask.Linear.Config.ConfigValues.StatusFetchURL, db, userID, accountID)
 	statuses, err := getLinearWorkflowStates(client)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to get linear workflow states")

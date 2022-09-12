@@ -28,9 +28,10 @@ const (
 )
 
 type LinearConfigValues struct {
-	UserInfoURL   *string
-	TaskFetchURL  *string
-	TaskUpdateURL *string
+	UserInfoURL    *string
+	TaskFetchURL   *string
+	TaskUpdateURL  *string
+	StatusFetchURL *string
 }
 
 type LinearConfig struct {
