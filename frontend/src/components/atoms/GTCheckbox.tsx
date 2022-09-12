@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
+import Lottie, { LottieRef } from 'lottie-react'
+import styled from 'styled-components'
+import checkbox from '../../../public/animations/checkbox.json'
 import { checkboxSize } from '../../styles/dimensions'
 import NoStyleButton from './buttons/NoStyleButton'
-import checkbox from '../../../public/animations/checkbox.json'
-import styled from 'styled-components'
-import Lottie, { LottieRef } from 'lottie-react'
 
 const ANIM_SPEED = 1.5
 const ANIM_START_FRAME = 3
