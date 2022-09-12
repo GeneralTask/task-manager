@@ -51,6 +51,7 @@ export const border = {
     extra_light: GRAY._100,
     light: GRAY._200,
     gray: GRAY._500,
+    purple: PURPLE._1,
 }
 
 export const text = {

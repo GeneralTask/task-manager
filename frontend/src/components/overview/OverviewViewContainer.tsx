@@ -1,5 +1,5 @@
 import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
-import { useEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 
 import AuthBanner from './AuthBanner'
 import ExternalViewItems from './viewItems/ExternalViewItems'
@@ -44,7 +44,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
         }
     }, [view.type])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setVisibleItemsCount(
             Math.max(
                 // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
