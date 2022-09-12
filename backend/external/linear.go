@@ -329,7 +329,6 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
 	}
 	request := graphqlBasic.NewRequest(updateIssueQueryStr)
-	logger := logging.GetSentryLogger()
 
 	request.Var("id", issueID)
 	if updateFields.Title != nil {
@@ -375,6 +374,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	log.Debug().Msgf("sending request to Linear: %+v", request)
 	var query linearUpdateIssueQuery
 	if err := client.Run(context.Background(), request, &query); err != nil {
+		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
