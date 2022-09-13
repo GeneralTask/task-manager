@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -708,31 +707,15 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 }
 
 func GetView(db *mongo.Database, dbCtx context.Context, userID primitive.ObjectID, viewID primitive.ObjectID, additionalFilters *[]bson.M) (*View, error) {
-	filter := bson.M{
-		"$and": []bson.M{
-			{"user_id": userID},
-			{"_id": viewID},
-		},
-	}
-	if additionalFilters != nil && len(*additionalFilters) > 0 {
-		for _, additionalFilter := range *additionalFilters {
-			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
-		}
-	}
+	logger := logging.GetSentryLogger()
+	viewCollection := GetViewCollection(db)
+	mongoResult := FindOneWithCollection(dbCtx, viewCollection, userID, viewID)
 
 	var view View
-	err := GetViewCollection(db).FindOne(
-		dbCtx,
-		filter,
-	).Decode(&view)
-
+	err := mongoResult.Decode(&view)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil // view has not been added
-		} else {
-			log.Error().Err(err).Msg("failed to check if view exists")
-			return nil, err
-		}
+		logger.Error().Err(err).Msgf("failed to get view: %+v", viewID)
+		return nil, err
 	}
 	return &view, nil
 }
