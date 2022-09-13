@@ -45,8 +45,8 @@ func (api *API) EventCreate(c *gin.Context) {
 	}
 
 	if eventCreateObject.LinkedViewID != primitive.NilObjectID {
-		// check that the task exists
-		_, err := database.GetView(api.DB, dbCtx, userID, eventCreateObject.LinkedViewID, nil)
+		// check that the view exists
+		_, err := database.GetView(api.DB, dbCtx, userID, eventCreateObject.LinkedViewID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msgf("linked view not found: %s, err", eventCreateObject.LinkedViewID.Hex())
 			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked view not found: %s", eventCreateObject.LinkedViewID.Hex())})

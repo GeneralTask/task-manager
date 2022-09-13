@@ -594,7 +594,7 @@ func TestGetView(t *testing.T) {
 
 	t.Run("ViewDoesNotExist", func(t *testing.T) {
 		viewID := primitive.NewObjectID()
-		_, err := GetView(db, dbCtx, userID, viewID, nil)
+		_, err := GetView(db, dbCtx, userID, viewID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
@@ -606,7 +606,7 @@ func TestGetView(t *testing.T) {
 		assert.NoError(t, err)
 		viewID := mongoResult.InsertedID.(primitive.ObjectID)
 
-		_, err = GetView(db, dbCtx, userID, viewID, nil)
+		_, err = GetView(db, dbCtx, userID, viewID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
@@ -619,7 +619,7 @@ func TestGetView(t *testing.T) {
 		assert.NoError(t, err)
 		viewID := mongoResult.InsertedID.(primitive.ObjectID)
 
-		view, err := GetView(db, dbCtx, userID, viewID, nil)
+		view, err := GetView(db, dbCtx, userID, viewID)
 		assert.NoError(t, err)
 		assert.Equal(t, "custom type", view.Type)
 	})

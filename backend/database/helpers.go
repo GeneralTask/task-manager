@@ -706,7 +706,7 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	}
 }
 
-func GetView(db *mongo.Database, dbCtx context.Context, userID primitive.ObjectID, viewID primitive.ObjectID, additionalFilters *[]bson.M) (*View, error) {
+func GetView(db *mongo.Database, dbCtx context.Context, userID primitive.ObjectID, viewID primitive.ObjectID) (*View, error) {
 	logger := logging.GetSentryLogger()
 	viewCollection := GetViewCollection(db)
 	mongoResult := FindOneWithCollection(dbCtx, viewCollection, userID, viewID)
