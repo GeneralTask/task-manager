@@ -50,6 +50,15 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		return
 	}
 
+	client, err = getLinearClient(linearTask.Linear.Config.ConfigValues.StatusFetchURL, db, userID, accountID)
+	statuses, err := getLinearWorkflowStates(client)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to get linear workflow states")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+		return
+	}
+	teamToStatus := processLinearStatuses(statuses)
+
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
@@ -101,21 +110,34 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			}
 			task.Comments = &dbComments
 		}
+
+		updateFields := database.Task{
+			Title:              task.Title,
+			Body:               task.Body,
+			Comments:           task.Comments,
+			Status:             task.Status,
+			DueDate:            task.DueDate,
+			CompletedStatus:    task.CompletedStatus,
+			PriorityNormalized: task.PriorityNormalized,
+		}
+
+		// should update every time because it's possible the Team for the issue has switched
+		if val, ok := teamToStatus[string(linearIssue.Team.Name)]; ok {
+			updateFields.AllStatuses = val
+		} else {
+			err = errors.New("could not match team with status")
+			logger.Error().Err(err).Send()
+			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
+			return
+		}
+
 		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
 			task.IDExternal,
 			task.SourceID,
 			task,
-			database.Task{
-				Title:              task.Title,
-				Body:               task.Body,
-				Comments:           task.Comments,
-				Status:             task.Status,
-				DueDate:            task.DueDate,
-				CompletedStatus:    task.CompletedStatus,
-				PriorityNormalized: task.PriorityNormalized,
-			},
+			updateFields,
 			nil,
 		)
 		if err != nil {
@@ -127,6 +149,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
+		task.AllStatuses = dbTask.AllStatuses
 		tasks = append(tasks, task)
 	}
 

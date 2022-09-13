@@ -60,6 +60,9 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 				ID: "slackID",
 			},
 		}
+		allStatuses := []*database.ExternalTaskStatus{
+			&externalStatus,
+		}
 
 		result := api.taskBaseToTaskResult(&database.Task{
 			SourceID:           external.TASK_SOURCE_ID_LINEAR,
@@ -70,6 +73,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			Body:               &body,
 			Status:             &externalStatus,
 			SlackMessageParams: &slackMessageParams,
+			AllStatuses:        allStatuses,
 		}, userID)
 		// TODO change to a helper method to compare taskResults
 		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
@@ -79,6 +83,8 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, body, result.Body)
 		assert.Equal(t, externalStatus.State, result.ExternalStatus.State)
 		assert.Equal(t, slackMessageParams.Channel.ID, result.SlackMessageParams.Channel.ID)
+		assert.Equal(t, 1, len(result.AllStatuses))
+		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
 	})
 }
 

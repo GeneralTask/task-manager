@@ -76,6 +76,28 @@ func TestLoadLinearTasks(t *testing.T) {
 				"email": "test@generaltask.com"
 			}
 		}}`)
+	linearStatusServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": {
+			"workflowStates": {
+				"nodes": [
+					{
+						"id": "6942069420",
+						"name": "Todo",
+						"type": "started",
+						"team": {
+							"name": "Backend"
+						}
+					},
+					{
+						"id": "6942069421",
+						"name": "In Progress",
+						"type": "started",
+						"team": {
+							"name": "Backend"
+						}
+					}
+				]
+			}
+		}}`)
 
 	t.Run("BadUserInfoStatusCode", func(t *testing.T) {
 		userInfoServer := testutils.GetMockAPIServer(t, 400, "")
@@ -151,12 +173,46 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "invalid character 'o' in literal true (expecting 'r')", result.Error.Error())
 		assert.Equal(t, 0, len(result.Tasks))
 	})
+	t.Run("BadWorkflowStates", func(t *testing.T) {
+		linearBadStatusServer := testutils.GetMockAPIServer(t, 200, `{"data": {
+			"workflowStates": {
+				"nodes": [
+					{
+						"id": "6942069420",
+						"name": "Todo",
+						"type": "started",
+						"team": {
+							"name": "Ooopsie"
+						}
+					}
+				]
+			}
+		}}`)
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearBadStatusServer.URL,
+				},
+			},
+		}}
+
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+
+		assert.Error(t, result.Error)
+		assert.Equal(t, "could not match team with status", result.Error.Error())
+		assert.Equal(t, 0, len(result.Tasks))
+	})
 	t.Run("Success", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
-					UserInfoURL:  &userInfoServerSuccess.URL,
-					TaskFetchURL: &taskServerSuccess.URL,
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
 				},
 			},
 		}}
@@ -237,8 +293,9 @@ func TestLoadLinearTasks(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
-					UserInfoURL:  &userInfoServerSuccess.URL,
-					TaskFetchURL: &taskServerSuccess.URL,
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
 				},
 			},
 		}}

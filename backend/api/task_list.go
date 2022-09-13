@@ -45,6 +45,7 @@ type TaskResult struct {
 	IsDone                   bool                         `json:"is_done"`
 	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
+	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
 	Comments                 *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
@@ -294,6 +295,16 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			State: t.Status.State,
 			Type:  t.Status.Type,
 		}
+	}
+	if t.AllStatuses != nil {
+		allStatuses := []*externalStatus{}
+		for _, status := range t.AllStatuses {
+			allStatuses = append(allStatuses, &externalStatus{
+				State: status.State,
+				Type:  status.Type,
+			})
+		}
+		taskResult.AllStatuses = allStatuses
 	}
 
 	if t.SlackMessageParams != nil && *t.SlackMessageParams != (database.SlackMessageParams{}) {
