@@ -95,10 +95,10 @@ func (api *API) mergeTasksV3(
 		IsDone: true,
 	})
 	sections = append(sections, &TaskSection{
-		ID:        constants.IDTaskSectionTrash,
-		Name:      constants.TaskSectionNameTrash,
-		Tasks:     deletedTaskResults,
-		IsDeleted: true,
+		ID:      constants.IDTaskSectionTrash,
+		Name:    constants.TaskSectionNameTrash,
+		Tasks:   deletedTaskResults,
+		IsTrash: true,
 	})
 	return sections, nil
 }

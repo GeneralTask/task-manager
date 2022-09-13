@@ -52,11 +52,11 @@ type TaskResult struct {
 }
 
 type TaskSection struct {
-	ID        primitive.ObjectID `json:"id"`
-	Name      string             `json:"name"`
-	Tasks     []*TaskResult      `json:"tasks"`
-	IsDone    bool               `json:"is_done"`
-	IsDeleted bool               `json:"is_trash"`
+	ID      primitive.ObjectID `json:"id"`
+	Name    string             `json:"name"`
+	Tasks   []*TaskResult      `json:"tasks"`
+	IsDone  bool               `json:"is_done"`
+	IsTrash bool               `json:"is_trash"`
 }
 
 type Recipients struct {
