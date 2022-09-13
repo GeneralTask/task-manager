@@ -6,26 +6,28 @@ import { useKeyboardShortcut } from '../../hooks'
 import { useCreateTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Dimensions, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import GTInput from '../atoms/GTInput'
 import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 
 const CreateNewTaskContainer = styled.div`
     display: flex;
-    flex-shrink: 0;
-    flex-direction: row;
-    gap: ${Spacing._8};
-    background-color: ${Colors.background.medium};
-    height: ${Dimensions.TASK_HEIGHT};
-    align-items: center;
-    padding: 0px ${Spacing._8};
-    border-radius: ${Border.radius.medium};
+    min-height: ${Dimensions.TASK_HEIGHT};
     margin-bottom: ${Spacing._8};
+    background-color: ${Colors.background.medium};
+    border-radius: ${Border.radius.small};
 `
-const TaskInput = styled.input`
-    border: none;
-    outline: none;
-    background-color: transparent;
+const CreateNewTaskInput = styled(GTInput)`
     flex: 1;
+`
+const InputMimicContainer = styled.div`
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    padding: ${Spacing._8};
+    cursor: pointer;
+    color: ${Colors.text.light};
     ${Typography.bodySmall};
 `
 const Tooltip = styled.div`
@@ -41,6 +43,7 @@ interface CreateNewTaskProps {
 }
 const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
+    const [isFocused, setIsFocused] = useState(false)
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -81,19 +84,40 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         [containerRef.current]
     )
 
-    useKeyboardShortcut('createTask', () => inputRef.current?.focus(), disableTooltip)
+    useKeyboardShortcut(
+        'createTask',
+        () => {
+            setIsFocused(true)
+            inputRef.current?.focus()
+        },
+        disableTooltip
+    )
 
     return (
         <>
-            <CreateNewTaskContainer data-tip data-for="createNewTaskTip" ref={containerRef}>
-                <Icon icon={icons.plus} size={'small'} />
-                <TaskInput
-                    ref={inputRef}
-                    value={text}
-                    placeholder="Add new task"
-                    onKeyDown={handleKeyDown}
-                    onChange={(e) => setText(e.target.value)}
-                />
+            <CreateNewTaskContainer
+                data-tip
+                data-for="createNewTaskTip"
+                ref={containerRef}
+                onClick={() => setIsFocused(true)}
+            >
+                {isFocused ? (
+                    <CreateNewTaskInput
+                        ref={inputRef}
+                        placeholder="Add new task"
+                        initialValue={text}
+                        onEdit={(e) => setText(e)}
+                        onBlur={() => setIsFocused(false)}
+                        onKeyDown={handleKeyDown}
+                        fontSize="small"
+                        autoFocus
+                    />
+                ) : (
+                    <InputMimicContainer>
+                        <Icon icon={icons.plus} size="small" />
+                        <span>Add new task</span>
+                    </InputMimicContainer>
+                )}
             </CreateNewTaskContainer>
             {!disableTooltip && (
                 <ReactTooltip

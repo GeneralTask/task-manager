@@ -27,11 +27,11 @@ const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
 `
 
 interface GTInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    initialValue: string
+    initialValue?: string
     onEdit: (newValue: string) => void
     fontSize: 'small' | 'medium' | 'large'
 }
-const GTInput = forwardRef(({ initialValue, onEdit, fontSize, ...rest }: GTInputProps, ref) => {
+const GTInput = forwardRef(({ initialValue = '', onEdit, fontSize, ...rest }: GTInputProps, ref) => {
     const [inputValue, setInputValue] = useState(initialValue)
     const inputRef = useRef<HTMLInputElement | null>(null)
 
