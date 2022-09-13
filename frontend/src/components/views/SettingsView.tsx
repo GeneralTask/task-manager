@@ -106,9 +106,7 @@ const SettingsView = () => {
                             <ShowLinkAccountsButtonContainer>
                                 <GTDropdownMenu
                                     items={dropdownItems}
-                                    trigger={
-                                        <GTButton fitContent={false} value="Add new Account" styleType="primary" />
-                                    }
+                                    trigger={<GTButton value="Add new Account" styleType="primary" />}
                                 />
                             </ShowLinkAccountsButtonContainer>
                             <SignOutButton />
