@@ -1,3 +1,6 @@
+import { useCallback, useEffect, useRef } from 'react'
+import * as ReactDOMServer from 'react-dom/server'
+import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS, { TShortcutName } from '../../constants/shortcuts'
 import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
@@ -15,15 +18,6 @@ import * as ReactDOMServer from 'react-dom/server'
 import styled from 'styled-components'
 
 const ButtonAndPopoverContainer = styled.div`
-    position: relative;
-`
-const ActionButton = styled(NoStyleButton)`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: ${Spacing._4};
-    margin-right: ${Spacing._8};
     position: relative;
 `
 
@@ -69,21 +63,18 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
         !isShown
     )
 
-    const { icon, popover, actionString } = (() => {
+    const { icon, popover } = (() => {
         return {
             icon: icons.folder,
             popover: <SectionEditor task_id={task.id} closeSectionEditor={() => setIsShown(false)} />,
-            actionString: '',
         }
     })()
 
     return (
         <ButtonAndPopoverContainer ref={actionRef}>
-            <ActionButton onClick={() => setIsShown(!isShown)}>
-                <TooltipWrapper inline dataTip={section} tooltipId="tooltip">
-                    {actionString ? <ActionValue value={actionString} /> : <Icon icon={icon} size="small" />}
-                </TooltipWrapper>
-            </ActionButton>
+            <TooltipWrapper inline dataTip={section} tooltipId="tooltip">
+                <GTIconButton icon={icon} size="small" onClick={() => setIsShown(!isShown)} />
+            </TooltipWrapper>
             {isShown && popover}
         </ButtonAndPopoverContainer>
     )

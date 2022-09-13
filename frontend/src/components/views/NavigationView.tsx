@@ -9,6 +9,8 @@ import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { DropType } from '../../utils/types'
+import { useCalendarContext } from '../calendar/CalendarContext'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
@@ -43,6 +45,7 @@ const GapView = styled.div`
 
 const NavigationView = () => {
     const navigate = useNavigate()
+    const { setCalendarType } = useCalendarContext()
 
     const [isOver, drop] = useDrop(
         () => ({
@@ -67,7 +70,10 @@ const NavigationView = () => {
                     value="Account settings"
                     styleType="secondary"
                     fitContent={false}
-                    onClick={() => navigate('/settings')}
+                    onClick={() => {
+                        setCalendarType('day')
+                        navigate('/settings')
+                    }}
                 />
             </GapView>
         </NavigationViewContainer>

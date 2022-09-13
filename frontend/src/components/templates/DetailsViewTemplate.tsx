@@ -7,7 +7,7 @@ const DetailsViewContainer = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: ${Colors.background.light};
+    background-color: ${Colors.background.white};
     min-width: 300px;
     padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
     gap: ${Spacing._8};
