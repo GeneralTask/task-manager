@@ -707,14 +707,11 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	}
 }
 
-func GetView(db *mongo.Database, userID primitive.ObjectID, viewType constants.ViewType, additionalFilters *[]bson.M) (*View, error) {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
+func GetView(db *mongo.Database, dbCtx context.Context, userID primitive.ObjectID, viewID primitive.ObjectID, additionalFilters *[]bson.M) (*View, error) {
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
-			{"type": string(viewType)},
+			{"_id": viewID},
 		},
 	}
 	if additionalFilters != nil && len(*additionalFilters) > 0 {

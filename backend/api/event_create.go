@@ -46,13 +46,12 @@ func (api *API) EventCreate(c *gin.Context) {
 
 	if eventCreateObject.LinkedViewID != primitive.NilObjectID {
 		// check that the task exists
-		linkedView, err := database.GetViewCollection(api.DB, dbCtx, eventCreateObject.LinkedTaskID, userID)
+		_, err := database.GetView(api.DB, dbCtx, userID, eventCreateObject.LinkedViewID, nil)
 		if err != nil {
-			api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID.Hex())
-			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID.Hex())})
+			api.Logger.Error().Err(err).Msgf("linked view not found: %s, err", eventCreateObject.LinkedViewID.Hex())
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked view not found: %s", eventCreateObject.LinkedViewID.Hex())})
 			return
 		}
-		linkedTaskSourceID = linkedTask.SourceID
 	}
 
 	// generate ID for event so we can use this when inserting into database
@@ -76,6 +75,7 @@ func (api *API) EventCreate(c *gin.Context) {
 		DatetimeEnd:        primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
 		DatetimeStart:      primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
 		LinkedTaskID:       eventCreateObject.LinkedTaskID,
+		LinkedViewID:       eventCreateObject.LinkedViewID,
 		LinkedTaskSourceID: linkedTaskSourceID,
 	}
 
