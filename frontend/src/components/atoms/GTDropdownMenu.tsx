@@ -29,8 +29,7 @@ const DropdownMenuItem = styled(DropdownMenu.Item)<{ isSelected?: boolean }>`
     outline: none;
     border-radius: ${Border.radius.mini};
     ${({ isSelected }) => isSelected && `background-color: ${Colors.background.medium};`}
-    &:is(:hover, :focus) {
-        // applies if hover || focus
+    :hover, :focus {
         background-color: ${Colors.background.dark};
     }
 `
