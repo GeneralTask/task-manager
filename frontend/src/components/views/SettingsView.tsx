@@ -1,19 +1,19 @@
 import { useRef, useState } from 'react'
 import styled from 'styled-components'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
-import { Icon } from '../atoms/Icon'
-import { SectionHeader } from '../molecules/Header'
-import TaskTemplate from '../atoms/TaskTemplate'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
-import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
-import GTSelect from '../molecules/GTSelect'
+import { Icon } from '../atoms/Icon'
+import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
+import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import GTSelect from '../molecules/GTSelect'
+import { SectionHeader } from '../molecules/Header'
 import SignOutButton from '../molecules/SignOutButton'
-import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;
@@ -96,7 +96,7 @@ const SettingsView = () => {
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
-                <SectionHeader sectionName="Settings" allowRefresh={false} />
+                <SectionHeader sectionName="Settings" />
                 <AccountsContainer>
                     <FullWidth>
                         <GapView>
