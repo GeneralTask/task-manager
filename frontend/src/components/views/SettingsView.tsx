@@ -5,7 +5,6 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
-import { SORT_DIRECTION } from '../../utils/enums'
 import GTDropdownMenu from '../atoms/GTDropdownMenu'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
@@ -108,8 +107,6 @@ const SettingsView = () => {
                                 <GTDropdownMenu
                                     items={dropdownItems}
                                     trigger={<GTButton value="Add new Account" styleType="primary" />}
-                                    showSortDirection
-                                    sortDirection={SORT_DIRECTION.ASC}
                                 />
                             </ShowLinkAccountsButtonContainer>
                             <SignOutButton />
