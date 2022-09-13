@@ -1,16 +1,15 @@
+import { useDrop } from 'react-dnd'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-import { useDrop } from 'react-dnd'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
-import { DropType } from '../../utils/types'
-import { useCalendarContext } from '../calendar/CalendarContext'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;

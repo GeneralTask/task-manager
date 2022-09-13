@@ -7,15 +7,10 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import ActionValue from '../atoms/ActionValue'
-import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import SectionEditor from './SectionEditor'
-import { useCallback, useEffect, useRef } from 'react'
-import * as ReactDOMServer from 'react-dom/server'
-import styled from 'styled-components'
 
 const ButtonAndPopoverContainer = styled.div`
     position: relative;

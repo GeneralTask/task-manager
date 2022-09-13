@@ -1,3 +1,6 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import ReactTooltip from 'react-tooltip'
+import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
 import { useCreateTask } from '../../services/api/tasks.hooks'
@@ -6,9 +9,6 @@ import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
-import styled from 'styled-components'
 
 const CreateNewTaskContainer = styled.div`
     display: flex;
@@ -87,15 +87,6 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         [containerRef.current]
     )
 
-    const toolTipContent = (
-        <Tooltip>
-            <span>{KEYBOARD_SHORTCUTS.createTask.label}</span>
-            {!disableKeyboardShortcut && (
-                <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask.keyLabel}</KeyboardShortcutContainer>
-            )}
-        </Tooltip>
-    )
-
     useKeyboardShortcut(
         'createTask',
         // this is a shameful hack to wait for the command palette to close before focusing on the input
@@ -126,7 +117,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
                 >
                     <Tooltip>
                         <span>Add new task</span>
-                        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask}</KeyboardShortcutContainer>
+                        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask.keyLabel}</KeyboardShortcutContainer>
                     </Tooltip>
                 </ReactTooltip>
             )}
