@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -704,6 +705,39 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	} else {
 		return constants.TaskSectionNameDefault
 	}
+}
+
+func GetView(db *mongo.Database, userID primitive.ObjectID, viewType constants.ViewType, additionalFilters *[]bson.M) (*View, error) {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"type": string(viewType)},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+
+	var view View
+	err := GetViewCollection(db).FindOne(
+		dbCtx,
+		filter,
+	).Decode(&view)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // view has not been added
+		} else {
+			log.Error().Err(err).Msg("failed to check if view exists")
+			return nil, err
+		}
+	}
+	return &view, nil
 }
 
 type ReorderableSubmodel struct {
