@@ -2,7 +2,9 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { SORT_DIRECTION } from '../../utils/enums'
 import { Icon, TIconType } from './Icon'
+import { Divider } from './SectionDivider'
 
 const DROPDOWN_MENU_WIDTH = '172px'
 
@@ -48,9 +50,19 @@ interface GTDropdownMenuProps {
     items: GTDropdownMenuItem[]
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     align?: 'start' | 'end'
+    showSortDirection?: boolean
+    sortDirection?: SORT_DIRECTION
+    onSortDirectionChange?: (direction: SORT_DIRECTION) => void
 }
 
-const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps) => {
+const GTDropdownMenu = ({
+    items,
+    trigger,
+    align = 'start',
+    showSortDirection,
+    sortDirection,
+    onSortDirectionChange,
+}: GTDropdownMenuProps) => {
     return (
         <DropdownMenu.Root>
             <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
@@ -80,6 +92,37 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenu.Group>
+                    {showSortDirection && (
+                        <>
+                            <Divider color={Colors.background.medium} />
+                            <DropdownMenu.Group>
+                                <DropdownMenuItem
+                                    onClick={() => onSortDirectionChange?.(SORT_DIRECTION.ASC)}
+                                    isSelected={sortDirection === SORT_DIRECTION.ASC}
+                                >
+                                    <Icon size="xSmall" icon={icons.arrow_up} />
+                                    Ascending
+                                    {sortDirection === SORT_DIRECTION.ASC && (
+                                        <SelectedIcon>
+                                            <Icon size="xSmall" icon={icons.check} />
+                                        </SelectedIcon>
+                                    )}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => onSortDirectionChange?.(SORT_DIRECTION.DESC)}
+                                    isSelected={sortDirection === SORT_DIRECTION.DESC}
+                                >
+                                    <Icon size="xSmall" icon={icons.arrow_down} />
+                                    Descending
+                                    {sortDirection === SORT_DIRECTION.DESC && (
+                                        <SelectedIcon>
+                                            <Icon size="xSmall" icon={icons.check} />
+                                        </SelectedIcon>
+                                    )}
+                                </DropdownMenuItem>
+                            </DropdownMenu.Group>
+                        </>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu.Portal>
         </DropdownMenu.Root>
