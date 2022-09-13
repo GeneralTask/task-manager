@@ -417,24 +417,12 @@ func getLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery
 func processLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]*database.ExternalTaskStatus {
 	teamToStatuses := make(map[string][]*database.ExternalTaskStatus)
 	for _, node := range statusQuery.WorkflowStates.Nodes {
-		value, exists := teamToStatuses[string(node.Team.Name)]
-		if exists {
-			teamToStatuses[string(node.Team.Name)] = append(value, &database.ExternalTaskStatus{
-				ExternalID:        (node.Id).(string),
-				State:             string(node.Name),
-				Type:              string(node.Type),
-				IsCompletedStatus: string(node.Type) == "completed",
-			})
-		} else {
-			teamToStatuses[string(node.Team.Name)] = []*database.ExternalTaskStatus{
-				{
-					ExternalID:        (node.Id).(string),
-					State:             string(node.Name),
-					Type:              string(node.Type),
-					IsCompletedStatus: string(node.Type) == "completed",
-				},
-			}
-		}
+		teamToStatuses[string(node.Team.Name)] = append(teamToStatuses[string(node.Team.Name)], &database.ExternalTaskStatus{
+			ExternalID:        (node.Id).(string),
+			State:             string(node.Name),
+			Type:              string(node.Type),
+			IsCompletedStatus: string(node.Type) == "completed",
+		})
 	}
 	return teamToStatuses
 }
