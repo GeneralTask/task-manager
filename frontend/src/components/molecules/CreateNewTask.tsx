@@ -105,7 +105,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
                     overridePosition={overrideTooltipPosition}
                 >
                     <Tooltip>
-                        <span>Create new task</span>
+                        <span>Add new task</span>
                         <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask}</KeyboardShortcutContainer>
                     </Tooltip>
                 </ReactTooltip>
