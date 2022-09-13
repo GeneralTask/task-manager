@@ -18,7 +18,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)`
     border-radius: ${Border.radius.mini};
     box-shadow: ${Shadows.light};
 `
-const DropdownMenuItem = styled(DropdownMenu.Item)<{ isSelected?: boolean }>`
+const DropdownMenuItem = styled(DropdownMenu.Item) <{ isSelected?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing._12};
