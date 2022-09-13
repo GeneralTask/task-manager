@@ -581,6 +581,27 @@ func TestModifyLinearTask(t *testing.T) {
 		}, nil)
 		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
 	})
+	t.Run("AddCommentInvalidResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `to the moon`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comments := []database.Comment{
+			{
+				Body: "example comment",
+			},
+		}
+
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			Comments: &comments,
+		}, nil)
+		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
+	})
 	t.Run("AddCommentSuccess", func(t *testing.T) {
 		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"commentCreate": {"success": true}}}`)
 		defer taskUpdateServer.Close()
@@ -594,6 +615,30 @@ func TestModifyLinearTask(t *testing.T) {
 		comments := []database.Comment{
 			{
 				Body: "example comment",
+			},
+		}
+
+		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			Comments: &comments,
+		}, nil)
+		assert.NoError(t, err)
+	})
+	t.Run("AddMultipleCommentSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"commentCreate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comments := []database.Comment{
+			{
+				Body: "example comment",
+			},
+			{
+				Body: "second commment",
 			},
 		}
 

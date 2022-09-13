@@ -180,8 +180,7 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 	}
 
 	// need to check if remaining fields are empty, as comments have already been processed
-	updateFields.Comments = nil
-	if (*updateFields != database.Task{}) {
+	if shouldUpdateLinearIssue(updateFields) {
 		issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
 		if err != nil {
 			logger.Error().Err(err).Msg("unable to update linear issue")
@@ -195,6 +194,13 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 	}
 
 	return nil
+}
+
+func shouldUpdateLinearIssue(task *database.Task) bool {
+	if task.Title != nil || task.Body != nil || task.IsCompleted != nil || task.Status != nil || task.DueDate != nil || task.PriorityNormalized != nil {
+		return true
+	}
+	return false
 }
 
 func (linearTask LinearTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
