@@ -28,9 +28,10 @@ const (
 )
 
 type LinearConfigValues struct {
-	UserInfoURL   *string
-	TaskFetchURL  *string
-	TaskUpdateURL *string
+	UserInfoURL    *string
+	TaskFetchURL   *string
+	TaskUpdateURL  *string
+	StatusFetchURL *string
 }
 
 type LinearConfig struct {
@@ -204,6 +205,19 @@ type linearUserInfoQuery struct {
 	}
 }
 
+type linearWorkflowStatesQuery struct {
+	WorkflowStates struct {
+		Nodes []struct {
+			Id   graphql.ID
+			Name graphql.String
+			Type graphql.String
+			Team struct {
+				Name graphql.String
+			}
+		}
+	}
+}
+
 type linearAssignedIssuesQuery struct {
 	Issues struct {
 		Nodes []struct {
@@ -361,6 +375,10 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 			}
 		}
 	}
+	// not currently used, but should allow to work once the frontend logic changes
+	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {
+		request.Var("stateID", updateFields.Status.ExternalID)
+	}
 	if updateFields.DueDate != nil {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
 		if updateFields.DueDate.Time().Unix() == 0 {
@@ -424,4 +442,28 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 		return nil, err
 	}
 	return &query, nil
+}
+
+func getLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery, error) {
+	var query linearWorkflowStatesQuery
+	err := client.Query(context.Background(), &query, nil)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch issues assigned to user")
+		return nil, err
+	}
+	return &query, nil
+}
+
+func processLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]*database.ExternalTaskStatus {
+	teamToStatuses := make(map[string][]*database.ExternalTaskStatus)
+	for _, node := range statusQuery.WorkflowStates.Nodes {
+		teamToStatuses[string(node.Team.Name)] = append(teamToStatuses[string(node.Team.Name)], &database.ExternalTaskStatus{
+			ExternalID:        (node.Id).(string),
+			State:             string(node.Name),
+			Type:              string(node.Type),
+			IsCompletedStatus: string(node.Type) == "completed",
+		})
+	}
+	return teamToStatuses
 }

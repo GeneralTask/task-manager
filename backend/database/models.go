@@ -98,9 +98,10 @@ type Task struct {
 	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	// used to cache the current status before marking the task as done
-	Status          *ExternalTaskStatus `bson:"status,omitempty"`
-	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
+	Status          *ExternalTaskStatus   `bson:"status,omitempty"`
+	PreviousStatus  *ExternalTaskStatus   `bson:"previous_status,omitempty"`
+	CompletedStatus *ExternalTaskStatus   `bson:"completed_status,omitempty"`
+	AllStatuses     []*ExternalTaskStatus `bson:"all_statuses,omitempty"`
 	// info required for Slack integration
 	SlackMessageParams *SlackMessageParams `bson:"slack_message_params,omitempty"`
 	// meeting prep fields
@@ -220,9 +221,10 @@ type Comment struct {
 }
 
 type ExternalTaskStatus struct {
-	ExternalID string `bson:"external_id"`
-	State      string `bson:"state"`
-	Type       string `bson:"type"`
+	ExternalID        string `bson:"external_id"`
+	State             string `bson:"state"`
+	Type              string `bson:"type"`
+	IsCompletedStatus bool   `bson:"is_completed_status"`
 }
 
 type UserSetting struct {

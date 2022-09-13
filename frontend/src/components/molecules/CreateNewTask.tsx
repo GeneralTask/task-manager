@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { KEYBOARD_SHORTCUTS } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useCreateTask } from '../../services/api/tasks.hooks'
-import { Border, Colors, Spacing, Typography, Dimensions } from '../../styles'
+import { Border, Colors, Dimensions, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
@@ -37,9 +37,9 @@ const Tooltip = styled.div`
 
 interface CreateNewTaskProps {
     sectionId: string
-    disableKeyboardShortcut?: boolean
+    disableTooltip?: boolean
 }
-const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProps) => {
+const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
@@ -81,16 +81,7 @@ const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProp
         [containerRef.current]
     )
 
-    const toolTipContent = (
-        <Tooltip>
-            <span>Create new task</span>
-            {!disableKeyboardShortcut && (
-                <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask}</KeyboardShortcutContainer>
-            )}
-        </Tooltip>
-    )
-
-    useKeyboardShortcut('createTask', () => inputRef.current?.focus(), disableKeyboardShortcut)
+    useKeyboardShortcut('createTask', () => inputRef.current?.focus(), disableTooltip)
 
     return (
         <>
@@ -104,16 +95,21 @@ const CreateNewTask = ({ sectionId, disableKeyboardShortcut }: CreateNewTaskProp
                     onChange={(e) => setText(e.target.value)}
                 />
             </CreateNewTaskContainer>
-            <ReactTooltip
-                id="createNewTaskTip"
-                place="top"
-                type="light"
-                effect="solid"
-                className="tooltip"
-                overridePosition={overrideTooltipPosition}
-            >
-                {toolTipContent}
-            </ReactTooltip>
+            {!disableTooltip && (
+                <ReactTooltip
+                    id="createNewTaskTip"
+                    place="top"
+                    type="light"
+                    effect="solid"
+                    className="tooltip"
+                    overridePosition={overrideTooltipPosition}
+                >
+                    <Tooltip>
+                        <span>Add new task</span>
+                        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask}</KeyboardShortcutContainer>
+                    </Tooltip>
+                </ReactTooltip>
+            )}
         </>
     )
 }

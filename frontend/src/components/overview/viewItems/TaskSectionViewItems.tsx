@@ -1,13 +1,12 @@
-import { DropItem, DropType, TTask } from '../../../utils/types'
 import { useCallback } from 'react'
-
-import CreateNewTask from '../../molecules/CreateNewTask'
-import ReorderDropContainer from '../../atoms/ReorderDropContainer'
-import Task from '../../molecules/Task'
-import { ViewItemsProps } from './viewItems.types'
 import { useParams } from 'react-router-dom'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
+import { DropItem, DropType, TTask } from '../../../utils/types'
+import ReorderDropContainer from '../../atoms/ReorderDropContainer'
+import CreateNewTask from '../../molecules/CreateNewTask'
+import Task from '../../molecules/Task'
 import EmptyViewItem from './EmptyViewItem'
+import { ViewItemsProps } from './viewItems.types'
 
 const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
     const { task_section_id: sectionId } = view
@@ -29,7 +28,7 @@ const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsP
 
     return (
         <>
-            {sectionId && <CreateNewTask disableKeyboardShortcut sectionId={sectionId} />}
+            {sectionId && <CreateNewTask disableTooltip sectionId={sectionId} />}
             {view.view_items.length > 0 ? (
                 view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                     <ReorderDropContainer

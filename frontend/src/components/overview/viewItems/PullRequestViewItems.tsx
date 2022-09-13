@@ -1,20 +1,18 @@
-import { Fragment } from 'react'
-import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 import { Spacing } from '../../../styles'
-import { TOverviewView, TPullRequest } from '../../../utils/types'
+import { TPullRequest } from '../../../utils/types'
 import { Divider } from '../../atoms/SectionDivider'
 import PullRequest from '../../pull-requests/PullRequest'
 import EmptyViewItem from './EmptyViewItem'
+import { ViewItemsProps } from './viewItems.types'
+import { Fragment } from 'react'
+import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 
 const DividerMargin = styled.div`
     margin: 0 ${Spacing._16};
 `
 
-interface PullRequestViewItemsProps {
-    view: TOverviewView
-}
-const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
+const PullRequestViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     const { overviewViewId, overviewItemId } = useParams()
 
     if (view.view_items.length === 0) {
@@ -28,7 +26,7 @@ const PullRequestViewItems = ({ view }: PullRequestViewItemsProps) => {
 
     return (
         <>
-            {view.view_items.map((item, index) => (
+            {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                 <Fragment key={item.id}>
                     <PullRequest
                         pullRequest={item as TPullRequest}
