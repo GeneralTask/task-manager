@@ -1,5 +1,10 @@
+import { MouseEvent, forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
+import ReactDOM from 'react-dom'
+import { Id as ToastId } from 'react-toastify'
+import { DateTime } from 'luxon'
+import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useClickOutside, useIsDragging, useNavigateToTask } from '../../hooks'
+import { useClickOutside, useIsDragging, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -21,11 +26,6 @@ import {
     FlexAnchor,
     IconButton,
 } from './EventDetailPopup-styles'
-import { DateTime } from 'luxon'
-import { forwardRef, MouseEvent, useLayoutEffect, useRef, useState } from 'react'
-import ReactDOM from 'react-dom'
-import { Id as ToastId } from 'react-toastify'
-import sanitizeHtml from 'sanitize-html'
 
 interface EventDetailProps {
     event: TEvent
@@ -55,7 +55,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
         const navigateToTask = useNavigateToTask()
 
-        const onDelete = (event: TEvent) => {
+        const onDelete = useCallback(() => {
             setSelectedEvent(null)
             deleteEventInCache({
                 id: event.id,
@@ -89,7 +89,11 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     theme: 'dark',
                 }
             )
-        }
+        }, [event])
+
+        useKeyboardShortcut('close', onClose)
+        useKeyboardShortcut('deleteCalendarEvent', onDelete)
+
         // if *anything* drags, close the popup
         const isDragging = useIsDragging()
         if (isDragging) {
@@ -117,7 +121,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                 <EventHeader>
                     <Icon icon={logos[event.logo]} size="xSmall" />
                     <EventHeaderIcons>
-                        <IconButton onClick={() => onDelete(event)}>
+                        <IconButton onClick={onDelete}>
                             <Icon icon={icons.trash} size="xSmall" />
                         </IconButton>
                         <IconButton
