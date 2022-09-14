@@ -1,20 +1,19 @@
-import { Repository, RepositoryName } from '../pull-requests/styles'
-
-import PullRequest from '../pull-requests/PullRequest'
 import { useEffect, useMemo } from 'react'
-import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import { SectionHeader } from '../molecules/Header'
-import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
-import Spinner from '../atoms/Spinner'
-import PullRequestDetails from '../details/PullRequestDetails'
 import { useNavigate, useParams } from 'react-router-dom'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
 import styled from 'styled-components'
-import EmptyDetails from '../details/EmptyDetails'
-import { logos } from '../../styles/images'
+import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { logos } from '../../styles/images'
 import { TLinkedAccount } from '../../utils/types'
+import Spinner from '../atoms/Spinner'
+import EmptyDetails from '../details/EmptyDetails'
+import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
+import { SectionHeader } from '../molecules/Header'
+import PullRequest from '../pull-requests/PullRequest'
+import { Repository, RepositoryName } from '../pull-requests/styles'
+import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const PullRequestsContainer = styled.div`
     display: flex;
@@ -57,7 +56,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="Pull Requests" allowRefresh={true} />
+                    <SectionHeader sectionName="Pull Requests" />
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (

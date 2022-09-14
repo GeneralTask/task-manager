@@ -99,7 +99,7 @@ const SettingsView = () => {
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
-                <SectionHeader sectionName="Settings" allowRefresh={false} />
+                <SectionHeader sectionName="Settings" />
                 <AccountsContainer>
                     <FullWidth>
                         <GapView>

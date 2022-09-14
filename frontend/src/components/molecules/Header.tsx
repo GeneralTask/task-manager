@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -6,28 +6,38 @@ import { DEFAULT_SECTION_ID, DONE_SECTION_ID } from '../../constants'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
-import { Border, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import RefreshButton from '../atoms/buttons/RefreshButton'
-import GTInput from '../atoms/GTInput'
+import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: ${Spacing._16};
     min-height: 50px;
     gap: ${Spacing._4};
 `
-const HeaderText = styled.span`
-    margin-right: ${Spacing._8};
-    padding-left: 6px; /* TODO: remove margins and padding from Header */
-    border: ${Border.stroke.large} solid transparent;
-    overflow-wrap: break-word;
+const MarginLeftAutoFlex = styled.div`
+    margin-left: auto;
+    display: flex;
+`
+const HeaderButton = styled(NoStyleButton)`
+    display: flex;
+    align-items: center;
     min-width: 0;
+    border-radius: ${Border.radius.small};
+`
+const HeaderText = styled.div<{ fontColor: TTextColor }>`
+    color: ${({ fontColor }) => Colors.text[fontColor]};
+    word-break: break-all;
+    text-align: left;
+    padding: ${Spacing._8};
     ${Typography.title};
 `
 
@@ -39,7 +49,6 @@ const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
 const isEditable = (id: string) => !uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
-    allowRefresh: boolean
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
@@ -52,7 +61,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const refetchStaleQueries = useRefetchStaleQueries()
     const isFetching = useIsFetching() !== 0
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setSectionName(props.sectionName)
     }, [props.sectionName])
 
@@ -75,41 +84,53 @@ export const SectionHeader = (props: SectionHeaderProps) => {
 
     useKeyboardShortcut('refresh', refetchStaleQueries, false)
 
-    const headerText = isEditingTitle ? (
-        <GTInput
-            initialValue={sectionName}
-            fontSize="large"
-            onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
-            onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
-            autoFocus
-        />
-    ) : (
-        <HeaderText>{sectionName}</HeaderText>
-    )
+    const showRefreshButton = (isHovering || isFetching) && !isEditingTitle
 
     return (
-        <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-            {headerText}
-            {props.allowRefresh && (isHovering || isFetching) && !isEditingTitle && (
-                <RefreshButton onClick={refetchStaleQueries} isRefreshing={isFetching}>
-                    <Icon size="small" icon={icons.spinner} />
-                </RefreshButton>
-            )}
-            <div style={{ flex: 1 }}></div>
-            {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
-                <GTIconButton
-                    onClick={() => handleDelete(props.taskSectionId)}
-                    icon={icons.trash}
-                    iconColor="red"
-                    size="small"
-                />
-            )}
-            {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
-                <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
-            )}
-            {isEditingTitle && (
-                <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
-            )}
+        <SectionHeaderContainer>
+            <HeaderButton
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                onClick={refetchStaleQueries}
+            >
+                {isEditingTitle ? (
+                    <GTTextArea
+                        initialValue={sectionName}
+                        fontSize="large"
+                        onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
+                        onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+                        disabled={!isEditingTitle}
+                        autoFocus
+                    />
+                ) : (
+                    <>
+                        <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
+                        <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
+                            <Icon
+                                size="small"
+                                icon={icons.spinner}
+                                color={isHovering ? Colors.gtColor.primary : Colors.text.black}
+                            />
+                        </RefreshSpinner>
+                    </>
+                )}
+            </HeaderButton>
+            <MarginLeftAutoFlex>
+                {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
+                    <GTIconButton
+                        onClick={() => handleDelete(props.taskSectionId)}
+                        icon={icons.trash}
+                        iconColor="red"
+                        size="small"
+                    />
+                )}
+                {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
+                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
+                )}
+                {isEditingTitle && (
+                    <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
+                )}
+            </MarginLeftAutoFlex>
         </SectionHeaderContainer>
     )
 }
