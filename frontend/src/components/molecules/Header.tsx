@@ -7,6 +7,7 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
@@ -32,8 +33,8 @@ const HeaderButton = styled(NoStyleButton)`
     min-width: 0;
     border-radius: ${Border.radius.small};
 `
-const HeaderText = styled.div<{ fontColor: string }>`
-    color: ${({ fontColor }) => fontColor};
+const HeaderText = styled.div<{ fontColor: TTextColor }>`
+    color: ${({ fontColor }) => Colors.text[fontColor]};
     word-break: break-all;
     text-align: left;
     padding: ${Spacing._8};
@@ -103,9 +104,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     />
                 ) : (
                     <>
-                        <HeaderText fontColor={isHovering ? Colors.gtColor.primary : Colors.text.black}>
-                            {sectionName}
-                        </HeaderText>
+                        <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
                         <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
                             <Icon
                                 size="small"
