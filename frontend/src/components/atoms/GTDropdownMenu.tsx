@@ -62,42 +62,44 @@ GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTDropdownMenuItem[][]
 
     return (
-        <DropdownMenu.Root>
-            <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
-            <DropdownMenu.Portal>
-                <DropdownMenuContent align={align}>
-                    {groups.map((group, groupIndex) => (
-                        <Fragment key={groupIndex}>
-                            <DropdownMenu.Group>
-                                {group.map((item) => (
-                                    <DropdownMenuItem
-                                        key={item.label}
-                                        textValue={item.label}
-                                        onClick={item.onClick}
-                                        isSelected={item.selected && !item.renderer}
-                                    >
-                                        {item.renderer ? (
-                                            item.renderer()
-                                        ) : (
-                                            <>
-                                                {item.icon && <Icon size="xSmall" icon={item.icon} />}
-                                                {item.label}
-                                                {item.selected && (
-                                                    <SelectedIcon>
-                                                        <Icon size="xSmall" icon={icons.check} />
-                                                    </SelectedIcon>
-                                                )}
-                                            </>
-                                        )}
-                                    </DropdownMenuItem>
-                                ))}
-                                {groupIndex !== groups.length - 1 && <Divider color={Colors.background.medium} />}
-                            </DropdownMenu.Group>
-                        </Fragment>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+        <div onKeyDown={(e) => e.stopPropagation()}>
+            <DropdownMenu.Root>
+                <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
+                <DropdownMenu.Portal>
+                    <DropdownMenuContent align={align}>
+                        {groups.map((group, groupIndex) => (
+                            <Fragment key={groupIndex}>
+                                <DropdownMenu.Group>
+                                    {group.map((item) => (
+                                        <DropdownMenuItem
+                                            key={item.label}
+                                            textValue={item.label}
+                                            onClick={item.onClick}
+                                            isSelected={item.selected && !item.renderer}
+                                        >
+                                            {item.renderer ? (
+                                                item.renderer()
+                                            ) : (
+                                                <>
+                                                    {item.icon && <Icon size="xSmall" icon={item.icon} />}
+                                                    {item.label}
+                                                    {item.selected && (
+                                                        <SelectedIcon>
+                                                            <Icon size="xSmall" icon={icons.check} />
+                                                        </SelectedIcon>
+                                                    )}
+                                                </>
+                                            )}
+                                        </DropdownMenuItem>
+                                    ))}
+                                    {groupIndex !== groups.length - 1 && <Divider color={Colors.background.medium} />}
+                                </DropdownMenu.Group>
+                            </Fragment>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+        </div>
     )
 }
 

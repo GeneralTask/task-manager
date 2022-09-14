@@ -1,14 +1,27 @@
 import { useMemo } from "react"
 import { SORT_ORDER } from "../utils/enums"
 
-interface SortAndFilterArgs<T> {
+/* 
+    Defines a method to sort an array of items
+    * "id" is a unique identifier for the item
+    * "field" is the name of an attribute of the item object to sort by (e.g. "name")
+    * "customComparator" can be provided to sort by a specified method if the field is not sufficient. 
+    * "direction" is the direction to sort in (ASC or DESC) and applies to *both* field and customComparator sorting (so you do not need to change the comparator to reverse the sort order)
+    * only one sort method should be supplied; if both are supplied then customCamparator will take precedence 
+*/
+export interface Sort<T> {
+    id: string
+    direction: SORT_ORDER
+    field?: keyof T
+    customComparator?: (a: T, b: T) => number
+}
+
+// should return true if item should be included in the filtered list
+export type Filter<T> = (item: T) => boolean
+export interface SortAndFilterArgs<T> {
     items: T[]
-    sort?: {
-        field: keyof T // the attribute in T to sort by (i.e. 'id')
-        direction: SORT_ORDER
-        comparator?: (a: T, b: T) => number // custom comparator
-    }
-    filter?: (item: T) => boolean // should return true if item should be included in the filtered list
+    sort?: Sort<T>
+    filter?: Filter<T>
 }
 const useSortAndFilter = <T>({ items, sort, filter }: SortAndFilterArgs<T>) => {
     return useMemo(() => {
@@ -18,13 +31,16 @@ const useSortAndFilter = <T>({ items, sort, filter }: SortAndFilterArgs<T>) => {
         }
         if (sort) {
             sortedAndFiltered = sortedAndFiltered.sort((a, b) => {
-                if (sort.comparator) {
-                    return sort.comparator(a, b)
+                let result = 0
+                if (sort.customComparator) {
+                    result = sort.customComparator(a, b)
+                } else if (sort.field) {
+                    result = a[sort.field] > b[sort.field] ? 1 : -1
                 }
                 if (sort.direction === SORT_ORDER.ASC) {
-                    return a[sort.field] > b[sort.field] ? 1 : -1
+                    return result
                 } else {
-                    return a[sort.field] < b[sort.field] ? 1 : -1
+                    return -result
                 }
             })
         }

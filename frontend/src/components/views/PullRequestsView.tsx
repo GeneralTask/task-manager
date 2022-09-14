@@ -1,20 +1,24 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { Sort } from '../../hooks/useSortAndFilter'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
-import { TLinkedAccount } from '../../utils/types'
+import { SORT_ORDER } from '../../utils/enums'
+import { TLinkedAccount, TPullRequest } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
+import SortSelector from '../molecules/SortSelector'
 import PullRequestList from '../pull-requests/PullRequestList'
+import { PR_SORT_SELECTOR_ITEMS } from '../pull-requests/constants'
 import { Repository, RepositoryName } from '../pull-requests/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 const PullRequestsContainer = styled.div`
     display: flex;
@@ -25,6 +29,10 @@ const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
     linkedAccounts.some((account) => account.name === 'Github')
 
 const PullRequestsView = () => {
+    const [sort, setSort] = useState<Sort<TPullRequest>>({
+        ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
+        direction: SORT_ORDER.ASC,
+    })
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const navigate = useNavigate()
     const params = useParams()
@@ -53,13 +61,14 @@ const PullRequestsView = () => {
             return <div>No repositories</div>
         }
     }
+
     return (
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
                     <Flex justifyContentSpaceBetween alignItemsCenter>
                         <SectionHeader sectionName="Pull Requests" allowRefresh={true} />
-                        <div>hi</div>
+                        <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
                     </Flex>
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
@@ -70,7 +79,7 @@ const PullRequestsView = () => {
                                 {repository.pull_requests.length === 0 ? (
                                     'No pull requests'
                                 ) : (
-                                    <PullRequestList pullRequests={repository.pull_requests} />
+                                    <PullRequestList pullRequests={repository.pull_requests} sort={sort} />
                                 )}
                                 <br />
                             </Repository>
