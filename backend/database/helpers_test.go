@@ -73,7 +73,7 @@ func TestGetTasks(t *testing.T) {
 		assert.Equal(t, task2.ID, (*tasks)[0].ID)
 	})
 	t.Run("GetTasks", func(t *testing.T) {
-		tasks, err := GetTasks(db, userID, nil)
+		tasks, err := GetTasks(db, userID, nil, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*tasks))
 		assert.Equal(t, task1.ID, (*tasks)[0].ID)

@@ -334,7 +334,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 }
 
 func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID) []*TaskResult {
-	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}})
+	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}}, nil)
 	if err == nil && len(*subtasks) > 0 {
 		subtaskResults := []*TaskResult{}
 		for _, subtask := range *subtasks {

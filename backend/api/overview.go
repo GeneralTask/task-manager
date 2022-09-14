@@ -164,12 +164,10 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 		return nil, err
 	}
 
-	tasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"id_task_section": view.TaskSectionID},
-		},
-	)
+	tasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"id_task_section": view.TaskSectionID},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -307,12 +305,10 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 		return &result, nil
 	}
 
-	linearTasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"source_id": external.TASK_SOURCE_ID_LINEAR},
-		},
-	)
+	linearTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"source_id": external.TASK_SOURCE_ID_LINEAR},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -348,12 +344,10 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 		return &result, nil
 	}
 
-	slackTasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
-		},
-	)
+	slackTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -486,13 +480,11 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, timeNow.Location())
-	dueTasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
-			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
-		},
-	)
+	dueTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
+		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
