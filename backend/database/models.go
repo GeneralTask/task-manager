@@ -164,6 +164,7 @@ type CalendarEvent struct {
 	CallURL            string             `bson:"call_url,omitempty"`
 	CanModify          bool               `bson:"can_modify,omitempty"`
 	LinkedTaskID       primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedViewID       primitive.ObjectID `bson:"linked_view_id,omitempty"`
 	LinkedTaskSourceID string             `bson:"linked_task_source_id,omitempty"`
 }
 
