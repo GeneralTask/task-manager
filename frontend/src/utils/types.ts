@@ -163,7 +163,7 @@ export interface TSetting {
 export interface TSupportedType {
     name: string
     logo: string
-    logo_v2: string
+    logo_v2: TLogoImage
     authorization_url: string
 }
 export interface TLinkedAccount {
