@@ -47,6 +47,7 @@ type EventCreateObject struct {
 	Attendees         []Attendee         `json:"attendees,omitempty"`
 	AddConferenceCall bool               `json:"add_conference_call,omitempty"`
 	LinkedTaskID      primitive.ObjectID `json:"task_id,omitempty"`
+	LinkedViewID      primitive.ObjectID `json:"view_id,omitempty"`
 }
 
 type EventModifyObject struct {

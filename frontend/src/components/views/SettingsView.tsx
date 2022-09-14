@@ -1,4 +1,3 @@
-import { useRef, useState } from 'react'
 import styled from 'styled-components'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -6,12 +5,13 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
+import GTDropdownMenu from '../atoms/GTDropdownMenu'
 import { Icon } from '../atoms/Icon'
+import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
-import { GoogleSignInButtonImage, signInWithGoogleButtonDimensions } from '../atoms/buttons/GoogleSignInButton'
+import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import GTSelect from '../molecules/GTSelect'
 import { SectionHeader } from '../molecules/Header'
 import SignOutButton from '../molecules/SignOutButton'
 
@@ -59,13 +59,8 @@ const FullWidth = styled.div`
     margin-right: ${Spacing._16};
 `
 const ShowLinkAccountsButtonContainer = styled.div`
-    width: ${signInWithGoogleButtonDimensions.width};
     display: flex;
     flex-direction: column;
-`
-const TextAlignCenter = styled.span`
-    text-align: center;
-    width: 100%;
 `
 const GapView = styled.div`
     display: flex;
@@ -74,9 +69,6 @@ const GapView = styled.div`
 `
 
 const SettingsView = () => {
-    const [showLinkAccountsDropdown, setShowLinkedAccountsDropdown] = useState(false)
-    const showLinkAccountsButtonContainerRef = useRef<HTMLDivElement>(null)
-
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
@@ -93,6 +85,17 @@ const SettingsView = () => {
         }
     }
 
+    if (!supportedTypes || !linkedAccounts) return <Loading />
+
+    const dropdownItems = supportedTypes
+        .map((supportedType) => ({
+            label: supportedType.name,
+            onClick: () => openPopupWindow(supportedType.authorization_url, refetchStaleQueries),
+            icon: supportedType.logo,
+            renderer: supportedType.name === 'Google' ? GoogleSignInButton : undefined,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)) // so the order is always the same
+
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
@@ -100,36 +103,11 @@ const SettingsView = () => {
                 <AccountsContainer>
                     <FullWidth>
                         <GapView>
-                            <ShowLinkAccountsButtonContainer ref={showLinkAccountsButtonContainerRef}>
-                                <GTButton
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        setShowLinkedAccountsDropdown(!showLinkAccountsDropdown)
-                                    }}
-                                    fitContent={false}
-                                    value="Add new Account"
-                                    styleType="primary"
+                            <ShowLinkAccountsButtonContainer>
+                                <GTDropdownMenu
+                                    items={dropdownItems}
+                                    trigger={<GTButton value="Add new Account" styleType="primary" />}
                                 />
-                                {showLinkAccountsDropdown && (
-                                    <GTSelect
-                                        options={
-                                            supportedTypes?.map((type) => ({
-                                                item:
-                                                    type.name === 'Google' ? (
-                                                        GoogleSignInButtonImage
-                                                    ) : (
-                                                        <TextAlignCenter>{type.name}</TextAlignCenter>
-                                                    ),
-                                                onClick: () =>
-                                                    openPopupWindow(type.authorization_url, refetchStaleQueries),
-                                                hasPadding: type.name !== 'Google',
-                                            })) ?? []
-                                        }
-                                        location="left"
-                                        onClose={() => setShowLinkedAccountsDropdown(false)}
-                                        parentRef={showLinkAccountsButtonContainerRef}
-                                    />
-                                )}
                             </ShowLinkAccountsButtonContainer>
                             <SignOutButton />
                         </GapView>
