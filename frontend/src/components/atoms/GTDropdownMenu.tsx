@@ -50,15 +50,9 @@ interface GTDropdownMenuProps {
     items: GTDropdownMenuItem[] | GTDropdownMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     align?: 'start' | 'end'
-    // secondaryItemGroup?: GTDropdownMenuItem[]
 }
 
-const GTDropdownMenu = ({
-    items,
-    trigger,
-    align = 'start',
-}: // secondaryItemGroup,
-GTDropdownMenuProps) => {
+const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTDropdownMenuItem[][]
 
     return (
