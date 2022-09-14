@@ -706,6 +706,20 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	}
 }
 
+func GetView(db *mongo.Database, dbCtx context.Context, userID primitive.ObjectID, viewID primitive.ObjectID) (*View, error) {
+	logger := logging.GetSentryLogger()
+	viewCollection := GetViewCollection(db)
+	mongoResult := FindOneWithCollection(dbCtx, viewCollection, userID, viewID)
+
+	var view View
+	err := mongoResult.Decode(&view)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get view: %+v", viewID)
+		return nil, err
+	}
+	return &view, nil
+}
+
 type ReorderableSubmodel struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	IDOrdering int                `bson:"id_ordering"`

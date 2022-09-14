@@ -56,6 +56,24 @@ func TestEventCreate(t *testing.T) {
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
 	})
+	t.Run("SuccessLinkedView", func(t *testing.T) {
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		viewCollection := database.GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(dbCtx, database.View{
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := defaultEventCreateObject
+		eventCreateObject.LinkedViewID = viewID
+
+		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
+		dbEvent, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, eventID, dbEvent.ID)
+		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
+	})
 	t.Run("SuccessLinkedTask", func(t *testing.T) {
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
@@ -77,6 +95,25 @@ func TestEventCreate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
+	})
+	t.Run("NonExistentLinkedView", func(t *testing.T) {
+		eventCreateObject := defaultEventCreateObject
+		nonExistentLinkedViewID := primitive.NewObjectID()
+		eventCreateObject.LinkedViewID = nonExistentLinkedViewID
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked view not found: %s"}`, nonExistentLinkedViewID.Hex()), url, authToken, api)
+	})
+	t.Run("LinkedViewFromWrongUser", func(t *testing.T) {
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		viewCollection := database.GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(dbCtx, database.View{
+			UserID: primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := defaultEventCreateObject
+		eventCreateObject.LinkedViewID = viewID
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked view not found: %s"}`, viewID.Hex()), url, authToken, api)
 	})
 	t.Run("NonExistentLinkedTask", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject

@@ -67,7 +67,7 @@ const PullRequestsView = () => {
             <PullRequestsContainer>
                 <ScrollableListTemplate>
                     <Flex justifyContentSpaceBetween alignItemsCenter>
-                        <SectionHeader sectionName="Pull Requests" allowRefresh={true} />
+                        <SectionHeader sectionName="Pull Requests" />
                         <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
                     </Flex>
                     {!isGithubLinked && !isLinkedAccountsLoading ? (

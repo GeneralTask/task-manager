@@ -583,6 +583,48 @@ func TestTaskSectionName(t *testing.T) {
 	})
 }
 
+func TestGetView(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	userID := primitive.NewObjectID()
+
+	t.Run("ViewDoesNotExist", func(t *testing.T) {
+		viewID := primitive.NewObjectID()
+		_, err := GetView(db, dbCtx, userID, viewID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		viewCollection := GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(dbCtx, View{
+			UserID: primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+
+		_, err = GetView(db, dbCtx, userID, viewID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		viewCollection := GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(dbCtx, View{
+			UserID: userID,
+			Type:   "custom type",
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+
+		view, err := GetView(db, dbCtx, userID, viewID)
+		assert.NoError(t, err)
+		assert.Equal(t, "custom type", view.Type)
+	})
+}
+
 func TestGetTaskSections(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
