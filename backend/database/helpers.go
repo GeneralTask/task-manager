@@ -522,7 +522,7 @@ func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSect
 		parentCtx,
 		GetTaskSectionCollection(db),
 		userID,
-		&[]bson.M{{"user_id": userID}},
+		nil,
 		&sections,
 	)
 	logger := logging.GetSentryLogger()
@@ -676,6 +676,24 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 		return nil, err
 	}
 	return &externalAPIToken, nil
+}
+
+func GetExternalTokens(db *mongo.Database, userID primitive.ObjectID, serviceID string) (*[]TaskSection, error) {
+	parentCtx := context.Background()
+	var sections []TaskSection
+	err := FindWithCollection(
+		parentCtx,
+		GetExternalTokenCollection(db),
+		userID,
+		&[]bson.M{{"serviceID": serviceID}},
+		&sections,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load task sections")
+		return nil, err
+	}
+	return &sections, nil
 }
 
 func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
