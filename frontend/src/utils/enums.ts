@@ -29,7 +29,7 @@ export enum CompanyPolicyPages {
     PrivacyPolicy,
 }
 
-export enum SORT_DIRECTION {
+export enum SORT_ORDER {
     ASC = 'asc',
     DESC = 'desc',
 }
