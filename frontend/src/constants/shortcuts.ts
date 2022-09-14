@@ -65,12 +65,12 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    close: {
-        label: 'Close',
-        key: 'Escape',
-        keyLabel: 'Esc',
+    deleteCalendarEvent: {
+        label: 'Delete calendar event',
+        key: 'Backspace',
+        keyLabel: 'Backspace',
         category: 'Calendar',
-        icon: 'x',
+        icon: 'trash',
     },
     nextDate: {
         label: 'Next day',
@@ -142,6 +142,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: 'Esc',
         category: 'Navigation',
         hideFromCommandPalette: true,
+    },
+    close: {
+        label: 'Close',
+        key: 'Escape',
+        keyLabel: 'Esc',
+        category: 'Navigation',
+        icon: 'x',
     },
 })
 
