@@ -1,16 +1,12 @@
-import '../../styles/tooltip.css'
-
-import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
-
-import CalendarView from '../views/CalendarView'
-import { Colors } from '../../styles'
-import NavigationView from '../views/NavigationView'
-import React from 'react'
 import ReactTooltip from 'react-tooltip'
-import styled from 'styled-components'
-import { useCalendarContext } from '../calendar/CalendarContext'
-import { useEventBanners } from '../../hooks'
 import { DateTime } from 'luxon'
+import styled from 'styled-components'
+import { useEventBanners } from '../../hooks'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
+import { useCalendarContext } from '../calendar/CalendarContext'
+import CalendarView from '../views/CalendarView'
+import NavigationView from '../views/NavigationView'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -23,6 +19,15 @@ const DefaultTemplateContainer = styled.div`
     min-width: ${WINDOW_MIN_WIDTH};
     a {
         color: ${Colors.gtColor.primary};
+    }
+    .tooltip {
+        box-shadow: ${Shadows.light} !important;
+        border-radius: ${Border.radius.medium} !important;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu,
+            Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
+            'Segoe UI Symbol' !important;
+        ${Typography.bodySmall};
+        padding: ${Spacing._8} !important;
     }
 `
 

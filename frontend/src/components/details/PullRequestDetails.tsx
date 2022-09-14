@@ -1,22 +1,14 @@
-import React from 'react'
-import { Icon } from '../atoms/Icon'
-import { TPullRequest } from '../../utils/types'
-import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
+import { icons, logos } from '../../styles/images'
+import { TPullRequest } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import { Status } from '../pull-requests/styles'
-import BranchName from '../pull-requests/BranchName'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import BranchName from '../pull-requests/BranchName'
+import { Status } from '../pull-requests/styles'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 
-const DetailsViewContainer = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: ${Colors.background.light};
-    min-width: 300px;
-    padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
-`
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -63,14 +55,14 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
     const { title, status, deeplink, branch } = pullRequest
 
     return (
-        <DetailsViewContainer data-testid="details-view-container">
+        <DetailsViewTemplate data-testid="details-view-container">
             <DetailsTopContainer>
                 <MarginRight8>
                     <Icon icon={logos.github} size="small" color={Colors.icon.black} />
                 </MarginRight8>
                 <MarginLeftAuto>
                     <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTIconButton icon={icons.external_link} />
+                        <GTIconButton icon={icons.external_link} size="small" />
                     </NoStyleAnchor>
                 </MarginLeftAuto>
             </DetailsTopContainer>
@@ -81,7 +73,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                     <BranchName name={branch} />
                 </MaxWidth200>
             </InfoContainer>
-        </DetailsViewContainer>
+        </DetailsViewTemplate>
     )
 }
 

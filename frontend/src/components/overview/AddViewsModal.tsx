@@ -1,16 +1,18 @@
-import React, { Fragment } from 'react'
+import { Fragment } from 'react'
 import styled from 'styled-components'
+import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
-import GTButton from '../atoms/buttons/GTButton'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
+import GTButton from '../atoms/buttons/GTButton'
 import AuthBanner from './AuthBanner'
+import MissingRepositoryMessage from './MissingRepositoryMessage'
 
 const SupportedView = styled.div<{ isIndented?: boolean }>`
     display: flex;
@@ -113,6 +115,7 @@ const AddViewsModalContent = () => {
                                 )}
                             </Fragment>
                         ))}
+                    {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && <MissingRepositoryMessage />}
                 </Fragment>
             ))}
         </>

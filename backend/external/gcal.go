@@ -236,9 +236,6 @@ func GetConferenceCall(event *calendar.Event, accountID string) *utils.Conferenc
 }
 
 func (googleCalendar GoogleCalendarSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
-		return errors.New("cannot mark calendar event as done")
-	}
 	return nil
 }
 

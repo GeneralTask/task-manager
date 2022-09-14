@@ -1,7 +1,7 @@
-import React, { forwardRef } from 'react'
+import { forwardRef } from 'react'
 import styled from 'styled-components'
-import { Dimensions } from '../../styles'
 import { TASK_MARK_AS_DONE_TIMEOUT } from '../../constants'
+import { Dimensions } from '../../styles'
 
 const TemplateContainer = styled.div<{ isVisible?: boolean }>`
     width: 100%;

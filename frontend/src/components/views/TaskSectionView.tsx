@@ -1,25 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-
-import { Colors } from '../../styles'
-import CreateNewTask from '../molecules/CreateNewTask'
-import Loading from '../atoms/Loading'
-import { SectionHeader } from '../molecules/Header'
-import Task from '../molecules/Task'
-import TaskDetails from '../details/TaskDetails'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { Colors } from '../../styles'
+import { icons } from '../../styles/images'
 import { DropItem, DropType } from '../../utils/types'
+import Loading from '../atoms/Loading'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import EmptyDetails from '../details/EmptyDetails'
-import { icons } from '../../styles/images'
+import TaskDetails from '../details/TaskDetails'
+import CreateNewTask from '../molecules/CreateNewTask'
+import { SectionHeader } from '../molecules/Header'
+import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const TaskSectionContainer = styled.div`
     display: flex;
     flex-direction: column;
-    border-right: 1px solid ${Colors.background.dark};
     margin-right: auto;
     flex-shrink: 0;
     position: relative;
@@ -99,11 +97,7 @@ const TaskSectionView = () => {
                             <Loading />
                         ) : (
                             <>
-                                <SectionHeader
-                                    sectionName={section.name}
-                                    allowRefresh={true}
-                                    taskSectionId={section.id}
-                                />
+                                <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef} data-testid="task-list-container">
                                     {section.tasks.map((task, index) => (

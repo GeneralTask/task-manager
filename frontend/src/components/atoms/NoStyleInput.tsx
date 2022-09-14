@@ -1,4 +1,4 @@
-import React from 'react'
+import { forwardRef } from 'react'
 import styled from 'styled-components'
 
 const StyledInput = styled.input`
@@ -9,7 +9,7 @@ const StyledInput = styled.input`
     padding: 0;
 `
 
-const NoStyleInput = React.forwardRef(
+const NoStyleInput = forwardRef(
     (props: React.InputHTMLAttributes<HTMLInputElement>, ref: React.Ref<HTMLInputElement>) => (
         <StyledInput {...props} ref={ref} />
     )

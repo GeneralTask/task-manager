@@ -1,11 +1,10 @@
-import React from 'react'
-import { TSlackMessageParams } from '../../../utils/types'
-import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../../styles'
 import { DateTime } from 'luxon'
+import styled from 'styled-components'
+import { MESSAGE_TYPE_DM } from '../../../constants'
+import { Colors, Spacing, Typography } from '../../../styles'
+import { TSlackMessageParams } from '../../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 import { Divider } from '../../atoms/SectionDivider'
-import { MESSAGE_TYPE_DM } from '../../../constants'
 
 const MessageContainer = styled.div`
     padding: ${Spacing._8};

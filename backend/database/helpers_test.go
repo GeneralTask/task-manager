@@ -583,6 +583,48 @@ func TestTaskSectionName(t *testing.T) {
 	})
 }
 
+func TestGetView(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	userID := primitive.NewObjectID()
+
+	t.Run("ViewDoesNotExist", func(t *testing.T) {
+		viewID := primitive.NewObjectID()
+		_, err := GetView(db, dbCtx, userID, viewID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		viewCollection := GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(dbCtx, View{
+			UserID: primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+
+		_, err = GetView(db, dbCtx, userID, viewID)
+		assert.Error(t, err)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		viewCollection := GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(dbCtx, View{
+			UserID: userID,
+			Type:   "custom type",
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+
+		view, err := GetView(db, dbCtx, userID, viewID)
+		assert.NoError(t, err)
+		assert.Equal(t, "custom type", view.Type)
+	})
+}
+
 func TestGetTaskSections(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -855,6 +897,53 @@ func TestGetDefaultSectionName(t *testing.T) {
 		assert.Equal(t, "Default", sectionName)
 
 	})
+}
+
+func TestAdjustOrderingIDs(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	id1, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 1)
+	assert.NoError(t, err)
+	id2, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 1)
+	assert.NoError(t, err)
+	id3, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 1)
+	assert.NoError(t, err)
+	id4, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 2)
+	assert.NoError(t, err)
+
+	t.Run("Success", func(t *testing.T) {
+		err := AdjustOrderingIDsForCollection(GetTaskSectionCollection(db), userID, id1, 1)
+		assert.NoError(t, err)
+		assertTaskSectionOrderingID(t, parentCtx, db, id1, 1)
+		assertTaskSectionOrderingID(t, parentCtx, db, id2, 2)
+		assertTaskSectionOrderingID(t, parentCtx, db, id3, 3)
+		assertTaskSectionOrderingID(t, parentCtx, db, id4, 4)
+	})
+}
+
+func createTestTaskSectionWithOrderingID(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, orderingID int) (primitive.ObjectID, error) {
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	res, err := GetTaskSectionCollection(db).InsertOne(dbCtx, TaskSection{
+		UserID:     userID,
+		IDOrdering: orderingID,
+	})
+	if err != nil {
+		return primitive.NilObjectID, err
+	}
+	return res.InsertedID.(primitive.ObjectID), nil
+}
+
+func assertTaskSectionOrderingID(t *testing.T, extCtx context.Context, db *mongo.Database, itemID primitive.ObjectID, expectedOrderingID int) {
+	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
+	defer cancel()
+	var section TaskSection
+	err := GetTaskSectionCollection(db).FindOne(dbCtx, bson.M{"_id": itemID}).Decode(&section)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedOrderingID, section.IDOrdering)
 }
 
 func createTestCalendarEvent(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {

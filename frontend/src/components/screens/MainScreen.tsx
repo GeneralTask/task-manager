@@ -1,19 +1,18 @@
-import 'react-toastify/dist/ReactToastify.css'
-import 'animate.css'
-
-import { Navigate, useLocation } from 'react-router-dom'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
-import DefaultTemplate from '../templates/DefaultTemplate'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { Navigate, useLocation } from 'react-router-dom'
+import 'react-toastify/dist/ReactToastify.css'
+import 'animate.css'
+import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import Loading from '../atoms/Loading'
-import PullRequestsView from '../views/PullRequestsView'
-import React from 'react'
-import Settings from '../views/SettingsView'
 import StyledToastContainer from '../atoms/toast/StyledToastContainer'
-import TaskSection from '../views/TaskSectionView'
+import DragLayer from '../molecules/DragLayer'
+import DefaultTemplate from '../templates/DefaultTemplate'
 import OverviewPageView from '../views/OverviewPageView'
+import PullRequestsView from '../views/PullRequestsView'
+import Settings from '../views/SettingsView'
+import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
     const location = useLocation()
@@ -44,6 +43,7 @@ const MainScreen = () => {
                 <>{currentPage}</>
             </DefaultTemplate>
             <StyledToastContainer />
+            <DragLayer />
         </DndProvider>
     )
 }

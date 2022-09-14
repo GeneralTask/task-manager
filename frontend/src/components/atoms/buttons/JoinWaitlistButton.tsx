@@ -1,7 +1,5 @@
-import { Colors, Spacing, Typography } from '../../../styles'
-
-import React from 'react'
 import styled from 'styled-components'
+import { Colors, Spacing, Typography } from '../../../styles'
 
 const WaitlistButtonStyled = styled.button`
     background-color: ${Colors.gtColor.primary};

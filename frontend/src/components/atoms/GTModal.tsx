@@ -1,11 +1,11 @@
-import React, { ReactElement } from 'react'
-import styled from 'styled-components'
-import { Colors, Spacing, Typography, Border, Shadows, Dimensions } from '../../styles'
-import NoStyleButton from './buttons/NoStyleButton'
+import { ReactElement } from 'react'
 import Modal from 'react-modal'
-import { Icon } from './Icon'
-import { icons } from '../../styles/images'
+import styled from 'styled-components'
+import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
 import { TModalSize } from '../../styles/dimensions'
+import { icons } from '../../styles/images'
+import { Icon } from './Icon'
+import NoStyleButton from './buttons/NoStyleButton'
 
 Modal.setAppElement('#root')
 
@@ -61,6 +61,9 @@ const SHARED_MODAL_CONTENT_STYLE = {
 }
 
 const getModalStyle = (modalSize: TModalSize): Modal.Styles => ({
+    overlay: {
+        zIndex: 1000,
+    },
     content: {
         ...SHARED_MODAL_CONTENT_STYLE,
         maxHeight: Dimensions.modalSize[modalSize].max_height,
@@ -86,6 +89,9 @@ const GTModal = (props: GTModalProps) => {
         }
     }
     return (
+        // ignoring TS warning here because react-modal typing does not support react 18, even though the library does
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         <Modal isOpen={props.isOpen} style={getModalStyle(props.type)} onRequestClose={handleClose}>
             <ModalContainer type={props.type}>
                 <Header>

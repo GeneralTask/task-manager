@@ -1,39 +1,52 @@
-import React, { useMemo, useRef } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
+import { DateTime } from 'luxon'
+import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { TEvent } from '../../utils/types'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { getMonthsAroundDate } from '../../utils/time'
+import { TEvent, TLinkedAccount } from '../../utils/types'
+import ConnectIntegration from '../molecules/ConnectIntegration'
+import { useCalendarContext } from './CalendarContext'
 import {
     AllDaysContainer,
+    CALENDAR_DEFAULT_SCROLL_HOUR,
+    CELL_HEIGHT_VALUE,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
-    CalendarTableStyle,
     CalendarTD,
+    CalendarTableStyle,
     CalendarTimesTableStyle,
-    CellTime,
     DayAndHeaderContainer,
     DayContainer,
     DayHeaderText,
-    TimeAndHeaderContainer,
-    TimeContainer,
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
+    TimeAndHeaderContainer,
+    TimeContainer,
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
-import { DateTime } from 'luxon'
+import EventBody from './EventBody'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
-import { getMonthsAroundDate } from '../../utils/time'
-import { useCalendarContext } from './CalendarContext'
 import useCalendarDrop from './utils/useCalendarDrop'
-import EventBody from './EventBody'
 
-const CalendarDayTable = () => {
+const ConnectContainer = styled.div`
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+`
+
+interface CalendarDayTableProps {
+    hasBorder: boolean
+}
+const CalendarDayTable = ({ hasBorder }: CalendarDayTableProps) => {
     const hourElements = Array(24)
         .fill(0)
         .map((_, index) => {
             return (
                 <CalendarRow key={index}>
-                    <CalendarTD />
+                    <CalendarTD borderLeft={hasBorder} />
                 </CalendarRow>
             )
         })
@@ -54,9 +67,7 @@ const CalendarTimeTable = () => {
             return (
                 <CalendarRow key={index}>
                     <CalendarTD>
-                        <CalendarCell>
-                            <CellTime>{timeString}</CellTime>
-                        </CalendarCell>
+                        <CalendarCell>{timeString}</CalendarCell>
                     </CalendarTD>
                 </CalendarRow>
             )
@@ -86,6 +97,12 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         isWeekView: isWeekCalendar,
     })
 
+    useLayoutEffect(() => {
+        if (eventsContainerRef.current) {
+            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+        }
+    }, [])
+
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
             {isWeekCalendar && (
@@ -112,10 +129,14 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                     ))}
                 <TimeIndicator />
-                <CalendarDayTable />
+                <CalendarDayTable hasBorder={isWeekCalendar} />
             </DayContainer>
         </DayAndHeaderContainer>
     )
+}
+
+const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Google')
 }
 
 interface CalendarEventsProps {
@@ -124,9 +145,11 @@ interface CalendarEventsProps {
 }
 
 const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
+    const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
+    const scrollRef = useRef<HTMLDivElement>(null)
+
     const { calendarType, selectedEvent } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
-
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
@@ -152,8 +175,14 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numberOfDays])
 
+    const showOauthPrompt = !isLinkedAccountsLoading && !isGoogleCalendarLinked(linkedAccounts ?? [])
+
+    if (showOauthPrompt && scrollRef.current) {
+        scrollRef.current.scrollTop = 0
+    }
+
     return (
-        <AllDaysContainer isScrollDisabled={selectedEvent != null}>
+        <AllDaysContainer ref={scrollRef} isScrollDisabled={selectedEvent != null || showOauthPrompt}>
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
@@ -161,6 +190,11 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
+            {showOauthPrompt && (
+                <ConnectContainer>
+                    <ConnectIntegration type="google_calendar" />
+                </ConnectContainer>
+            )}
             {allGroups.map((groups, dayOffset) => (
                 <WeekCalendarEvents
                     key={dayOffset}

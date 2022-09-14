@@ -1,8 +1,8 @@
-import React, { forwardRef } from 'react'
-import { TLinearComment } from '../../../utils/types'
+import { forwardRef } from 'react'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { DateTime } from 'luxon'
+import { TLinearComment } from '../../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 
 const CommentContainer = styled.div`

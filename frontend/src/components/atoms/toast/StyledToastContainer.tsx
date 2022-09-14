@@ -1,13 +1,12 @@
-import React from 'react'
 import { Theme, ToastContainer } from 'react-toastify'
-import styled from 'styled-components'
 import { cssTransition } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
+import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../../styles'
-import NoStyleButton from '../buttons/NoStyleButton'
-import { Icon } from '../Icon'
 import { icons } from '../../../styles/images'
+import { Icon } from '../Icon'
+import NoStyleButton from '../buttons/NoStyleButton'
 
 interface CloseButtonProps {
     closeToast: () => void
@@ -42,6 +41,7 @@ const StyledToastContainer = styled(ToastContainer).attrs({
     .toast {
         box-shadow: ${Shadows.medium};
         border-radius: ${Border.radius.small};
+        cursor: auto;
     }
     .toast-body {
         position: relative;
@@ -51,7 +51,6 @@ const StyledToastContainer = styled(ToastContainer).attrs({
             Cantarell, Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji',
             'Segoe UI Symbol';
         min-width: 0;
-        cursor: auto;
     }
 `
 

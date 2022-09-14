@@ -1,28 +1,16 @@
-import CalendarHeader, { CaretButton } from '../calendar/CalendarHeader'
-import { Colors, Spacing } from '../../styles'
-import React, { useEffect, useMemo, useState } from 'react'
-
-import { CalendarContainer } from '../calendar/CalendarEvents-styles'
-import CalendarEvents from '../calendar/CalendarEvents'
-import { DateTime } from 'luxon'
-import { Icon } from '../atoms/Icon'
-import { getMonthsAroundDate } from '../../utils/time'
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetEvents } from '../../services/api/events.hooks'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
+import { DateTime } from 'luxon'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
+import { useGetEvents } from '../../services/api/events.hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { getMonthsAroundDate } from '../../utils/time'
 import { useCalendarContext } from '../calendar/CalendarContext'
-
-const CollapsedCalendarView = styled.div`
-    padding: ${Spacing._16} ${Spacing._4} 0;
-    background-color: ${Colors.background.medium};
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-`
+import CalendarEvents from '../calendar/CalendarEvents'
+import { CalendarContainer } from '../calendar/CalendarEvents-styles'
+import CalendarHeader from '../calendar/CalendarHeader'
+import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
 
 export type TCalendarType = 'day' | 'week'
 
@@ -31,8 +19,15 @@ interface CalendarViewProps {
     showMainHeader?: boolean
     showDateHeader?: boolean
     isInitiallyCollapsed?: boolean
+    showContainerShadow?: boolean
 }
-const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitiallyCollapsed }: CalendarViewProps) => {
+const CalendarView = ({
+    initialType,
+    showMainHeader,
+    showDateHeader,
+    isInitiallyCollapsed,
+    showContainerShadow = true,
+}: CalendarViewProps) => {
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
@@ -67,18 +62,19 @@ const CalendarView = ({ initialType, showMainHeader, showDateHeader, isInitially
 
     useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
 
+    const { isTaskDraggingOverDetailsView } = useCalendarContext()
+
     return isCollapsed ? (
-        <CollapsedCalendarView onClick={() => setIsCollapsed(false)}>
-            <CaretButton>
-                <Icon icon={icons.calendar_blank} size="small" />
-            </CaretButton>
-        </CollapsedCalendarView>
+        <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
-        <CalendarContainer expanded={calendarType === 'week'}>
+        <CalendarContainer
+            isExpanded={calendarType === 'week'}
+            showShadow={isTaskDraggingOverDetailsView && showContainerShadow}
+        >
             <CalendarHeader date={date} setDate={setDate} />
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )
 }
 
-export default React.memo(CalendarView)
+export default memo(CalendarView)

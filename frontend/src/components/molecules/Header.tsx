@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { useIsFetching } from 'react-query'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -7,10 +7,13 @@ import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import RefreshButton from '../atoms/buttons/RefreshButton'
+import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
 
 const SectionHeaderContainer = styled.div`
     display: flex;
@@ -20,34 +23,32 @@ const SectionHeaderContainer = styled.div`
     min-height: 50px;
     gap: ${Spacing._4};
 `
-const HeaderText = styled.span`
-    margin-right: ${Spacing._8};
-    padding-left: 6px; /* TODO: remove margins and padding from Header */
-    border: ${Border.stroke.large} solid transparent;
-    overflow-wrap: break-word;
-    min-width: 0;
-    ${Typography.title};
+const MarginLeftAutoFlex = styled.div`
+    margin-left: auto;
+    display: flex;
 `
-const HeaderTextEditable = styled.input`
-    margin-right: ${Spacing._8};
-    padding-left: ${Spacing._4};
-    border: none;
-    outline: none;
-    &:focus {
-        border: ${Border.stroke.large} solid ${Colors.background.dark};
-    }
-    background-color: transparent;
-    width: 100%;
+const HeaderButton = styled(NoStyleButton)`
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    border-radius: ${Border.radius.small};
+`
+const HeaderText = styled.div<{ fontColor: TTextColor }>`
+    color: ${({ fontColor }) => Colors.text[fontColor]};
+    word-break: break-all;
+    text-align: left;
+    padding: ${Spacing._8};
     ${Typography.title};
 `
 
+const MAX_SECTION_NAME_LENGTH = 200
+
 const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID]
 const uneditableSectionIds = [DONE_SECTION_ID, TRASH_SECTION_ID]
-const matchUndeletableSectionId = (id: string) => undeletableSectionIds.includes(id)
-const matchUneditableSectionId = (id: string) => uneditableSectionIds.includes(id)
+const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
+const isEditable = (id: string) => !uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
     sectionName: string
-    allowRefresh: boolean
     taskSectionId?: string
 }
 export const SectionHeader = (props: SectionHeaderProps) => {
@@ -56,12 +57,11 @@ export const SectionHeader = (props: SectionHeaderProps) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
     const [sectionName, setSectionName] = useState(props.sectionName)
-    const sectionTitleRef = useRef<HTMLInputElement>(null)
     const navigate = useNavigate()
     const refetchStaleQueries = useRefetchStaleQueries()
     const isFetching = useIsFetching() !== 0
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setSectionName(props.sectionName)
     }, [props.sectionName])
 
@@ -81,44 +81,56 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         }
         setIsEditingTitle(false)
     }
-    const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-        if (sectionTitleRef.current && (e.key === 'Enter' || e.key === 'Escape')) sectionTitleRef.current.blur()
-        e.stopPropagation()
-    }
 
     useKeyboardShortcut('refresh', refetchStaleQueries, false)
 
-    const headerText = isEditingTitle ? (
-        <HeaderTextEditable
-            ref={sectionTitleRef}
-            value={sectionName}
-            onChange={(e) => setSectionName(e.target.value.substring(0, 200))}
-            onKeyDown={handleKeyDown}
-            onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
-            autoFocus
-        />
-    ) : (
-        <HeaderText>{sectionName}</HeaderText>
-    )
+    const showRefreshButton = (isHovering || isFetching) && !isEditingTitle
 
     return (
-        <SectionHeaderContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-            {headerText}
-            {props.allowRefresh && (isHovering || isFetching) && (
-                <RefreshButton onClick={refetchStaleQueries} isRefreshing={isFetching}>
-                    <Icon size="small" icon={icons.spinner} />
-                </RefreshButton>
-            )}
-            {props.taskSectionId && !matchUndeletableSectionId(props.taskSectionId) && (
-                <NoStyleButton onClick={() => handleDelete(props.taskSectionId)}>
-                    <Icon size="small" icon={icons.trash} color={Colors.icon.red}></Icon>
-                </NoStyleButton>
-            )}
-            {props.taskSectionId && !matchUneditableSectionId(props.taskSectionId) && (
-                <NoStyleButton onClick={() => setIsEditingTitle(true)}>
-                    <Icon size="small" icon={icons.pencil}></Icon>
-                </NoStyleButton>
-            )}
+        <SectionHeaderContainer>
+            <HeaderButton
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                onClick={refetchStaleQueries}
+            >
+                {isEditingTitle ? (
+                    <GTTextArea
+                        initialValue={sectionName}
+                        fontSize="large"
+                        onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
+                        onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+                        disabled={!isEditingTitle}
+                        autoFocus
+                    />
+                ) : (
+                    <>
+                        <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
+                        <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
+                            <Icon
+                                size="small"
+                                icon={icons.spinner}
+                                color={isHovering ? Colors.gtColor.primary : Colors.text.black}
+                            />
+                        </RefreshSpinner>
+                    </>
+                )}
+            </HeaderButton>
+            <MarginLeftAutoFlex>
+                {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
+                    <GTIconButton
+                        onClick={() => handleDelete(props.taskSectionId)}
+                        icon={icons.trash}
+                        iconColor="red"
+                        size="small"
+                    />
+                )}
+                {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
+                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
+                )}
+                {isEditingTitle && (
+                    <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
+                )}
+            </MarginLeftAutoFlex>
         </SectionHeaderContainer>
     )
 }

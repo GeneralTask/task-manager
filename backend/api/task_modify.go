@@ -135,7 +135,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	// handle reorder task
-	if modifyParams.IDOrdering != nil || modifyParams.IDTaskSection != nil {
+	if modifyParams.IDOrdering != nil || (modifyParams.IDTaskSection != nil || task.ParentTaskID != primitive.NilObjectID) {
 		err = api.ReOrderTask(c, taskID, userID, modifyParams.IDOrdering, modifyParams.IDTaskSection, task)
 		if err != nil {
 			return
@@ -176,6 +176,7 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
 	updateFields := bson.M{"has_been_reordered": true}
+
 	if IDOrdering != nil {
 		updateFields["id_ordering"] = *IDOrdering
 	}
@@ -186,6 +187,7 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 	} else {
 		IDTaskSection = task.IDTaskSection
 	}
+
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	result, err := taskCollection.UpdateOne(
@@ -205,17 +207,24 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 		Handle404(c)
 		return errors.New("task not found")
 	}
+
+	dbQuery := []bson.M{
+		{"_id": bson.M{"$ne": taskID}},
+		{"id_ordering": bson.M{"$gte": IDOrdering}},
+		{"user_id": userID},
+	}
+	if task.ParentTaskID != primitive.NilObjectID {
+		dbQuery = append(dbQuery, bson.M{"parent_task_id": task.ParentTaskID})
+	} else {
+		dbQuery = append(dbQuery, bson.M{"id_task_section": IDTaskSection})
+	}
+
 	// Move back other tasks to ensure ordering is preserved (gaps are removed in GET task list)
 	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err = taskCollection.UpdateMany(
 		dbCtx,
-		bson.M{"$and": []bson.M{
-			{"_id": bson.M{"$ne": taskID}},
-			{"id_ordering": bson.M{"$gte": IDOrdering}},
-			{"id_task_section": IDTaskSection},
-			{"user_id": userID},
-		}},
+		bson.M{"$and": dbQuery},
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
 	if err != nil {

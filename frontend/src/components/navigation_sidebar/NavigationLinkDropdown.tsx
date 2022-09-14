@@ -1,25 +1,24 @@
+import { ReactNode } from 'react'
+import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import React, { ReactNode } from 'react'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import styled from 'styled-components'
 
 const DropdownContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing._4} ${Spacing._8};
+    padding: ${Spacing._16} 0 ${Spacing._4};
     border-radius: ${Border.radius.small};
     border: ${Border.stroke.large} solid transparent;
-    gap: ${Spacing._8};
 `
 const LinksContainer = styled.div`
     display: flex;
     flex-direction: column;
 `
 const SectionTitle = styled.span`
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -55,7 +54,7 @@ const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: Naviga
                 {openAddSectionInput && (
                     <AddSectionContainer onClick={openAddSectionHandler} data-testid="add-section-button">
                         <TooltipWrapper dataTip="Add Section" tooltipId="tooltip">
-                            <Icon size="xSmall" icon={icons.plus} />
+                            <Icon size="xSmall" icon={icons.plus} color={Colors.icon.black} />
                         </TooltipWrapper>
                     </AddSectionContainer>
                 )}

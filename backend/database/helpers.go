@@ -539,6 +539,7 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 				{"user_id": userID},
 				{"datetime_start": bson.M{"$gte": currentTime}},
 				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
+				{"linked_task_id": bson.M{"$exists": false}},
 			},
 		})
 	if err != nil {
@@ -740,6 +741,81 @@ func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string
 	} else {
 		return constants.TaskSectionNameDefault
 	}
+}
+
+func GetView(db *mongo.Database, dbCtx context.Context, userID primitive.ObjectID, viewID primitive.ObjectID) (*View, error) {
+	logger := logging.GetSentryLogger()
+	viewCollection := GetViewCollection(db)
+	mongoResult := FindOneWithCollection(dbCtx, viewCollection, userID, viewID)
+
+	var view View
+	err := mongoResult.Decode(&view)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get view: %+v", viewID)
+		return nil, err
+	}
+	return &view, nil
+}
+
+type ReorderableSubmodel struct {
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	IDOrdering int                `bson:"id_ordering"`
+}
+
+func AdjustOrderingIDsForCollection(collection *mongo.Collection, userID primitive.ObjectID, itemID primitive.ObjectID, orderingID int) error {
+	parentCtx := context.Background()
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err := collection.UpdateMany(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"_id": bson.M{"$ne": itemID}},
+			{"user_id": userID},
+			{"id_ordering": bson.M{"$gte": orderingID}},
+		}},
+		bson.M{"$inc": bson.M{"id_ordering": 1}},
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to modify view id_orderings")
+		return err
+	}
+
+	// Normalize ordering IDs
+	var items []ReorderableSubmodel
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+
+	options := options.Find().SetSort(bson.M{"id_ordering": 1})
+	cursor, err := collection.Find(dbCtx, bson.M{"user_id": userID}, options)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get items")
+		return err
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	err = cursor.All(dbCtx, &items)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to get items")
+		return err
+	}
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	for index, item := range items {
+		newIDOrdering := index + 1
+		if item.IDOrdering != newIDOrdering {
+			collection.UpdateOne(
+				dbCtx,
+				bson.M{"$and": []bson.M{
+					{"_id": item.ID},
+					{"user_id": userID}},
+				},
+				bson.M{"$set": bson.M{"id_ordering": newIDOrdering}},
+			)
+		}
+	}
+	return nil
 }
 
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {

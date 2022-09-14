@@ -1,8 +1,9 @@
 package external
 
 import (
-	"go.mongodb.org/mongo-driver/mongo"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -25,6 +26,7 @@ type TaskCreationObject struct {
 	DueDate            *time.Time
 	TimeAllocation     *int64
 	IDTaskSection      primitive.ObjectID
+	ParentTaskID       primitive.ObjectID
 	SlackMessageParams database.SlackMessageParams
 }
 
@@ -45,6 +47,7 @@ type EventCreateObject struct {
 	Attendees         []Attendee         `json:"attendees,omitempty"`
 	AddConferenceCall bool               `json:"add_conference_call,omitempty"`
 	LinkedTaskID      primitive.ObjectID `json:"task_id,omitempty"`
+	LinkedViewID      primitive.ObjectID `json:"view_id,omitempty"`
 }
 
 type EventModifyObject struct {

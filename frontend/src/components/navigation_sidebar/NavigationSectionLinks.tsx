@@ -1,37 +1,34 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Colors, Spacing, Typography } from '../../styles'
-import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
-
+import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useAddTaskSection } from '../../services/api/task-section.hooks'
+import { useGetTasks } from '../../services/api/tasks.hooks'
+import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import NoStyleInput from '../atoms/NoStyleInput'
+import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
-
-import { useLocation, useParams } from 'react-router-dom'
-import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useGetTasks } from '../../services/api/tasks.hooks'
 
 const AddSectionContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing._4} ${Spacing._12};
+    padding: ${Spacing._8};
+    gap: ${Spacing._12};
     width: 100%;
     box-sizing: border-box;
-    ${Typography.bodySmall};
 `
 const InputContainer = styled.div`
     & input {
-        color: ${Colors.text.light};
+        color: ${Colors.text.black};
         border: none;
         font-family: inherit;
         box-sizing: border-box;
         width: 100%;
+        ${Typography.bodySmall};
     }
-    margin-left: ${Spacing._8};
-    ${Typography.bodySmall};
 `
 
 const NavigationSectionLinks = () => {
@@ -117,7 +114,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} />
+                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
                             </div>
                             <InputContainer>
                                 <NoStyleInput

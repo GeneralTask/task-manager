@@ -216,10 +216,19 @@ func TestGetTaskSectionOverviewResult(t *testing.T) {
 				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
 				IDOrdering:    3,
 			},
+			// shouldn't appear in overview result because subtask
+			database.Task{
+				UserID:        userID,
+				IsCompleted:   &isCompleted,
+				IDTaskSection: taskSectionID,
+				SourceID:      external.TASK_SOURCE_ID_GT_TASK,
+				IDOrdering:    4,
+				ParentTaskID:  primitive.NewObjectID(),
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(parentCtx, items)
 		assert.NoError(t, err)
-		assert.Equal(t, 3, len(taskResult.InsertedIDs))
+		assert.Equal(t, 4, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
@@ -324,6 +333,16 @@ func TestGetLinearOverviewResult(t *testing.T) {
 			IsCompleted:   &completed,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      external.TASK_SOURCE_ID_LINEAR,
+		})
+		assert.NoError(t, err)
+
+		// Insert completed Linear subtask. This task should not be in the view result.
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &completed,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_LINEAR,
+			ParentTaskID:  primitive.NewObjectID(),
 		})
 		assert.NoError(t, err)
 
@@ -441,6 +460,14 @@ func TestGetSlackOverviewResult(t *testing.T) {
 			IsCompleted:   &notCompleted,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      "randomSource",
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(parentCtx, database.Task{
+			UserID:        userID,
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+			ParentTaskID:  primitive.NewObjectID(),
 		})
 		assert.NoError(t, err)
 		_, err = taskCollection.InsertOne(parentCtx, database.Task{
@@ -699,7 +726,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeHasPassed", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "coffee", primitive.NewObjectID().Hex(), timeOneHourAgo, timeOneHourLater, primitive.NilObjectID)
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -707,9 +734,9 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsNextDay", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "get donuts", primitive.NewObjectID().Hex(), timeOneDayLater, timeOneDayLater, primitive.NilObjectID)
 		assert.NoError(t, err)
-		err = createTestEvent(parentCtx, calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow)
+		err = createTestEvent(parentCtx, calendarEventCollection, userID, "chat", primitive.NewObjectID().Hex(), timeEarlyTomorrow, timeEarlyTomorrow, primitive.NilObjectID)
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
 		assert.NoError(t, err)
@@ -717,17 +744,22 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 0, len(res.ViewItems))
 	})
 	t.Run("EventStartTimeIsInValidRange", func(t *testing.T) {
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event1", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NilObjectID)
+		assert.NoError(t, err)
+		// shouldn't show task to cal events
+		err = createTestEvent(parentCtx, calendarEventCollection, userID, "EventTask", primitive.NewObjectID().Hex(), timeOneHourLater, timeOneDayLater, primitive.NewObjectID())
 		assert.NoError(t, err)
 		res, err := api.GetMeetingPreparationOverviewResult(parentCtx, view, userID, timezoneOffset)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, 1, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
+		// shouldn't set the body to anything
+		assert.Equal(t, "", res.ViewItems[0].Body)
 	})
 	t.Run("MeetingPrepTaskAlreadyExists", func(t *testing.T) {
 		idExternal := primitive.NewObjectID().Hex()
-		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater)
+		err := createTestEvent(parentCtx, calendarEventCollection, userID, "Event2", idExternal, timeTwoHoursLater, timeOneDayLater, primitive.NilObjectID)
 		assert.NoError(t, err)
 
 		_, err = createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "Event2", idExternal, false, timeTwoHoursLater, timeOneDayLater)
@@ -739,6 +771,8 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		assert.Equal(t, 2, len(res.ViewItems))
 		assert.Equal(t, "Event1", res.ViewItems[0].Title)
 		assert.Equal(t, "Event2", res.ViewItems[1].Title)
+		// shouldn't update the body to anything
+		assert.Equal(t, "", res.ViewItems[0].Body)
 	})
 	t.Run("MeetingHasEnded", func(t *testing.T) {
 		insertResult, err := createTestMeetingPreparationTask(parentCtx, taskCollection, userID, "reticulate splines", primitive.NewObjectID().Hex(), false, timeZero, timeZero)
@@ -780,16 +814,18 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 	})
 }
 
-func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time) error {
+func createTestEvent(ctx context.Context, calendarEventCollection *mongo.Collection, userID primitive.ObjectID, title string, idExternal string, dateTimeStart time.Time, dateTimeEnd time.Time, linkedTaskID primitive.ObjectID) error {
 	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
 	defer cancel()
 	_, err := calendarEventCollection.InsertOne(dbCtx, database.CalendarEvent{
 		UserID:        userID,
 		Title:         title,
+		Body:          "event body",
 		IDExternal:    idExternal,
 		SourceID:      external.TASK_SOURCE_ID_GCAL,
 		DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
 		DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
+		LinkedTaskID:  linkedTaskID,
 	})
 	return err
 }
@@ -803,7 +839,7 @@ func createTestMeetingPreparationTask(ctx context.Context, taskCollection *mongo
 		Title:                    &title,
 		IsCompleted:              &isCompleted,
 		IsMeetingPreparationTask: true,
-		MeetingPreparationParams: database.MeetingPreparationParams{
+		MeetingPreparationParams: &database.MeetingPreparationParams{
 			IDExternal:    IDExternal,
 			DatetimeStart: primitive.NewDateTimeFromTime(dateTimeStart),
 			DatetimeEnd:   primitive.NewDateTimeFromTime(dateTimeEnd),
@@ -919,10 +955,19 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				DueDate:     &primitiveBefore,
 				IDOrdering:  6,
 			},
+			// subtask, due before
+			database.Task{
+				UserID:       userID,
+				IsCompleted:  &notCompleted,
+				SourceID:     external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:      &primitiveBefore,
+				ParentTaskID: primitive.NewObjectID(),
+				IDOrdering:   7,
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(parentCtx, items)
 		assert.NoError(t, err)
-		assert.Equal(t, 7, len(taskResult.InsertedIDs))
+		assert.Equal(t, 8, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)

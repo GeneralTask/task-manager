@@ -1,6 +1,5 @@
-import Cookies from 'js-cookie'
-import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import Cookies from 'js-cookie'
 import { AUTHORIZATION_COOKE } from '../constants'
 
 function PrivateOutlet(): JSX.Element {

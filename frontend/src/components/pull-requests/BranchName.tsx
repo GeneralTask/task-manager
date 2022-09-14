@@ -1,11 +1,9 @@
-import { BranchNameContainer, TruncatedText } from './styles'
-
-import { Icon } from '../atoms/Icon'
-import React from 'react'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
 import toast from '../../utils/toast'
-import { Colors } from '../../styles'
+import { Icon } from '../atoms/Icon'
+import TooltipWrapper from '../atoms/TooltipWrapper'
+import { BranchNameContainer, TruncatedText } from './styles'
 
 interface BranchNameProps {
     name: string

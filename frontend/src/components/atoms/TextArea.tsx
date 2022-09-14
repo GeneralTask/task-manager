@@ -1,7 +1,6 @@
-import React, { forwardRef } from 'react'
-import { Spacing, Typography } from '../../styles'
-
+import { forwardRef } from 'react'
 import styled from 'styled-components'
+import { Spacing, Typography } from '../../styles'
 
 const TextAreaStyled = styled.textarea`
     box-sizing: border-box;

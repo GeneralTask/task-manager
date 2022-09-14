@@ -1,3 +1,10 @@
+import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { DateTime } from 'luxon'
+import { logos } from '../../styles/images'
+import { TEvent } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
+import EventDetailPopup from '../molecules/EventDetailPopup'
+import { useCalendarContext } from './CalendarContext'
 import {
     CELL_HEIGHT_VALUE,
     EventBodyStyle,
@@ -8,14 +15,7 @@ import {
     EventTitle,
     IconContainer,
 } from './CalendarEvents-styles'
-import React, { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
-
-import { DateTime } from 'luxon'
-import EventDetailPopup from '../molecules/EventDetailPopup'
-import { Icon } from '../atoms/Icon'
-import { TEvent } from '../../utils/types'
-import { logos } from '../../styles/images'
-import { useCalendarContext } from './CalendarContext'
+import ResizeHandle from './ResizeHandle'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
@@ -128,7 +128,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
-                    <EventTitle isLongEvent={isLongEvent}>
+                    <EventTitle>
                         {props.event.linked_task_id && (
                             <IconContainer>
                                 <Icon size="xSmall" icon={logos[props.event.logo]} />
@@ -144,6 +144,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 squareEnd={endedAfterToday}
                 isSelected={selectedEvent?.id === props.event.id}
             />
+            <ResizeHandle event={props.event} />
         </EventBodyStyle>
     )
 }

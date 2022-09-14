@@ -1,24 +1,23 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
-import { Colors, Spacing } from '../../styles'
+import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { Spacing } from '../../styles'
+import { icons } from '../../styles/images'
+import { TPullRequest, TTask } from '../../utils/types'
+import Spinner from '../atoms/Spinner'
+import EmptyDetails from '../details/EmptyDetails'
+import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
+import { SectionHeader } from '../molecules/Header'
 import EditViewsButtons from '../overview/EditViewsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import { TPullRequest, TTask } from '../../utils/types'
-import Spinner from '../atoms/Spinner'
-import PullRequestDetails from '../details/PullRequestDetails'
-import { SectionHeader } from '../molecules/Header'
-import EmptyDetails from '../details/EmptyDetails'
-import { icons } from '../../styles/images'
-import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
-import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 
 const OverviewPageContainer = styled.div`
     display: flex;
-    border-right: 1px solid ${Colors.background.dark};
 `
 const ActionsContainer = styled.div`
     display: flex;
@@ -79,7 +78,7 @@ const OverviewView = () => {
         <>
             <OverviewPageContainer>
                 <ScrollableListTemplate ref={scrollRef}>
-                    <SectionHeader sectionName="Overview" allowRefresh={true} />
+                    <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
                         <EditViewsButtons />
                     </ActionsContainer>

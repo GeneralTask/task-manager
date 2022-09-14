@@ -1,13 +1,13 @@
-import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
-import React, { useEffect, useMemo, useState } from 'react'
-
-import AuthBanner from './AuthBanner'
-import ExternalViewItems from './viewItems/ExternalViewItems'
-import PullRequestViewItems from './viewItems/PullRequestViewItems'
-import Spinner from '../atoms/Spinner'
-import { TOverviewView } from '../../utils/types'
-import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { TOverviewView } from '../../utils/types'
+import Spinner from '../atoms/Spinner'
+import AuthBanner from './AuthBanner'
+import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
+import ExternalViewItems from './viewItems/ExternalViewItems'
+import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
+import PullRequestViewItems from './viewItems/PullRequestViewItems'
+import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 
 const PAGE_SIZE = 5
 
@@ -36,12 +36,14 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                 return ExternalViewItems
             case 'github':
                 return PullRequestViewItems
+            case 'meeting_preparation':
+                return MeetingPreparationViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }
     }, [view.type])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         setVisibleItemsCount(
             Math.max(
                 // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item

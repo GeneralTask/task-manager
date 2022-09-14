@@ -17,7 +17,7 @@ export interface TCreateTaskResponse {
     task_id: string
 }
 
-interface TModifyTaskData {
+export interface TModifyTaskData {
     id: string
     title?: string
     dueDate?: string
@@ -114,6 +114,7 @@ export const useCreateTask = () => {
                         sender: '',
                         is_done: false,
                         isOptimistic: true,
+                        is_meeting_preparation_task: false,
                     }
                     section.tasks = [newTask, ...section.tasks]
                 })

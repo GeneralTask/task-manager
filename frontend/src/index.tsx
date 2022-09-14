@@ -1,8 +1,7 @@
-import App from '../App'
-import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import { BrowserTracing } from '@sentry/tracing'
+import App from '../App'
 import { isDevelopmentMode } from './environment'
 
 if (!isDevelopmentMode) {
@@ -20,4 +19,5 @@ if (!isDevelopmentMode) {
         tracesSampleRate: 1.0,
     })
 }
-ReactDOM.render(<App />, document.getElementById('root'))
+const root = createRoot(document.getElementById('root') as Element)
+root.render(<App />)
