@@ -1,28 +1,35 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useItemSelectionController } from '../../hooks'
 import { Sort } from '../../hooks/useSortAndFilter'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { logos } from '../../styles/images'
+import { Spacing } from '../../styles'
+import { icons, logos } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
 import { TLinkedAccount, TPullRequest } from '../../utils/types'
-import Flex from '../atoms/Flex'
+import GTDropdownMenu, { GTDropdownMenuItem } from '../atoms/GTDropdownMenu'
 import Spinner from '../atoms/Spinner'
+import GTButton from '../atoms/buttons/GTButton'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
 import SortSelector from '../molecules/SortSelector'
 import PullRequestList from '../pull-requests/PullRequestList'
-import { PR_SORT_SELECTOR_ITEMS } from '../pull-requests/constants'
+import { PR_FILTER_ITEMS, PR_SORT_SELECTOR_ITEMS } from '../pull-requests/constants'
 import { Repository, RepositoryName } from '../pull-requests/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
+`
+const ActionsContainer = styled.div`
+    display: flex;
+    margin-bottom: ${Spacing._8};
+    gap: ${Spacing._8};
 `
 
 const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
@@ -31,8 +38,15 @@ const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
 const PullRequestsView = () => {
     const [sort, setSort] = useState<Sort<TPullRequest>>({
         ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
-        direction: SORT_ORDER.ASC,
+        direction: SORT_ORDER.DESC,
     })
+    const [filter, setFilter] = useState(PR_FILTER_ITEMS.all_prs)
+    const filterDropdownItems: GTDropdownMenuItem[] = Object.entries(PR_FILTER_ITEMS).map(([, value]) => ({
+        label: value.label,
+        onClick: () => setFilter(value),
+        selected: filter.id === value.id,
+    }))
+
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const navigate = useNavigate()
     const params = useParams()
@@ -61,15 +75,20 @@ const PullRequestsView = () => {
             return <div>No repositories</div>
         }
     }
-
     return (
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <Flex justifyContentSpaceBetween alignItemsCenter>
-                        <SectionHeader sectionName="Pull Requests" />
+                    <SectionHeader sectionName="Pull Requests" />
+                    <ActionsContainer>
+                        <GTDropdownMenu
+                            items={filterDropdownItems}
+                            trigger={
+                                <GTButton icon={icons.filter} value={filter.label} size="small" styleType="secondary" />
+                            }
+                        />
                         <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
-                    </Flex>
+                    </ActionsContainer>
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
@@ -79,7 +98,12 @@ const PullRequestsView = () => {
                                 {repository.pull_requests.length === 0 ? (
                                     'No pull requests'
                                 ) : (
-                                    <PullRequestList pullRequests={repository.pull_requests} sort={sort} />
+                                    <PullRequestList
+                                        pullRequests={repository.pull_requests}
+                                        selectedPrId={params.pullRequest}
+                                        sort={sort}
+                                        filter={filter.filter}
+                                    />
                                 )}
                                 <br />
                             </Repository>

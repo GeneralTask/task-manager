@@ -9,6 +9,7 @@ interface FlexProps {
     gap?: string
     justifyContentCenter?: boolean
     justifyContentSpaceBetween?: boolean
+    justifyContentFlexEnd?: boolean
     alignItemsCenter?: boolean
 }
 
@@ -18,6 +19,7 @@ const Flex = styled.div<FlexProps>`
     ${(props) => props.gap && 'gap: ' + props.gap};
     ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
     ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}
+    ${({ justifyContentFlexEnd }) => justifyContentFlexEnd && 'justify-content: flex-end;'}
     ${({ alignItemsCenter }) => alignItemsCenter && 'align-items: center;'}
 `
 

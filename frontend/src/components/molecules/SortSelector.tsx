@@ -1,18 +1,12 @@
 import { Sort } from '../../hooks/useSortAndFilter'
 import { icons } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
+import { TSortConfig } from '../../utils/types'
 import GTDropdownMenu, { GTDropdownMenuItem } from '../atoms/GTDropdownMenu'
 import GTButton from '../atoms/buttons/GTButton'
 
-export interface SortSelectorItems<T> {
-    [key: string]: {
-        label: string
-        sort: Omit<Sort<T>, 'direction'>
-    }
-}
-
 interface SortSelectorProps<T> {
-    items: SortSelectorItems<T> // constant determining the sort options
+    items: TSortConfig<T> // constant determining the sort options
     selectedSort: Sort<T>
     setSelectedSort: (sort: Sort<T>) => void
 }

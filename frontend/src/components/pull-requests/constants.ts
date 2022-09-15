@@ -1,5 +1,4 @@
-import { TPullRequest } from '../../utils/types'
-import { SortSelectorItems } from '../molecules/SortSelector'
+import { TFilterConfig, TPullRequest, TSortConfig } from '../../utils/types'
 
 const PULL_REQUEST_REQUIRED_ACTIONS = [
     'Add Reviewers',
@@ -16,7 +15,7 @@ const PULL_REQUEST_REQUIRED_ACTIONS = [
 
 const requiredActionToIndexMap = new Map<string, number>(PULL_REQUEST_REQUIRED_ACTIONS.map((action, index) => [action, index]))
 
-export const PR_SORT_SELECTOR_ITEMS: SortSelectorItems<TPullRequest> = {
+export const PR_SORT_SELECTOR_ITEMS: TSortConfig<TPullRequest> = {
     requiredAction: {
         label: 'Required action',
         sort: {
@@ -25,7 +24,7 @@ export const PR_SORT_SELECTOR_ITEMS: SortSelectorItems<TPullRequest> = {
                 const aPriority = requiredActionToIndexMap.get(a.status.text)
                 const bPriority = requiredActionToIndexMap.get(b.status.text)
                 if (aPriority === undefined || bPriority === undefined) return 0
-                return aPriority - bPriority
+                return bPriority - aPriority
             },
         },
     },
@@ -50,4 +49,17 @@ export const PR_SORT_SELECTOR_ITEMS: SortSelectorItems<TPullRequest> = {
             field: 'number',
         }
     },
+}
+
+export const PR_FILTER_ITEMS: TFilterConfig<TPullRequest> = {
+    all_prs: {
+        id: 'all_prs',
+        label: 'All PRs',
+        filter: () => true,
+    },
+    actionable_only: {
+        id: 'actionable_only',
+        label: 'Actionable pull requests',
+        filter: (pr: TPullRequest) => pr.status.text !== 'Not Actionable'
+    }
 }

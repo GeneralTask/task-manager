@@ -1,5 +1,6 @@
 import { TLogoImage } from "../styles/images"
 import { TStatusColors } from "../styles/colors"
+import { Filter, Sort } from "../hooks/useSortAndFilter"
 
 export type EmptyString = ''
 
@@ -242,4 +243,20 @@ export interface TSupportedView {
     is_linked: boolean
     views: TSupportedViewItem[]
     authorization_url: string
+}
+
+// TSortConfig and TFilterConfig are used define constants for sorting and filtering
+export interface TSortConfig<T> {
+    [key: string]: {
+        label: string
+        sort: Omit<Sort<T>, 'direction'>
+    }
+}
+
+export interface TFilterConfig<T> {
+    [key: string]: {
+        id: string
+        label: string
+        filter: Filter<T>
+    }
 }
