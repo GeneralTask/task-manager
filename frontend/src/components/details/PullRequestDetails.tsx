@@ -19,11 +19,7 @@ const TitleContainer = styled.div`
     background-color: inherit;
     color: ${Colors.text.black};
     font: inherit;
-    border: none;
-    resize: none;
-    outline: none;
-    overflow: hidden;
-    margin-bottom: ${Spacing._16};
+    margin: ${Spacing._16} 0;
     ${Typography.subtitle};
 `
 const MarginLeftAuto = styled.div`
@@ -32,8 +28,8 @@ const MarginLeftAuto = styled.div`
     align-items: center;
     margin-left: auto;
 `
-const MarginRight8 = styled.div`
-    margin-right: ${Spacing._8};
+const MarginHorizontal8 = styled.div`
+    margin: 0 ${Spacing._8};
 `
 const MaxWidth200 = styled.div`
     max-width: 200px;
@@ -56,23 +52,23 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
 
     return (
         <DetailsViewTemplate data-testid="details-view-container">
-            <DetailsTopContainer>
-                <MarginRight8>
+            <MarginHorizontal8>
+                <DetailsTopContainer>
                     <Icon icon={logos.github} size="small" color={Colors.icon.black} />
-                </MarginRight8>
-                <MarginLeftAuto>
-                    <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTIconButton icon={icons.external_link} size="small" />
-                    </NoStyleAnchor>
-                </MarginLeftAuto>
-            </DetailsTopContainer>
-            <TitleContainer>{title}</TitleContainer>
-            <InfoContainer>
-                <Status type={status.color}>{status.text}</Status>
-                <MaxWidth200>
-                    <BranchName name={branch} />
-                </MaxWidth200>
-            </InfoContainer>
+                    <MarginLeftAuto>
+                        <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
+                            <GTIconButton icon={icons.external_link} size="small" />
+                        </NoStyleAnchor>
+                    </MarginLeftAuto>
+                </DetailsTopContainer>
+                <TitleContainer>{title}</TitleContainer>
+                <InfoContainer>
+                    <Status type={status.color}>{status.text}</Status>
+                    <MaxWidth200>
+                        <BranchName name={branch} />
+                    </MaxWidth200>
+                </InfoContainer>
+            </MarginHorizontal8>
         </DetailsViewTemplate>
     )
 }
