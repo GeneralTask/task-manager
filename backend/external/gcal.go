@@ -33,6 +33,12 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		result <- emptyCalendarResult(err)
 		return
 	}
+	colors, err := calendarService.Colors.Get().Do()
+	if err != nil {
+		result <- emptyCalendarResult(err)
+		return
+	}
+	fmt.Println("COLORS:", colors)
 
 	calendarResponse, err := calendarService.Events.
 		List("primary").
@@ -53,6 +59,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 
 	events := []*database.CalendarEvent{}
 	for _, event := range calendarResponse.Items {
+		fmt.Println("EVENT COLOR:", event.ColorId)
 		//exclude all day events which won't have a start time.
 		if len(event.Start.DateTime) == 0 {
 			continue

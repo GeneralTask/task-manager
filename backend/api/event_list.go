@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
@@ -86,6 +87,7 @@ func (api *API) EventsList(c *gin.Context) {
 	calendarEventChannels := []chan external.CalendarResult{}
 	// Loop through linked accounts and fetch relevant items
 	for _, token := range tokens {
+		fmt.Println("token!", token.DisplayID)
 		taskServiceResult, err := api.ExternalConfig.GetTaskServiceResult(token.ServiceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("error loading task service")
@@ -102,9 +104,11 @@ func (api *API) EventsList(c *gin.Context) {
 	for _, calendarEventChannel := range calendarEventChannels {
 		calendarResult := <-calendarEventChannel
 		if calendarResult.Error != nil {
+			fmt.Println("error?!", calendarResult.Error)
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
+			fmt.Println("result event!")
 			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
 			var linkedTaskID string
