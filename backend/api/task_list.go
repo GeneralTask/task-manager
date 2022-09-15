@@ -40,6 +40,7 @@ type TaskResult struct {
 	Body                     string                       `json:"body"`
 	Sender                   string                       `json:"sender"`
 	DueDate                  string                       `json:"due_date"`
+	PriorityNormalized       float64                      `json:"priority_normalized"`
 	TimeAllocation           int64                        `json:"time_allocated"`
 	SentAt                   string                       `json:"sent_at"`
 	IsDone                   bool                         `json:"is_done"`
@@ -280,6 +281,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	if t.Body != nil {
 		body = *t.Body
 	}
+	priority := 0.0
+	if t.PriorityNormalized != nil {
+		priority = *t.PriorityNormalized
+	}
 	taskResult := &TaskResult{
 		ID:                       t.ID,
 		IDOrdering:               t.IDOrdering,
@@ -291,6 +296,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		Sender:                   t.Sender,
 		SentAt:                   t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		DueDate:                  dueDate,
+		PriorityNormalized:       priority,
 		IsDone:                   completed,
 		IsDeleted:                deleted,
 		Comments:                 t.Comments,
