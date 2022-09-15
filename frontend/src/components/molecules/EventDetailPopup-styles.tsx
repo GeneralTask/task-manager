@@ -1,8 +1,7 @@
+import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import styled from 'styled-components'
 
 const MAX_POPUP_LENGTH = 315
 const MAX_POPUP_HEIGHT = 100

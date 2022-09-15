@@ -1,6 +1,5 @@
-import { Border, Colors, Spacing } from '../../styles'
-
 import styled from 'styled-components'
+import { Border, Colors, Spacing } from '../../styles'
 
 const ActionValueContainer = styled.div`
     padding: ${Spacing._8};

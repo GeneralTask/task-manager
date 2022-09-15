@@ -1,7 +1,7 @@
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import { useReorderTask } from '../../services/api/tasks.hooks'

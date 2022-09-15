@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+
 /*
  * Anchor tag with no styling. This is meant to be used for external links.
  */

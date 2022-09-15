@@ -1,3 +1,6 @@
+import { memo, useEffect, useMemo, useState } from 'react'
+import { useIdleTimer } from 'react-idle-timer'
+import { DateTime } from 'luxon'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useGetEvents } from '../../services/api/events.hooks'
@@ -8,9 +11,6 @@ import CalendarEvents from '../calendar/CalendarEvents'
 import { CalendarContainer } from '../calendar/CalendarEvents-styles'
 import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
-import { DateTime } from 'luxon'
-import { memo, useEffect, useMemo, useState } from 'react'
-import { useIdleTimer } from 'react-idle-timer'
 
 export type TCalendarType = 'day' | 'week'
 

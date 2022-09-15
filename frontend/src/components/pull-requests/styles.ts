@@ -1,5 +1,5 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 
 export const ColumnWidths = {
@@ -17,7 +17,7 @@ export const Column = styled.div<{ type: TColumnWidths }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: ${props => ColumnWidths[props.type]};
+    width: ${(props) => ColumnWidths[props.type]};
     padding: ${Spacing._8};
     overflow: hidden;
     white-space: nowrap;
@@ -25,8 +25,8 @@ export const Column = styled.div<{ type: TColumnWidths }>`
 
 export const Status = styled.div<{ type: TStatusColors }>`
     color: ${Colors.text.black};
-    background: ${props => Colors.status[props.type].light};
-    border: ${Border.stroke.medium} solid ${props => Colors.status[props.type].default};
+    background: ${(props) => Colors.status[props.type].light};
+    border: ${Border.stroke.medium} solid ${(props) => Colors.status[props.type].default};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._4} ${Spacing._8};
     overflow: hidden;
@@ -46,8 +46,7 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
     height: ${PULL_REQUEST_HEIGHT};
     padding: ${Spacing._4};
-    background-color: ${(props) =>
-        props.isSelected ? Colors.background.medium : Colors.background.white};
+    background-color: ${(props) => (props.isSelected ? Colors.background.medium : Colors.background.white)};
     box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
     border-radius: ${Border.radius.small};
     cursor: pointer;

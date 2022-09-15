@@ -1,3 +1,10 @@
+import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { DateTime } from 'luxon'
+import { logos } from '../../styles/images'
+import { TEvent } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
+import EventDetailPopup from '../molecules/EventDetailPopup'
+import { useCalendarContext } from './CalendarContext'
 import {
     CELL_HEIGHT_VALUE,
     EventBodyStyle,
@@ -8,15 +15,7 @@ import {
     EventTitle,
     IconContainer,
 } from './CalendarEvents-styles'
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
-
-import { DateTime } from 'luxon'
-import EventDetailPopup from '../molecules/EventDetailPopup'
 import ResizeHandle from './ResizeHandle'
-import { Icon } from '../atoms/Icon'
-import { TEvent } from '../../utils/types'
-import { logos } from '../../styles/images'
-import { useCalendarContext } from './CalendarContext'
 
 const LONG_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes

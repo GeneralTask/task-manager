@@ -1,5 +1,5 @@
-import { TLogoImage } from "../styles/images"
-import { TStatusColors } from "../styles/colors"
+import { TStatusColors } from '../styles/colors'
+import { TLogoImage } from '../styles/images'
 
 export type EmptyString = ''
 
@@ -50,11 +50,11 @@ export interface TMeetingPreparationParams {
 export interface TSlackMessageParams {
     channel: {
         id: string
-        name: string   // ex. general, shitposting, directmessage
+        name: string // ex. general, shitposting, directmessage
     }
     user: {
         id: string
-        name: string   // the user who initiated the shortcut. *NOT* the user who sent the message
+        name: string // the user who initiated the shortcut. *NOT* the user who sent the message
     }
     team: {
         id: string
@@ -62,9 +62,9 @@ export interface TSlackMessageParams {
     }
     message: {
         text: string
-        ts: number     // time sent
-        type: string   // message type
-        user: string   // user ID of who sent the message. *NOT* the user name
+        ts: number // time sent
+        type: string // message type
+        user: string // user ID of who sent the message. *NOT* the user name
     }
 }
 

@@ -1,13 +1,13 @@
-import { Border, Colors, Spacing } from '../../styles'
 import { useState } from 'react'
-import { TitleSmall } from '../atoms/title/Title'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import TextArea from '../atoms/TextArea'
 import styled from 'styled-components'
-import GTModal from '../atoms/GTModal'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
-import GTButton from '../atoms/buttons/GTButton'
+import { Border, Colors, Spacing } from '../../styles'
 import toast from '../../utils/toast'
+import GTModal from '../atoms/GTModal'
+import TextArea from '../atoms/TextArea'
+import GTButton from '../atoms/buttons/GTButton'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { TitleSmall } from '../atoms/title/Title'
 
 const FeedbackHeader = styled.div`
     margin-bottom: ${Spacing._24};

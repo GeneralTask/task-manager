@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom'
-import CompanyPolicyView from '../views/CompanyPolicyView'
 import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from '../../constants'
 import { CompanyPolicyPages } from '../../utils/enums'
+import CompanyPolicyView from '../views/CompanyPolicyView'
 
 const CompanyPolicyScreen = () => {
     const location = useLocation()
