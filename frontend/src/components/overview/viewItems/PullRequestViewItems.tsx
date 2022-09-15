@@ -20,7 +20,9 @@ const PullRequestViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
         <>
             <ViewHeader>
                 <ViewName>{view.name}</ViewName>
-                <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
+                {view.view_items.length > 0 && (
+                    <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
+                )}
             </ViewHeader>
             {view.view_items.length === 0 && view.is_linked && (
                 <EmptyViewItem
