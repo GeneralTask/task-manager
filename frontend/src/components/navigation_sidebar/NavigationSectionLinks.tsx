@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
@@ -96,7 +96,7 @@ const NavigationSectionLinks = () => {
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
-                    ?.filter((section) => !section.is_done && !section.is_trash)
+                    ?.filter((section) => !section.is_done)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
@@ -144,22 +144,6 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
-                {false &&
-                    taskSections
-                        ?.filter((section) => section.is_trash)
-                        .map((section) => (
-                            <NavigationLink
-                                key={section.id}
-                                link={`/tasks/${section.id}`}
-                                title={section.name}
-                                icon={icons.trash}
-                                isCurrentPage={sectionId === section.id}
-                                taskSection={section}
-                                count={section.tasks.length}
-                                droppable={false}
-                                testId="trash-section-link"
-                            />
-                        ))}
             </NavigationLinkDropdown>
         </>
     )

@@ -27,7 +27,6 @@ export const useAddTaskSection = () => {
                 id: TASK_SECTION_DEFAULT_ID,
                 name: data.name,
                 is_done: false,
-                is_trash: false,
                 tasks: [],
             }
             const newSections = produce(sections, (draft) => {
