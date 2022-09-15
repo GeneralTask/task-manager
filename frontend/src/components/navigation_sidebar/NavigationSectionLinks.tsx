@@ -144,7 +144,7 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
-                {false &&
+                {false && // hiding for now until we actually support deletion of tasks
                     taskSections
                         ?.filter((section) => section.is_trash)
                         .map((section) => (
@@ -157,7 +157,6 @@ const NavigationSectionLinks = () => {
                                 taskSection={section}
                                 count={section.tasks.length}
                                 droppable={false}
-                                testId="trash-section-link"
                             />
                         ))}
             </NavigationLinkDropdown>
