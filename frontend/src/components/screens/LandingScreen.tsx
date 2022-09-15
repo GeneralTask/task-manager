@@ -57,7 +57,10 @@ const ResponseContainer = styled.div`
     height: 20px;
     color: ${Colors.status.red.default};
 `
-
+const SignInButtonContainer = styled.div`
+    width: 200px;
+    margin: auto;
+`
 const FAQHeader = styled.div`
     max-width: 700px;
     margin: auto;
@@ -133,7 +136,9 @@ const LandingScreen = () => {
                     <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
                 </WaitlistContainer>
                 <ResponseContainer data-testid="response-container">{message}</ResponseContainer>
-                <GoogleSignInButton />
+                <SignInButtonContainer>
+                    <GoogleSignInButton />
+                </SignInButtonContainer>
             </FlexGrowContainer>
             <FlexGrowContainer>
                 <FlexColumn>
