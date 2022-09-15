@@ -81,6 +81,63 @@ func TestGetTasks(t *testing.T) {
 	})
 }
 
+func TestGetDeletedTasks(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	notDeleted := false
+	deleted := true
+	task1, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abc",
+		"foobar_source",
+		&Task{
+			IDExternal: "123abc",
+			SourceID:   "foobar_source",
+			UserID:     userID,
+			IsDeleted:  &notDeleted,
+		},
+	)
+	assert.NoError(t, err)
+	task2, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abcde",
+		"foobar_source",
+		&Task{
+			IDExternal: "123abcde",
+			SourceID:   "foobar_source",
+			UserID:     userID,
+			IsDeleted:  &deleted,
+		},
+	)
+	assert.NoError(t, err)
+	_, err = GetOrCreateTask(
+		db,
+		notUserID,
+		"123abe",
+		"foobar_source",
+		&Task{
+			IDExternal: "123abe",
+			SourceID:   "foobar_source",
+			UserID:     notUserID,
+			IsDeleted:  &notDeleted,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("Success", func(t *testing.T) {
+		tasks, err := GetDeletedTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, task2.ID, (*tasks)[0].ID)
+
+	})
+}
+
 func TestGetMeetingPreparationTasks(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)

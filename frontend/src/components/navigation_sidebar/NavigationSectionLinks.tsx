@@ -144,21 +144,22 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
-                {taskSections
-                    ?.filter((section) => section.is_trash)
-                    .map((section) => (
-                        <NavigationLink
-                            key={section.id}
-                            link={`/tasks/${section.id}`}
-                            title={section.name}
-                            icon={icons.trash}
-                            isCurrentPage={sectionId === section.id}
-                            taskSection={section}
-                            count={section.tasks.length}
-                            droppable={false}
-                            testId="trash-section-link"
-                        />
-                    ))}
+                {false &&
+                    taskSections
+                        ?.filter((section) => section.is_trash)
+                        .map((section) => (
+                            <NavigationLink
+                                key={section.id}
+                                link={`/tasks/${section.id}`}
+                                title={section.name}
+                                icon={icons.trash}
+                                isCurrentPage={sectionId === section.id}
+                                taskSection={section}
+                                count={section.tasks.length}
+                                droppable={false}
+                                testId="trash-section-link"
+                            />
+                        ))}
             </NavigationLinkDropdown>
         </>
     )
