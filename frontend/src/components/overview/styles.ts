@@ -10,7 +10,12 @@ export const ViewContainer = styled.div`
     box-shadow: ${Shadows.light};
 `
 export const ViewHeader = styled.div`
-    margin-bottom: ${Spacing._8};
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: ${Spacing._8} 0;
+`
+export const ViewName = styled.div`
     color: ${Colors.text.light};
     ${Typography.subtitle};
 `
