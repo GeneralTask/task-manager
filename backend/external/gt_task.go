@@ -57,6 +57,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 	}
 	timeAllocation := time.Hour.Nanoseconds()
 	completed := false
+	deleted := false
 	newTask := database.Task{
 		UserID:          userID,
 		IDExternal:      primitive.NewObjectID().Hex(),
@@ -67,6 +68,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 		TimeAllocation:  &timeAllocation,
 		SourceAccountID: accountID,
 		IsCompleted:     &completed,
+		IsDeleted:       &deleted,
 	}
 	if task.DueDate != nil {
 		dueDate := primitive.NewDateTimeFromTime(*task.DueDate)

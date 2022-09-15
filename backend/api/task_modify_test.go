@@ -22,6 +22,149 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func TestMarkAsDeleted(t *testing.T) {
+	parentCtx := context.Background()
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	authToken := login("approved@generaltask.com", "")
+	userID := getUserIDFromAuthToken(t, db, authToken)
+
+	taskCollection := database.GetTaskCollection(db)
+
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	completed := false
+	insertResult, err := taskCollection.InsertOne(dbCtx, database.Task{
+		UserID:      userID,
+		IDExternal:  "sample_linear_id",
+		SourceID:    external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted: &completed,
+		PreviousStatus: &database.ExternalTaskStatus{
+			ExternalID: "previous-status-id",
+			State:      "In Progress",
+			Type:       "in-progress",
+		},
+	})
+	assert.NoError(t, err)
+	linearTaskID := insertResult.InsertedID.(primitive.ObjectID)
+	linearTaskIDHex := linearTaskID.Hex()
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	insertResult, err = taskCollection.InsertOne(dbCtx, database.Task{
+		UserID:      userID,
+		IDExternal:  "sample_calendar_id",
+		SourceID:    external.TASK_SOURCE_ID_GCAL,
+		IsCompleted: &completed,
+	})
+	assert.NoError(t, err)
+
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = externalAPITokenCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": external.TaskSourceLinear.Name}}},
+		bson.M{"$set": &database.ExternalAPIToken{
+			ServiceID: external.TASK_SERVICE_ID_LINEAR,
+			Token:     `{"access_token":"sample-token","refresh_token":"sample-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`,
+			UserID:    userID,
+		}},
+		options.Update().SetUpsert(true),
+	)
+	assert.NoError(t, err)
+
+	response := `{"data": {"issueUpdate": {
+				"success": true,
+					"issue": {
+					"id": "1c3b11d7-9298-4cc3-8a4a-d2d6d4677315",
+						"title": "test title",
+						"description": "test description",
+						"state": {
+						"id": "39e87303-2b42-4c71-bfbe-4afb7bb7eecb",
+							"name": "Todo"
+					}}}}}`
+	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
+
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
+	router := GetRouter(api)
+
+	t.Run("MissingDeletionFlag", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+
+	t.Run("DeletionFlagFalse", func(t *testing.T) {
+		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
+		assert.NoError(t, err)
+		ServeRequest(t,
+			authToken,
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_deleted": false}`)),
+			http.StatusOK,
+			api,
+		)
+		tasks, err := database.GetDeletedTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tasks))
+	})
+
+	t.Run("InvalidHex", func(t *testing.T) {
+		ServeRequest(t,
+			authToken,
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"1/",
+			bytes.NewBuffer([]byte(`{"is_deleted": false}`)),
+			http.StatusNotFound,
+			api,
+		)
+	})
+
+	t.Run("InvalidUser", func(t *testing.T) {
+		secondAuthToken := login("tester@generaltask.com", "")
+		ServeRequest(t,
+			secondAuthToken,
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_deleted": false}`)),
+			http.StatusNotFound,
+			api,
+		)
+	})
+
+	t.Run("MarkAsDeletedSuccess", func(t *testing.T) {
+		var task database.Task
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": linearTaskID}).Decode(&task)
+		assert.Equal(t, false, *task.IsDeleted)
+		ServeRequest(t,
+			authToken,
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_deleted": true}`)),
+			http.StatusOK,
+			api,
+		)
+
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = taskCollection.FindOne(dbCtx, bson.M{"_id": linearTaskID}).Decode(&task)
+		assert.Equal(t, true, *task.IsDeleted)
+		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
+	})
+}
+
 func TestMarkAsComplete(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()

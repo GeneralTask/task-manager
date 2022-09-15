@@ -82,6 +82,7 @@ type Task struct {
 	IDOrdering         int                 `bson:"id_ordering,omitempty"`
 	IDTaskSection      primitive.ObjectID  `bson:"id_task_section,omitempty"`
 	IsCompleted        *bool               `bson:"is_completed,omitempty"`
+	IsDeleted          *bool               `bson:"is_deleted,omitempty"`
 	Sender             string              `bson:"sender,omitempty"`
 	SourceID           string              `bson:"source_id,omitempty"`
 	SourceAccountID    string              `bson:"source_account_id,omitempty"`
@@ -93,6 +94,7 @@ type Task struct {
 	TimeAllocation     *int64              `bson:"time_allocated,omitempty"` // time in nanoseconds
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
+	DeletedAt          primitive.DateTime  `bson:"deleted_at,omitempty"`
 	PriorityID         *string             `bson:"priority_id,omitempty"`
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`

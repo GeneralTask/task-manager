@@ -361,6 +361,7 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": false},
+				{"is_deleted": bson.M{"$ne": true}},
 			},
 		},
 	)
@@ -372,10 +373,10 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 	return cursor, nil
 }
 
-func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]Task, error) {
+func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M, findOptions *options.FindOptions) (*[]Task, error) {
 	parentCtx := context.Background()
 	var tasks []Task
-	err := FindWithCollection(parentCtx, GetTaskCollection(db), userID, additionalFilters, &tasks)
+	err := FindWithCollection(parentCtx, GetTaskCollection(db), userID, additionalFilters, &tasks, findOptions)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch items for user")
@@ -388,7 +389,7 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
 	parentCtx := context.Background()
 	var pullRequests []PullRequest
-	err := FindWithCollection(parentCtx, GetPullRequestCollection(db), userID, additionalFilters, &pullRequests)
+	err := FindWithCollection(parentCtx, GetPullRequestCollection(db), userID, additionalFilters, &pullRequests, nil)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
@@ -397,7 +398,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	return &pullRequests, nil
 }
 
-func FindWithCollection(parentCtx context.Context, collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}) error {
+func FindWithCollection(parentCtx context.Context, collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}, findOptions *options.FindOptions) error {
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
@@ -408,11 +409,16 @@ func FindWithCollection(parentCtx context.Context, collection *mongo.Collection,
 			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
 		}
 	}
+	if findOptions == nil {
+		findOptions = options.Find()
+	}
+
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 	defer cancel()
 	cursor, err := collection.Find(
 		dbCtx,
 		filter,
+		findOptions,
 	)
 	if err != nil {
 		return err
@@ -437,6 +443,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 			"$and": []bson.M{
 				{"user_id": userID},
 				{"is_completed": true},
+				{"is_deleted": bson.M{"$ne": true}},
 			},
 		},
 		findOptions,
@@ -457,12 +464,27 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 	return &tasks, nil
 }
 
+func GetDeletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "deleted_at", Value: -1}, {Key: "_id", Value: -1}})
+	findOptions.SetLimit(int64(constants.MAX_DELETED_TASKS))
+	filter := []bson.M{{"is_deleted": true}}
+
+	tasks, err := GetTasks(db, userID, &filter, findOptions)
+	if err != nil {
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to fetch deleted tasks for user")
+		return nil, err
+	}
+	return tasks, nil
+}
+
 func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
 	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
 			{"is_meeting_preparation_task": true},
 		},
+		nil,
 	)
 }
 
@@ -518,13 +540,7 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
 	parentCtx := context.Background()
 	var sections []TaskSection
-	err := FindWithCollection(
-		parentCtx,
-		GetTaskSectionCollection(db),
-		userID,
-		&[]bson.M{{"user_id": userID}},
-		&sections,
-	)
+	err := FindWithCollection(parentCtx, GetTaskSectionCollection(db), userID, &[]bson.M{{"user_id": userID}}, &sections, nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load task sections")
