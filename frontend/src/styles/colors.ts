@@ -57,6 +57,7 @@ export const text = {
     black: BLACK,
     light: GRAY._500,
     white: WHITE,
+    red: RED._1,
     orange: ORANGE._1,
     purple: PURPLE._1,
 }
