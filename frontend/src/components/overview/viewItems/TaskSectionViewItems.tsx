@@ -5,6 +5,7 @@ import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewTask from '../../molecules/CreateNewTask'
 import Task from '../../molecules/Task'
+import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
@@ -28,6 +29,9 @@ const TaskSectionViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsP
 
     return (
         <>
+            <ViewHeader>
+                <ViewName>{view.name}</ViewName>
+            </ViewHeader>
             {sectionId && <CreateNewTask disableTooltip sectionId={sectionId} />}
             {view.view_items.length > 0 ? (
                 view.view_items.slice(0, visibleItemsCount).map((item, index) => (
