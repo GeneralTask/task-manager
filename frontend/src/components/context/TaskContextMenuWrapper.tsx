@@ -12,28 +12,28 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
     const { mutate: reorderTask } = useReorderTask()
 
     const contextMenuItems: GTContextMenuItem[] = [
-        {
-            label: 'Priority',
-            icon: icons.priority_urgent,
-            subItems: [
-                {
-                    label: 'Urgent',
-                    icon: icons.priority_urgent,
-                },
-                {
-                    label: 'High',
-                    icon: icons.priority_high,
-                },
-                {
-                    label: 'Medium',
-                    icon: icons.priority_medium,
-                },
-                {
-                    label: 'Low',
-                    icon: icons.priority_low,
-                },
-            ],
-        },
+        // {
+        //     label: 'Priority',
+        //     icon: icons.priority_urgent,
+        //     subItems: [
+        //         {
+        //             label: 'Urgent',
+        //             icon: icons.priority_urgent,
+        //         },
+        //         {
+        //             label: 'High',
+        //             icon: icons.priority_high,
+        //         },
+        //         {
+        //             label: 'Medium',
+        //             icon: icons.priority_medium,
+        //         },
+        //         {
+        //             label: 'Low',
+        //             icon: icons.priority_low,
+        //         },
+        //     ],
+        // },
         {
             label: 'Section',
             icon: icons.folder,
@@ -57,16 +57,16 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
                   ]
                 : [],
         },
-        {
-            label: 'Due date',
-            icon: icons.timer,
-        },
-        {
-            label: 'Delete task',
-            icon: icons.trash,
-            iconColor: 'red',
-            textColor: 'red',
-        },
+        // {
+        //     label: 'Due date',
+        //     icon: icons.timer,
+        // },
+        // {
+        //     label: 'Delete task',
+        //     icon: icons.trash,
+        //     iconColor: 'red',
+        //     textColor: 'red',
+        // },
     ]
 
     return <GTContextMenu items={contextMenuItems} trigger={children} />
