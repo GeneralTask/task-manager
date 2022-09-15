@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/GeneralTask/task-manager/backend/external"
+
 	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -54,6 +56,8 @@ const (
 	ChoiceKeyManual                   = "manual"
 	ChoiceKeyDueDate                  = "due_date"
 	ChoiceKeyPriority                 = "priority"
+	// Calendar choice
+	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
 )
 
 // human readable names aren't defined here because they are not used
@@ -163,6 +167,25 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 				},
 			)
 		}
+	}
+
+	externalTokens, err := database.GetExternalTokens(db, userID, external.TASK_SERVICE_ID_GOOGLE)
+	if err != nil {
+		return nil, err
+	}
+	calendarChoices := []SettingChoice{}
+	for _, token := range *externalTokens {
+		calendarChoices = append(calendarChoices, SettingChoice{
+			Key:  token.AccountID,
+			Name: token.DisplayID,
+		})
+	}
+	if len(calendarChoices) > 0 {
+		settingsOptions = append(settingsOptions, SettingDefinition{
+			FieldKey:      SettingFieldCalendarForNewTasks,
+			DefaultChoice: calendarChoices[0].Key,
+			Choices:       calendarChoices,
+		})
 	}
 
 	return &settingsOptions, nil
