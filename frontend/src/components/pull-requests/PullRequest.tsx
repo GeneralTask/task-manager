@@ -1,14 +1,14 @@
+import { useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { DateTime } from 'luxon'
 import { icons } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { Column, CommentsCountContainer, LinkButtonContainer, PullRequestRow, Status, TruncatedText } from './styles'
-import { DateTime } from 'luxon'
-import { useCallback } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import GTButton from '../atoms/buttons/GTButton'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 
 interface PullRequestProps {
     pullRequest: TPullRequest

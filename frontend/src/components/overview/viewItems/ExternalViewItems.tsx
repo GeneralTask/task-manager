@@ -1,8 +1,8 @@
+import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
-import { ViewItemsProps } from './viewItems.types'
-import { useParams } from 'react-router-dom'
 import EmptyViewItem from './EmptyViewItem'
+import { ViewItemsProps } from './viewItems.types'
 
 const ExternalViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
     const { overviewViewId, overviewItemId } = useParams()

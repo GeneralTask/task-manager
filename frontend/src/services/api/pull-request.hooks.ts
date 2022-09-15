@@ -1,9 +1,9 @@
-import { castImmutable } from "immer"
-import { QueryFunctionContext, useQuery } from "react-query"
-import { PR_REFETCH_INTERVAL } from "../../constants"
-import apiClient from "../../utils/api"
-import { TRepository } from "../../utils/types"
-import { useGTQueryClient } from "../queryUtils"
+import { QueryFunctionContext, useQuery } from 'react-query'
+import { castImmutable } from 'immer'
+import { PR_REFETCH_INTERVAL } from '../../constants'
+import apiClient from '../../utils/api'
+import { TRepository } from '../../utils/types'
+import { useGTQueryClient } from '../queryUtils'
 
 export const useGetPullRequests = () => {
     return useQuery<TRepository[]>('pull_requests', getPullRequests)

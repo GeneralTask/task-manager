@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 export const ViewContainer = styled.div`

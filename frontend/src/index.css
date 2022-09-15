@@ -3,17 +3,19 @@
 }
 
 #event-details-popup {
-    position: absolute; 
+    position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 100; 
+    z-index: 100;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif, "Segoe UI", Helvetica, Roboto, Oxygen, Ubuntu, Cantarell, Arial, "Fira Sans", "Droid Sans", "Helvetica Neue", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif, 'Segoe UI', Helvetica, Roboto, Oxygen, Ubuntu, Cantarell,
+        Arial, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
 .__react_component_tooltip.show {

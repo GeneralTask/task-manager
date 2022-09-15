@@ -1,5 +1,5 @@
-import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../constants'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../constants'
 
 export default function useKeyboardShortcut(
     shortcutType: TKeyboardShortcuts,

@@ -1,7 +1,6 @@
-import { Colors, Spacing } from '../../styles'
-
-import styled from 'styled-components'
 import { forwardRef, memo } from 'react'
+import styled from 'styled-components'
+import { Colors, Spacing } from '../../styles'
 
 const DominoOuterContainer = styled.div`
     height: ${Spacing._16};

@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon'
-
 import { TEvent } from '../../utils/types'
 import EventBody from './EventBody'
 import EventBodyDraggable from './EventBodyDraggable'

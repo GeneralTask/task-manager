@@ -1,6 +1,6 @@
-import { castImmutable } from "immer"
-import { useMutation } from "react-query"
-import apiClient from "../../utils/api"
+import { useMutation } from 'react-query'
+import { castImmutable } from 'immer'
+import apiClient from '../../utils/api'
 
 interface TPostFeedbackData {
     feedback: string
