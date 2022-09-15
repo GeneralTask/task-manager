@@ -1,7 +1,6 @@
+import { Immutable } from 'immer'
+import { DateTime } from 'luxon'
 import { TTask, TTaskSection } from './types'
-
-import { DateTime } from 'luxon';
-import { Immutable } from 'immer';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -22,7 +21,14 @@ export function resetOrderingIds(tasks: { id_ordering: number }[]) {
 }
 
 export const getHumanTimeSinceDateTime = (date: DateTime) => {
-    const { years, months, days, hours, minutes } = DateTime.now().diff(date, ['years', 'months', 'days', 'hours', 'minutes', 'milliseconds'])
+    const { years, months, days, hours, minutes } = DateTime.now().diff(date, [
+        'years',
+        'months',
+        'days',
+        'hours',
+        'minutes',
+        'milliseconds',
+    ])
 
     if (years > 0) {
         return `${years} ${years > 1 ? 'years' : 'year'} ago`
@@ -63,16 +69,19 @@ interface TGetTaskIndexFromSectionsReturnType {
     taskIndex?: number
     sectionIndex?: number
 }
-export const getTaskIndexFromSections = (sections: Immutable<{ id?: string, tasks: TTask[] }[]>, taskId: string, sectionId?: string): TGetTaskIndexFromSectionsReturnType => {
+export const getTaskIndexFromSections = (
+    sections: Immutable<{ id?: string; tasks: TTask[] }[]>,
+    taskId: string,
+    sectionId?: string
+): TGetTaskIndexFromSectionsReturnType => {
     const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
     if (sectionId) {
-        const sectionIndex = sections.findIndex(section => section.id === sectionId)
+        const sectionIndex = sections.findIndex((section) => section.id === sectionId)
         if (sectionIndex === -1) return invalidResult
-        const taskIndex = sections[sectionIndex].tasks.findIndex(task => task.id === taskId)
+        const taskIndex = sections[sectionIndex].tasks.findIndex((task) => task.id === taskId)
         if (taskIndex === -1) return invalidResult
         return { taskIndex, sectionIndex }
-    }
-    else {
+    } else {
         for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
             const section = sections[sectionIndex]
             for (let taskIndex = 0; taskIndex < section.tasks.length; taskIndex++) {
@@ -86,7 +95,11 @@ export const getTaskIndexFromSections = (sections: Immutable<{ id?: string, task
     return invalidResult
 }
 
-export const getTaskFromSections = (sections: TTaskSection[], taskId: string, sectionId?: string): TTask | undefined => {
+export const getTaskFromSections = (
+    sections: TTaskSection[],
+    taskId: string,
+    sectionId?: string
+): TTask | undefined => {
     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId, sectionId)
     if (taskIndex === undefined || sectionIndex === undefined) return undefined
     return sections[sectionIndex].tasks[taskIndex]

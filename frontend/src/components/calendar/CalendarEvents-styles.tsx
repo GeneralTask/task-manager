@@ -1,5 +1,5 @@
-import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
+import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
 
 export const CELL_HEIGHT_VALUE = 64
 export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`

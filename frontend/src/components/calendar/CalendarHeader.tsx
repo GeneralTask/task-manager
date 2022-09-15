@@ -1,13 +1,13 @@
-import { Colors, Spacing, Typography } from '../../styles'
 import { useCallback } from 'react'
 import { DateTime } from 'luxon'
-import { Divider } from '../atoms/SectionDivider'
-import { icons } from '../../styles/images'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
-import { useCalendarContext } from './CalendarContext'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import { Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import { useCalendarContext } from './CalendarContext'
 
 const PaddedContainer = styled.div`
     padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};

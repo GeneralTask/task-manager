@@ -1,5 +1,5 @@
-import React from "react"
-import { TOverviewView } from "../../../utils/types"
+import React from 'react'
+import { TOverviewView } from '../../../utils/types'
 
 export interface ViewItemsProps {
     view: TOverviewView

@@ -1,11 +1,11 @@
-import { DateTime } from 'luxon'
 import { useState } from 'react'
+import { DateTime } from 'luxon'
+import { useInterval } from '.'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
-import { useInterval } from '.'
-import { TEvent } from '../utils/types'
-import toast, { dismissToast, isActive, updateToast } from '../utils/toast'
 import { icons } from '../styles/images'
+import toast, { dismissToast, isActive, updateToast } from '../utils/toast'
+import { TEvent } from '../utils/types'
 
 const eventBannerLastShownAt = new Map<string, number>()
 

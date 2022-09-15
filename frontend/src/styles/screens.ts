@@ -1,5 +1,4 @@
-import { Colors } from ".";
-
+import { Colors } from '.'
 
 export const container = {
     backgroundColor: Colors.background.light,

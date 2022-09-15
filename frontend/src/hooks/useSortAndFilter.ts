@@ -1,5 +1,5 @@
-import { useMemo } from "react"
-import { SORT_ORDER } from "../utils/enums"
+import { useMemo } from 'react'
+import { SORT_ORDER } from '../utils/enums'
 
 /* 
     Defines a method to sort an array of items
@@ -46,7 +46,6 @@ const useSortAndFilter = <T>({ items, sort, filter }: SortAndFilterArgs<T>) => {
         }
         return sortedAndFiltered
     }, [items, filter, sort])
-
 }
 
 export default useSortAndFilter
