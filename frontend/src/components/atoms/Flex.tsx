@@ -8,6 +8,7 @@ import styled from 'styled-components'
 interface FlexProps {
     gap?: string
     justifyContentCenter?: boolean
+    justifyContentSpaceBetween?: boolean
     alignItemsCenter?: boolean
 }
 
@@ -16,6 +17,7 @@ const Flex = styled.div<FlexProps>`
     flex: 1;
     ${(props) => props.gap && 'gap: ' + props.gap};
     ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
+    ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}
     ${({ alignItemsCenter }) => alignItemsCenter && 'align-items: center;'}
 `
 

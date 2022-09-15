@@ -12,7 +12,9 @@ import {
     faPencil,
     faPlus,
     faTrash,
-    faXmark
+    faXmark,
+    faArrowUp,
+    faArrowDown
 } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBadgeCheck,
@@ -48,6 +50,8 @@ export const logos = Object.freeze({
 })
 
 export const icons = Object.freeze({
+    arrow_down: faArrowDown,
+    arrow_up: faArrowUp,
     arrows_in: faArrowDownLeftAndArrowUpRightToCenter,
     arrows_out: faArrowUpRightAndArrowDownLeftFromCenter,
     calendar_blank: faCalendar,
