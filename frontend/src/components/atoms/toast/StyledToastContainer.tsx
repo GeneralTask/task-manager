@@ -3,19 +3,23 @@ import { cssTransition } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import styled from 'styled-components'
-import { Border, Colors, Shadows } from '../../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
 import NoStyleButton from '../buttons/NoStyleButton'
+
+const ButtonMarginLeft = styled(NoStyleButton)`
+    margin-left: ${Spacing._8};
+`
 
 interface CloseButtonProps {
     closeToast: () => void
     theme: Theme
 }
 const CloseButton = ({ closeToast, theme }: CloseButtonProps) => (
-    <NoStyleButton onClick={closeToast}>
-        <Icon icon={icons.x} size="medium" color={theme === 'light' ? Colors.icon.black : Colors.icon.white} />
-    </NoStyleButton>
+    <ButtonMarginLeft onClick={closeToast}>
+        <Icon icon={icons.x} size="small" color={theme === 'light' ? Colors.icon.black : Colors.icon.white} />
+    </ButtonMarginLeft>
 )
 
 const toastAnimation = cssTransition({
