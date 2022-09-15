@@ -144,7 +144,7 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
-                {false && // hiding for now until we actually support deletion of tasks
+                {false && // TODO(maz): remove after we actually support task deletion
                     taskSections
                         ?.filter((section) => section.is_trash)
                         .map((section) => (
