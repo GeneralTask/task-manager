@@ -169,11 +169,8 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 }
 
 func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
-	parentCtx := context.Background()
-
 	var views []database.View
 	err := database.FindWithCollection(
-		parentCtx,
 		database.GetViewCollection(db),
 		userID,
 		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
