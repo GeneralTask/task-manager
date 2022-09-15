@@ -7,10 +7,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/GeneralTask/task-manager/backend/logging"
-	"github.com/rs/zerolog/log"
-
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -169,13 +167,12 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 		logger.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
-	issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
+	success, err := updateLinearIssue(client, issueID, updateFields, task)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to update linear issue")
 		return err
 	}
-	log.Debug().Interface("issueUpdate", issueUpdate)
-	if !issueUpdate.IssueUpdate.Success {
+	if success {
 		logger.Error().Msg("linear mutation failed to update issue")
 		return errors.New("linear mutation failed to update issue")
 	}
