@@ -1,6 +1,9 @@
+import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
 import {
+    faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
     faArrowRotateRight,
+    faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
@@ -8,13 +11,11 @@ import {
     faCheckSquare,
     faFolder,
     faMessage,
-    faSquare,
     faPencil,
     faPlus,
+    faSquare,
     faTrash,
     faXmark,
-    faArrowUp,
-    faArrowDown
 } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBadgeCheck,
@@ -31,13 +32,8 @@ import {
     faInbox,
     faList,
     faTag,
-    faTimer
+    faTimer,
 } from '@fortawesome/pro-solid-svg-icons'
-import {
-    faGithub,
-    faGoogle,
-    faSlack
-} from '@fortawesome/free-brands-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',

@@ -1,7 +1,7 @@
-import { castImmutable } from "immer"
-import { QueryFunctionContext, useQuery } from "react-query"
-import apiClient from "../../utils/api"
-import { TUserInfo } from "../../utils/types"
+import { QueryFunctionContext, useQuery } from 'react-query'
+import { castImmutable } from 'immer'
+import apiClient from '../../utils/api'
+import { TUserInfo } from '../../utils/types'
 
 export const useGetUserInfo = () => {
     return useQuery('user_info', getUserInfo)

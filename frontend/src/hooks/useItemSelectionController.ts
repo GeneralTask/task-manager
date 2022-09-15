@@ -3,8 +3,10 @@ import { useParams } from 'react-router-dom'
 import { TPullRequest, TTask } from '../utils/types'
 import useKeyboardShortcut from './useKeyboardShortcut'
 
-
-export default function useItemSelectionController(items: TTask[] | TPullRequest[], selectItem: (itemId: string) => void) {
+export default function useItemSelectionController(
+    items: TTask[] | TPullRequest[],
+    selectItem: (itemId: string) => void
+) {
     const params = useParams()
     const selectedItemId = params.task ?? params.pullRequest
 

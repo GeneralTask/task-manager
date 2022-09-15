@@ -1,8 +1,8 @@
-import { castImmutable } from "immer"
-import { useQuery, useMutation, QueryFunctionContext } from "react-query"
-import apiClient from "../../utils/api"
-import { TLinkedAccount, TSupportedType } from "../../utils/types"
-import { useGTQueryClient } from "../queryUtils"
+import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import { castImmutable } from 'immer'
+import apiClient from '../../utils/api'
+import { TLinkedAccount, TSupportedType } from '../../utils/types'
+import { useGTQueryClient } from '../queryUtils'
 
 export const useGetLinkedAccounts = () => {
     return useQuery<TLinkedAccount[]>('linked_accounts', getLinkedAccounts)

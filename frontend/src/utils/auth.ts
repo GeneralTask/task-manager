@@ -16,16 +16,16 @@ export const openPopupWindow = (authorizationURL: string, onWindowClose: () => v
     const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
     const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
     const win = window.open(
-        authorizationURL, 
-		"_blank", 
+        authorizationURL,
+        '_blank',
         `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
     )
-	if (win != null) {
-		const timer = setInterval(() => {
-			if (win.closed) {
-				clearInterval(timer)
-				onWindowClose()
-			}
-		})
-	}
+    if (win != null) {
+        const timer = setInterval(() => {
+            if (win.closed) {
+                clearInterval(timer)
+                onWindowClose()
+            }
+        })
+    }
 }

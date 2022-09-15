@@ -1,13 +1,12 @@
-import { TEvent, TTask } from "../../utils/types"
-import produce, { castImmutable } from "immer"
-import { QueryFunctionContext, useMutation, useQuery } from "react-query"
-
-import { DateTime } from "luxon"
-import apiClient from "../../utils/api"
-import { getMonthsAroundDate } from "../../utils/time"
-import { useGTQueryClient } from "../queryUtils"
+import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import produce, { castImmutable } from 'immer'
+import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { EVENTS_REFETCH_INTERVAL } from "../../constants"
+import { EVENTS_REFETCH_INTERVAL } from '../../constants'
+import apiClient from '../../utils/api'
+import { getMonthsAroundDate } from '../../utils/time'
+import { TEvent, TTask } from '../../utils/types'
+import { useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -72,10 +71,14 @@ interface TDeleteEventData {
 }
 
 export const useGetEvents = (params: { startISO: string; endISO: string }, calendarType: 'calendar' | 'banner') => {
-    return useQuery<TEvent[]>(['events', calendarType, params.startISO], (queryFunctionContext) => getEvents(params, queryFunctionContext), {
-        refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
-        refetchIntervalInBackground: true,
-    })
+    return useQuery<TEvent[]>(
+        ['events', calendarType, params.startISO],
+        (queryFunctionContext) => getEvents(params, queryFunctionContext),
+        {
+            refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
+            refetchIntervalInBackground: true,
+        }
+    )
 }
 const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
     try {
@@ -91,57 +94,47 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
 
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload),
-        {
-            onMutate: async ({ createEventPayload, date, linkedTask }: CreateEventParams) => {
-                await queryClient.cancelQueries('events')
+    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload), {
+        onMutate: async ({ createEventPayload, date, linkedTask }: CreateEventParams) => {
+            await queryClient.cancelQueries('events')
 
-                const start = DateTime.fromISO(createEventPayload.datetime_start)
-                const end = DateTime.fromISO(createEventPayload.datetime_end)
-                const timeBlocks = getMonthsAroundDate(date, 1)
-                const blockIndex = timeBlocks.findIndex(block => start >= block.start && end <= block.end)
-                const block = timeBlocks[blockIndex]
+            const start = DateTime.fromISO(createEventPayload.datetime_start)
+            const end = DateTime.fromISO(createEventPayload.datetime_end)
+            const timeBlocks = getMonthsAroundDate(date, 1)
+            const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
+            const block = timeBlocks[blockIndex]
 
-                const events = queryClient.getImmutableQueryData<TEvent[]>([
-                    'events',
-                    'calendar',
-                    block.start.toISO(),
-                ])
+            const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
 
-                if (events == null) return
+            if (events == null) return
 
-                const newEvent: TEvent = {
-                    id: uuidv4(),
-                    title: createEventPayload.summary ?? '',
-                    body: createEventPayload.description ?? '',
-                    account_id: createEventPayload.account_id,
-                    logo: linkedTask?.source.logo_v2 ?? 'gcal',
-                    deeplink: '',
-                    datetime_start: createEventPayload.datetime_start,
-                    datetime_end: createEventPayload.datetime_end,
-                    can_modify: false,
-                    conference_call: {
-                        url: '',
-                        logo: '',
-                        platform: '',
-                    },
-                    linked_task_id: linkedTask?.id ?? '',
-                }
-
-                const newEvents = produce(events, (draft) => {
-                    draft.push(newEvent)
-                })
-                queryClient.setQueryData([
-                    'events',
-                    'calendar',
-                    block.start.toISO(),
-                ], newEvents)
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('events')
+            const newEvent: TEvent = {
+                id: uuidv4(),
+                title: createEventPayload.summary ?? '',
+                body: createEventPayload.description ?? '',
+                account_id: createEventPayload.account_id,
+                logo: linkedTask?.source.logo_v2 ?? 'gcal',
+                deeplink: '',
+                datetime_start: createEventPayload.datetime_start,
+                datetime_end: createEventPayload.datetime_end,
+                can_modify: false,
+                conference_call: {
+                    url: '',
+                    logo: '',
+                    platform: '',
+                },
+                linked_task_id: linkedTask?.id ?? '',
             }
-        }
-    )
+
+            const newEvents = produce(events, (draft) => {
+                draft.push(newEvent)
+            })
+            queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('events')
+        },
+    })
 }
 const createEvent = async (data: TCreateEventPayload) => {
     try {
@@ -162,7 +155,10 @@ export const useDeleteEvent = () => {
         const block = timeBlocks[blockIndex]
         const blockStartTime = block.start.toISO()
         queryClient.cancelQueries(['events', 'calendar', blockStartTime])
-        return { events: queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()]), blockStartTime }
+        return {
+            events: queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()]),
+            blockStartTime,
+        }
     }
     const useMutationResult = useMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         onMutate: async (data: TDeleteEventData) => {
@@ -200,7 +196,6 @@ export const useDeleteEvent = () => {
         queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
     }
     return { ...useMutationResult, deleteEventInCache, undoDeleteEventInCache }
-
 }
 const deleteEvent = async (eventId: string) => {
     try {
@@ -227,7 +222,7 @@ export const useModifyEvent = () => {
             const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
             if (!events) return
 
-            const eventIdx = events.findIndex(e => e.id === event.id)
+            const eventIdx = events.findIndex((e) => e.id === event.id)
             if (eventIdx === -1) return
 
             const newEvents = produce(events, (draft) => {
