@@ -102,3 +102,7 @@ func (generalTask GeneralTaskTaskSource) ModifyTask(db *mongo.Database, userID p
 func (generalTask GeneralTaskTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }
+
+func (generalTask GeneralTaskTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
+	return errors.New("has not been implemented yet")
+}

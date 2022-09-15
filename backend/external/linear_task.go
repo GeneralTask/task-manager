@@ -167,40 +167,17 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 		logger.Error().Err(err).Msg("unable to create linear client")
 		return err
 	}
-
-	if updateFields.Comments != nil && len(*updateFields.Comments) > 0 {
-		latestComment := (*updateFields.Comments)[len(*updateFields.Comments)-1]
-		if latestComment.Body != "" {
-			err := addLinearComment(client, issueID, latestComment)
-			if err != nil {
-				logger.Error().Err(err).Msg("failed to create linear comment")
-				return err
-			}
-		}
+	issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to update linear issue")
+		return err
 	}
-
-	// need to check if remaining fields are empty, as comments have already been processed
-	if shouldUpdateLinearIssue(updateFields) {
-		issueUpdate, err := updateLinearIssue(client, issueID, updateFields, task)
-		if err != nil {
-			logger.Error().Err(err).Msg("unable to update linear issue")
-			return err
-		}
-		log.Debug().Interface("issueUpdate", issueUpdate)
-		if !issueUpdate.IssueUpdate.Success {
-			logger.Error().Msg("linear mutation failed to update issue")
-			return errors.New("linear mutation failed to update issue")
-		}
+	log.Debug().Interface("issueUpdate", issueUpdate)
+	if !issueUpdate.IssueUpdate.Success {
+		logger.Error().Msg("linear mutation failed to update issue")
+		return errors.New("linear mutation failed to update issue")
 	}
-
 	return nil
-}
-
-func shouldUpdateLinearIssue(task *database.Task) bool {
-	if task.Title != nil || task.Body != nil || task.IsCompleted != nil || task.Status != nil || task.DueDate != nil || task.PriorityNormalized != nil {
-		return true
-	}
-	return false
 }
 
 func (linearTask LinearTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
@@ -217,4 +194,19 @@ func (linearTask LinearTaskSource) DeleteEvent(db *mongo.Database, userID primit
 
 func (linearTask LinearTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
+}
+
+func (linearTask LinearTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
+	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to create linear client")
+		return err
+	}
+	err = addLinearComment(client, task.IDExternal, comment)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to create linear comment")
+		return err
+	}
+	return nil
 }
