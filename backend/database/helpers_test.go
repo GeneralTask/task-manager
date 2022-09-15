@@ -89,19 +89,6 @@ func TestGetDeletedTasks(t *testing.T) {
 	notUserID := primitive.NewObjectID()
 	notDeleted := false
 	deleted := true
-	task1, err := GetOrCreateTask(
-		db,
-		userID,
-		"123abc",
-		"foobar_source",
-		&Task{
-			IDExternal: "123abc",
-			SourceID:   "foobar_source",
-			UserID:     userID,
-			IsDeleted:  &notDeleted,
-		},
-	)
-	assert.NoError(t, err)
 	task2, err := GetOrCreateTask(
 		db,
 		userID,
