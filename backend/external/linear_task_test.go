@@ -393,6 +393,8 @@ func TestModifyLinearTask(t *testing.T) {
 	testTitle := "test title"
 	testDescription := "test description"
 	dueDate := primitive.NewDateTimeFromTime(time.Time{})
+	_true := true
+	_false := false
 	expectedTask := database.Task{
 		IDOrdering:        0,
 		IDExternal:        "test-issue-id-1",
@@ -649,6 +651,62 @@ func TestModifyLinearTask(t *testing.T) {
 		}, &expectedTask)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "decoding response: EOF", err.Error())
+	})
+	t.Run("MarkAsDeletedSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueArchive": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		var linearTask LinearTaskSource
+		linearTask.Linear.Config.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
+
+		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			IsDeleted: &_true,
+		}, nil)
+		assert.NoError(t, err)
+	})
+	t.Run("MarkAsDeletedFail", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueArchive": {"success": false}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			IsDeleted: &_true,
+		}, nil)
+		assert.Error(t, err)
+		assert.Equal(t, "linear mutation failed to update issue", err.Error())
+	})
+	t.Run("MarkAsUndeletedSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUnarchive": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		var linearTask LinearTaskSource
+		linearTask.Linear.Config.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
+
+		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			IsDeleted: &_false,
+		}, nil)
+		assert.NoError(t, err)
+	})
+	t.Run("MarkAsUndeletedFail", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUnarchive": {"success": false}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+
+		err = linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{
+			IsDeleted: &_false,
+		}, nil)
+		assert.Error(t, err)
+		assert.Equal(t, "linear mutation failed to update issue", err.Error())
 	})
 }
 
