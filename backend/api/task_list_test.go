@@ -50,6 +50,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		notCompleted := false
 		title := "hello!"
 		body := "example body"
+		priority := 3.0
 		externalStatus := database.ExternalTaskStatus{
 			ExternalID: "example ID",
 			State:      "example state",
@@ -67,6 +68,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		result := api.taskBaseToTaskResult(&database.Task{
 			SourceID:           external.TASK_SOURCE_ID_LINEAR,
 			DueDate:            &primitiveDueDate,
+			PriorityNormalized: &priority,
 			TimeAllocation:     &timeAllocation,
 			IsCompleted:        &notCompleted,
 			Title:              &title,
@@ -83,6 +85,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, body, result.Body)
 		assert.Equal(t, externalStatus.State, result.ExternalStatus.State)
 		assert.Equal(t, slackMessageParams.Channel.ID, result.SlackMessageParams.Channel.ID)
+		assert.Equal(t, priority, result.PriorityNormalized)
 		assert.Equal(t, 1, len(result.AllStatuses))
 		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
 	})

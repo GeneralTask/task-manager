@@ -92,7 +92,7 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_meeting_preparation_task":false}`, linearTaskIDHex),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_meeting_preparation_task":false}`, linearTaskIDHex),
 			string(body))
 	})
 	t.Run("SuccessLinear", func(t *testing.T) {
@@ -108,7 +108,7 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_meeting_preparation_task":false,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex2),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_meeting_preparation_task":false,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex2),
 			string(body))
 	})
 }
