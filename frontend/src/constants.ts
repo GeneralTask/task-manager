@@ -43,6 +43,7 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const NO_EVENT_TITLE = '(no title)'
 export const DEFAULT_SECTION_ID = '000000000000000000000001'
 export const DONE_SECTION_ID = '000000000000000000000004'
+export const TRASH_SECTION_ID = '000000000000000000000005'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 export const KEYBOARD_SHORTCUTS = Object.freeze({

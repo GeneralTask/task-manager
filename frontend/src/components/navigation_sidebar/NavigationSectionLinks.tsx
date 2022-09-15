@@ -96,7 +96,7 @@ const NavigationSectionLinks = () => {
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
-                    ?.filter((section) => !section.is_done)
+                    ?.filter((section) => !section.is_done && !section.is_trash)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
@@ -144,6 +144,21 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
+                {false && // TODO(maz): remove after we actually support task deletion
+                    taskSections
+                        ?.filter((section) => section.is_trash)
+                        .map((section) => (
+                            <NavigationLink
+                                key={section.id}
+                                link={`/tasks/${section.id}`}
+                                title={section.name}
+                                icon={icons.trash}
+                                isCurrentPage={sectionId === section.id}
+                                taskSection={section}
+                                count={section.tasks.length}
+                                droppable={false}
+                            />
+                        ))}
             </NavigationLinkDropdown>
         </>
     )

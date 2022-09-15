@@ -1,14 +1,12 @@
-import './src/index.css'
-
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { Suspense, lazy } from 'react'
-
-import LandingScreen from './src/components/screens/LandingScreen'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import Loading from './src/components/atoms/Loading'
-import PrivateOutlet from './src/services/PrivateOutlet'
 import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
+import LandingScreen from './src/components/screens/LandingScreen'
+import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import './src/index.css'
+import PrivateOutlet from './src/services/PrivateOutlet'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
