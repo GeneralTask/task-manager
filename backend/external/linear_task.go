@@ -172,7 +172,7 @@ func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primiti
 		logger.Error().Err(err).Msg("unable to update linear issue")
 		return err
 	}
-	if success {
+	if !success {
 		logger.Error().Msg("linear mutation failed to update issue")
 		return errors.New("linear mutation failed to update issue")
 	}
