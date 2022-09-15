@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { Sort } from '../../hooks/useSortAndFilter'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -31,7 +30,7 @@ const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
 const PullRequestsView = () => {
     const [sort, setSort] = useState<Sort<TPullRequest>>({
         ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
-        direction: SORT_ORDER.ASC,
+        direction: SORT_ORDER.DESC,
     })
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const navigate = useNavigate()
@@ -40,7 +39,6 @@ const PullRequestsView = () => {
     useFetchPullRequests()
 
     const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
-    useItemSelectionController(pullRequests, (itemId: string) => navigate(`/pull-requests/${itemId}`))
 
     const selectedPullRequest = useMemo(() => {
         if (pullRequests.length === 0) return null
@@ -79,7 +77,11 @@ const PullRequestsView = () => {
                                 {repository.pull_requests.length === 0 ? (
                                     'No pull requests'
                                 ) : (
-                                    <PullRequestList pullRequests={repository.pull_requests} sort={sort} />
+                                    <PullRequestList
+                                        pullRequests={repository.pull_requests}
+                                        selectedPrId={params.pullRequest}
+                                        sort={sort}
+                                    />
                                 )}
                                 <br />
                             </Repository>

@@ -25,7 +25,7 @@ export const PR_SORT_SELECTOR_ITEMS: SortSelectorItems<TPullRequest> = {
                 const aPriority = requiredActionToIndexMap.get(a.status.text)
                 const bPriority = requiredActionToIndexMap.get(b.status.text)
                 if (aPriority === undefined || bPriority === undefined) return 0
-                return aPriority - bPriority
+                return bPriority - aPriority
             },
         },
     },
