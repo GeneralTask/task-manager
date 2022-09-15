@@ -14,6 +14,7 @@ interface PullRequestListProps {
 }
 const PullRequestList = ({ pullRequests, selectedPrId, sort, filter, overviewViewId }: PullRequestListProps) => {
     const sortedAndFilteredPullRequests = useSortAndFilter({ items: pullRequests, sort, filter })
+
     return (
         <>
             {sortedAndFilteredPullRequests.map((pr) => (
