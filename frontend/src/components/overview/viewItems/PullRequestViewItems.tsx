@@ -1,12 +1,12 @@
+import { Fragment } from 'react'
+import { useParams } from 'react-router-dom'
+import styled from 'styled-components'
 import { Spacing } from '../../../styles'
 import { TPullRequest } from '../../../utils/types'
 import { Divider } from '../../atoms/SectionDivider'
 import PullRequest from '../../pull-requests/PullRequest'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
-import { Fragment } from 'react'
-import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
 
 const DividerMargin = styled.div`
     margin: 0 ${Spacing._16};

@@ -1,11 +1,11 @@
 import { ReactElement } from 'react'
-import styled from 'styled-components'
-import { Colors, Spacing, Typography, Border, Shadows, Dimensions } from '../../styles'
-import NoStyleButton from './buttons/NoStyleButton'
 import Modal from 'react-modal'
-import { Icon } from './Icon'
-import { icons } from '../../styles/images'
+import styled from 'styled-components'
+import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
 import { TModalSize } from '../../styles/dimensions'
+import { icons } from '../../styles/images'
+import { Icon } from './Icon'
+import NoStyleButton from './buttons/NoStyleButton'
 
 Modal.setAppElement('#root')
 

@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
-import GTModal from '../atoms/GTModal'
-import GTButton from '../atoms/buttons/GTButton'
-import EditViewsSelectedView from './EditViewsSelectedView'
 import { useGetOverviewViews, useReorderViews } from '../../services/api/overview.hooks'
 import { DropItem, DropType } from '../../utils/types'
+import GTModal from '../atoms/GTModal'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
+import GTButton from '../atoms/buttons/GTButton'
+import EditViewsSelectedView from './EditViewsSelectedView'
 
 interface EditViewsModalProps {
     isOpen: boolean

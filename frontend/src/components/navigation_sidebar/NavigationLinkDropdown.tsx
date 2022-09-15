@@ -1,9 +1,9 @@
-import { Border, Colors, Spacing, Typography } from '../../styles'
 import { ReactNode } from 'react'
+import styled from 'styled-components'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import styled from 'styled-components'
 
 const DropdownContainer = styled.div`
     display: flex;

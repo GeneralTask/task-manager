@@ -172,13 +172,7 @@ func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.
 	parentCtx := context.Background()
 
 	var views []database.View
-	err := database.FindWithCollection(
-		parentCtx,
-		database.GetViewCollection(db),
-		userID,
-		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
-		&views,
-	)
+	err := database.FindWithCollection(parentCtx, database.GetViewCollection(db), userID, &[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}}, &views, nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load github views")

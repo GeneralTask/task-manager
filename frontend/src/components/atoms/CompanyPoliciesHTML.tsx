@@ -1,5 +1,4 @@
 import PrivacyPolicyHTML from '../../assets/company-policies/privacy-policy'
-
 import TermsOfServiceHTML from '../../assets/company-policies/terms-of-service'
 import TermsOfServiceSummaryHTML from '../../assets/company-policies/terms-of-service-summary'
 

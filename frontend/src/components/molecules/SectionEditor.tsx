@@ -1,9 +1,9 @@
+import styled from 'styled-components'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
-import styled from 'styled-components'
-import { Icon } from '../atoms/Icon'
 import { icons } from '../../styles/images'
 import { getTaskIndexFromSections } from '../../utils/utils'
+import { Icon } from '../atoms/Icon'
 
 const SectionEditorContainer = styled.div`
     display: flex;

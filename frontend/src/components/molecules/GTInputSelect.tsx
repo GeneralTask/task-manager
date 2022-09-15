@@ -1,12 +1,10 @@
+import { useState } from 'react'
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
-
+import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import { useState } from 'react'
 
 const InputContainer = styled.div<{ valid: boolean }>`
     display: flex;

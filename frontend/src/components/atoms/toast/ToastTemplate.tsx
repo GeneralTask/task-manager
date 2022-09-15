@@ -1,5 +1,4 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
-
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../../styles'
 import GTButton from '../buttons/GTButton'

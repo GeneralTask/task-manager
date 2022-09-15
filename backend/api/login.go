@@ -187,6 +187,7 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 	for index, title := range constants.StarterTasks {
 		body := ""
 		completed := false
+		deleted := false
 		newTask := database.Task{
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
@@ -197,6 +198,7 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 			Body:            &body,
 			SourceAccountID: external.GeneralTaskDefaultAccountID,
 			IsCompleted:     &completed,
+			IsDeleted:       &deleted,
 		}
 		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()

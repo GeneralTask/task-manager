@@ -1,11 +1,10 @@
 import { useCallback, useState } from 'react'
-
-import { CELL_HEIGHT_VALUE } from './CalendarEvents-styles'
-import { Colors } from '../../styles'
 import { DateTime } from 'luxon'
-import { TIME_INDICATOR_INTERVAL } from '../../constants'
 import styled from 'styled-components'
+import { TIME_INDICATOR_INTERVAL } from '../../constants'
 import { useInterval } from '../../hooks'
+import { Colors } from '../../styles'
+import { CELL_HEIGHT_VALUE } from './CalendarEvents-styles'
 
 interface TimeIndicatorContainerProps {
     topOffset: number

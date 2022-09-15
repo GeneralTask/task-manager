@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import styled from 'styled-components'
 import Loading from './Loading'
+
 const SpinnerContainer = styled.div`
     /* taken from https://projects.lukehaas.me/css-loaders/ */
     color: #cccccc;

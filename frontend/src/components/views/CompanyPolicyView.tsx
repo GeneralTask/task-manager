@@ -1,14 +1,12 @@
-import { PrivacyPolicy, TermsOfService } from '../atoms/CompanyPoliciesHTML'
-
-import { CompanyPolicyPages } from '../../utils/enums'
-import { Icon } from '../atoms/Icon'
-
+import styled from 'styled-components'
 import { Spacing } from '../../styles'
+import { icons } from '../../styles/images'
+import { CompanyPolicyPages } from '../../utils/enums'
+import { PrivacyPolicy, TermsOfService } from '../atoms/CompanyPoliciesHTML'
+import { Icon } from '../atoms/Icon'
 import { TitleLarge } from '../atoms/title/Title'
 import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
 import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
-import { icons } from '../../styles/images'
-import styled from 'styled-components'
 
 const CompanyPolicyContainer = styled.div`
     display: flex;
