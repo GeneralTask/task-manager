@@ -1,10 +1,9 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
-import styled, { css } from 'styled-components'
-
-import { Icon } from '../Icon'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import NoStyleButton from './NoStyleButton'
+import styled, { css } from 'styled-components'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
+import { Icon } from '../Icon'
+import NoStyleButton from './NoStyleButton'
 
 type TButtonStyle = 'primary' | 'secondary'
 type TButtonSize = 'small' | 'large'

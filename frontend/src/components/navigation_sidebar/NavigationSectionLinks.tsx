@@ -1,17 +1,15 @@
-import { Colors, Spacing, Typography } from '../../styles'
-import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
-import { useCallback, useEffect, useRef, useState } from 'react'
-
-import { Icon } from '../atoms/Icon'
-import NavigationLinkDropdown from './NavigationLinkDropdown'
-import NoStyleInput from '../atoms/NoStyleInput'
-import { icons, logos } from '../../styles/images'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useAddTaskSection } from '../../services/api/task-section.hooks'
-
-import { useParams, useLocation } from 'react-router-dom'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useAddTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
+import { Colors, Spacing, Typography } from '../../styles'
+import { icons, logos } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import NoStyleInput from '../atoms/NoStyleInput'
+import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
+import NavigationLinkDropdown from './NavigationLinkDropdown'
 
 const AddSectionContainer = styled.div`
     display: flex;
@@ -98,7 +96,7 @@ const NavigationSectionLinks = () => {
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {taskSections
-                    ?.filter((section) => !section.is_done)
+                    ?.filter((section) => !section.is_done && !section.is_trash)
                     .map((section) => (
                         <NavigationLink
                             key={section.id}
@@ -146,6 +144,22 @@ const NavigationSectionLinks = () => {
                             testId="done-section-link"
                         />
                     ))}
+                {false &&
+                    taskSections
+                        ?.filter((section) => section.is_trash)
+                        .map((section) => (
+                            <NavigationLink
+                                key={section.id}
+                                link={`/tasks/${section.id}`}
+                                title={section.name}
+                                icon={icons.trash}
+                                isCurrentPage={sectionId === section.id}
+                                taskSection={section}
+                                count={section.tasks.length}
+                                droppable={false}
+                                testId="trash-section-link"
+                            />
+                        ))}
             </NavigationLinkDropdown>
         </>
     )

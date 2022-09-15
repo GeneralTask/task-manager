@@ -1,6 +1,6 @@
 import { useDrop } from 'react-dnd'
 import styled, { css, keyframes } from 'styled-components'
-import { Spacing, Colors, Shadows } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import GTIconButton from '../atoms/buttons/GTIconButton'

@@ -1,11 +1,11 @@
 import { useDrag } from 'react-dnd'
 import { useRemoveView } from '../../services/api/overview.hooks'
-import { logos, icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { DropItem, DropType, TOverviewView } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
-import { SelectedView, EditViewsDeleteButton } from './styles'
+import { EditViewsDeleteButton, SelectedView } from './styles'
 
 interface EditViewsSelectedViewProps {
     view: TOverviewView

@@ -1,13 +1,13 @@
-import { Icon } from '../atoms/Icon'
-import { TPullRequest } from '../../utils/types'
-import { icons, logos } from '../../styles/images'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
+import { icons, logos } from '../../styles/images'
+import { TPullRequest } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import { Status } from '../pull-requests/styles'
-import BranchName from '../pull-requests/BranchName'
-import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import BranchName from '../pull-requests/BranchName'
+import { Status } from '../pull-requests/styles'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 
 const DetailsTopContainer = styled.div`
     display: flex;

@@ -1,12 +1,10 @@
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components/'
 import { Spacing, Typography } from '../../styles'
-
 import { Colors } from '../../styles'
+import { logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-
-import styled from 'styled-components/'
-import { useNavigate } from 'react-router-dom'
-import { logos } from '../../styles/images'
 
 const Footer = styled.div`
     position: sticky;

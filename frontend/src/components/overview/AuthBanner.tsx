@@ -1,12 +1,12 @@
-import { Colors, Spacing, Typography, Border } from '../../styles'
-import GTButton from '../atoms/buttons/GTButton'
 import styled from 'styled-components'
-import { Icon } from '../atoms/Icon'
-import { logos, TLogoImage } from '../../styles/images'
 import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
-import { openPopupWindow } from '../../utils/auth'
-import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
+import { TLogoImage, logos } from '../../styles/images'
+import { openPopupWindow } from '../../utils/auth'
+import { Icon } from '../atoms/Icon'
+import GTButton from '../atoms/buttons/GTButton'
 
 const BannerContainer = styled.div<{ hasBorder: boolean }>`
     box-sizing: border-box;

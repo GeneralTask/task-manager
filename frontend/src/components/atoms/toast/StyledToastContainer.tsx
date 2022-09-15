@@ -1,12 +1,12 @@
 import { Theme, ToastContainer } from 'react-toastify'
-import styled from 'styled-components'
 import { cssTransition } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
+import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../../styles'
-import NoStyleButton from '../buttons/NoStyleButton'
-import { Icon } from '../Icon'
 import { icons } from '../../../styles/images'
+import { Icon } from '../Icon'
+import NoStyleButton from '../buttons/NoStyleButton'
 
 interface CloseButtonProps {
     closeToast: () => void
