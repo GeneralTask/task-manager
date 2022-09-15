@@ -15,6 +15,14 @@ func (api *API) TaskAddComment(c *gin.Context) {
 		return
 	}
 
+	userIDRaw, _ := c.Get("user")
+	userID := userIDRaw.(primitive.ObjectID)
+	task, err := database.GetTask(api.DB, c.Request.Context(), taskID, userID)
+	if err != nil {
+		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
+		return
+	}
+
 	var commentParams database.Comment
 	err = c.BindJSON(&commentParams)
 	if err != nil {
@@ -24,14 +32,6 @@ func (api *API) TaskAddComment(c *gin.Context) {
 	// check if all fields are empty
 	if commentParams == (database.Comment{}) {
 		c.JSON(400, gin.H{"detail": "parameter missing"})
-		return
-	}
-
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
-	task, err := database.GetTask(api.DB, c.Request.Context(), taskID, userID)
-	if err != nil {
-		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
 	}
 

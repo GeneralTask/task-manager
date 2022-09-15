@@ -55,31 +55,42 @@ func TestTaskAddComment(t *testing.T) {
 		TaskNumber:         &taskNumber,
 	}
 
-	t.Run("Add Comment Not Found", func(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+	response := `{"data": {"commentCreate": {
+		"success": true
+		}}}`
+	taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
+	api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
+	router := GetRouter(api)
+
+	t.Run("AddCommentNotFound", func(t *testing.T) {
 		authToken := login("not_supported@generaltask.com", "")
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-
-		insertedTaskID := primitive.NewObjectID()
-
+		invalidTaskID := primitive.NewObjectID()
 		request, _ := http.NewRequest(
 			"POST",
-			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
+			"/tasks/"+invalidTaskID.Hex()+"/comments/add/",
 			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
-	t.Run("Add Comment Not Supported", func(t *testing.T) {
+	t.Run("AddCommentMalformedID", func(t *testing.T) {
+		authToken := login("not_supported@generaltask.com", "")
+		invalidTaskID := "HELLO!"
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/"+invalidTaskID+"/comments/add/",
+			bytes.NewBuffer([]byte(`{"body": "Hello there!"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+	})
+	t.Run("AddCommentNotSupported", func(t *testing.T) {
 		authToken := login("not_supported@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 
 		expectedTask := sampleTask
 		expectedTask.SourceID = external.TASK_SOURCE_ID_GCAL
@@ -102,13 +113,9 @@ func TestTaskAddComment(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	})
-	t.Run("Add Comment Task Source Not Found", func(t *testing.T) {
+	t.Run("AddCommentTaskSourceNotFound", func(t *testing.T) {
 		authToken := login("task_source_invalid@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 
 		expectedTask := sampleTask
 		expectedTask.SourceID = "oopsie"
@@ -131,13 +138,9 @@ func TestTaskAddComment(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
 	})
-	t.Run("Add Comment Empty", func(t *testing.T) {
+	t.Run("AddCommentEmpty", func(t *testing.T) {
 		authToken := login("comment_empty@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
 
 		expectedTask := sampleTask
 		expectedTask.SourceID = external.TASK_SOURCE_ID_GCAL
@@ -160,19 +163,34 @@ func TestTaskAddComment(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
-	t.Run("Add Comment Success", func(t *testing.T) {
-		authToken := login("approved@generaltask.com", "")
+	t.Run("AddCommentMalformedParams", func(t *testing.T) {
+		authToken := login("comment_empty@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 
-		response := `{"data": {"commentCreate": {
-			"success": true
-			}}}`
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
+		expectedTask := sampleTask
+		expectedTask.SourceID = external.TASK_SOURCE_ID_GCAL
+		expectedTask.UserID = userID
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		insertResult, err := taskCollection.InsertOne(
+			dbCtx,
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
 
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
-		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/"+insertedTaskID.Hex()+"/comments/add/",
+			bytes.NewBuffer([]byte(`{"body":3.0}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+	t.Run("AddCommentSuccess", func(t *testing.T) {
+		authToken := login("approved@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
 
 		expectedTask := sampleTask
 		expectedTask.UserID = userID
@@ -205,19 +223,9 @@ func TestTaskAddComment(t *testing.T) {
 
 		assert.Equal(t, "Hello there!", (*task.Comments)[0].Body)
 	})
-	t.Run("Add Comment Success With Existing", func(t *testing.T) {
+	t.Run("AddCommentSuccessWithExisting", func(t *testing.T) {
 		authToken := login("success_multiple@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
-
-		response := `{"data": {"commentCreate": {
-			"success": true
-			}}}`
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, response)
-
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
-		router := GetRouter(api)
 
 		expectedTask := sampleTask
 		expectedTask.UserID = userID
