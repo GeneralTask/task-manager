@@ -32,15 +32,15 @@ const (
 // *Important*: Add all required actions to the ActionOrdering map so that the PRs are ordered correctly
 // *Also important*: Update PULL_REQUEST_REQUIRED_ACTIONS on the frontend if you add a new action
 const (
+	ActionReviewPR          string = "Review PR"
 	ActionAddReviewers      string = "Add Reviewers"
-	ActionFixMergeConflicts string = "Fix Merge Conflicts"
 	ActionFixFailedCI       string = "Fix Failed CI"
 	ActionAddressComments   string = "Address Comments"
+	ActionFixMergeConflicts string = "Fix Merge Conflicts"
 	ActionWaitingOnCI       string = "Waiting on CI"
 	ActionMergePR           string = "Merge PR"
-	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionWaitingOnReview   string = "Waiting on Review"
-	ActionReviewPR          string = "Review PR"
+	ActionWaitingOnAuthor   string = "Waiting on Author"
 	ActionNoneNeeded        string = "Not Actionable"
 )
 
