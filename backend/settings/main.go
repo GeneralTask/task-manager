@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -54,6 +55,8 @@ const (
 	ChoiceKeyManual                   = "manual"
 	ChoiceKeyDueDate                  = "due_date"
 	ChoiceKeyPriority                 = "priority"
+	// Calendar choice
+	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
 )
 
 // human readable names aren't defined here because they are not used
@@ -165,15 +168,37 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 		}
 	}
 
+	externalTokens, err := getCalendarTokens(db, userID)
+	if err != nil {
+		return nil, err
+	}
+	calendarChoices := []SettingChoice{}
+	for _, token := range *externalTokens {
+		calendarChoices = append(calendarChoices, SettingChoice{
+			Key:  token.AccountID,
+			Name: token.DisplayID,
+		})
+	}
+	if len(calendarChoices) > 0 {
+		settingsOptions = append(settingsOptions, SettingDefinition{
+			FieldKey:      SettingFieldCalendarForNewTasks,
+			DefaultChoice: calendarChoices[0].Key,
+			Choices:       calendarChoices,
+		})
+	}
+
 	return &settingsOptions, nil
 }
 
-func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
-	parentCtx := context.Background()
+// this helper can't live in the db package because its use of the external package would cause an import cycle
+func getCalendarTokens(db *mongo.Database, userID primitive.ObjectID) (*[]database.ExternalAPIToken, error) {
+	// in the future, make sure we add other services here with calendars
+	return database.GetExternalTokens(db, userID, external.TASK_SERVICE_ID_GOOGLE)
+}
 
+func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
 	var views []database.View
 	err := database.FindWithCollection(
-		parentCtx,
 		database.GetViewCollection(db),
 		userID,
 		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
