@@ -138,6 +138,7 @@ const NavigationSectionLinks = () => {
                             index={index}
                             acceptDropType={DropType.FOLDER}
                             onReorder={handleReorder}
+                            dividerStyleType="purple"
                         >
                             <NavigationLink
                                 key={section.id}
@@ -177,6 +178,7 @@ const NavigationSectionLinks = () => {
                     acceptDropType={DropType.FOLDER}
                     onReorder={handleReorder}
                     indicatorType="TOP_ONLY"
+                    dividerStyleType="purple"
                 >
                     <>
                         {doneFolder && ( // TODO(maz): remove after we actually support task deletion
