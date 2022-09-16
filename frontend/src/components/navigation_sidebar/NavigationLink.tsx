@@ -66,7 +66,7 @@ const NavigationLink = ({
     icon,
     taskSection,
     count,
-    draggable,
+    draggable = false,
     droppable,
     testId,
 }: NavigationLinkProps) => {
@@ -101,9 +101,7 @@ const NavigationLink = ({
     const [isOver, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
-            collect: (monitor) => {
-                return !!(taskSection && droppable && monitor.isOver())
-            },
+            collect: (monitor) => taskSection && droppable && monitor.isOver(),
             drop: onDrop,
             canDrop: () => !!(taskSection && droppable),
         }),

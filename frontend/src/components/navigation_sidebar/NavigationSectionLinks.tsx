@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useAddTaskSection } from '../../services/api/task-section.hooks'
+import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -41,6 +41,7 @@ const NavigationSectionLinks = () => {
     const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
     const [sectionName, setSectionName] = useState('')
     const { mutate: addTaskSection } = useAddTaskSection()
+    const { mutate: modifyTaskSection } = useModifyTaskSection()
 
     const { data: folders } = useGetTasks()
     const { data: pullRequestRepositories } = useGetPullRequests()
@@ -86,7 +87,10 @@ const NavigationSectionLinks = () => {
     }, [])
 
     const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        console.log({ item, dropIndex })
+        modifyTaskSection({
+            sectionId: item.id,
+            id_ordering: dropIndex,
+        })
     }, [])
 
     const defaultFolder = folders?.find((section) => section.id === DEFAULT_SECTION_ID)
@@ -143,6 +147,7 @@ const NavigationSectionLinks = () => {
                                 isCurrentPage={sectionId === section.id}
                                 taskSection={section}
                                 count={section.tasks.length}
+                                draggable
                                 droppable
                                 testId="task-section-link"
                             />
