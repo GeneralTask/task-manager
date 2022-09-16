@@ -35,8 +35,8 @@ const MarginLeftAuto = styled.div`
     align-items: center;
     margin-left: auto;
 `
-const MarginRight8 = styled.div`
-    margin-right: ${Spacing._8};
+const MarginLeft8 = styled.div`
+    margin-left: ${Spacing._8};
 `
 const StatusContainer = styled.div`
     display: flex;
@@ -57,6 +57,7 @@ const MeetingPreparationTimeContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing._24};
+    margin-left: ${Spacing._8};
 `
 
 const SYNC_MESSAGES = {
@@ -156,9 +157,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     return (
         <DetailsViewTemplate data-testid="details-view-container">
             <DetailsTopContainer>
-                <MarginRight8>
+                <MarginLeft8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
-                </MarginRight8>
+                </MarginLeft8>
                 {!task.isOptimistic && (
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
