@@ -31,6 +31,7 @@ const (
 
 // *Important*: Add all required actions to the ActionOrdering map so that the PRs are ordered correctly
 // *Also important*: Update PULL_REQUEST_REQUIRED_ACTIONS on the frontend if you add a new action
+// And also please keep these sorted based on priority
 const (
 	ActionReviewPR          string = "Review PR"
 	ActionAddReviewers      string = "Add Reviewers"
