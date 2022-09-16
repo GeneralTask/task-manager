@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/GeneralTask/task-manager/backend/external"
-
 	"github.com/GeneralTask/task-manager/backend/logging"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -169,7 +168,7 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 		}
 	}
 
-	externalTokens, err := database.GetExternalTokens(db, userID, external.TASK_SERVICE_ID_GOOGLE)
+	externalTokens, err := getCalendarTokens(db, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +188,12 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 	}
 
 	return &settingsOptions, nil
+}
+
+// this helper can't live in the db package because its use of the external package would cause an import cycle
+func getCalendarTokens(db *mongo.Database, userID primitive.ObjectID) (*[]database.ExternalAPIToken, error) {
+	// in the future, make sure we add other services here with calendars
+	return database.GetExternalTokens(db, userID, external.TASK_SERVICE_ID_GOOGLE)
 }
 
 func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
