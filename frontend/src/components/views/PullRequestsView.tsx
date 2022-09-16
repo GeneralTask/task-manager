@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import useItemSelectionController from '../../hooks/useItemSelectionController'
+import { useItemSelectionController } from '../../hooks'
 import { Sort } from '../../hooks/useSortAndFilter'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -31,7 +31,7 @@ const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
 const PullRequestsView = () => {
     const [sort, setSort] = useState<Sort<TPullRequest>>({
         ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
-        direction: SORT_ORDER.ASC,
+        direction: SORT_ORDER.DESC,
     })
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const navigate = useNavigate()
@@ -79,7 +79,11 @@ const PullRequestsView = () => {
                                 {repository.pull_requests.length === 0 ? (
                                     'No pull requests'
                                 ) : (
-                                    <PullRequestList pullRequests={repository.pull_requests} sort={sort} />
+                                    <PullRequestList
+                                        pullRequests={repository.pull_requests}
+                                        selectedPrId={params.pullRequest}
+                                        sort={sort}
+                                    />
                                 )}
                                 <br />
                             </Repository>

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { TOverviewView } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import AuthBanner from './AuthBanner'
-import { OptimisticItemsContainer, PaginateTextButton, ViewContainer, ViewHeader } from './styles'
+import { OptimisticItemsContainer, PaginateTextButton, ViewContainer } from './styles'
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
@@ -58,7 +58,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
 
     return (
         <ViewContainer>
-            <ViewHeader>{view.name}</ViewHeader>
+            <ViewItems view={view} visibleItemsCount={visibleItemsCount} scrollRef={scrollRef} />
             {!view.is_linked &&
                 view.sources.map((source) => (
                     <AuthBanner
@@ -69,7 +69,6 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                         hasBorder={true}
                     />
                 ))}
-            <ViewItems view={view} visibleItemsCount={visibleItemsCount} scrollRef={scrollRef} />
             {visibleItemsCount < view.view_items.length && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
                     View more ({nextPageLength})

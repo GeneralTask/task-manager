@@ -1,45 +1,41 @@
-import { Fragment } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
-import { Spacing } from '../../../styles'
+import { Sort } from '../../../hooks/useSortAndFilter'
+import { SORT_ORDER } from '../../../utils/enums'
 import { TPullRequest } from '../../../utils/types'
-import { Divider } from '../../atoms/SectionDivider'
-import PullRequest from '../../pull-requests/PullRequest'
+import SortSelector from '../../molecules/SortSelector'
+import PullRequestList from '../../pull-requests/PullRequestList'
+import { PR_SORT_SELECTOR_ITEMS } from '../../pull-requests/constants'
+import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const DividerMargin = styled.div`
-    margin: 0 ${Spacing._16};
-`
-
 const PullRequestViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
-    const { overviewViewId, overviewItemId } = useParams()
-
-    if (view.view_items.length === 0) {
-        return (
-            <EmptyViewItem
-                header="You have no more pull requests!"
-                body="When new pull requests get assigned to you, they will appear here."
-            />
-        )
-    }
-
+    const { overviewItemId } = useParams()
+    const [sort, setSort] = useState<Sort<TPullRequest>>({
+        ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
+        direction: SORT_ORDER.DESC,
+    })
     return (
         <>
-            {view.view_items.slice(0, visibleItemsCount).map((item, index) => (
-                <Fragment key={item.id}>
-                    <PullRequest
-                        pullRequest={item as TPullRequest}
-                        isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                        link={`/overview/${view.id}/${item.id}`}
-                    />
-                    {index !== view.view_items.length - 1 && (
-                        <DividerMargin>
-                            <Divider />
-                        </DividerMargin>
-                    )}
-                </Fragment>
-            ))}
+            <ViewHeader>
+                <ViewName>{view.name}</ViewName>
+                {view.view_items.length > 0 && (
+                    <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
+                )}
+            </ViewHeader>
+            {view.view_items.length === 0 && view.is_linked && (
+                <EmptyViewItem
+                    header="You have no more pull requests!"
+                    body="When new pull requests get assigned to you, they will appear here."
+                />
+            )}
+            <PullRequestList
+                pullRequests={view.view_items.slice(0, visibleItemsCount)}
+                selectedPrId={overviewItemId}
+                sort={sort}
+                overviewViewId={view.id}
+            />
         </>
     )
 }
