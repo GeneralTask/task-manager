@@ -23,6 +23,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     color: ${Colors.text.black};
     box-sizing: border-box;
     gap: ${Spacing._12};
+    transform: translate(0, 0); // to hide corners when dragging
     :hover {
         background-color: ${Colors.background.dark};
     }
@@ -101,7 +102,7 @@ const NavigationLink = ({
     const [isOver, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
-            collect: (monitor) => taskSection && droppable && monitor.isOver(),
+            collect: (monitor) => Boolean(taskSection && droppable && monitor.isOver()),
             drop: onDrop,
             canDrop: () => !!(taskSection && droppable),
         }),
@@ -115,8 +116,8 @@ const NavigationLink = ({
     }
 
     return (
-        <NavigationLinkTemplate ref={drag} onClick={onClickHandler} data-testid={testId}>
-            <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
+        <NavigationLinkTemplate ref={drop} onClick={onClickHandler} data-testid={testId}>
+            <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
                 <SectionTitle>{title}</SectionTitle>
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
