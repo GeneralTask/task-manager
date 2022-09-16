@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useDrop } from 'react-dnd'
+import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
@@ -55,6 +55,7 @@ interface NavigationLinkProps {
     icon?: IconProp | string
     taskSection?: TTaskSection
     count?: number
+    draggable?: boolean
     droppable?: boolean
     testId?: string
 }
@@ -65,6 +66,7 @@ const NavigationLink = ({
     icon,
     taskSection,
     count,
+    draggable,
     droppable,
     testId,
 }: NavigationLinkProps) => {
@@ -86,6 +88,16 @@ const NavigationLink = ({
         [taskSection?.id]
     )
 
+    const [, drag] = useDrag(
+        () => ({
+            type: DropType.FOLDER,
+            item: { id: taskSection?.id },
+            canDrag: draggable,
+            collect: (monitor) => monitor.isDragging(),
+        }),
+        [taskSection, draggable]
+    )
+
     const [isOver, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
@@ -105,7 +117,7 @@ const NavigationLink = ({
     }
 
     return (
-        <NavigationLinkTemplate onClick={onClickHandler} data-testid={testId}>
+        <NavigationLinkTemplate ref={drag} onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
                 <SectionTitle>{title}</SectionTitle>

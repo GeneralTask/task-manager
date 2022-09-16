@@ -7,8 +7,11 @@ import { useAddTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { DropItem, DropType } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
+import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
+import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
@@ -82,10 +85,18 @@ const NavigationSectionLinks = () => {
         }
     }, [])
 
+    const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
+        console.log({ item, dropIndex })
+    }, [])
+
     const defaultFolder = folders?.find((section) => section.id === DEFAULT_SECTION_ID)
     const doneFolder = folders?.find((section) => section.is_done)
     // TODO(maz): uncomment after we actually support task deletion
     const trashFolder = folders?.find((section) => section.is_trash)
+
+    if (!folders) {
+        return <Loading />
+    }
 
     return (
         <>
@@ -117,18 +128,25 @@ const NavigationSectionLinks = () => {
                 )}
                 {folders
                     ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
-                    .map((section) => (
-                        <NavigationLink
+                    .map((section, index) => (
+                        <ReorderDropContainer
                             key={section.id}
-                            link={`/tasks/${section.id}`}
-                            title={section.name}
-                            icon={icons.folder}
-                            isCurrentPage={sectionId === section.id}
-                            taskSection={section}
-                            count={section.tasks.length}
-                            droppable
-                            testId="task-section-link"
-                        />
+                            index={index}
+                            acceptDropType={DropType.FOLDER}
+                            onReorder={handleReorder}
+                        >
+                            <NavigationLink
+                                key={section.id}
+                                link={`/tasks/${section.id}`}
+                                title={section.name}
+                                icon={icons.folder}
+                                isCurrentPage={sectionId === section.id}
+                                taskSection={section}
+                                count={section.tasks.length}
+                                droppable
+                                testId="task-section-link"
+                            />
+                        </ReorderDropContainer>
                     ))}
                 {isAddSectionInputVisible && (
                     <NavigationLinkTemplate>
@@ -149,30 +167,39 @@ const NavigationSectionLinks = () => {
                         </AddSectionContainer>
                     </NavigationLinkTemplate>
                 )}
-                {doneFolder && ( // TODO(maz): remove after we actually support task deletion
-                    <NavigationLink
-                        link={`/tasks/${doneFolder.id}`}
-                        title={doneFolder.name}
-                        icon={icons.checkbox_checked}
-                        isCurrentPage={sectionId === doneFolder.id}
-                        taskSection={doneFolder}
-                        count={doneFolder.tasks.length}
-                        droppable
-                        testId="task-section-link"
-                    />
-                )}
-                {SHOW_TRASH_SECTION && trashFolder && (
-                    <NavigationLink
-                        link={`/tasks/${trashFolder.id}`}
-                        title={trashFolder.name}
-                        icon={icons.trash}
-                        isCurrentPage={sectionId === trashFolder.id}
-                        taskSection={defaultFolder}
-                        count={trashFolder.tasks.length}
-                        droppable
-                        testId="task-section-link"
-                    />
-                )}
+                <ReorderDropContainer
+                    index={folders.length} // once we add the trash section, this should be folders.length - 1
+                    acceptDropType={DropType.FOLDER}
+                    onReorder={handleReorder}
+                    indicatorType="TOP_ONLY"
+                >
+                    <>
+                        {doneFolder && ( // TODO(maz): remove after we actually support task deletion
+                            <NavigationLink
+                                link={`/tasks/${doneFolder.id}`}
+                                title={doneFolder.name}
+                                icon={icons.checkbox_checked}
+                                isCurrentPage={sectionId === doneFolder.id}
+                                taskSection={doneFolder}
+                                count={doneFolder.tasks.length}
+                                droppable
+                                testId="task-section-link"
+                            />
+                        )}
+                        {SHOW_TRASH_SECTION && trashFolder && (
+                            <NavigationLink
+                                link={`/tasks/${trashFolder.id}`}
+                                title={trashFolder.name}
+                                icon={icons.trash}
+                                isCurrentPage={sectionId === trashFolder.id}
+                                taskSection={defaultFolder}
+                                count={trashFolder.tasks.length}
+                                droppable
+                                testId="task-section-link"
+                            />
+                        )}
+                    </>
+                </ReorderDropContainer>
             </NavigationLinkDropdown>
         </>
     )
