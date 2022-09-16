@@ -2,15 +2,15 @@ import { TPullRequest } from '../../utils/types'
 import { SortSelectorItems } from '../molecules/SortSelector'
 
 const PULL_REQUEST_REQUIRED_ACTIONS = [
+    'Review PR',
     'Add Reviewers',
-    'Fix Merge Conflicts',
     'Fix Failed CI',
     'Address Comments',
+    'Fix Merge Conflicts',
     'Waiting on CI',
     'Merge PR',
-    'Waiting on Author',
     'Waiting on Review',
-    'Review PR',
+    'Waiting on Author',
     'Not Actionable',
 ]
 
