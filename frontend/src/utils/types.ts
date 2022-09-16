@@ -29,6 +29,7 @@ export interface TTask {
     deeplink: string
     body: string
     sent_at: string
+    priority_normalized: number
     time_allocated: number
     due_date: string
     external_status?: TExternalStatus
