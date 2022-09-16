@@ -898,6 +898,43 @@ func TestGetExternalToken(t *testing.T) {
 	})
 }
 
+func TestGetExternalTokens(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	_, err = GetExternalTokenCollection(db).InsertOne(
+		context.Background(),
+		&ExternalAPIToken{
+			UserID:    userID,
+			ServiceID: "elon",
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("NoExternalTokens", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, userID, "")
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tokens))
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, primitive.NewObjectID(), "elon")
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tokens))
+	})
+	t.Run("WrongServiceID", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, userID, "jeff")
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tokens))
+	})
+	t.Run("Success", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, userID, "elon")
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tokens))
+		assert.Equal(t, "elon", (*tokens)[0].ServiceID)
+	})
+}
+
 func TestGetDefaultSectionName(t *testing.T) {
 	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()

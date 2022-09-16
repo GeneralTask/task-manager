@@ -16,8 +16,6 @@ import {
     faSquare,
     faTrash,
     faXmark,
-} from '@fortawesome/pro-regular-svg-icons'
-import {
     faBadgeCheck,
     faBars,
     faChevronDown,
@@ -33,7 +31,7 @@ import {
     faList,
     faTag,
     faTimer,
-} from '@fortawesome/pro-solid-svg-icons'
+} from '@fortawesome/pro-light-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',

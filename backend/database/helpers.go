@@ -374,9 +374,8 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 }
 
 func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M, findOptions *options.FindOptions) (*[]Task, error) {
-	parentCtx := context.Background()
 	var tasks []Task
-	err := FindWithCollection(parentCtx, GetTaskCollection(db), userID, additionalFilters, &tasks, findOptions)
+	err := FindWithCollection(GetTaskCollection(db), userID, additionalFilters, &tasks, findOptions)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch items for user")
@@ -387,9 +386,8 @@ func GetTasks(db *mongo.Database, userID primitive.ObjectID, additionalFilters *
 
 // will add helpers once we refactor tasks collection
 func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]PullRequest, error) {
-	parentCtx := context.Background()
 	var pullRequests []PullRequest
-	err := FindWithCollection(parentCtx, GetPullRequestCollection(db), userID, additionalFilters, &pullRequests, nil)
+	err := FindWithCollection(GetPullRequestCollection(db), userID, additionalFilters, &pullRequests, nil)
 	if err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to fetch pull requests for user")
@@ -398,7 +396,7 @@ func GetPullRequests(db *mongo.Database, userID primitive.ObjectID, additionalFi
 	return &pullRequests, nil
 }
 
-func FindWithCollection(parentCtx context.Context, collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}, findOptions *options.FindOptions) error {
+func FindWithCollection(collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M, result interface{}, findOptions *options.FindOptions) error {
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
@@ -413,19 +411,15 @@ func FindWithCollection(parentCtx context.Context, collection *mongo.Collection,
 		findOptions = options.Find()
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := collection.Find(
-		dbCtx,
+		context.Background(),
 		filter,
 		findOptions,
 	)
 	if err != nil {
 		return err
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	return cursor.All(dbCtx, result)
+	return cursor.All(context.Background(), result)
 }
 
 func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, error) {
@@ -538,9 +532,8 @@ func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID p
 }
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
-	parentCtx := context.Background()
 	var sections []TaskSection
-	err := FindWithCollection(parentCtx, GetTaskSectionCollection(db), userID, &[]bson.M{{"user_id": userID}}, &sections, nil)
+	err := FindWithCollection(GetTaskSectionCollection(db), userID, &[]bson.M{{"user_id": userID}}, &sections, nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load task sections")
@@ -692,6 +685,23 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 		return nil, err
 	}
 	return &externalAPIToken, nil
+}
+
+func GetExternalTokens(db *mongo.Database, userID primitive.ObjectID, serviceID string) (*[]ExternalAPIToken, error) {
+	var tokens []ExternalAPIToken
+	err := FindWithCollection(
+		GetExternalTokenCollection(db),
+		userID,
+		&[]bson.M{{"service_id": serviceID}},
+		&tokens,
+		nil,
+	)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load task sections")
+		return nil, err
+	}
+	return &tokens, nil
 }
 
 func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
