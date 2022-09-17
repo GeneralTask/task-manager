@@ -135,7 +135,7 @@ const NavigationSectionLinks = () => {
                     .map((section, index) => (
                         <ReorderDropContainer
                             key={section.id}
-                            index={index}
+                            index={index + 1} // +1 because we skip the default folder
                             acceptDropType={DropType.FOLDER}
                             onReorder={handleReorder}
                             dividerStyleType="purple"
@@ -174,7 +174,7 @@ const NavigationSectionLinks = () => {
                     </NavigationLinkTemplate>
                 )}
                 <ReorderDropContainer
-                    index={folders.length} // once we add the trash section, this should be folders.length - 1
+                    index={folders.length - 1}
                     acceptDropType={DropType.FOLDER}
                     onReorder={handleReorder}
                     indicatorType="TOP_ONLY"

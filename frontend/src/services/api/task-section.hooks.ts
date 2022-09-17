@@ -97,10 +97,13 @@ export const useModifyTaskSection = () => {
                 if (sectionIndex === -1) return
                 if (data.name) draft[sectionIndex].name = data.name
                 if (data.id_ordering) {
-                    arrayMoveInPlace(draft, sectionIndex, data.id_ordering)
+                    arrayMoveInPlace(draft, sectionIndex, data.id_ordering - 2)
                 }
             })
             queryClient.setQueryData('tasks', newSections)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
         },
     })
 }
