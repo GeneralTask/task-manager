@@ -12,6 +12,7 @@ import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
+import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -41,6 +42,18 @@ const ClockContainer = styled.div`
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
     text-align: right;
+`
+const JoinMeetingContainer = styled.div`
+    border: 1px solid ${Colors.border.light};
+    border-radius: ${Border.radius.large};
+    display: flex;
+    padding: ${Spacing._8} ${Spacing._16};
+    align-items: center;
+    justify-content: space-between;
+    ${Typography.bodySmall};
+`
+const BoldText = styled.span`
+    ${Typography.bold};
 `
 const EventContainer = styled.div`
     padding: ${Spacing._32};
@@ -85,6 +98,7 @@ const FocusModeScreen = () => {
     const timeEnd = DateTime.fromISO(datetime_end)
 
     const clockTime = DateTime.local().toFormat('h:mm a')
+    const conferenceCall = currentEvents[0]?.conference_call.logo ? currentEvents[0].conference_call : null
 
     const navigate = useNavigate()
     return (
@@ -99,6 +113,15 @@ const FocusModeScreen = () => {
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
+                                    {conferenceCall && (
+                                        <JoinMeetingContainer>
+                                            <span>
+                                                <span>This meeting is happening</span>
+                                                <BoldText> right now.</BoldText>
+                                            </span>
+                                            <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
+                                        </JoinMeetingContainer>
+                                    )}
                                     <div>
                                         <BodyHeader>MEETING NOTES</BodyHeader>
                                         <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />

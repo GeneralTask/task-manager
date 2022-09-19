@@ -9,6 +9,7 @@ import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from '
 import './src/index.css'
 import './src/index.css'
 import './src/index.css'
+import './src/index.css'
 import PrivateOutlet from './src/services/PrivateOutlet'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
@@ -48,28 +49,12 @@ const App = () => {
                                     <Route index element={<MainScreen />} />
                                     <Route path=":pullRequest" element={<MainScreen />} />
                                 </Route>
-                                <Route path="focus-mode" element={<PrivateOutlet />}>
+                                <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                 </Route>
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                 </Route>
-                            </Route>
-                            <Route path="tasks" element={<PrivateOutlet />}>
-                                <Route index element={<MainScreen />} />
-                                <Route path=":section" element={<MainScreen />}>
-                                    <Route path=":task" element={<MainScreen />} />
-                                </Route>
-                            </Route>
-                            <Route path="pull-requests" element={<PrivateOutlet />}>
-                                <Route index element={<MainScreen />} />
-                                <Route path=":pullRequest" element={<MainScreen />} />
-                            </Route>
-                            <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
-                                <Route index element={<MainScreen />} />
-                            </Route>
-                            <Route path="settings" element={<PrivateOutlet />}>
-                                <Route index element={<MainScreen />} />
                             </Route>
                         </Routes>
                     </Suspense>
