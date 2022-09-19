@@ -508,27 +508,22 @@ func GetTaskSectionName(db *mongo.Database, taskSectionID primitive.ObjectID, us
 // Get all events that start until the end of the day
 func GetEventsUntilEndOfDay(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, currentTime time.Time) (*[]CalendarEvent, error) {
 	timeEndOfDay := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 23, 59, 59, 0, currentTime.Location())
-	eventCollection := GetCalendarEventCollection(db)
-	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := eventCollection.Find(
-		dbCtx,
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-				{"datetime_start": bson.M{"$gte": currentTime}},
-				{"datetime_start": bson.M{"$lte": timeEndOfDay}},
-				{"linked_task_id": bson.M{"$exists": false}},
-			},
-		})
+	return GetCalendarEvents(db, userID, &[]bson.M{
+		{"datetime_start": bson.M{"$gte": currentTime}},
+		{"datetime_start": bson.M{"$lte": timeEndOfDay}},
+		{"linked_task_id": bson.M{"$exists": false}},
+		{"linked_view_id": bson.M{"$exists": false}},
+	})
+}
+
+func GetCalendarEvents(db *mongo.Database, userID primitive.ObjectID, additionalFilters *[]bson.M) (*[]CalendarEvent, error) {
+	var calendarEvents []CalendarEvent
+	err := FindWithCollection(GetCalendarEventCollection(db), userID, additionalFilters, &calendarEvents, nil)
 	if err != nil {
-		return nil, err
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch events for user")
 	}
-	var events []CalendarEvent
-	dbCtx, cancel = context.WithTimeout(extCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &events)
-	return &events, err
+	return &calendarEvents, err
 }
 
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
