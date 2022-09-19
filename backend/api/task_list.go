@@ -44,6 +44,7 @@ type TaskResult struct {
 	TimeAllocation           int64                        `json:"time_allocated"`
 	SentAt                   string                       `json:"sent_at"`
 	IsDone                   bool                         `json:"is_done"`
+	IsDeleted                bool                         `json:"is_deleted"`
 	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
 	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
@@ -54,10 +55,11 @@ type TaskResult struct {
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+	ID      primitive.ObjectID `json:"id"`
+	Name    string             `json:"name"`
+	Tasks   []*TaskResult      `json:"tasks"`
+	IsDone  bool               `json:"is_done"`
+	IsTrash bool               `json:"is_trash"`
 }
 
 type Recipients struct {
@@ -267,6 +269,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	if t.IsCompleted != nil {
 		completed = *t.IsCompleted
 	}
+	deleted := false
+	if t.IsDeleted != nil {
+		deleted = *t.IsDeleted
+	}
 	title := ""
 	if t.Title != nil {
 		title = *t.Title
@@ -292,6 +298,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		DueDate:                  dueDate,
 		PriorityNormalized:       priority,
 		IsDone:                   completed,
+		IsDeleted:                deleted,
 		Comments:                 t.Comments,
 		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
 	}
@@ -333,7 +340,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 }
 
 func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID) []*TaskResult {
-	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}})
+	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}}, nil)
 	if err == nil && len(*subtasks) > 0 {
 		subtaskResults := []*TaskResult{}
 		for _, subtask := range *subtasks {
