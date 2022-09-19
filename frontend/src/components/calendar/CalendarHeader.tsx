@@ -1,15 +1,15 @@
 import { useCallback } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { FOCUS_MODE_ROUTE } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import NoStyleLink from '../atoms/NoStyleLink'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { useCalendarContext } from './CalendarContext'
-import { FOCUS_MODE_ROUTE } from '../../constants'
-import NoStyleLink from '../atoms/NoStyleLink'
 
 const PaddedContainer = styled.div`
     padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
@@ -32,7 +32,7 @@ const Title = styled.span`
     color: ${Colors.text.black};
     ${Typography.bodySmall};
 `
-const TitleBold = styled(Title) <{ purple: boolean }>`
+const TitleBold = styled(Title)<{ purple: boolean }>`
     ${({ purple }) => purple && `color: ${Colors.gtColor.primary};`}
     ${Typography.bold};
 `
@@ -86,7 +86,13 @@ export default function CalendarHeader({
                     <PaddedContainer>
                         <HeaderBodyContainer>
                             <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
-                                <GTButton value="Enter Focus Mode" size="small" styleType="secondary" />
+                                <GTButton
+                                    icon={icons.headphones}
+                                    iconColor="black"
+                                    value="Enter Focus Mode"
+                                    size="small"
+                                    styleType="secondary"
+                                />
                             </NoStyleLink>
                             <HeaderIconsContainer>
                                 <GTIconButton
