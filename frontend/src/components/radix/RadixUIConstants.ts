@@ -1,6 +1,7 @@
-import { css } from "styled-components";
-import { Spacing, Border, Colors, Shadows, Typography } from "../../styles";
-import { TTextColor } from "../../styles/colors";
+import styled, { css } from 'styled-components'
+import { Spacing, Border, Colors, Shadows, Typography } from '../../styles'
+import { TIconColor, TTextColor } from '../../styles/colors'
+import { TIconType } from '../atoms/Icon'
 
 
 const MENU_WIDTH = '172px'
@@ -24,7 +25,6 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
         background-color: ${Colors.background.dark};
     }
 `
-
 export const MenuContentShared = css`
     z-index: 5;
     ${Typography.body};
@@ -34,3 +34,17 @@ export const MenuContentShared = css`
     border-radius: ${Border.radius.mini};
     box-shadow: ${Shadows.light};
 `
+export const MarginLeftIcon = styled.div`
+    margin-left: auto;
+`
+
+export interface GTMenuItem {
+    label: string
+    onClick?: () => void
+    icon?: TIconType
+    iconColor?: TIconColor
+    textColor?: TTextColor
+    selected?: boolean
+    subItems?: GTMenuItem[]
+    renderer?: () => JSX.Element // override how the option is rendered
+}

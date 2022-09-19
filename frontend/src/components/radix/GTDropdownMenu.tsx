@@ -3,9 +3,9 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
-import { Icon, TIconType } from '../atoms/Icon'
+import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { MenuContentShared, MenuItemShared } from './RadixUIStyles'
+import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemShared } from './RadixUIConstants'
 
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     all: unset;
@@ -16,25 +16,15 @@ const DropdownMenuContent = styled(DropdownMenu.Content)`
 const DropdownMenuItem = styled(DropdownMenu.Item)<{ $isSelected?: boolean }>`
     ${MenuItemShared};
 `
-const SelectedIcon = styled.div`
-    margin-left: auto;
-`
 
-export interface GTDropdownMenuItem {
-    label: string
-    onClick?: () => void
-    icon?: TIconType
-    selected?: boolean
-    renderer?: () => JSX.Element // override how the option is rendered
-}
 interface GTDropdownMenuProps {
-    items: GTDropdownMenuItem[] | GTDropdownMenuItem[][] // allow for divided groups of items
+    items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     align?: 'start' | 'end'
 }
 
 const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps) => {
-    const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTDropdownMenuItem[][]
+    const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
     return (
         <div onKeyDown={(e) => e.stopPropagation()}>
@@ -59,9 +49,9 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                                                     {item.icon && <Icon size="xSmall" icon={item.icon} />}
                                                     {item.label}
                                                     {item.selected && (
-                                                        <SelectedIcon>
+                                                        <MarginLeftIcon>
                                                             <Icon size="xSmall" icon={icons.check} />
-                                                        </SelectedIcon>
+                                                        </MarginLeftIcon>
                                                     )}
                                                 </>
                                             )}

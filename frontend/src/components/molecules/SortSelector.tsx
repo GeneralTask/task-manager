@@ -2,7 +2,8 @@ import { Sort } from '../../hooks/useSortAndFilter'
 import { icons } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
 import GTButton from '../atoms/buttons/GTButton'
-import GTDropdownMenu, { GTDropdownMenuItem } from '../radix/GTDropdownMenu'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
+import { GTMenuItem } from '../radix/RadixUIConstants'
 
 export interface SortSelectorItems<T> {
     [key: string]: {
@@ -17,7 +18,7 @@ interface SortSelectorProps<T> {
     setSelectedSort: (sort: Sort<T>) => void
 }
 const SortSelector = <T,>({ items, selectedSort, setSelectedSort }: SortSelectorProps<T>) => {
-    const sortItems: GTDropdownMenuItem[] = Object.entries(items).map(([, value]) => ({
+    const sortItems: GTMenuItem[] = Object.entries(items).map(([, value]) => ({
         ...value,
         selected: selectedSort.id === value.sort.id,
         onClick: () =>
@@ -26,7 +27,7 @@ const SortSelector = <T,>({ items, selectedSort, setSelectedSort }: SortSelector
                 direction: selectedSort.direction,
             }),
     }))
-    const sortOrderGroups: GTDropdownMenuItem[] = [
+    const sortOrderGroups: GTMenuItem[] = [
         {
             label: 'Ascending',
             icon: icons.arrow_up,

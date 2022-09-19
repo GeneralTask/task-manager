@@ -1,6 +1,7 @@
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
-import GTContextMenu, { GTContextMenuItem } from './GTContextMenu'
+import GTContextMenu from './GTContextMenu'
+import { GTMenuItem } from './RadixUIConstants'
 
 interface TaskContextMenuProps {
     taskId: string
@@ -11,7 +12,7 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
     const { data: taskSections } = useGetTasks()
     const { mutate: reorderTask } = useReorderTask()
 
-    const contextMenuItems: GTContextMenuItem[] = [
+    const contextMenuItems: GTMenuItem[] = [
         // {
         //     label: 'Priority',
         //     icon: icons.priority_urgent,

@@ -1,10 +1,10 @@
 import { Fragment } from 'react'
 import * as ContextMenu from '@radix-ui/react-context-menu'
 import styled from 'styled-components'
-import { TIconColor, TTextColor } from '../../styles/colors'
+import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import { Icon, TIconType } from '../atoms/Icon'
-import { MenuContentShared, MenuItemShared } from './RadixUIStyles'
+import { Icon } from '../atoms/Icon'
+import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemShared } from './RadixUIConstants'
 
 const ContextMenuTrigger = styled(ContextMenu.Trigger)`
     all: unset;
@@ -21,22 +21,9 @@ const ContextMenuItem = styled(ContextMenu.Item)<{ $isSelected?: boolean; $textC
 const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ $isSelected?: boolean; $textColor?: TTextColor }>`
     ${MenuItemShared};
 `
-const RightIcon = styled.div`
-    margin-left: auto;
-`
-
-export interface GTContextMenuItem {
-    label: string
-    onClick?: () => void
-    icon?: TIconType
-    iconColor?: TIconColor
-    textColor?: TTextColor
-    selected?: boolean
-    subItems?: GTContextMenuItem[]
-}
 
 interface GTContextMenuProps {
-    items: GTContextMenuItem[]
+    items: GTMenuItem[]
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
 }
 const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
@@ -60,9 +47,9 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                                 <Icon size="xSmall" icon={item.icon} color={item.iconColor} />
                                             )}
                                             {item.label}
-                                            <RightIcon>
+                                            <MarginLeftIcon>
                                                 <Icon size="xSmall" icon={icons.caret_right} />
-                                            </RightIcon>
+                                            </MarginLeftIcon>
                                         </ContextMenuSubTrigger>
                                         <ContextMenu.Portal>
                                             <ContextMenuSubContent>
@@ -82,9 +69,9 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                                         )}
                                                         {subItem.label}
                                                         {subItem.selected && (
-                                                            <RightIcon>
+                                                            <MarginLeftIcon>
                                                                 <Icon size="xSmall" icon={icons.check} />
-                                                            </RightIcon>
+                                                            </MarginLeftIcon>
                                                         )}
                                                     </ContextMenuItem>
                                                 ))}
@@ -102,9 +89,9 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                         {item.icon && <Icon size="xSmall" icon={item.icon} color={item.iconColor} />}
                                         {item.label}
                                         {item.selected && (
-                                            <RightIcon>
+                                            <MarginLeftIcon>
                                                 <Icon size="xSmall" icon={icons.check} />
-                                            </RightIcon>
+                                            </MarginLeftIcon>
                                         )}
                                     </ContextMenuItem>
                                 )}
