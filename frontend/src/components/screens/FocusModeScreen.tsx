@@ -13,6 +13,7 @@ import { Icon } from '../atoms/Icon'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
+import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -119,14 +120,7 @@ const FocusModeScreen = () => {
                                                 <span>This meeting is happening</span>
                                                 <BoldText> right now.</BoldText>
                                             </span>
-                                            <NoStyleAnchor href={conferenceCall.url} target="_blank">
-                                                <GTButton
-                                                    icon={conferenceCall.logo}
-                                                    iconColor="black"
-                                                    styleType="secondary"
-                                                    value="Join Meeting"
-                                                />
-                                            </NoStyleAnchor>
+                                            <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
                                         </JoinMeetingContainer>
                                     )}
                                     <div>
