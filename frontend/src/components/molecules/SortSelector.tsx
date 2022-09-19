@@ -1,8 +1,8 @@
 import { Sort } from '../../hooks/useSortAndFilter'
 import { icons } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
-import GTDropdownMenu, { GTDropdownMenuItem } from '../atoms/GTDropdownMenu'
 import GTButton from '../atoms/buttons/GTButton'
+import GTDropdownMenu, { GTDropdownMenuItem } from '../radix/GTDropdownMenu'
 
 export interface SortSelectorItems<T> {
     [key: string]: {

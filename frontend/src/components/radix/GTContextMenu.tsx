@@ -1,55 +1,25 @@
 import { Fragment } from 'react'
 import * as ContextMenu from '@radix-ui/react-context-menu'
-import styled, { css } from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import styled from 'styled-components'
 import { TIconColor, TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { Icon, TIconType } from '../atoms/Icon'
-
-const CONTEXT_MENU_WIDTH = '172px'
+import { MenuContentShared, MenuItemShared } from './RadixUIStyles'
 
 const ContextMenuTrigger = styled(ContextMenu.Trigger)`
     all: unset;
 `
-const ContextMenuContentShared = css`
-    z-index: 5;
-    ${Typography.body};
-    padding: ${Spacing._4};
-    width: ${CONTEXT_MENU_WIDTH};
-    background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.mini};
-    box-shadow: ${Shadows.light};
-`
 const ContextMenuContent = styled(ContextMenu.Content)`
-    ${ContextMenuContentShared};
+    ${MenuContentShared};
 `
 const ContextMenuSubContent = styled(ContextMenu.SubContent)`
-    ${ContextMenuContentShared};
-`
-const ContextMenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor }>`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._12};
-    flex: 1;
-    margin: ${Spacing._4} 0;
-    padding: ${Spacing._4} ${Spacing._12};
-    cursor: pointer;
-    outline: none;
-    border-radius: ${Border.radius.mini};
-    white-space: nowrap;
-    overflow: clip;
-    text-overflow: ellipsis;
-    ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
-    ${({ $isSelected }) => $isSelected && `background-color: ${Colors.background.medium};`}
-    :hover, :focus {
-        background-color: ${Colors.background.dark};
-    }
+    ${MenuContentShared};
 `
 const ContextMenuItem = styled(ContextMenu.Item)<{ $isSelected?: boolean; $textColor?: TTextColor }>`
-    ${ContextMenuItemShared};
+    ${MenuItemShared};
 `
 const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ $isSelected?: boolean; $textColor?: TTextColor }>`
-    ${ContextMenuItemShared};
+    ${MenuItemShared};
 `
 const RightIcon = styled.div`
     margin-left: auto;
