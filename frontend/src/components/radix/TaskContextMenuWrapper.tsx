@@ -40,7 +40,7 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
             subItems: taskSections
                 ? [
                       ...taskSections
-                          .filter((s) => !s.is_done)
+                          .filter((s) => !s.is_done && !s.is_trash)
                           .map((section) => ({
                               label: section.name,
                               icon: icons.folder,
