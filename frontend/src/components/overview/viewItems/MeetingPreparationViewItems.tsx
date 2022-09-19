@@ -25,8 +25,8 @@ const MeetingPreparationViewItems = ({ view }: ViewItemsProps) => {
                 ))
             ) : (
                 <EmptyViewItem
-                    header="You have no more meeting preparation tasks."
-                    body="When you have an upcoming calendar event, they will appear here."
+                    header="You have no more meetings today."
+                    body="When you have calendar events scheduled later in the day, they will appear here."
                 />
             )}
         </>
