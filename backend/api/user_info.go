@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,13 +19,10 @@ type UserInfoParams struct {
 }
 
 func (api *API) UserInfoGet(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -40,7 +36,6 @@ func (api *API) UserInfoGet(c *gin.Context) {
 }
 
 func (api *API) UserInfoUpdate(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	var params UserInfoParams
 	err := c.BindJSON(&params)
 	if err != nil {
@@ -51,10 +46,8 @@ func (api *API) UserInfoUpdate(c *gin.Context) {
 
 	userID, _ := c.Get("user")
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = userCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"_id": userID},
 		bson.M{"$set": params},
 	)

@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -30,7 +29,6 @@ type WaitlistParams struct {
 // @Failure      500 {object} string "internal server error"
 // @Router       /waitlist/ [post]
 func (api *API) WaitlistAdd(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	var params WaitlistParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Email == "" {
@@ -46,9 +44,7 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 
 	waitlistCollection := database.GetWaitlistCollection(api.DB)
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	count, err := waitlistCollection.CountDocuments(dbCtx, bson.M{"email": email})
+	count, err := waitlistCollection.CountDocuments(context.Background(), bson.M{"email": email})
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to query waitlist")
 		Handle500(c)
@@ -59,10 +55,8 @@ func (api *API) WaitlistAdd(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = waitlistCollection.InsertOne(
-		dbCtx,
+		context.Background(),
 		&database.WaitlistEntry{
 			Email:     email,
 			CreatedAt: primitive.NewDateTimeFromTime(time.Now()),

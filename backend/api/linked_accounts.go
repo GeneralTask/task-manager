@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
@@ -48,15 +47,12 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 }
 
 func (api *API) LinkedAccountsList(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
 
 	var tokens []database.ExternalAPIToken
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
@@ -65,9 +61,7 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tokens)
+	err = cursor.All(context.Background(), &tokens)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
@@ -95,7 +89,6 @@ func (api *API) LinkedAccountsList(c *gin.Context) {
 }
 
 func (api *API) DeleteLinkedAccount(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 	accountIDHex := c.Param("account_id")
 	accountID, err := primitive.ObjectIDFromHex(accountIDHex)
@@ -106,11 +99,9 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 	}
 	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	var accountToDelete database.ExternalAPIToken
 	err = externalAPITokenCollection.FindOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"_id": accountID},
@@ -126,10 +117,8 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := externalAPITokenCollection.DeleteOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"_id": accountID},
 	)
 	if err != nil || res.DeletedCount != 1 {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -44,6 +43,7 @@ type TaskResult struct {
 	TimeAllocation           int64                        `json:"time_allocated"`
 	SentAt                   string                       `json:"sent_at"`
 	IsDone                   bool                         `json:"is_done"`
+	IsDeleted                bool                         `json:"is_deleted"`
 	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
 	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
@@ -54,10 +54,11 @@ type TaskResult struct {
 }
 
 type TaskSection struct {
-	ID     primitive.ObjectID `json:"id"`
-	Name   string             `json:"name"`
-	Tasks  []*TaskResult      `json:"tasks"`
-	IsDone bool               `json:"is_done"`
+	ID      primitive.ObjectID `json:"id"`
+	Name    string             `json:"name"`
+	Tasks   []*TaskResult      `json:"tasks"`
+	IsDone  bool               `json:"is_done"`
+	IsTrash bool               `json:"is_trash"`
 }
 
 type Recipients struct {
@@ -73,22 +74,18 @@ type Recipient struct {
 
 type TaskGroupType string
 
-func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
+func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
 		return nil, nil, err
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tokens)
+	err = cursor.All(context.Background(), &tokens)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		return nil, nil, err
@@ -181,16 +178,13 @@ func (api *API) adjustForCompletedPullRequests(
 }
 
 func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
-	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	orderingID := 1
 	for _, task := range *tasks {
 		task.IDOrdering = orderingID
 		orderingID += 1
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		res, err := tasksCollection.UpdateOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"_id": task.ID},
 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)
@@ -267,6 +261,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 	if t.IsCompleted != nil {
 		completed = *t.IsCompleted
 	}
+	deleted := false
+	if t.IsDeleted != nil {
+		deleted = *t.IsDeleted
+	}
 	title := ""
 	if t.Title != nil {
 		title = *t.Title
@@ -292,6 +290,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		DueDate:                  dueDate,
 		PriorityNormalized:       priority,
 		IsDone:                   completed,
+		IsDeleted:                deleted,
 		Comments:                 t.Comments,
 		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
 	}
@@ -333,7 +332,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 }
 
 func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID) []*TaskResult {
-	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}})
+	subtasks, err := database.GetTasks(api.DB, userID, &[]bson.M{{"parent_task_id": task.ID}}, nil)
 	if err == nil && len(*subtasks) > 0 {
 		subtaskResults := []*TaskResult{}
 		for _, subtask := range *subtasks {

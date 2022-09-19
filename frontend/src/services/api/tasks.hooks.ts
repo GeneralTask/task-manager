@@ -23,9 +23,13 @@ export interface TModifyTaskData {
     dueDate?: string
     timeAllocated?: number
     body?: string
+    priorityNormalized?: number
 }
 
 interface TTaskModifyRequestBody {
+    task: {
+        priority_normalized?: number
+    }
     id_task_section?: string
     id_ordering?: number
     title?: string
@@ -102,6 +106,7 @@ export const useCreateTask = () => {
                         body: data.body ?? '',
                         deeplink: '',
                         sent_at: '',
+                        priority_normalized: 0,
                         time_allocated: 0,
                         due_date: '',
                         source: {
@@ -215,6 +220,7 @@ export const useModifyTask = () => {
                     task.due_date = data.dueDate || task.due_date
                     task.time_allocated = data.timeAllocated || task.time_allocated
                     task.body = data.body || task.body
+                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -227,11 +233,12 @@ export const useModifyTask = () => {
     )
 }
 const modifyTask = async (data: TModifyTaskData) => {
-    const requestBody: TTaskModifyRequestBody = {}
+    const requestBody: TTaskModifyRequestBody = { task: {} }
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
     if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
+    if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
