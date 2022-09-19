@@ -133,6 +133,10 @@ func (slackTask SlackSavedTaskSource) ModifyEvent(db *mongo.Database, userID pri
 	return errors.New("has not been implemented yet")
 }
 
+func (slackTask SlackSavedTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
+	return errors.New("has not been implemented yet")
+}
+
 func GenerateSlackUserID(teamID string, userID string) string {
 	return teamID + "-" + userID
 }

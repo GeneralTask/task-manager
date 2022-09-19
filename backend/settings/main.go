@@ -198,12 +198,7 @@ func getCalendarTokens(db *mongo.Database, userID primitive.ObjectID) (*[]databa
 
 func getGithubViews(db *mongo.Database, userID primitive.ObjectID) (*[]database.View, error) {
 	var views []database.View
-	err := database.FindWithCollection(
-		database.GetViewCollection(db),
-		userID,
-		&[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}},
-		&views,
-	)
+	err := database.FindWithCollection(database.GetViewCollection(db), userID, &[]bson.M{{"user_id": userID}, {"type": constants.ViewGithub}}, &views, nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load github views")

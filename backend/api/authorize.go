@@ -138,7 +138,6 @@ func (api *API) LinkCallback(c *gin.Context) {
 // @Router       /link_app/slack/ [get]
 func (api *API) LinkSlackApp(c *gin.Context) {
 	logger := logging.GetSentryLogger()
-	parentCtx := context.Background()
 	taskService, err := api.ExternalConfig.GetTaskServiceResult("slack_app")
 	if err != nil {
 		Handle404(c)
@@ -155,7 +154,7 @@ func (api *API) LinkSlackApp(c *gin.Context) {
 	}
 
 	slackService := taskService.Service.(external.SlackService)
-	_, err = slackService.Config.OauthConfig.Exchange(parentCtx, redirectParams.Code)
+	_, err = slackService.Config.OauthConfig.Exchange(context.Background(), redirectParams.Code)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to exchange Slack app oauth keys")
 		c.JSON(500, gin.H{"detail": err.Error()})

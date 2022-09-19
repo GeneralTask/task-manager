@@ -18,6 +18,7 @@ type TaskSource interface {
 	CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error
 	DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error
+	AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error
 }
 
 type TaskCreationObject struct {

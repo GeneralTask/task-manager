@@ -299,7 +299,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 		  issueUpdate(
 			id: $id,
 			input: {
-			  title: $title,
+			  title: $title
 			  , stateId: $stateId
 			  , dueDate: $dueDate
 			  , descriptionData: $descriptionData
@@ -314,6 +314,27 @@ type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description, priority: $priority})"`
+}
+
+const linearCommentCreateQueryStr = `
+	mutation CommentCreate (
+		$body: String
+		, $issueId: String!
+	) {
+		commentCreate(
+		input: {
+			body: $body
+			, issueId: $issueId
+		}
+		) {
+		success
+		}
+	}`
+
+type linearCommentCreateQuery struct {
+	CommentCreate struct {
+		Success graphql.Boolean
+	} `graphql:"commentCreate(input: {body: $body, issueId: $issueId})"`
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
@@ -370,12 +391,32 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)
 	var query linearUpdateIssueQuery
-	logger := logging.GetSentryLogger()
 	if err := client.Run(context.Background(), request, &query); err != nil {
+		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
 	return &query, nil
+}
+
+func addLinearComment(client *graphqlBasic.Client, issueID string, comment database.Comment) error {
+	request := graphqlBasic.NewRequest(linearCommentCreateQueryStr)
+	request.Var("body", comment.Body)
+	request.Var("issueId", issueID)
+
+	log.Debug().Msgf("sending request to Linear: %+v", request)
+	var query linearCommentCreateQuery
+	logger := logging.GetSentryLogger()
+	if err := client.Run(context.Background(), request, &query); err != nil {
+		logger.Error().Err(err).Msg("failed to create linear comment")
+		return err
+	}
+	if !query.CommentCreate.Success {
+		err := errors.New("failed to create linear comment")
+		logger.Error().Err(err).Send()
+		return err
+	}
+	return nil
 }
 
 func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {

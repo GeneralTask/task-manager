@@ -34,6 +34,8 @@ type TaskItemChangeableFields struct {
 	TimeAllocation *int64              `json:"time_duration,omitempty" bson:"time_allocated,omitempty"`
 	IsCompleted    *bool               `json:"is_completed,omitempty" bson:"is_completed,omitempty"`
 	CompletedAt    primitive.DateTime  `json:"completed_at,omitempty" bson:"completed_at"`
+	IsDeleted      *bool               `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
+	DeletedAt      primitive.DateTime  `json:"deleted_at,omitempty" bson:"deleted_at"`
 }
 
 type TaskModifyParams struct {
@@ -53,14 +55,13 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 	var modifyParams TaskModifyParams
 	err = c.BindJSON(&modifyParams)
-
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "parameter missing or malformatted"})
 		return
 	}
 
 	if modifyParams.IDTaskSection != nil {
-		_, err := primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
+		_, err = primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
@@ -90,7 +91,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	}
 
 	// check if all edit fields are empty
-	if !ValidateFields(c, &modifyParams.TaskItemChangeableFields, taskSourceResult) {
+	if !ValidateFields(c, &modifyParams.TaskItemChangeableFields, taskSourceResult, task) {
 		return
 	}
 
@@ -102,6 +103,8 @@ func (api *API) TaskModify(c *gin.Context) {
 			TimeAllocation:     modifyParams.TaskItemChangeableFields.TimeAllocation,
 			IsCompleted:        modifyParams.TaskItemChangeableFields.IsCompleted,
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
+			IsDeleted:          modifyParams.TaskItemChangeableFields.IsDeleted,
+			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
 			PriorityID:         modifyParams.TaskItemChangeableFields.Task.PriorityID,
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
 			TaskNumber:         modifyParams.TaskItemChangeableFields.Task.TaskNumber,
@@ -142,13 +145,17 @@ func (api *API) TaskModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, taskSourceResult *external.TaskSourceResult) bool {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && !taskSourceResult.Details.IsCompletable {
+func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, taskSourceResult *external.TaskSourceResult, task *database.Task) bool {
+	taskIsDeleted := task.IsDeleted != nil && *task.IsDeleted
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && (!taskSourceResult.Details.IsCompletable || taskIsDeleted) {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
 	}
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		updateFields.CompletedAt = primitive.NewDateTimeFromTime(time.Now())
+	}
+	if updateFields.IsDeleted != nil && *updateFields.IsDeleted {
+		updateFields.DeletedAt = primitive.NewDateTimeFromTime(time.Now())
 	}
 	if updateFields.Title != nil && *updateFields.Title == "" {
 		c.JSON(400, gin.H{"detail": "title cannot be empty"})
@@ -166,7 +173,6 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 }
 
 func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) error {
-	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
 	updateFields := bson.M{"has_been_reordered": true}
 
@@ -181,10 +187,8 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 		IDTaskSection = task.IDTaskSection
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	result, err := taskCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
 			{"user_id": userID},
@@ -213,10 +217,8 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 	}
 
 	// Move back other tasks to ensure ordering is preserved (gaps are removed in GET task list)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = taskCollection.UpdateMany(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": dbQuery},
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
@@ -229,7 +231,6 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 }
 
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primitive.ObjectID, updateFields *database.Task) {
-	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
 
 	if updateFields.IsCompleted != nil {
@@ -241,10 +242,8 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 		}
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := taskCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": task.ID},
 			{"user_id": userID},

@@ -652,6 +652,72 @@ func TestModifyLinearTask(t *testing.T) {
 	})
 }
 
+func TestAddComment(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID := primitive.NewObjectID()
+
+	t.Run("AddCommentFailed", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": false}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comment := database.Comment{
+			Body: "example comment",
+		}
+
+		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
+			IDExternal: "24242424",
+		})
+		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
+	})
+	t.Run("AddCommentInvalidResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `to the moon`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comment := database.Comment{
+			Body: "example comment",
+		}
+
+		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
+			IDExternal: "24242424",
+		})
+		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
+	})
+	t.Run("AddCommentSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"commentCreate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comment := database.Comment{
+			Body: "example comment",
+		}
+
+		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
+			IDExternal: "24242424",
+		})
+		assert.NoError(t, err)
+	})
+}
+
 func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)

@@ -57,6 +57,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 	}
 	timeAllocation := time.Hour.Nanoseconds()
 	completed := false
+	deleted := false
 	newTask := database.Task{
 		UserID:          userID,
 		IDExternal:      primitive.NewObjectID().Hex(),
@@ -67,6 +68,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 		TimeAllocation:  &timeAllocation,
 		SourceAccountID: accountID,
 		IsCompleted:     &completed,
+		IsDeleted:       &deleted,
 	}
 	if task.DueDate != nil {
 		dueDate := primitive.NewDateTimeFromTime(*task.DueDate)
@@ -100,5 +102,9 @@ func (generalTask GeneralTaskTaskSource) ModifyTask(db *mongo.Database, userID p
 }
 
 func (generalTask GeneralTaskTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	return errors.New("has not been implemented yet")
+}
+
+func (generalTask GeneralTaskTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
 	return errors.New("has not been implemented yet")
 }

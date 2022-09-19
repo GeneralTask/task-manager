@@ -67,6 +67,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
 		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		isCompleted := false
+		isDeleted := false
 
 		task := &database.Task{
 			UserID:             userID,
@@ -79,6 +80,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			SourceAccountID:    accountID,
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
 			IsCompleted:        &isCompleted,
+			IsDeleted:          &isDeleted,
 			DueDate:            &primitiveDueDate,
 			PriorityNormalized: (*float64)(&linearIssue.Priority),
 			Status: &database.ExternalTaskStatus{
@@ -194,4 +196,19 @@ func (linearTask LinearTaskSource) DeleteEvent(db *mongo.Database, userID primit
 
 func (linearTask LinearTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
+}
+
+func (linearTask LinearTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
+	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to create linear client")
+		return err
+	}
+	err = addLinearComment(client, task.IDExternal, comment)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to create linear comment")
+		return err
+	}
+	return nil
 }

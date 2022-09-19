@@ -81,7 +81,6 @@ func (api *API) Login(c *gin.Context) {
 // @Failure      500 {object} string "internal server error"
 // @Router       /login/callback/ [get]
 func (api *API) LoginCallback(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	var redirectParams GoogleRedirectParams
 	if c.ShouldBind(&redirectParams) != nil || redirectParams.State == "" || redirectParams.Code == "" || redirectParams.Scope == "" {
 		c.JSON(400, gin.H{"detail": "missing query params"})
@@ -131,11 +130,11 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 
 	if userIsNew != nil && *userIsNew {
-		err = createNewUserTasks(parentCtx, userID, api.DB)
+		err = createNewUserTasks(userID, api.DB)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to create starter tasks")
 		}
-		err = createNewUserViews(parentCtx, userID, api.DB)
+		err = createNewUserViews(userID, api.DB)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to create starter views")
 		}
@@ -143,10 +142,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	lowerEmail := strings.ToLower(*email)
 	waitlistCollection := database.GetWaitlistCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	count, err := waitlistCollection.CountDocuments(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
 	)
 	if err != nil {
@@ -162,10 +159,8 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := database.GetInternalTokenCollection(api.DB)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = internalAPITokenCollection.InsertOne(
-		dbCtx,
+		context.Background(),
 		&database.InternalAPIToken{UserID: userID, Token: internalToken},
 	)
 	if err != nil {
@@ -182,11 +177,12 @@ func (api *API) LoginCallback(c *gin.Context) {
 	}
 }
 
-func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
+func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 	taskCollection := database.GetTaskCollection(db)
 	for index, title := range constants.StarterTasks {
 		body := ""
 		completed := false
+		deleted := false
 		newTask := database.Task{
 			UserID:          userID,
 			IDExternal:      primitive.NewObjectID().Hex(),
@@ -197,10 +193,9 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 			Body:            &body,
 			SourceAccountID: external.GeneralTaskDefaultAccountID,
 			IsCompleted:     &completed,
+			IsDeleted:       &deleted,
 		}
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err := taskCollection.InsertOne(dbCtx, newTask)
+		_, err := taskCollection.InsertOne(context.Background(), newTask)
 		if err != nil {
 			return err
 		}
@@ -208,10 +203,8 @@ func createNewUserTasks(parentCtx context.Context, userID primitive.ObjectID, db
 	return nil
 }
 
-func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db *mongo.Database) error {
+func createNewUserViews(userID primitive.ObjectID, db *mongo.Database) error {
 	viewCollection := database.GetViewCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 
 	for index, view := range constants.StarterViews {
 		newView := database.View{
@@ -223,7 +216,7 @@ func createNewUserViews(parentCtx context.Context, userID primitive.ObjectID, db
 			IsLinked:      view.IsLinked,
 			TaskSectionID: view.TaskSectionID,
 		}
-		_, err := viewCollection.InsertOne(dbCtx, newView)
+		_, err := viewCollection.InsertOne(context.Background(), newView)
 
 		if err != nil {
 			return err
