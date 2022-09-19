@@ -188,10 +188,9 @@ func TestGetSubtaskResults(t *testing.T) {
 		assert.Equal(t, 0, len(results))
 	})
 	t.Run("SubtaskSuccess", func(t *testing.T) {
-		parentCtx := context.Background()
 		taskCollection := database.GetTaskCollection(api.DB)
 		parentTaskID := primitive.NewObjectID()
-		insertResult, err := taskCollection.InsertOne(parentCtx, database.Task{
+		insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
 			UserID:        userID,
 			IsCompleted:   &notCompleted,
 			IDTaskSection: primitive.NilObjectID,

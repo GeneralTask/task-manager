@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -75,22 +74,18 @@ type Recipient struct {
 
 type TaskGroupType string
 
-func (api *API) fetchTasks(parentCtx context.Context, db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
+func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database.Task, map[string]bool, error) {
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch api tokens")
 		return nil, nil, err
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tokens)
+	err = cursor.All(context.Background(), &tokens)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		return nil, nil, err
@@ -183,16 +178,13 @@ func (api *API) adjustForCompletedPullRequests(
 }
 
 func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) error {
-	parentCtx := context.Background()
 	tasksCollection := database.GetTaskCollection(db)
 	orderingID := 1
 	for _, task := range *tasks {
 		task.IDOrdering = orderingID
 		orderingID += 1
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		res, err := tasksCollection.UpdateOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"_id": task.ID},
 			bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 		)

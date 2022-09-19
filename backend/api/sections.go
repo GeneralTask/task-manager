@@ -55,7 +55,6 @@ func (api *API) SectionList(c *gin.Context) {
 }
 
 func (api *API) SectionAdd(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	var params SectionCreateParams
 	err := c.BindJSON(&params)
 	if err != nil {
@@ -68,10 +67,8 @@ func (api *API) SectionAdd(c *gin.Context) {
 
 	userID, _ := c.Get("user")
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = sectionCollection.InsertOne(
-		dbCtx,
+		context.Background(),
 		&database.TaskSection{
 			UserID: userID.(primitive.ObjectID),
 			Name:   params.Name,
@@ -93,7 +90,6 @@ func (api *API) SectionModify(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	parentCtx := c.Request.Context()
 	var params SectionModifyParams
 	err = c.BindJSON(&params)
 	if err != nil || (params.Name == "" && params.IDOrdering == 0) {
@@ -102,7 +98,7 @@ func (api *API) SectionModify(c *gin.Context) {
 		return
 	}
 	if sectionID == constants.IDTaskSectionDefault {
-		api.setDefaultSectionName(c, parentCtx, params.Name)
+		api.setDefaultSectionName(c, params.Name)
 		return
 	}
 
@@ -118,10 +114,8 @@ func (api *API) SectionModify(c *gin.Context) {
 	if params.IDOrdering != 0 {
 		updateFields["id_ordering"] = params.IDOrdering
 	}
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := sectionCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": sectionID},
 			{"user_id": userID},
@@ -148,17 +142,14 @@ func (api *API) SectionModify(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-func (api *API) setDefaultSectionName(c *gin.Context, ctx context.Context, name string) {
+func (api *API) setDefaultSectionName(c *gin.Context, name string) {
 	settingsCollection := database.GetDefaultSectionSettingsCollection(api.DB)
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-	defer cancel()
-
 	_, err := settingsCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 		}},
@@ -183,16 +174,13 @@ func (api *API) SectionDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	parentCtx := c.Request.Context()
 	sectionCollection := database.GetTaskSectionCollection(api.DB)
 
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := sectionCollection.DeleteOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": sectionID},
 			{"user_id": userID},

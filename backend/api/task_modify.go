@@ -173,7 +173,6 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 }
 
 func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) error {
-	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
 	updateFields := bson.M{"has_been_reordered": true}
 
@@ -188,10 +187,8 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 		IDTaskSection = task.IDTaskSection
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	result, err := taskCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": taskID},
 			{"user_id": userID},
@@ -220,10 +217,8 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 	}
 
 	// Move back other tasks to ensure ordering is preserved (gaps are removed in GET task list)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = taskCollection.UpdateMany(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": dbQuery},
 		bson.M{"$inc": bson.M{"id_ordering": 1}},
 	)
@@ -236,7 +231,6 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 }
 
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primitive.ObjectID, updateFields *database.Task) {
-	parentCtx := c.Request.Context()
 	taskCollection := database.GetTaskCollection(api.DB)
 
 	if updateFields.IsCompleted != nil {
@@ -248,10 +242,8 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 		}
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := taskCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": task.ID},
 			{"user_id": userID},
