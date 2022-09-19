@@ -2,9 +2,11 @@ import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import Loading from './src/components/atoms/Loading'
+import StyledToastContainer from './src/components/atoms/toast/StyledToastContainer'
 import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
 import LandingScreen from './src/components/screens/LandingScreen'
-import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import './src/index.css'
 import './src/index.css'
 import PrivateOutlet from './src/services/PrivateOutlet'
 
@@ -45,6 +47,9 @@ const App = () => {
                                     <Route index element={<MainScreen />} />
                                     <Route path=":pullRequest" element={<MainScreen />} />
                                 </Route>
+                                <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                </Route>
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                 </Route>
@@ -52,6 +57,7 @@ const App = () => {
                         </Routes>
                     </Suspense>
                 </BrowserRouter>
+                <StyledToastContainer />
             </CalendarContextProvider>
         </QueryClientProvider>
     )
