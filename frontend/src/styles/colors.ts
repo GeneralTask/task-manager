@@ -58,6 +58,7 @@ export const text = {
     light: GRAY._500,
     white: WHITE,
     orange: ORANGE._1,
+    red: RED._1,
     purple: PURPLE._1,
 }
 export type TTextColor = keyof typeof text
