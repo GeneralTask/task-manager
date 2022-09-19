@@ -31,7 +31,6 @@ const FocusModeContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color ${Colors.background.white};
-
 `
 const MainContainer = styled.div`
     display: flex;
