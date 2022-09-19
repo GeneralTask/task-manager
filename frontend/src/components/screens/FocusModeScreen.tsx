@@ -59,6 +59,7 @@ const EventContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${Spacing._32};
+    overflow-y: auto;
 `
 const CalendarContainer = styled.div`
     margin-left: auto;
