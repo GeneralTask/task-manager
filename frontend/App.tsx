@@ -1,17 +1,17 @@
-import './src/index.css'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { Suspense, lazy } from 'react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import Loading from './src/components/atoms/Loading'
 import StyledToastContainer from './src/components/atoms/toast/StyledToastContainer'
 import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
+import DragLayer from './src/components/molecules/DragLayer'
 import LandingScreen from './src/components/screens/LandingScreen'
-import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import './src/index.css'
 import './src/index.css'
 import PrivateOutlet from './src/services/PrivateOutlet'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import DragLayer from './src/components/molecules/DragLayer'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
@@ -51,7 +51,7 @@ const App = () => {
                                         <Route index element={<MainScreen />} />
                                         <Route path=":pullRequest" element={<MainScreen />} />
                                     </Route>
-                                    <Route path="focus-mode" element={<PrivateOutlet />}>
+                                    <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
                                         <Route index element={<MainScreen />} />
                                     </Route>
                                     <Route path="settings" element={<PrivateOutlet />}>

@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
+import { FOCUS_MODE_ROUTE } from '../../constants'
 import { useEventBanners } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -30,7 +31,7 @@ const MainScreen = () => {
                 return <PullRequestsView />
             case 'settings':
                 return <Settings />
-            case 'focus-mode':
+            case FOCUS_MODE_ROUTE:
                 return <FocusModeScreen />
             default:
                 return <OverviewPageView />
@@ -39,7 +40,7 @@ const MainScreen = () => {
 
     if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
-    if (location.pathname.split('/')[1] === 'focus-mode') return currentPage
+    if (location.pathname.split('/')[1] === FOCUS_MODE_ROUTE) return currentPage
     return (
         <>
             <DefaultTemplate>
