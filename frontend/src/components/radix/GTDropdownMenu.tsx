@@ -1,59 +1,30 @@
 import { Fragment } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
-import { Icon, TIconType } from './Icon'
-import { Divider } from './SectionDivider'
-
-const DROPDOWN_MENU_WIDTH = '172px'
+import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
+import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemShared } from './RadixUIConstants'
 
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     all: unset;
 `
 const DropdownMenuContent = styled(DropdownMenu.Content)`
-    z-index: 5;
-    ${Typography.body};
-    width: ${DROPDOWN_MENU_WIDTH};
-    padding: ${Spacing._4};
-    background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.mini};
-    box-shadow: ${Shadows.light};
+    ${MenuContentShared};
 `
-const DropdownMenuItem = styled(DropdownMenu.Item)<{ isSelected?: boolean }>`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._12};
-    flex: 1;
-    margin: ${Spacing._4} 0;
-    padding: ${Spacing._4} ${Spacing._12};
-    cursor: pointer;
-    outline: none;
-    border-radius: ${Border.radius.mini};
-    ${({ isSelected }) => isSelected && `background-color: ${Colors.background.medium};`}
-    :hover, :focus {
-        background-color: ${Colors.background.dark};
-    }
-`
-const SelectedIcon = styled.div`
-    margin-left: auto;
+const DropdownMenuItem = styled(DropdownMenu.Item)<{ $isSelected?: boolean }>`
+    ${MenuItemShared};
 `
 
-export interface GTDropdownMenuItem {
-    label: string
-    onClick?: () => void
-    icon?: TIconType
-    selected?: boolean
-    renderer?: () => JSX.Element // override how the option is rendered
-}
 interface GTDropdownMenuProps {
-    items: GTDropdownMenuItem[] | GTDropdownMenuItem[][] // allow for divided groups of items
+    items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     align?: 'start' | 'end'
 }
 
 const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps) => {
-    const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTDropdownMenuItem[][]
+    const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
     return (
         <div onKeyDown={(e) => e.stopPropagation()}>
@@ -69,7 +40,7 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                                             key={item.label}
                                             textValue={item.label}
                                             onClick={item.onClick}
-                                            isSelected={item.selected && !item.renderer}
+                                            $isSelected={item.selected && !item.renderer}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()
@@ -78,9 +49,9 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                                                     {item.icon && <Icon size="xSmall" icon={item.icon} />}
                                                     {item.label}
                                                     {item.selected && (
-                                                        <SelectedIcon>
+                                                        <MarginLeftIcon>
                                                             <Icon size="xSmall" icon={icons.check} />
-                                                        </SelectedIcon>
+                                                        </MarginLeftIcon>
                                                     )}
                                                 </>
                                             )}
