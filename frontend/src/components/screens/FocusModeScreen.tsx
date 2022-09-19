@@ -3,13 +3,14 @@ import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
@@ -39,6 +40,18 @@ const ClockContainer = styled.div`
     padding: ${Spacing._24} ${Spacing._32};
     text-align: right;
     font-weight: 274;
+`
+const JoinMeetingContainer = styled.div`
+    border: 1px solid ${Colors.border.light};
+    border-radius: ${Border.radius.large};
+    display: flex;
+    padding: ${Spacing._8} ${Spacing._16};
+    align-items: center;
+    justify-content: space-between;
+    ${Typography.bodySmall};
+`
+const BoldText = styled.span`
+    ${Typography.bold};
 `
 const EventContainer = styled.div`
     padding: ${Spacing._32};
@@ -84,6 +97,7 @@ const FocusModeScreen = () => {
     const timeEnd = DateTime.fromISO(datetime_end)
 
     const clockTime = DateTime.local().toFormat('h:mm a')
+    const conferenceCall = currentEvents[0]?.conference_call.logo ? currentEvents[0].conference_call : null
 
     const navigate = useNavigate()
     return (
@@ -98,6 +112,22 @@ const FocusModeScreen = () => {
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
+                                    {conferenceCall && (
+                                        <JoinMeetingContainer>
+                                            <span>
+                                                <span>This meeting is happening</span>
+                                                <BoldText> right now.</BoldText>
+                                            </span>
+                                            <NoStyleAnchor href={conferenceCall.url} target="_blank">
+                                                <GTButton
+                                                    icon={conferenceCall.logo}
+                                                    iconColor="black"
+                                                    styleType="secondary"
+                                                    value="Join Meeting"
+                                                />
+                                            </NoStyleAnchor>
+                                        </JoinMeetingContainer>
+                                    )}
                                     <div>
                                         <BodyHeader>MEETING NOTES</BodyHeader>
                                         <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
