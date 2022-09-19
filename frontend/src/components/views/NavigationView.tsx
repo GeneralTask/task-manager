@@ -1,7 +1,7 @@
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Colors, Shadows, Spacing } from '../../styles'
+import { Colors, Shadows, Snippets, Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -29,6 +29,7 @@ const NavigationViewHeader = styled.div`
 const OverflowContainer = styled.div`
     flex: 1;
     overflow: auto;
+    ${Snippets.hideScrollbars};
 `
 const GapView = styled.div`
     display: flex;
