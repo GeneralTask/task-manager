@@ -15,6 +15,10 @@ import GTButton from '../atoms/buttons/GTButton'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
+const TemplateViewContainer = styled.div`
+    background-color: ${Colors.background.light};
+    height: 100%;
+`
 const FloatingIcon = styled.div`
     position: fixed;
     top: ${Spacing._16};
@@ -88,7 +92,7 @@ const FocusModeScreen = () => {
     const navigate = useNavigate()
     return (
         <SingleViewTemplate>
-            <div style={{ backgroundColor: Colors.background.light, height: '100%' }}>
+            <TemplateViewContainer>
                 <FocusModeContainer>
                     <MainContainer>
                         <EventContainer>
@@ -124,7 +128,7 @@ const FocusModeScreen = () => {
                 <ButtonContainer>
                     <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />
                 </ButtonContainer>
-            </div>
+            </TemplateViewContainer>
         </SingleViewTemplate>
     )
 }
