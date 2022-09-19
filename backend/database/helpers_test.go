@@ -73,11 +73,55 @@ func TestGetTasks(t *testing.T) {
 		assert.Equal(t, task2.ID, (*tasks)[0].ID)
 	})
 	t.Run("GetTasks", func(t *testing.T) {
-		tasks, err := GetTasks(db, userID, nil)
+		tasks, err := GetTasks(db, userID, nil, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*tasks))
 		assert.Equal(t, task1.ID, (*tasks)[0].ID)
 		assert.Equal(t, task2.ID, (*tasks)[1].ID)
+	})
+}
+
+func TestGetDeletedTasks(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notUserID := primitive.NewObjectID()
+	notDeleted := false
+	deleted := true
+	task2, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abcde",
+		"foobar_source",
+		&Task{
+			IDExternal: "123abcde",
+			SourceID:   "foobar_source",
+			UserID:     userID,
+			IsDeleted:  &deleted,
+		},
+	)
+	assert.NoError(t, err)
+	_, err = GetOrCreateTask(
+		db,
+		notUserID,
+		"123abe",
+		"foobar_source",
+		&Task{
+			IDExternal: "123abe",
+			SourceID:   "foobar_source",
+			UserID:     notUserID,
+			IsDeleted:  &notDeleted,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("Success", func(t *testing.T) {
+		tasks, err := GetDeletedTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, task2.ID, (*tasks)[0].ID)
+
 	})
 }
 
@@ -851,6 +895,43 @@ func TestGetExternalToken(t *testing.T) {
 		assert.Equal(t, userID, token.UserID)
 		assert.Equal(t, serviceID, token.ServiceID)
 		assert.Equal(t, accountID, token.AccountID)
+	})
+}
+
+func TestGetExternalTokens(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	_, err = GetExternalTokenCollection(db).InsertOne(
+		context.Background(),
+		&ExternalAPIToken{
+			UserID:    userID,
+			ServiceID: "elon",
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("NoExternalTokens", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, userID, "")
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tokens))
+	})
+	t.Run("WrongUserID", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, primitive.NewObjectID(), "elon")
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tokens))
+	})
+	t.Run("WrongServiceID", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, userID, "jeff")
+		assert.NoError(t, err)
+		assert.Equal(t, 0, len(*tokens))
+	})
+	t.Run("Success", func(t *testing.T) {
+		tokens, err := GetExternalTokens(db, userID, "elon")
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(*tokens))
+		assert.Equal(t, "elon", (*tokens)[0].ServiceID)
 	})
 }
 

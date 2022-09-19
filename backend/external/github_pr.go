@@ -706,3 +706,7 @@ func (gitPR GithubPRSource) ModifyTask(db *mongo.Database, userID primitive.Obje
 func (gitPR GithubPRSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
 	return errors.New("has not been implemented yet")
 }
+
+func (gitPR GithubPRSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
+	return errors.New("has not been implemented yet")
+}

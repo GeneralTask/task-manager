@@ -8,14 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestFeedbackAdd(t *testing.T) {
-	parentCtx := context.Background()
 	authToken := login("approved@generaltask.com", "")
 	UnauthorizedTest(t, "POST", "/feedback/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
@@ -67,19 +65,15 @@ func TestFeedbackAdd(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		feedbackCollection := database.GetFeedbackItemCollection(db)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		count, err := feedbackCollection.CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{},
 		)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 		var entry database.FeedbackItem
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = feedbackCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{},
 		).Decode(&entry)
 		assert.NoError(t, err)

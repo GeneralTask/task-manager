@@ -99,6 +99,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         fontSize="large"
                         onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
                         onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
+                        blurOnEnter
                         disabled={!isEditingTitle}
                         autoFocus
                     />

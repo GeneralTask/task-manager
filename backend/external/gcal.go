@@ -124,6 +124,10 @@ func (googleCalendar GoogleCalendarSource) CreateNewTask(db *mongo.Database, use
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
 
+func (googleCalendar GoogleCalendarSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
+	return errors.New("has not been implemented yet")
+}
+
 func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error {
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarCreateURL, userID, accountID, context.Background(), db)
 	if err != nil {

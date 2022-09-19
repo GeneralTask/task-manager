@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -18,7 +17,6 @@ import (
 )
 
 func TestEventModify(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -28,7 +26,7 @@ func TestEventModify(t *testing.T) {
 	accountID := "duck@duck.com"
 
 	eventCollection := database.GetCalendarEventCollection(db)
-	event, err := eventCollection.InsertOne(parentCtx, database.CalendarEvent{
+	event, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
 		UserID:        userID,
 		IDExternal:    accountID,
 		SourceID:      external.TASK_SOURCE_ID_GCAL,
@@ -63,9 +61,7 @@ func TestEventModify(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		event, err := database.GetCalendarEvent(api.DB, dbCtx, eventObjectID, userID)
+		event, err := database.GetCalendarEvent(api.DB, context.Background(), eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "initial summary", event.Title)
 		assert.Equal(t, "initial description", event.Body)
@@ -89,9 +85,7 @@ func TestEventModify(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		event, err := database.GetCalendarEvent(api.DB, dbCtx, eventObjectID, userID)
+		event, err := database.GetCalendarEvent(api.DB, context.Background(), eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "new summary", event.Title)
 		assert.Equal(t, "new description", event.Body)

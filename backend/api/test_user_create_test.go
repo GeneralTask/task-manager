@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,12 +19,9 @@ import (
 )
 
 func TestCreateTestUser(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 
 	t.Run("SucceedsInDev", func(t *testing.T) {
 		env := os.Getenv("ENVIRONMENT")
@@ -55,11 +51,11 @@ func TestCreateTestUser(t *testing.T) {
 		log.Error().Err(err).Msgf("%+v", result["token"])
 
 		var userObject database.User
-		err = database.GetUserCollection(db).FindOne(dbCtx, bson.M{"email": email}).Decode(&userObject)
+		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"email": email}).Decode(&userObject)
 		assert.NoError(t, err)
 
 		tokenCollection := database.GetInternalTokenCollection(db)
-		count, _ := tokenCollection.CountDocuments(dbCtx, bson.M{"token": result["token"], "user_id": userObject.ID})
+		count, _ := tokenCollection.CountDocuments(context.Background(), bson.M{"token": result["token"], "user_id": userObject.ID})
 		assert.Equal(t, int64(1), count)
 	})
 

@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -34,8 +33,6 @@ type EventResult struct {
 }
 
 func (api *API) EventsList(c *gin.Context) {
-	parentCtx := c.Request.Context()
-
 	var eventListParams EventListParams
 	err := c.BindQuery(&eventListParams)
 	if err != nil {
@@ -47,9 +44,7 @@ func (api *API) EventsList(c *gin.Context) {
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err = userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -58,10 +53,8 @@ func (api *API) EventsList(c *gin.Context) {
 	}
 
 	var tokens []database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
@@ -74,9 +67,7 @@ func (api *API) EventsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tokens)
+	err = cursor.All(context.Background(), &tokens)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
