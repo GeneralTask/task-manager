@@ -32,12 +32,6 @@ import {
     faTag,
     faTimer,
 } from '@fortawesome/pro-light-svg-icons'
-import {
-    faSignalBars,
-    faSignalBarsWeak,
-    faSignalBarsFair,
-    faSignalBarsGood,
-} from '@fortawesome/pro-duotone-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
@@ -81,10 +75,6 @@ export const icons = Object.freeze({
     timer: faTimer,
     trash: faTrash,
     x: faXmark,
-    priority_urgent: faSignalBars,
-    priority_low: faSignalBarsWeak,
-    priority_medium: faSignalBarsFair,
-    priority_high: faSignalBarsGood,
 })
 
 export const buttons: { [key: string]: string } = {
