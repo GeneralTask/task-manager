@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent } from '../../utils/types'
@@ -38,11 +38,10 @@ const MainContainer = styled.div`
     min-height: 0;
 `
 const ClockContainer = styled.div`
-    border-top: 3px solid ${Colors.border.light};
+    border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
     text-align: right;
-    font-weight: 274;
 `
 const EventContainer = styled.div`
     padding: ${Spacing._32};
