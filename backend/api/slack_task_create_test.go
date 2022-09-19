@@ -14,7 +14,6 @@ import (
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -22,8 +21,6 @@ import (
 )
 
 func TestSlackTaskCreate(t *testing.T) {
-	parentCtx := context.Background()
-
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	router := GetRouter(api)
@@ -94,11 +91,8 @@ func TestSlackTaskCreate(t *testing.T) {
 	})
 
 	t.Run("InvalidOauthToken", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-
 		database.GetExternalTokenCollection(db).InsertOne(
-			dbCtx,
+			context.Background(),
 			&database.ExternalAPIToken{
 				ServiceID: external.TASK_SERVICE_ID_SLACK,
 				AccountID: "invalid-team-valid-user",
@@ -126,11 +120,8 @@ func TestSlackTaskCreate(t *testing.T) {
 	})
 
 	t.Run("SuccessMessageAction", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-
 		database.GetExternalTokenCollection(db).InsertOne(
-			dbCtx,
+			context.Background(),
 			&database.ExternalAPIToken{
 				ServiceID: external.TASK_SERVICE_ID_SLACK,
 				AccountID: "valid-team-valid-user",

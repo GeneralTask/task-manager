@@ -8,14 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestWaitlistAdd(t *testing.T) {
-	parentCtx := context.Background()
 	t.Run("EmptyPayload", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
 		defer dbCleanup()
@@ -66,19 +64,15 @@ func TestWaitlistAdd(t *testing.T) {
 		assert.NoError(t, err)
 		defer dbCleanup()
 		waitlistCollection := database.GetWaitlistCollection(db)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		count, err := waitlistCollection.CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{"email": "elon@tesla.moon"},
 		)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 		var entry database.WaitlistEntry
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = waitlistCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"email": "elon@tesla.moon"},
 		).Decode(&entry)
 		assert.NoError(t, err)

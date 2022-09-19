@@ -14,13 +14,10 @@ import (
 )
 
 func (api *API) TasksListV3(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")

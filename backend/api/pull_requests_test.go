@@ -19,7 +19,6 @@ import (
 )
 
 func TestPullRequestList(t *testing.T) {
-	parentContext := context.Background()
 	authToken := login("test_pull_request_list@generaltask.com", "")
 
 	db, dbCleanup, err := database.GetDBConnection()
@@ -53,9 +52,7 @@ func TestPullRequestList(t *testing.T) {
 		RepositoryID: repositoryID3,
 		FullName:     repositoryName3,
 	}
-	dbCtx, cancel := context.WithTimeout(parentContext, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = repositoryCollection.InsertMany(dbCtx, []interface{}{repository1, repository2, repository3})
+	_, err = repositoryCollection.InsertMany(context.Background(), []interface{}{repository1, repository2, repository3})
 	assert.NoError(t, err)
 
 	timePullRequestUpdated := time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
