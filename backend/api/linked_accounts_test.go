@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -95,7 +94,6 @@ func TestLinkedAccountsList(t *testing.T) {
 func TestDeleteLinkedAccount(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
-	parentCtx := context.Background()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		createGoogleLink(t, api.DB, authToken, "approved@generaltask.com", false).Hex()
@@ -153,10 +151,8 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		var token database.ExternalAPIToken
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err := database.GetExternalTokenCollection(api.DB).FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"_id": linearTokenID},
 		).Decode(&token)
 		// assert token is not found in db anymore
@@ -166,11 +162,8 @@ func TestDeleteLinkedAccount(t *testing.T) {
 }
 
 func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email string, isBadToken bool) primitive.ObjectID {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := database.GetExternalTokenCollection(db).InsertOne(
-		dbCtx,
+		context.Background(),
 		&database.ExternalAPIToken{
 			ServiceID:    external.TASK_SERVICE_ID_GOOGLE,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),
@@ -184,11 +177,8 @@ func createGoogleLink(t *testing.T, db *mongo.Database, authToken string, email 
 }
 
 func insertLinearToken(t *testing.T, db *mongo.Database, authToken string) primitive.ObjectID {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	res, err := database.GetExternalTokenCollection(db).InsertOne(
-		dbCtx,
+		context.Background(),
 		&database.ExternalAPIToken{
 			ServiceID:    external.TASK_SERVICE_ID_LINEAR,
 			UserID:       getUserIDFromAuthToken(t, db, authToken),

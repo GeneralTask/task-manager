@@ -10,7 +10,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +17,6 @@ import (
 )
 
 func TestEventDelete(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -28,9 +26,7 @@ func TestEventDelete(t *testing.T) {
 
 	eventCollection := database.GetCalendarEventCollection(db)
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	insertResult, err := eventCollection.InsertOne(dbCtx, database.CalendarEvent{
+	insertResult, err := eventCollection.InsertOne(context.Background(), database.CalendarEvent{
 		UserID:     userID,
 		IDExternal: "sample_calendar_id",
 		SourceID:   external.TASK_SOURCE_ID_GCAL,
@@ -57,9 +53,7 @@ func TestEventDelete(t *testing.T) {
 
 	t.Run("MarkAsDoneSuccess", func(t *testing.T) {
 		var event database.CalendarEvent
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = eventCollection.FindOne(dbCtx, bson.M{"_id": calendarTaskID}).Decode(&event)
+		err = eventCollection.FindOne(context.Background(), bson.M{"_id": calendarTaskID}).Decode(&event)
 		assert.Equal(t, "sample_calendar_id", event.IDExternal)
 
 		request, _ := http.NewRequest(
@@ -71,9 +65,7 @@ func TestEventDelete(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		count, _ := eventCollection.CountDocuments(dbCtx, bson.M{"_id": calendarTaskID})
+		count, _ := eventCollection.CountDocuments(context.Background(), bson.M{"_id": calendarTaskID})
 		assert.Equal(t, int64(0), count)
 	})
 }

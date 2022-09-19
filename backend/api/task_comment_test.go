@@ -19,7 +19,6 @@ import (
 )
 
 func TestTaskAddComment(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -95,10 +94,8 @@ func TestTaskAddComment(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.SourceID = external.TASK_SOURCE_ID_GCAL
 		expectedTask.UserID = userID
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			expectedTask,
 		)
 		assert.NoError(t, err)
@@ -120,10 +117,8 @@ func TestTaskAddComment(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.SourceID = "oopsie"
 		expectedTask.UserID = userID
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			expectedTask,
 		)
 		assert.NoError(t, err)
@@ -145,10 +140,8 @@ func TestTaskAddComment(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.SourceID = external.TASK_SOURCE_ID_GCAL
 		expectedTask.UserID = userID
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			expectedTask,
 		)
 		assert.NoError(t, err)
@@ -170,10 +163,8 @@ func TestTaskAddComment(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.SourceID = external.TASK_SOURCE_ID_GCAL
 		expectedTask.UserID = userID
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			expectedTask,
 		)
 		assert.NoError(t, err)
@@ -194,10 +185,8 @@ func TestTaskAddComment(t *testing.T) {
 
 		expectedTask := sampleTask
 		expectedTask.UserID = userID
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			expectedTask,
 		)
 		assert.NoError(t, err)
@@ -216,9 +205,7 @@ func TestTaskAddComment(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		var task database.Task
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
 		assert.Equal(t, "Hello there!", (*task.Comments)[0].Body)
@@ -233,10 +220,8 @@ func TestTaskAddComment(t *testing.T) {
 			Body: "original comment",
 		}
 		expectedTask.Comments = &[]database.Comment{comment}
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		insertResult, err := taskCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			expectedTask,
 		)
 		assert.NoError(t, err)
@@ -255,9 +240,7 @@ func TestTaskAddComment(t *testing.T) {
 		assert.Equal(t, "{}", string(body))
 
 		var task database.Task
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = taskCollection.FindOne(dbCtx, bson.M{"_id": insertedTaskID}).Decode(&task)
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertedTaskID}).Decode(&task)
 		assert.NoError(t, err)
 
 		assert.Equal(t, "Hello there!", (*task.Comments)[1].Body)

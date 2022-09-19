@@ -14,13 +14,10 @@ import (
 )
 
 func (api *API) TasksListV3(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -38,11 +35,17 @@ func (api *API) TasksListV3(c *gin.Context) {
 		Handle500(c)
 		return
 	}
+	deletedTasks, err := database.GetDeletedTasks(api.DB, userID.(primitive.ObjectID))
+	if err != nil {
+		Handle500(c)
+		return
+	}
 
 	allTasks, err := api.mergeTasksV3(
 		api.DB,
 		activeTasks,
 		completedTasks,
+		deletedTasks,
 		userID.(primitive.ObjectID),
 	)
 	if err != nil {
@@ -56,6 +59,7 @@ func (api *API) mergeTasksV3(
 	db *mongo.Database,
 	activeTasks *[]database.Task,
 	completedTasks *[]database.Task,
+	deletedTasks *[]database.Task,
 	userID primitive.ObjectID,
 ) ([]*TaskSection, error) {
 	taskResults := api.taskListToTaskResultList(completedTasks, userID)
@@ -63,6 +67,12 @@ func (api *API) mergeTasksV3(
 	for index, taskResult := range taskResults {
 		taskResult.IDOrdering = index + 1
 		completedTaskResults = append(completedTaskResults, taskResult)
+	}
+	deletedTaskResults := []*TaskResult{}
+	for index, task := range *deletedTasks {
+		taskResult := api.taskBaseToTaskResult(&task, userID)
+		taskResult.IDOrdering = index + 1
+		deletedTaskResults = append(deletedTaskResults, taskResult)
 	}
 
 	sort.SliceStable(*activeTasks, func(i, j int) bool {
@@ -80,6 +90,12 @@ func (api *API) mergeTasksV3(
 		Name:   constants.TaskSectionNameDone,
 		Tasks:  completedTaskResults,
 		IsDone: true,
+	})
+	sections = append(sections, &TaskSection{
+		ID:      constants.IDTaskSectionTrash,
+		Name:    constants.TaskSectionNameTrash,
+		Tasks:   deletedTaskResults,
+		IsTrash: true,
 	})
 	return sections, nil
 }

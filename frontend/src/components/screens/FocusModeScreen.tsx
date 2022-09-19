@@ -10,12 +10,16 @@ import { TEvent } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
+import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
+const TemplateViewContainer = styled.div`
+    background-color: ${Colors.background.light};
+    height: 100%;
+`
 const FloatingIcon = styled.div`
     position: fixed;
     top: ${Spacing._16};
@@ -28,18 +32,16 @@ const FocusModeContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color ${Colors.background.white};
-
 `
 const MainContainer = styled.div`
     display: flex;
     min-height: 0;
 `
 const ClockContainer = styled.div`
-    border-top: 3px solid ${Colors.border.light};
+    border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
     text-align: right;
-    font-weight: 274;
 `
 const JoinMeetingContainer = styled.div`
     border: 1px solid ${Colors.border.light};
@@ -71,7 +73,6 @@ const ButtonContainer = styled.div`
 `
 const BodyHeader = styled.div`
     ${Typography.label};
-    letter-spacing: 0.12em;
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div`
@@ -103,7 +104,7 @@ const FocusModeScreen = () => {
     const navigate = useNavigate()
     return (
         <SingleViewTemplate>
-            <div style={{ backgroundColor: Colors.background.light, height: '100%' }}>
+            <TemplateViewContainer>
                 <FocusModeContainer>
                     <MainContainer>
                         <EventContainer>
@@ -119,14 +120,7 @@ const FocusModeScreen = () => {
                                                 <span>This meeting is happening</span>
                                                 <BoldText> right now.</BoldText>
                                             </span>
-                                            <NoStyleAnchor href={conferenceCall.url} target="_blank">
-                                                <GTButton
-                                                    icon={conferenceCall.logo}
-                                                    iconColor="black"
-                                                    styleType="secondary"
-                                                    value="Join Meeting"
-                                                />
-                                            </NoStyleAnchor>
+                                            <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
                                         </JoinMeetingContainer>
                                     )}
                                     <div>
@@ -155,7 +149,7 @@ const FocusModeScreen = () => {
                 <ButtonContainer>
                     <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />
                 </ButtonContainer>
-            </div>
+            </TemplateViewContainer>
         </SingleViewTemplate>
     )
 }

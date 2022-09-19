@@ -13,13 +13,12 @@ func TestGetValidExternalOwnerAssignedTask(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 
-	ctx := context.Background()
 	userCollection := database.GetUserCollection(api.DB)
-	julianUser, err := userCollection.InsertOne(ctx, database.User{
+	julianUser, err := userCollection.InsertOne(context.Background(), database.User{
 		Email: "julian@generaltask.com",
 	})
 	assert.NoError(t, err)
-	johnUser, err := userCollection.InsertOne(ctx, database.User{
+	johnUser, err := userCollection.InsertOne(context.Background(), database.User{
 		Email: "john@generaltask.com",
 	})
 	assert.NoError(t, err)
