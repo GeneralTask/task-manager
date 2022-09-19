@@ -60,7 +60,6 @@ const ButtonContainer = styled.div`
 `
 const BodyHeader = styled.div`
     ${Typography.label};
-    letter-spacing: 0.12em;
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div`
