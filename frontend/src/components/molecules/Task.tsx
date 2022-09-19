@@ -14,7 +14,6 @@ import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import TaskContextMenuWrapper from '../context/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
 
 const RightContainer = styled.span`
@@ -136,36 +135,34 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     }
 
     return (
-        <TaskContextMenuWrapper taskId={task.id} sectionId={sectionId}>
-            <TaskTemplate
-                ref={elementRef}
-                isVisible={isVisible}
-                onMouseLeave={() => setIsHovered(false)}
-                onMouseEnter={() => setIsHovered(true)}
-            >
-                <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
-                    <DominoContainer isVisible={isHovered && !dragDisabled}>
-                        <Domino />
-                    </DominoContainer>
-                    <MarkTaskDoneButton
-                        taskId={task.id}
-                        sectionId={sectionId}
-                        isDone={task.is_done}
-                        isSelected={isSelected}
-                        isDisabled={task.isOptimistic}
-                        onMarkComplete={taskFadeOut}
-                    />
-                    <Title data-testid="task-title">{task.title}</Title>
-                    <RightContainer>
-                        {meetingStartText ? (
-                            <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
-                        ) : (
-                            <Icon icon={logos[task.source.logo_v2]} size="small" />
-                        )}
-                    </RightContainer>
-                </ItemContainer>
-            </TaskTemplate>
-        </TaskContextMenuWrapper>
+        <TaskTemplate
+            ref={elementRef}
+            isVisible={isVisible}
+            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={() => setIsHovered(true)}
+        >
+            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
+                <DominoContainer isVisible={isHovered && !dragDisabled}>
+                    <Domino />
+                </DominoContainer>
+                <MarkTaskDoneButton
+                    taskId={task.id}
+                    sectionId={sectionId}
+                    isDone={task.is_done}
+                    isSelected={isSelected}
+                    isDisabled={task.isOptimistic}
+                    onMarkComplete={taskFadeOut}
+                />
+                <Title data-testid="task-title">{task.title}</Title>
+                <RightContainer>
+                    {meetingStartText ? (
+                        <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
+                    ) : (
+                        <Icon icon={logos[task.source.logo_v2]} size="small" />
+                    )}
+                </RightContainer>
+            </ItemContainer>
+        </TaskTemplate>
     )
 }
 
