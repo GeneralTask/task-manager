@@ -75,7 +75,7 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -164,7 +164,7 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -230,7 +230,7 @@ func TestCalendar(t *testing.T) {
 		database.GetOrCreateCalendarEvent(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardDBEvent)
 		standardDBEvent.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
 
-		server := getServerForTasks([]*calendar.Event{&standardEvent})
+		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -265,7 +265,7 @@ func TestCalendar(t *testing.T) {
 		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
-		server := getServerForTasks([]*calendar.Event{})
+		server := testutils.GetServerForEvents([]*calendar.Event{})
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
@@ -340,7 +340,7 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := getServerForTasks([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -670,22 +670,6 @@ func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.
 			assert.Equal(t, a.Attendees[i].DisplayName, b.Attendees[i].DisplayName)
 		}
 	}
-}
-
-func getServerForTasks(events []*calendar.Event) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		resp := &calendar.Events{
-			Items:          events,
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
-		}
-
-		b, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(w, "unable to marshal request: "+err.Error(), http.StatusBadRequest)
-			return
-		}
-		w.Write(b)
-	}))
 }
 
 func getEventCreateServer(t *testing.T, eventCreateObj EventCreateObject, expectedEvent *calendar.Event) *httptest.Server {

@@ -18,7 +18,7 @@ import (
 type GeneralTaskTaskSource struct{}
 
 func (generalTask GeneralTaskTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(nil)
+	result <- emptyCalendarResult(errors.New("GT task cannot fetch events"))
 }
 
 func (generalTask GeneralTaskTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
