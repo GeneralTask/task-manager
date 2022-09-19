@@ -2,8 +2,9 @@ package database
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -15,6 +16,8 @@ type DBHandle struct {
 	DB      *mongo.Database
 	cleanup *func()
 }
+
+const DB_CONNECTION_TIMEOUT = 10 * time.Second
 
 func (dbHandle *DBHandle) CloseConnection() {
 	if dbHandle.cleanup != nil {
@@ -44,27 +47,29 @@ func GetDBConnection() (*mongo.Database, func(), error) {
 		logger.Error().Err(err).Msg("Failed to create mongo DB client")
 		return nil, nil, err
 	}
-	contextResult, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	err = client.Connect(contextResult)
+	connectContext, cancel := context.WithTimeout(context.Background(), DB_CONNECTION_TIMEOUT)
+	defer cancel()
+	err = client.Connect(connectContext)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to connect to mongo DB")
-		cancel()
 		return nil, nil, err
 	}
 
 	// If the ping is failing on context deadline, try removing the ping for a better error message
-	err = client.Ping(contextResult, nil)
+	pingContext, cancel := context.WithTimeout(context.Background(), DB_CONNECTION_TIMEOUT)
+	defer cancel()
+	err = client.Ping(pingContext, nil)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to ping mongo DB")
-		cancel()
 		return nil, nil, err
 	}
 
 	cleanup := func() {
-		if err = client.Disconnect(contextResult); err != nil {
+		disconnectContext, cancel := context.WithTimeout(context.Background(), DB_CONNECTION_TIMEOUT)
+		defer cancel()
+		if err = client.Disconnect(disconnectContext); err != nil {
 			logger.Error().Err(err).Msg("Failed to disconnect from mongo DB")
 		}
-		cancel()
 	}
 
 	return client.Database(config.GetConfigValue("DB_NAME")), cleanup, nil

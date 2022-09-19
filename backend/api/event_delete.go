@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
@@ -22,10 +21,7 @@ func (api *API) EventDelete(c *gin.Context) {
 	}
 	userID := getUserIDFromContext(c)
 
-	parentCtx := c.Request.Context()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	event, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
+	event, err := database.GetCalendarEvent(api.DB, eventID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return
@@ -47,7 +43,7 @@ func (api *API) EventDelete(c *gin.Context) {
 
 	eventCollection := database.GetCalendarEventCollection(api.DB)
 	res, err := eventCollection.DeleteOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"_id": eventID},
 			{"user_id": userID},

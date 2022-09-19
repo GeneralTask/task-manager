@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+
 interface TimeRangeProps {
     start: DateTime
     end: DateTime
@@ -6,7 +7,7 @@ interface TimeRangeProps {
 const TimeRange = ({ start, end }: TimeRangeProps) => {
     const formattedStart = start.toLocaleString(DateTime.TIME_SIMPLE)
     const formattedEnd = end.toLocaleString(DateTime.TIME_SIMPLE)
-    return <span>{formattedStart + ' - ' + formattedEnd}</span>
+    return <span>{`${formattedStart} - ${formattedEnd}`}</span>
 }
 
 export default TimeRange

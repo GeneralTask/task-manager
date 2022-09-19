@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,16 +20,13 @@ import (
 // @Failure      500 {object} string "internal server error"
 // @Router       /logout/ [post]
 func (api *API) Logout(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	token, err := getToken(c)
 	if err != nil {
 		return
 	}
 
 	tokenCollection := database.GetInternalTokenCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	result, err := tokenCollection.DeleteOne(dbCtx, bson.M{"token": token})
+	result, err := tokenCollection.DeleteOne(context.Background(), bson.M{"token": token})
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("Failed to remove token")
 		Handle500(c)

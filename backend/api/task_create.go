@@ -25,7 +25,6 @@ type TaskCreateParams struct {
 }
 
 func (api *API) TaskCreate(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	sourceID := c.Param("source_id")
 	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
 	if err != nil || !taskSourceResult.Details.CanCreateTask {
@@ -54,10 +53,8 @@ func (api *API) TaskCreate(c *gin.Context) {
 
 	if sourceID != external.TASK_SOURCE_ID_GT_TASK {
 		externalAPICollection := database.GetExternalTokenCollection(api.DB)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		count, err := externalAPICollection.CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"account_id": taskCreateParams.AccountID},
 				{"source_id": sourceID},
@@ -118,9 +115,7 @@ func getValidTaskSection(taskSectionIDHex string, userID primitive.ObjectID, db 
 		return primitive.NilObjectID, errors.New("malformatted task section")
 	}
 	taskSectionCollection := database.GetTaskSectionCollection(db)
-	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-	defer cancel()
-	count, err := taskSectionCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
+	count, err := taskSectionCollection.CountDocuments(context.Background(), bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": IDTaskSection}}})
 	if (err != nil || count == int64(0)) &&
 		IDTaskSection != constants.IDTaskSectionDefault {
 		return primitive.NilObjectID, errors.New("task section ID not found")
@@ -134,9 +129,7 @@ func getValidTask(taskIDHex string, userID primitive.ObjectID, db *mongo.Databas
 		return primitive.NilObjectID, errors.New("malformatted parent id")
 	}
 	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-	defer cancel()
-	count, err := taskCollection.CountDocuments(dbCtx, bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": parentID}}})
+	count, err := taskCollection.CountDocuments(context.Background(), bson.M{"$and": []bson.M{{"user_id": userID}, {"_id": parentID}}})
 	if err != nil || count == int64(0) {
 		return primitive.NilObjectID, errors.New("task not found")
 	}

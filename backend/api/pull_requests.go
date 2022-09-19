@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -60,7 +59,6 @@ type PullRequestStatus struct {
 }
 
 func (api *API) PullRequestsList(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		Handle500(c)
@@ -79,19 +77,15 @@ func (api *API) PullRequestsList(c *gin.Context) {
 
 	var repositories []database.Repository
 	repositoryCollection := database.GetRepositoryCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := repositoryCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor.All(dbCtx, &repositories)
+	cursor.All(context.Background(), &repositories)
 
 	repositoryIDToResult := make(map[string]RepositoryResult)
 	repositoryIDToPullRequests := make(map[string][]*PullRequestResult)

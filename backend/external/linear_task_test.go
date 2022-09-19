@@ -33,10 +33,6 @@ func TestLoadLinearTasks(t *testing.T) {
 						"url": "https://example.com/",
 						"createdAt": "2022-06-06T23:13:24.037Z",
 						"priority": 3.0,
-						"assignee": {
-							"id": "6942069420",
-							"name": "Test User"
-						},
 						"state": {
 							"id": "state-id",
 							"name": "Todo",

@@ -8,14 +8,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func TestLogEventAdd(t *testing.T) {
-	parentCtx := context.Background()
 	authToken := login("approved@generaltask.com", "")
 	UnauthorizedTest(t, "POST", "/log_events/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
@@ -70,10 +68,8 @@ func TestLogEventAdd(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		count, err := database.GetLogEventsCollection(db).CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{"event_type": "to_the_moon"},
 		)
 		assert.NoError(t, err)

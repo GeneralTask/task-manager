@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,13 +11,10 @@ import (
 )
 
 func (api *API) TasksFetch(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err := userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -33,16 +28,14 @@ func (api *API) TasksFetch(c *gin.Context) {
 		return
 	}
 
-	fetchedTasks, failedFetchSources, err := api.fetchTasks(parentCtx, api.DB, userID)
+	fetchedTasks, failedFetchSources, err := api.fetchTasks(api.DB, userID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch tasks")
 		Handle500(c)
 		return
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = userCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"_id": userID},
 		bson.M{"$set": bson.M{"last_refreshed": primitive.NewDateTimeFromTime(time.Now())}},
 	)
