@@ -97,7 +97,11 @@ export const useModifyTaskSection = () => {
                 if (sectionIndex === -1) return
                 if (data.name) draft[sectionIndex].name = data.name
                 if (data.id_ordering) {
-                    arrayMoveInPlace(draft, sectionIndex, data.id_ordering - 2)
+                    let endIndex = data.id_ordering - 1
+                    if (sectionIndex < endIndex) {
+                        endIndex -= 1
+                    }
+                    arrayMoveInPlace(draft, sectionIndex, endIndex)
                 }
             })
             queryClient.setQueryData('tasks', newSections)
