@@ -88,6 +88,12 @@ const NavigationSectionLinks = () => {
                 isCurrentPage={pathname.split('/')[1] === 'overview'}
             />
             <NavigationLink
+                link="/focus-mode"
+                title="Enter Focus Mode"
+                icon={icons.headphones}
+                isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
+            />
+            <NavigationLink
                 link="/pull-requests"
                 title="Pull Requests"
                 icon={logos.github}

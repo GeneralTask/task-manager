@@ -33,6 +33,9 @@ import {
     faTimer,
 } from '@fortawesome/pro-light-svg-icons'
 import {
+    faHeadphones,
+} from '@fortawesome/pro-solid-svg-icons'
+import {
     faSignalBars,
     faSignalBarsWeak,
     faSignalBarsFair,
@@ -69,6 +72,7 @@ export const icons = Object.freeze({
     external_link: faArrowUpRightFromSquare,
     folder: faFolder,
     gear: faGear,
+    headphones: faHeadphones,
     inbox: faInbox,
     label: faTag,
     list: faList,

@@ -46,7 +46,7 @@ const MainScreen = () => {
     return (
         <DndProvider backend={HTML5Backend}>
             {location.pathname.split('/')[1] === FOCUS_MODE_ROUTE ? (
-                <>currentPage</>
+                <>{currentPage}</>
             ) : (
                 <DefaultTemplate>
                     <>{currentPage}</>
