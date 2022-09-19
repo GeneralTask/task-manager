@@ -20,7 +20,6 @@ func TestCreateTask(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	parentCtx := context.Background()
 
 	authToken := login("approved@generaltask.com", "")
 	api, dbCleanup := GetAPIWithDBCleanup()
@@ -118,11 +117,9 @@ func TestCreateTask(t *testing.T) {
 	t.Run("WrongUserIDForParent", func(t *testing.T) {
 		authToken = login("wrong_user_id_for_parent@generaltask.com", "")
 		taskCollection := database.GetTaskCollection(db)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		title := "title"
 		completed := true
-		res, err := taskCollection.InsertOne(dbCtx, &database.Task{UserID: primitive.NewObjectID(), Title: &title, IsCompleted: &completed})
+		res, err := taskCollection.InsertOne(context.Background(), &database.Task{UserID: primitive.NewObjectID(), Title: &title, IsCompleted: &completed})
 		assert.NoError(t, err)
 		parentTaskID := res.InsertedID.(primitive.ObjectID)
 
@@ -159,10 +156,9 @@ func TestCreateTask(t *testing.T) {
 	t.Run("SuccessAssignToOtherUser", func(t *testing.T) {
 		authToken = login("assign_to_other_user@generaltask.com", "")
 
-		ctx := context.Background()
 		userCollection := database.GetUserCollection(db)
 		assert.NoError(t, err)
-		johnUser, err := userCollection.InsertOne(ctx, database.User{
+		johnUser, err := userCollection.InsertOne(context.Background(), database.User{
 			Email: "john@generaltask.com",
 		})
 		assert.NoError(t, err)
@@ -186,9 +182,7 @@ func TestCreateTask(t *testing.T) {
 		authToken = login("create_task_success_custom_section@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		sectionCollection := database.GetTaskSectionCollection(db)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		res, err := sectionCollection.InsertOne(dbCtx, &database.TaskSection{UserID: userID, Name: "moooooon"})
+		res, err := sectionCollection.InsertOne(context.Background(), &database.TaskSection{UserID: userID, Name: "moooooon"})
 		assert.NoError(t, err)
 		customSectionID := res.InsertedID.(primitive.ObjectID)
 
@@ -209,11 +203,9 @@ func TestCreateTask(t *testing.T) {
 		authToken = login("create_sub_task@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, db, authToken)
 		taskCollection := database.GetTaskCollection(db)
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		title := "title"
 		completed := true
-		res, err := taskCollection.InsertOne(dbCtx, &database.Task{UserID: userID, Title: &title, IsCompleted: &completed})
+		res, err := taskCollection.InsertOne(context.Background(), &database.Task{UserID: userID, Title: &title, IsCompleted: &completed})
 		assert.NoError(t, err)
 		parentTaskID := res.InsertedID.(primitive.ObjectID)
 

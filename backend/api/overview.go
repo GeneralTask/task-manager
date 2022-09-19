@@ -59,8 +59,6 @@ type SupportedView struct {
 }
 
 func (api *API) OverviewViewsList(c *gin.Context) {
-	parentCtx := c.Request.Context()
-
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -75,10 +73,8 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := database.GetViewCollection(api.DB).Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
@@ -88,13 +84,13 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	}
 
 	var views []database.View
-	err = cursor.All(dbCtx, &views)
+	err = cursor.All(context.Background(), &views)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find views")
 		Handle500(c)
 		return
 	}
-	err = api.UpdateViewsLinkedStatus(parentCtx, &views, userID)
+	err = api.UpdateViewsLinkedStatus(&views, userID)
 	if err != nil {
 		log.Print("failed to get views")
 
@@ -103,7 +99,7 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 		return
 	}
 
-	result, err := api.GetOverviewResults(parentCtx, views, userID, timezoneOffset)
+	result, err := api.GetOverviewResults(views, userID, timezoneOffset)
 	if err != nil {
 		log.Print("failed to get results")
 		api.Logger.Error().Err(err).Msg("failed to load views")
@@ -117,24 +113,24 @@ func (api *API) OverviewViewsList(c *gin.Context) {
 	c.JSON(200, result)
 }
 
-func (api *API) GetOverviewResults(ctx context.Context, views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
+func (api *API) GetOverviewResults(views []database.View, userID primitive.ObjectID, timezoneOffset time.Duration) ([]OrderingIDGetter, error) {
 	result := []OrderingIDGetter{}
 	for _, view := range views {
 		var singleOverviewResult OrderingIDGetter
 		var err error
 		switch view.Type {
 		case string(constants.ViewTaskSection):
-			singleOverviewResult, err = api.GetTaskSectionOverviewResult(ctx, view, userID)
+			singleOverviewResult, err = api.GetTaskSectionOverviewResult(view, userID)
 		case string(constants.ViewLinear):
-			singleOverviewResult, err = api.GetLinearOverviewResult(ctx, view, userID)
+			singleOverviewResult, err = api.GetLinearOverviewResult(view, userID)
 		case string(constants.ViewSlack):
-			singleOverviewResult, err = api.GetSlackOverviewResult(ctx, view, userID)
+			singleOverviewResult, err = api.GetSlackOverviewResult(view, userID)
 		case string(constants.ViewGithub):
-			singleOverviewResult, err = api.GetGithubOverviewResult(ctx, view, userID)
+			singleOverviewResult, err = api.GetGithubOverviewResult(view, userID)
 		case string(constants.ViewMeetingPreparation):
-			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(ctx, view, userID, timezoneOffset)
+			singleOverviewResult, err = api.GetMeetingPreparationOverviewResult(view, userID, timezoneOffset)
 		case string(constants.ViewDueToday):
-			singleOverviewResult, err = api.GetDueTodayOverviewResult(ctx, view, userID, timezoneOffset)
+			singleOverviewResult, err = api.GetDueTodayOverviewResult(view, userID, timezoneOffset)
 		default:
 			err = errors.New("invalid view type")
 		}
@@ -149,7 +145,7 @@ func (api *API) GetOverviewResults(ctx context.Context, views []database.View, u
 	return result, nil
 }
 
-func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -158,18 +154,14 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 		if err != mongo.ErrNoDocuments {
 			return nil, err
 		}
-		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err = database.GetViewCollection(api.DB).DeleteOne(dbCtx, bson.M{"_id": view.ID})
+		_, err = database.GetViewCollection(api.DB).DeleteOne(context.Background(), bson.M{"_id": view.ID})
 		return nil, err
 	}
 
-	tasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"id_task_section": view.TaskSectionID},
-		},
-	)
+	tasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"id_task_section": view.TaskSectionID},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -184,10 +176,8 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 	for _, task := range taskResults {
 		if task.IDOrdering != orderingID {
 			task.IDOrdering = orderingID
-			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-			defer cancel()
 			res, err := taskCollection.UpdateOne(
-				dbCtx,
+				context.Background(),
 				bson.M{"_id": task.ID},
 				bson.M{"$set": bson.M{"id_ordering": task.IDOrdering}},
 			)
@@ -215,15 +205,13 @@ func (api *API) GetTaskSectionOverviewResult(ctx context.Context, view database.
 	}, nil
 }
 
-func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, serviceID string) (bool, error) {
+func (api *API) IsServiceLinked(db *mongo.Database, userID primitive.ObjectID, serviceID string) (bool, error) {
 	if serviceID == external.TASK_SERVICE_ID_GT {
 		return true, nil
 	}
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-	defer cancel()
 	count, err := externalAPITokenCollection.CountDocuments(
-		dbCtx,
+		context.Background(),
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
@@ -238,7 +226,7 @@ func (api *API) IsServiceLinked(db *mongo.Database, ctx context.Context, userID 
 	return count > 0, nil
 }
 
-func (api *API) UpdateViewsLinkedStatus(ctx context.Context, views *[]database.View, userID primitive.ObjectID) error {
+func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive.ObjectID) error {
 	for index, view := range *views {
 		if view.UserID != userID {
 			return errors.New("invalid user")
@@ -257,9 +245,7 @@ func (api *API) UpdateViewsLinkedStatus(ctx context.Context, views *[]database.V
 		} else {
 			return errors.New("invalid view type")
 		}
-		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-		defer cancel()
-		isLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, serviceID)
+		isLinked, err := api.IsServiceLinked(api.DB, userID, serviceID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to check if service is linked")
 			return err
@@ -267,7 +253,7 @@ func (api *API) UpdateViewsLinkedStatus(ctx context.Context, views *[]database.V
 		// If view is linked but service does not exist, update view to unlinked and vice versa
 		if view.IsLinked != isLinked {
 			_, err := database.GetViewCollection(api.DB).UpdateOne(
-				dbCtx,
+				context.Background(),
 				bson.M{"_id": view.ID},
 				bson.M{"$set": bson.M{"is_linked": isLinked}},
 			)
@@ -281,7 +267,7 @@ func (api *API) UpdateViewsLinkedStatus(ctx context.Context, views *[]database.V
 	return nil
 }
 
-func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetLinearOverviewResult(view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -307,12 +293,10 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 		return &result, nil
 	}
 
-	linearTasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"source_id": external.TASK_SOURCE_ID_LINEAR},
-		},
-	)
+	linearTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"source_id": external.TASK_SOURCE_ID_LINEAR},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +306,7 @@ func (api *API) GetLinearOverviewResult(ctx context.Context, view database.View,
 	return &result, nil
 }
 
-func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
+func (api *API) GetSlackOverviewResult(view database.View, userID primitive.ObjectID) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -348,12 +332,10 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 		return &result, nil
 	}
 
-	slackTasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
-		},
-	)
+	slackTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -363,14 +345,14 @@ func (api *API) GetSlackOverviewResult(ctx context.Context, view database.View, 
 	return &result, nil
 }
 
-func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID) (*OverviewResult[PullRequestResult], error) {
+func (api *API) GetGithubOverviewResult(view database.View, userID primitive.ObjectID) (*OverviewResult[PullRequestResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
 	repositoryCollection := database.GetRepositoryCollection(api.DB)
 	var repository database.Repository
-	err := repositoryCollection.FindOne(ctx, bson.M{"$and": []bson.M{{"repository_id": view.GithubID, "user_id": userID}}}).Decode(&repository)
+	err := repositoryCollection.FindOne(context.Background(), bson.M{"$and": []bson.M{{"repository_id": view.GithubID, "user_id": userID}}}).Decode(&repository)
 	if err != nil {
 		return nil, err
 	}
@@ -417,18 +399,18 @@ func (api *API) GetGithubOverviewResult(ctx context.Context, view database.View,
 	return &result, nil
 }
 
-func (api *API) GetMeetingPreparationOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
-	events, err := database.GetEventsUntilEndOfDay(ctx, api.DB, userID, timeNow)
+	events, err := database.GetEventsUntilEndOfDay(api.DB, userID, timeNow)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create new meeting prep tasks for events. Ignore events if meeting prep task already exists
-	err = CreateMeetingTasksFromEvents(ctx, api.DB, userID, events)
+	err = CreateMeetingTasksFromEvents(api.DB, userID, events)
 	if err != nil {
 		return nil, err
 	}
@@ -445,7 +427,7 @@ func (api *API) GetMeetingPreparationOverviewResult(ctx context.Context, view da
 	})
 
 	// Create result of meeting prep tasks
-	result, err := api.GetMeetingPrepTaskResult(ctx, userID, timeNow, meetingTasks)
+	result, err := api.GetMeetingPrepTaskResult(userID, timeNow, meetingTasks)
 	if err != nil {
 		return nil, err
 	}
@@ -464,7 +446,7 @@ func (api *API) GetMeetingPreparationOverviewResult(ctx context.Context, view da
 	}, nil
 }
 
-func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
+func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.ObjectID, timezoneOffset time.Duration) (*OverviewResult[TaskResult], error) {
 	if view.UserID != userID {
 		return nil, errors.New("invalid user")
 	}
@@ -486,13 +468,11 @@ func (api *API) GetDueTodayOverviewResult(ctx context.Context, view database.Vie
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
 	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, timeNow.Location())
-	dueTasks, err := database.GetTasks(api.DB, userID,
-		&[]bson.M{
-			{"is_completed": false},
-			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
-			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
-		},
-	)
+	dueTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
+		{"is_completed": false},
+		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
+		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -517,15 +497,13 @@ func reorderTaskResultsByDueDate(taskResults []*TaskResult) []*TaskResult {
 	return taskResults
 }
 
-func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
+func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID, events *[]database.CalendarEvent) error {
 	taskCollection := database.GetTaskCollection(db)
 	for _, event := range *events {
-		dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-		defer cancel()
 		// Check if meeting prep task exists
 		var meetingTask *database.Task
 		err := taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"user_id": userID},
 				{"is_meeting_preparation_task": true},
@@ -539,10 +517,8 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		}
 		// Update meeting prep task for event
 		if meetingTask != nil {
-			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-			defer cancel()
 			_, err := taskCollection.UpdateOne(
-				dbCtx,
+				context.Background(),
 				bson.M{"_id": meetingTask.ID},
 				bson.M{"$set": bson.M{
 					"title": event.Title,
@@ -556,10 +532,12 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 		}
 		// Create meeting prep task for event if one does not exist
 		isCompleted := false
-		_, err = taskCollection.InsertOne(ctx, database.Task{
+		isDeleted := false
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
 			Title:                    &event.Title,
 			UserID:                   userID,
 			IsCompleted:              &isCompleted,
+			IsDeleted:                &isDeleted,
 			SourceID:                 event.SourceID,
 			IsMeetingPreparationTask: true,
 			MeetingPreparationParams: &database.MeetingPreparationParams{
@@ -578,16 +556,14 @@ func CreateMeetingTasksFromEvents(ctx context.Context, db *mongo.Database, userI
 }
 
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
-func (api *API) GetMeetingPrepTaskResult(ctx context.Context, userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
 	for _, task := range *tasks {
 		// if meeting has ended, mark task as complete
 		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
-			dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-			defer cancel()
 			_, err := taskCollection.UpdateOne(
-				dbCtx,
+				context.Background(),
 				bson.M{"$and": []bson.M{
 					{"_id": task.ID},
 					{"user_id": userID},
@@ -610,7 +586,6 @@ type ViewCreateParams struct {
 }
 
 func (api *API) OverviewViewAdd(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	var viewCreateParams ViewCreateParams
 	err := c.BindJSON(&viewCreateParams)
 	if err != nil {
@@ -626,7 +601,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 
 	userID := getUserIDFromContext(c)
-	viewExists, err := api.ViewDoesExist(api.DB, parentCtx, userID, viewCreateParams)
+	viewExists, err := api.ViewDoesExist(api.DB, userID, viewCreateParams)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("error checking that view does not exist")
 		Handle500(c)
@@ -665,10 +640,8 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "unsupported 'type'"})
 		return
 	}
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 
-	isLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, serviceID)
+	isLinked, err := api.IsServiceLinked(api.DB, userID, serviceID)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("error checking that service is linked")
 		Handle500(c)
@@ -684,7 +657,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	}
 
 	viewCollection := database.GetViewCollection(api.DB)
-	insertedView, err := viewCollection.InsertOne(parentCtx, view)
+	insertedView, err := viewCollection.InsertOne(context.Background(), view)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to create view")
 		Handle500(c)
@@ -695,7 +668,7 @@ func (api *API) OverviewViewAdd(c *gin.Context) {
 	})
 }
 
-func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
+func (api *API) ViewDoesExist(db *mongo.Database, userID primitive.ObjectID, params ViewCreateParams) (bool, error) {
 	viewCollection := database.GetViewCollection(db)
 	dbQuery := bson.M{
 		"$and": []bson.M{
@@ -720,7 +693,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, ctx context.Context, userID pr
 	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewMeetingPreparation) {
 		return false, errors.New("unsupported view type")
 	}
-	count, err := viewCollection.CountDocuments(ctx, dbQuery)
+	count, err := viewCollection.CountDocuments(context.Background(), dbQuery)
 	if err != nil {
 		return false, err
 	}
@@ -744,13 +717,10 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 		return
 	}
 
-	parentCtx := c.Request.Context()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	viewCollection := database.GetViewCollection(api.DB)
 	userID := getUserIDFromContext(c)
 	result, err := viewCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"_id": viewID},
@@ -776,8 +746,6 @@ func (api *API) OverviewViewModify(c *gin.Context) {
 }
 
 func (api *API) OverviewViewDelete(c *gin.Context) {
-	parentCtx := c.Request.Context()
-
 	userID := getUserIDFromContext(c)
 	viewID, err := getViewIDFromContext(c)
 	if err != nil {
@@ -792,10 +760,8 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	deleteResult, err := database.GetViewCollection(api.DB).DeleteOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"_id": viewID}, {"user_id": userID}}},
 	)
 	if err != nil {
@@ -812,9 +778,6 @@ func (api *API) OverviewViewDelete(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 func (api *API) OverviewSupportedViewsList(c *gin.Context) {
-	dbCtx, cancel := context.WithTimeout(c, constants.DatabaseTimeout)
-	defer cancel()
-
 	userID := getUserIDFromContext(c)
 	supportedTaskSectionViews, err := api.getSupportedTaskSectionViews(api.DB, userID)
 	if err != nil {
@@ -826,17 +789,17 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	isGithubLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, external.TASK_SERVICE_ID_GITHUB)
+	isGithubLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_GITHUB)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	isLinearLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, external.TASK_SERVICE_ID_LINEAR)
+	isLinearLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	isSlackLinked, err := api.IsServiceLinked(api.DB, dbCtx, userID, external.TASK_SERVICE_ID_SLACK)
+	isSlackLinked, err := api.IsServiceLinked(api.DB, userID, external.TASK_SERVICE_ID_SLACK)
 	if err != nil {
 		Handle500(c)
 		return
@@ -947,18 +910,14 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 
 func (api *API) getSupportedGithubViews(db *mongo.Database, userID primitive.ObjectID) ([]SupportedViewItem, error) {
 	repositoryCollection := database.GetRepositoryCollection(db)
-	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-	defer cancel()
 	var repositories []database.Repository
-	cursor, err := repositoryCollection.Find(dbCtx, bson.M{"user_id": userID})
+	cursor, err := repositoryCollection.Find(context.Background(), bson.M{"user_id": userID})
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch repositories for user")
 		return []SupportedViewItem{}, err
 	}
 
-	dbCtx, cancel = context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &repositories)
+	err = cursor.All(context.Background(), &repositories)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch repositories for user")
 		return []SupportedViewItem{}, err
@@ -1014,9 +973,6 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 }
 
 func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType constants.ViewType, additionalFilters *[]bson.M) (*database.View, error) {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	filter := bson.M{
 		"$and": []bson.M{
 			{"user_id": userID},
@@ -1031,7 +987,7 @@ func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType 
 
 	var view database.View
 	err := database.GetViewCollection(db).FindOne(
-		dbCtx,
+		context.Background(),
 		filter,
 	).Decode(&view)
 
@@ -1048,9 +1004,6 @@ func (api *API) getView(db *mongo.Database, userID primitive.ObjectID, viewType 
 
 func isValidGithubRepository(db *mongo.Database, userID primitive.ObjectID, repositoryID string) (bool, error) {
 	repositoryCollection := database.GetRepositoryCollection(db)
-	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-	defer cancel()
-
-	count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userID, "repository_id": repositoryID})
+	count, err := repositoryCollection.CountDocuments(context.Background(), bson.M{"user_id": userID, "repository_id": repositoryID})
 	return count > 0, err
 }

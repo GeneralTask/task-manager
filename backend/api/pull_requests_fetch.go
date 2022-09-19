@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/external"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -13,15 +12,12 @@ import (
 )
 
 func (api *API) PullRequestsFetch(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	userID, _ := c.Get("user")
 
 	var tokens []database.ExternalAPIToken
 	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
@@ -29,9 +25,7 @@ func (api *API) PullRequestsFetch(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tokens)
+	err = cursor.All(context.Background(), &tokens)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
