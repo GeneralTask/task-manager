@@ -61,7 +61,7 @@ func TestEventModify(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		event, err := database.GetCalendarEvent(api.DB, context.Background(), eventObjectID, userID)
+		event, err := database.GetCalendarEvent(api.DB, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "initial summary", event.Title)
 		assert.Equal(t, "initial description", event.Body)
@@ -85,7 +85,7 @@ func TestEventModify(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		event, err := database.GetCalendarEvent(api.DB, context.Background(), eventObjectID, userID)
+		event, err := database.GetCalendarEvent(api.DB, eventObjectID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, "new summary", event.Title)
 		assert.Equal(t, "new description", event.Body)

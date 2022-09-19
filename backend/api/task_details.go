@@ -1,8 +1,6 @@
 package api
 
 import (
-	"context"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -20,7 +18,7 @@ func (api *API) TaskDetail(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetTask(api.DB, context.Background(), taskID, userID)
+	task, err := database.GetTask(api.DB, taskID, userID)
 	if err != nil {
 		Handle404(c)
 		return

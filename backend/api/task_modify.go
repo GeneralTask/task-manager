@@ -71,7 +71,7 @@ func (api *API) TaskModify(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	task, err := database.GetTask(api.DB, c.Request.Context(), taskID, userID)
+	task, err := database.GetTask(api.DB, taskID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "task not found.", "taskId": taskID})
 		return
