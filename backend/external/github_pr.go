@@ -351,7 +351,7 @@ func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID 
 	token := requestData.Token
 	repository := requestData.Repository
 
-	dbPR, err := database.GetPullRequestByExternalID(db, ctx, fmt.Sprint(*pullRequest.ID), userID)
+	dbPR, err := database.GetPullRequestByExternalID(db, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
 		// if fail to fetch from DB, fetch from Github
 		if err != mongo.ErrNoDocuments {
