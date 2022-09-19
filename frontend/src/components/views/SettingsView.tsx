@@ -5,7 +5,6 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
-import GTDropdownMenu from '../atoms/GTDropdownMenu'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -14,6 +13,7 @@ import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { SectionHeader } from '../molecules/Header'
 import SignOutButton from '../molecules/SignOutButton'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 const ScrollViewMimic = styled.div`
     margin: 40px 10px 100px 10px;

@@ -229,10 +229,7 @@ type linearAssignedIssuesQuery struct {
 			CreatedAt   graphql.String
 			Priority    graphql.Float
 			Assignee    struct {
-				Id          graphql.ID
-				Name        graphql.String
-				DisplayName graphql.String
-				Email       graphql.String
+				Email graphql.String
 			}
 			Team struct {
 				Name               graphql.String

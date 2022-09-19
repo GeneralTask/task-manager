@@ -97,12 +97,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         isWeekView: isWeekCalendar,
     })
 
-    useLayoutEffect(() => {
-        if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
-        }
-    }, [])
-
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
             {isWeekCalendar && (
@@ -175,11 +169,14 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numberOfDays])
 
-    const showOauthPrompt = !isLinkedAccountsLoading && !isGoogleCalendarLinked(linkedAccounts ?? [])
-
-    if (showOauthPrompt && scrollRef.current) {
-        scrollRef.current.scrollTop = 0
-    }
+    const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
+    useLayoutEffect(() => {
+        if (showOauthPrompt && !isLinkedAccountsLoading && scrollRef.current) {
+            scrollRef.current.scrollTop = 0
+        } else if (scrollRef.current) {
+            scrollRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+        }
+    }, [linkedAccounts, showOauthPrompt, isLinkedAccountsLoading])
 
     return (
         <AllDaysContainer ref={scrollRef} isScrollDisabled={selectedEvent != null || showOauthPrompt}>

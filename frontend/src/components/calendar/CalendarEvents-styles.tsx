@@ -81,13 +81,12 @@ export const EventBodyStyle = styled.div.attrs<EventBodyStyleProps>((props) => (
         width: getEventWidth(props.squishFactor),
         height: props.eventBodyHeight - EVENT_BOTTOM_PADDING,
         top: props.topOffset,
-        left: `calc(100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${
-            props.leftOffset
-        })`,
+        left: `calc(100% - ${TABLE_WIDTH_PERCENTAGE} + ${CELL_LEFT_MARGIN} + (${getEventWidth(props.squishFactor)}) * ${props.leftOffset
+            })`,
         opacity: props.eventHasEnded && !props.isBeingDragged ? 0.5 : 1,
         zIndex: props.isBeingDragged ? 1 : 0,
     },
-}))<EventBodyStyleProps>`
+})) <EventBodyStyleProps>`
     position: absolute;
     display: flex;
     cursor: pointer;

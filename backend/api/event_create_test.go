@@ -47,7 +47,7 @@ func TestEventCreate(t *testing.T) {
 	UnauthorizedTest(t, "POST", url, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
 	t.Run("SuccessNoLinkedTask", func(t *testing.T) {
 		eventID := makeCreateRequest(t, &defaultEventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(api.DB, context.Background(), eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
@@ -63,7 +63,7 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject.LinkedViewID = viewID
 
 		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(api.DB, context.Background(), eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
@@ -83,7 +83,7 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject.LinkedTaskID = taskID
 
 		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(api.DB, context.Background(), eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)

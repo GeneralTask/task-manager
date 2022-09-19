@@ -21,7 +21,7 @@ func (api *API) EventDelete(c *gin.Context) {
 	}
 	userID := getUserIDFromContext(c)
 
-	event, err := database.GetCalendarEvent(api.DB, context.Background(), eventID, userID)
+	event, err := database.GetCalendarEvent(api.DB, eventID, userID)
 	if err != nil {
 		c.JSON(404, gin.H{"detail": "event not found", "eventID": eventID})
 		return

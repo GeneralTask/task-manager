@@ -343,8 +343,7 @@ func TestUpdateOrCreatePullRequest(t *testing.T) {
 		}, nil)
 		assert.NoError(t, err)
 
-		ctx := context.Background()
-		respPR, err := GetPullRequestByExternalID(db, ctx, "222aaa", newUserID)
+		respPR, err := GetPullRequestByExternalID(db, "222aaa", newUserID)
 		assert.NoError(t, err)
 		assert.Equal(t, newPR.ID, respPR.ID)
 		assert.Equal(t, "new event", respPR.Title)
@@ -391,8 +390,7 @@ func TestUpdateOrCreateCalendarEvent(t *testing.T) {
 		}, nil)
 		assert.NoError(t, err)
 
-		ctx := context.Background()
-		respEvent, err := GetCalendarEvent(db, ctx, (*newEvent).ID, newUserID)
+		respEvent, err := GetCalendarEvent(db, (*newEvent).ID, newUserID)
 		assert.NoError(t, err)
 		assert.Equal(t, newEvent.ID, respEvent.ID)
 		assert.Equal(t, "new event", respEvent.Title)
@@ -410,7 +408,6 @@ func TestUpdateOrCreateCalendarEvent(t *testing.T) {
 }
 
 func TestGetTask(t *testing.T) {
-	ctx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -431,24 +428,23 @@ func TestGetTask(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("WrongID", func(t *testing.T) {
-		respTask, err := GetTask(db, ctx, primitive.NewObjectID(), userID)
+		respTask, err := GetTask(db, primitive.NewObjectID(), userID)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respTask)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
-		respTask, err := GetTask(db, ctx, task1.ID, primitive.NewObjectID())
+		respTask, err := GetTask(db, task1.ID, primitive.NewObjectID())
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respTask)
 	})
 	t.Run("Success", func(t *testing.T) {
-		respTask, err := GetTask(db, ctx, task1.ID, userID)
+		respTask, err := GetTask(db, task1.ID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, task1.ID, respTask.ID)
 	})
 }
 
 func TestGetCalendarEvent(t *testing.T) {
-	ctx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -467,24 +463,23 @@ func TestGetCalendarEvent(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("WrongID", func(t *testing.T) {
-		respEvent, err := GetCalendarEvent(db, ctx, primitive.NewObjectID(), userID)
+		respEvent, err := GetCalendarEvent(db, primitive.NewObjectID(), userID)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respEvent)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
-		respEvent, err := GetCalendarEvent(db, ctx, event.ID, primitive.NewObjectID())
+		respEvent, err := GetCalendarEvent(db, event.ID, primitive.NewObjectID())
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respEvent)
 	})
 	t.Run("Success", func(t *testing.T) {
-		respEvent, err := GetCalendarEvent(db, ctx, event.ID, userID)
+		respEvent, err := GetCalendarEvent(db, event.ID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, event.ID, respEvent.ID)
 	})
 }
 
 func TestGetPullRequestByExternalID(t *testing.T) {
-	ctx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -503,17 +498,17 @@ func TestGetPullRequestByExternalID(t *testing.T) {
 	assert.NoError(t, err)
 
 	t.Run("WrongID", func(t *testing.T) {
-		respPR, err := GetPullRequestByExternalID(db, ctx, "wrong ID", userID)
+		respPR, err := GetPullRequestByExternalID(db, "wrong ID", userID)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respPR)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
-		respPR, err := GetPullRequestByExternalID(db, ctx, pullRequest.IDExternal, primitive.NewObjectID())
+		respPR, err := GetPullRequestByExternalID(db, pullRequest.IDExternal, primitive.NewObjectID())
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 		assert.Nil(t, respPR)
 	})
 	t.Run("Success", func(t *testing.T) {
-		respPR, err := GetPullRequestByExternalID(db, ctx, pullRequest.IDExternal, userID)
+		respPR, err := GetPullRequestByExternalID(db, pullRequest.IDExternal, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, pullRequest.ID, respPR.ID)
 	})
@@ -559,7 +554,6 @@ func TestMarkItemComplete(t *testing.T) {
 }
 
 func TestGetEventsUntilEndOfDay(t *testing.T) {
-	parentContext := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -569,17 +563,17 @@ func TestGetEventsUntilEndOfDay(t *testing.T) {
 	timeHourLater := time.Date(2022, 1, 1, 1, 0, 0, 0, time.UTC)
 	timeDayLater := time.Date(2022, 1, 2, 0, 0, 0, 0, time.UTC)
 
-	eventID, err := createTestCalendarEvent(parentContext, db, userID, primitive.NewDateTimeFromTime(timeHourLater))
+	eventID, err := createTestCalendarEvent(db, userID, primitive.NewDateTimeFromTime(timeHourLater))
 	assert.NoError(t, err)
 	// Event create a day later should not be in the result
-	_, err = createTestCalendarEvent(parentContext, db, userID, primitive.NewDateTimeFromTime(timeDayLater))
+	_, err = createTestCalendarEvent(db, userID, primitive.NewDateTimeFromTime(timeDayLater))
 	assert.NoError(t, err)
 	// Incorrect UserID
-	_, err = createTestCalendarEvent(parentContext, db, notUserID, primitive.NewDateTimeFromTime(timeHourLater))
+	_, err = createTestCalendarEvent(db, notUserID, primitive.NewDateTimeFromTime(timeHourLater))
 	assert.NoError(t, err)
 
 	t.Run("Success", func(t *testing.T) {
-		events, err := GetEventsUntilEndOfDay(parentContext, db, userID, timeBase)
+		events, err := GetEventsUntilEndOfDay(db, userID, timeBase)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*events))
 		assert.Equal(t, eventID, (*events)[0].ID)
@@ -598,14 +592,11 @@ func TestTaskSectionName(t *testing.T) {
 		assert.Equal(t, "Default", name)
 	})
 	t.Run("CustomTaskSection", func(t *testing.T) {
-		parentCtx := context.Background()
 		sectionName := "TestSection"
 		taskSectionCollection := GetTaskSectionCollection(db)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		res, err := taskSectionCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			&TaskSection{
 				UserID: userID,
 				Name:   sectionName,
@@ -631,39 +622,36 @@ func TestGetView(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	userID := primitive.NewObjectID()
 
 	t.Run("ViewDoesNotExist", func(t *testing.T) {
 		viewID := primitive.NewObjectID()
-		_, err := GetView(db, dbCtx, userID, viewID)
+		_, err := GetView(db, userID, viewID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
 		viewCollection := GetViewCollection(db)
-		mongoResult, err := viewCollection.InsertOne(dbCtx, View{
+		mongoResult, err := viewCollection.InsertOne(context.Background(), View{
 			UserID: primitive.NewObjectID(),
 		})
 		assert.NoError(t, err)
 		viewID := mongoResult.InsertedID.(primitive.ObjectID)
 
-		_, err = GetView(db, dbCtx, userID, viewID)
+		_, err = GetView(db, userID, viewID)
 		assert.Error(t, err)
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
 	t.Run("Success", func(t *testing.T) {
 		viewCollection := GetViewCollection(db)
-		mongoResult, err := viewCollection.InsertOne(dbCtx, View{
+		mongoResult, err := viewCollection.InsertOne(context.Background(), View{
 			UserID: userID,
 			Type:   "custom type",
 		})
 		assert.NoError(t, err)
 		viewID := mongoResult.InsertedID.(primitive.ObjectID)
 
-		view, err := GetView(db, dbCtx, userID, viewID)
+		view, err := GetView(db, userID, viewID)
 		assert.NoError(t, err)
 		assert.Equal(t, "custom type", view.Type)
 	})
@@ -681,14 +669,11 @@ func TestGetTaskSections(t *testing.T) {
 		assert.Equal(t, 0, len(*sections))
 	})
 	t.Run("CustomTaskSection", func(t *testing.T) {
-		parentCtx := context.Background()
 		sectionName := "TestSection"
 		taskSectionCollection := GetTaskSectionCollection(db)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		_, err := taskSectionCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			&TaskSection{
 				UserID: userID,
 				Name:   sectionName,
@@ -702,14 +687,11 @@ func TestGetTaskSections(t *testing.T) {
 		assert.Equal(t, sectionName, (*sections)[0].Name)
 	})
 	t.Run("WrongUserID", func(t *testing.T) {
-		parentCtx := context.Background()
 		sectionName := "TestSection"
 		taskSectionCollection := GetTaskSectionCollection(db)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		_, err := taskSectionCollection.InsertOne(
-			dbCtx,
+			context.Background(),
 			&TaskSection{
 				UserID: userID,
 				Name:   sectionName,
@@ -724,7 +706,6 @@ func TestGetTaskSections(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -732,10 +713,8 @@ func TestGetUser(t *testing.T) {
 	googleID := "example@generaltask.com"
 	name := "Tony the Tiger"
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = GetUserCollection(db).InsertOne(
-		dbCtx,
+		context.Background(),
 		&User{
 			ID:       userID,
 			GoogleID: googleID,
@@ -757,7 +736,6 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetGeneralTaskUserByName(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -765,10 +743,8 @@ func TestGetGeneralTaskUserByName(t *testing.T) {
 	googleID := "example@generaltask.com"
 	name := "Tony the Tiger"
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = GetUserCollection(db).InsertOne(
-		dbCtx,
+		context.Background(),
 		&User{
 			ID:       userID,
 			GoogleID: googleID,
@@ -855,17 +831,14 @@ func TestInsertLogEvent(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		InsertLogEvent(db, primitive.NewObjectID(), "dogecoin_to_the_moon")
 
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		logEventsCollection := GetLogEventsCollection(db)
-		count, err := logEventsCollection.CountDocuments(dbCtx, bson.M{"event_type": "dogecoin_to_the_moon"})
+		count, err := logEventsCollection.CountDocuments(context.Background(), bson.M{"event_type": "dogecoin_to_the_moon"})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 	})
 }
 
 func TestGetExternalToken(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -873,10 +846,8 @@ func TestGetExternalToken(t *testing.T) {
 	serviceID := "test service"
 	accountID := "id123"
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = GetExternalTokenCollection(db).InsertOne(
-		dbCtx,
+		context.Background(),
 		&ExternalAPIToken{
 			ServiceID: serviceID,
 			AccountID: accountID,
@@ -936,12 +907,9 @@ func TestGetExternalTokens(t *testing.T) {
 }
 
 func TestGetDefaultSectionName(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	userID := primitive.NewObjectID()
 
 	t.Run("SuccessUnset", func(t *testing.T) {
@@ -950,7 +918,7 @@ func TestGetDefaultSectionName(t *testing.T) {
 	})
 	t.Run("SuccessEmptyString", func(t *testing.T) {
 		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
-			dbCtx,
+			context.Background(),
 			&DefaultSectionSettings{
 				UserID:       userID,
 				NameOverride: "New Default",
@@ -964,7 +932,7 @@ func TestGetDefaultSectionName(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		otherUserID := primitive.NewObjectID()
 		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
-			dbCtx,
+			context.Background(),
 			&DefaultSectionSettings{
 				UserID: otherUserID,
 			},
@@ -981,34 +949,31 @@ func TestGetDefaultSectionName(t *testing.T) {
 }
 
 func TestAdjustOrderingIDs(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
-	id1, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 1)
+	id1, err := createTestTaskSectionWithOrderingID(db, userID, 1)
 	assert.NoError(t, err)
-	id2, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 1)
+	id2, err := createTestTaskSectionWithOrderingID(db, userID, 1)
 	assert.NoError(t, err)
-	id3, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 1)
+	id3, err := createTestTaskSectionWithOrderingID(db, userID, 1)
 	assert.NoError(t, err)
-	id4, err := createTestTaskSectionWithOrderingID(parentCtx, db, userID, 2)
+	id4, err := createTestTaskSectionWithOrderingID(db, userID, 2)
 	assert.NoError(t, err)
 
 	t.Run("Success", func(t *testing.T) {
 		err := AdjustOrderingIDsForCollection(GetTaskSectionCollection(db), userID, id1, 1)
 		assert.NoError(t, err)
-		assertTaskSectionOrderingID(t, parentCtx, db, id1, 1)
-		assertTaskSectionOrderingID(t, parentCtx, db, id2, 2)
-		assertTaskSectionOrderingID(t, parentCtx, db, id3, 3)
-		assertTaskSectionOrderingID(t, parentCtx, db, id4, 4)
+		assertTaskSectionOrderingID(t, db, id1, 1)
+		assertTaskSectionOrderingID(t, db, id2, 2)
+		assertTaskSectionOrderingID(t, db, id3, 3)
+		assertTaskSectionOrderingID(t, db, id4, 4)
 	})
 }
 
-func createTestTaskSectionWithOrderingID(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, orderingID int) (primitive.ObjectID, error) {
-	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
-	defer cancel()
-	res, err := GetTaskSectionCollection(db).InsertOne(dbCtx, TaskSection{
+func createTestTaskSectionWithOrderingID(db *mongo.Database, userID primitive.ObjectID, orderingID int) (primitive.ObjectID, error) {
+	res, err := GetTaskSectionCollection(db).InsertOne(context.Background(), TaskSection{
 		UserID:     userID,
 		IDOrdering: orderingID,
 	})
@@ -1018,21 +983,17 @@ func createTestTaskSectionWithOrderingID(extCtx context.Context, db *mongo.Datab
 	return res.InsertedID.(primitive.ObjectID), nil
 }
 
-func assertTaskSectionOrderingID(t *testing.T, extCtx context.Context, db *mongo.Database, itemID primitive.ObjectID, expectedOrderingID int) {
-	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
-	defer cancel()
+func assertTaskSectionOrderingID(t *testing.T, db *mongo.Database, itemID primitive.ObjectID, expectedOrderingID int) {
 	var section TaskSection
-	err := GetTaskSectionCollection(db).FindOne(dbCtx, bson.M{"_id": itemID}).Decode(&section)
+	err := GetTaskSectionCollection(db).FindOne(context.Background(), bson.M{"_id": itemID}).Decode(&section)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedOrderingID, section.IDOrdering)
 }
 
-func createTestCalendarEvent(extCtx context.Context, db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {
+func createTestCalendarEvent(db *mongo.Database, userID primitive.ObjectID, dateTimeStart primitive.DateTime) (primitive.ObjectID, error) {
 	eventsCollection := GetCalendarEventCollection(db)
-	dbCtx, cancel := context.WithTimeout(extCtx, constants.DatabaseTimeout)
-	defer cancel()
 	result, err := eventsCollection.InsertOne(
-		dbCtx,
+		context.Background(),
 		&CalendarEvent{
 			UserID:        userID,
 			DatetimeStart: dateTimeStart,
