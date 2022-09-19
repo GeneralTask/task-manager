@@ -148,30 +148,6 @@ func TestEventList(t *testing.T) {
 		DatetimeEnd:     primitive.NewDateTimeFromTime(beforeStartTime),
 	})
 	assert.NoError(t, err)
-	// one with a linked task
-	_, err = eventCollection.InsertOne(context.Background(), database.CalendarEvent{
-		Title:           "Has Linked Task",
-		IDExternal:      "has_linked_task",
-		SourceAccountID: sourceAccountID,
-		SourceID:        external.TASK_SOURCE_ID_GCAL,
-		UserID:          userID,
-		DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
-		DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
-		LinkedTaskID:    primitive.NewObjectID(),
-	})
-	assert.NoError(t, err)
-	// one with a linked view
-	_, err = eventCollection.InsertOne(context.Background(), database.CalendarEvent{
-		Title:           "Has Linked View",
-		IDExternal:      "has_linked_view",
-		SourceAccountID: sourceAccountID,
-		SourceID:        external.TASK_SOURCE_ID_GCAL,
-		UserID:          userID,
-		DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
-		DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
-		LinkedViewID:    primitive.NewObjectID(),
-	})
-	assert.NoError(t, err)
 
 	UnauthorizedTest(t, "GET", "/events/", nil)
 	t.Run("MissingParameter", func(t *testing.T) {
@@ -195,7 +171,7 @@ func TestEventList(t *testing.T) {
 		// no events should be deleted because events call failed
 		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"user_id": userID})
 		assert.NoError(t, err)
-		assert.Equal(t, int64(7), count)
+		assert.Equal(t, int64(5), count)
 	})
 	t.Run("Success", func(t *testing.T) {
 		standardEvent := calendar.Event{
@@ -241,7 +217,7 @@ func TestEventList(t *testing.T) {
 		// normal_event2 should be deleted and replaced by new_event
 		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"user_id": userID})
 		assert.NoError(t, err)
-		assert.Equal(t, int64(7), count)
+		assert.Equal(t, int64(5), count)
 		count, err = eventCollection.CountDocuments(context.Background(), bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"id_external": "normal_event2"},

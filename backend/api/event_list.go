@@ -152,8 +152,6 @@ func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEven
 		{"source_account_id": sourceAccountID},
 		{"datetime_end": bson.M{"$gte": datetimeStart}},
 		{"datetime_start": bson.M{"$lte": datetimeEnd}},
-		{"linked_task_id": bson.M{"$exists": false}},
-		{"linked_view_id": bson.M{"$exists": false}},
 	})
 	if err != nil {
 		return err
