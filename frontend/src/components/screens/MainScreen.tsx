@@ -1,3 +1,5 @@
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
@@ -40,14 +42,18 @@ const MainScreen = () => {
 
     if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
-    if (location.pathname.split('/')[1] === FOCUS_MODE_ROUTE) return currentPage
+
     return (
-        <>
-            <DefaultTemplate>
-                <>{currentPage}</>
-            </DefaultTemplate>
+        <DndProvider backend={HTML5Backend}>
+            {location.pathname.split('/')[1] === FOCUS_MODE_ROUTE ? (
+                <>currentPage</>
+            ) : (
+                <DefaultTemplate>
+                    <>{currentPage}</>
+                </DefaultTemplate>
+            )}
             <DragLayer />
-        </>
+        </DndProvider>
     )
 }
 
