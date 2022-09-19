@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -158,7 +157,6 @@ func TestAuthorizeCallbackUnsuccessfulResponse(t *testing.T, api *API, url strin
 }
 
 func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string, serviceID string) {
-	parentCtx := context.Background()
 	authToken := login("authorize_successful@generaltask.com", "")
 	stateToken, err := newStateToken(api.DB, authToken, false)
 	assert.NoError(t, err)
@@ -176,23 +174,17 @@ func TestAuthorizeCallbackSuccessfulResponse(t *testing.T, api *API, url string,
 	defer dbCleanup()
 	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var authTokenStruct database.InternalAPIToken
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": authToken}).Decode(&authTokenStruct)
+	err = internalAPITokenCollection.FindOne(context.Background(), bson.M{"token": authToken}).Decode(&authTokenStruct)
 	assert.NoError(t, err)
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	count, err := externalAPITokenCollection.CountDocuments(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}})
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), count)
 	var externalToken database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = externalAPITokenCollection.FindOne(dbCtx, bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
+	err = externalAPITokenCollection.FindOne(context.Background(), bson.M{"$and": []bson.M{{"user_id": authTokenStruct.UserID}, {"service_id": serviceID}}}).Decode(&externalToken)
 	assert.NoError(t, err)
 	assert.Equal(t, serviceID, externalToken.ServiceID)
 	assert.True(t, len(externalToken.AccountID) > 0)
