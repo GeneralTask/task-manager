@@ -91,5 +91,4 @@ export const Overlay = styled.div`
     width: 100vw;
     height: 100vh;
     cursor: default;
-    /* z-index: 1000; */
 `
