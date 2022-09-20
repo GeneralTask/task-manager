@@ -1,10 +1,10 @@
-import { MouseEvent, forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Id as ToastId } from 'react-toastify'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useClickOutside, useIsDragging, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
+import { useIsDragging, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -103,80 +103,51 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
 
         const portal = ReactDOM.createPortal(
             <>
-            <Overlay onClick={onClose} />
-            <EventBoxStyle
-                xCoord={xCoord}
-                yCoord={yCoord}
-                popupHeight={popupHeight}
-                eventHeight={eventHeight}
-                eventWidth={eventWidth}
-                windowHeight={windowHeight}
-                ref={(node) => {
-                    popupRef.current = node
-                    if (typeof ref === 'function') {
-                        ref(node)
-                    } else if (ref !== null) {
-                        ref.current = node
-                    }
-                }}
-            >
-                <EventHeader>
-                    <Icon icon={logos[event.logo]} size="xSmall" />
-                    <EventHeaderIcons>
-                        <IconButton onClick={onDelete}>
-                            <Icon icon={icons.trash} size="xSmall" />
-                        </IconButton>
-                        <IconButton
-                            onClick={(e) => {
-                                onClose(e as MouseEvent)
-                            }}
-                        >
-                            <Icon icon={icons.x} size="xSmall" />
-                        </IconButton>
-                    </EventHeaderIcons>
-                </EventHeader>
-                <EventTitle>{event.title}</EventTitle>
-                <EventDateContainer>
-                    <Icon icon={icons.calendar_blank} size="xSmall" />
-                    <EventDate>
-                        {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
-                    </EventDate>
-                </EventDateContainer>
-                <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
-                <Flex gap={Spacing._8}>
-                    {event.linked_task_id && (
-                        <GTButton
-                            styleType="secondary"
-                            size="small"
-                            value="View task details"
-                            fitContent={false}
-                            onClick={() => {
-                                setSelectedEvent(null)
-                                navigateToTask(event.linked_task_id)
-                            }}
-                        />
-                    )}
-                    <FlexAnchor href={event.deeplink} target="_blank">
-                        <GTButton
-                            styleType="secondary"
-                            size="small"
-                            value="Google Calendar"
-                            icon={icons.external_link}
-                            fitContent={false}
-                        />
-                    </FlexAnchor>
-                </Flex>
-                {event.conference_call.logo && (
-                    <Flex alignItemsCenter>
-                        <FlexAnchor href={event.conference_call.url} target="_blank">
-
+                <Overlay onClick={onClose} />
+                <EventBoxStyle
+                    xCoord={xCoord}
+                    yCoord={yCoord}
+                    popupHeight={popupHeight}
+                    eventHeight={eventHeight}
+                    eventWidth={eventWidth}
+                    windowHeight={windowHeight}
+                    ref={(node) => {
+                        popupRef.current = node
+                        if (typeof ref === 'function') {
+                            ref(node)
+                        } else if (ref !== null) {
+                            ref.current = node
+                        }
+                    }}
+                >
+                    <EventHeader>
+                        <Icon icon={logos[event.logo]} size="xSmall" />
+                        <EventHeaderIcons>
+                            <IconButton onClick={onDelete}>
+                                <Icon icon={icons.trash} size="xSmall" />
+                            </IconButton>
+                            <IconButton onClick={onClose}>
+                                <Icon icon={icons.x} size="xSmall" />
+                            </IconButton>
+                        </EventHeaderIcons>
+                    </EventHeader>
+                    <EventTitle>{event.title}</EventTitle>
+                    <EventDateContainer>
+                        <Icon icon={icons.calendar_blank} size="xSmall" />
+                        <EventDate>
+                            {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
+                        </EventDate>
+                    </EventDateContainer>
+                    <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
+                    <Flex gap={Spacing._8}>
+                        {event.linked_task_id && (
                             <GTButton
                                 styleType="secondary"
                                 size="small"
                                 value="View task details"
                                 fitContent={false}
                                 onClick={() => {
-                                    setSelectedEvent(null)
+                                    onClose()
                                     navigateToTask(event.linked_task_id)
                                 }}
                             />
@@ -191,6 +162,31 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                             />
                         </FlexAnchor>
                     </Flex>
+                    {event.conference_call.logo && (
+                        <Flex alignItemsCenter>
+                            <FlexAnchor href={event.conference_call.url} target="_blank">
+                                <GTButton
+                                    styleType="secondary"
+                                    size="small"
+                                    value="View task details"
+                                    fitContent={false}
+                                    onClick={() => {
+                                        setSelectedEvent(null)
+                                        navigateToTask(event.linked_task_id)
+                                    }}
+                                />
+                            </FlexAnchor>
+                        </Flex>
+                    )}
+                    <FlexAnchor href={event.deeplink} target="_blank">
+                        <GTButton
+                            styleType="secondary"
+                            size="small"
+                            value="Google Calendar"
+                            icon={icons.external_link}
+                            fitContent={false}
+                        />
+                    </FlexAnchor>
                     {event.conference_call.logo && (
                         <Flex alignItemsCenter>
                             <FlexAnchor href={event.conference_call.url} target="_blank">
