@@ -101,6 +101,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
                         blurOnEnter
                         disabled={!isEditingTitle}
+                        onFocus={(e) => e.target.select()}
                         autoFocus
                     />
                 ) : (

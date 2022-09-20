@@ -1,7 +1,7 @@
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { stopKeydownPropogation } from '../../utils/utils'
 import React, { forwardRef, useLayoutEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { stopKeydownPropogation } from '../../utils/utils'
 
 const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small' | 'medium' | 'large' }>`
     background-color: inherit;
