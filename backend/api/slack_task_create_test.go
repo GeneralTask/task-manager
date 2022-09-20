@@ -194,6 +194,60 @@ func TestSlackTaskCreate(t *testing.T) {
 	})
 }
 
+func TestGetSlackMessageTitle(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	validTimestamp := "1355517523.000005"
+	// set to dummy value because different secrets across Dev, CI, and Prod
+	os.Setenv("SLACK_SIGNING_SECRET", "dummy value")
+	defer os.Unsetenv("SLACK_SIGNING_SECRET")
+
+	server := getServerForSlack()
+	defer server.Close()
+
+	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
+	assert.NoError(t, err)
+
+	source := taskSourceResult.Source.(external.SlackSavedTaskSource)
+	source.Slack.Config.ConfigValues.OverrideURL = &server.URL
+
+	slackMessageParams := database.SlackMessageParams{
+		Channel: database.SlackChannel{
+			Name: "channel_name",
+		},
+		Message: database.SlackMessage{
+			User:     "USERCODE",
+			Text:     "HELLO!",
+			TimeSent: validTimestamp,
+		},
+	}
+
+	externalToken := database.ExternalAPIToken{
+		Token: `{"access_token":"Hello!"}`,
+	}
+
+	t.Run("InvalidTimestamp", func(t *testing.T) {
+		invalidParams := slackMessageParams
+		invalidParams.Message.TimeSent = "HELLO.THERE"
+		_, err := getSlackMessageTitle(source, invalidParams, &externalToken)
+		assert.Error(t, err)
+	})
+	t.Run("SuccessDirectMessage", func(t *testing.T) {
+		dmParams := slackMessageParams
+		dmParams.Channel.Name = "directmessage"
+		title, err := getSlackMessageTitle(source, dmParams, &externalToken)
+		assert.NoError(t, err)
+		assert.Equal(t, "From  in a direct message @ 2012-12-14 14:38:43", title)
+	})
+	t.Run("SuccessChannel", func(t *testing.T) {
+		title, err := getSlackMessageTitle(source, slackMessageParams, &externalToken)
+		assert.NoError(t, err)
+		assert.Equal(t, "From  in #channel_name @ 2012-12-14 14:38:43", title)
+	})
+}
+
 func getServerForSlack() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 }
