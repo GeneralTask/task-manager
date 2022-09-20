@@ -67,10 +67,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
         return () => window.removeEventListener('resize', handleWindowResize)
     }, [])
 
-    const onClose = (e?: MouseEvent) => {
-        if (e && eventRef.current?.contains(e.target as Node)) return
-        setSelectedEvent(null)
-    }
     const onClick = (e: MouseEvent) => {
         // Prevent popup from closing when user clicks on the popup component
         if (popupRef.current?.contains(e.target as Node)) return
@@ -118,7 +114,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
-                        onClose={onClose}
                         xCoord={coords.xCoord}
                         yCoord={coords.yCoord}
                         eventHeight={eventBodyHeight}
