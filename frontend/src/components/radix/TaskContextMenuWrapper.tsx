@@ -31,22 +31,22 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
             icon: icons.folder,
             subItems: taskSections
                 ? [
-                      ...taskSections
-                          .filter((s) => !s.is_done && !s.is_trash)
-                          .map((section) => ({
-                              label: section.name,
-                              icon: icons.folder,
-                              selected: section.id === sectionId,
-                              onClick: () => {
-                                  reorderTask({
-                                      taskId: taskId,
-                                      dropSectionId: section.id,
-                                      dragSectionId: sectionId,
-                                      orderingId: 1,
-                                  })
-                              },
-                          })),
-                  ]
+                    ...taskSections
+                        .filter((s) => !s.is_done && !s.is_trash)
+                        .map((section) => ({
+                            label: section.name,
+                            icon: icons.folder,
+                            selected: section.id === sectionId,
+                            onClick: () => {
+                                reorderTask({
+                                    taskId: taskId,
+                                    dropSectionId: section.id,
+                                    dragSectionId: sectionId,
+                                    orderingId: 1,
+                                })
+                            },
+                        })),
+                ]
                 : [],
         },
         // {
