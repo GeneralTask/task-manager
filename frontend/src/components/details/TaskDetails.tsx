@@ -98,7 +98,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
         } else if (minutes <= 30) {
-            setMeetingStartText(`Starts in ${minutes} minutes`)
+            const minutesText = minutes === 1 ? 'minute' : 'minutes'
+            setMeetingStartText(`Starts in ${minutes} ${minutesText}`)
         } else {
             setMeetingStartText('')
         }
