@@ -84,3 +84,11 @@ export const FlexAnchor = styled(NoStyleAnchor)`
 export const CopyButton = styled(IconButton)`
     margin: 0 ${Spacing._8};
 `
+export const Overlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    cursor: default;
+`

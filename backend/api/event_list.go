@@ -29,6 +29,7 @@ type EventResult struct {
 	DatetimeEnd    primitive.DateTime   `json:"datetime_end,omitempty"`
 	DatetimeStart  primitive.DateTime   `json:"datetime_start,omitempty"`
 	LinkedTaskID   string               `json:"linked_task_id"`
+	LinkedViewID   string               `json:"linked_view_id"`
 	Logo           string               `json:"logo"`
 }
 
@@ -108,6 +109,10 @@ func (api *API) EventsList(c *gin.Context) {
 					api.Logger.Error().Err(err).Msg("linked task source ID is empty")
 				}
 			}
+			var linkedViewID string
+			if event.LinkedViewID != primitive.NilObjectID {
+				linkedViewID = event.LinkedViewID.Hex()
+			}
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
 				AccountID:     event.SourceAccountID,
@@ -124,6 +129,7 @@ func (api *API) EventsList(c *gin.Context) {
 				},
 				Logo:         logo,
 				LinkedTaskID: linkedTaskID,
+				LinkedViewID: linkedViewID,
 			})
 		}
 		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
