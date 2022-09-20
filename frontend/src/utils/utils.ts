@@ -1,6 +1,6 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
-import { TTask, TTaskSection } from './types'
+import { TLinkedAccount, TTask, TTaskSection } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -104,3 +104,6 @@ export const getTaskFromSections = (
     if (taskIndex === undefined || sectionIndex === undefined) return undefined
     return sections[sectionIndex].tasks[taskIndex]
 }
+
+export const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
+    linkedAccounts.some((account) => account.name === 'Github')
