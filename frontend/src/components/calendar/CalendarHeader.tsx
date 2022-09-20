@@ -90,15 +90,24 @@ export default function CalendarHeader({
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
-                            <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                            {date.startOf('day').equals(DateTime.now().startOf('day')) ? (
+                                <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                                    <GTButton
+                                        icon={icons.headphones}
+                                        iconColor="black"
+                                        value="Enter Focus Mode"
+                                        size="small"
+                                        styleType="secondary"
+                                    />
+                                </NoStyleLink>
+                            ) : (
                                 <GTButton
-                                    icon={icons.headphones}
-                                    iconColor="black"
-                                    value="Enter Focus Mode"
+                                    value="Today"
+                                    onClick={selectToday}
                                     size="small"
                                     styleType="secondary"
                                 />
-                            </NoStyleLink>
+                            )}
                             <HeaderIconsContainer>
                                 <GTIconButton
                                     onClick={toggleCalendar}
@@ -123,7 +132,6 @@ export default function CalendarHeader({
                             'ccc, LLL d'
                         )}`}</TitleBold>
                         <ButtonContainer>
-                            <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} size="xSmall" />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} size="xSmall" />
                         </ButtonContainer>

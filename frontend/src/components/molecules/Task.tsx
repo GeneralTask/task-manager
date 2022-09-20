@@ -61,7 +61,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             setMeetingStartText('Meeting is now')
             setIsMeetingTextColor(true)
         } else if (minutes <= 30) {
-            setMeetingStartText(`Starts in ${minutes} minutes`)
+            const minutesText = minutes === 1 ? 'minute' : 'minutes'
+            setMeetingStartText(`Starts in ${minutes} ${minutesText}`)
             setIsMeetingTextColor(true)
         } else {
             setMeetingStartText(dateTimeStart.toLocaleString(DateTime.TIME_SIMPLE))
