@@ -44,6 +44,7 @@ interface CreateNewTaskProps {
 }
 const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
+    const [shouldFocus, setShouldFocus] = useState(false)
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -87,10 +88,17 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         [containerRef.current]
     )
 
+    useEffect(() => {
+        if (shouldFocus) {
+            inputRef.current?.focus()
+            setShouldFocus(false)
+        }
+    }, [shouldFocus])
+
     useKeyboardShortcut(
         'createTask',
         // this is a shameful hack to wait for the command palette to close before focusing on the input
-        useCallback(() => setTimeout(() => inputRef.current?.focus(), 10), []),
+        useCallback(() => setShouldFocus(true), []),
         disableTooltip
     )
 
