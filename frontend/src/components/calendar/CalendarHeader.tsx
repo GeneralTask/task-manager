@@ -61,6 +61,10 @@ export default function CalendarHeader({
             setDate(date.minus({ days: date.weekday % 7 }))
         }
     }
+    const selectToday = useCallback(() => {
+        setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
+    }, [setDate, isCalendarExpanded])
+
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -75,6 +79,7 @@ export default function CalendarHeader({
             }),
         [date, setDate, isCalendarExpanded]
     )
+    useKeyboardShortcut('today', selectToday)
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
@@ -98,13 +103,7 @@ export default function CalendarHeader({
                             ) : (
                                 <GTButton
                                     value="Today"
-                                    onClick={() =>
-                                        setDate(
-                                            isCalendarExpanded
-                                                ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
-                                                : DateTime.now()
-                                        )
-                                    }
+                                    onClick={selectToday}
                                     size="small"
                                     styleType="secondary"
                                 />

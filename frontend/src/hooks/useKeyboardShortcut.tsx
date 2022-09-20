@@ -1,77 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../constants'
+import KEYBOARD_SHORTCUTS, { TShortcutName } from '../constants/shortcuts'
+import useShortcutContext from '../context/ShortcutContext'
+import produce from 'immer'
+import { useEffect } from 'react'
 
-export default function useKeyboardShortcut(
-    shortcutType: TKeyboardShortcuts,
-    onKeyPress: () => void,
-    disabled = false,
-    showIndicator = false
-): boolean {
-    const isKeyDown = useRef<boolean>(false)
-    const [showKeyDownIndicator, setShowKeyDownIndicator] = useState(false)
-    const shortcut = KEYBOARD_SHORTCUTS[shortcutType]
-
-    const onKeyDown = useCallback(
-        (event: KeyboardEvent) => {
-            if (!disabled && wasValidKeyPressed(shortcut, event)) {
-                if (showIndicator) {
-                    setShowKeyDownIndicator(true)
-                }
-                isKeyDown.current = true
-                onKeyPress()
-                event.stopPropagation()
-            }
-        },
-        [shortcut, onKeyPress, showIndicator, disabled]
-    )
-    const onKeyUp = useCallback(
-        (event: KeyboardEvent) => {
-            if (!disabled && wasValidKeyPressed(shortcut, event)) {
-                if (showIndicator) {
-                    setShowKeyDownIndicator(false)
-                }
-                isKeyDown.current = false
-                event.stopPropagation()
-            }
-        },
-        [shortcut, disabled, showIndicator, disabled]
-    )
-
+// action should be a useCallback function to avoid unnecessary rerenders
+export default function useKeyboardShortcut(shortcutName: TShortcutName, action: () => void, disabled = false) {
+    const { setActiveKeyboardShortcuts } = useShortcutContext()
+    const shortcut = KEYBOARD_SHORTCUTS[shortcutName]
     useEffect(() => {
         if (!disabled) {
-            document.addEventListener('keydown', onKeyDown)
-            document.addEventListener('keyup', onKeyUp)
+            setActiveKeyboardShortcuts((activeShortcuts) =>
+                produce(activeShortcuts, (draft) => {
+                    draft.set(shortcut.key, {
+                        ...shortcut,
+                        action,
+                    })
+                })
+            )
+
+            return () => {
+                setActiveKeyboardShortcuts((activeShortcuts) =>
+                    produce(activeShortcuts, (draft) => {
+                        draft.delete(shortcut.key)
+                    })
+                )
+            }
         }
-        return () => {
-            document.removeEventListener('keydown', onKeyDown)
-            document.removeEventListener('keyup', onKeyUp)
-        }
-    }, [disabled, onKeyDown, onKeyUp])
-
-    return showKeyDownIndicator
-}
-
-/**
- * Check if a valid key is pressed.
- * Will prevent default behavior of a key
- **/
-function wasValidKeyPressed(shortcut: string, e: KeyboardEvent): boolean {
-    let keyName = ''
-    if (e.ctrlKey) {
-        keyName += 'ctrl+'
-    }
-    if (e.metaKey) {
-        keyName += 'meta+'
-    }
-    if (e.shiftKey) {
-        keyName += 'shift+'
-    }
-    keyName += e.key.toLowerCase()
-
-    if (keyName === shortcut.toLowerCase()) {
-        // see comments about blocking key above
-        e.preventDefault()
-        return true
-    }
-    return false
+    }, [shortcutName, action, disabled, setActiveKeyboardShortcuts])
 }

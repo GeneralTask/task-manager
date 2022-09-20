@@ -82,7 +82,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         setIsEditingTitle(false)
     }
 
-    useKeyboardShortcut('refresh', refetchStaleQueries, false)
+    useKeyboardShortcut('refresh', refetchStaleQueries)
 
     const showRefreshButton = (isHovering || isFetching) && !isEditingTitle
 
