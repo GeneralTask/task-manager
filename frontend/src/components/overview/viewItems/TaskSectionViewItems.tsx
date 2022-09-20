@@ -10,7 +10,7 @@ import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
 const TaskSectionViewItems = forwardRef<HTMLDivElement, ViewItemsProps>(
-    ({ view, visibleItemsCount, scrollRef }, ref) => {
+    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref) => {
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: reorderTask } = useReorderTask()
