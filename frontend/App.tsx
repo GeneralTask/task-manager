@@ -7,9 +7,8 @@ import StyledToastContainer from './src/components/atoms/toast/StyledToastContai
 import LandingScreen from './src/components/screens/LandingScreen'
 import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import AppContextProvider from './src/context/AppContextProvider'
-import './src/index.css'
-import './src/index.css'
 import PrivateOutlet from './src/services/PrivateOutlet'
+import { GlobalStyle } from './src/styles'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
@@ -23,6 +22,7 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <AppContextProvider>
+                <GlobalStyle />
                 <BrowserRouter>
                     <Suspense fallback={<Loading />}>
                         <Routes>

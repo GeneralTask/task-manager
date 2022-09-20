@@ -2,9 +2,11 @@ import { Fragment } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
+import { isGithubLinkedAccount } from '../../utils/utils'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
@@ -37,6 +39,8 @@ const AddViewsModalContent = () => {
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const isGithubLinked = isGithubLinkedAccount(linkedAccounts ?? [])
 
     if (!supportedViews) {
         return <Spinner />
@@ -115,7 +119,9 @@ const AddViewsModalContent = () => {
                                 )}
                             </Fragment>
                         ))}
-                    {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && <MissingRepositoryMessage />}
+                    {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && isGithubLinked && (
+                        <MissingRepositoryMessage />
+                    )}
                 </Fragment>
             ))}
         </>

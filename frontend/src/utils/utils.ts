@@ -128,3 +128,5 @@ export const stopKeydownPropogation = (e: KeyboardEvent | React.KeyboardEvent, e
         e.stopPropagation()
     }
 }
+export const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
+    linkedAccounts.some((account) => account.name === 'Github')

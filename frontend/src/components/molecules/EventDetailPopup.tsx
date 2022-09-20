@@ -25,12 +25,12 @@ import {
     EventTitle,
     FlexAnchor,
     IconButton,
+    Overlay,
 } from './EventDetailPopup-styles'
 
 interface EventDetailProps {
     event: TEvent
     date: DateTime
-    onClose: (e?: MouseEvent) => void
     xCoord: number
     yCoord: number
     eventHeight: number
@@ -39,7 +39,7 @@ interface EventDetailProps {
 }
 
 const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
-    ({ event, date, onClose, xCoord, yCoord, eventHeight, eventWidth, windowHeight }, ref) => {
+    ({ event, date, xCoord, yCoord, eventHeight, eventWidth, windowHeight }, ref) => {
         const { setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
         const undoToastRef = useRef<ToastId>()
@@ -49,7 +49,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
             if (!popupRef.current) return
             setPopupHeight(popupRef.current.getBoundingClientRect().height)
         }, [])
-        useClickOutside(popupRef, onClose)
+        const onClose = () => setSelectedEvent(null)
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
@@ -102,6 +102,8 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
         }
 
         const portal = ReactDOM.createPortal(
+            <>
+            <Overlay onClick={onClose} />
             <EventBoxStyle
                 xCoord={xCoord}
                 yCoord={yCoord}
@@ -167,20 +169,46 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                 {event.conference_call.logo && (
                     <Flex alignItemsCenter>
                         <FlexAnchor href={event.conference_call.url} target="_blank">
+
                             <GTButton
                                 styleType="secondary"
                                 size="small"
-                                value="Join"
-                                icon={event.conference_call.logo}
+                                value="View task details"
+                                fitContent={false}
+                                onClick={() => {
+                                    setSelectedEvent(null)
+                                    navigateToTask(event.linked_task_id)
+                                }}
+                            />
+                        )}
+                        <FlexAnchor href={event.deeplink} target="_blank">
+                            <GTButton
+                                styleType="secondary"
+                                size="small"
+                                value="Google Calendar"
+                                icon={icons.external_link}
                                 fitContent={false}
                             />
                         </FlexAnchor>
-                        <CopyButton onClick={() => navigator.clipboard.writeText(event.conference_call.url)}>
-                            <Icon size="xSmall" icon={icons.copy} />
-                        </CopyButton>
                     </Flex>
-                )}
-            </EventBoxStyle>,
+                    {event.conference_call.logo && (
+                        <Flex alignItemsCenter>
+                            <FlexAnchor href={event.conference_call.url} target="_blank">
+                                <GTButton
+                                    styleType="secondary"
+                                    size="small"
+                                    value="Join"
+                                    icon={event.conference_call.logo}
+                                    fitContent={false}
+                                />
+                            </FlexAnchor>
+                            <CopyButton onClick={() => navigator.clipboard.writeText(event.conference_call.url)}>
+                                <Icon size="xSmall" icon={icons.copy} />
+                            </CopyButton>
+                        </Flex>
+                    )}
+                </EventBoxStyle>
+            </>,
             document.getElementById('event-details-popup') as HTMLElement
         )
 
