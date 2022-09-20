@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from 'react'
+import { Ref, forwardRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
@@ -9,8 +9,8 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const TaskSectionViewItems = forwardRef<HTMLDivElement, ViewItemsProps>(
-    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref) => {
+const TaskSectionViewItems = forwardRef(
+    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: reorderTask } = useReorderTask()
