@@ -6,10 +6,6 @@ import StyledToastContainer from './src/components/atoms/toast/StyledToastContai
 import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
 import LandingScreen from './src/components/screens/LandingScreen'
 import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
-import './src/index.css'
-import './src/index.css'
-import './src/index.css'
-import './src/index.css'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { GlobalStyle } from './src/styles'
 
