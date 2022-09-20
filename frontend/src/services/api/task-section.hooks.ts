@@ -97,7 +97,7 @@ export const useModifyTaskSection = () => {
                 if (sectionIndex === -1) return
                 if (data.name) draft[sectionIndex].name = data.name
                 if (data.id_ordering) {
-                    let endIndex = data.id_ordering - 1
+                    let endIndex = data.id_ordering
                     if (sectionIndex < endIndex) {
                         endIndex -= 1
                     }
