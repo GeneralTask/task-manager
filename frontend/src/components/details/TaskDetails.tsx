@@ -53,6 +53,11 @@ const BodyContainer = styled.div`
     flex-direction: column;
     flex: 1;
 `
+const TaskStatusContainer = styled.div`
+    display: flex;
+    gap: ${Spacing._8};
+    align-items: center;
+`
 
 const MeetingPreparationTimeContainer = styled.div`
     display: flex;
@@ -200,7 +205,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     <MeetingStartText isTextColored>{meetingStartText}</MeetingStartText>
                 </MeetingPreparationTimeContainer>
             )}
-            <div style={{ display: 'flex', gap: Spacing._8, alignItems: 'center' }}>
+            <TaskStatusContainer>
                 {task.external_status && (
                     <StatusContainer>
                         <Icon icon={linearStatus[task.external_status.type]} size="small" />
@@ -222,7 +227,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         />
                     }
                 />
-            </div>
+            </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />
             ) : (
