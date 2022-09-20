@@ -19,7 +19,7 @@ type LinearTaskSource struct {
 }
 
 func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(nil)
+	result <- emptyCalendarResult(errors.New("linear task cannot fetch events"))
 }
 
 func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {

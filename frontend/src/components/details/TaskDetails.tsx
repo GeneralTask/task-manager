@@ -58,6 +58,9 @@ const MeetingPreparationTimeContainer = styled.div`
     flex-direction: row;
     gap: ${Spacing._24};
     margin-left: ${Spacing._8};
+    color: ${Colors.text.light};
+    ${Typography.label};
+    ${Typography.bold};
 `
 
 const SYNC_MESSAGES = {
