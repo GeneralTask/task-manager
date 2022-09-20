@@ -4,7 +4,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_SECTION_ID, PRIORITIES, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -167,14 +167,14 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     <Title data-testid="task-title">{task.title}</Title>
                     <RightContainer>
                         <GTDropdownMenu
-                            items={PRIORITIES.map((priority, val) => ({
+                            items={TASK_PRIORITIES.map((priority, val) => ({
                                 label: priority.label,
                                 onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                                 icon: priority.icon,
                             }))}
                             trigger={
                                 <GTButton
-                                    icon={PRIORITIES[task.priority_normalized].icon}
+                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
                                     size="small"
                                     styleType="simple"
                                 />

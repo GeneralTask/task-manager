@@ -1,4 +1,4 @@
-import { PRIORITIES } from '../../constants'
+import { TASK_PRIORITIES } from '../../constants'
 import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import GTContextMenu from './GTContextMenu'
@@ -19,7 +19,7 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
             label: 'Priority',
             icon: icons.priority_urgent,
             subItems: [
-                ...PRIORITIES.map((priority, val) => ({
+                ...TASK_PRIORITIES.map((priority, val) => ({
                     label: priority.label,
                     onClick: () => modifyTask({ id: taskId, priorityNormalized: val }),
                     icon: priority.icon,

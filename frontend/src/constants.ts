@@ -1,3 +1,4 @@
+import { TIconType } from './components/atoms/Icon'
 import getEnvVars from './environment'
 import { icons } from './styles/images'
 
@@ -51,7 +52,11 @@ export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 
 
-export const PRIORITIES = [
+export interface TTaskPriority {
+    icon: TIconType
+    label: string
+}
+export const TASK_PRIORITIES: TTaskPriority[] = [
     { icon: icons.priority_none, label: 'No Priority' },
     { icon: icons.priority_urgent, label: 'Urgent' },
     { icon: icons.priority_high, label: 'High' },

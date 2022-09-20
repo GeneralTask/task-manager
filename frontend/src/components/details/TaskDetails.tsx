@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, PRIORITIES, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -213,15 +213,15 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     </StatusContainer>
                 )}
                 <GTDropdownMenu
-                    items={PRIORITIES.map((priority, val) => ({
+                    items={TASK_PRIORITIES.map((priority, val) => ({
                         label: priority.label,
                         onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                         icon: priority.icon,
                     }))}
                     trigger={
                         <GTButton
-                            value={PRIORITIES[task.priority_normalized].label}
-                            icon={PRIORITIES[task.priority_normalized].icon}
+                            value={TASK_PRIORITIES[task.priority_normalized].label}
+                            icon={TASK_PRIORITIES[task.priority_normalized].icon}
                             size="small"
                             styleType="simple"
                         />
