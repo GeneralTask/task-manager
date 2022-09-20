@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
@@ -5,11 +6,11 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const MeetingPreparationViewItems = ({ view }: ViewItemsProps) => {
+const MeetingPreparationViewItems = forwardRef<HTMLDivElement, ViewItemsProps>(({ view }, ref) => {
     const { overviewViewId, overviewItemId } = useParams()
     return (
         <>
-            <ViewHeader>
+            <ViewHeader ref={ref}>
                 <ViewName>{view.name}</ViewName>
             </ViewHeader>
             {view.view_items.length > 0 ? (
@@ -31,6 +32,6 @@ const MeetingPreparationViewItems = ({ view }: ViewItemsProps) => {
             )}
         </>
     )
-}
+})
 
 export default MeetingPreparationViewItems

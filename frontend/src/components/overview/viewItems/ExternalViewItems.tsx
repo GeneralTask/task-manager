@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
@@ -5,7 +6,7 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const ExternalViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProps) => {
+const ExternalViewItems = forwardRef<HTMLDivElement, ViewItemsProps>(({ view, visibleItemsCount, scrollRef }, ref) => {
     const { overviewViewId, overviewItemId } = useParams()
 
     const getEmptyViewItem = () => {
@@ -28,7 +29,7 @@ const ExternalViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProp
 
     return (
         <>
-            <ViewHeader>
+            <ViewHeader ref={ref}>
                 <ViewName>{view.name}</ViewName>
             </ViewHeader>
             {view.view_items.length === 0 && view.is_linked && getEmptyViewItem()}
@@ -44,6 +45,6 @@ const ExternalViewItems = ({ view, visibleItemsCount, scrollRef }: ViewItemsProp
             ))}
         </>
     )
-}
+})
 
 export default ExternalViewItems
