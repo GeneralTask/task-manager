@@ -11,9 +11,7 @@ export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'Na
     * Sourced from: https://stackoverflow.com/a/52157355/12679075
 
 */
-function asShortcuts<T extends { [key: string]: Omit<TShortcut, 'action'> }>(arg: T): T {
-    return arg;
-}
+const asShortcuts = <T extends { [key: string]: Omit<TShortcut, 'action'> }>(arg: T): T => arg
 
 const KEYBOARD_SHORTCUTS = asShortcuts({
     // Task shortcuts

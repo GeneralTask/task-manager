@@ -1,6 +1,6 @@
+import React, { createContext, useEffect, useState } from 'react'
 import { TShortcut } from '../utils/types'
 import { emptyFunction, getKeyCode } from '../utils/utils'
-import React, { createContext, useEffect, useState } from 'react'
 
 interface TShortcutContext {
     showCommandPalette: boolean
@@ -29,6 +29,7 @@ export const ShortcutContextProvider = ({ children }: ShortcutContextProps) => {
             const key = getKeyCode(e)
             const shortcut = activeKeyboardShortcuts.get(key)
             if (shortcut) {
+                setShowCommandPalette(false)
                 shortcut.action()
                 e.preventDefault()
             }

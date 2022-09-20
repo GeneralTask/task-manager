@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Command } from 'cmdk'
 import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
@@ -32,13 +32,13 @@ const CommandDialog = styled(Command.Dialog)`
 const Searchbar = styled.div`
     display: flex;
     align-items: center;
-    margin: ${Spacing._4} ${Spacing._4} 0 ${Spacing._4};
+    margin: ${Spacing._4} ${Spacing._4} 0;
 `
 const CommandInput = styled(Command.Input)`
     flex: 1;
     outline: none;
     border: none;
-    ${Typography.subtitle}
+    ${Typography.subtitle};
     &::placeholder {
         color: ${Colors.text.placeholder};
     }
@@ -83,12 +83,30 @@ const IconContainer = styled.div`
 `
 
 const CommandPalette = () => {
-    const { setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
+    const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
+    const buttonRef = useRef<HTMLButtonElement>(null)
+
+    /*
+        When the command palette is closed, the page seems to lose focus
+        So we have to manually focus on an element in the page to make kb shortcuts work
+    */
+    useEffect(() => {
+        if (!showCommandPalette) {
+            buttonRef.current?.focus()
+        }
+    }, [showCommandPalette])
 
     useKeyboardShortcut(
+        'toggleCommandPalette',
+        useCallback(() => {
+            setShowCommandPalette(!showCommandPalette)
+        }, [showCommandPalette, setShowCommandPalette])
+    )
+    useKeyboardShortcut(
         'closeCommandPalette',
-        useCallback(() => setShowCommandPalette(false), [setShowCommandPalette])
+        useCallback(() => setShowCommandPalette(false), [setShowCommandPalette]),
+        !showCommandPalette
     )
 
     const shortcutGroups = useMemo(() => {
@@ -105,83 +123,59 @@ const CommandPalette = () => {
     }, [activeKeyboardShortcuts])
 
     return (
-        <CommandDialog
-            open
-            onOpenChange={setShowCommandPalette}
-            onKeyDown={(e) => stopKeydownPropogation(e, [KEYBOARD_SHORTCUTS.closeCommandPalette.key])}
-            value={selectedShortcut}
-            onValueChange={setSelectedShortcut}
-        >
-            <Searchbar>
-                <IconContainer>
-                    <Icon icon={icons.magnifying_glass} size="xSmall" />
-                </IconContainer>
-                <CommandInput placeholder="Type a command" />
-            </Searchbar>
-            <Divider color={Colors.background.dark} />
-            <CommandEmpty>No commands found</CommandEmpty>
-            <CommandList>
-                {shortcutGroups.map(
-                    ({ category, shortcuts }) =>
-                        shortcuts.length > 0 && (
-                            <CommandGroup heading={category} key={category}>
-                                {shortcuts.map(({ label, action, keyLabel, icon }) => (
-                                    <CommandItem
-                                        key={keyLabel}
-                                        onSelect={() => {
-                                            setShowCommandPalette(false)
-                                            action()
-                                        }}
-                                    >
-                                        <Flex alignItemsCenter>
-                                            <IconContainer>
-                                                {icon && <Icon icon={icons[icon]} size="xSmall" />}
-                                            </IconContainer>
-                                            {label}
-                                        </Flex>
-                                        <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
-                                    </CommandItem>
-                                ))}
-                            </CommandGroup>
-                        )
-                )}
-            </CommandList>
-        </CommandDialog>
-    )
-}
-
-const CommandPaletteButton = () => {
-    const { showCommandPalette, setShowCommandPalette } = useShortcutContext()
-    const buttonRef = React.useRef<HTMLButtonElement>(null)
-
-    useKeyboardShortcut(
-        'toggleCommandPalette',
-        useCallback(() => {
-            setShowCommandPalette(!showCommandPalette)
-        }, [showCommandPalette, setShowCommandPalette])
-    )
-
-    /*
-        When the command palette is closed, the page seems to lose focus
-        So we have to manually focus on an element in the page to make kb shortcuts work
-    */
-    useEffect(() => {
-        if (!showCommandPalette) {
-            buttonRef.current?.focus()
-        }
-    }, [showCommandPalette])
-
-    return (
         <>
             <GTIconButton
                 ref={buttonRef}
                 icon={icons.magnifying_glass}
                 onClick={() => setShowCommandPalette(!showCommandPalette)}
-                size={'small'}
+                size="small"
             />
-            {showCommandPalette && <CommandPalette />}
+            <CommandDialog
+                open={showCommandPalette}
+                onOpenChange={setShowCommandPalette}
+                onKeyDown={(e) => {
+                    stopKeydownPropogation(e, [KEYBOARD_SHORTCUTS.closeCommandPalette.key])
+                }}
+                value={selectedShortcut}
+                onValueChange={setSelectedShortcut}
+            >
+                <Searchbar>
+                    <IconContainer>
+                        <Icon icon={icons.magnifying_glass} size="xSmall" />
+                    </IconContainer>
+                    <CommandInput placeholder="Type a command" />
+                </Searchbar>
+                <Divider color={Colors.background.dark} />
+                <CommandEmpty>No commands found</CommandEmpty>
+                <CommandList>
+                    {shortcutGroups.map(
+                        ({ category, shortcuts }) =>
+                            shortcuts.length > 0 && (
+                                <CommandGroup heading={category} key={category}>
+                                    {shortcuts.map(({ label, action, keyLabel, icon }) => (
+                                        <CommandItem
+                                            key={keyLabel}
+                                            onSelect={() => {
+                                                setShowCommandPalette(false)
+                                                action()
+                                            }}
+                                        >
+                                            <Flex alignItemsCenter>
+                                                <IconContainer>
+                                                    {icon && <Icon icon={icons[icon]} size="xSmall" />}
+                                                </IconContainer>
+                                                {label}
+                                            </Flex>
+                                            <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                            )
+                    )}
+                </CommandList>
+            </CommandDialog>
         </>
     )
 }
 
-export default CommandPaletteButton
+export default CommandPalette
