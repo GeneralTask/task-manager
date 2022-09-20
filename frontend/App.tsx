@@ -11,6 +11,7 @@ import './src/index.css'
 import './src/index.css'
 import './src/index.css'
 import PrivateOutlet from './src/services/PrivateOutlet'
+import { GlobalStyle } from './src/styles'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
@@ -21,6 +22,7 @@ const App = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
+            <GlobalStyle />
             <CalendarContextProvider>
                 <BrowserRouter>
                     <Suspense fallback={<Loading />}>
