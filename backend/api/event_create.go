@@ -1,10 +1,8 @@
 package api
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
@@ -27,21 +25,28 @@ func (api *API) EventCreate(c *gin.Context) {
 		return
 	}
 
-	dbCtx, cancel := context.WithTimeout(c.Request.Context(), constants.DatabaseTimeout)
-	defer cancel()
-
 	userID := getUserIDFromContext(c)
 
 	linkedTaskSourceID := ""
 	if eventCreateObject.LinkedTaskID != primitive.NilObjectID {
 		// check that the task exists
-		linkedTask, err := database.GetTask(api.DB, dbCtx, eventCreateObject.LinkedTaskID, userID)
+		linkedTask, err := database.GetTask(api.DB, eventCreateObject.LinkedTaskID, userID)
 		if err != nil {
 			api.Logger.Error().Err(err).Msgf("linked task not found: %s, err", eventCreateObject.LinkedTaskID.Hex())
 			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked task not found: %s", eventCreateObject.LinkedTaskID.Hex())})
 			return
 		}
 		linkedTaskSourceID = linkedTask.SourceID
+	}
+
+	if eventCreateObject.LinkedViewID != primitive.NilObjectID {
+		// check that the view exists
+		_, err := database.GetView(api.DB, userID, eventCreateObject.LinkedViewID)
+		if err != nil {
+			api.Logger.Error().Err(err).Msgf("linked view not found: %s, err", eventCreateObject.LinkedViewID.Hex())
+			c.JSON(400, gin.H{"detail": fmt.Sprintf("linked view not found: %s", eventCreateObject.LinkedViewID.Hex())})
+			return
+		}
 	}
 
 	// generate ID for event so we can use this when inserting into database
@@ -65,6 +70,7 @@ func (api *API) EventCreate(c *gin.Context) {
 		DatetimeEnd:        primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeEnd),
 		DatetimeStart:      primitive.NewDateTimeFromTime(*eventCreateObject.DatetimeStart),
 		LinkedTaskID:       eventCreateObject.LinkedTaskID,
+		LinkedViewID:       eventCreateObject.LinkedViewID,
 		LinkedTaskSourceID: linkedTaskSourceID,
 	}
 

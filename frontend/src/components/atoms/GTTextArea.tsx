@@ -33,15 +33,21 @@ interface GTTextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaEleme
     onEdit: (newValue: string) => void
     maxHeight?: number
     isFullHeight?: boolean
+    blurOnEnter?: boolean
     fontSize: 'small' | 'medium' | 'large'
 }
 const GTTextArea = forwardRef(
-    ({ initialValue, onEdit, maxHeight, isFullHeight = false, fontSize, ...rest }: GTTextAreaProps, ref) => {
+    (
+        { initialValue, onEdit, maxHeight, isFullHeight = false, blurOnEnter, fontSize, ...rest }: GTTextAreaProps,
+        ref
+    ) => {
         const [textAreaValue, setTextAreaValue] = useState(initialValue)
         const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 
         const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-            if (textAreaRef.current && e.key === 'Escape') textAreaRef.current.blur()
+            if (textAreaRef.current && (e.key === 'Escape' || (blurOnEnter && e.key === 'Enter'))) {
+                textAreaRef.current.blur()
+            }
             stopKeydownPropogation(e)
         }
 

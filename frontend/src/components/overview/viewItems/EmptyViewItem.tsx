@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Spacing, Border, Colors, Typography } from '../../../styles'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
 
 const EmptyViewContainer = styled.div`
     display: flex;

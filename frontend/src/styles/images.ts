@@ -1,6 +1,9 @@
+import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
 import {
+    faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
     faArrowRotateRight,
+    faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
     faCalendar,
@@ -32,12 +35,16 @@ import {
     faList,
     faTag,
     faTimer,
+} from '@fortawesome/pro-light-svg-icons'
+import {
+    faHeadphones,
 } from '@fortawesome/pro-solid-svg-icons'
 import {
-    faGithub,
-    faGoogle,
-    faSlack
-} from '@fortawesome/free-brands-svg-icons'
+    faSignalBars,
+    faSignalBarsWeak,
+    faSignalBarsFair,
+    faSignalBarsGood,
+} from '@fortawesome/pro-duotone-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
@@ -50,6 +57,8 @@ export const logos = Object.freeze({
 })
 
 export const icons = Object.freeze({
+    arrow_down: faArrowDown,
+    arrow_up: faArrowUp,
     arrows_in: faArrowDownLeftAndArrowUpRightToCenter,
     arrows_out: faArrowUpRightAndArrowDownLeftFromCenter,
     calendar_blank: faCalendar,
@@ -68,6 +77,7 @@ export const icons = Object.freeze({
     external_link: faArrowUpRightFromSquare,
     folder: faFolder,
     gear: faGear,
+    headphones: faHeadphones,
     inbox: faInbox,
     label: faTag,
     list: faList,
@@ -81,6 +91,10 @@ export const icons = Object.freeze({
     timer: faTimer,
     trash: faTrash,
     x: faXmark,
+    priority_urgent: faSignalBars,
+    priority_low: faSignalBarsWeak,
+    priority_medium: faSignalBarsFair,
+    priority_high: faSignalBarsGood,
 })
 
 export const buttons: { [key: string]: string } = {

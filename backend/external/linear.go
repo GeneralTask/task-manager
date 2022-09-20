@@ -28,9 +28,10 @@ const (
 )
 
 type LinearConfigValues struct {
-	UserInfoURL   *string
-	TaskFetchURL  *string
-	TaskUpdateURL *string
+	UserInfoURL    *string
+	TaskFetchURL   *string
+	TaskUpdateURL  *string
+	StatusFetchURL *string
 }
 
 type LinearConfig struct {
@@ -204,6 +205,19 @@ type linearUserInfoQuery struct {
 	}
 }
 
+type linearWorkflowStatesQuery struct {
+	WorkflowStates struct {
+		Nodes []struct {
+			Id   graphql.ID
+			Name graphql.String
+			Type graphql.String
+			Team struct {
+				Name graphql.String
+			}
+		}
+	}
+}
+
 type linearAssignedIssuesQuery struct {
 	Issues struct {
 		Nodes []struct {
@@ -215,10 +229,7 @@ type linearAssignedIssuesQuery struct {
 			CreatedAt   graphql.String
 			Priority    graphql.Float
 			Assignee    struct {
-				Id          graphql.ID
-				Name        graphql.String
-				DisplayName graphql.String
-				Email       graphql.String
+				Email graphql.String
 			}
 			Team struct {
 				Name               graphql.String
@@ -285,7 +296,7 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 		  issueUpdate(
 			id: $id,
 			input: {
-			  title: $title,
+			  title: $title
 			  , stateId: $stateId
 			  , dueDate: $dueDate
 			  , descriptionData: $descriptionData
@@ -300,6 +311,27 @@ type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description, priority: $priority})"`
+}
+
+const linearCommentCreateQueryStr = `
+	mutation CommentCreate (
+		$body: String
+		, $issueId: String!
+	) {
+		commentCreate(
+		input: {
+			body: $body
+			, issueId: $issueId
+		}
+		) {
+		success
+		}
+	}`
+
+type linearCommentCreateQuery struct {
+	CommentCreate struct {
+		Success graphql.Boolean
+	} `graphql:"commentCreate(input: {body: $body, issueId: $issueId})"`
 }
 
 func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
@@ -340,6 +372,10 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 			}
 		}
 	}
+	// not currently used, but should allow to work once the frontend logic changes
+	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {
+		request.Var("stateID", updateFields.Status.ExternalID)
+	}
 	if updateFields.DueDate != nil {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))
 		if updateFields.DueDate.Time().Unix() == 0 {
@@ -352,12 +388,32 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)
 	var query linearUpdateIssueQuery
-	logger := logging.GetSentryLogger()
 	if err := client.Run(context.Background(), request, &query); err != nil {
+		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to update linear issue")
 		return nil, err
 	}
 	return &query, nil
+}
+
+func addLinearComment(client *graphqlBasic.Client, issueID string, comment database.Comment) error {
+	request := graphqlBasic.NewRequest(linearCommentCreateQueryStr)
+	request.Var("body", comment.Body)
+	request.Var("issueId", issueID)
+
+	log.Debug().Msgf("sending request to Linear: %+v", request)
+	var query linearCommentCreateQuery
+	logger := logging.GetSentryLogger()
+	if err := client.Run(context.Background(), request, &query); err != nil {
+		logger.Error().Err(err).Msg("failed to create linear comment")
+		return err
+	}
+	if !query.CommentCreate.Success {
+		err := errors.New("failed to create linear comment")
+		logger.Error().Err(err).Send()
+		return err
+	}
+	return nil
 }
 
 func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, error) {
@@ -383,4 +439,28 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 		return nil, err
 	}
 	return &query, nil
+}
+
+func getLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery, error) {
+	var query linearWorkflowStatesQuery
+	err := client.Query(context.Background(), &query, nil)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch issues assigned to user")
+		return nil, err
+	}
+	return &query, nil
+}
+
+func processLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]*database.ExternalTaskStatus {
+	teamToStatuses := make(map[string][]*database.ExternalTaskStatus)
+	for _, node := range statusQuery.WorkflowStates.Nodes {
+		teamToStatuses[string(node.Team.Name)] = append(teamToStatuses[string(node.Team.Name)], &database.ExternalTaskStatus{
+			ExternalID:        (node.Id).(string),
+			State:             string(node.Name),
+			Type:              string(node.Type),
+			IsCompletedStatus: string(node.Type) == "completed",
+		})
+	}
+	return teamToStatuses
 }

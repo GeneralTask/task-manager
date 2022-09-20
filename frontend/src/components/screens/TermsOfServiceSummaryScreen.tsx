@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
+import GTModal from '../atoms/GTModal'
 import Loading from '../atoms/Loading'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import TermsOfServiceView from '../views/TermsOfServiceSummaryView'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import GTModal from '../atoms/GTModal'
 
 const TermsOfServiceSummaryScreen = () => {
     const [modalIsOpen, setModalIsOpen] = useState(true)

@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/utils"
@@ -34,8 +33,6 @@ type EventResult struct {
 }
 
 func (api *API) EventsList(c *gin.Context) {
-	parentCtx := c.Request.Context()
-
 	var eventListParams EventListParams
 	err := c.BindQuery(&eventListParams)
 	if err != nil {
@@ -44,12 +41,10 @@ func (api *API) EventsList(c *gin.Context) {
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
-	userID, _ := c.Get("user")
+	userID := getUserIDFromContext(c)
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = userCollection.FindOne(dbCtx, bson.M{"_id": userID}).Decode(&userObject)
+	err = userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
@@ -58,10 +53,8 @@ func (api *API) EventsList(c *gin.Context) {
 	}
 
 	var tokens []database.ExternalAPIToken
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	cursor, err := externalAPITokenCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{
 			"$and": []bson.M{
 				{"user_id": userID},
@@ -74,9 +67,7 @@ func (api *API) EventsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &tokens)
+	err = cursor.All(context.Background(), &tokens)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to iterate through api tokens")
 		Handle500(c)
@@ -93,7 +84,7 @@ func (api *API) EventsList(c *gin.Context) {
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			go taskSourceResult.Source.GetEvents(api.DB, userID.(primitive.ObjectID), token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
+			go taskSourceResult.Source.GetEvents(api.DB, userID, token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 		}
 	}
@@ -135,6 +126,12 @@ func (api *API) EventsList(c *gin.Context) {
 				LinkedTaskID: linkedTaskID,
 			})
 		}
+		err := api.adjustForCompletedEvents(userID, &calendarEvents, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to adjust for completed events")
+			Handle500(c)
+			return
+		}
 	}
 
 	sort.SliceStable(calendarEvents, func(i, j int) bool {
@@ -144,4 +141,36 @@ func (api *API) EventsList(c *gin.Context) {
 	})
 
 	c.JSON(200, calendarEvents)
+}
+
+func (api *API) adjustForCompletedEvents(userID primitive.ObjectID, calendarEvents *[]EventResult, datetimeStart time.Time, datetimeEnd time.Time) error {
+	if calendarEvents == nil || len(*calendarEvents) == 0 {
+		return nil
+	}
+	sourceAccountID := (*calendarEvents)[0].AccountID
+	existingCalendarEvents, err := database.GetCalendarEvents(api.DB, userID, &[]bson.M{
+		{"source_account_id": sourceAccountID},
+		{"datetime_end": bson.M{"$gte": datetimeStart}},
+		{"datetime_start": bson.M{"$lte": datetimeEnd}},
+	})
+	if err != nil {
+		return err
+	}
+
+	fetchedCalendarIDs := make(map[primitive.ObjectID]bool)
+	for _, calendarEvent := range *calendarEvents {
+		fetchedCalendarIDs[calendarEvent.ID] = true
+	}
+
+	for _, existingCalendarEvent := range *existingCalendarEvents {
+		if !fetchedCalendarIDs[existingCalendarEvent.ID] {
+			_, err := database.GetCalendarEventCollection(api.DB).DeleteOne(context.Background(), bson.M{"_id": existingCalendarEvent.ID})
+			if err != nil {
+				api.Logger.Error().Err(err).Msg("failed to delete calendar event")
+				return err
+			}
+		}
+	}
+
+	return nil
 }

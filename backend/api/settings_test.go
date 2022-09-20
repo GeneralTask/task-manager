@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/settings"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +15,6 @@ import (
 )
 
 func TestSettingsGet(t *testing.T) {
-	parentCtx := context.Background()
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	settingCollection := database.GetUserSettingsCollection(api.DB)
@@ -24,9 +22,7 @@ func TestSettingsGet(t *testing.T) {
 	UnauthorizedTest(t, "GET", "/settings/", nil)
 	t.Run("DefaultValue", func(t *testing.T) {
 		// Random userID; should be ignored
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err := settingCollection.InsertOne(dbCtx, &database.UserSetting{
+		_, err := settingCollection.InsertOne(context.Background(), &database.UserSetting{
 			UserID:     primitive.NewObjectID(),
 			FieldKey:   settings.SettingFieldGithubFilteringPreference,
 			FieldValue: settings.ChoiceKeyActionableOnly,
@@ -50,9 +46,7 @@ func TestSettingsGet(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, api.DB, authToken)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		_, err := settingCollection.InsertOne(dbCtx, &database.UserSetting{
+		_, err := settingCollection.InsertOne(context.Background(), &database.UserSetting{
 			UserID:     userID,
 			FieldKey:   settings.SettingFieldGithubFilteringPreference,
 			FieldValue: settings.ChoiceKeyActionableOnly,

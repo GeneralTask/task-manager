@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/slack"
 	"github.com/gin-gonic/gin"
@@ -16,7 +15,6 @@ type FeedbackParams struct {
 }
 
 func (api *API) FeedbackAdd(c *gin.Context) {
-	parentCtx := c.Request.Context()
 	var params FeedbackParams
 	err := c.BindJSON(&params)
 	if err != nil || params.Feedback == "" {
@@ -29,10 +27,8 @@ func (api *API) FeedbackAdd(c *gin.Context) {
 
 	userID, _ := c.Get("user")
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = feedbackCollection.InsertOne(
-		dbCtx,
+		context.Background(),
 		&database.FeedbackItem{
 			UserID:    userID.(primitive.ObjectID),
 			Feedback:  params.Feedback,

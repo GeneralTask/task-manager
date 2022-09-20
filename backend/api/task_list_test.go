@@ -50,6 +50,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		notCompleted := false
 		title := "hello!"
 		body := "example body"
+		priority := 3.0
 		externalStatus := database.ExternalTaskStatus{
 			ExternalID: "example ID",
 			State:      "example state",
@@ -60,16 +61,21 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 				ID: "slackID",
 			},
 		}
+		allStatuses := []*database.ExternalTaskStatus{
+			&externalStatus,
+		}
 
 		result := api.taskBaseToTaskResult(&database.Task{
 			SourceID:           external.TASK_SOURCE_ID_LINEAR,
 			DueDate:            &primitiveDueDate,
+			PriorityNormalized: &priority,
 			TimeAllocation:     &timeAllocation,
 			IsCompleted:        &notCompleted,
 			Title:              &title,
 			Body:               &body,
 			Status:             &externalStatus,
 			SlackMessageParams: &slackMessageParams,
+			AllStatuses:        allStatuses,
 		}, userID)
 		// TODO change to a helper method to compare taskResults
 		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
@@ -79,6 +85,9 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, body, result.Body)
 		assert.Equal(t, externalStatus.State, result.ExternalStatus.State)
 		assert.Equal(t, slackMessageParams.Channel.ID, result.SlackMessageParams.Channel.ID)
+		assert.Equal(t, priority, result.PriorityNormalized)
+		assert.Equal(t, 1, len(result.AllStatuses))
+		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
 	})
 }
 
@@ -179,10 +188,9 @@ func TestGetSubtaskResults(t *testing.T) {
 		assert.Equal(t, 0, len(results))
 	})
 	t.Run("SubtaskSuccess", func(t *testing.T) {
-		parentCtx := context.Background()
 		taskCollection := database.GetTaskCollection(api.DB)
 		parentTaskID := primitive.NewObjectID()
-		insertResult, err := taskCollection.InsertOne(parentCtx, database.Task{
+		insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
 			UserID:        userID,
 			IsCompleted:   &notCompleted,
 			IDTaskSection: primitive.NilObjectID,

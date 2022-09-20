@@ -18,6 +18,7 @@ type TaskSource interface {
 	CreateNewEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, event EventCreateObject) error
 	ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error
 	DeleteEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, externalID string) error
+	AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error
 }
 
 type TaskCreationObject struct {
@@ -47,6 +48,7 @@ type EventCreateObject struct {
 	Attendees         []Attendee         `json:"attendees,omitempty"`
 	AddConferenceCall bool               `json:"add_conference_call,omitempty"`
 	LinkedTaskID      primitive.ObjectID `json:"task_id,omitempty"`
+	LinkedViewID      primitive.ObjectID `json:"view_id,omitempty"`
 }
 
 type EventModifyObject struct {

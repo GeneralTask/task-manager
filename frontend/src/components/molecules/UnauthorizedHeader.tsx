@@ -1,12 +1,11 @@
-import { Colors } from '../../styles'
-import { Divider } from '../atoms/SectionDivider'
-import { Icon } from '../atoms/Icon'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
-
-import { Spacing } from '../../styles'
-import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { Colors } from '../../styles'
+import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const Header = styled.div`
     width: 100%;

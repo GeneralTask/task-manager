@@ -30,6 +30,7 @@ const (
 )
 
 // *Important*: Add all required actions to the ActionOrdering map so that the PRs are ordered correctly
+// *Also important*: Update PULL_REQUEST_REQUIRED_ACTIONS on the frontend if you add a new action
 const (
 	ActionAddReviewers      string = "Add Reviewers"
 	ActionFixMergeConflicts string = "Fix Merge Conflicts"
@@ -92,7 +93,7 @@ type GithubPRRequestData struct {
 }
 
 func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(nil)
+	result <- emptyCalendarResult(errors.New("github PR cannot fetch events"))
 }
 
 func (gitPR GithubPRSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
@@ -350,7 +351,7 @@ func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID 
 	token := requestData.Token
 	repository := requestData.Repository
 
-	dbPR, err := database.GetPullRequestByExternalID(db, ctx, fmt.Sprint(*pullRequest.ID), userID)
+	dbPR, err := database.GetPullRequestByExternalID(db, fmt.Sprint(*pullRequest.ID), userID)
 	if err != nil {
 		// if fail to fetch from DB, fetch from Github
 		if err != mongo.ErrNoDocuments {
@@ -703,5 +704,9 @@ func (gitPR GithubPRSource) ModifyTask(db *mongo.Database, userID primitive.Obje
 }
 
 func (gitPR GithubPRSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	return errors.New("has not been implemented yet")
+}
+
+func (gitPR GithubPRSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
 	return errors.New("has not been implemented yet")
 }

@@ -1,3 +1,5 @@
+import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
 import { TIconSize } from '../../../styles/dimensions'

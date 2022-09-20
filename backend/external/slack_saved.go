@@ -44,7 +44,7 @@ type SlackAdditionalInformation struct {
 }
 
 func (slackTask SlackSavedTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(nil)
+	result <- emptyCalendarResult(errors.New("slack saved cannot fetch events"))
 }
 
 func (slackTask SlackSavedTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
@@ -130,6 +130,10 @@ func (slackTask SlackSavedTaskSource) DeleteEvent(db *mongo.Database, userID pri
 }
 
 func (slackTask SlackSavedTaskSource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
+	return errors.New("has not been implemented yet")
+}
+
+func (slackTask SlackSavedTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
 	return errors.New("has not been implemented yet")
 }
 

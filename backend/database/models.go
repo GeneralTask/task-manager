@@ -82,6 +82,7 @@ type Task struct {
 	IDOrdering         int                 `bson:"id_ordering,omitempty"`
 	IDTaskSection      primitive.ObjectID  `bson:"id_task_section,omitempty"`
 	IsCompleted        *bool               `bson:"is_completed,omitempty"`
+	IsDeleted          *bool               `bson:"is_deleted,omitempty"`
 	Sender             string              `bson:"sender,omitempty"`
 	SourceID           string              `bson:"source_id,omitempty"`
 	SourceAccountID    string              `bson:"source_account_id,omitempty"`
@@ -93,14 +94,16 @@ type Task struct {
 	TimeAllocation     *int64              `bson:"time_allocated,omitempty"` // time in nanoseconds
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
+	DeletedAt          primitive.DateTime  `bson:"deleted_at,omitempty"`
 	PriorityID         *string             `bson:"priority_id,omitempty"`
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
 	// used to cache the current status before marking the task as done
-	Status          *ExternalTaskStatus `bson:"status,omitempty"`
-	PreviousStatus  *ExternalTaskStatus `bson:"previous_status,omitempty"`
-	CompletedStatus *ExternalTaskStatus `bson:"completed_status,omitempty"`
+	Status          *ExternalTaskStatus   `bson:"status,omitempty"`
+	PreviousStatus  *ExternalTaskStatus   `bson:"previous_status,omitempty"`
+	CompletedStatus *ExternalTaskStatus   `bson:"completed_status,omitempty"`
+	AllStatuses     []*ExternalTaskStatus `bson:"all_statuses,omitempty"`
 	// info required for Slack integration
 	SlackMessageParams *SlackMessageParams `bson:"slack_message_params,omitempty"`
 	// meeting prep fields
@@ -163,6 +166,7 @@ type CalendarEvent struct {
 	CallURL            string             `bson:"call_url,omitempty"`
 	CanModify          bool               `bson:"can_modify,omitempty"`
 	LinkedTaskID       primitive.ObjectID `bson:"linked_task_id,omitempty"`
+	LinkedViewID       primitive.ObjectID `bson:"linked_view_id,omitempty"`
 	LinkedTaskSourceID string             `bson:"linked_task_source_id,omitempty"`
 }
 
@@ -220,9 +224,10 @@ type Comment struct {
 }
 
 type ExternalTaskStatus struct {
-	ExternalID string `bson:"external_id"`
-	State      string `bson:"state"`
-	Type       string `bson:"type"`
+	ExternalID        string `bson:"external_id"`
+	State             string `bson:"state"`
+	Type              string `bson:"type"`
+	IsCompletedStatus bool   `bson:"is_completed_status"`
 }
 
 type UserSetting struct {

@@ -1,6 +1,6 @@
-import { Immutable } from 'immer'
 import { QueryClient, QueryKey, useQueryClient } from 'react-query'
 import { QueryFilters } from 'react-query/types/core/utils'
+import { Immutable } from 'immer'
 
 /**
  * Wrapper for useQueryClient that adds getImmutableQueryData method
@@ -12,7 +12,10 @@ interface GTQueryClient extends QueryClient {
 export const useGTQueryClient = (): GTQueryClient => {
     const queryClient = useQueryClient() as GTQueryClient
 
-    queryClient.getImmutableQueryData = <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters): Immutable<TData> | undefined => queryClient.getQueryData(queryKey, filters)
+    queryClient.getImmutableQueryData = <TData = unknown>(
+        queryKey: QueryKey,
+        filters?: QueryFilters
+    ): Immutable<TData> | undefined => queryClient.getQueryData(queryKey, filters)
 
     return queryClient
 }

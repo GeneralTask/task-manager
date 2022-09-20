@@ -8,6 +8,8 @@ import { enableMapSet } from 'immer'
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import './src/index.css'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
@@ -48,6 +50,9 @@ const App = () => {
                                     <Route index element={<MainScreen />} />
                                     <Route path=":pullRequest" element={<MainScreen />} />
                                 </Route>
+                                <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                </Route>
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                 </Route>
@@ -56,6 +61,7 @@ const App = () => {
                     </Suspense>
                 </BrowserRouter>
             </AppContextProvider>
+            <StyledToastContainer />
         </QueryClientProvider>
     )
 }

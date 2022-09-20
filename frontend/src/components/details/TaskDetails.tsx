@@ -1,27 +1,27 @@
 import { useEffect, useState } from 'react'
-import ActionOption from '../molecules/ActionOption'
-import { Icon } from '../atoms/Icon'
-import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
-import ReactTooltip from 'react-tooltip'
-import { TTask } from '../../utils/types'
-import { logos, icons, linearStatus } from '../../styles/images'
-import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
-import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../styles'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { useCallback, useRef } from 'react'
-import Spinner from '../atoms/Spinner'
 import { useLocation, useNavigate } from 'react-router-dom'
-import LinearCommentList from './linear/LinearCommentList'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import SlackMessage from './slack/SlackMessage'
-import GTTextArea from '../atoms/GTTextArea'
-import DetailsViewTemplate from '../templates/DetailsViewTemplate'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import TimeRange from '../atoms/TimeRange'
-import { MeetingStartText } from '../atoms/MeetingStartText'
-import { useInterval } from '../../hooks'
+import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
+import styled from 'styled-components'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useInterval } from '../../hooks'
+import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
+import { Colors, Spacing, Typography } from '../../styles'
+import { icons, linearStatus, logos } from '../../styles/images'
+import { TTask } from '../../utils/types'
+import GTTextArea from '../atoms/GTTextArea'
+import { Icon } from '../atoms/Icon'
+import { MeetingStartText } from '../atoms/MeetingStartText'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import Spinner from '../atoms/Spinner'
+import TimeRange from '../atoms/TimeRange'
+import GTIconButton from '../atoms/buttons/GTIconButton'
+import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import ActionOption from '../molecules/ActionOption'
+import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import LinearCommentList from './linear/LinearCommentList'
+import SlackMessage from './slack/SlackMessage'
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -35,8 +35,8 @@ const MarginLeftAuto = styled.div`
     align-items: center;
     margin-left: auto;
 `
-const MarginRight8 = styled.div`
-    margin-right: ${Spacing._8};
+const MarginLeft8 = styled.div`
+    margin-left: ${Spacing._8};
 `
 const StatusContainer = styled.div`
     display: flex;
@@ -57,6 +57,10 @@ const MeetingPreparationTimeContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing._24};
+    margin-left: ${Spacing._8};
+    color: ${Colors.text.light};
+    ${Typography.label};
+    ${Typography.bold};
 `
 
 const SYNC_MESSAGES = {
@@ -156,9 +160,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     return (
         <DetailsViewTemplate data-testid="details-view-container">
             <DetailsTopContainer>
-                <MarginRight8>
+                <MarginLeft8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />
-                </MarginRight8>
+                </MarginLeft8>
                 {!task.isOptimistic && (
                     <>
                         <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>

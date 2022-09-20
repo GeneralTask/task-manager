@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -121,10 +120,8 @@ func TestLoggingMiddleware(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		count, err := database.GetLogEventsCollection(db).CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{"event_type": "api_hit_/bing_bong/"},
 		)
 		assert.NoError(t, err)
@@ -144,10 +141,8 @@ func TestLoggingMiddleware(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		count, err := database.GetLogEventsCollection(db).CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{"event_type": "api_hit_/log_events/"},
 		)
 		assert.NoError(t, err)
@@ -166,10 +161,8 @@ func TestLoggingMiddleware(t *testing.T) {
 		db, dbCleanup, err := database.GetDBConnection()
 		assert.NoError(t, err)
 		defer dbCleanup()
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		count, err := database.GetLogEventsCollection(db).CountDocuments(
-			dbCtx,
+			context.Background(),
 			bson.M{"event_type": "api_hit_/bing_bong_two/"},
 		)
 		assert.NoError(t, err)

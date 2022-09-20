@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/testutils"
@@ -22,7 +21,6 @@ type eventCreateResponse struct {
 }
 
 func TestEventCreate(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -48,21 +46,33 @@ func TestEventCreate(t *testing.T) {
 
 	UnauthorizedTest(t, "POST", url, bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`)))
 	t.Run("SuccessNoLinkedTask", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		eventID := makeCreateRequest(t, &defaultEventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, defaultEventCreateObject)
 	})
+	t.Run("SuccessLinkedView", func(t *testing.T) {
+		viewCollection := database.GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(context.Background(), database.View{
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := defaultEventCreateObject
+		eventCreateObject.LinkedViewID = viewID
+
+		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, eventID, dbEvent.ID)
+		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
+	})
 	t.Run("SuccessLinkedTask", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		taskCollection := database.GetTaskCollection(db)
 		title := "task title"
 		body := "task body"
-		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Task{
+		mongoResult, err := taskCollection.InsertOne(context.Background(), database.Task{
 			Title:  &title,
 			Body:   &body,
 			UserID: userID,
@@ -73,10 +83,27 @@ func TestEventCreate(t *testing.T) {
 		eventCreateObject.LinkedTaskID = taskID
 
 		eventID := makeCreateRequest(t, &eventCreateObject, http.StatusCreated, "", url, authToken, api)
-		dbEvent, err := database.GetCalendarEvent(api.DB, dbCtx, eventID, userID)
+		dbEvent, err := database.GetCalendarEvent(api.DB, eventID, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, eventID, dbEvent.ID)
 		checkEventMatchesCreateObject(t, *dbEvent, eventCreateObject)
+	})
+	t.Run("NonExistentLinkedView", func(t *testing.T) {
+		eventCreateObject := defaultEventCreateObject
+		nonExistentLinkedViewID := primitive.NewObjectID()
+		eventCreateObject.LinkedViewID = nonExistentLinkedViewID
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked view not found: %s"}`, nonExistentLinkedViewID.Hex()), url, authToken, api)
+	})
+	t.Run("LinkedViewFromWrongUser", func(t *testing.T) {
+		viewCollection := database.GetViewCollection(db)
+		mongoResult, err := viewCollection.InsertOne(context.Background(), database.View{
+			UserID: primitive.NewObjectID(),
+		})
+		assert.NoError(t, err)
+		viewID := mongoResult.InsertedID.(primitive.ObjectID)
+		eventCreateObject := defaultEventCreateObject
+		eventCreateObject.LinkedViewID = viewID
+		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked view not found: %s"}`, viewID.Hex()), url, authToken, api)
 	})
 	t.Run("NonExistentLinkedTask", func(t *testing.T) {
 		eventCreateObject := defaultEventCreateObject
@@ -85,12 +112,10 @@ func TestEventCreate(t *testing.T) {
 		makeCreateRequest(t, &eventCreateObject, http.StatusBadRequest, fmt.Sprintf(`{"detail":"linked task not found: %s"}`, nonExistentLinkedTaskID.Hex()), url, authToken, api)
 	})
 	t.Run("LinkedTaskFromWrongUser", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		taskCollection := database.GetTaskCollection(db)
 		title := "task title"
 		body := "task body"
-		mongoResult, err := taskCollection.InsertOne(dbCtx, database.Task{
+		mongoResult, err := taskCollection.InsertOne(context.Background(), database.Task{
 			Title:  &title,
 			Body:   &body,
 			UserID: primitive.NewObjectID(),

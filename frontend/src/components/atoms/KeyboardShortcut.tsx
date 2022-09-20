@@ -1,7 +1,7 @@
-import KEYBOARD_SHORTCUTS, { TShortcutName } from '../../constants/shortcuts'
-import { useKeyboardShortcut } from '../../hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
 import styled from 'styled-components'
+import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
+import { useKeyboardShortcut } from '../../hooks'
+import { Border, Colors, Typography } from '../../styles'
 
 export const KeyboardShortcutContainer = styled.div<{ isSelected?: boolean }>`
     border-radius: ${Border.radius.mini};

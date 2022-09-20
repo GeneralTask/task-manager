@@ -1,16 +1,15 @@
-import { Colors, Typography } from '../../styles'
-import { Controller, useForm } from 'react-hook-form'
 import { useState } from 'react'
-
-import Cookies from 'js-cookie'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
-import JoinWaitlistButton from '../atoms/buttons/JoinWaitlistButton'
+import { Controller, useForm } from 'react-hook-form'
 import { Link, Navigate } from 'react-router-dom'
-import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
-import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
-import apiClient from '../../utils/api'
+import Cookies from 'js-cookie'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
+import { Colors, Typography } from '../../styles'
+import apiClient from '../../utils/api'
+import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
+import JoinWaitlistButton from '../atoms/buttons/JoinWaitlistButton'
+import UnauthorizedFooter from '../molecules/UnauthorizedFooter'
+import UnauthorizedHeader from '../molecules/UnauthorizedHeader'
 
 const LandingScreenContainer = styled.div`
     background-color: ${Colors.background.white};
@@ -58,7 +57,10 @@ const ResponseContainer = styled.div`
     height: 20px;
     color: ${Colors.status.red.default};
 `
-
+const SignInButtonContainer = styled.div`
+    width: 200px;
+    margin: auto;
+`
 const FAQHeader = styled.div`
     max-width: 700px;
     margin: auto;
@@ -134,7 +136,9 @@ const LandingScreen = () => {
                     <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
                 </WaitlistContainer>
                 <ResponseContainer data-testid="response-container">{message}</ResponseContainer>
-                <GoogleSignInButton />
+                <SignInButtonContainer>
+                    <GoogleSignInButton />
+                </SignInButtonContainer>
             </FlexGrowContainer>
             <FlexGrowContainer>
                 <FlexColumn>

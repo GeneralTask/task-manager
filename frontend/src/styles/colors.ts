@@ -34,9 +34,8 @@ const PURPLE = {
     _1: '#5634CF',
     _2: '#EEEBFA',
     _3: '#452AA5',
-    _4: '#E1D7FD33'
+    _4: '#E1D7FD33',
 }
-
 
 export const background = {
     white: WHITE,
@@ -60,7 +59,10 @@ export const text = {
     placeholder: GRAY._200,
     white: WHITE,
     orange: ORANGE._1,
+    red: RED._1,
+    purple: PURPLE._1,
 }
+export type TTextColor = keyof typeof text
 
 export const icon = {
     white: WHITE,

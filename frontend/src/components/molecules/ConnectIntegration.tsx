@@ -7,9 +7,9 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import { TSupportedType } from '../../utils/types'
-import GTButton from '../atoms/buttons/GTButton'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import { Icon } from '../atoms/Icon'
+import GTButton from '../atoms/buttons/GTButton'
 
 const Container = styled(GTShadowContainer)`
     display: flex;

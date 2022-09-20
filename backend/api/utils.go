@@ -11,7 +11,6 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/GeneralTask/task-manager/backend/config"
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -43,7 +42,6 @@ func GetAPIWithDBCleanup() (*API, func()) {
 }
 
 func getTokenFromCookie(c *gin.Context, db *mongo.Database) (*database.InternalAPIToken, error) {
-	parentCtx := c.Request.Context()
 	authToken, err := c.Cookie("authToken")
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "missing authToken cookie"})
@@ -51,9 +49,7 @@ func getTokenFromCookie(c *gin.Context, db *mongo.Database) (*database.InternalA
 	}
 	internalAPITokenCollection := database.GetInternalTokenCollection(db)
 	var internalToken database.InternalAPIToken
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": authToken}).Decode(&internalToken)
+	err = internalAPITokenCollection.FindOne(context.Background(), bson.M{"token": authToken}).Decode(&internalToken)
 	if err != nil {
 		c.JSON(401, gin.H{"detail": "invalid auth token"})
 		return nil, errors.New("invalid auth token")
@@ -74,7 +70,6 @@ func (api *API) Ping(c *gin.Context) {
 
 func TokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		parentCtx := c.Request.Context()
 		handlerName := c.HandlerName()
 		if handlerName[len(handlerName)-9:] == "Handle404" {
 			// Do nothing if the route isn't recognized
@@ -87,9 +82,7 @@ func TokenMiddleware(db *mongo.Database) func(c *gin.Context) {
 		}
 		internalAPITokenCollection := database.GetInternalTokenCollection(db)
 		var internalToken database.InternalAPIToken
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = internalAPITokenCollection.FindOne(dbCtx, bson.M{"token": token}).Decode(&internalToken)
+		err = internalAPITokenCollection.FindOne(context.Background(), bson.M{"token": token}).Decode(&internalToken)
 		if err != nil {
 			log.Error().Err(err).Msg("token auth failed")
 			c.AbortWithStatusJSON(401, gin.H{"detail": "unauthorized"})
@@ -153,7 +146,7 @@ func Handle500(c *gin.Context) {
 
 func FakeLagMiddleware(c *gin.Context) {
 	if isLocalServer() {
-		time.Sleep(2 * time.Second)
+		time.Sleep(time.Second / 2)
 	}
 }
 

@@ -1,13 +1,10 @@
-import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
-import CalendarView from '../views/CalendarView'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import NavigationView from '../views/NavigationView'
-
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import { useEventBanners } from '../../hooks'
-import { DateTime } from 'luxon'
+import CalendarView from '../views/CalendarView'
+import NavigationView from '../views/NavigationView'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -49,7 +46,7 @@ interface DefaultTemplateProps {
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     const { calendarType } = useCalendarContext()
-    useEventBanners(DateTime.now())
+
     return (
         <DefaultTemplateContainer>
             <ReactTooltip

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Spacing, Typography, Shadows } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 export const ViewContainer = styled.div`
@@ -10,7 +10,12 @@ export const ViewContainer = styled.div`
     box-shadow: ${Shadows.light};
 `
 export const ViewHeader = styled.div`
-    margin-bottom: ${Spacing._8};
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: ${Spacing._8} 0;
+`
+export const ViewName = styled.div`
     color: ${Colors.text.light};
     ${Typography.subtitle};
 `

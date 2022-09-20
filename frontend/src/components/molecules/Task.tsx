@@ -1,21 +1,21 @@
-import { DropType, TTask } from '../../utils/types'
-import { memo, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
-import { Spacing, Typography } from '../../styles'
+import { MutableRefObject, memo, useCallback, useEffect, useRef, useState } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
-
+import { DateTime } from 'luxon'
+import styled from 'styled-components'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useInterval } from '../../hooks'
+import { Spacing, Typography } from '../../styles'
+import { logos } from '../../styles/images'
+import { DropType, TTask } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
-import ItemContainer from './ItemContainer'
-import TaskTemplate from '../atoms/TaskTemplate'
-import { logos } from '../../styles/images'
-import styled from 'styled-components'
-import { useDrag } from 'react-dnd'
-import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { DateTime } from 'luxon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
-import { useInterval } from '../../hooks'
-import { getEmptyImage } from 'react-dnd-html5-backend'
+import TaskTemplate from '../atoms/TaskTemplate'
+import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
+import ItemContainer from './ItemContainer'
 
 const RightContainer = styled.span`
     margin-left: auto;
@@ -136,34 +136,36 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     }
 
     return (
-        <TaskTemplate
-            ref={elementRef}
-            isVisible={isVisible}
-            onMouseLeave={() => setIsHovered(false)}
-            onMouseEnter={() => setIsHovered(true)}
-        >
-            <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
-                <DominoContainer isVisible={isHovered && !dragDisabled}>
-                    <Domino />
-                </DominoContainer>
-                <MarkTaskDoneButton
-                    taskId={task.id}
-                    sectionId={sectionId}
-                    isDone={task.is_done}
-                    isSelected={isSelected}
-                    isDisabled={task.isOptimistic}
-                    onMarkComplete={taskFadeOut}
-                />
-                <Title data-testid="task-title">{task.title}</Title>
-                <RightContainer>
-                    {meetingStartText ? (
-                        <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
-                    ) : (
-                        <Icon icon={logos[task.source.logo_v2]} size="small" />
-                    )}
-                </RightContainer>
-            </ItemContainer>
-        </TaskTemplate>
+        <TaskContextMenuWrapper taskId={task.id} sectionId={sectionId}>
+            <TaskTemplate
+                ref={elementRef}
+                isVisible={isVisible}
+                onMouseLeave={() => setIsHovered(false)}
+                onMouseEnter={() => setIsHovered(true)}
+            >
+                <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
+                    <DominoContainer isVisible={isHovered && !dragDisabled}>
+                        <Domino />
+                    </DominoContainer>
+                    <MarkTaskDoneButton
+                        taskId={task.id}
+                        sectionId={sectionId}
+                        isDone={task.is_done}
+                        isSelected={isSelected}
+                        isDisabled={task.isOptimistic}
+                        onMarkComplete={taskFadeOut}
+                    />
+                    <Title data-testid="task-title">{task.title}</Title>
+                    <RightContainer>
+                        {meetingStartText ? (
+                            <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
+                        ) : (
+                            <Icon icon={logos[task.source.logo_v2]} size="small" />
+                        )}
+                    </RightContainer>
+                </ItemContainer>
+            </TaskTemplate>
+        </TaskContextMenuWrapper>
     )
 }
 

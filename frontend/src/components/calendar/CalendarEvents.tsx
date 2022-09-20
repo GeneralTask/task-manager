@@ -1,35 +1,35 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
+import { DateTime } from 'luxon'
+import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent, TLinkedAccount } from '../../utils/types'
+import ConnectIntegration from '../molecules/ConnectIntegration'
+import { useCalendarContext } from './CalendarContext'
 import {
     AllDaysContainer,
+    CALENDAR_DEFAULT_SCROLL_HOUR,
+    CELL_HEIGHT_VALUE,
     CalendarCell,
     CalendarDayHeader,
     CalendarRow,
-    CalendarTableStyle,
     CalendarTD,
+    CalendarTableStyle,
     CalendarTimesTableStyle,
     DayAndHeaderContainer,
     DayContainer,
     DayHeaderText,
-    TimeAndHeaderContainer,
-    TimeContainer,
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
-    CALENDAR_DEFAULT_SCROLL_HOUR,
-    CELL_HEIGHT_VALUE,
+    TimeAndHeaderContainer,
+    TimeContainer,
 } from './CalendarEvents-styles'
 import CollisionGroupColumns from './CollisionGroupColumns'
-import { DateTime } from 'luxon'
+import EventBody from './EventBody'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
-import { getMonthsAroundDate } from '../../utils/time'
-import { useCalendarContext } from './CalendarContext'
 import useCalendarDrop from './utils/useCalendarDrop'
-import EventBody from './EventBody'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import ConnectIntegration from '../molecules/ConnectIntegration'
-import styled from 'styled-components'
 
 const ConnectContainer = styled.div`
     position: absolute;
@@ -96,12 +96,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         eventsContainerRef,
         isWeekView: isWeekCalendar,
     })
-
-    useLayoutEffect(() => {
-        if (eventsContainerRef.current) {
-            eventsContainerRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
-        }
-    }, [])
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
@@ -175,11 +169,14 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         return allGroups
     }, [date, eventPreviousMonth, eventsCurrentMonth, eventsNextMonth, numberOfDays])
 
-    const showOauthPrompt = !isLinkedAccountsLoading && !isGoogleCalendarLinked(linkedAccounts ?? [])
-
-    if (showOauthPrompt && scrollRef.current) {
-        scrollRef.current.scrollTop = 0
-    }
+    const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
+    useLayoutEffect(() => {
+        if (showOauthPrompt && !isLinkedAccountsLoading && scrollRef.current) {
+            scrollRef.current.scrollTop = 0
+        } else if (scrollRef.current) {
+            scrollRef.current.scrollTop = CELL_HEIGHT_VALUE * (CALENDAR_DEFAULT_SCROLL_HOUR - 1)
+        }
+    }, [linkedAccounts, showOauthPrompt, isLinkedAccountsLoading])
 
     return (
         <AllDaysContainer ref={scrollRef} isScrollDisabled={selectedEvent != null || showOauthPrompt}>

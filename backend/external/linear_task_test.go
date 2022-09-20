@@ -33,10 +33,6 @@ func TestLoadLinearTasks(t *testing.T) {
 						"url": "https://example.com/",
 						"createdAt": "2022-06-06T23:13:24.037Z",
 						"priority": 3.0,
-						"assignee": {
-							"id": "6942069420",
-							"name": "Test User"
-						},
 						"state": {
 							"id": "state-id",
 							"name": "Todo",
@@ -74,6 +70,28 @@ func TestLoadLinearTasks(t *testing.T) {
 				"id": "6942069420",
 				"name": "Test User",
 				"email": "test@generaltask.com"
+			}
+		}}`)
+	linearStatusServerSuccess := testutils.GetMockAPIServer(t, 200, `{"data": {
+			"workflowStates": {
+				"nodes": [
+					{
+						"id": "6942069420",
+						"name": "Todo",
+						"type": "started",
+						"team": {
+							"name": "Backend"
+						}
+					},
+					{
+						"id": "6942069421",
+						"name": "In Progress",
+						"type": "started",
+						"team": {
+							"name": "Backend"
+						}
+					}
+				]
 			}
 		}}`)
 
@@ -151,12 +169,46 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "invalid character 'o' in literal true (expecting 'r')", result.Error.Error())
 		assert.Equal(t, 0, len(result.Tasks))
 	})
+	t.Run("BadWorkflowStates", func(t *testing.T) {
+		linearBadStatusServer := testutils.GetMockAPIServer(t, 200, `{"data": {
+			"workflowStates": {
+				"nodes": [
+					{
+						"id": "6942069420",
+						"name": "Todo",
+						"type": "started",
+						"team": {
+							"name": "Ooopsie"
+						}
+					}
+				]
+			}
+		}}`)
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearBadStatusServer.URL,
+				},
+			},
+		}}
+
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(db, userID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+
+		assert.Error(t, result.Error)
+		assert.Equal(t, "could not match team with status", result.Error.Error())
+		assert.Equal(t, 0, len(result.Tasks))
+	})
 	t.Run("Success", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
-					UserInfoURL:  &userInfoServerSuccess.URL,
-					TaskFetchURL: &taskServerSuccess.URL,
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
 				},
 			},
 		}}
@@ -237,8 +289,9 @@ func TestLoadLinearTasks(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
-					UserInfoURL:  &userInfoServerSuccess.URL,
-					TaskFetchURL: &taskServerSuccess.URL,
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
 				},
 			},
 		}}
@@ -592,6 +645,72 @@ func TestModifyLinearTask(t *testing.T) {
 		}, &expectedTask)
 		assert.NotEqual(t, nil, err)
 		assert.Equal(t, "decoding response: EOF", err.Error())
+	})
+}
+
+func TestAddComment(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID := primitive.NewObjectID()
+
+	t.Run("AddCommentFailed", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"issueUpdate": {"success": false}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comment := database.Comment{
+			Body: "example comment",
+		}
+
+		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
+			IDExternal: "24242424",
+		})
+		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
+	})
+	t.Run("AddCommentInvalidResponse", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `to the moon`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comment := database.Comment{
+			Body: "example comment",
+		}
+
+		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
+			IDExternal: "24242424",
+		})
+		assert.EqualErrorf(t, err, err.Error(), "failed to create linear comment")
+	})
+	t.Run("AddCommentSuccess", func(t *testing.T) {
+		taskUpdateServer := testutils.GetMockAPIServer(t, 200, `{"data": {"commentCreate": {"success": true}}}`)
+		defer taskUpdateServer.Close()
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					TaskUpdateURL: &taskUpdateServer.URL,
+				},
+			},
+		}}
+		comment := database.Comment{
+			Body: "example comment",
+		}
+
+		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
+			IDExternal: "24242424",
+		})
+		assert.NoError(t, err)
 	})
 }
 

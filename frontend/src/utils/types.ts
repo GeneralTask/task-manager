@@ -29,6 +29,7 @@ export interface TTask {
     deeplink: string
     body: string
     sent_at: string
+    priority_normalized: number
     time_allocated: number
     due_date: string
     external_status?: TExternalStatus
@@ -50,11 +51,11 @@ export interface TMeetingPreparationParams {
 export interface TSlackMessageParams {
     channel: {
         id: string
-        name: string   // ex. general, shitposting, directmessage
+        name: string // ex. general, shitposting, directmessage
     }
     user: {
         id: string
-        name: string   // the user who initiated the shortcut. *NOT* the user who sent the message
+        name: string // the user who initiated the shortcut. *NOT* the user who sent the message
     }
     team: {
         id: string
@@ -62,9 +63,9 @@ export interface TSlackMessageParams {
     }
     message: {
         text: string
-        ts: number     // time sent
-        type: string   // message type
-        user: string   // user ID of who sent the message. *NOT* the user name
+        ts: number // time sent
+        type: string // message type
+        user: string // user ID of who sent the message. *NOT* the user name
     }
 }
 
@@ -146,6 +147,7 @@ export interface TTaskSection {
     name: string
     tasks: TTask[]
     is_done: boolean
+    is_trash: boolean
 }
 
 export interface TSettingChoice {
@@ -163,7 +165,7 @@ export interface TSetting {
 export interface TSupportedType {
     name: string
     logo: string
-    logo_v2: string
+    logo_v2: TLogoImage
     authorization_url: string
 }
 export interface TLinkedAccount {
