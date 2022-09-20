@@ -213,9 +213,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     </StatusContainer>
                 )}
                 <GTDropdownMenu
-                    items={PRIORITIES.map((priority) => ({
+                    items={PRIORITIES.map((priority, val) => ({
                         label: priority.label,
-                        onClick: () => modifyTask({ id: task.id, priorityNormalized: priority.value }),
+                        onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                         icon: priority.icon,
                     }))}
                     trigger={

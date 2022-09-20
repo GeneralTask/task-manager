@@ -52,9 +52,9 @@ export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 
 
 export const PRIORITIES = [
-    { value: 0, icon: icons.priority_none, label: 'No Priority' },
-    { value: 1, icon: icons.priority_urgent, label: 'Urgent' },
-    { value: 2, icon: icons.priority_high, label: 'High' },
-    { value: 3, icon: icons.priority_medium, label: 'Medium' },
-    { value: 4, icon: icons.priority_low, label: 'Low' },
+    { icon: icons.priority_none, label: 'No Priority' },
+    { icon: icons.priority_urgent, label: 'Urgent' },
+    { icon: icons.priority_high, label: 'High' },
+    { icon: icons.priority_medium, label: 'Medium' },
+    { icon: icons.priority_low, label: 'Low' },
 ]

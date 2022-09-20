@@ -19,9 +19,9 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
             label: 'Priority',
             icon: icons.priority_urgent,
             subItems: [
-                ...PRIORITIES.filter((priority) => !!priority.icon).map((priority) => ({
+                ...PRIORITIES.map((priority, val) => ({
                     label: priority.label,
-                    onClick: () => modifyTask({ id: taskId, priorityNormalized: priority.value }),
+                    onClick: () => modifyTask({ id: taskId, priorityNormalized: val }),
                     icon: priority.icon,
                 })),
             ],

@@ -167,9 +167,9 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     <Title data-testid="task-title">{task.title}</Title>
                     <RightContainer>
                         <GTDropdownMenu
-                            items={PRIORITIES.map((priority) => ({
+                            items={PRIORITIES.map((priority, val) => ({
                                 label: priority.label,
-                                onClick: () => modifyTask({ id: task.id, priorityNormalized: priority.value }),
+                                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                                 icon: priority.icon,
                             }))}
                             trigger={
