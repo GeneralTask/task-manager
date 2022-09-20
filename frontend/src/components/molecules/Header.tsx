@@ -9,14 +9,11 @@ import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/t
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import GTInput from '../atoms/GTInput'
+import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import RefreshButton from '../atoms/buttons/RefreshButton'
-import { useEffect, useState } from 'react'
-import { useIsFetching } from 'react-query'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import RefreshSpinner from '../atoms/buttons/RefreshSpinner'
 
 const SectionHeaderContainer = styled.div`
     display: flex;

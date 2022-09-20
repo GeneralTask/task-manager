@@ -1,8 +1,6 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
 import { TTask, TTaskSection } from './types'
-import { DateTime } from 'luxon';
-import { Immutable } from 'immer';
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js

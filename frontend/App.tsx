@@ -1,15 +1,15 @@
-import Loading from './src/components/atoms/Loading'
-import LandingScreen from './src/components/screens/LandingScreen'
-import { PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
-import AppContextProvider from './src/context/AppContextProvider'
-import './src/index.css'
-import PrivateOutlet from './src/services/PrivateOutlet'
-import { enableMapSet } from 'immer'
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { enableMapSet } from 'immer'
+import Loading from './src/components/atoms/Loading'
+import StyledToastContainer from './src/components/atoms/toast/StyledToastContainer'
+import LandingScreen from './src/components/screens/LandingScreen'
 import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import AppContextProvider from './src/context/AppContextProvider'
 import './src/index.css'
+import './src/index.css'
+import PrivateOutlet from './src/services/PrivateOutlet'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))

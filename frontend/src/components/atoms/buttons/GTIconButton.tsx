@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
@@ -5,9 +6,6 @@ import { TIconColor } from '../../../styles/colors'
 import { TIconSize } from '../../../styles/dimensions'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import { forwardRef } from 'react'
-import styled from 'styled-components'
 
 const Button = styled(NoStyleButton)`
     padding: ${Spacing._8};
