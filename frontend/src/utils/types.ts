@@ -99,6 +99,7 @@ export interface TEvent {
     can_modify: boolean
     conference_call: TConferenceCall
     linked_task_id: string
+    linked_view_id: string
 }
 
 export interface TMeetingBanner {
@@ -191,6 +192,7 @@ export interface DropItem {
     sectionId?: string
     task?: TTask
     event?: TEvent
+    view?: TOverviewView
 }
 
 export interface TTaskCreateParams {

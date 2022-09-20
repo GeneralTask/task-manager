@@ -1,6 +1,8 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useParams } from 'react-router-dom'
-import { TOverviewView } from '../../utils/types'
+import { DropType, TOverviewView } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import AuthBanner from './AuthBanner'
 import { OptimisticItemsContainer, PaginateTextButton, ViewContainer } from './styles'
@@ -56,9 +58,18 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
         )
     }, [view.is_linked, view.view_items, overviewViewId, overviewItemId])
 
+    const [_, drag, dragPreview] = useDrag(() => ({
+        type: DropType.OVERVIEW_VIEW,
+        item: { view },
+        collect: (monitor) => monitor.isDragging(),
+    }))
+    useEffect(() => {
+        dragPreview(getEmptyImage(), { captureDraggingState: true })
+    }, [dragPreview])
+
     return (
         <ViewContainer>
-            <ViewItems view={view} visibleItemsCount={visibleItemsCount} scrollRef={scrollRef} />
+            <ViewItems ref={drag} view={view} visibleItemsCount={visibleItemsCount} scrollRef={scrollRef} />
             {!view.is_linked &&
                 view.sources.map((source) => (
                     <AuthBanner
