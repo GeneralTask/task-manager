@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react'
+import { Ref, forwardRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Sort } from '../../../hooks/useSortAndFilter'
 import { SORT_ORDER } from '../../../utils/enums'
@@ -10,7 +10,7 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const PullRequestViewItems = forwardRef<HTMLDivElement, ViewItemsProps>(({ view, visibleItemsCount }, ref) => {
+const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewItemId } = useParams()
     const [sort, setSort] = useState<Sort<TPullRequest>>({
         ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,

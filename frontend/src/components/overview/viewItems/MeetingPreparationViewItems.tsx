@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
@@ -6,7 +6,7 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const MeetingPreparationViewItems = forwardRef<HTMLDivElement, ViewItemsProps>(({ view }, ref) => {
+const MeetingPreparationViewItems = forwardRef(({ view }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewViewId, overviewItemId } = useParams()
     return (
         <>
