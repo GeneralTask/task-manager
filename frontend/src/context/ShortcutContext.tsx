@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'
+import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useEffect, useState } from 'react'
 import { TShortcut } from '../utils/types'
 import { emptyFunction, getKeyCode } from '../utils/utils'
 
@@ -6,7 +6,7 @@ interface TShortcutContext {
     showCommandPalette: boolean
     activeKeyboardShortcuts: Map<string, TShortcut>
     setShowCommandPalette: (showShortcut: boolean) => void
-    setActiveKeyboardShortcuts: React.Dispatch<React.SetStateAction<Map<string, TShortcut>>>
+    setActiveKeyboardShortcuts: Dispatch<SetStateAction<Map<string, TShortcut>>>
 }
 
 const ShortcutContext = createContext<TShortcutContext>({
@@ -17,7 +17,7 @@ const ShortcutContext = createContext<TShortcutContext>({
 })
 
 interface ShortcutContextProps {
-    children: React.ReactNode
+    children: ReactNode
 }
 
 export const ShortcutContextProvider = ({ children }: ShortcutContextProps) => {
@@ -54,6 +54,6 @@ export const ShortcutContextProvider = ({ children }: ShortcutContextProps) => {
     )
 }
 
-const useShortcutContext = () => React.useContext(ShortcutContext)
+const useShortcutContext = () => useContext(ShortcutContext)
 
 export default useShortcutContext
