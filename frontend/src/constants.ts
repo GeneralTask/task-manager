@@ -1,4 +1,5 @@
 import getEnvVars from './environment'
+import { icons } from './styles/images'
 
 export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 
@@ -48,3 +49,12 @@ export const TRASH_SECTION_ID = '000000000000000000000005'
 
 export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
+
+
+export const PRIORITIES = [
+    { value: 0, icon: icons.priority_none, label: 'No Priority' },
+    { value: 1, icon: icons.priority_urgent, label: 'Urgent' },
+    { value: 2, icon: icons.priority_high, label: 'High' },
+    { value: 3, icon: icons.priority_medium, label: 'Medium' },
+    { value: 4, icon: icons.priority_low, label: 'Low' },
+]

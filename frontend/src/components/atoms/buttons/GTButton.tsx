@@ -5,7 +5,7 @@ import { TIconColor } from '../../../styles/colors'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
-type TButtonStyle = 'primary' | 'secondary'
+type TButtonStyle = 'primary' | 'secondary' | 'simple'
 type TButtonSize = 'small' | 'large'
 
 const PrimaryButtonStyles = css`
@@ -32,15 +32,25 @@ const SecondaryButtonStyles = css`
         color: ${Colors.button.secondary.active_text};
     }
 `
+const SimpleButtonStyles = css`
+    background-color: inherit;
+    color: ${Colors.text.light};
+    &:hover {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+    }
+    &:active {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+    }
+`
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
     gap: ${Spacing._8};
-    ${Typography.body}
+    ${Typography.body};
 `
 const SmallButtonStyle = css`
     padding: ${Spacing._4} ${Spacing._8};
-    gap: ${Spacing._4};
-    ${Typography.bodySmall}
+    gap: ${Spacing._8};
+    ${Typography.bodySmall};
 `
 
 const Button = styled(NoStyleButton)<{
@@ -56,7 +66,7 @@ const Button = styled(NoStyleButton)<{
     text-align: center;
     height: 100%;
     width: ${(props) => (props.fitContent ? 'fit-content' : '100%')};
-    box-shadow: ${Shadows.button.default};
+    ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.button.default};`};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -67,6 +77,7 @@ const Button = styled(NoStyleButton)<{
     ${Typography.body};
     ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
+    ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
     ${(props) => props.size === 'large' && LargeButtonStyle};
     ${(props) => props.size === 'small' && SmallButtonStyle};
     opacity: ${(props) => (props.disabled ? '0.2' : '1')};

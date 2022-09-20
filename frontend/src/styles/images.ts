@@ -44,6 +44,7 @@ import {
     faSignalBarsWeak,
     faSignalBarsFair,
     faSignalBarsGood,
+    faSignalBarsSlash,
 } from '@fortawesome/pro-duotone-svg-icons'
 
 export const logos = Object.freeze({
@@ -95,6 +96,7 @@ export const icons = Object.freeze({
     priority_low: faSignalBarsWeak,
     priority_medium: faSignalBarsFair,
     priority_high: faSignalBarsGood,
+    priority_none: faSignalBarsSlash,
 })
 
 export const buttons: { [key: string]: string } = {

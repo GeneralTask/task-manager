@@ -1,4 +1,5 @@
-import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { PRIORITIES } from '../../constants'
+import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
@@ -11,30 +12,20 @@ interface TaskContextMenuProps {
 const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
+    const { mutate: modifyTask } = useModifyTask()
 
     const contextMenuItems: GTMenuItem[] = [
-        // {
-        //     label: 'Priority',
-        //     icon: icons.priority_urgent,
-        //     subItems: [
-        //         {
-        //             label: 'Urgent',
-        //             icon: icons.priority_urgent,
-        //         },
-        //         {
-        //             label: 'High',
-        //             icon: icons.priority_high,
-        //         },
-        //         {
-        //             label: 'Medium',
-        //             icon: icons.priority_medium,
-        //         },
-        //         {
-        //             label: 'Low',
-        //             icon: icons.priority_low,
-        //         },
-        //     ],
-        // },
+        {
+            label: 'Priority',
+            icon: icons.priority_urgent,
+            subItems: [
+                ...PRIORITIES.filter((priority) => !!priority.icon).map((priority) => ({
+                    label: priority.label,
+                    onClick: () => modifyTask({ id: taskId, priorityNormalized: priority.value }),
+                    icon: priority.icon,
+                })),
+            ],
+        },
         {
             label: 'Section',
             icon: icons.folder,
