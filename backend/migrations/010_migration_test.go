@@ -7,7 +7,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 
 	"github.com/stretchr/testify/assert"
@@ -59,7 +58,6 @@ type Task struct {
 }
 
 func TestMigrate010(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -71,10 +69,8 @@ func TestMigrate010(t *testing.T) {
 	taskCollection := database.GetTaskCollection(db)
 
 	t.Run("MigrateUp", func(t *testing.T) {
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		taskID := primitive.NewObjectID()
-		taskCollection.InsertOne(dbCtx, Item{
+		taskCollection.InsertOne(context.Background(), Item{
 			TaskBase{
 				ID:          taskID,
 				SourceID:    external.TASK_SOURCE_ID_LINEAR,
@@ -95,19 +91,19 @@ func TestMigrate010(t *testing.T) {
 		})
 
 		filter := bson.M{}
-		count, err := taskCollection.CountDocuments(dbCtx, filter)
+		count, err := taskCollection.CountDocuments(context.Background(), filter)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 
 		err = migrate.Steps(1)
 		assert.NoError(t, err)
 
-		count, err = taskCollection.CountDocuments(dbCtx, filter)
+		count, err = taskCollection.CountDocuments(context.Background(), filter)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), count)
 
 		var result database.Task
-		err = taskCollection.FindOne(dbCtx, filter).Decode(&result)
+		err = taskCollection.FindOne(context.Background(), filter).Decode(&result)
 		assert.NoError(t, err)
 		assert.Equal(t, external.TASK_SOURCE_ID_LINEAR, result.SourceID)
 		assert.Equal(t, database.Comment{Body: "THERE"}, (*result.Comments)[0])

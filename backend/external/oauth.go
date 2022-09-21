@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -56,13 +55,10 @@ func getExternalOauth2Client(db *mongo.Database, userID primitive.ObjectID, acco
 }
 
 func getExternalToken(db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) (*database.ExternalAPIToken, error) {
-	parentCtx := context.Background()
 	var externalToken database.ExternalAPIToken
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	if err := database.GetExternalTokenCollection(db).FindOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"service_id": serviceID},

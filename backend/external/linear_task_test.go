@@ -15,7 +15,6 @@ import (
 )
 
 func TestLoadLinearTasks(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -275,10 +274,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		}
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err := taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
@@ -363,10 +360,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.False(t, *result.Tasks[0].IsCompleted)
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err := taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
@@ -377,7 +372,6 @@ func TestLoadLinearTasks(t *testing.T) {
 }
 
 func TestModifyLinearTask(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -631,10 +625,8 @@ func TestModifyLinearTask(t *testing.T) {
 		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{

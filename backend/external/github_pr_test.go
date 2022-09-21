@@ -137,10 +137,8 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, 462, pullRequest.Deletions)
 
 		// Check that repository for PR is created in the database
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		var repository database.Repository
-		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
+		repositoryCollection.FindOne(context.Background(), bson.M{"user_id": userId}, nil).Decode(&repository)
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 	})
@@ -161,10 +159,8 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, ActionNoneNeeded, result.PullRequests[0].RequiredAction)
 
 		// Check that repository for PR is created in the database
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		var repository database.Repository
-		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
+		repositoryCollection.FindOne(context.Background(), bson.M{"user_id": userId}, nil).Decode(&repository)
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 
@@ -237,10 +233,8 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, 0, len(result.PullRequests))
 
 		// Check that repository for PR is created in the database
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
 		var repository database.Repository
-		repositoryCollection.FindOne(dbCtx, bson.M{"user_id": userId}, nil).Decode(&repository)
+		repositoryCollection.FindOne(context.Background(), bson.M{"user_id": userId}, nil).Decode(&repository)
 		assert.Equal(t, expectedRepository.FullName, repository.FullName)
 		assert.Equal(t, expectedRepository.RepositoryID, repository.RepositoryID)
 
@@ -261,9 +255,7 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, 0, len(result.PullRequests))
 
 		// Check that no repository for PR is created in the database
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userId}, nil)
+		count, err := repositoryCollection.CountDocuments(context.Background(), bson.M{"user_id": userId}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 
@@ -282,9 +274,7 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Error(t, result.Error)
 
 		// Check that no repository for PR is created in the database
-		dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-		defer cancel()
-		count, err := repositoryCollection.CountDocuments(dbCtx, bson.M{"user_id": userId}, nil)
+		count, err := repositoryCollection.CountDocuments(context.Background(), bson.M{"user_id": userId}, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), count)
 
@@ -1296,7 +1286,6 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 }
 
 func TestUpdateOrCreateRepository(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -1314,14 +1303,12 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 	updateFullName := github.String("new_repository_name")
 	updateHTMLURL := github.String("http://new.me")
 	t.Run("SuccessCreate", func(t *testing.T) {
-		err = updateOrCreateRepository(parentCtx, db, repository, userID)
+		err = updateOrCreateRepository(db, repository, userID)
 		assert.NoError(t, err)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		var result []database.Repository
 		cursor, err := repositoryCollection.Find(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"repository_id": fmt.Sprint(repository.GetID())},
 				{"user_id": userID},
@@ -1329,9 +1316,7 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = cursor.All(dbCtx, &result)
+		err = cursor.All(context.Background(), &result)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(result))
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
@@ -1342,21 +1327,19 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		repository.FullName = updateFullName
 		repository.HTMLURL = updateHTMLURL
 
-		err = updateOrCreateRepository(parentCtx, db, repository, userID)
+		err = updateOrCreateRepository(db, repository, userID)
 		assert.NoError(t, err)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		var result []database.Repository
 		cursor, err := repositoryCollection.Find(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"repository_id": fmt.Sprint(repository.GetID())},
 				{"user_id": userID},
 			}},
 		)
 		assert.NoError(t, err)
-		err = cursor.All(dbCtx, &result)
+		err = cursor.All(context.Background(), &result)
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(result))
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
@@ -1367,21 +1350,19 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		newFullName := github.String("bad_user_id_full_name")
 		repository.FullName = newFullName
 
-		err = updateOrCreateRepository(parentCtx, db, repository, primitive.NewObjectID())
+		err = updateOrCreateRepository(db, repository, primitive.NewObjectID())
 		assert.NoError(t, err)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		var result []database.Repository
 		cursor, err := repositoryCollection.Find(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"repository_id": fmt.Sprint(repository.GetID())},
 				{"user_id": userID},
 			}},
 		)
 		assert.NoError(t, err)
-		err = cursor.All(dbCtx, &result)
+		err = cursor.All(context.Background(), &result)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
 		assert.Equal(t, *updateFullName, result[0].FullName)
@@ -1392,21 +1373,19 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		repository.FullName = newFullName
 		repository.ID = github.Int64(0)
 
-		err = updateOrCreateRepository(parentCtx, db, repository, userID)
+		err = updateOrCreateRepository(db, repository, userID)
 		assert.NoError(t, err)
 
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		var result []database.Repository
 		cursor, err := repositoryCollection.Find(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"repository_id": fmt.Sprint(repositoryID)},
 				{"user_id": userID},
 			}},
 		)
 		assert.NoError(t, err)
-		err = cursor.All(dbCtx, &result)
+		err = cursor.All(context.Background(), &result)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprint(repositoryID), result[0].RepositoryID)
 		assert.Equal(t, *updateFullName, result[0].FullName)

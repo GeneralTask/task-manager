@@ -59,13 +59,10 @@ func getGithubConfig() *OauthConfig {
 }
 
 func GetGithubToken(externalAPITokenCollection *mongo.Collection, userID primitive.ObjectID, accountID string) (*oauth2.Token, error) {
-	parentCtx := context.Background()
 	var githubToken database.ExternalAPIToken
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	if err := externalAPITokenCollection.FindOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"service_id": TASK_SERVICE_ID_GITHUB},
@@ -114,11 +111,8 @@ func (githubService GithubService) HandleLinkCallback(db *mongo.Database, params
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
 	_, err = externalAPITokenCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_GITHUB}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,

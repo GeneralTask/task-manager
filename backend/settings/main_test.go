@@ -14,7 +14,6 @@ import (
 )
 
 func TestGetSettingsOptions(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -25,27 +24,27 @@ func TestGetSettingsOptions(t *testing.T) {
 		UserID: userID,
 		Type:   string(constants.ViewGithub),
 	}
-	res, err := viewCollection.InsertOne(parentCtx, view)
+	res, err := viewCollection.InsertOne(context.Background(), view)
 	assert.NoError(t, err)
 	insertedViewID := res.InsertedID.(primitive.ObjectID).Hex()
 	// wrong user ID
-	_, err = viewCollection.InsertOne(parentCtx, database.View{
+	_, err = viewCollection.InsertOne(context.Background(), database.View{
 		UserID: primitive.NewObjectID(),
 		Type:   string(constants.ViewGithub),
 	})
 	assert.NoError(t, err)
 	// wrong view type
-	_, err = viewCollection.InsertOne(parentCtx, database.View{
+	_, err = viewCollection.InsertOne(context.Background(), database.View{
 		UserID: userID,
 		Type:   string(constants.ViewLinear),
 	})
 	assert.NoError(t, err)
 
 	taskSectionCollection := database.GetTaskSectionCollection(db)
-	res, err = taskSectionCollection.InsertOne(parentCtx, database.TaskSection{UserID: userID})
+	res, err = taskSectionCollection.InsertOne(context.Background(), database.TaskSection{UserID: userID})
 	assert.NoError(t, err)
 	// wrong user ID
-	_, err = taskSectionCollection.InsertOne(parentCtx, database.TaskSection{UserID: primitive.NewObjectID()})
+	_, err = taskSectionCollection.InsertOne(context.Background(), database.TaskSection{UserID: primitive.NewObjectID()})
 	assert.NoError(t, err)
 	insertedSectionID := res.InsertedID.(primitive.ObjectID).Hex()
 

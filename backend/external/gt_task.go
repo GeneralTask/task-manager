@@ -22,13 +22,9 @@ func (generalTask GeneralTaskTaskSource) GetEvents(db *mongo.Database, userID pr
 }
 
 func (generalTask GeneralTaskTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	parentCtx := context.Background()
 	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-
 	cursor, err := taskCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"source_id": TASK_SOURCE_ID_GT_TASK},
@@ -38,7 +34,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(db *mongo.Database, userID pri
 	)
 	var tasks []*database.Task
 	logger := logging.GetSentryLogger()
-	if err != nil || cursor.All(dbCtx, &tasks) != nil {
+	if err != nil || cursor.All(context.Background(), &tasks) != nil {
 		logger.Error().Err(err).Msg("failed to fetch general task tasks")
 		result <- emptyTaskResult(err)
 		return
@@ -81,11 +77,8 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 		newTask.ParentTaskID = task.ParentTaskID
 	}
 
-	parentCtx := context.Background()
 	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	insertResult, err := taskCollection.InsertOne(dbCtx, newTask)
+	insertResult, err := taskCollection.InsertOne(context.Background(), newTask)
 	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 

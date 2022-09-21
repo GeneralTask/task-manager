@@ -117,7 +117,7 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	_, err = externalAPITokenCollection.UpdateOne(
-		context.TODO(),
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"service_id": TASK_SERVICE_ID_GOOGLE},
@@ -178,10 +178,8 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 
 	userCollection := database.GetUserCollection(db)
 
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	count, err := userCollection.CountDocuments(
-		dbCtx,
+		context.Background(),
 		bson.M{"google_id": userInfo.SUB},
 	)
 	if err != nil {
@@ -190,21 +188,19 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 	userIsNew := count == int64(0)
 
 	var user database.User
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 
 	userNew := &database.User{GoogleID: userInfo.SUB, Email: userInfo.EMAIL, Name: userInfo.Name, CreatedAt: primitive.NewDateTimeFromTime(time.Now().UTC())}
 	userChangeable := &database.UserChangeable{Email: userInfo.EMAIL, Name: userInfo.Name}
 
 	log.Debug().Msgf("userNew: %+v", userNew)
-	userCollection.FindOneAndUpdate(dbCtx,
+	userCollection.FindOneAndUpdate(context.Background(),
 		bson.M{"google_id": userInfo.SUB},
 		bson.M{"$setOnInsert": userNew},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
 
 	log.Debug().Msgf("userChangeable: %+v", userChangeable)
 	userCollection.FindOneAndUpdate(
-		dbCtx,
+		context.Background(),
 		bson.M{"google_id": userInfo.SUB},
 		bson.M{"$set": userChangeable},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
