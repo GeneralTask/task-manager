@@ -159,7 +159,7 @@ func (slackTask SlackSavedTaskSource) GetSlackAdditionalInformation(db *mongo.Da
 	usernameChan := make(chan string)
 
 	go getSlackDeeplink(client, slackParams.Channel.ID, slackParams.Message.TimeSent, deeplinkChan)
-	go getSlackUsername(client, slackParams.Message.User, usernameChan)
+	go GetSlackUsername(client, slackParams.Message.User, usernameChan)
 
 	return SlackAdditionalInformation{
 		Deeplink: <-deeplinkChan,
@@ -185,7 +185,7 @@ func getSlackDeeplink(client *slack.Client, channelID string, ts string, result 
 	result <- permalink
 }
 
-func getSlackUsername(client *slack.Client, userID string, result chan<- string) {
+func GetSlackUsername(client *slack.Client, userID string, result chan<- string) {
 	if userID == "" {
 		result <- ""
 		return

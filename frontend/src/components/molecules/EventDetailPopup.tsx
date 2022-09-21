@@ -1,10 +1,10 @@
-import { forwardRef, useLayoutEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Id as ToastId } from 'react-toastify'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useIsDragging, useNavigateToTask } from '../../hooks'
+import { useIsDragging, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -55,7 +55,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
         const navigateToTask = useNavigateToTask()
 
-        const onDelete = (event: TEvent) => {
+        const onDelete = useCallback(() => {
             setSelectedEvent(null)
             deleteEventInCache({
                 id: event.id,
@@ -89,13 +89,30 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     theme: 'dark',
                 }
             )
-        }
+        }, [event])
+
+        useKeyboardShortcut('close', onClose)
+        useKeyboardShortcut('deleteCalendarEvent', onDelete)
 
         // if *anything* drags, close the popup
         const isDragging = useIsDragging()
         if (isDragging) {
             onClose()
             return null
+        }
+
+        const onCopyMeetingLink = () => {
+            navigator.clipboard.writeText(event.conference_call.url)
+            toast(
+                {
+                    message: 'Meeting link copied to clipboard',
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
         }
 
         const portal = ReactDOM.createPortal(
@@ -120,7 +137,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     <EventHeader>
                         <Icon icon={logos[event.logo]} size="xSmall" />
                         <EventHeaderIcons>
-                            <IconButton onClick={() => onDelete(event)}>
+                            <IconButton onClick={onDelete}>
                                 <Icon icon={icons.trash} size="xSmall" />
                             </IconButton>
                             <IconButton onClick={onClose}>
@@ -144,7 +161,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                                 value="View task details"
                                 fitContent={false}
                                 onClick={() => {
-                                    setSelectedEvent(null)
+                                    onClose()
                                     navigateToTask(event.linked_task_id)
                                 }}
                             />
@@ -170,7 +187,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                                     fitContent={false}
                                 />
                             </FlexAnchor>
-                            <CopyButton onClick={() => navigator.clipboard.writeText(event.conference_call.url)}>
+                            <CopyButton onClick={onCopyMeetingLink}>
                                 <Icon size="xSmall" icon={icons.copy} />
                             </CopyButton>
                         </Flex>

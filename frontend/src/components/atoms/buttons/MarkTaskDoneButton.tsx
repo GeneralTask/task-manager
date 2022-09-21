@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
 import GTCheckbox from '../GTCheckbox'
@@ -19,14 +20,14 @@ const MarkTaskDoneButton = ({
     onMarkComplete,
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDone } = useMarkTaskDone()
-    const onMarkTaskDone = () => {
+    const onMarkTaskDone = useCallback(() => {
         if (onMarkComplete) onMarkComplete()
         markTaskDone({
             taskId: taskId,
             sectionId: sectionId,
             isDone: !isDone,
         })
-    }
+    }, [taskId, sectionId, isDone])
 
     useKeyboardShortcut('markComplete', onMarkTaskDone, !isSelected || isDisabled)
     return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} disabled={isDisabled} animated />

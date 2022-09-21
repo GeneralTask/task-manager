@@ -7,7 +7,8 @@ import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pul
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
-import { TLinkedAccount, TPullRequest } from '../../utils/types'
+import { TPullRequest } from '../../utils/types'
+import { isGithubLinkedAccount } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
@@ -24,9 +25,6 @@ const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
 `
-
-const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
-    linkedAccounts.some((account) => account.name === 'Github')
 
 const PullRequestsView = () => {
     const [sort, setSort] = useState<Sort<TPullRequest>>({

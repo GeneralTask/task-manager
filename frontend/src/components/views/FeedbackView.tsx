@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
-import { Border, Colors, Spacing } from '../../styles'
+import { Spacing } from '../../styles'
 import toast from '../../utils/toast'
 import GTModal from '../atoms/GTModal'
-import TextArea from '../atoms/TextArea'
+import GTTextArea from '../atoms/GTTextArea'
 import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TitleSmall } from '../atoms/title/Title'
@@ -14,11 +14,9 @@ const FeedbackHeader = styled.div`
     display: flex;
     flex-direction: column;
 `
-const TextAreaContainer = styled.div`
+const FeedbackTextArea = styled(GTTextArea)`
     flex: 1;
     margin: ${Spacing._4} 0;
-    border: ${Border.stroke.medium} solid ${Colors.background.dark};
-    border-radius: ${Border.radius.small};
 `
 interface FeedbackViewProps {
     modalIsOpen: boolean
@@ -55,9 +53,14 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
                 <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
-            <TextAreaContainer>
-                <TextArea value={feedback} placeholder="Type in your feedback here." setValue={setFeedback} />
-            </TextAreaContainer>
+            <FeedbackTextArea
+                initialValue={feedback}
+                onEdit={(val) => setFeedback(val)}
+                fontSize="small"
+                placeholder="Type in your feedback here."
+                isFullHeight
+                autoFocus
+            />
         </GTModal>
     )
 }

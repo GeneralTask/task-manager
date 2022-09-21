@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import * as ReactDOMServer from 'react-dom/server'
 import styled from 'styled-components'
-import { KEYBOARD_SHORTCUTS, TKeyboardShortcuts } from '../../constants'
+import KEYBOARD_SHORTCUTS, { TShortcutName } from '../../constants/shortcuts'
 import { useClickOutside } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { Spacing } from '../../styles'
@@ -29,14 +29,14 @@ const SectionContainer = styled.div`
 interface ActionOptionProps {
     task: TTask
     isShown: boolean
-    keyboardShortcut: TKeyboardShortcuts
+    keyboardShortcut: TShortcutName
     setIsShown: (isShown: boolean) => void
 }
 
 const section = ReactDOMServer.renderToString(
     <TooltipContainer>
-        <SectionContainer>Change Section</SectionContainer>
-        <KeyboardShortcutContainer isPressed={false}>{KEYBOARD_SHORTCUTS.showSectionEditor}</KeyboardShortcutContainer>
+        <SectionContainer>{KEYBOARD_SHORTCUTS.showSectionEditor.label}</SectionContainer>
+        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.showSectionEditor.keyLabel}</KeyboardShortcutContainer>
     </TooltipContainer>
 )
 

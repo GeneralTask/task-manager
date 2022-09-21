@@ -34,9 +34,8 @@ export default function useItemSelectionController(
         },
         [selectedItemId, items, selectItem]
     )
-
-    useKeyboardShortcut('down', () => onUpDown('down'))
-    useKeyboardShortcut('up', () => onUpDown('up'))
-    useKeyboardShortcut('arrowDown', () => onUpDown('down'))
-    useKeyboardShortcut('arrowUp', () => onUpDown('up'))
+    useKeyboardShortcut('down', useCallback(() => onUpDown('down'), [onUpDown]))
+    useKeyboardShortcut('up', useCallback(() => onUpDown('up'), [onUpDown]))
+    useKeyboardShortcut('arrowDown', useCallback(() => onUpDown('down'), [onUpDown]))
+    useKeyboardShortcut('arrowUp', useCallback(() => onUpDown('up'), [onUpDown]))
 }

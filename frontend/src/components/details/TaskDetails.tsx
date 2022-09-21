@@ -98,7 +98,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
         } else if (minutes <= 30) {
-            setMeetingStartText(`Starts in ${minutes} minutes`)
+            const minutesText = minutes === 1 ? 'minute' : 'minutes'
+            setMeetingStartText(`Starts in ${minutes} ${minutesText}`)
         } else {
             setMeetingStartText('')
         }
@@ -190,6 +191,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 onEdit={(val) => onEdit({ id: task.id, title: val })}
                 maxHeight={TITLE_MAX_HEIGHT}
                 fontSize="medium"
+                blurOnEnter
             />
             {meeting_preparation_params && (
                 <MeetingPreparationTimeContainer>
