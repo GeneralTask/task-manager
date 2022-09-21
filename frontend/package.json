@@ -33,6 +33,7 @@
     "importOrderSortSpecifiers": true
   },
   "dependencies": {
+    "@emotion/react": "^11.10.4",
     "@fortawesome/fontawesome-pro": "^6.1.2",
     "@fortawesome/fontawesome-svg-core": "^6.1.2",
     "@fortawesome/free-brands-svg-icons": "^6.1.2",
@@ -42,6 +43,9 @@
     "@fortawesome/pro-solid-svg-icons": "^6.1.2",
     "@fortawesome/pro-thin-svg-icons": "^6.1.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@mantine/core": "^5.4.0",
+    "@mantine/dates": "^5.4.0",
+    "@mantine/hooks": "^5.4.0",
     "@radix-ui/react-context-menu": "^1.0.0",
     "@radix-ui/react-dropdown-menu": "^1.0.0",
     "@sentry/react": "^7.7.0",
@@ -50,6 +54,7 @@
     "animate.css": "^4.1.1",
     "axios": "^0.26.1",
     "cmdk": "^0.1.19",
+    "dayjs": "^1.11.5",
     "immer": "^9.0.15",
     "js-cookie": "^3.0.1",
     "lottie-react": "^2.3.1",
