@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { DateTime } from 'luxon'
 import { useInterval } from '../../hooks'
@@ -60,7 +60,10 @@ const CalendarView = ({
         [linkedAccounts]
     )
 
-    useKeyboardShortcut('calendar', () => setIsCollapsed(!isCollapsed))
+    useKeyboardShortcut(
+        'calendar',
+        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed])
+    )
 
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />

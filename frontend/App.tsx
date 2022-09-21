@@ -1,28 +1,29 @@
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { enableMapSet } from 'immer'
 import Loading from './src/components/atoms/Loading'
 import StyledToastContainer from './src/components/atoms/toast/StyledToastContainer'
-import { CalendarContextProvider } from './src/components/calendar/CalendarContext'
 import FocusModeScreen from './src/components/screens/FocusModeScreen'
 import LandingScreen from './src/components/screens/LandingScreen'
 import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
-import './src/index.css'
-import './src/index.css'
-import './src/index.css'
-import './src/index.css'
+import AppContextProvider from './src/context/AppContextProvider'
 import PrivateOutlet from './src/services/PrivateOutlet'
+import { GlobalStyle } from './src/styles'
 
 const CompanyPolicyScreen = lazy(() => import('./src/components/screens/CompanyPolicyScreen'))
 const MainScreen = lazy(() => import('./src/components/screens/MainScreen'))
 const TermsOfServiceSummaryScreen = lazy(() => import('./src/components/screens/TermsOfServiceSummaryScreen'))
+
+enableMapSet() // this allows immer to produce immutable maps and sets
 
 const App = () => {
     const queryClient = new QueryClient()
 
     return (
         <QueryClientProvider client={queryClient}>
-            <CalendarContextProvider>
+            <AppContextProvider>
+                <GlobalStyle />
                 <BrowserRouter>
                     <Suspense fallback={<Loading />}>
                         <Routes>
@@ -60,8 +61,8 @@ const App = () => {
                         </Routes>
                     </Suspense>
                 </BrowserRouter>
-                <StyledToastContainer />
-            </CalendarContextProvider>
+            </AppContextProvider>
+            <StyledToastContainer />
         </QueryClientProvider>
     )
 }

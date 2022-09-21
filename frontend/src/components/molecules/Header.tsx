@@ -82,7 +82,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
         setIsEditingTitle(false)
     }
 
-    useKeyboardShortcut('refresh', refetchStaleQueries, false)
+    useKeyboardShortcut('refresh', refetchStaleQueries)
 
     const showRefreshButton = (isHovering || isFetching) && !isEditingTitle
 
@@ -101,6 +101,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
                         blurOnEnter
                         disabled={!isEditingTitle}
+                        onFocus={(e) => e.target.select()}
                         autoFocus
                     />
                 ) : (

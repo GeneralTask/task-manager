@@ -43,7 +43,7 @@ export const EditViewsDeleteButton = styled(RemoveButton)`
     margin-left: auto;
 `
 export const PaginateTextButton = styled(NoStyleButton)`
-    color: #069;
+    color: ${Colors.text.purple};
     text-decoration: underline;
     cursor: pointer;
     margin: ${Spacing._4} ${Spacing._8} 0;
