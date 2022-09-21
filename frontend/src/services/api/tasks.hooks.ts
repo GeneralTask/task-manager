@@ -51,7 +51,7 @@ export interface TReorderTaskData {
     dragSectionId?: string
 }
 
-export const useGetTasks = (isEnabled: boolean = true) => {
+export const useGetTasks = (isEnabled = true) => {
     return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled })
 }
 const getTasks = async ({ signal }: QueryFunctionContext) => {
