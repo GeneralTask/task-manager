@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { checkboxSize } from '../../styles/dimensions'
+import { TOverviewItem } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 
@@ -38,32 +39,40 @@ interface CardSwitcherProps {
 
 const CardSwitcher = ({ viewId }: CardSwitcherProps) => {
     const { data: views } = useGetOverviewViews()
-    const [currentCard, setCurrentCard] = useState(0)
+    const [cardIndex, setCardIndex] = useState(0)
+    const [card, setCard] = useState<TOverviewItem | null>(null)
+
+    useEffect(() => {
+        const view = views?.find(({ id }) => id === viewId)
+        if (view == null) return
+        if (cardIndex >= view.view_items.length) {
+            setCardIndex(0)
+            setCard(view.view_items[0])
+        } else {
+            setCard(view.view_items[cardIndex])
+        }
+    }, [cardIndex, viewId, views])
 
     const view = views?.find(({ id }) => id === viewId)
-    if (!view || view.view_items.length === 0) {
-        return null
-    }
-    const currentTask = view.view_items[currentCard]
+    if (!view || view.view_items.length === 0) return null
+    if (card == null) return null
     return (
         <div>
             <Header>
-                <SwitchText onClick={() => setCurrentCard(mod(currentCard - 1, view.view_items.length))}>
+                <SwitchText onClick={() => setCardIndex(mod(cardIndex - 1, view.view_items.length))}>
                     Previous
                 </SwitchText>
                 <div>
-                    Task {currentCard + 1} of {view.view_items.length}
+                    Task {cardIndex + 1} of {view.view_items.length}
                 </div>
-                <SwitchText onClick={() => setCurrentCard(mod(currentCard + 1, view.view_items.length))}>
-                    Next
-                </SwitchText>
+                <SwitchText onClick={() => setCardIndex(mod(cardIndex + 1, view.view_items.length))}>Next</SwitchText>
             </Header>
             <GTShadowContainer>
                 <CardHeader>
-                    <MarkTaskDoneButton isDone={currentTask.is_done} taskId={currentTask.id} isSelected={false} />
-                    {view.view_items[currentCard].title}
+                    <MarkTaskDoneButton isDone={card.is_done} taskId={card.id} isSelected={false} />
+                    {card.title}
                 </CardHeader>
-                <CardBody>{view.view_items[currentCard].body}</CardBody>
+                <CardBody>{card.body}</CardBody>
             </GTShadowContainer>
         </div>
     )
