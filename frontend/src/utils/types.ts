@@ -1,5 +1,5 @@
-import { TStatusColors } from '../styles/colors'
-import { TLogoImage } from '../styles/images'
+import { TIconImage, TLogoImage } from "../styles/images"
+import { TStatusColors } from "../styles/colors"
 
 export type EmptyString = ''
 
@@ -246,4 +246,16 @@ export interface TSupportedView {
     is_linked: boolean
     views: TSupportedViewItem[]
     authorization_url: string
+}
+
+export type TShortcutCategory = 'Tasks' | 'Calendar' | 'Navigation'
+
+export interface TShortcut {
+    label: string
+    key: string
+    keyLabel: string
+    category: TShortcutCategory
+    icon?: TIconImage
+    hideFromCommandPalette?: boolean
+    action: () => void
 }

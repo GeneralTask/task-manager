@@ -118,6 +118,13 @@ func (api *API) extractSectionTasksV3(
 			Tasks: []*TaskResult{},
 		},
 	}
+	sort.SliceStable(*userSections, func(i, j int) bool {
+		// preserve existing sort if no ordering ID set
+		if (*userSections)[i].IDOrdering == 0 && (*userSections)[j].IDOrdering == 0 {
+			return (*userSections)[i].ID.Hex() < (*userSections)[j].ID.Hex()
+		}
+		return (*userSections)[i].IDOrdering < (*userSections)[j].IDOrdering
+	})
 	for _, userSection := range *userSections {
 		resultSections = append(resultSections, &TaskSection{
 			ID:    userSection.ID,

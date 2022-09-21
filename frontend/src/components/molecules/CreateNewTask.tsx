@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
-import { KEYBOARD_SHORTCUTS } from '../../constants'
+import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
 import { useCreateTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Dimensions, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 
@@ -35,12 +36,15 @@ const Tooltip = styled.div`
     ${Typography.bodySmall};
 `
 
+const blurShortcuts = [KEYBOARD_SHORTCUTS.arrowUp.key, KEYBOARD_SHORTCUTS.arrowDown.key, KEYBOARD_SHORTCUTS.close.key]
+
 interface CreateNewTaskProps {
     sectionId: string
     disableTooltip?: boolean
 }
 const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
+    const [shouldFocus, setShouldFocus] = useState(false)
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -53,10 +57,13 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         }
     }
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'ArrowDown') inputRef.current?.blur()
-        else e.stopPropagation()
-        if (e.key === 'Enter') submitNewTask()
-        else if (e.key === 'Escape') inputRef.current?.blur()
+        stopKeydownPropogation(e, blurShortcuts)
+        if (blurShortcuts.includes(e.key)) {
+            inputRef.current?.blur()
+        }
+        if (e.key === 'Enter') {
+            submitNewTask()
+        }
     }
 
     useEffect(() => {
@@ -81,7 +88,19 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         [containerRef.current]
     )
 
-    useKeyboardShortcut('createTask', () => inputRef.current?.focus(), disableTooltip)
+    useEffect(() => {
+        if (shouldFocus) {
+            inputRef.current?.focus()
+            setShouldFocus(false)
+        }
+    }, [shouldFocus])
+
+    useKeyboardShortcut(
+        'createTask',
+        // this is a shameful hack to wait for the command palette to close before focusing on the input
+        useCallback(() => setShouldFocus(true), []),
+        disableTooltip
+    )
 
     return (
         <>
@@ -106,7 +125,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
                 >
                     <Tooltip>
                         <span>Add new task</span>
-                        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask}</KeyboardShortcutContainer>
+                        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask.keyLabel}</KeyboardShortcutContainer>
                     </Tooltip>
                 </ReactTooltip>
             )}

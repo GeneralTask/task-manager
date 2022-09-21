@@ -7,6 +7,7 @@ import { DropType } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
@@ -22,6 +23,9 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.secondary.hover}`}
 `
 const NavigationViewHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     flex-basis: 24px;
     width: 100%;
     margin-bottom: ${Spacing._16};
@@ -56,6 +60,7 @@ const NavigationView = () => {
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
                 <Icon size="medium" icon={logos.generaltask} color={Colors.icon.purple} />
+                <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>
                 <NavigationSectionLinks />

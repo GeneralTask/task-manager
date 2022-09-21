@@ -142,7 +142,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const scrollRef = useRef<HTMLDivElement>(null)
 
-    const { calendarType, selectedEvent } = useCalendarContext()
+    const { calendarType } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
@@ -179,7 +179,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     }, [linkedAccounts, showOauthPrompt, isLinkedAccountsLoading])
 
     return (
-        <AllDaysContainer ref={scrollRef} isScrollDisabled={selectedEvent != null || showOauthPrompt}>
+        <AllDaysContainer ref={scrollRef}>
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>

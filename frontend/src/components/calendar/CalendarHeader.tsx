@@ -61,6 +61,10 @@ export default function CalendarHeader({
             setDate(date.minus({ days: date.weekday % 7 }))
         }
     }
+    const selectToday = useCallback(() => {
+        setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
+    }, [setDate, isCalendarExpanded])
+
     const selectNext = useCallback(
         () =>
             setDate((date) => {
@@ -75,6 +79,7 @@ export default function CalendarHeader({
             }),
         [date, setDate, isCalendarExpanded]
     )
+    useKeyboardShortcut('today', selectToday)
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
@@ -85,15 +90,19 @@ export default function CalendarHeader({
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
-                            <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
-                                <GTButton
-                                    icon={icons.headphones}
-                                    iconColor="black"
-                                    value="Enter Focus Mode"
-                                    size="small"
-                                    styleType="secondary"
-                                />
-                            </NoStyleLink>
+                            {date.startOf('day').equals(DateTime.now().startOf('day')) ? (
+                                <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                                    <GTButton
+                                        icon={icons.headphones}
+                                        iconColor="black"
+                                        value="Enter Focus Mode"
+                                        size="small"
+                                        styleType="secondary"
+                                    />
+                                </NoStyleLink>
+                            ) : (
+                                <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
+                            )}
                             <HeaderIconsContainer>
                                 <GTIconButton
                                     onClick={toggleCalendar}
@@ -118,18 +127,6 @@ export default function CalendarHeader({
                             'ccc, LLL d'
                         )}`}</TitleBold>
                         <ButtonContainer>
-                            <GTButton
-                                value="Today"
-                                onClick={() =>
-                                    setDate(
-                                        isCalendarExpanded
-                                            ? DateTime.now().minus({ days: DateTime.now().weekday % 7 })
-                                            : DateTime.now()
-                                    )
-                                }
-                                size="small"
-                                styleType="secondary"
-                            />
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} size="xSmall" />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} size="xSmall" />
                         </ButtonContainer>

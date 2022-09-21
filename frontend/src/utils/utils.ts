@@ -1,6 +1,7 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
-import { TTask, TTaskSection } from './types'
+import { TLinkedAccount, TTask, TTaskSection } from './types'
+import KEYBOARD_SHORTCUTS from '../constants/shortcuts';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -104,3 +105,28 @@ export const getTaskFromSections = (
     if (taskIndex === undefined || sectionIndex === undefined) return undefined
     return sections[sectionIndex].tasks[taskIndex]
 }
+
+export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
+    let keyName = ''
+    if (e.ctrlKey) {
+        keyName += 'Ctrl+'
+    }
+    if (e.metaKey) {
+        keyName += 'Meta+'
+    }
+    if (e.shiftKey) {
+        keyName += 'Shift+'
+    }
+    return keyName + e.key
+}
+
+// calls e.stopPropogation() unless the key is a listed extension or ⌘K
+export const stopKeydownPropogation = (e: KeyboardEvent | React.KeyboardEvent, exceptions: string[] = []) => {
+    const key = getKeyCode(e)
+    exceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
+    if (!exceptions.includes(key)) {
+        e.stopPropagation()
+    }
+}
+export const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) =>
+    linkedAccounts.some((account) => account.name === 'Github')
