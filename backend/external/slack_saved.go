@@ -48,15 +48,12 @@ func (slackTask SlackSavedTaskSource) GetEvents(db *mongo.Database, userID primi
 }
 
 func (slackTask SlackSavedTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	parentCtx := context.Background()
 	logger := logging.GetSentryLogger()
 
 	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 
 	cursor, err := taskCollection.Find(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"source_id": TASK_SOURCE_ID_SLACK_SAVED},
@@ -65,7 +62,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(db *mongo.Database, userID primit
 		}},
 	)
 	var tasks []*database.Task
-	if err != nil || cursor.All(dbCtx, &tasks) != nil {
+	if err != nil || cursor.All(context.Background(), &tasks) != nil {
 		logger.Error().Err(err).Msg("failed to fetch slack tasks")
 		result <- emptyTaskResult(err)
 		return
@@ -82,8 +79,6 @@ func (slackTask SlackSavedTaskSource) ModifyTask(db *mongo.Database, userID prim
 }
 
 func (slackTask SlackSavedTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
-	parentCtx := context.Background()
-
 	taskSection := constants.IDTaskSectionDefault
 	if task.IDTaskSection != primitive.NilObjectID {
 		taskSection = task.IDTaskSection
@@ -115,9 +110,7 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(db *mongo.Database, userID p
 	}
 
 	taskCollection := database.GetTaskCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	insertResult, err := taskCollection.InsertOne(dbCtx, newTask)
+	insertResult, err := taskCollection.InsertOne(context.Background(), newTask)
 	return insertResult.InsertedID.(primitive.ObjectID), err
 }
 

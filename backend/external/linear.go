@@ -78,11 +78,8 @@ func (linear LinearService) HandleLinkCallback(db *mongo.Database, params Callba
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	// TODO: add DisplayID, AccountID, etc.
 	_, err = externalAPITokenCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_LINEAR}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,
