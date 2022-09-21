@@ -1,5 +1,5 @@
-import { TStatusColors } from '../styles/colors'
-import { TLogoImage } from '../styles/images'
+import { TIconImage, TLogoImage } from "../styles/images"
+import { TStatusColors } from "../styles/colors"
 
 export type EmptyString = ''
 
@@ -185,6 +185,7 @@ export enum DropType {
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
+    OVERVIEW_VIEW_HEADER = 'overview-view-header',
 }
 
 export interface DropItem {
@@ -246,4 +247,16 @@ export interface TSupportedView {
     is_linked: boolean
     views: TSupportedViewItem[]
     authorization_url: string
+}
+
+export type TShortcutCategory = 'Tasks' | 'Calendar' | 'Navigation'
+
+export interface TShortcut {
+    label: string
+    key: string
+    keyLabel: string
+    category: TShortcutCategory
+    icon?: TIconImage
+    hideFromCommandPalette?: boolean
+    action: () => void
 }

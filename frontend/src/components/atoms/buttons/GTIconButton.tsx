@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
@@ -19,12 +20,14 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     size: TIconSize
     iconColor?: TIconColor
 }
-const GTIconButton = ({ icon, size, iconColor, onClick, ...props }: GTIconButtonProps) => {
-    return (
-        <Button onClick={onClick} {...props}>
-            <Icon icon={icon} color={iconColor} size={size} />
-        </Button>
-    )
-}
+const GTIconButton = forwardRef(
+    ({ icon, size, iconColor, onClick, ...props }: GTIconButtonProps, ref: React.Ref<HTMLButtonElement>) => {
+        return (
+            <Button ref={ref} onClick={onClick} {...props}>
+                <Icon icon={icon} color={iconColor} size={size} />
+            </Button>
+        )
+    }
+)
 
 export default GTIconButton

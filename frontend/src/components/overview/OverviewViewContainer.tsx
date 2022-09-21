@@ -59,7 +59,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     }, [view.is_linked, view.view_items, overviewViewId, overviewItemId])
 
     const [, drag, dragPreview] = useDrag(() => ({
-        type: DropType.OVERVIEW_VIEW,
+        type: DropType.OVERVIEW_VIEW_HEADER,
         item: { view },
         collect: (monitor) => monitor.isDragging(),
     }))

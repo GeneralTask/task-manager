@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -191,6 +192,62 @@ func TestSlackTaskCreate(t *testing.T) {
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
 		assert.Equal(t, "We're in a good place from backend, so no rush on it :pray:", *task.Title)
+	})
+}
+
+func TestGetSlackMessageTitle(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	validTimestamp := "1355517523.000005"
+	// set to dummy value because different secrets across Dev, CI, and Prod
+	os.Setenv("SLACK_SIGNING_SECRET", "dummy value")
+	defer os.Unsetenv("SLACK_SIGNING_SECRET")
+
+	server := getServerForSlack()
+	defer server.Close()
+
+	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
+	assert.NoError(t, err)
+
+	source := taskSourceResult.Source.(external.SlackSavedTaskSource)
+	source.Slack.Config.ConfigValues.OverrideURL = &server.URL
+
+	slackMessageParams := database.SlackMessageParams{
+		Channel: database.SlackChannel{
+			Name: "channel_name",
+		},
+		Message: database.SlackMessage{
+			User:     "USERCODE",
+			Text:     "HELLO!",
+			TimeSent: validTimestamp,
+		},
+	}
+
+	externalToken := database.ExternalAPIToken{
+		Token: `{"access_token":"Hello!"}`,
+	}
+
+	t.Run("InvalidTimestamp", func(t *testing.T) {
+		invalidParams := slackMessageParams
+		invalidParams.Message.TimeSent = "HELLO.THERE"
+		_, err := getSlackMessageTitle(source, invalidParams, &externalToken)
+		assert.Error(t, err)
+	})
+	t.Run("SuccessDirectMessage", func(t *testing.T) {
+		dmParams := slackMessageParams
+		dmParams.Channel.Name = "directmessage"
+		title, err := getSlackMessageTitle(source, dmParams, &externalToken)
+		assert.NoError(t, err)
+		// prefix to avoid timezone issues
+		assert.True(t, strings.HasPrefix(title, "From  in a direct message @ 2012-12"))
+	})
+	t.Run("SuccessChannel", func(t *testing.T) {
+		title, err := getSlackMessageTitle(source, slackMessageParams, &externalToken)
+		assert.NoError(t, err)
+		// prefix to avoid timezone issues
+		assert.True(t, strings.HasPrefix(title, "From  in #channel_name @ 2012-12"))
 	})
 }
 

@@ -9,6 +9,9 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -23,6 +26,7 @@ import (
 const (
 	SLACK_MESSAGE_ACTION  = "message_action"
 	SLACK_VIEW_SUBMISSION = "view_submission"
+	MESSAGE_TYPE_DM       = "directmessage"
 )
 
 type SlackRequestParams struct {
@@ -131,6 +135,21 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		return
 	}
 
+	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
+	if err != nil {
+		logger.Error().Err(err).Msg("no Slack source result found")
+		Handle404(c)
+		return
+	}
+
+	// require special override because in separate package
+	override := api.ExternalConfig.SlackOverrideURL
+	userID := externalToken.UserID
+	source := taskSourceResult.Source.(external.SlackSavedTaskSource)
+	if override != "" {
+		source.Slack.Config.ConfigValues.OverrideURL = &override
+	}
+
 	// if message_action, this means that the modal must be created
 	if requestParams.Type == SLACK_MESSAGE_ACTION {
 		// encoding body to put into request
@@ -144,7 +163,15 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		modalJSON := external.GetSlackModal(requestParams.TriggerID, string(jsonBytes), slackParams.Message.Text)
+
+		title, err := getSlackMessageTitle(source, slackParams, externalToken)
+		if err != nil {
+			logger.Error().Err(err).Msg("error parsing Slack timestamp")
+			Handle500(c)
+			return
+		}
+
+		modalJSON := external.GetSlackModal(requestParams.TriggerID, string(jsonBytes), title)
 
 		var oauthToken oauth2.Token
 		err = json.Unmarshal([]byte(externalToken.Token), &oauthToken)
@@ -175,13 +202,6 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		c.JSON(200, gin.H{})
 		return
 	} else if requestParams.Type == SLACK_VIEW_SUBMISSION {
-		taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
-		if err != nil {
-			logger.Error().Err(err).Msg("no Slack source result found")
-			Handle404(c)
-			return
-		}
-
 		// unmarshal previously stored data for message context
 		var slackMetadataParams database.SlackMessageParams
 		err = json.Unmarshal([]byte(requestParams.View.PrivateMetadata), &slackMetadataParams)
@@ -205,13 +225,6 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			taskCreationObject.Body = details
 		}
 
-		// require special override because in separate package
-		override := api.ExternalConfig.SlackOverrideURL
-		userID := externalToken.UserID
-		source := taskSourceResult.Source.(external.SlackSavedTaskSource)
-		if override != "" {
-			source.Slack.Config.ConfigValues.OverrideURL = &override
-		}
 		_, err = source.CreateNewTask(api.DB, userID, externalID, taskCreationObject)
 		if err != nil {
 			c.JSON(503, gin.H{"detail": "failed to create task"})
@@ -246,4 +259,40 @@ func authenticateSlackRequest(signingSecret string, timestamp string, signature 
 		return errors.New("invalid signature")
 	}
 	return nil
+}
+
+func getSlackMessageTitle(slackTask external.SlackSavedTaskSource, messageParams database.SlackMessageParams, externalToken *database.ExternalAPIToken) (string, error) {
+	title := "From "
+
+	var oauthToken oauth2.Token
+	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+
+	client := slack.New(oauthToken.AccessToken)
+	config := slackTask.Slack.Config.ConfigValues
+	if config.OverrideURL != nil {
+		client = slack.New(oauthToken.AccessToken, slack.OptionAPIURL(*slackTask.Slack.Config.ConfigValues.OverrideURL))
+	}
+
+	usernameChan := make(chan string)
+	go external.GetSlackUsername(client, messageParams.Message.User, usernameChan)
+	username := <-usernameChan
+	channel := "#" + messageParams.Channel.Name
+	if channel == "#"+MESSAGE_TYPE_DM {
+		channel = "a direct message"
+	}
+
+	title = title + username + " in " + channel
+
+	tsParts := strings.Split(messageParams.Message.TimeSent, ".")
+	tsFirst, err := strconv.ParseInt(tsParts[0], 10, 64)
+	if err != nil {
+		return "", err
+	}
+	tsSecond, err := strconv.ParseInt(tsParts[1], 10, 64)
+	if err != nil {
+		return "", err
+	}
+	tsTime := time.Unix(tsFirst, tsSecond)
+	title = title + " @ " + tsTime.Format("2006-01-02 15:04:05")
+	return title, nil
 }
