@@ -147,7 +147,6 @@ func (api *API) EventsList(c *gin.Context) {
 		return a.DatetimeStart < b.DatetimeStart
 	})
 
-	go database.LogRequestInfo(api.DB, startTime, userID, "/events/", time.Now().UnixMilli()-startTime.UnixMilli(), nil)
 	c.JSON(200, calendarEvents)
 }
 
