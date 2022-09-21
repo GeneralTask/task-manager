@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,7 @@ import (
 )
 
 func (api *API) EventDelete(c *gin.Context) {
+	startTime := time.Now()
 	eventIDHex := c.Param("event_id")
 	eventID, err := primitive.ObjectIDFromHex(eventIDHex)
 	if err != nil {
@@ -59,5 +61,6 @@ func (api *API) EventDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
+	go database.LogRequestInfo(api.DB, startTime, userID, "/events/delete/", time.Now().UnixMilli()-startTime.UnixMilli(), &event.ID)
 	c.JSON(200, gin.H{})
 }

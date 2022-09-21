@@ -728,6 +728,27 @@ func AdjustOrderingIDsForCollection(collection *mongo.Collection, userID primiti
 	return nil
 }
 
+func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.ObjectID, method string, latencyMS int64, objectID *primitive.ObjectID) {
+	requestInfo := ServerRequestInfo{
+		Timestamp: primitive.NewDateTimeFromTime(timestamp),
+		UserID:    userID,
+		Method:    method,
+		LatencyMS: latencyMS,
+	}
+	if objectID != nil {
+		requestInfo.ObjectID = *objectID
+	}
+	_, err := GetServerRequestCollection(db).InsertOne(context.Background(), &requestInfo)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to log server request of method " + method)
+	}
+}
+
+func GetServerRequestCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("server_requests")
+}
+
 func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("state_tokens")
 }

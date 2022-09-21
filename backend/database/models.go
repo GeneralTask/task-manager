@@ -258,6 +258,14 @@ type LogEvent struct {
 	CreatedAt primitive.DateTime `bson:"created_at"`
 }
 
+type ServerRequestInfo struct {
+	Timestamp primitive.DateTime `bson:"timestamp,omitempty"`
+	Method    string             `bson:"method,omitempty"`
+	UserID    primitive.ObjectID `bson:"user_id,omitempty"`
+	LatencyMS int64              `bson:"latency_ms,omitempty"`
+	ObjectID  primitive.ObjectID `bson:"object_id,omitempty"` // can be task, event, pull_request, section, etc.
+}
+
 type TaskSection struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	IDOrdering int                `bson:"id_ordering"`
