@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sort"
 	"time"
 
@@ -567,10 +566,7 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 		if err != nil {
 			return nil, err
 		}
-		if count == int64(0) {
-			fmt.Println("WOULD DELETE 2:", task.ID, *task.Title)
-		}
-		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+		if count == int64(0) || task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{
