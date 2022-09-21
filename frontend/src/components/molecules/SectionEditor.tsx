@@ -66,8 +66,8 @@ export default function SectionEditor({ task_id, closeSectionEditor }: SectionEd
     const { data } = useGetTasks()
 
     const options = data?.map((section) => {
-        // Do not allow moving to the done section
-        if (section.is_done) return
+        // Do not allow moving to the done or trash sections
+        if (section.is_done || section.is_trash) return
         const { sectionIndex } = getTaskIndexFromSections(data, task_id)
         if (sectionIndex === undefined) return
         const currentSectionId = data[sectionIndex].id
