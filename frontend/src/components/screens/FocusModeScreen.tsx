@@ -13,6 +13,7 @@ import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
+import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -124,8 +125,14 @@ const FocusModeScreen = () => {
                                         </JoinMeetingContainer>
                                     )}
                                     <div>
-                                        <BodyHeader>MEETING NOTES</BodyHeader>
-                                        <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                        {currentEvents[0].linked_view_id ? (
+                                            <CardSwitcher viewId={currentEvents[0].linked_view_id} />
+                                        ) : (
+                                            <>
+                                                <BodyHeader>MEETING NOTES</BodyHeader>
+                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                            </>
+                                        )}
                                     </div>
                                 </>
                             ) : (

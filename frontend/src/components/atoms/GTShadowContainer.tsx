@@ -7,6 +7,7 @@ const GTShadowContainer = styled.div`
     border-radius: ${Border.radius.mini};
     padding: ${Spacing._16};
     box-shadow: ${Shadows.light};
+    box-sizing: border-box;
 `
 
 export default GTShadowContainer
