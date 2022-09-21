@@ -9,7 +9,7 @@ interface TaskContextMenuProps {
     children: React.ReactNode
 }
 const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenuProps) => {
-    const { data: taskSections } = useGetTasks()
+    const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
 
     const contextMenuItems: GTMenuItem[] = [
