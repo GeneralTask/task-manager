@@ -34,7 +34,6 @@ type EventResult struct {
 }
 
 func (api *API) EventsList(c *gin.Context) {
-	startTime := time.Now()
 	var eventListParams EventListParams
 	err := c.BindQuery(&eventListParams)
 	if err != nil {
