@@ -557,11 +557,16 @@ func CreateMeetingTasksFromEvents(db *mongo.Database, userID primitive.ObjectID,
 
 // GetMeetingPrepTaskResult returns a result of meeting prep tasks for a user, and auto-completes tasks that have ended
 func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTime time.Time, tasks *[]database.Task) ([]*TaskResult, error) {
+	eventCollection := database.GetCalendarEventCollection(api.DB)
 	taskCollection := database.GetTaskCollection(api.DB)
 	result := []*TaskResult{}
 	for _, task := range *tasks {
-		// if meeting has ended, mark task as complete
-		if task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
+		// if meeting has ended or linked event no longer exists, mark task as complete
+		count, err := eventCollection.CountDocuments(context.Background(), bson.M{"_id": task.MeetingPreparationParams.CalendarEventID})
+		if err != nil {
+			return nil, err
+		}
+		if count == int64(0) || task.MeetingPreparationParams.DatetimeEnd.Time().Before(expirationTime) && !task.MeetingPreparationParams.HasBeenAutomaticallyCompleted {
 			_, err := taskCollection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{
