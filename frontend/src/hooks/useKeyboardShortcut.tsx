@@ -1,7 +1,7 @@
+import { useEffect } from 'react'
+import produce from 'immer'
 import KEYBOARD_SHORTCUTS, { TShortcutName } from '../constants/shortcuts'
 import useShortcutContext from '../context/ShortcutContext'
-import produce from 'immer'
-import { useEffect } from 'react'
 
 // action should be a useCallback function to avoid unnecessary rerenders
 export default function useKeyboardShortcut(shortcutName: TShortcutName, action: () => void, disabled = false) {

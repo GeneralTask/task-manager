@@ -1,7 +1,7 @@
+import { useCallback } from 'react'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
 import GTCheckbox from '../GTCheckbox'
-import { useCallback } from 'react'
 
 interface MarkTaskDoneButtonProps {
     isDone: boolean

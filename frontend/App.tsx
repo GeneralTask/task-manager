@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom
 import { enableMapSet } from 'immer'
 import Loading from './src/components/atoms/Loading'
 import StyledToastContainer from './src/components/atoms/toast/StyledToastContainer'
+import FocusModeScreen from './src/components/screens/FocusModeScreen'
 import LandingScreen from './src/components/screens/LandingScreen'
 import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import AppContextProvider from './src/context/AppContextProvider'
@@ -51,7 +52,7 @@ const App = () => {
                                     <Route path=":pullRequest" element={<MainScreen />} />
                                 </Route>
                                 <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
-                                    <Route index element={<MainScreen />} />
+                                    <Route index element={<FocusModeScreen />} />
                                 </Route>
                                 <Route path="settings" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />

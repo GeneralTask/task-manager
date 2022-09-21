@@ -101,12 +101,7 @@ export default function CalendarHeader({
                                     />
                                 </NoStyleLink>
                             ) : (
-                                <GTButton
-                                    value="Today"
-                                    onClick={selectToday}
-                                    size="small"
-                                    styleType="secondary"
-                                />
+                                <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
                             )}
                             <HeaderIconsContainer>
                                 <GTIconButton

@@ -1,6 +1,6 @@
+import React from 'react'
 import { CalendarContextProvider } from '../components/calendar/CalendarContext'
 import { ShortcutContextProvider } from './ShortcutContext'
-import React from 'react'
 
 interface AppContextProviderProps {
     children: React.ReactNode
