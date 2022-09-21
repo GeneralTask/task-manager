@@ -138,6 +138,7 @@ export const useCreateTask = () => {
                         body: data.body ?? '',
                         deeplink: '',
                         sent_at: '',
+                        priority_normalized: 0,
                         time_allocated: 0,
                         due_date: '',
                         source: {
