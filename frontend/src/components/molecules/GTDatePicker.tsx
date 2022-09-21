@@ -34,6 +34,7 @@ const GTDatePicker = () => {
                 firstDayOfWeek="sunday"
                 allowLevelChange={false}
                 allowFreeInput
+                size="sm"
                 icon={<Icon icon={icons.calendar_blank} size="xSmall" />}
                 dayStyle={(date, modifiers) => {
                     if (modifiers.selected) {
