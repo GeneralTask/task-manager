@@ -185,6 +185,7 @@ export enum DropType {
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
+    OVERVIEW_VIEW_HEADER = 'overview-view-header',
 }
 
 export interface DropItem {

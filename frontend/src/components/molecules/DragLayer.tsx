@@ -50,7 +50,7 @@ const DragLayer = () => {
 
     if (!isDragging || !initialOffset || !currentOffset) {
         return null
-    } else if (itemType === DropType.OVERVIEW_VIEW) {
+    } else if (itemType === DropType.OVERVIEW_VIEW_HEADER) {
         return (
             <DragOverlay>
                 <DragItem ref={dragItemRef}>
