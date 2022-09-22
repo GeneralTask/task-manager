@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useDrop } from 'react-dnd'
+import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
@@ -23,6 +23,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     color: ${Colors.text.black};
     box-sizing: border-box;
     gap: ${Spacing._12};
+    transform: translate(0, 0); // to hide corners when dragging
     :hover {
         background-color: ${Colors.background.dark};
     }
@@ -55,6 +56,7 @@ interface NavigationLinkProps {
     icon?: IconProp | string
     taskSection?: TTaskSection
     count?: number
+    draggable?: boolean
     droppable?: boolean
     testId?: string
 }
@@ -65,6 +67,7 @@ const NavigationLink = ({
     icon,
     taskSection,
     count,
+    draggable = false,
     droppable,
     testId,
 }: NavigationLinkProps) => {
@@ -86,12 +89,20 @@ const NavigationLink = ({
         [taskSection?.id]
     )
 
+    const [, drag] = useDrag(
+        () => ({
+            type: DropType.FOLDER,
+            item: { id: taskSection?.id },
+            canDrag: draggable,
+            collect: (monitor) => monitor.isDragging(),
+        }),
+        [taskSection, draggable]
+    )
+
     const [isOver, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
-            collect: (monitor) => {
-                return !!(taskSection && droppable && monitor.isOver())
-            },
+            collect: (monitor) => Boolean(taskSection && droppable && monitor.isOver()),
             drop: onDrop,
             canDrop: () => !!(taskSection && droppable),
         }),
@@ -105,8 +116,8 @@ const NavigationLink = ({
     }
 
     return (
-        <NavigationLinkTemplate onClick={onClickHandler} data-testid={testId}>
-            <LinkContainer ref={drop} isSelected={isCurrentPage} isOver={isOver}>
+        <NavigationLinkTemplate ref={drop} onClick={onClickHandler} data-testid={testId}>
+            <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
                 <SectionTitle>{title}</SectionTitle>
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
