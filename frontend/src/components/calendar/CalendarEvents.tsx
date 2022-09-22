@@ -141,6 +141,7 @@ interface CalendarEventsProps {
 const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const scrollRef = useRef<HTMLDivElement>(null)
+    const timeIndicatorRef = useRef<HTMLDivElement>(null)
 
     const { calendarType } = useCalendarContext()
     const numberOfDays = calendarType === 'week' ? 7 : 1
@@ -178,12 +179,20 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         }
     }, [linkedAccounts, showOauthPrompt, isLinkedAccountsLoading])
 
+    useLayoutEffect(() => {
+        timeIndicatorRef.current?.scrollIntoView({
+            behavior: 'auto',
+            block: 'center',
+            inline: 'center',
+        })
+    }, [])
+
     return (
         <AllDaysContainer ref={scrollRef}>
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
-                    <TimeIndicator />
+                    <TimeIndicator ref={timeIndicatorRef} />
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
