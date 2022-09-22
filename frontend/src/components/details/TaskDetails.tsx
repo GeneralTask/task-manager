@@ -20,6 +20,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import ActionOption from '../molecules/ActionOption'
+import GTDatePicker from '../molecules/GTDatePicker'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import LinearCommentList from './linear/LinearCommentList'
@@ -227,6 +228,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         />
                     }
                 />
+                <GTDatePicker />
             </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />
