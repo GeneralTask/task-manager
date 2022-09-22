@@ -90,6 +90,6 @@ func (api *API) EventCreate(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	go database.LogRequestInfo(api.DB, startTime, userID, "/events/create/", time.Now().UnixMilli()-startTime.UnixMilli(), &insertedEvent.ID)
+	go database.LogRequestInfo(api.DB, startTime, userID, "/events/create/", time.Now().UnixMilli()-startTime.UnixMilli(), &insertedEvent.ID, sourceID, 0)
 	c.JSON(201, gin.H{"id": insertedEvent.ID.Hex()})
 }

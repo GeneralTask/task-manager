@@ -60,7 +60,7 @@ func (api *API) EventModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	go database.LogRequestInfo(api.DB, startTime, userID, "/events/modify/", time.Now().UnixMilli()-startTime.UnixMilli(), &event.ID)
+	go database.LogRequestInfo(api.DB, startTime, userID, "/events/modify/", time.Now().UnixMilli()-startTime.UnixMilli(), &event.ID, event.SourceID, 0)
 	c.JSON(200, gin.H{})
 }
 

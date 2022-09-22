@@ -259,11 +259,13 @@ type LogEvent struct {
 }
 
 type ServerRequestInfo struct {
-	Timestamp primitive.DateTime `bson:"timestamp,omitempty"`
-	Method    string             `bson:"method,omitempty"`
-	UserID    primitive.ObjectID `bson:"user_id,omitempty"`
-	LatencyMS int64              `bson:"latency_ms,omitempty"`
-	ObjectID  primitive.ObjectID `bson:"object_id,omitempty"` // can be task, event, pull_request, section, etc.
+	Timestamp     primitive.DateTime `bson:"timestamp,omitempty"`
+	Method        string             `bson:"method,omitempty"`
+	UserID        primitive.ObjectID `bson:"user_id,omitempty"`
+	LatencyMS     int64              `bson:"latency_ms,omitempty"`
+	ObjectID      primitive.ObjectID `bson:"object_id,omitempty"` // can be task, event, pull_request, section, etc.
+	SourceID      string             `bson:"source_id,omitempty"`
+	TimeToCloseMS int64              `bson:"time_to_close_ms,omitempty"` // only will be populated when a task is completed
 }
 
 type TaskSection struct {
