@@ -3,7 +3,7 @@ import { icons } from '../../styles/images'
 import toast from '../../utils/toast'
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import { BranchNameContainer, TruncatedText } from './styles'
+import { BranchNameContainer } from './styles'
 
 interface BranchNameProps {
     name: string
@@ -25,7 +25,7 @@ const BranchName = ({ name }: BranchNameProps) => {
     return (
         <TooltipWrapper dataTip={name} tooltipId="tooltip">
             <BranchNameContainer onClick={handleClick}>
-                <TruncatedText>{name}</TruncatedText>
+                <span>{name}</span>
                 <Icon size="xSmall" icon={icons.copy} color={Colors.icon.purple} />
             </BranchNameContainer>
         </TooltipWrapper>
