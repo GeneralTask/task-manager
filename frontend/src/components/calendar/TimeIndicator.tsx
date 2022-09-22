@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { forwardRef, useCallback, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { TIME_INDICATOR_INTERVAL } from '../../constants'
@@ -17,7 +17,7 @@ const TimeIndicatorContainer = styled.div<TimeIndicatorContainerProps>`
     top: ${(props) => props.topOffset}px;
 `
 
-export function TimeIndicator(): JSX.Element {
+export const TimeIndicator = forwardRef<HTMLDivElement>((_, ref) => {
     const [time, setTime] = useState(DateTime.now())
     useInterval(
         useCallback(() => setTime(DateTime.now()), []),
@@ -25,5 +25,5 @@ export function TimeIndicator(): JSX.Element {
     )
 
     const topOffset = (60 * time.hour + time.minute) * (CELL_HEIGHT_VALUE / 60)
-    return <TimeIndicatorContainer topOffset={topOffset} />
-}
+    return <TimeIndicatorContainer topOffset={topOffset} ref={ref} />
+})

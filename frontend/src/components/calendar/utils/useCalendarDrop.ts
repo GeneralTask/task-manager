@@ -142,6 +142,23 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                         },
                         date,
                     })
+                    break
+                }
+                case DropType.OVERVIEW_VIEW_HEADER: {
+                    if (!item.view) return
+                    const end = dropTime.plus({ minutes: 30 })
+                    createEvent({
+                        createEventPayload: {
+                            summary: item.view.name,
+                            account_id: primaryAccountID,
+                            datetime_start: dropTime.toISO(),
+                            datetime_end: end.toISO(),
+                            view_id: item.view.id,
+                        },
+                        date,
+                        linkedView: item.view,
+                    })
+                    break
                 }
             }
         },
@@ -150,7 +167,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: [DropType.TASK, DropType.EVENT, DropType.EVENT_RESIZE_HANDLE],
+            accept: [DropType.TASK, DropType.EVENT, DropType.EVENT_RESIZE_HANDLE, DropType.OVERVIEW_VIEW_HEADER],
             collect: (monitor) => {
                 return monitor.isOver()
             },
@@ -187,6 +204,11 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                             ...item.event,
                             datetime_end: end.toISO(),
                         })
+                        break
+                    }
+                    case DropType.OVERVIEW_VIEW_HEADER: {
+                        setDropPreviewPosition(dropPosition)
+                        setEventPreview(item.event)
                         break
                     }
                 }

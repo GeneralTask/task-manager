@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
 import { getMonthsAroundDate } from '../../utils/time'
-import { TEvent, TTask } from '../../utils/types'
+import { TEvent, TOverviewView, TTask } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
 
 interface TEventAttendee {
@@ -24,6 +24,7 @@ interface TCreateEventPayload {
     attendees?: TEventAttendee[]
     add_conference_call?: boolean
     task_id?: string
+    view_id?: string
 }
 interface TModifyEventPayload {
     account_id: string
@@ -45,6 +46,7 @@ interface CreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
     linkedTask?: TTask
+    linkedView?: TOverviewView
 }
 interface TModifyEventPayload {
     account_id: string
@@ -95,7 +97,7 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
     return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload), {
-        onMutate: async ({ createEventPayload, date, linkedTask }: CreateEventParams) => {
+        onMutate: async ({ createEventPayload, date, linkedTask, linkedView }: CreateEventParams) => {
             await queryClient.cancelQueries('events')
 
             const start = DateTime.fromISO(createEventPayload.datetime_start)
@@ -124,6 +126,7 @@ export const useCreateEvent = () => {
                     platform: '',
                 },
                 linked_task_id: linkedTask?.id ?? '',
+                linked_view_id: linkedView?.id ?? '',
             }
 
             const newEvents = produce(events, (draft) => {

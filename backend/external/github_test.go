@@ -23,8 +23,7 @@ func TestGetGithubToken(t *testing.T) {
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
 	t.Run("Success", func(t *testing.T) {
-		ctx := context.Background()
-		_, err := database.GetExternalTokenCollection(db).InsertOne(ctx, database.ExternalAPIToken{
+		database.GetExternalTokenCollection(db).InsertOne(context.Background(), database.ExternalAPIToken{
 			UserID:    userID,
 			ServiceID: TASK_SERVICE_ID_GITHUB,
 			AccountID: "accountID",

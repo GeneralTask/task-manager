@@ -38,6 +38,12 @@ interface GTCheckboxProps {
 const GTCheckbox = ({ isChecked, onChange, disabled, animated }: GTCheckboxProps) => {
     const animRef: LottieRef = useRef(null)
 
+    useEffect(() => {
+        if (!isChecked) {
+            animRef.current?.goToAndStop(ANIM_START_FRAME, true)
+        }
+    }, [isChecked])
+
     const onClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
         onChange(!isChecked)

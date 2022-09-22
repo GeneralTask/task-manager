@@ -99,6 +99,7 @@ export interface TEvent {
     can_modify: boolean
     conference_call: TConferenceCall
     linked_task_id: string
+    linked_view_id: string
 }
 
 export interface TMeetingBanner {
@@ -185,6 +186,7 @@ export enum DropType {
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
     FOLDER = 'folder',
+    OVERVIEW_VIEW_HEADER = 'overview-view-header',
 }
 
 export interface DropItem {
@@ -193,6 +195,7 @@ export interface DropItem {
     task?: TTask
     event?: TEvent
     folder?: TTaskSection
+    view?: TOverviewView
 }
 
 export interface TTaskCreateParams {

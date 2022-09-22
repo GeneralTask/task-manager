@@ -2,25 +2,22 @@ package migrations
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"os"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/rs/zerolog/log"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 )
 
 func TestMain(m *testing.M) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	if err != nil {
 		log.Fatal().Msgf("Failed to connect to DB")
 	}
 	defer dbCleanup()
 	log.Print("Dropping test DB now.")
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = db.Drop(dbCtx)
+	err = db.Drop(context.Background())
 	if err != nil {
 		log.Fatal().Msgf("Failed to wipe test DB")
 	}

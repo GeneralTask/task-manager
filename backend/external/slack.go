@@ -104,10 +104,8 @@ func (slackService SlackService) HandleLinkCallback(db *mongo.Database, params C
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = externalAPITokenCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_SLACK}, {"account_id": "todo"}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,

@@ -216,13 +216,10 @@ func getTaskSectionFieldKey(taskSection database.TaskSection, suffix string, set
 }
 
 func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string) (*string, error) {
-	parentCtx := context.Background()
 	settingCollection := database.GetUserSettingsCollection(db)
 	var userSetting database.UserSetting
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	err := settingCollection.FindOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"field_key": fieldKey},
@@ -250,7 +247,6 @@ func GetUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey stri
 }
 
 func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey string, fieldValue string) error {
-	parentCtx := context.Background()
 	keyFound := false
 	valueFound := false
 
@@ -278,10 +274,8 @@ func UpdateUserSetting(db *mongo.Database, userID primitive.ObjectID, fieldKey s
 		return errors.New("invalid value: " + fieldValue)
 	}
 	settingCollection := database.GetUserSettingsCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err = settingCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"user_id": userID},
 			{"field_key": fieldKey},

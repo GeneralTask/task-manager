@@ -2,10 +2,21 @@ import { useEffect, useRef } from 'react'
 import { useDragLayer } from 'react-dnd'
 import styled from 'styled-components'
 import { useIsDragging } from '../../hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropType } from '../../utils/types'
 import Task from './Task'
 
+const ViewHeaderContainer = styled.div`
+    width: 100%;
+    background-color: white;
+    border-radius: ${Border.radius.medium};
+    display: flex;
+    align-items: center;
+    padding: ${Spacing._8};
+    color: ${Colors.text.light};
+    ${Typography.subtitle};
+`
 const DragOverlay = styled.div`
     position: fixed;
     pointer-events: none;
@@ -37,14 +48,26 @@ const DragLayer = () => {
             dragItemRef.current.style.transform = `translate(${currentOffset.x}px, ${currentOffset.y}px)`
     }, [currentOffset])
 
-    if (!isDragging || itemType !== DropType.TASK || !item.task || !initialOffset || !currentOffset) return null
-    return (
-        <DragOverlay>
-            <DragItem ref={dragItemRef}>
-                <Task task={item.task} dragDisabled isSelected link="" />
-            </DragItem>
-        </DragOverlay>
-    )
+    if (!isDragging || !initialOffset || !currentOffset) {
+        return null
+    } else if (itemType === DropType.OVERVIEW_VIEW_HEADER) {
+        return (
+            <DragOverlay>
+                <DragItem ref={dragItemRef}>
+                    <ViewHeaderContainer>{item.view.name}</ViewHeaderContainer>
+                </DragItem>
+            </DragOverlay>
+        )
+    } else if (itemType === DropType.TASK && item.task) {
+        return (
+            <DragOverlay>
+                <DragItem ref={dragItemRef}>
+                    <Task task={item.task} dragDisabled isSelected link="" />
+                </DragItem>
+            </DragOverlay>
+        )
+    }
+    return null
 }
 
 export default DragLayer

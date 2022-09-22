@@ -14,6 +14,8 @@ export const ViewHeader = styled.div`
     justify-content: space-between;
     align-items: center;
     margin: ${Spacing._8} 0;
+    background-color: ${Colors.background.white};
+    cursor: pointer;
 `
 export const ViewName = styled.div`
     color: ${Colors.text.light};
