@@ -1,12 +1,12 @@
 import * as Popover from '@radix-ui/react-popover'
 import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { MenuContentShared } from './RadixUIConstants'
 
 const PopoverTrigger = styled(Popover.Trigger)`
     all: unset;
 `
 const PopoverContent = styled(Popover.Content)`
-    background-color: ${Colors.background.white};
+    ${MenuContentShared};
 `
 
 interface GTPopoverProps {

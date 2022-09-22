@@ -228,7 +228,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         />
                     }
                 />
-                <GTDatePicker />
+                <GTDatePicker
+                    initialDate={new Date(task.due_date)}
+                    setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                />
             </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />

@@ -3,9 +3,6 @@ import { Spacing, Border, Colors, Shadows, Typography } from '../../styles'
 import { TIconColor, TTextColor } from '../../styles/colors'
 import { TIconType } from '../atoms/Icon'
 
-
-const MENU_WIDTH = '172px'
-
 export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor }>`
     display: flex;
     align-items: center;
@@ -29,7 +26,6 @@ export const MenuContentShared = css`
     z-index: 5;
     ${Typography.body};
     padding: ${Spacing._4};
-    width: ${MENU_WIDTH};
     background-color: ${Colors.background.white};
     border-radius: ${Border.radius.mini};
     box-shadow: ${Shadows.light};
