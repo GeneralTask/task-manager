@@ -4,6 +4,8 @@ import styled, { css } from 'styled-components'
 import { Border, Colors } from '../../styles'
 import { DropItem, DropType } from '../../utils/types'
 
+const INDICATOR_HEIGHT = 2
+
 const DropOverlay = styled.div<{ isLast?: boolean }>`
     position: relative;
     width: 100%;
@@ -19,7 +21,7 @@ const DropIndicatorStyles = css<{ isVisible: boolean; dividerStyleType: 'gray' |
     background-color: ${Colors.background.dark};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: absolute;
-    height: 2px;
+    height: ${INDICATOR_HEIGHT}px;
     z-index: 1;
     background-color: ${({ dividerStyleType }) =>
         dividerStyleType === 'purple' ? Colors.border.purple : Colors.background.dark};
@@ -29,11 +31,11 @@ const DropIndicatorStyles = css<{ isVisible: boolean; dividerStyleType: 'gray' |
         ::before {
             content: '';
             position: absolute;
-            width: 6px;
-            height: 6px;
+            width: ${INDICATOR_HEIGHT * 3}px;
+            height: ${INDICATOR_HEIGHT * 3}px;
             border-radius: 50%;
             background-color: ${Colors.border.purple};
-            top: -2px;
+            top: -${INDICATOR_HEIGHT}px;
             left: 0;
         }
     `}
@@ -43,7 +45,7 @@ const DropIndicatorAbove = styled.div`
 `
 const DropIndicatorBelow = styled.div`
     ${DropIndicatorStyles}
-    bottom: -2px;
+    bottom: -${INDICATOR_HEIGHT}px;
 `
 const WholeDropIndicatorStyle = css`
     border: ${Border.stroke.medium} solid ${Colors.background.dark};
