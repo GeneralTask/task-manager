@@ -28,7 +28,7 @@ interface EventBodyProps {
     isBeingDragged?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
-    const { selectedEvent, setSelectedEvent } = useCalendarContext()
+    const { selectedEvent, setSelectedEvent, isPopoverDisabled } = useCalendarContext()
     const eventRef = useRef<HTMLDivElement>(null)
     const popupRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
@@ -110,7 +110,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
             isBeingDragged={props.isBeingDragged}
         >
             <EventInfoContainer onClick={onClick}>
-                {selectedEvent?.id === props.event.id && (
+                {selectedEvent?.id === props.event.id && !isPopoverDisabled && (
                     <EventDetailPopup
                         event={props.event}
                         date={props.date}
