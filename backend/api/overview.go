@@ -242,6 +242,8 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 			serviceID = external.TaskServiceGithub.ID
 		} else if view.Type == string(constants.ViewMeetingPreparation) {
 			continue
+		} else if view.Type == string(constants.ViewDueToday) {
+			continue
 		} else {
 			return errors.New("invalid view type")
 		}
