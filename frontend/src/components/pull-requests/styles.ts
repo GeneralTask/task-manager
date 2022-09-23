@@ -81,3 +81,9 @@ export const LinkButtonContainer = styled.div`
     align-items: center;
     justify-content: center;
 `
+export const BranchNameText = styled.span`
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
