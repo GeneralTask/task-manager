@@ -1,10 +1,9 @@
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, logos } from '../../styles/images'
+import { logos } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import BranchName from '../pull-requests/BranchName'
 import { Status } from '../pull-requests/styles'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
@@ -56,9 +55,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 <DetailsTopContainer>
                     <Icon icon={logos.github} size="small" color={Colors.icon.black} />
                     <MarginLeftAuto>
-                        <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                            <GTIconButton icon={icons.external_link} size="small" />
-                        </NoStyleAnchor>
+                        <ExternalLinkButton link={deeplink} />
                     </MarginLeftAuto>
                 </DetailsTopContainer>
                 <TitleContainer>{title}</TitleContainer>

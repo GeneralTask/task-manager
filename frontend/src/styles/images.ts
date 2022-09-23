@@ -5,7 +5,6 @@ import {
     faArrowRotateRight,
     faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
-    faArrowUpRightFromSquare,
     faCalendar,
     faCalendarDays,
     faCheck,
@@ -20,6 +19,7 @@ import {
     faXmark,
 } from '@fortawesome/pro-regular-svg-icons'
 import {
+    faArrowUpRightFromSquare,
     faBadgeCheck,
     faBars,
     faChevronDown,
