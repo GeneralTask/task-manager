@@ -4,7 +4,7 @@ import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { focusModeBackground, logos } from '../../styles/images'
 import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
@@ -18,8 +18,9 @@ import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
 const TemplateViewContainer = styled.div`
-    background-color: ${Colors.background.light};
     height: 100%;
+    background: url(${focusModeBackground});
+    background-size: contain;
 `
 const FloatingIcon = styled.div`
     position: fixed;
