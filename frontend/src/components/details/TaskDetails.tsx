@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -16,9 +16,11 @@ import { MeetingStartText } from '../atoms/MeetingStartText'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
+import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import ActionOption from '../molecules/ActionOption'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
@@ -44,13 +46,17 @@ const StatusContainer = styled.div`
     gap: ${Spacing._8};
     align-items: center;
     color: ${Colors.text.light};
-    margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
 const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
+`
+const TaskStatusContainer = styled.div`
+    display: flex;
+    gap: ${Spacing._8};
+    align-items: center;
 `
 
 const MeetingPreparationTimeContainer = styled.div`
@@ -199,12 +205,29 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     <MeetingStartText isTextColored>{meetingStartText}</MeetingStartText>
                 </MeetingPreparationTimeContainer>
             )}
-            {task.external_status && (
-                <StatusContainer>
-                    <Icon icon={linearStatus[task.external_status.type]} size="small" />
-                    {status}
-                </StatusContainer>
-            )}
+            <TaskStatusContainer>
+                {task.external_status && (
+                    <StatusContainer>
+                        <Icon icon={linearStatus[task.external_status.type]} size="small" />
+                        {status}
+                    </StatusContainer>
+                )}
+                <GTDropdownMenu
+                    items={TASK_PRIORITIES.map((priority, val) => ({
+                        label: priority.label,
+                        onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                        icon: priority.icon,
+                    }))}
+                    trigger={
+                        <GTButton
+                            value={TASK_PRIORITIES[task.priority_normalized].label}
+                            icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                            size="small"
+                            styleType="simple"
+                        />
+                    }
+                />
+            </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />
             ) : (

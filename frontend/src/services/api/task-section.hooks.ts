@@ -4,6 +4,7 @@ import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import apiClient from '../../utils/api'
 import { TTaskSection } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
+import { arrayMoveInPlace } from '../../utils/utils'
 
 interface TAddTaskSectionData {
     name: string
@@ -11,7 +12,8 @@ interface TAddTaskSectionData {
 
 interface TModifyTaskSectionData {
     sectionId: string
-    name: string
+    name?: string
+    id_ordering?: number
 }
 
 export const useAddTaskSection = () => {
@@ -91,18 +93,30 @@ export const useModifyTaskSection = () => {
             if (!sections) return
 
             const newSections = produce(sections, (draft) => {
-                const section = draft.find((s) => s.id === data.sectionId)
-                if (section) {
-                    section.name = data.name
+                const sectionIndex = draft.findIndex((s) => s.id === data.sectionId)
+                if (sectionIndex === -1) return
+                if (data.name) draft[sectionIndex].name = data.name
+                if (data.id_ordering) {
+                    let endIndex = data.id_ordering
+                    if (sectionIndex < endIndex) {
+                        endIndex -= 1
+                    }
+                    arrayMoveInPlace(draft, sectionIndex, endIndex)
                 }
             })
             queryClient.setQueryData('tasks', newSections)
         },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+        },
     })
 }
-const modifyTaskSection = async (data: TModifyTaskSectionData) => {
+const modifyTaskSection = async ({ sectionId, name, id_ordering }: TModifyTaskSectionData) => {
     try {
-        const res = await apiClient.patch(`/sections/modify/${data.sectionId}/`, { name: data.name })
+        const res = await apiClient.patch(`/sections/modify/${sectionId}/`, {
+            name,
+            id_ordering,
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('modifyTaskSection failed')

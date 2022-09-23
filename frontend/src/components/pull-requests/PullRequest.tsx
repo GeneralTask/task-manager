@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { icons } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import GTButton from '../atoms/buttons/GTButton'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { Column, CommentsCountContainer, LinkButtonContainer, PullRequestRow, Status, TitleContainer } from './styles'
 
 interface PullRequestProps {
@@ -34,9 +33,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
                     </CommentsCountContainer>
                 )}
                 <LinkButtonContainer>
-                    <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTButton icon={icons.external_link} styleType="secondary" />
-                    </NoStyleAnchor>
+                    <ExternalLinkButton link={deeplink} />
                 </LinkButtonContainer>
             </Column>
         </PullRequestRow>
