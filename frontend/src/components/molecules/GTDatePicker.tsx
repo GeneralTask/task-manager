@@ -6,7 +6,6 @@ import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import GTInput from '../atoms/GTInput'
 import GTButton from '../atoms/buttons/GTButton'
 import GTPopover from '../radix/GTPopover'
 
@@ -81,13 +80,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     }
                     return { color: Colors.text.black }
                 }}
-            />
-            <GTInput
-                initialValue={initialDate.toDateString()}
-                onEdit={function (newValue: string): void {
-                    throw new Error('Function not implemented.')
-                }}
-                fontSize="small"
             />
         </GTDatePickerWrapper>
     )
