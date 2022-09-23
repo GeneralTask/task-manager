@@ -690,7 +690,7 @@ func (api *API) ViewDoesExist(db *mongo.Database, userID primitive.ObjectID, par
 			return false, errors.New("'github_id' is required for github type views")
 		}
 		dbQuery["$and"] = append(dbQuery["$and"].([]bson.M), bson.M{"github_id": *params.GithubID})
-	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewMeetingPreparation) {
+	} else if params.Type != string(constants.ViewLinear) && params.Type != string(constants.ViewSlack) && params.Type != string(constants.ViewMeetingPreparation) && params.Type != string(constants.ViewDueToday) {
 		return false, errors.New("unsupported view type")
 	}
 	count, err := viewCollection.CountDocuments(context.Background(), dbQuery)
