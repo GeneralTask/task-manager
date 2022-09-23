@@ -5,6 +5,7 @@ import {
     faArrowRotateRight,
     faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
+    faArrowUpRightFromSquare,
     faCalendar,
     faCalendarDays,
     faCheck,
@@ -17,9 +18,6 @@ import {
     faSquare,
     faTrash,
     faXmark,
-} from '@fortawesome/pro-regular-svg-icons'
-import {
-    faArrowUpRightFromSquare,
     faBadgeCheck,
     faBars,
     faChevronDown,
@@ -35,10 +33,8 @@ import {
     faList,
     faTag,
     faTimer,
-} from '@fortawesome/pro-light-svg-icons'
-import {
     faHeadphones,
-} from '@fortawesome/pro-solid-svg-icons'
+} from '@fortawesome/pro-light-svg-icons'
 import {
     faSignalBars,
     faSignalBarsWeak,
