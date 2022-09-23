@@ -10,12 +10,14 @@ export interface ContextValues {
     isCollapsed: boolean
     isTaskDraggingOverDetailsView: boolean
     selectedEvent: TEvent | null
+    isPopoverDisabled: boolean
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
     setIsCollapsed: (isCollapsed: boolean) => void
     setIsTaskDraggingOverDetailsView: (isTaskDraggingOverDetailsView: boolean) => void
     setSelectedEvent: (event: TEvent | null) => void
+    setIsPopoverDisabled: React.Dispatch<React.SetStateAction<boolean>>
 }
 const CalendarContext = createContext<ContextValues>({
     calendarType: 'day',
@@ -24,12 +26,14 @@ const CalendarContext = createContext<ContextValues>({
     isCollapsed: false,
     isTaskDraggingOverDetailsView: false,
     selectedEvent: null,
+    isPopoverDisabled: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
     setIsCollapsed: emptyFunction,
     setIsTaskDraggingOverDetailsView: emptyFunction,
     setSelectedEvent: emptyFunction,
+    setIsPopoverDisabled: emptyFunction,
 })
 
 export const useCalendarContext = () => {
@@ -46,6 +50,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
     const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
+    const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
@@ -58,12 +63,14 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         isCollapsed,
         isTaskDraggingOverDetailsView,
         selectedEvent,
+        isPopoverDisabled,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
         setIsCollapsed: collapseAndSetType,
         setIsTaskDraggingOverDetailsView,
         setSelectedEvent,
+        setIsPopoverDisabled,
     }
 
     return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>
