@@ -183,7 +183,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                 />
                             )}
                             {task.deeplink && (
-                                <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
+                                <NoStyleAnchor href={task.deeplink} rel="noreferrer">
                                     <GTIconButton icon={icons.external_link} size="small" />
                                 </NoStyleAnchor>
                             )}
