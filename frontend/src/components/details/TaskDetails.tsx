@@ -213,6 +213,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         {status}
                     </StatusContainer>
                 )}
+                <GTDatePicker
+                    initialDate={new Date(task.due_date)}
+                    setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                />
                 <GTDropdownMenu
                     items={TASK_PRIORITIES.map((priority, val) => ({
                         label: priority.label,
@@ -227,10 +231,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             styleType="simple"
                         />
                     }
-                />
-                <GTDatePicker
-                    initialDate={new Date(task.due_date)}
-                    setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                 />
             </TaskStatusContainer>
             {task.isOptimistic ? (
