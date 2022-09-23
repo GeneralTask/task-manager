@@ -833,6 +833,19 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 			},
 		},
 		{
+			Type:     constants.ViewDueToday,
+			Name:     "Tasks Due Today",
+			Logo:     external.TaskServiceGeneralTask.LogoV2,
+			IsNested: false,
+			IsLinked: true,
+			Views: []SupportedViewItem{
+				{
+					Name:    "Tasks Due Today View",
+					IsAdded: true,
+				},
+			},
+		},
+		{
 			Type:     constants.ViewTaskSection,
 			Name:     "Task Sections",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
@@ -962,7 +975,7 @@ func (api *API) getViewFromSupportedView(db *mongo.Database, userID primitive.Ob
 		return api.getView(db, userID, viewType, &[]bson.M{
 			{"task_section_id": view.TaskSectionID},
 		})
-	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation {
+	} else if viewType == constants.ViewLinear || viewType == constants.ViewSlack || viewType == constants.ViewMeetingPreparation || viewType == constants.ViewDueToday {
 		return api.getView(db, userID, viewType, nil)
 	} else if viewType == constants.ViewGithub {
 		return api.getView(db, userID, viewType, &[]bson.M{
