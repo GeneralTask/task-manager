@@ -146,7 +146,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     }
 
     return (
-        <TaskContextMenuWrapper taskId={task.id} sectionId={sectionId}>
+        <TaskContextMenuWrapper task={task} sectionId={sectionId}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}

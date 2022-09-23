@@ -36,8 +36,9 @@ interface GTDatePickerProps {
     initialDate: Date
     setDate: (date: string) => void
     showIcon?: boolean
+    onlyCalendar?: boolean
 }
-const GTDatePicker = ({ initialDate, setDate, showIcon = true }: GTDatePickerProps) => {
+const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false }: GTDatePickerProps) => {
     const [value, onChange] = useState<Date | null>(initialDate)
 
     useLayoutEffect(() => {
@@ -49,40 +50,42 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true }: GTDatePickerPro
         setDate(DateTime.fromJSDate(date).toISO())
     }
 
+    const calendar = (
+        <GTDatePickerWrapper>
+            <Calendar
+                value={value}
+                onChange={handleOnChange}
+                placeholder="Select a Date"
+                firstDayOfWeek="sunday"
+                allowLevelChange={false}
+                size="sm"
+                dayStyle={(date, modifiers) => {
+                    if (modifiers.selected) {
+                        return {
+                            backgroundColor: Colors.gtColor.primary,
+                            color: Colors.text.white,
+                        }
+                    }
+                    if (date.toDateString() === new Date().toDateString()) {
+                        return {
+                            backgroundColor: Colors.background.medium,
+                        }
+                    }
+                    if (modifiers.outside) {
+                        return {}
+                    }
+                    return { color: Colors.text.black }
+                }}
+            />
+        </GTDatePickerWrapper>
+    )
+
+    if (onlyCalendar) return calendar
+
     return (
         <GTPopover
-            content={
-                <GTDatePickerWrapper>
-                    <Calendar
-                        value={value}
-                        onChange={handleOnChange}
-                        placeholder="Select a Date"
-                        firstDayOfWeek="sunday"
-                        allowLevelChange={false}
-                        size="sm"
-                        dayStyle={(date, modifiers) => {
-                            if (modifiers.selected) {
-                                return {
-                                    backgroundColor: Colors.gtColor.primary,
-                                    color: Colors.text.white,
-                                }
-                            }
-                            if (date.toDateString() === new Date().toDateString()) {
-                                return {
-                                    backgroundColor: Colors.background.medium,
-                                }
-                            }
-                            if (modifiers.outside) {
-                                return {}
-                            }
-                            return { color: Colors.text.black }
-                        }}
-                    />
-                </GTDatePickerWrapper>
-            }
+            content={calendar}
             trigger={
-                // TODO: change color based on Today, Tomorrow, etc.
-                // <GTButton styleType="simple" size="small" icon={icons.timer} value={value?.toLocaleDateString()} />
                 <GTButton
                     styleType="simple"
                     size="small"
