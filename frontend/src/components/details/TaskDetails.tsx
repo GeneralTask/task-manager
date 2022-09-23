@@ -40,14 +40,6 @@ const MarginLeftAuto = styled.div`
 const MarginLeft8 = styled.div`
     margin-left: ${Spacing._8};
 `
-const StatusContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: ${Spacing._8};
-    align-items: center;
-    color: ${Colors.text.light};
-    ${Typography.bodySmall};
-`
 const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -206,11 +198,22 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                {task.external_status && (
-                    <StatusContainer>
-                        <Icon icon={linearStatus[task.external_status.type]} size="small" />
-                        {status}
-                    </StatusContainer>
+                {task.external_status && task.all_statuses && (
+                    <GTDropdownMenu
+                        items={task.all_statuses.map((status) => ({
+                            label: status.state,
+                            onClick: () => modifyTask({ id: task.id, status: status }),
+                            icon: linearStatus[status.type],
+                        }))}
+                        trigger={
+                            <GTButton
+                                value={status}
+                                icon={linearStatus[task.external_status.type]}
+                                size="small"
+                                styleType="simple"
+                            />
+                        }
+                    />
                 )}
                 <GTDropdownMenu
                     items={TASK_PRIORITIES.map((priority, val) => ({
