@@ -10,7 +10,6 @@ import { logos } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
 import { TPullRequest } from '../../utils/types'
 import { isGithubLinkedAccount } from '../../utils/utils'
-import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
@@ -68,16 +67,10 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <Flex justifyContentSpaceBetween alignItemsCenter>
-                        <SectionHeader sectionName="GitHub Pull Requests" />
-                        <MarginBottonContainer>
-                            <SortSelector
-                                items={PR_SORT_SELECTOR_ITEMS}
-                                selectedSort={sort}
-                                setSelectedSort={setSort}
-                            />
-                        </MarginBottonContainer>
-                    </Flex>
+                    <SectionHeader sectionName="GitHub Pull Requests" />
+                    <MarginBottonContainer>
+                        <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
+                    </MarginBottonContainer>
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
