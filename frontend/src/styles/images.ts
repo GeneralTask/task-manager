@@ -111,6 +111,8 @@ export const linearStatus = Object.freeze({
     duplicate: '/images/linear_duplicate.svg',
 })
 
+export const focusModeBackground = '/images/focus_mode_background.jpg'
+
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons
 export type TLinearStatusImage = keyof typeof linearStatus

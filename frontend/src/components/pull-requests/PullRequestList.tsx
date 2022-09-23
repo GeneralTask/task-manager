@@ -16,17 +16,16 @@ const PullRequestList = ({ pullRequests, selectedPrId, sort, filter, overviewVie
     const sortedAndFilteredPullRequests = useSortAndFilter({ items: pullRequests, sort, filter })
 
     return (
-        <>
+        <Repository>
             {sortedAndFilteredPullRequests.map((pr) => (
-                <Repository key={pr.id}>
-                    <PullRequest
-                        pullRequest={pr}
-                        link={overviewViewId ? `/overview/${overviewViewId}/${pr.id}` : `/pull-requests/${pr.id}`}
-                        isSelected={pr.id === selectedPrId}
-                    />
-                </Repository>
+                <PullRequest
+                    key={pr.id}
+                    pullRequest={pr}
+                    link={overviewViewId ? `/overview/${overviewViewId}/${pr.id}` : `/pull-requests/${pr.id}`}
+                    isSelected={pr.id === selectedPrId}
+                />
             ))}
-        </>
+        </Repository>
     )
 }
 
