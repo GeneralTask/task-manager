@@ -5,6 +5,7 @@ import { useItemSelectionController } from '../../hooks'
 import { Sort } from '../../hooks/useSortAndFilter'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import { SORT_ORDER } from '../../utils/enums'
 import { TPullRequest } from '../../utils/types'
@@ -24,6 +25,9 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
+`
+const MarginBottonContainer = styled.div`
+    margin-bottom: ${Spacing._16};
 `
 
 const PullRequestsView = () => {
@@ -66,7 +70,13 @@ const PullRequestsView = () => {
                 <ScrollableListTemplate>
                     <Flex justifyContentSpaceBetween alignItemsCenter>
                         <SectionHeader sectionName="GitHub Pull Requests" />
-                        <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
+                        <MarginBottonContainer>
+                            <SortSelector
+                                items={PR_SORT_SELECTOR_ITEMS}
+                                selectedSort={sort}
+                                setSelectedSort={setSort}
+                            />
+                        </MarginBottonContainer>
                     </Flex>
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
