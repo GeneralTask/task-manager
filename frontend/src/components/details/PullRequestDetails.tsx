@@ -1,7 +1,9 @@
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
+import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import BranchName from '../pull-requests/BranchName'
@@ -36,11 +38,17 @@ const MaxWidth200 = styled.div`
 const InfoContainer = styled.div`
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     gap: ${Spacing._8};
     align-items: center;
     color: ${Colors.text.light};
     margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
+`
+const Subtext = styled.span`
+    margin-left: ${Spacing._16};
+    color: ${Colors.text.light};
+    ${Typography.mini};
 `
 
 interface PullRequestDetailsProps {
@@ -48,12 +56,15 @@ interface PullRequestDetailsProps {
 }
 const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
     const { title, status, deeplink, branch } = pullRequest
+    const { number, last_updated_at, author } = pullRequest
+    const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
 
     return (
         <DetailsViewTemplate data-testid="details-view-container">
             <MarginHorizontal8>
                 <DetailsTopContainer>
                     <Icon icon={logos.github} size="small" color={Colors.icon.black} />
+                    <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
                     <MarginLeftAuto>
                         <ExternalLinkButton link={deeplink} />
                     </MarginLeftAuto>
