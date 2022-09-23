@@ -5,8 +5,7 @@ import { icons } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
-import GTButton from '../atoms/buttons/GTButton'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { Column, CommentsCountContainer, LinkButtonContainer, PullRequestRow, Status, TruncatedText } from './styles'
 
@@ -44,9 +43,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
             </Column>
             <Column type="link">
                 <LinkButtonContainer>
-                    <NoStyleAnchor href={deeplink} target="_blank" rel="noreferrer">
-                        <GTButton icon={icons.external_link} styleType="secondary" />
-                    </NoStyleAnchor>
+                    <ExternalLinkButton link={deeplink} />
                 </LinkButtonContainer>
             </Column>
         </PullRequestRow>
