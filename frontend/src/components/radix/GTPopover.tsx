@@ -12,10 +12,12 @@ const PopoverContent = styled(Popover.Content)`
 interface GTPopoverProps {
     content: React.ReactNode
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
+    isOpen: boolean
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
-const GTPopover = ({ trigger, content }: GTPopoverProps) => {
+const GTPopover = ({ trigger, content, isOpen, setIsOpen }: GTPopoverProps) => {
     return (
-        <Popover.Root>
+        <Popover.Root modal open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger>{trigger}</PopoverTrigger>
             <Popover.Portal>
                 <PopoverContent>{content}</PopoverContent>

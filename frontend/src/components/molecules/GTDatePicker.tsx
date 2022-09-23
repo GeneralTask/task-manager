@@ -40,6 +40,7 @@ interface GTDatePickerProps {
 }
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false }: GTDatePickerProps) => {
     const [value, onChange] = useState<Date | null>(initialDate)
+    const [isOpen, setIsOpen] = useState(false)
 
     useLayoutEffect(() => {
         onChange(initialDate)
@@ -48,6 +49,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     const handleOnChange = (date: Date) => {
         onChange(date)
         setDate(DateTime.fromJSDate(date).toISO())
+        setIsOpen(false)
     }
 
     const calendar = (
@@ -84,6 +86,8 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
 
     return (
         <GTPopover
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
             content={calendar}
             trigger={
                 <GTButton
@@ -92,6 +96,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     icon={showIcon ? icons.timer : undefined}
                     value={getFormattedDate(value).dateString}
                     textColor={getFormattedDate(value).color}
+                    onClick={() => setIsOpen(!isOpen)}
                 />
             }
         />
