@@ -138,6 +138,7 @@ export const useCreateTask = () => {
                         body: data.body ?? '',
                         deeplink: '',
                         sent_at: '',
+                        priority_normalized: 0,
                         time_allocated: 0,
                         due_date: '',
                         source: {
@@ -212,19 +213,43 @@ export const useModifyTask = () => {
                 ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                if (!sections) return
+                if (sections) {
 
-                const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id)
-                    if (!task) return
-                    task.title = data.title || task.title
-                    task.due_date = data.dueDate || task.due_date
-                    task.time_allocated = data.timeAllocated || task.time_allocated
-                    task.body = data.body || task.body
-                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                })
+                    const newSections = produce(sections, (draft) => {
+                        const task = getTaskFromSections(draft, data.id)
+                        if (!task) return
+                        task.title = data.title || task.title
+                        task.due_date = data.dueDate || task.due_date
+                        task.time_allocated = data.timeAllocated || task.time_allocated
+                        task.body = data.body || task.body
+                        task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                    })
 
-                queryClient.setQueryData('tasks', newSections)
+                    queryClient.setQueryData('tasks', newSections)
+                }
+
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (views) {
+
+                    const newViews = produce(views, (draft) => {
+                        const sections = views.map(view => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items
+                        }))
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
+                        if (sectionIndex === undefined || taskIndex === undefined) return
+                        const task = draft[sectionIndex].view_items[taskIndex]
+                        if (!task) return
+                        task.title = data.title || task.title
+                        task.due_date = data.dueDate || task.due_date
+                        task.time_allocated = data.timeAllocated || task.time_allocated
+                        task.body = data.body || task.body
+                        task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                    })
+
+                    queryClient.setQueryData('overview', newViews)
+                }
+
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')

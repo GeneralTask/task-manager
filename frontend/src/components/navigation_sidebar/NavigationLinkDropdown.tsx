@@ -16,6 +16,7 @@ const DropdownContainer = styled.div`
 const LinksContainer = styled.div`
     display: flex;
     flex-direction: column;
+    flex: 1;
 `
 const SectionTitle = styled.span`
     color: ${Colors.text.black};

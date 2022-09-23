@@ -185,6 +185,7 @@ export enum DropType {
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
+    FOLDER = 'folder',
     OVERVIEW_VIEW_HEADER = 'overview-view-header',
 }
 
@@ -193,6 +194,7 @@ export interface DropItem {
     sectionId?: string
     task?: TTask
     event?: TEvent
+    folder?: TTaskSection
     view?: TOverviewView
 }
 

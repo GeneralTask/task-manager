@@ -69,7 +69,7 @@ const PullRequestsView = () => {
             <PullRequestsContainer>
                 <ScrollableListTemplate>
                     <Flex justifyContentSpaceBetween alignItemsCenter>
-                        <SectionHeader sectionName="Pull Requests" />
+                        <SectionHeader sectionName="GitHub Pull Requests" />
                         <MarginBottonContainer>
                             <SortSelector
                                 items={PR_SORT_SELECTOR_ITEMS}
