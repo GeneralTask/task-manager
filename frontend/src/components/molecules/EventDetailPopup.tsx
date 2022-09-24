@@ -48,6 +48,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
         useLayoutEffect(() => {
             if (!popupRef.current) return
             setPopupHeight(popupRef.current.getBoundingClientRect().height)
+            console.log(event)
         }, [])
         const onClose = () => setSelectedEvent(null)
 

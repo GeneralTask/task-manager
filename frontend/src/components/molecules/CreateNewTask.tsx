@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
 import { useCreateTask } from '../../services/api/tasks.hooks'
@@ -53,7 +54,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         if (!text) return
         else {
             setText('')
-            createTask({ title: text, taskSectionId: sectionId })
+            createTask({ title: text, taskSectionId: sectionId, optimisticId: uuidv4() })
         }
     }
     const handleKeyDown = (e: React.KeyboardEvent) => {
