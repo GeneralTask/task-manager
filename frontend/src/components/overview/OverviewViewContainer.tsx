@@ -32,6 +32,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
         }
         switch (view.type) {
             case 'task_section':
+            case 'due_today':
                 return TaskSectionViewItems
             case 'linear':
             case 'slack':
