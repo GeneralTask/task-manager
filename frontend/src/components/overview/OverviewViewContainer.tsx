@@ -6,6 +6,7 @@ import { DropType, TOverviewView } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import AuthBanner from './AuthBanner'
 import { OptimisticItemsContainer, PaginateTextButton, ViewContainer } from './styles'
+import DueTodayViewItems from './viewItems/DueTodayViewItems'
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
@@ -32,7 +33,6 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
         }
         switch (view.type) {
             case 'task_section':
-            case 'due_today':
                 return TaskSectionViewItems
             case 'linear':
             case 'slack':
@@ -41,6 +41,8 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                 return PullRequestViewItems
             case 'meeting_preparation':
                 return MeetingPreparationViewItems
+            case 'due_today':
+                return DueTodayViewItems
             default:
                 return () => <div>[WIP]List of items for type {view.type}</div>
         }
