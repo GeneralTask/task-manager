@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
@@ -98,6 +98,11 @@ const NavigationSectionLinks = () => {
     // TODO(maz): uncomment after we actually support task deletion
     const trashFolder = folders?.find((section) => section.is_trash)
 
+    const linearTasksCount = useMemo(() => {
+        const tasks = folders?.flatMap((folder) => folder.tasks) ?? []
+        return tasks.filter((task) => task.source.name === 'Linear').length
+    }, [folders])
+
     if (!folders) {
         return <Loading />
     }
@@ -127,6 +132,7 @@ const NavigationSectionLinks = () => {
                 link="/linear"
                 title="Linear Issues"
                 icon={logos.linear}
+                count={linearTasksCount}
                 isCurrentPage={pathname.split('/')[1] === 'linear'}
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
