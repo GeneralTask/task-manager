@@ -11,6 +11,7 @@ const DetailsViewContainer = styled.div`
     min-width: 300px;
     padding: ${Spacing._32} ${Spacing._16} ${Spacing._16};
     gap: ${Spacing._8};
+    overflow: scroll;
 `
 
 const DetailsViewTemplate = ({ children }: { children: React.ReactNode }) => {

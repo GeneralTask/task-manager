@@ -11,7 +11,7 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
     resize: none;
     outline: none;
     overflow: auto;
-    padding: ${Spacing._8} ${Spacing._8} 0;
+    padding: ${Spacing._8} ${Spacing._8};
     border-radius: ${Border.radius.small};
     :focus,
     :hover {
@@ -22,6 +22,8 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
             box-shadow: ${Shadows.light};
             background-color: ${Colors.background.white};`}
     }
+    width: 100%;
+    box-sizing: border-box;
     ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
