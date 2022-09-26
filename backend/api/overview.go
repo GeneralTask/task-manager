@@ -232,18 +232,14 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 			return errors.New("invalid user")
 		}
 		var serviceID string
-		if view.Type == string(constants.ViewTaskSection) {
-			continue
+		if view.Type == string(constants.ViewTaskSection) || view.Type == string(constants.ViewMeetingPreparation) || view.Type == string(constants.ViewDueToday) {
+			serviceID = external.TaskServiceGeneralTask.ID
 		} else if view.Type == string(constants.ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
 		} else if view.Type == string(constants.ViewSlack) {
 			serviceID = external.TaskServiceSlack.ID
 		} else if view.Type == string(constants.ViewGithub) {
 			serviceID = external.TaskServiceGithub.ID
-		} else if view.Type == string(constants.ViewMeetingPreparation) {
-			continue
-		} else if view.Type == string(constants.ViewDueToday) {
-			continue
 		} else {
 			return errors.New("invalid view type")
 		}
