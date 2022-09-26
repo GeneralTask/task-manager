@@ -104,7 +104,6 @@ func LoggingMiddleware(db *mongo.Database) func(c *gin.Context) {
 			userID = primitive.NilObjectID
 		}
 		database.InsertLogEvent(db, userID.(primitive.ObjectID), eventType)
-
 	}
 }
 
@@ -152,4 +151,44 @@ func FakeLagMiddleware(c *gin.Context) {
 
 func isLocalServer() bool {
 	return config.GetConfigValue("DB_NAME") == "main" && config.GetEnvironment() == config.Dev
+}
+
+func LogRequestMiddleware(db *mongo.Database) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		matchesRoute := false
+		for _, route := range RoutePrefixesToLogInDetail {
+			if strings.HasPrefix(c.Request.URL.Path, route) {
+				matchesRoute = true
+			}
+		}
+		if !matchesRoute {
+			return
+		}
+		startTime := time.Now()
+
+		// runs the rest of the request
+		c.Next()
+
+		userID, exists := c.Get("user")
+		if !exists {
+			userID = primitive.NilObjectID
+		}
+		userObjectID := userID.(primitive.ObjectID)
+
+		id := c.Param("task_id")
+		if id == "" {
+			id = c.Param("event_id")
+		}
+		var objectID primitive.ObjectID
+		if id != "" {
+			objectID, err := primitive.ObjectIDFromHex(id)
+			if err != nil {
+				// This means the task ID is improperly formatted
+				log.Debug().Err(err).Msgf("could not parse object_id=%s", objectID)
+				return
+			}
+		}
+
+		database.LogRequestInfo(db, startTime, userObjectID, c.Request.URL.Path, time.Now().UnixMilli()-startTime.UnixMilli(), &objectID)
+	}
 }

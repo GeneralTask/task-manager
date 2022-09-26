@@ -980,7 +980,7 @@ func TestLogRequestInfo(t *testing.T) {
 	taskID := primitive.NewObjectID()
 
 	t.Run("Success", func(t *testing.T) {
-		LogRequestInfo(db, time.Now(), userID, "/testing/", 100, &taskID, "source", 10)
+		LogRequestInfo(db, time.Now(), userID, "/testing/", 100, &taskID)
 		collection := GetServerRequestCollection(db)
 		cursor, err := collection.Find(context.Background(), bson.M{"user_id": userID})
 		assert.NoError(t, err)

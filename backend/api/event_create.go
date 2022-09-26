@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -11,7 +10,6 @@ import (
 )
 
 func (api *API) EventCreate(c *gin.Context) {
-	startTime := time.Now()
 	sourceID := c.Param("source_id")
 	taskSourceResult, err := api.ExternalConfig.GetSourceResult(sourceID)
 	if err != nil || !taskSourceResult.Details.CanCreateCalendarEvent {
@@ -90,6 +88,5 @@ func (api *API) EventCreate(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	go database.LogRequestInfo(api.DB, startTime, userID, "/events/create/", time.Now().UnixMilli()-startTime.UnixMilli(), &insertedEvent.ID, sourceID, 0)
 	c.JSON(201, gin.H{"id": insertedEvent.ID.Hex()})
 }

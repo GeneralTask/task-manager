@@ -1,8 +1,6 @@
 package api
 
 import (
-	"time"
-
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
@@ -10,7 +8,6 @@ import (
 )
 
 func (api *API) EventModify(c *gin.Context) {
-	startTime := time.Now()
 	eventIDHex := c.Param("event_id")
 	eventID, err := primitive.ObjectIDFromHex(eventIDHex)
 	if err != nil {
@@ -60,7 +57,6 @@ func (api *API) EventModify(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	go database.LogRequestInfo(api.DB, startTime, userID, "/events/modify/", time.Now().UnixMilli()-startTime.UnixMilli(), &event.ID, event.SourceID, 0)
 	c.JSON(200, gin.H{})
 }
 

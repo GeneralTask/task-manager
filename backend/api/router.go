@@ -9,6 +9,15 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+var RoutePrefixesToLogInDetail = [...]string{
+	"/tasks/create_external/slack/",
+	"/events/create/",
+	"/events/delete/",
+	"/events/modify/",
+	"/tasks/create/",
+	"/tasks/modify/",
+}
+
 func GetRouter(handlers *API) *gin.Engine {
 	// Setting release mode has the benefit of reducing spam on the unit test output
 	gin.SetMode(gin.ReleaseMode)
@@ -22,6 +31,9 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	// Introduce fake lag when running local server to more accurately simulate prod
 	router.Use(FakeLagMiddleware)
+
+	// Kick off logging of request
+	router.Use(LogRequestMiddleware(handlers.DB))
 
 	// Swagger API (only on local)
 	if config.GetEnvironment() == config.Dev {

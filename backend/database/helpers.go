@@ -728,19 +728,15 @@ func AdjustOrderingIDsForCollection(collection *mongo.Collection, userID primiti
 	return nil
 }
 
-func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.ObjectID, method string, latencyMS int64, objectID *primitive.ObjectID, sourceID string, timeToCloseMS int64) {
+func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.ObjectID, method string, latencyMS int64, objectID *primitive.ObjectID) {
 	requestInfo := ServerRequestInfo{
 		Timestamp: primitive.NewDateTimeFromTime(timestamp),
 		UserID:    userID,
 		Method:    method,
 		LatencyMS: latencyMS,
-		SourceID:  sourceID,
 	}
 	if objectID != nil {
 		requestInfo.ObjectID = *objectID
-	}
-	if timeToCloseMS != 0 {
-		requestInfo.TimeToCloseMS = timeToCloseMS
 	}
 	_, err := GetServerRequestCollection(db).InsertOne(context.Background(), &requestInfo)
 	if err != nil {
