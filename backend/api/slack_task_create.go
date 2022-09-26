@@ -219,7 +219,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			Handle500(c)
 			return
 		} else if !modalResponse.Ok {
-			logger.Error().Msg(modalResponse.Error)
+			logger.Error().Err(errors.New(modalResponse.Error)).Msg("modal response not ok")
 			Handle500(c)
 			return
 		}
