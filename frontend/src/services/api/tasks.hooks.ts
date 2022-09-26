@@ -210,6 +210,7 @@ export const useModifyTask = () => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
                 ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -383,6 +384,7 @@ export const useReorderTask = () => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
                 ])
 
                 if (sections) {
