@@ -1066,6 +1066,19 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 		assert.Equal(t, 1, len(views))
 		assert.False(t, views[0].IsLinked)
 	})
+	t.Run("UpdateSingleGTView", func(t *testing.T) {
+		views := []database.View{
+			{
+				UserID:   userID,
+				IsLinked: false,
+				Type:     "task_section",
+			},
+		}
+		err := api.UpdateViewsLinkedStatus(&views, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(views))
+		assert.True(t, views[0].IsLinked)
+	})
 	t.Run("UpdateSingleUnlinkedView", func(t *testing.T) {
 		views := []database.View{
 			{
