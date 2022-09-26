@@ -55,7 +55,6 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
     }
-
     const value = {
         calendarType,
         showMainHeader,

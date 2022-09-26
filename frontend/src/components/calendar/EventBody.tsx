@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { MouseEvent, useRef } from 'react'
 import { DateTime } from 'luxon'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
@@ -49,24 +49,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight)
-    const [eventWidth, setEventWidth] = useState(0)
-    useLayoutEffect(() => {
-        if (!eventRef.current) return
-        setEventWidth(eventRef.current.getBoundingClientRect().width)
-    }, [])
-    const [coords, setCoords] = useState({
-        xCoord: 0,
-        yCoord: 0,
-    })
-    const xCoordEvent = useRef<number>()
-    const yCoordEvent = useRef<number>()
-
-    useEffect(() => {
-        window.addEventListener('resize', handleWindowResize)
-        return () => window.removeEventListener('resize', handleWindowResize)
-    }, [])
-
     const onClick = (e: MouseEvent) => {
         // Prevent popup from closing when user clicks on the popup component
         if (popupRef.current?.contains(e.target as Node)) return
@@ -75,29 +57,8 @@ function EventBody(props: EventBodyProps): JSX.Element {
         } else {
             setSelectedEvent(props.event)
         }
-
-        if (!eventRef.current) return
-        // Define the x-coord and y-coord of the event to be the bottom left corner
-        xCoordEvent.current = eventRef.current.getBoundingClientRect().left
-        yCoordEvent.current = eventRef.current.getBoundingClientRect().bottom
-
-        if (xCoordEvent.current && yCoordEvent.current) {
-            setCoords({
-                xCoord: xCoordEvent.current,
-                yCoord: yCoordEvent.current,
-            })
-        }
     }
-    const handleWindowResize = () => {
-        if (eventRef.current) {
-            setCoords({
-                xCoord: eventRef.current.getBoundingClientRect().left,
-                yCoord: eventRef.current.getBoundingClientRect().bottom,
-            })
-            setEventWidth(eventRef.current.getBoundingClientRect().width)
-        }
-        setWindowHeight(window.innerHeight)
-    }
+
     return (
         <EventBodyStyle
             key={props.event.id}
@@ -111,16 +72,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
         >
             <EventInfoContainer onClick={onClick}>
                 {selectedEvent?.id === props.event.id && !isPopoverDisabled && (
-                    <EventDetailPopup
-                        event={props.event}
-                        date={props.date}
-                        xCoord={coords.xCoord}
-                        yCoord={coords.yCoord}
-                        eventHeight={eventBodyHeight}
-                        eventWidth={eventWidth}
-                        windowHeight={windowHeight}
-                        ref={popupRef}
-                    />
+                    <EventDetailPopup event={props.event} date={props.date} eventBodyRef={eventRef} ref={popupRef} />
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
                     <EventTitle>

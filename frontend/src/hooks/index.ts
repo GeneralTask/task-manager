@@ -7,15 +7,17 @@ import useKeyboardShortcut from './useKeyboardShortcut'
 import useNavigateToTask from './useNavigateToTask'
 import useSortAndFilter from './useSortAndFilter'
 import useTimeout from './useTimeout'
+import useViewport from './useViewport'
 
 export {
     useClickOutside,
+    useEventBanners,
     useInterval,
-    useItemSelectionController,
     useIsDragging,
+    useItemSelectionController,
     useKeyboardShortcut,
+    useNavigateToTask,
     useSortAndFilter,
     useTimeout,
-    useEventBanners,
-    useNavigateToTask,
+    useViewport,
 }

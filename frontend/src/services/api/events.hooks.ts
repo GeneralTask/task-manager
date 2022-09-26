@@ -5,6 +5,8 @@ import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
 import { TEvent, TOverviewView, TTask } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
+import { useCalendarContext } from '../../components/calendar/CalendarContext'
+import { useRef, useEffect } from 'react'
 
 interface TEventAttendee {
     name: string
@@ -98,6 +100,14 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
 
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
+    const { selectedEvent, setSelectedEvent } = useCalendarContext()
+
+    // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback
+    const selectedEventRef = useRef(selectedEvent)
+    useEffect(() => {
+        selectedEventRef.current = selectedEvent
+    }, [selectedEvent])
+
     return useMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         onMutate: async ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
             await queryClient.cancelQueries('events')
@@ -133,12 +143,17 @@ export const useCreateEvent = () => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
             if (!events) return
 
+            const eventIndex = events.findIndex((event) => event.id === optimisticId)
             const newEvents = produce(events, (draft) => {
-                const index = draft.findIndex((event) => event.id === optimisticId)
-                draft[index].id = id
+                draft[eventIndex].id = id
             })
 
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
+
+            // if this event is selected, update the selectedEvent to the actual event ID
+            if (selectedEventRef.current?.id === optimisticId) {
+                setSelectedEvent(newEvents[eventIndex])
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries('events')
