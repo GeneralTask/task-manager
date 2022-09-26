@@ -5,7 +5,7 @@ import { icons } from './styles/images'
 export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 
 // API Constants
-export const TASK_SECTION_DEFAULT_ID = '-1'
+export const TASK_FOLDER_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
 export const MESSAGE_TYPE_DM = 'directmessage'
 
@@ -44,9 +44,9 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const FOCUS_MODE_ROUTE = 'focus-mode'
 
 export const NO_EVENT_TITLE = '(no title)'
-export const DEFAULT_SECTION_ID = '000000000000000000000001'
-export const DONE_SECTION_ID = '000000000000000000000004'
-export const TRASH_SECTION_ID = '000000000000000000000005'
+export const DEFAULT_FOLDER_ID = '000000000000000000000001'
+export const DONE_FOLDER_ID = '000000000000000000000004'
+export const TRASH_FOLDER_ID = '000000000000000000000005'
 
 export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'

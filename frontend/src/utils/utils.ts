@@ -1,6 +1,6 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
-import { TLinkedAccount, TTask, TTaskSection } from './types'
+import { TLinkedAccount, TTask, TTaskFolder } from './types'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
@@ -66,29 +66,29 @@ export const countWithOverflow = (count: number, max = 99) => {
     return `${count}`
 }
 
-interface TGetTaskIndexFromSectionsReturnType {
+interface TGetTaskIndexFromFoldersReturnType {
     taskIndex?: number
-    sectionIndex?: number
+    folderIndex?: number
 }
-export const getTaskIndexFromSections = (
-    sections: Immutable<{ id?: string; tasks: TTask[] }[]>,
+export const getTaskIndexFromFolders = (
+    folders: Immutable<{ id?: string; tasks: TTask[] }[]>,
     taskId: string,
-    sectionId?: string
-): TGetTaskIndexFromSectionsReturnType => {
-    const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
-    if (sectionId) {
-        const sectionIndex = sections.findIndex((section) => section.id === sectionId)
-        if (sectionIndex === -1) return invalidResult
-        const taskIndex = sections[sectionIndex].tasks.findIndex((task) => task.id === taskId)
+    folderId?: string
+): TGetTaskIndexFromFoldersReturnType => {
+    const invalidResult = { taskIndex: undefined, folderIndex: undefined }
+    if (folderId) {
+        const folderIndex = folders.findIndex((folder) => folder.id === folderId)
+        if (folderIndex === -1) return invalidResult
+        const taskIndex = folders[folderIndex].tasks.findIndex((task) => task.id === taskId)
         if (taskIndex === -1) return invalidResult
-        return { taskIndex, sectionIndex }
+        return { taskIndex, folderIndex }
     } else {
-        for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-            const section = sections[sectionIndex]
-            for (let taskIndex = 0; taskIndex < section.tasks.length; taskIndex++) {
-                const task = section.tasks[taskIndex]
+        for (let folderIndex = 0; folderIndex < folders.length; folderIndex++) {
+            const folder = folders[folderIndex]
+            for (let taskIndex = 0; taskIndex < folder.tasks.length; taskIndex++) {
+                const task = folder.tasks[taskIndex]
                 if (task.id === taskId) {
-                    return { taskIndex, sectionIndex }
+                    return { taskIndex, folderIndex }
                 }
             }
         }
@@ -96,14 +96,14 @@ export const getTaskIndexFromSections = (
     return invalidResult
 }
 
-export const getTaskFromSections = (
-    sections: TTaskSection[],
+export const getTaskFromFolders = (
+    folders: TTaskFolder[],
     taskId: string,
-    sectionId?: string
+    folderId?: string
 ): TTask | undefined => {
-    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId, sectionId)
-    if (taskIndex === undefined || sectionIndex === undefined) return undefined
-    return sections[sectionIndex].tasks[taskIndex]
+    const { taskIndex, folderIndex } = getTaskIndexFromFolders(folders, taskId, folderId)
+    if (taskIndex === undefined || folderIndex === undefined) return undefined
+    return folders[folderIndex].tasks[taskIndex]
 }
 
 export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {

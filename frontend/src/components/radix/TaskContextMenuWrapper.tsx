@@ -9,11 +9,11 @@ import { GTMenuItem } from './RadixUIConstants'
 
 interface TaskContextMenuProps {
     task: TTask
-    sectionId?: string
+    folderId?: string
     children: React.ReactNode
 }
-const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuProps) => {
-    const { data: taskSections } = useGetTasks(false)
+const TaskContextMenuWrapper = ({ task, folderId, children }: TaskContextMenuProps) => {
+    const { data: taskFolders } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
 
@@ -30,21 +30,21 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
             ],
         },
         {
-            label: 'Section',
+            label: 'Folder',
             icon: icons.folder,
-            subItems: taskSections
+            subItems: taskFolders
                 ? [
-                      ...taskSections
+                      ...taskFolders
                           .filter((s) => !s.is_done && !s.is_trash)
-                          .map((section) => ({
-                              label: section.name,
+                          .map((folder) => ({
+                              label: folder.name,
                               icon: icons.folder,
-                              selected: section.id === sectionId,
+                              selected: folder.id === folderId,
                               onClick: () => {
                                   reorderTask({
                                       taskId: task.id,
-                                      dropSectionId: section.id,
-                                      dragSectionId: sectionId,
+                                      dropFolderId: folder.id,
+                                      dragFolderId: folderId,
                                       orderingId: 1,
                                   })
                               },

@@ -9,23 +9,23 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const TaskSectionViewItems = forwardRef(
+const TaskFolderViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
-        const { task_section_id: sectionId } = view
+        const { task_folder_id: folderId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: reorderTask } = useReorderTask()
 
         const handleReorderTask = useCallback(
             (item: DropItem, dropIndex: number) => {
-                if (!view.task_section_id) return
+                if (!view.task_folder_id) return
                 reorderTask({
                     taskId: item.id,
                     orderingId: dropIndex,
-                    dropSectionId: view.task_section_id,
-                    dragSectionId: item.sectionId,
+                    dropFolderId: view.task_folder_id,
+                    dragFolderId: item.folderId,
                 })
             },
-            [view.task_section_id]
+            [view.task_folder_id]
         )
 
         return (
@@ -33,7 +33,7 @@ const TaskSectionViewItems = forwardRef(
                 <ViewHeader ref={ref}>
                     <ViewName>{view.name}</ViewName>
                 </ViewHeader>
-                {sectionId && <CreateNewTask disableTooltip sectionId={sectionId} />}
+                {folderId && <CreateNewTask disableTooltip folderId={folderId} />}
                 {view.view_items.length > 0 ? (
                     view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                         <ReorderDropContainer
@@ -46,8 +46,8 @@ const TaskSectionViewItems = forwardRef(
                                 task={item as TTask}
                                 dragDisabled={false}
                                 index={index}
-                                sectionId={sectionId}
-                                sectionScrollingRef={scrollRef}
+                                folderId={folderId}
+                                folderScrollingRef={scrollRef}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
                                 link={`/overview/${view.id}/${item.id}`}
                             />
@@ -71,4 +71,4 @@ const TaskSectionViewItems = forwardRef(
     }
 )
 
-export default TaskSectionViewItems
+export default TaskFolderViewItems

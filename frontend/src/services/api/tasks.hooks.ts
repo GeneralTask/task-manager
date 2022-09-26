@@ -3,14 +3,14 @@ import { QueryFunctionContext, useMutation, useQuery } from "react-query"
 import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
+import { arrayMoveInPlace, getTaskFromFolders, getTaskIndexFromFolders, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
-import { TTaskSection, TTask, TOverviewView, TOverviewItem, TExternalStatus } from "../../utils/types"
+import { TTaskFolder, TTask, TOverviewView, TOverviewItem, TExternalStatus } from "../../utils/types"
 
 export interface TCreateTaskData {
     title: string
     body?: string
-    taskSectionId: string
+    taskFolderId: string
 }
 
 export interface TCreateTaskResponse {
@@ -32,7 +32,7 @@ interface TTaskModifyRequestBody {
         priority_normalized?: number
         status?: TExternalStatus
     }
-    id_task_section?: string
+    id_task_folder?: string
     id_ordering?: number
     title?: string
     due_date?: string
@@ -42,19 +42,19 @@ interface TTaskModifyRequestBody {
 
 export interface TMarkTaskDoneData {
     taskId: string
-    sectionId?: string
+    folderId?: string
     isDone: boolean
 }
 
 export interface TReorderTaskData {
     taskId: string
-    dropSectionId: string
+    dropFolderId: string
     orderingId: number
-    dragSectionId?: string
+    dragFolderId?: string
 }
 
 export const useGetTasks = (isEnabled = true) => {
-    return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled })
+    return useQuery<TTaskFolder[], void>('tasks', getTasks, { enabled: isEnabled })
 }
 const getTasks = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -89,7 +89,7 @@ export const useCreateTask = () => {
     const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
@@ -97,11 +97,11 @@ export const useCreateTask = () => {
                 queryClient.cancelQueries('tasks'),
             ])
 
-            if (sections) {
-                const updatedSections = produce(sections, (draft) => {
-                    const section = draft.find((section) => section.id === data.taskSectionId)
-                    if (!section) return
-                    const orderingId = section.tasks.length > 0 ? section.tasks[0].id_ordering - 1 : 1
+            if (folders) {
+                const updatedFolders = produce(folders, (draft) => {
+                    const folder = draft.find((folder) => folder.id === data.taskFolderId)
+                    if (!folder) return
+                    const orderingId = folder.tasks.length > 0 ? folder.tasks[0].id_ordering - 1 : 1
                     const newTask: TTask = {
                         id: optimisticId,
                         id_ordering: orderingId,
@@ -124,15 +124,15 @@ export const useCreateTask = () => {
                         isOptimistic: true,
                         is_meeting_preparation_task: false,
                     }
-                    section.tasks = [newTask, ...section.tasks]
+                    folder.tasks = [newTask, ...folder.tasks]
                 })
-                queryClient.setQueryData('tasks', updatedSections)
+                queryClient.setQueryData('tasks', updatedFolders)
             }
             if (views) {
                 const updatedViews = produce(views, (draft) => {
-                    const section = draft.find(view => view.task_section_id === data.taskSectionId)
-                    if (!section) return
-                    const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
+                    const folder = draft.find(view => view.task_folder_id === data.taskFolderId)
+                    if (!folder) return
+                    const orderingId = folder.view_items.length > 0 ? folder.view_items[0].id_ordering - 1 : 1
                     const newTask = <TOverviewItem>{
                         id: optimisticId,
                         id_ordering: orderingId,
@@ -154,28 +154,28 @@ export const useCreateTask = () => {
                         is_done: false,
                         isOptimistic: true,
                     }
-                    section.view_items = [newTask, ...section.view_items]
+                    folder.view_items = [newTask, ...folder.view_items]
                 })
                 queryClient.setQueryData('overview', updatedViews)
             }
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
-            if (sections) {
-                const updatedSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, optimisticId, createData.taskSectionId)
+            if (folders) {
+                const updatedFolders = produce(folders, (draft) => {
+                    const task = getTaskFromFolders(draft, optimisticId, createData.taskFolderId)
                     if (!task?.id) return
                     task.id = response.task_id
                     task.isOptimistic = false
                 })
-                queryClient.setQueryData('tasks', updatedSections)
+                queryClient.setQueryData('tasks', updatedFolders)
             }
             if (views) {
                 const updatedViews = produce(views, (draft) => {
-                    const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
-                    const task = section?.view_items.find((task) => task.id === optimisticId)
+                    const folder = draft.find((folder) => folder.task_folder_id === createData.taskFolderId)
+                    const task = folder?.view_items.find((task) => task.id === optimisticId)
                     if (!task) return
                     task.id = response.task_id
                     task.isOptimistic = false
@@ -194,7 +194,7 @@ export const createTask = async (data: TCreateTaskData) => {
         const res = await apiClient.post('/tasks/create/gt_task/', {
             title: data.title,
             body: data.body ?? '',
-            id_task_section: data.taskSectionId,
+            id_task_folder: data.taskFolderId,
         })
         return castImmutable(res.data)
     } catch {
@@ -215,11 +215,11 @@ export const useModifyTask = () => {
                     queryClient.cancelQueries('tasks'),
                 ])
 
-                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                if (sections) {
+                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('tasks')
+                if (folders) {
 
-                    const newSections = produce(sections, (draft) => {
-                        const task = getTaskFromSections(draft, data.id)
+                    const newFolders = produce(folders, (draft) => {
+                        const task = getTaskFromFolders(draft, data.id)
                         if (!task) return
                         task.title = data.title || task.title
                         task.due_date = data.dueDate || task.due_date
@@ -229,20 +229,20 @@ export const useModifyTask = () => {
                         task.external_status = data.status || task.external_status
                     })
 
-                    queryClient.setQueryData('tasks', newSections)
+                    queryClient.setQueryData('tasks', newFolders)
                 }
 
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 if (views) {
 
                     const newViews = produce(views, (draft) => {
-                        const sections = views.map(view => ({
-                            id: view.task_section_id,
+                        const folders = views.map(view => ({
+                            id: view.task_folder_id,
                             tasks: view.view_items
                         }))
-                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
-                        if (sectionIndex === undefined || taskIndex === undefined) return
-                        const task = draft[sectionIndex].view_items[taskIndex]
+                        const { taskIndex, folderIndex } = getTaskIndexFromFolders(folders, data.id)
+                        if (folderIndex === undefined || taskIndex === undefined) return
+                        const task = draft[folderIndex].view_items[taskIndex]
                         if (!task) return
                         task.title = data.title || task.title
                         task.due_date = data.dueDate || task.due_date
@@ -283,16 +283,16 @@ export const useMarkTaskDone = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
         onMutate: async (data: TMarkTaskDoneData) => {
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
                 queryClient.cancelQueries('tasks'),
                 queryClient.cancelQueries('overview'),
             ])
 
-            if (sections) {
-                const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.taskId, data.sectionId)
+            if (folders) {
+                const newFolders = produce(folders, (draft) => {
+                    const task = getTaskFromFolders(draft, data.taskId, data.folderId)
                     if (task) {
                         task.is_done = data.isDone
                         if (task.is_done) {
@@ -304,36 +304,36 @@ export const useMarkTaskDone = () => {
                     }
                 })
 
-                queryClient.setQueryData('tasks', newSections)
+                queryClient.setQueryData('tasks', newFolders)
 
                 if (data.isDone) {
                     setTimeout(() => {
-                        const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                        if (!sections) return
+                        const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('tasks')
+                        if (!folders) return
 
-                        const newSections = produce(sections, (draft) => {
-                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
-                            if (taskIndex === undefined || sectionIndex === undefined) return
-                            if (draft[sectionIndex].tasks[taskIndex].is_done) {
-                                const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        const newFolders = produce(folders, (draft) => {
+                            const { taskIndex, folderIndex } = getTaskIndexFromFolders(draft, data.taskId)
+                            if (taskIndex === undefined || folderIndex === undefined) return
+                            if (draft[folderIndex].tasks[taskIndex].is_done) {
+                                const task = draft[folderIndex].tasks.splice(taskIndex, 1)
                                 draft.find((s) => s.is_done)?.tasks.unshift(...task)
                             }
                         })
 
-                        queryClient.setQueryData('tasks', newSections)
+                        queryClient.setQueryData('tasks', newFolders)
                         queryClient.invalidateQueries('tasks')
                     }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
                 }
             }
             if (views) {
                 const newViews = produce(views, (draft) => {
-                    const sections = views.map(view => ({
-                        id: view.task_section_id,
+                    const folders = views.map(view => ({
+                        id: view.task_folder_id,
                         tasks: view.view_items
                     }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
-                    if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
+                    const { taskIndex, folderIndex } = getTaskIndexFromFolders(folders, data.taskId, data.folderId)
+                    if (folderIndex === undefined || taskIndex === undefined) return
+                    const task = draft[folderIndex].view_items[taskIndex]
                     task.is_done = data.isDone
                     if (task.is_done && task.source.name === 'Linear' && task.external_status) {
                         task.external_status.state = 'Done'
@@ -349,14 +349,14 @@ export const useMarkTaskDone = () => {
                         if (!views) return
 
                         const newViews = produce(views, (draft) => {
-                            const sections = views.map(view => ({
-                                id: view.task_section_id,
+                            const folders = views.map(view => ({
+                                id: view.task_folder_id,
                                 tasks: view.view_items
                             }))
-                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
-                            if (sectionIndex === undefined || taskIndex === undefined) return
-                            if (draft[sectionIndex].view_items[taskIndex].is_done) {
-                                draft[sectionIndex].view_items.splice(taskIndex, 1)
+                            const { taskIndex, folderIndex } = getTaskIndexFromFolders(folders, data.taskId, data.folderId)
+                            if (folderIndex === undefined || taskIndex === undefined) return
+                            if (draft[folderIndex].view_items[taskIndex].is_done) {
+                                draft[folderIndex].view_items.splice(taskIndex, 1)
                             }
                         })
 
@@ -384,7 +384,7 @@ export const useReorderTask = () => {
             reorderTask(data),
         {
             onMutate: async (data: TReorderTaskData) => {
-                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                const folders = queryClient.getImmutableQueryData<TTaskFolder[]>('tasks')
                 const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
@@ -392,80 +392,80 @@ export const useReorderTask = () => {
                     queryClient.cancelQueries('tasks'),
                 ])
 
-                if (sections) {
-                    const newSections = produce(sections, (draft) => {
-                        // move within the existing section
-                        if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                            const section = draft.find((s) => s.id === data.dropSectionId)
-                            if (section == null) return
-                            const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
+                if (folders) {
+                    const newFolders = produce(folders, (draft) => {
+                        // move within the existing folder
+                        if (!data.dragFolderId || data.dragFolderId === data.dropFolderId) {
+                            const folder = draft.find((s) => s.id === data.dropFolderId)
+                            if (folder == null) return
+                            const startIndex = folder.tasks.findIndex((t) => t.id === data.taskId)
                             if (startIndex === -1) return
                             let endIndex = data.orderingId - 1
                             if (startIndex < endIndex) {
                                 endIndex -= 1
                             }
-                            arrayMoveInPlace(section.tasks, startIndex, endIndex)
+                            arrayMoveInPlace(folder.tasks, startIndex, endIndex)
 
                             // update ordering ids
-                            resetOrderingIds(section.tasks)
+                            resetOrderingIds(folder.tasks)
                         }
-                        // move task from one section to the other
+                        // move task from one folder to the other
                         else {
                             // remove task from old location
-                            const dragSection = draft.find((section) => section.id === data.dragSectionId)
-                            if (dragSection == null) return
-                            const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
+                            const dragFolder = draft.find((folder) => folder.id === data.dragFolderId)
+                            if (dragFolder == null) return
+                            const dragTaskIndex = dragFolder.tasks.findIndex((task) => task.id === data.taskId)
                             if (dragTaskIndex === -1) return
-                            const dragTask = dragSection.tasks[dragTaskIndex]
-                            dragSection.tasks.splice(dragTaskIndex, 1)
+                            const dragTask = dragFolder.tasks[dragTaskIndex]
+                            dragFolder.tasks.splice(dragTaskIndex, 1)
 
                             // add task to new location
-                            const dropSection = draft.find((section) => section.id === data.dropSectionId)
-                            if (dropSection == null) return
-                            dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
+                            const dropFolder = draft.find((folder) => folder.id === data.dropFolderId)
+                            if (dropFolder == null) return
+                            dropFolder.tasks.splice(data.orderingId - 1, 0, dragTask)
 
                             // update ordering ids
-                            resetOrderingIds(dropSection.tasks)
-                            resetOrderingIds(dragSection.tasks)
+                            resetOrderingIds(dropFolder.tasks)
+                            resetOrderingIds(dragFolder.tasks)
                         }
                     })
-                    queryClient.setQueryData('tasks', newSections)
+                    queryClient.setQueryData('tasks', newFolders)
                 }
                 if (views) {
                     const newViews = produce(views, (draft) => {
-                        // move within the existing section
-                        if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                            const section = draft.find(view => view.task_section_id === data.dropSectionId)
-                            if (section == null) return
-                            const startIndex = section.view_items.findIndex((t) => t.id === data.taskId)
+                        // move within the existing folder
+                        if (!data.dragFolderId || data.dragFolderId === data.dropFolderId) {
+                            const folder = draft.find(view => view.task_folder_id === data.dropFolderId)
+                            if (folder == null) return
+                            const startIndex = folder.view_items.findIndex((t) => t.id === data.taskId)
                             if (startIndex === -1) return
                             let endIndex = data.orderingId - 1
                             if (startIndex < endIndex) {
                                 endIndex -= 1
                             }
-                            arrayMoveInPlace(section.view_items, startIndex, endIndex)
+                            arrayMoveInPlace(folder.view_items, startIndex, endIndex)
 
                             // update ordering ids
-                            resetOrderingIds(section.view_items)
+                            resetOrderingIds(folder.view_items)
                         }
-                        // move task from one section to the other
+                        // move task from one folder to the other
                         else {
                             // remove task from old location
-                            const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
-                            if (dragSection == null) return
-                            const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.taskId)
+                            const dragFolder = draft.find((folder) => folder.task_folder_id === data.dragFolderId)
+                            if (dragFolder == null) return
+                            const dragTaskIndex = dragFolder.view_items.findIndex((item) => item.id === data.taskId)
                             if (dragTaskIndex === -1) return
-                            const dragTask = dragSection.view_items[dragTaskIndex]
-                            dragSection.view_items.splice(dragTaskIndex, 1)
+                            const dragTask = dragFolder.view_items[dragTaskIndex]
+                            dragFolder.view_items.splice(dragTaskIndex, 1)
 
                             // add task to new location
-                            const dropSection = draft.find((section) => section.task_section_id === data.dropSectionId)
-                            if (dropSection == null) return
-                            dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
+                            const dropFolder = draft.find((folder) => folder.task_folder_id === data.dropFolderId)
+                            if (dropFolder == null) return
+                            dropFolder.view_items.splice(data.orderingId - 1, 0, dragTask)
 
                             // update ordering ids
-                            resetOrderingIds(dropSection.view_items)
-                            resetOrderingIds(dragSection.view_items)
+                            resetOrderingIds(dropFolder.view_items)
+                            resetOrderingIds(dragFolder.view_items)
                         }
                     })
                     queryClient.setQueryData('overview', newViews)
@@ -481,7 +481,7 @@ export const useReorderTask = () => {
 export const reorderTask = async (data: TReorderTaskData) => {
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
-            id_task_section: data.dropSectionId,
+            id_task_folder: data.dropFolderId,
             id_ordering: data.orderingId,
         })
         return castImmutable(res.data)

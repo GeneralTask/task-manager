@@ -11,7 +11,7 @@ import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import SignOutButton from '../molecules/SignOutButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 
@@ -99,7 +99,7 @@ const SettingsView = () => {
     return (
         <ScrollViewMimic>
             <SettingsViewContainer>
-                <SectionHeader sectionName="Settings" />
+                <Header name="Settings" />
                 <AccountsContainer>
                     <FullWidth>
                         <GapView>

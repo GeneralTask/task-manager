@@ -3,17 +3,17 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
 import { useGetTasks } from '../services/api/tasks.hooks'
-import { TOverviewView, TTaskSection } from '../utils/types'
+import { TOverviewView, TTaskFolder } from '../utils/types'
 
 const useNavigateToTask = () => {
     const { pathname } = useLocation()
     const { data: viewsData } = useGetOverviewViews()
-    const { data: sectionsData } = useGetTasks()
+    const { data: foldersData } = useGetTasks()
     const navigate = useNavigate()
     const { setCalendarType } = useCalendarContext()
 
     const getTaskURL = useCallback(
-        (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string) => {
+        (taskID: string, views: TOverviewView[], folders: TTaskFolder[], pathname: string) => {
             const isUserOnOverviewPage = pathname.startsWith('/overview')
             if (isUserOnOverviewPage) {
                 for (const view of views) {
@@ -26,11 +26,11 @@ const useNavigateToTask = () => {
                     }
                 }
             }
-            for (const section of sections) {
-                for (const task of section.tasks) {
+            for (const folder of folders) {
+                for (const task of folder.tasks) {
                     if (task.id === taskID) {
                         setCalendarType('day')
-                        navigate(`/tasks/${section.id}/${task.id}`)
+                        navigate(`/tasks/${folder.id}/${task.id}`)
                         return
                     }
                 }
@@ -40,7 +40,7 @@ const useNavigateToTask = () => {
         []
     )
 
-    return (taskID: string) => getTaskURL(taskID, viewsData ?? [], sectionsData ?? [], pathname)
+    return (taskID: string) => getTaskURL(taskID, viewsData ?? [], foldersData ?? [], pathname)
 }
 
 export default useNavigateToTask

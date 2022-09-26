@@ -145,7 +145,7 @@ export interface TRepository {
     pull_requests: TPullRequest[]
 }
 
-export interface TTaskSection {
+export interface TTaskFolder {
     id: string
     name: string
     tasks: TTask[]
@@ -193,10 +193,10 @@ export enum DropType {
 
 export interface DropItem {
     id: string
-    sectionId?: string
+    folderId?: string
     task?: TTask
     event?: TEvent
-    folder?: TTaskSection
+    folder?: TTaskFolder
     view?: TOverviewView
 }
 
@@ -206,7 +206,7 @@ export interface TTaskCreateParams {
     body?: string
     due_date?: string
     time_duration?: number
-    id_task_section?: string
+    id_task_folder?: string
 }
 
 export interface TUserInfo {
@@ -216,13 +216,13 @@ export interface TUserInfo {
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
 
-export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation'
+export type TOverviewViewType = 'github' | 'task_folder' | 'linear' | 'slack' | 'meeting_preparation'
 
 export interface TOverviewView {
     id: string
     name: string
     type: TOverviewViewType
-    task_section_id?: string
+    task_folder_id?: string
     is_reorderable: boolean
     logo: TLogoImage
     view_items: TOverviewItem[]
@@ -236,7 +236,7 @@ export interface TSupportedViewItem {
     is_linked: boolean
     view_id: string // id of view if is_linked is true
     github_id: string
-    task_section_id: string
+    task_folder_id: string
     slack_id: string
     logo: TLogoImage
     is_added: boolean

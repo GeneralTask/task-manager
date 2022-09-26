@@ -39,10 +39,10 @@ const Tooltip = styled.div`
 const blurShortcuts = [KEYBOARD_SHORTCUTS.arrowUp.key, KEYBOARD_SHORTCUTS.arrowDown.key, KEYBOARD_SHORTCUTS.close.key]
 
 interface CreateNewTaskProps {
-    sectionId: string
+    folderId: string
     disableTooltip?: boolean
 }
-const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
+const CreateNewTask = ({ folderId, disableTooltip }: CreateNewTaskProps) => {
     const [text, setText] = useState('')
     const [shouldFocus, setShouldFocus] = useState(false)
     const { mutate: createTask } = useCreateTask()
@@ -53,7 +53,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
         if (!text) return
         else {
             setText('')
-            createTask({ title: text, taskSectionId: sectionId })
+            createTask({ title: text, taskFolderId: folderId })
         }
     }
     const handleKeyDown = (e: React.KeyboardEvent) => {

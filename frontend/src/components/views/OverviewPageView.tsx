@@ -11,7 +11,7 @@ import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import EditViewsButtons from '../overview/EditViewsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -78,7 +78,7 @@ const OverviewView = () => {
         <>
             <OverviewPageContainer>
                 <ScrollableListTemplate ref={scrollRef}>
-                    <SectionHeader sectionName="Overview" />
+                    <Header name="Overview" />
                     <ActionsContainer>
                         <EditViewsButtons />
                     </ActionsContainer>

@@ -7,7 +7,7 @@ import { icons } from '../../styles/images'
 import SelectableContainer from '../atoms/SelectableContainer'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const LinearSelectableContainer = styled(SelectableContainer)`
@@ -28,7 +28,7 @@ const LinearTitle = styled.span`
 `
 
 const LinearView = () => {
-    const { data: taskSections } = useGetTasks()
+    const { data: taskFolders } = useGetTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
 
@@ -37,9 +37,9 @@ const LinearView = () => {
     }
 
     const linearTasks = useMemo(() => {
-        const tasks = taskSections?.flatMap((section) => section.tasks) ?? []
+        const tasks = taskFolders?.flatMap((folder) => folder.tasks) ?? []
         return tasks.filter((task) => task.source.name === 'Linear')
-    }, [taskSections])
+    }, [taskFolders])
 
     const { task } = useMemo(() => {
         if (linearTasks.length === 0) return { task: null }
@@ -47,12 +47,12 @@ const LinearView = () => {
             if (task.id === linearIssueId) return { task }
         }
         return { task: linearTasks[0] }
-    }, [taskSections, linearIssueId])
+    }, [taskFolders, linearIssueId])
 
     return (
         <>
             <ScrollableListTemplate>
-                <SectionHeader sectionName="Linear Issues" />
+                <Header name="Linear Issues" />
                 <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
                 {linearTasks?.map((task) => (
                     <LinearSelectableContainer

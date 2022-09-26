@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_FOLDER_ID } from '../../constants'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
+import { useAddTaskFolder, useModifyTaskFolder } from '../../services/api/task-folder.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -15,9 +15,9 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
-const SHOW_TRASH_SECTION = false
+const SHOW_TRASH_FOLDER = false
 
-const AddSectionContainer = styled.div`
+const AddFolderContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -37,46 +37,46 @@ const InputContainer = styled.div`
     }
 `
 
-const NavigationSectionLinks = () => {
-    const [isAddSectionInputVisible, setIsAddSectionInputVisible] = useState(false)
-    const [sectionName, setSectionName] = useState('')
-    const { mutate: addTaskSection } = useAddTaskSection()
-    const { mutate: modifyTaskSection } = useModifyTaskSection()
+const NavigationFolderLinks = () => {
+    const [isAddFolderInputVisible, setIsAddFolderInputVisible] = useState(false)
+    const [folderName, setFolderName] = useState('')
+    const { mutate: addTaskFolder } = useAddTaskFolder()
+    const { mutate: modifyTaskFolder } = useModifyTaskFolder()
 
     const { data: folders } = useGetTasks()
     const { data: pullRequestRepositories } = useGetPullRequests()
-    const { section: sectionId } = useParams()
+    const { folder: folderId } = useParams()
     const { pathname } = useLocation()
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSectionName(e.target.value)
+        setFolderName(e.target.value)
     }
     const onKeyDownHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
         e.stopPropagation()
-        if (e.key === 'Enter' && sectionName.trim() !== '') {
-            setSectionName('')
-            addTaskSection({ name: sectionName })
-            setIsAddSectionInputVisible(false)
+        if (e.key === 'Enter' && folderName.trim() !== '') {
+            setFolderName('')
+            addTaskFolder({ name: folderName })
+            setIsAddFolderInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
-            setSectionName('')
-            setIsAddSectionInputVisible(false)
+            setFolderName('')
+            setIsAddFolderInputVisible(false)
         }
     }
     const inputRef = useRef<HTMLInputElement>(null)
-    const onOpenAddSectionInputHandler = useCallback(() => {
-        setIsAddSectionInputVisible(true)
+    const onOpenAddFolderInputHandler = useCallback(() => {
+        setIsAddFolderInputVisible(true)
         inputRef.current?.focus()
     }, [inputRef])
 
     useEffect(() => {
-        if (isAddSectionInputVisible && inputRef.current) {
+        if (isAddFolderInputVisible && inputRef.current) {
             inputRef.current.focus()
         }
-    }, [isAddSectionInputVisible])
+    }, [isAddFolderInputVisible])
 
     const handleClickOutsideInput = (e: MouseEvent) => {
         if (!inputRef.current?.contains(e.target as Node)) {
-            setIsAddSectionInputVisible(false)
+            setIsAddFolderInputVisible(false)
         }
     }
     useEffect(() => {
@@ -87,16 +87,16 @@ const NavigationSectionLinks = () => {
     }, [])
 
     const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        modifyTaskSection({
-            sectionId: item.id,
+        modifyTaskFolder({
+            folderId: item.id,
             id_ordering: dropIndex,
         })
     }, [])
 
-    const defaultFolder = folders?.find((section) => section.id === DEFAULT_SECTION_ID)
-    const doneFolder = folders?.find((section) => section.is_done)
+    const defaultFolder = folders?.find((folder) => folder.id === DEFAULT_FOLDER_ID)
+    const doneFolder = folders?.find((folder) => folder.is_done)
     // TODO(maz): uncomment after we actually support task deletion
-    const trashFolder = folders?.find((section) => section.is_trash)
+    const trashFolder = folders?.find((folder) => folder.is_trash)
 
     if (!folders) {
         return <Loading />
@@ -129,60 +129,60 @@ const NavigationSectionLinks = () => {
                 icon={logos.linear}
                 isCurrentPage={pathname.split('/')[1] === 'linear'}
             />
-            <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLinkDropdown title="Tasks" openAddFolderInput={onOpenAddFolderInputHandler}>
                 {defaultFolder && (
                     <NavigationLink
                         link={`/tasks/${defaultFolder.id}`}
                         title={defaultFolder.name}
                         icon={icons.folder}
-                        isCurrentPage={sectionId === defaultFolder.id}
-                        taskSection={defaultFolder}
+                        isCurrentPage={folderId === defaultFolder.id}
+                        taskFolder={defaultFolder}
                         count={defaultFolder.tasks.length}
                         droppable
-                        testId="task-section-link"
+                        testId="task-folder-link"
                     />
                 )}
                 {folders
-                    ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
-                    .map((section, index) => (
+                    ?.filter((folder) => folder.id !== DEFAULT_FOLDER_ID && !folder.is_done && !folder.is_trash)
+                    .map((folder, index) => (
                         <ReorderDropContainer
-                            key={section.id}
+                            key={folder.id}
                             index={index} // +1 because we skip the default folder
                             acceptDropType={DropType.FOLDER}
                             onReorder={handleReorder}
                             dividerStyleType="purple"
                         >
                             <NavigationLink
-                                key={section.id}
-                                link={`/tasks/${section.id}`}
-                                title={section.name}
+                                key={folder.id}
+                                link={`/tasks/${folder.id}`}
+                                title={folder.name}
                                 icon={icons.folder}
-                                isCurrentPage={sectionId === section.id}
-                                taskSection={section}
-                                count={section.tasks.length}
+                                isCurrentPage={folderId === folder.id}
+                                taskFolder={folder}
+                                count={folder.tasks.length}
                                 draggable
                                 droppable
-                                testId="task-section-link"
+                                testId="task-folder-link"
                             />
                         </ReorderDropContainer>
                     ))}
-                {isAddSectionInputVisible && (
+                {isAddFolderInputVisible && (
                     <NavigationLinkTemplate>
-                        <AddSectionContainer>
+                        <AddFolderContainer>
                             <div>
                                 <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
                             </div>
                             <InputContainer>
                                 <NoStyleInput
                                     ref={inputRef}
-                                    value={sectionName}
+                                    value={folderName}
                                     onChange={onKeyChangeHandler}
                                     onKeyDown={onKeyDownHandler}
-                                    placeholder="Add Section"
-                                    data-testid="add-section-input"
+                                    placeholder="Add Folder"
+                                    data-testid="add-folder-input"
                                 />
                             </InputContainer>
-                        </AddSectionContainer>
+                        </AddFolderContainer>
                     </NavigationLinkTemplate>
                 )}
                 <ReorderDropContainer
@@ -198,23 +198,23 @@ const NavigationSectionLinks = () => {
                                 link={`/tasks/${doneFolder.id}`}
                                 title={doneFolder.name}
                                 icon={icons.checkbox_checked}
-                                isCurrentPage={sectionId === doneFolder.id}
-                                taskSection={doneFolder}
+                                isCurrentPage={folderId === doneFolder.id}
+                                taskFolder={doneFolder}
                                 count={doneFolder.tasks.length}
                                 droppable
-                                testId="task-section-link"
+                                testId="task-folder-link"
                             />
                         )}
-                        {SHOW_TRASH_SECTION && trashFolder && (
+                        {SHOW_TRASH_FOLDER && trashFolder && (
                             <NavigationLink
                                 link={`/tasks/${trashFolder.id}`}
                                 title={trashFolder.name}
                                 icon={icons.trash}
-                                isCurrentPage={sectionId === trashFolder.id}
-                                taskSection={defaultFolder}
+                                isCurrentPage={folderId === trashFolder.id}
+                                taskFolder={defaultFolder}
                                 count={trashFolder.tasks.length}
                                 droppable
-                                testId="task-section-link"
+                                testId="task-folder-link"
                             />
                         )}
                     </>
@@ -224,4 +224,4 @@ const NavigationSectionLinks = () => {
     )
 }
 
-export default NavigationSectionLinks
+export default NavigationFolderLinks

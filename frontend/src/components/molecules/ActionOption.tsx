@@ -10,7 +10,7 @@ import { TTask } from '../../utils/types'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import SectionEditor from './SectionEditor'
+import FolderEditor from './FolderEditor'
 
 const ButtonAndPopoverContainer = styled.div`
     position: relative;
@@ -23,7 +23,7 @@ const TooltipContainer = styled.div`
     justify-content: center;
 `
 
-const SectionContainer = styled.div`
+const FolderContainer = styled.div`
     margin-right: ${Spacing._8};
 `
 interface ActionOptionProps {
@@ -33,10 +33,10 @@ interface ActionOptionProps {
     setIsShown: (isShown: boolean) => void
 }
 
-const section = ReactDOMServer.renderToString(
+const folder = ReactDOMServer.renderToString(
     <TooltipContainer>
-        <SectionContainer>{KEYBOARD_SHORTCUTS.showSectionEditor.label}</SectionContainer>
-        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.showSectionEditor.keyLabel}</KeyboardShortcutContainer>
+        <FolderContainer>{KEYBOARD_SHORTCUTS.showFolderEditor.label}</FolderContainer>
+        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.showFolderEditor.keyLabel}</KeyboardShortcutContainer>
     </TooltipContainer>
 )
 
@@ -61,13 +61,13 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
     const { icon, popover } = (() => {
         return {
             icon: icons.folder,
-            popover: <SectionEditor task_id={task.id} closeSectionEditor={() => setIsShown(false)} />,
+            popover: <FolderEditor task_id={task.id} closeFolderEditor={() => setIsShown(false)} />,
         }
     })()
 
     return (
         <ButtonAndPopoverContainer ref={actionRef}>
-            <TooltipWrapper inline dataTip={section} tooltipId="tooltip">
+            <TooltipWrapper inline dataTip={folder} tooltipId="tooltip">
                 <GTIconButton icon={icon} size="small" onClick={() => setIsShown(!isShown)} />
             </TooltipWrapper>
             {isShown && popover}

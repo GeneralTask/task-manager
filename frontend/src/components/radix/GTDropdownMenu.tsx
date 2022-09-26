@@ -3,8 +3,8 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
+import { Divider } from '../atoms/Divider'
 import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
 import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemShared } from './RadixUIConstants'
 
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`

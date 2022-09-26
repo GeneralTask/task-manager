@@ -4,7 +4,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
+import { DONE_FOLDER_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -44,14 +44,14 @@ interface TaskProps {
     task: TTask
     dragDisabled: boolean
     index?: number
-    sectionId?: string
-    sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
+    folderId?: string
+    folderScrollingRef?: MutableRefObject<HTMLDivElement | null>
     isSelected: boolean
     link: string
     meetingPreparationStartTime?: DateTime
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
+const Task = ({ task, dragDisabled, index, folderId, folderScrollingRef, isSelected, link }: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -79,20 +79,20 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         }
     }, SINGLE_SECOND_INTERVAL)
 
-    // Add event listener to check if scrolling occurs in task section
+    // Add event listener to check if scrolling occurs in task folder
     useEffect(() => {
         const setScrollTrue = () => {
             isScrolling.current = true
         }
-        sectionScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
+        folderScrollingRef?.current?.addEventListener('scroll', setScrollTrue)
         return () => {
-            sectionScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
+            folderScrollingRef?.current?.removeEventListener('scroll', setScrollTrue)
         }
     }, [])
 
-    //If task selection changes, re-enable auto-scrolling for task section
+    //If task selection changes, re-enable auto-scrolling for task folder
     useEffect(() => {
-        if (sectionScrollingRef?.current) {
+        if (folderScrollingRef?.current) {
             isScrolling.current = false
         }
     }, [isSelected])
@@ -124,14 +124,14 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.TASK,
-            item: { id: task.id, sectionId, task },
+            item: { id: task.id, folderId, task },
             canDrag: !dragDisabled,
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
                 return { opacity: isDragging ? 0.5 : 1 }
             },
         }),
-        [task, index, sectionId]
+        [task, index, folderId]
     )
 
     // hide default drag preview
@@ -142,11 +142,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const [isVisible, setIsVisible] = useState(true)
 
     const taskFadeOut = () => {
-        if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
+        if (folderId !== DONE_FOLDER_ID) setIsVisible(task.is_done)
     }
 
     return (
-        <TaskContextMenuWrapper task={task} sectionId={sectionId}>
+        <TaskContextMenuWrapper task={task} folderId={folderId}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}
@@ -159,7 +159,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     </DominoContainer>
                     <MarkTaskDoneButton
                         taskId={task.id}
-                        sectionId={sectionId}
+                        folderId={folderId}
                         isDone={task.is_done}
                         isSelected={isSelected}
                         isDisabled={task.isOptimistic}

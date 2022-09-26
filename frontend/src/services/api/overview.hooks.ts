@@ -79,7 +79,7 @@ export interface TAddViewData {
 interface TAddViewPayload {
     type: TOverviewViewType
     github_id?: string
-    task_section_id?: string
+    task_folder_id?: string
     slack_id?: string
 }
 interface TAddViewReponse {
@@ -92,7 +92,7 @@ export const useAddView = () => {
             const payload: TAddViewPayload = {
                 type: supportedView.type,
                 github_id: supportedViewItem.github_id || undefined,
-                task_section_id: supportedViewItem.task_section_id || undefined,
+                task_folder_id: supportedViewItem.task_folder_id || undefined,
                 slack_id: supportedViewItem.slack_id || undefined,
             }
             return addView(payload)
@@ -125,7 +125,7 @@ export const useAddView = () => {
                             id: uuidv4(),
                             name: supportedViewItem.name,
                             type: supportedView.type,
-                            task_section_id: supportedViewItem.task_section_id,
+                            task_folder_id: supportedViewItem.task_folder_id,
                             is_reorderable: false,
                             logo: supportedView.logo,
                             view_items: [],

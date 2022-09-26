@@ -9,7 +9,7 @@ import { OptimisticItemsContainer, PaginateTextButton, ViewContainer } from './s
 import ExternalViewItems from './viewItems/ExternalViewItems'
 import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
-import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
+import TaskFolderViewItems from './viewItems/TaskFolderViewItems'
 
 const PAGE_SIZE = 5
 
@@ -31,8 +31,8 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
             )
         }
         switch (view.type) {
-            case 'task_section':
-                return TaskSectionViewItems
+            case 'task_folder':
+                return TaskFolderViewItems
             case 'linear':
             case 'slack':
                 return ExternalViewItems

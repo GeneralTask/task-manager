@@ -2,10 +2,10 @@ import styled from 'styled-components'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Dimensions, Shadows, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { getTaskIndexFromSections } from '../../utils/utils'
+import { getTaskIndexFromFolders } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 
-const SectionEditorContainer = styled.div`
+const FolderEditorContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: ${Dimensions.TASK_ACTION_WIDTH};
@@ -40,7 +40,7 @@ const ListItem = styled.div`
     }
     cursor: pointer;
 `
-const SectionTitleBox = styled.div<{ isSelected: boolean }>`
+const FolderTitleBox = styled.div<{ isSelected: boolean }>`
     display: flex;
     flex: 1;
     flex-direction: row;
@@ -49,7 +49,7 @@ const SectionTitleBox = styled.div<{ isSelected: boolean }>`
     color: ${(props) => (props.isSelected ? Colors.gtColor.primary : Colors.text.light)};
     min-width: 0;
 `
-const SectionName = styled.span`
+const FolderName = styled.span`
     flex: 1;
     white-space: nowrap;
     overflow: hidden;
@@ -57,53 +57,53 @@ const SectionName = styled.span`
     text-align: left;
 `
 
-interface SectionEditorProps {
+interface FolderEditorProps {
     task_id: string
-    closeSectionEditor: () => void
+    closeFolderEditor: () => void
 }
-export default function SectionEditor({ task_id, closeSectionEditor }: SectionEditorProps): JSX.Element {
+export default function FolderEditor({ task_id, closeFolderEditor }: FolderEditorProps): JSX.Element {
     const { mutate: reorderTask } = useReorderTask()
     const { data } = useGetTasks()
 
-    const options = data?.map((section) => {
-        // Do not allow moving to the done or trash sections
-        if (section.is_done || section.is_trash) return
-        const { sectionIndex } = getTaskIndexFromSections(data, task_id)
-        if (sectionIndex === undefined) return
-        const currentSectionId = data[sectionIndex].id
-        const isCurrentSection = section.id === currentSectionId
+    const options = data?.map((folder) => {
+        // Do not allow moving to the done or trash folders
+        if (folder.is_done || folder.is_trash) return
+        const { folderIndex } = getTaskIndexFromFolders(data, task_id)
+        if (folderIndex === undefined) return
+        const currentFolderId = data[folderIndex].id
+        const isCurrentFolder = folder.id === currentFolderId
 
         const handleOnClick = () => {
             reorderTask({
                 taskId: task_id,
-                dropSectionId: section.id,
+                dropFolderId: folder.id,
                 orderingId: 1,
-                dragSectionId: currentSectionId,
+                dragFolderId: currentFolderId,
             })
-            closeSectionEditor()
+            closeFolderEditor()
         }
 
         return (
-            <ListItem key={section.id} onClick={handleOnClick}>
-                <SectionTitleBox isSelected={isCurrentSection}>
+            <ListItem key={folder.id} onClick={handleOnClick}>
+                <FolderTitleBox isSelected={isCurrentFolder}>
                     <Icon
                         size={'small'}
                         icon={icons.folder}
-                        color={isCurrentSection ? Colors.icon.purple : Colors.icon.gray}
+                        color={isCurrentFolder ? Colors.icon.purple : Colors.icon.gray}
                     />
-                    <SectionName>{section.name}</SectionName>
-                </SectionTitleBox>
-                {isCurrentSection && <Icon size={'xSmall'} icon={icons.checkbox_checked} color={Colors.icon.purple} />}
+                    <FolderName>{folder.name}</FolderName>
+                </FolderTitleBox>
+                {isCurrentFolder && <Icon size={'xSmall'} icon={icons.checkbox_checked} color={Colors.icon.purple} />}
             </ListItem>
         )
     })
 
     return (
-        <SectionEditorContainer onClick={(e) => e.stopPropagation()}>
+        <FolderEditorContainer onClick={(e) => e.stopPropagation()}>
             <TopNav>
-                <Header>Set Section</Header>
+                <Header>Set Folder</Header>
             </TopNav>
             <OptionsContainer>{options}</OptionsContainer>
-        </SectionEditorContainer>
+        </FolderEditorContainer>
     )
 }

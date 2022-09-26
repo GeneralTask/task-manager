@@ -39,7 +39,7 @@ const ExternalViewItems = forwardRef(
                         key={item.id}
                         task={item as TTask}
                         dragDisabled={true}
-                        sectionScrollingRef={scrollRef}
+                        folderScrollingRef={scrollRef}
                         isSelected={overviewViewId === view.id && overviewItemId === item.id}
                         link={`/overview/${view.id}/${item.id}`}
                     />

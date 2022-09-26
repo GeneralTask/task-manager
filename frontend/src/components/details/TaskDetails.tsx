@@ -77,7 +77,7 @@ interface TaskDetailsProps {
 }
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
-    const [sectionEditorShown, setSectionEditorShown] = useState(false)
+    const [folderEditorShown, setFolderEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
@@ -169,10 +169,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         <MarginLeftAuto>
                             {!is_meeting_preparation_task && (
                                 <ActionOption
-                                    isShown={sectionEditorShown}
-                                    setIsShown={setSectionEditorShown}
+                                    isShown={folderEditorShown}
+                                    setIsShown={setFolderEditorShown}
                                     task={task}
-                                    keyboardShortcut="showSectionEditor"
+                                    keyboardShortcut="showFolderEditor"
                                 />
                             )}
                             {task.deeplink && (

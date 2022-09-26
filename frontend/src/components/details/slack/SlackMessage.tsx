@@ -4,7 +4,7 @@ import { MESSAGE_TYPE_DM } from '../../../constants'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { TSlackMessageParams } from '../../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
-import { Divider } from '../../atoms/SectionDivider'
+import { Divider } from '../../atoms/Divider'
 
 const MessageContainer = styled.div`
     padding: ${Spacing._8};

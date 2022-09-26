@@ -18,7 +18,7 @@ const LinksContainer = styled.div`
     flex-direction: column;
     flex: 1;
 `
-const SectionTitle = styled.span`
+const FolderTitle = styled.span`
     color: ${Colors.text.black};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -27,7 +27,7 @@ const SectionTitle = styled.span`
     user-select: none;
     ${Typography.eyebrow};
 `
-const AddSectionContainer = styled.div`
+const AddFolderContainer = styled.div`
     padding: ${Spacing._4};
     border-radius: 50%;
     &:hover {
@@ -39,25 +39,25 @@ const AddSectionContainer = styled.div`
 interface NavigationLinkDropdownProps {
     children: ReactNode
     title: string
-    openAddSectionInput?: () => void
+    openAddFolderInput?: () => void
 }
-const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: NavigationLinkDropdownProps) => {
-    const openAddSectionHandler = (e: React.MouseEvent<HTMLDivElement>) => {
+const NavigationLinkDropdown = ({ children, title, openAddFolderInput }: NavigationLinkDropdownProps) => {
+    const openAddFolderHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation()
-        if (!openAddSectionInput) return
-        openAddSectionInput()
+        if (!openAddFolderInput) return
+        openAddFolderInput()
     }
 
     return (
         <>
             <DropdownContainer>
-                <SectionTitle>{title}</SectionTitle>
-                {openAddSectionInput && (
-                    <AddSectionContainer onClick={openAddSectionHandler} data-testid="add-section-button">
-                        <TooltipWrapper dataTip="Add Section" tooltipId="tooltip">
+                <FolderTitle>{title}</FolderTitle>
+                {openAddFolderInput && (
+                    <AddFolderContainer onClick={openAddFolderHandler} data-testid="add-folder-button">
+                        <TooltipWrapper dataTip="Add Folder" tooltipId="tooltip">
                             <Icon size="xSmall" icon={icons.plus} color={Colors.icon.black} />
                         </TooltipWrapper>
-                    </AddSectionContainer>
+                    </AddFolderContainer>
                 )}
             </DropdownContainer>
             <LinksContainer>{children}</LinksContainer>

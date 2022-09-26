@@ -43,7 +43,7 @@ const App = () => {
                                 </Route>
                                 <Route path="tasks" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
-                                    <Route path=":section" element={<MainScreen />}>
+                                    <Route path=":folder" element={<MainScreen />}>
                                         <Route path=":task" element={<MainScreen />} />
                                     </Route>
                                 </Route>

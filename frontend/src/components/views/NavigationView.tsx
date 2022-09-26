@@ -9,7 +9,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
-import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import NavigationFolderLinks from '../navigation_sidebar/NavigationFolderLinks'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
@@ -63,7 +63,7 @@ const NavigationView = () => {
                 <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>
-                <NavigationSectionLinks />
+                <NavigationFolderLinks />
             </OverflowContainer>
             <GapView>
                 <FeedbackButton />

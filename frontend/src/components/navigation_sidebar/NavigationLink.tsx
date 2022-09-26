@@ -3,10 +3,10 @@ import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
-import { TASK_SECTION_DEFAULT_ID } from '../../constants'
+import { TASK_FOLDER_DEFAULT_ID } from '../../constants'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { DropItem, DropType, TTaskSection } from '../../utils/types'
+import { DropItem, DropType, TTaskFolder } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -28,7 +28,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
         background-color: ${Colors.background.dark};
     }
 `
-const SectionTitle = styled.span`
+const FolderTitle = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -36,7 +36,7 @@ const SectionTitle = styled.span`
     user-select: none;
     ${Typography.bodySmall};
 `
-const SectionTitleItemCount = styled.span`
+const FolderTitleItemCount = styled.span`
     margin-left: auto;
     user-select: none;
     ${Typography.bodySmall};
@@ -54,7 +54,7 @@ interface NavigationLinkProps {
     link: string
     title: string
     icon?: IconProp | string
-    taskSection?: TTaskSection
+    taskFolder?: TTaskFolder
     count?: number
     draggable?: boolean
     droppable?: boolean
@@ -65,7 +65,7 @@ const NavigationLink = ({
     link,
     title,
     icon,
-    taskSection,
+    taskFolder,
     count,
     draggable = false,
     droppable,
@@ -77,40 +77,40 @@ const NavigationLink = ({
 
     const onDrop = useCallback(
         (item: DropItem) => {
-            if (taskSection && droppable) {
+            if (taskFolder && droppable) {
                 reorderTask({
                     taskId: item.id,
                     orderingId: 1,
-                    dropSectionId: taskSection.id,
-                    dragSectionId: item.sectionId,
+                    dropFolderId: taskFolder.id,
+                    dragFolderId: item.folderId,
                 })
             }
         },
-        [taskSection?.id]
+        [taskFolder?.id]
     )
 
     const [, drag] = useDrag(
         () => ({
             type: DropType.FOLDER,
-            item: { id: taskSection?.id },
+            item: { id: taskFolder?.id },
             canDrag: draggable,
             collect: (monitor) => monitor.isDragging(),
         }),
-        [taskSection, draggable]
+        [taskFolder, draggable]
     )
 
     const [isOver, drop] = useDrop(
         () => ({
             accept: DropType.TASK,
-            collect: (monitor) => Boolean(taskSection && droppable && monitor.isOver()),
+            collect: (monitor) => Boolean(taskFolder && droppable && monitor.isOver()),
             drop: onDrop,
-            canDrop: () => !!(taskSection && droppable),
+            canDrop: () => !!(taskFolder && droppable),
         }),
-        [taskSection, onDrop]
+        [taskFolder, onDrop]
     )
 
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
+        if (taskFolder?.id === TASK_FOLDER_DEFAULT_ID) e.preventDefault()
         setCalendarType('day')
         navigate(link)
     }
@@ -119,8 +119,8 @@ const NavigationLink = ({
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
-                <SectionTitle>{title}</SectionTitle>
-                <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
+                <FolderTitle>{title}</FolderTitle>
+                <FolderTitleItemCount>{count && countWithOverflow(count)}</FolderTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>
     )

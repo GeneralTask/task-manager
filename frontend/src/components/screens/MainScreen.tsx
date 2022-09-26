@@ -13,13 +13,13 @@ import DefaultTemplate from '../templates/DefaultTemplate'
 import LinearView from '../views/LinearView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
-import Settings from '../views/SettingsView'
-import TaskSection from '../views/TaskSectionView'
+import SettingsView from '../views/SettingsView'
+import TaskFolderView from '../views/TaskFolderView'
 
 const MainScreen = () => {
     const location = useLocation()
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
-    const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    const { isLoading: isTaskFoldersLoading } = useGetTasks()
     useEventBanners(DateTime.now())
 
     const currentPage = (() => {
@@ -27,20 +27,20 @@ const MainScreen = () => {
             case 'overview':
                 return <OverviewPageView />
             case 'tasks':
-                return <TaskSection />
+                return <TaskFolderView />
             case 'pull-requests':
                 return <PullRequestsView />
             case 'linear':
                 return <LinearView />
             case 'settings':
-                return <Settings />
+                return <SettingsView />
             default:
                 return <OverviewPageView />
         }
     })()
 
-    if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
-    if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
+    if (isTaskFoldersLoading || isUserInfoLoading) return <Loading />
+    if (!isTaskFoldersLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
         <DndProvider backend={HTML5Backend}>

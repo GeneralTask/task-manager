@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { Colors } from '../../styles'
 import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
+import { Divider } from '../atoms/Divider'
 import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const Header = styled.div`

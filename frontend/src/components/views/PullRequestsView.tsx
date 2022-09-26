@@ -14,7 +14,7 @@ import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
-import { SectionHeader } from '../molecules/Header'
+import { Header } from '../molecules/Header'
 import SortSelector from '../molecules/SortSelector'
 import PullRequestList from '../pull-requests/PullRequestList'
 import { PR_SORT_SELECTOR_ITEMS } from '../pull-requests/constants'
@@ -67,7 +67,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="GitHub Pull Requests" />
+                    <Header name="GitHub Pull Requests" />
                     <MarginBottonContainer>
                         <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
                     </MarginBottonContainer>
