@@ -216,7 +216,7 @@ export interface TUserInfo {
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
 
-export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation'
+export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation' | 'due_today'
 
 export interface TOverviewView {
     id: string
