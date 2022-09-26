@@ -18,8 +18,6 @@ import {
     faSquare,
     faTrash,
     faXmark,
-} from '@fortawesome/pro-regular-svg-icons'
-import {
     faBadgeCheck,
     faBars,
     faChevronDown,
@@ -35,16 +33,18 @@ import {
     faList,
     faTag,
     faTimer,
+
 } from '@fortawesome/pro-light-svg-icons'
-import {
-    faHeadphones,
-} from '@fortawesome/pro-solid-svg-icons'
 import {
     faSignalBars,
     faSignalBarsWeak,
     faSignalBarsFair,
     faSignalBarsGood,
+    faSignalBarsSlash,
 } from '@fortawesome/pro-duotone-svg-icons'
+import {
+    faHeadphones
+} from '@fortawesome/pro-solid-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
@@ -95,6 +95,7 @@ export const icons = Object.freeze({
     priority_low: faSignalBarsWeak,
     priority_medium: faSignalBarsFair,
     priority_high: faSignalBarsGood,
+    priority_none: faSignalBarsSlash,
 })
 
 export const buttons: { [key: string]: string } = {
@@ -112,6 +113,8 @@ export const linearStatus = Object.freeze({
     triage: '/images/linear_triage.svg',
     duplicate: '/images/linear_duplicate.svg',
 })
+
+export const focusModeBackground = '/images/focus_mode_background.jpg'
 
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Ref, forwardRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Sort } from '../../../hooks/useSortAndFilter'
 import { SORT_ORDER } from '../../../utils/enums'
@@ -10,7 +10,7 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const PullRequestViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
+const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewItemId } = useParams()
     const [sort, setSort] = useState<Sort<TPullRequest>>({
         ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
@@ -18,7 +18,7 @@ const PullRequestViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
     })
     return (
         <>
-            <ViewHeader>
+            <ViewHeader ref={ref}>
                 <ViewName>{view.name}</ViewName>
                 {view.view_items.length > 0 && (
                     <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
@@ -38,6 +38,6 @@ const PullRequestViewItems = ({ view, visibleItemsCount }: ViewItemsProps) => {
             />
         </>
     )
-}
+})
 
 export default PullRequestViewItems

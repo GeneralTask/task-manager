@@ -11,7 +11,6 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/testutils"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,7 +20,6 @@ import (
 )
 
 func TestCalendar(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -94,10 +92,8 @@ func TestCalendar(t *testing.T) {
 		eventCollection := database.GetCalendarEventCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = eventCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
@@ -183,10 +179,8 @@ func TestCalendar(t *testing.T) {
 		eventCollection := database.GetCalendarEventCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = eventCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
@@ -249,10 +243,8 @@ func TestCalendar(t *testing.T) {
 		eventCollection := database.GetCalendarEventCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = eventCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},
@@ -359,10 +351,8 @@ func TestCalendar(t *testing.T) {
 		eventCollection := database.GetCalendarEventCollection(db)
 
 		var calendarEventFromDB database.CalendarEvent
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = eventCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
 				{"source_id": TASK_SOURCE_ID_GCAL},

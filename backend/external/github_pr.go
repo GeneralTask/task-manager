@@ -157,7 +157,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
-		err := updateOrCreateRepository(parentCtx, db, repository, userID)
+		err := updateOrCreateRepository(db, repository, userID)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create repository")
 			result <- emptyPullRequestResult(err)
@@ -415,12 +415,10 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	return repositories, err
 }
 
-func updateOrCreateRepository(ctx context.Context, db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
+func updateOrCreateRepository(db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
 	repositoryCollection := database.GetRepositoryCollection(db)
-	dbCtx, cancel := context.WithTimeout(ctx, constants.DatabaseTimeout)
-	defer cancel()
 	_, err := repositoryCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{
 			{"repository_id": fmt.Sprint(repository.GetID())},
 			{"user_id": userID},

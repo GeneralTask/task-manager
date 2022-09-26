@@ -101,6 +101,20 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
             return null
         }
 
+        const onCopyMeetingLink = () => {
+            navigator.clipboard.writeText(event.conference_call.url)
+            toast(
+                {
+                    message: 'Meeting link copied to clipboard',
+                },
+                {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                    theme: 'dark',
+                }
+            )
+        }
+
         const portal = ReactDOM.createPortal(
             <>
                 <Overlay onClick={onClose} />
@@ -152,7 +166,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                                 }}
                             />
                         )}
-                        <FlexAnchor href={event.deeplink} target="_blank">
+                        <FlexAnchor href={event.deeplink}>
                             <GTButton
                                 styleType="secondary"
                                 size="small"
@@ -164,32 +178,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     </Flex>
                     {event.conference_call.logo && (
                         <Flex alignItemsCenter>
-                            <FlexAnchor href={event.conference_call.url} target="_blank">
-                                <GTButton
-                                    styleType="secondary"
-                                    size="small"
-                                    value="View task details"
-                                    fitContent={false}
-                                    onClick={() => {
-                                        setSelectedEvent(null)
-                                        navigateToTask(event.linked_task_id)
-                                    }}
-                                />
-                            </FlexAnchor>
-                        </Flex>
-                    )}
-                    <FlexAnchor href={event.deeplink} target="_blank">
-                        <GTButton
-                            styleType="secondary"
-                            size="small"
-                            value="Google Calendar"
-                            icon={icons.external_link}
-                            fitContent={false}
-                        />
-                    </FlexAnchor>
-                    {event.conference_call.logo && (
-                        <Flex alignItemsCenter>
-                            <FlexAnchor href={event.conference_call.url} target="_blank">
+                            <FlexAnchor href={event.conference_call.url}>
                                 <GTButton
                                     styleType="secondary"
                                     size="small"
@@ -198,7 +187,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                                     fitContent={false}
                                 />
                             </FlexAnchor>
-                            <CopyButton onClick={() => navigator.clipboard.writeText(event.conference_call.url)}>
+                            <CopyButton onClick={onCopyMeetingLink}>
                                 <Icon size="xSmall" icon={icons.copy} />
                             </CopyButton>
                         </Flex>

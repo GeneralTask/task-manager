@@ -33,6 +33,7 @@ export interface TTask {
     time_allocated: number
     due_date: string
     external_status?: TExternalStatus
+    all_statuses?: TExternalStatus[]
     source: TTaskSource
     sender: string
     is_done: boolean
@@ -83,6 +84,7 @@ export interface TLinearUser {
 }
 
 export interface TExternalStatus {
+    external_id: string // the id of the status on linear
     state: string // the custom name of the status (e.g. Todo) - note: these are self-defined by the users of linear and can be different even across teams
     type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' // the type of status native to the task application
 }
@@ -99,6 +101,7 @@ export interface TEvent {
     can_modify: boolean
     conference_call: TConferenceCall
     linked_task_id: string
+    linked_view_id: string
 }
 
 export interface TMeetingBanner {
@@ -184,6 +187,8 @@ export enum DropType {
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
+    FOLDER = 'folder',
+    OVERVIEW_VIEW_HEADER = 'overview-view-header',
 }
 
 export interface DropItem {
@@ -191,6 +196,8 @@ export interface DropItem {
     sectionId?: string
     task?: TTask
     event?: TEvent
+    folder?: TTaskSection
+    view?: TOverviewView
 }
 
 export interface TTaskCreateParams {

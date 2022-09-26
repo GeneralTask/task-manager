@@ -1,24 +1,30 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { focusModeBackground, logos } from '../../styles/images'
 import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
+import GTShadowContainer from '../atoms/GTShadowContainer'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
+import { useCalendarContext } from '../calendar/CalendarContext'
+import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
 const TemplateViewContainer = styled.div`
-    background-color: ${Colors.background.light};
     height: 100%;
+    background: url(${focusModeBackground});
+    background-size: contain;
 `
 const FloatingIcon = styled.div`
     position: fixed;
@@ -78,6 +84,22 @@ const BodyHeader = styled.div`
 const Body = styled.div`
     ${Typography.body};
 `
+const Subtitle = styled.div`
+    ${Typography.subtitle};
+`
+const CurrentEventsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._8};
+`
+const CurrentEvent = styled(GTShadowContainer)`
+    ${Typography.body};
+    display: flex;
+    justify-content: space-between;
+    border-radius: ${Border.radius.small};
+    border: ${Border.stroke.small} solid ${Colors.border.light};
+    cursor: pointer;
+`
 
 const getEventsCurrentlyHappening = (events: TEvent[]) => {
     return events?.filter((event) => {
@@ -89,17 +111,39 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 }
 
 const FocusModeScreen = () => {
+    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled } = useCalendarContext()
+    useEffect(() => {
+        setIsPopoverDisabled(true)
+        setSelectedEvent(null)
+        return () => {
+            setIsPopoverDisabled(false)
+            setSelectedEvent(null)
+        }
+    }, [])
     const blocks = getMonthsAroundDate(DateTime.now(), 1)
     const monthBlocks = blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     const { data: events } = useGetEvents(monthBlocks[1], 'calendar')
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
+    const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
+
+    useEffect(() => {
+        if (currentEvents.length === 1) {
+            setChosenEvent(currentEvents[0])
+        }
+    }, [events])
+
+    useEffect(() => {
+        if (selectedEvent) {
+            setChosenEvent(selectedEvent)
+        }
+    }, [selectedEvent])
 
     const { title, body, datetime_start, datetime_end } = currentEvents[0] ?? {}
     const timeStart = DateTime.fromISO(datetime_start)
     const timeEnd = DateTime.fromISO(datetime_end)
 
     const clockTime = DateTime.local().toFormat('h:mm a')
-    const conferenceCall = currentEvents[0]?.conference_call.logo ? currentEvents[0].conference_call : null
+    const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
 
     const navigate = useNavigate()
     return (
@@ -108,7 +152,32 @@ const FocusModeScreen = () => {
                 <FocusModeContainer>
                     <MainContainer>
                         <EventContainer>
-                            {currentEvents.length > 0 ? (
+                            {currentEvents.length > 0 && chosenEvent === null && (
+                                <>
+                                    <GTHeader>Multiple Events</GTHeader>
+                                    <Subtitle>
+                                        There are multiple events scheduled for this time period. Please select the
+                                        event you want to focus on at the moment.
+                                    </Subtitle>
+                                    <BodyHeader>MULTIPLE EVENTS — SELECT WHICH EVENT TO FOCUS ON</BodyHeader>
+
+                                    <CurrentEventsContainer>
+                                        {currentEvents.map((event) => (
+                                            <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
+                                                <Flex alignItemsCenter gap={Spacing._8}>
+                                                    <Icon icon={logos[event.logo]} size="small" />
+                                                    <div>{event.title}</div>
+                                                </Flex>
+                                                <TimeRange
+                                                    start={DateTime.fromISO(event.datetime_start)}
+                                                    end={DateTime.fromISO(event.datetime_end)}
+                                                />
+                                            </CurrentEvent>
+                                        ))}
+                                    </CurrentEventsContainer>
+                                </>
+                            )}
+                            {currentEvents.length > 0 && chosenEvent != null && (
                                 <>
                                     <GTHeader>{title}</GTHeader>
                                     <GTTitle>
@@ -124,13 +193,18 @@ const FocusModeScreen = () => {
                                         </JoinMeetingContainer>
                                     )}
                                     <div>
-                                        <BodyHeader>MEETING NOTES</BodyHeader>
-                                        <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                        {chosenEvent.linked_view_id ? (
+                                            <CardSwitcher viewId={chosenEvent.linked_view_id} />
+                                        ) : (
+                                            <>
+                                                <BodyHeader>MEETING NOTES</BodyHeader>
+                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                            </>
+                                        )}
                                     </div>
                                 </>
-                            ) : (
-                                <div>No Event</div>
                             )}
+                            {currentEvents.length === 0 && <div>No Event</div>}
                         </EventContainer>
                         <CalendarContainer>
                             <CalendarView

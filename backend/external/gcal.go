@@ -196,10 +196,8 @@ func checkAndHandleBadToken(err error, db *mongo.Database, userID primitive.Obje
 		return true
 	}
 
-	dbCtx, cancel := context.WithTimeout(context.Background(), constants.DatabaseTimeout)
-	defer cancel()
 	_, err = database.GetExternalTokenCollection(db).UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"_id": token.ID},
 		bson.M{"$set": bson.M{"is_bad_token": true}},
 	)

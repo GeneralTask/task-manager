@@ -64,8 +64,6 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
-		dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
-		primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
 		isCompleted := false
 		isDeleted := false
 
@@ -81,7 +79,6 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
 			IsCompleted:        &isCompleted,
 			IsDeleted:          &isDeleted,
-			DueDate:            &primitiveDueDate,
 			PriorityNormalized: (*float64)(&linearIssue.Priority),
 			Status: &database.ExternalTaskStatus{
 				ExternalID: (linearIssue.State.Id).(string),
@@ -118,9 +115,17 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			Body:               task.Body,
 			Comments:           task.Comments,
 			Status:             task.Status,
-			DueDate:            task.DueDate,
 			CompletedStatus:    task.CompletedStatus,
 			PriorityNormalized: task.PriorityNormalized,
+		}
+
+		if linearIssue.DueDate != "" {
+			dueDate, _ := time.Parse("2006-01-02", string(linearIssue.DueDate))
+			primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
+			updateFields.DueDate = &primitiveDueDate
+		} else {
+			dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+			updateFields.DueDate = &dueDate
 		}
 
 		// should update every time because it's possible the Team for the issue has switched
@@ -152,6 +157,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
 		task.AllStatuses = dbTask.AllStatuses
+		task.DueDate = dbTask.DueDate
 		tasks = append(tasks, task)
 	}
 

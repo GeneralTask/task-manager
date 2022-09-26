@@ -4,8 +4,9 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
+import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
@@ -13,11 +14,17 @@ import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
+import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
+import GTDatePicker from './GTDatePicker'
 import ItemContainer from './ItemContainer'
 
 const RightContainer = styled.span`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
     margin-left: auto;
     min-width: fit-content;
 `
@@ -53,6 +60,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
+
+    const { mutate: modifyTask } = useModifyTask()
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -137,7 +146,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     }
 
     return (
-        <TaskContextMenuWrapper taskId={task.id} sectionId={sectionId}>
+        <TaskContextMenuWrapper task={task} sectionId={sectionId}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}
@@ -158,6 +167,25 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     />
                     <Title data-testid="task-title">{task.title}</Title>
                     <RightContainer>
+                        <GTDatePicker
+                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
+                            setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                            showIcon={false}
+                        />
+                        <GTDropdownMenu
+                            items={TASK_PRIORITIES.map((priority, val) => ({
+                                label: priority.label,
+                                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                                icon: priority.icon,
+                            }))}
+                            trigger={
+                                <GTButton
+                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                                    size="small"
+                                    styleType="simple"
+                                />
+                            }
+                        />
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                         ) : (

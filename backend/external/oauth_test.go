@@ -23,9 +23,8 @@ func TestGetExternalOauth2Client(t *testing.T) {
 		assert.Nil(t, client)
 	})
 	t.Run("Invalid token", func(t *testing.T) {
-		ctx := context.Background()
 		invalidUser := primitive.NewObjectID()
-		_, err := database.GetExternalTokenCollection(db).InsertOne(ctx, database.ExternalAPIToken{
+		_, err := database.GetExternalTokenCollection(db).InsertOne(context.Background(), database.ExternalAPIToken{
 			UserID:    invalidUser,
 			ServiceID: serviceID,
 			AccountID: accountID,
@@ -35,8 +34,7 @@ func TestGetExternalOauth2Client(t *testing.T) {
 		assert.Nil(t, client)
 	})
 	t.Run("Success", func(t *testing.T) {
-		ctx := context.Background()
-		_, err := database.GetExternalTokenCollection(db).InsertOne(ctx, database.ExternalAPIToken{
+		_, err := database.GetExternalTokenCollection(db).InsertOne(context.Background(), database.ExternalAPIToken{
 			UserID:    userID,
 			ServiceID: serviceID,
 			AccountID: accountID,

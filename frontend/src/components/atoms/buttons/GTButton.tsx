@@ -1,11 +1,11 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
-import { TIconColor } from '../../../styles/colors'
+import { TIconColor, TTextColor } from '../../../styles/colors'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
-type TButtonStyle = 'primary' | 'secondary'
+type TButtonStyle = 'primary' | 'secondary' | 'simple'
 type TButtonSize = 'small' | 'large'
 
 const PrimaryButtonStyles = css`
@@ -32,15 +32,25 @@ const SecondaryButtonStyles = css`
         color: ${Colors.button.secondary.active_text};
     }
 `
+const SimpleButtonStyles = css`
+    background-color: inherit;
+    color: ${Colors.text.light};
+    &:hover {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+    }
+    &:active {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+    }
+`
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
     gap: ${Spacing._8};
-    ${Typography.body}
+    ${Typography.body};
 `
 const SmallButtonStyle = css`
     padding: ${Spacing._4} ${Spacing._8};
-    gap: ${Spacing._4};
-    ${Typography.bodySmall}
+    gap: ${Spacing._8};
+    ${Typography.bodySmall};
 `
 
 const Button = styled(NoStyleButton)<{
@@ -48,6 +58,7 @@ const Button = styled(NoStyleButton)<{
     wrapText: boolean
     fitContent: boolean
     size: TButtonSize
+    textColor?: TTextColor
 }>`
     display: flex;
     justify-content: center;
@@ -56,7 +67,7 @@ const Button = styled(NoStyleButton)<{
     text-align: center;
     height: 100%;
     width: ${(props) => (props.fitContent ? 'fit-content' : '100%')};
-    box-shadow: ${Shadows.button.default};
+    ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.button.default};`};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -67,6 +78,7 @@ const Button = styled(NoStyleButton)<{
     ${Typography.body};
     ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
+    ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
     ${(props) => props.size === 'large' && LargeButtonStyle};
     ${(props) => props.size === 'small' && SmallButtonStyle};
     opacity: ${(props) => (props.disabled ? '0.2' : '1')};
@@ -78,6 +90,7 @@ const Button = styled(NoStyleButton)<{
                 props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
             }`};
     }
+    ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -86,6 +99,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     wrapText?: boolean
     icon?: IconProp | string
     iconColor?: TIconColor
+    textColor?: TTextColor
     fitContent?: boolean
 }
 const GTButton = ({
@@ -95,12 +109,20 @@ const GTButton = ({
     fitContent = true,
     icon,
     iconColor,
+    textColor,
     value,
     ...rest
 }: GTButtonProps) => {
     const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
-        <Button styleType={styleType} size={size} wrapText={wrapText} fitContent={fitContent} {...rest}>
+        <Button
+            styleType={styleType}
+            size={size}
+            wrapText={wrapText}
+            fitContent={fitContent}
+            textColor={textColor}
+            {...rest}
+        >
             {icon && <Icon size={iconSize} icon={icon} color={iconColor ? Colors.icon[iconColor] : undefined} />}
             {value}
         </Button>

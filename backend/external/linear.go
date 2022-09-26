@@ -78,11 +78,8 @@ func (linear LinearService) HandleLinkCallback(db *mongo.Database, params Callba
 	}
 
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	// TODO: add DisplayID, AccountID, etc.
 	_, err = externalAPITokenCollection.UpdateOne(
-		dbCtx,
+		context.Background(),
 		bson.M{"$and": []bson.M{{"user_id": userID}, {"service_id": TASK_SERVICE_ID_LINEAR}}},
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:         userID,
@@ -374,7 +371,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	}
 	// not currently used, but should allow to work once the frontend logic changes
 	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {
-		request.Var("stateID", updateFields.Status.ExternalID)
+		request.Var("stateId", updateFields.Status.ExternalID)
 	}
 	if updateFields.DueDate != nil {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))

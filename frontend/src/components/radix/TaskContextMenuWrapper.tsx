@@ -1,40 +1,34 @@
-import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { DateTime } from 'luxon'
+import { TASK_PRIORITIES } from '../../constants'
+import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
+import { TTask } from '../../utils/types'
+import GTDatePicker from '../molecules/GTDatePicker'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
 interface TaskContextMenuProps {
-    taskId: string
+    task: TTask
     sectionId?: string
     children: React.ReactNode
 }
-const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenuProps) => {
-    const { data: taskSections } = useGetTasks()
+const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuProps) => {
+    const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
+    const { mutate: modifyTask } = useModifyTask()
 
     const contextMenuItems: GTMenuItem[] = [
-        // {
-        //     label: 'Priority',
-        //     icon: icons.priority_urgent,
-        //     subItems: [
-        //         {
-        //             label: 'Urgent',
-        //             icon: icons.priority_urgent,
-        //         },
-        //         {
-        //             label: 'High',
-        //             icon: icons.priority_high,
-        //         },
-        //         {
-        //             label: 'Medium',
-        //             icon: icons.priority_medium,
-        //         },
-        //         {
-        //             label: 'Low',
-        //             icon: icons.priority_low,
-        //         },
-        //     ],
-        // },
+        {
+            label: 'Priority',
+            icon: icons.priority_urgent,
+            subItems: [
+                ...TASK_PRIORITIES.map((priority, val) => ({
+                    label: priority.label,
+                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                    icon: priority.icon,
+                })),
+            ],
+        },
         {
             label: 'Section',
             icon: icons.folder,
@@ -48,7 +42,7 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
                               selected: section.id === sectionId,
                               onClick: () => {
                                   reorderTask({
-                                      taskId: taskId,
+                                      taskId: task.id,
                                       dropSectionId: section.id,
                                       dragSectionId: sectionId,
                                       orderingId: 1,
@@ -58,10 +52,22 @@ const TaskContextMenuWrapper = ({ taskId, sectionId, children }: TaskContextMenu
                   ]
                 : [],
         },
-        // {
-        //     label: 'Due date',
-        //     icon: icons.timer,
-        // },
+        {
+            label: 'Due date',
+            icon: icons.timer,
+            subItems: [
+                {
+                    label: 'Calendar',
+                    renderer: () => (
+                        <GTDatePicker
+                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
+                            setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                            onlyCalendar
+                        />
+                    ),
+                },
+            ],
+        },
         // {
         //     label: 'Delete task',
         //     icon: icons.trash,

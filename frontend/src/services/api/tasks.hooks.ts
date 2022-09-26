@@ -5,7 +5,7 @@ import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
-import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
+import { TTaskSection, TTask, TOverviewView, TOverviewItem, TExternalStatus } from "../../utils/types"
 
 export interface TCreateTaskData {
     title: string
@@ -24,11 +24,13 @@ export interface TModifyTaskData {
     timeAllocated?: number
     body?: string
     priorityNormalized?: number
+    status?: TExternalStatus
 }
 
 interface TTaskModifyRequestBody {
     task: {
         priority_normalized?: number
+        status?: TExternalStatus
     }
     id_task_section?: string
     id_ordering?: number
@@ -51,8 +53,8 @@ export interface TReorderTaskData {
     dragSectionId?: string
 }
 
-export const useGetTasks = () => {
-    return useQuery<TTaskSection[], void>('tasks', getTasks)
+export const useGetTasks = (isEnabled = true) => {
+    return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled })
 }
 const getTasks = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -92,6 +94,7 @@ export const useCreateTask = () => {
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
                 queryClient.cancelQueries('overview'),
+                queryClient.cancelQueries('tasks'),
             ])
 
             if (sections) {
@@ -137,6 +140,7 @@ export const useCreateTask = () => {
                         body: data.body ?? '',
                         deeplink: '',
                         sent_at: '',
+                        priority_normalized: 0,
                         time_allocated: 0,
                         due_date: '',
                         source: {
@@ -211,19 +215,45 @@ export const useModifyTask = () => {
                 ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                if (!sections) return
+                if (sections) {
 
-                const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id)
-                    if (!task) return
-                    task.title = data.title || task.title
-                    task.due_date = data.dueDate || task.due_date
-                    task.time_allocated = data.timeAllocated || task.time_allocated
-                    task.body = data.body || task.body
-                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                })
+                    const newSections = produce(sections, (draft) => {
+                        const task = getTaskFromSections(draft, data.id)
+                        if (!task) return
+                        task.title = data.title || task.title
+                        task.due_date = data.dueDate || task.due_date
+                        task.time_allocated = data.timeAllocated || task.time_allocated
+                        task.body = data.body || task.body
+                        task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                        task.external_status = data.status || task.external_status
+                    })
 
-                queryClient.setQueryData('tasks', newSections)
+                    queryClient.setQueryData('tasks', newSections)
+                }
+
+                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+                if (views) {
+
+                    const newViews = produce(views, (draft) => {
+                        const sections = views.map(view => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items
+                        }))
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
+                        if (sectionIndex === undefined || taskIndex === undefined) return
+                        const task = draft[sectionIndex].view_items[taskIndex]
+                        if (!task) return
+                        task.title = data.title || task.title
+                        task.due_date = data.dueDate || task.due_date
+                        task.time_allocated = data.timeAllocated || task.time_allocated
+                        task.body = data.body || task.body
+                        task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                        task.external_status = data.status || task.external_status
+                    })
+
+                    queryClient.setQueryData('overview', newViews)
+                }
+
             },
             onSettled: () => {
                 queryClient.invalidateQueries('tasks')
@@ -239,6 +269,7 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
+    if (data.status !== undefined) requestBody.task.status = data.status
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)

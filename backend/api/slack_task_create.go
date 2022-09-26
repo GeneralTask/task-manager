@@ -29,6 +29,11 @@ const (
 	MESSAGE_TYPE_DM       = "directmessage"
 )
 
+type SlackResponse struct {
+	Ok    bool   `json:"ok"`
+	Error string `json:"error"`
+}
+
 type SlackRequestParams struct {
 	Type      string    `json:"type"`
 	TriggerID string    `json:"trigger_id"`
@@ -157,12 +162,13 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 		// thus, in order to keep context about the message:
 		// we must marshal, store in string, and unmarshal on return
-		jsonBytes, err := json.Marshal(string(formData))
+		jsonBytes, err := json.Marshal(slackParams)
 		if err != nil {
 			logger.Error().Err(err).Msg("error marshaling Slack message data")
 			Handle500(c)
 			return
 		}
+		modalMetadata := strings.Replace(string(jsonBytes), "\"", "\\\"", -1)
 
 		title, err := getSlackMessageTitle(source, slackParams, externalToken)
 		if err != nil {
@@ -171,7 +177,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			return
 		}
 
-		modalJSON := external.GetSlackModal(requestParams.TriggerID, string(jsonBytes), title)
+		modalJSON := external.GetSlackModal(requestParams.TriggerID, modalMetadata, title)
 
 		var oauthToken oauth2.Token
 		err = json.Unmarshal([]byte(externalToken.Token), &oauthToken)
@@ -193,9 +199,27 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 		request.Header.Set("Content-type", "application/json")
 		request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 		client := &http.Client{}
-		_, err = client.Do(request)
+		resp, err := client.Do(request)
 		if err != nil {
 			logger.Error().Err(err).Msg("error sending Slack modal request")
+			Handle500(c)
+			return
+		}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			logger.Error().Err(err).Msg("error reading Slack response")
+			Handle500(c)
+			return
+		}
+
+		var modalResponse SlackResponse
+		err = json.Unmarshal([]byte(body), &modalResponse)
+		if err != nil {
+			logger.Error().Err(err).Msg("error unmarshaling Slack modalResponse")
+			Handle500(c)
+			return
+		} else if !modalResponse.Ok {
+			logger.Error().Err(errors.New(modalResponse.Error)).Msg("modal response not ok")
 			Handle500(c)
 			return
 		}

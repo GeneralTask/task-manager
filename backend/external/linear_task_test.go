@@ -15,7 +15,6 @@ import (
 )
 
 func TestLoadLinearTasks(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -217,7 +216,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
 		title := "test title"
 		description := "test description"
-		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 		priority := 3.0
 		expectedTask := database.Task{
 			IDOrdering:         0,
@@ -275,10 +274,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		}
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err := taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
@@ -302,7 +299,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		title := "wrong test title"
 		description := "wrong test description"
 		priority := 3.0
-		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
@@ -363,10 +360,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.False(t, *result.Tasks[0].IsCompleted)
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err := taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
@@ -377,7 +372,6 @@ func TestLoadLinearTasks(t *testing.T) {
 }
 
 func TestModifyLinearTask(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -631,10 +625,8 @@ func TestModifyLinearTask(t *testing.T) {
 		dueDate := primitive.NewDateTimeFromTime(time.Time{})
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
 		err = taskCollection.FindOne(
-			dbCtx,
+			context.Background(),
 			bson.M{"user_id": userID},
 		).Decode(&taskFromDB)
 		err := linearTask.ModifyTask(db, userID, "sample_account@email.com", "6942069420", &database.Task{

@@ -32,6 +32,8 @@ const NavigationViewHeader = styled.div`
 `
 const OverflowContainer = styled.div`
     flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow: auto;
 `
 const GapView = styled.div`
