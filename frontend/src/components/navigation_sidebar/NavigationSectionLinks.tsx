@@ -123,6 +123,12 @@ const NavigationSectionLinks = () => {
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
+            <NavigationLink
+                link="/linear"
+                title="Linear Issues"
+                icon={logos.linear}
+                isCurrentPage={pathname.split('/')[1] === 'linear'}
+            />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {defaultFolder && (
                     <NavigationLink
