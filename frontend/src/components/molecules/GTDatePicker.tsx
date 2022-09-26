@@ -58,7 +58,6 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     const handleOnChange = (date: Date) => {
         onChange(date)
         setDate(DateTime.fromJSDate(date).toISO())
-        setIsOpen(false)
     }
 
     const calendar = (

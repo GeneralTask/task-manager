@@ -214,7 +214,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     </StatusContainer>
                 )}
                 <GTDatePicker
-                    initialDate={new Date(task.due_date)}
+                    initialDate={DateTime.fromISO(task.due_date).toJSDate()}
                     setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                 />
                 <GTDropdownMenu

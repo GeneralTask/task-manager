@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { TASK_PRIORITIES } from '../../constants'
 import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
@@ -33,22 +34,22 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
             icon: icons.folder,
             subItems: taskSections
                 ? [
-                    ...taskSections
-                        .filter((s) => !s.is_done && !s.is_trash)
-                        .map((section) => ({
-                            label: section.name,
-                            icon: icons.folder,
-                            selected: section.id === sectionId,
-                            onClick: () => {
-                                reorderTask({
-                                    taskId: task.id,
-                                    dropSectionId: section.id,
-                                    dragSectionId: sectionId,
-                                    orderingId: 1,
-                                })
-                            },
-                        })),
-                ]
+                      ...taskSections
+                          .filter((s) => !s.is_done && !s.is_trash)
+                          .map((section) => ({
+                              label: section.name,
+                              icon: icons.folder,
+                              selected: section.id === sectionId,
+                              onClick: () => {
+                                  reorderTask({
+                                      taskId: task.id,
+                                      dropSectionId: section.id,
+                                      dragSectionId: sectionId,
+                                      orderingId: 1,
+                                  })
+                              },
+                          })),
+                  ]
                 : [],
         },
         {
@@ -59,7 +60,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                     label: 'Calendar',
                     renderer: () => (
                         <GTDatePicker
-                            initialDate={new Date(task.due_date)}
+                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
                             setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                             onlyCalendar
                         />
