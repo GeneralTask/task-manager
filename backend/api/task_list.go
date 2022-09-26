@@ -21,7 +21,7 @@ type TaskSource struct {
 }
 
 type externalStatus struct {
-	IDExternal string `json:"id_external,omitempty"`
+	IDExternal string `json:"external_id,omitempty"`
 	State      string `json:"state,omitempty"`
 	Type       string `json:"type,omitempty"`
 }
