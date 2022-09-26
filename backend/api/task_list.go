@@ -307,7 +307,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				IDExternal: t.Status.ExternalID,
+				IDExternal: status.ExternalID,
 				State:      status.State,
 				Type:       status.Type,
 			})
