@@ -53,28 +53,32 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                         </ContextMenuSubTrigger>
                                         <ContextMenu.Portal>
                                             <ContextMenuSubContent>
-                                                {item.subItems.map((subItem) => (
-                                                    <ContextMenuItem
-                                                        key={subItem.label}
-                                                        textValue={subItem.label}
-                                                        onClick={subItem.onClick}
-                                                        $isSelected={subItem.selected}
-                                                    >
-                                                        {subItem.icon && (
-                                                            <Icon
-                                                                size="xSmall"
-                                                                icon={subItem.icon}
-                                                                color={subItem.iconColor}
-                                                            />
-                                                        )}
-                                                        {subItem.label}
-                                                        {subItem.selected && (
-                                                            <MarginLeftIcon>
-                                                                <Icon size="xSmall" icon={icons.check} />
-                                                            </MarginLeftIcon>
-                                                        )}
-                                                    </ContextMenuItem>
-                                                ))}
+                                                {item.subItems.map((subItem) =>
+                                                    subItem.renderer ? (
+                                                        subItem.renderer()
+                                                    ) : (
+                                                        <ContextMenuItem
+                                                            key={subItem.label}
+                                                            textValue={subItem.label}
+                                                            onClick={subItem.onClick}
+                                                            $isSelected={subItem.selected}
+                                                        >
+                                                            {subItem.icon && (
+                                                                <Icon
+                                                                    size="xSmall"
+                                                                    icon={subItem.icon}
+                                                                    color={subItem.iconColor}
+                                                                />
+                                                            )}
+                                                            {subItem.label}
+                                                            {subItem.selected && (
+                                                                <MarginLeftIcon>
+                                                                    <Icon size="xSmall" icon={icons.check} />
+                                                                </MarginLeftIcon>
+                                                            )}
+                                                        </ContextMenuItem>
+                                                    )
+                                                )}
                                             </ContextMenuSubContent>
                                         </ContextMenu.Portal>
                                     </ContextMenu.Sub>
