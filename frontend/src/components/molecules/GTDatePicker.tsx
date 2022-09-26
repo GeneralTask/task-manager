@@ -26,11 +26,18 @@ const getFormattedDate = (
     dateString: string
     color: TTextColor
 } => {
-    if (!date || isNaN(+date)) return { dateString: 'No due date', color: 'light' }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) return { dateString: 'Today', color: 'red' }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day'))
+    if (!date || isNaN(+date)) {
+        return { dateString: 'No due date', color: 'light' }
+    }
+    if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
+        return { dateString: 'Today', color: 'red' }
+    }
+    if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
         return { dateString: 'Tomorrow', color: 'orange' }
-    if (DateTime.fromJSDate(date) < DateTime.local()) return { dateString: 'Overdue', color: 'red' }
+    }
+    if (DateTime.fromJSDate(date) < DateTime.local()) {
+        return { dateString: 'Overdue', color: 'red' }
+    }
     return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), color: 'light' }
 }
 
