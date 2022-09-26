@@ -297,7 +297,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		IsReorderable: false,
 		Sources: []SourcesResult{
 			{
-				Name:             "Linear Issues",
+				Name:             "Linear",
 				AuthorizationURL: &authURL,
 			},
 		},
@@ -417,7 +417,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		IsLinked: true,
 		Sources: []SourcesResult{
 			{
-				Name:             "Slack Messages",
+				Name:             "Slack",
 				AuthorizationURL: &authURL,
 			},
 		},

@@ -3,6 +3,11 @@ package constants
 type ViewType string
 
 const (
+	ViewLinearSourceName = "Linear"
+	ViewSlackSourceName  = "Slack"
+)
+
+const (
 	ViewLinearName             = "Linear Issues"
 	ViewSlackName              = "Slack Messages"
 	ViewGithubName             = "Github"

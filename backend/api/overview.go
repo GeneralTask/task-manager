@@ -280,7 +280,7 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 		IsLinked: view.IsLinked,
 		Sources: []SourcesResult{
 			{
-				Name:             constants.ViewLinearName,
+				Name:             constants.ViewLinearSourceName,
 				AuthorizationURL: &authURL,
 			},
 		},
@@ -319,7 +319,7 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 		IsLinked: view.IsLinked,
 		Sources: []SourcesResult{
 			{
-				Name:             constants.ViewSlackName,
+				Name:             constants.ViewSlackSourceName,
 				AuthorizationURL: &authURL,
 			},
 		},
