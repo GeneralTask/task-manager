@@ -457,15 +457,12 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		Name:          constants.ViewDueTodayName,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          constants.ViewDueToday,
-		IsLinked:      view.IsLinked,
+		IsLinked:      true,
 		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
-	}
-	if !view.IsLinked {
-		return &result, nil
 	}
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
@@ -480,7 +477,6 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 	}
 	taskResults := api.taskListToTaskResultList(dueTasks, userID)
 	taskResults = reorderTaskResultsByDueDate(taskResults)
-	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
 }
