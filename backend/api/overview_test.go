@@ -902,6 +902,9 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		primitiveAfter := primitive.NewDateTimeFromTime(after)
 
+		primitiveEmptyDateTime := primitive.NewDateTimeFromTime(time.Time{})
+		primitiveZeroDateTime := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+
 		items := []interface{}{
 			// due before but later
 			database.Task{
@@ -967,10 +970,26 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				ParentTaskID: primitive.NewObjectID(),
 				IDOrdering:   7,
 			},
+			// empty date time
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     &primitiveEmptyDateTime,
+				IDOrdering:  8,
+			},
+			// zero date time
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     &primitiveZeroDateTime,
+				IDOrdering:  9,
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(context.Background(), items)
 		assert.NoError(t, err)
-		assert.Equal(t, 8, len(taskResult.InsertedIDs))
+		assert.Equal(t, 10, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
