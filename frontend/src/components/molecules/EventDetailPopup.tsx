@@ -1,4 +1,4 @@
-import { RefObject, forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { RefObject, forwardRef, useCallback, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import { Id as ToastId } from 'react-toastify'
 import { DateTime } from 'luxon'
@@ -40,11 +40,6 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(({ event, 
     const popupRef = useRef<HTMLDivElement | null>(null)
     const undoToastRef = useRef<ToastId>()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
-    const [popupHeight, setPopupHeight] = useState(0)
-    useLayoutEffect(() => {
-        if (!popupRef.current) return
-        setPopupHeight(popupRef.current.getBoundingClientRect().height)
-    }, [])
     const onClose = useCallback(() => setSelectedEvent(null), [])
 
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
@@ -125,7 +120,6 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(({ event, 
             <EventBoxStyle
                 xCoord={xCoord}
                 yCoord={yCoord}
-                popupHeight={popupHeight}
                 eventHeight={eventHeight}
                 eventWidth={eventWidth}
                 windowHeight={windowHeight}

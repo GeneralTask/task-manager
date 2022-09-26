@@ -4,12 +4,11 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const MAX_POPUP_LENGTH = 315
-const MAX_POPUP_HEIGHT = 100
+const MAX_POPUP_HEIGHT = 300
 
 interface EventBoxStyleProps {
     xCoord: number
     yCoord: number
-    popupHeight: number
     eventHeight: number
     eventWidth: number
     windowHeight: number
@@ -21,21 +20,21 @@ export const EventBoxStyle = styled.div<EventBoxStyleProps>`
     box-sizing: border-box;
     padding: ${Spacing._16} ${Spacing._16};
     width: ${MAX_POPUP_LENGTH}px;
-    left: ${(props) =>
-        props.xCoord <= MAX_POPUP_LENGTH
-            ? `calc(${props.xCoord}px + ${props.eventWidth}px)`
-            : `calc(${props.xCoord}px - ${MAX_POPUP_LENGTH}px)`};
-    top: ${(props) =>
-        props.yCoord >= props.windowHeight - props.popupHeight
-            ? props.yCoord - props.eventHeight - props.popupHeight
-            : props.yCoord}px;
-
+    max-height: ${MAX_POPUP_HEIGHT}px;
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.medium};
     border-radius: ${Border.radius.small};
     display: flex;
     flex-direction: column;
     gap: ${Spacing._8};
+
+    left: ${(props) =>
+        props.xCoord <= MAX_POPUP_LENGTH
+            ? `calc(${props.xCoord}px + ${props.eventWidth}px)`
+            : `calc(${props.xCoord}px - ${MAX_POPUP_LENGTH}px)`};
+    top: ${(props) => props.yCoord}px;
+    /* if popup will go below viewport, expand it upwards */
+    ${(props) => (props.yCoord >= props.windowHeight - MAX_POPUP_HEIGHT ? `transform: translateY(-100%);` : '')}
 `
 export const EventHeader = styled.div`
     display: flex;
@@ -74,7 +73,6 @@ export const EventDate = styled.span`
 export const Description = styled.div`
     ${Typography.label};
     color: ${Colors.text.black};
-    max-height: ${MAX_POPUP_HEIGHT}px;
     overflow-wrap: break-word;
     overflow-y: auto;
 `
