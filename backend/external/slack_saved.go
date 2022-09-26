@@ -275,7 +275,7 @@ func GetSlackModal(triggerID string, formData string, message string) []byte {
 					}
 				}
 			],
-			"private_metadata": ` + formData + `,
+			"private_metadata": "` + formData + `",
 		}
 	}`)
 }
