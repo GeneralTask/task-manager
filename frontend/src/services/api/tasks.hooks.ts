@@ -300,6 +300,7 @@ export const useMarkTaskDone = () => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
                     if (task) {
                         task.is_done = data.isDone
+                        task.isOptimistic = true
                         if (task.is_done) {
                             if (task.source.name === 'Linear' && task.external_status) {
                                 task.external_status.state = 'Done'
