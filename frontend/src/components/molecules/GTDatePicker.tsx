@@ -20,7 +20,7 @@ const GTDatePickerWrapper = styled.div`
         border-radius: 50%;
     }
 `
-const getFormattedDate = (
+export const getFormattedDate = (
     date: Date | null
 ): {
     dateString: string
