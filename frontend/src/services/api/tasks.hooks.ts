@@ -53,6 +53,11 @@ export interface TReorderTaskData {
     dragSectionId?: string
 }
 
+export interface TPostCommentData {
+    taskId: string
+    body: string
+}
+
 export const useGetTasks = (isEnabled = true) => {
     return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled })
 }
@@ -487,5 +492,30 @@ export const reorderTask = async (data: TReorderTaskData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('reorderTask failed')
+    }
+}
+
+export const usePostComment = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation((data: TPostCommentData) => postComment(data), {
+        onMutate: async (/* data: TPostCommentData */) => {
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('overview'),
+            ])
+            // TODO: Optimistic updates for the comments
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
+        },
+    })
+}
+const postComment = async (data: TPostCommentData) => {
+    try {
+        const res = await apiClient.post(`/tasks/${data.taskId}/comments/add/`, data)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('postComment failed')
     }
 }
