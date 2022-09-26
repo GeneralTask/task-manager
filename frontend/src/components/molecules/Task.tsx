@@ -183,6 +183,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                                     icon={TASK_PRIORITIES[task.priority_normalized].icon}
                                     size="small"
                                     styleType="simple"
+                                    asDiv
                                 />
                             }
                         />

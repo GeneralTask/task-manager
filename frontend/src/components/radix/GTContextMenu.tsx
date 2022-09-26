@@ -55,7 +55,7 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                             <ContextMenuSubContent>
                                                 {item.subItems.map((subItem) =>
                                                     subItem.renderer ? (
-                                                        subItem.renderer()
+                                                        <Fragment key={subItem.label}>{subItem.renderer()}</Fragment>
                                                     ) : (
                                                         <ContextMenuItem
                                                             key={subItem.label}
