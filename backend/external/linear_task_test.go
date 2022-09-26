@@ -216,7 +216,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		commentCreatedAt, _ := time.Parse("2006-01-02", "2019-04-21")
 		title := "test title"
 		description := "test description"
-		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 		priority := 3.0
 		expectedTask := database.Task{
 			IDOrdering:         0,
@@ -299,7 +299,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		title := "wrong test title"
 		description := "wrong test description"
 		priority := 3.0
-		dueDate := primitive.NewDateTimeFromTime(time.Time{})
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 		expectedTask := database.Task{
 			IDOrdering:         0,
 			IDExternal:         "test-issue-id-1",
