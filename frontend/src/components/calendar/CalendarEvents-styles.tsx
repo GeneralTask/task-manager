@@ -102,10 +102,9 @@ export const EventInfoContainer = styled.div`
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     display: flex;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    margin: 0 ${Spacing._12};
+    padding: 0 ${Spacing._12};
+    width: 100%;
+    box-sizing: border-box;
     ${Typography.label};
     ${(props) =>
         props.isLongEvent
@@ -123,11 +122,16 @@ export const EventTitle = styled.div`
     gap: ${Spacing._8};
     margin-right: ${Spacing._8};
     max-height: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 `
 export const EventTime = styled.div`
     color: ${Colors.text.light};
     float: left;
     max-height: 100%;
+    white-space: nowrap;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
