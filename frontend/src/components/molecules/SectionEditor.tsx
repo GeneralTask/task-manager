@@ -101,7 +101,7 @@ export default function SectionEditor({ task_id, closeSectionEditor }: SectionEd
     return (
         <SectionEditorContainer onClick={(e) => e.stopPropagation()}>
             <TopNav>
-                <Header>Set Section</Header>
+                <Header>Change Folder</Header>
             </TopNav>
             <OptionsContainer>{options}</OptionsContainer>
         </SectionEditorContainer>

@@ -30,7 +30,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
             ],
         },
         {
-            label: 'Section',
+            label: 'Folder',
             icon: icons.folder,
             subItems: taskSections
                 ? [
