@@ -11,4 +11,5 @@ var ALLOWED_USERNAMES = map[string]struct{}{
 	"mazin.bokhari@gmail.com": {},
 	"a.alhaffar@obytes.com":   {},
 	"im@datatheorem.io":       {},
+	"pintong@gmail.com":       {},
 }
