@@ -62,6 +62,51 @@ const updateSettings = async (data: TUpdateSettingsData) => {
     }
 }
 
+interface TUpdateSettingsData {
+    [field_key: string]: string
+}
+
+export const useGetSettings = () => {
+    return useQuery<TSetting[]>('settings', getSettings)
+}
+const getSettings = async ({ signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/settings/', { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getSettings failed')
+    }
+}
+
+export const useUpdateSettings = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation(updateSettings, {
+        onMutate: async (data) => {
+            await queryClient.cancelQueries('settings')
+            const settings = queryClient.getQueryData<TSetting[]>('settings')
+            if (!settings) return
+
+            const newSettings = produce(settings, draft => {
+                for (const [fieldKey, choiceKey] of Object.entries(data)) {
+                    const setting = draft.find(setting => setting.field_key === fieldKey)
+                    if (setting) setting.field_value = choiceKey
+                }
+            })
+            queryClient.setQueryData('settings', newSettings)
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('settings')
+        },
+    })
+}
+const updateSettings = async (data: TUpdateSettingsData) => {
+    try {
+        await apiClient.patch('/settings/', data)
+    } catch {
+        throw new Error('updateSettings failed')
+    }
+}
+
 export const useGetLinkedAccounts = () => {
     return useQuery<TLinkedAccount[]>('linked_accounts', getLinkedAccounts)
 }
