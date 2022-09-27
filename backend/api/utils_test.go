@@ -189,3 +189,24 @@ func Test404(t *testing.T) {
 func TestIsLocalServer(t *testing.T) {
 	assert.False(t, isLocalServer())
 }
+
+func TestLogRequestMiddleware(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/not/a-route-2/", nil)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+
+		serverRequestsCollection := database.GetServerRequestCollection(api.DB)
+		count, err := serverRequestsCollection.CountDocuments(
+			context.Background(),
+			bson.M{"method": "/not/a-route-2/"},
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), count)
+	})
+}

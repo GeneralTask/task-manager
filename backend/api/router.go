@@ -23,6 +23,9 @@ func GetRouter(handlers *API) *gin.Engine {
 	// Introduce fake lag when running local server to more accurately simulate prod
 	router.Use(FakeLagMiddleware)
 
+	// Kick off logging of request
+	router.Use(LogRequestMiddleware(handlers.DB))
+
 	// Swagger API (only on local)
 	if config.GetEnvironment() == config.Dev {
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
