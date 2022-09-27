@@ -55,7 +55,10 @@ const LinearView = () => {
     }
 
     const linearTasks = useMemo(() => {
-        const tasks = taskSections?.flatMap((section) => section.tasks) ?? []
+        const tasks =
+            taskSections
+                ?.filter((section) => !section.is_done && !section.is_trash)
+                .flatMap((section) => section.tasks) ?? []
         return tasks.filter((task) => task.source.name === 'Linear')
     }, [taskSections])
 
