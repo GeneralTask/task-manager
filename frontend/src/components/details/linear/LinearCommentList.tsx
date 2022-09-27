@@ -15,7 +15,7 @@ const CommentListContainer = styled.div`
 `
 const CommentHeader = styled.div`
     color: ${Colors.text.light};
-    ${Typography.label};
+    ${Typography.eyebrow};
     margin-bottom: ${Spacing._24};
 `
 
@@ -32,7 +32,7 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
 
     return (
         <CommentListContainer>
-            <CommentHeader>COMMENTS ({comments.length})</CommentHeader>
+            <CommentHeader>Comments ({comments.length})</CommentHeader>
             {[...comments].reverse().map((comment, i) => (
                 <LinearComment
                     key={comment.created_at}
