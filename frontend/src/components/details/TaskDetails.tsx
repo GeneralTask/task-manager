@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useCallback, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
+import { MarkdownEditor } from '@remirror/react-editors/markdown'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
@@ -250,6 +251,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <BodyContainer>
+                        <MarkdownEditor />
                         <GTTextArea
                             initialValue={task.body}
                             placeholder="Add details"
