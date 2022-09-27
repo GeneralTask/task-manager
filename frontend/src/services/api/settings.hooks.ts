@@ -62,60 +62,6 @@ const updateSettings = async (data: TUpdateSettingsData) => {
     }
 }
 
-type GHFilterPreference = `${string}github_filtering_preference`
-type GHSortPreference = `${string}github_sorting_preference`
-type GHSortDirection = `${string}github_sorting_direction`
-
-export type TSettingsKey =
-    'calendar_account_id_for_new_tasks' |
-    GHFilterPreference |
-    GHSortPreference |
-    GHSortDirection
-
-type TUpdateSettingsData = {
-    key: TSettingsKey
-    value: string
-}
-
-export const useGetSettings = () => {
-    return useQuery<TSetting[]>('settings', getSettings)
-}
-const getSettings = async ({ signal }: QueryFunctionContext) => {
-    try {
-        const res = await apiClient.get('/settings/', { signal })
-        return castImmutable(res.data)
-    } catch {
-        throw new Error('getSettings failed')
-    }
-}
-
-export const useUpdateSetting = () => {
-    const queryClient = useGTQueryClient()
-    return useMutation(updateSettings, {
-        onMutate: async ({ key, value }) => {
-            await queryClient.cancelQueries('settings')
-            const settings = queryClient.getQueryData<TSetting[]>('settings')
-            if (!settings) return
-
-            const newSettings = produce(settings, draft => {
-                const setting = draft.find(setting => setting.field_key === key)
-                if (setting) setting.field_value = value
-            })
-            queryClient.setQueryData('settings', newSettings)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('settings')
-        },
-    })
-}
-const updateSettings = async (data: TUpdateSettingsData) => {
-    try {
-        await apiClient.patch('/settings/', { [data.key]: data.value })
-    } catch {
-        throw new Error('updateSettings failed')
-    }
-}
-
 export const useGetLinkedAccounts = () => {
     return useQuery<TLinkedAccount[]>('linked_accounts', getLinkedAccounts)
 }
