@@ -62,8 +62,19 @@ const updateSettings = async (data: TUpdateSettingsData) => {
     }
 }
 
-interface TUpdateSettingsData {
-    [field_key: string]: string
+type GHFilterPreference = `${string}github_filtering_preference`
+type GHSortPreference = `${string}github_sorting_preference`
+type GHSortDirection = `${string}github_sorting_direction`
+
+export type TSettingsKey =
+    'calendar_account_id_for_new_tasks' |
+    GHFilterPreference |
+    GHSortPreference |
+    GHSortDirection
+
+type TUpdateSettingsData = {
+    key: TSettingsKey
+    value: string
 }
 
 export const useGetSettings = () => {
@@ -78,19 +89,17 @@ const getSettings = async ({ signal }: QueryFunctionContext) => {
     }
 }
 
-export const useUpdateSettings = () => {
+export const useUpdateSetting = () => {
     const queryClient = useGTQueryClient()
     return useMutation(updateSettings, {
-        onMutate: async (data) => {
+        onMutate: async ({ key, value }) => {
             await queryClient.cancelQueries('settings')
             const settings = queryClient.getQueryData<TSetting[]>('settings')
             if (!settings) return
 
             const newSettings = produce(settings, draft => {
-                for (const [fieldKey, choiceKey] of Object.entries(data)) {
-                    const setting = draft.find(setting => setting.field_key === fieldKey)
-                    if (setting) setting.field_value = choiceKey
-                }
+                const setting = draft.find(setting => setting.field_key === key)
+                if (setting) setting.field_value = value
             })
             queryClient.setQueryData('settings', newSettings)
         },
@@ -101,7 +110,7 @@ export const useUpdateSettings = () => {
 }
 const updateSettings = async (data: TUpdateSettingsData) => {
     try {
-        await apiClient.patch('/settings/', data)
+        await apiClient.patch('/settings/', { [data.key]: data.value })
     } catch {
         throw new Error('updateSettings failed')
     }
