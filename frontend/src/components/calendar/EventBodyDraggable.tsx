@@ -13,7 +13,6 @@ interface EventBodyDraggableProps {
     children: ReactNode
 }
 const EventBodyDraggable = ({ event, children }: EventBodyDraggableProps) => {
-    console.log({ event })
     const [isDragging, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.EVENT,
