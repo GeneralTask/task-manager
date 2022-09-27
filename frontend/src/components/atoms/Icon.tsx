@@ -14,6 +14,7 @@ const IconContainer = styled.div<{ width: string; height: string }>`
     align-items: center;
     justify-content: center;
     user-select: none;
+    flex-shrink: 0;
 `
 const ImageContainer = styled.img`
     width: 100%;

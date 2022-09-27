@@ -10,7 +10,7 @@ export const AUTHORIZATION_COOKE = 'authToken'
 export const MESSAGE_TYPE_DM = 'directmessage'
 
 // Time constants (in seconds)
-export const TASK_REFETCH_INTERVAL = 30
+export const TASK_REFETCH_INTERVAL = 60
 export const PR_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6

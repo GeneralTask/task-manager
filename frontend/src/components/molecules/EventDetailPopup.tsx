@@ -166,7 +166,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                                 }}
                             />
                         )}
-                        <FlexAnchor href={event.deeplink} target="_blank">
+                        <FlexAnchor href={event.deeplink}>
                             <GTButton
                                 styleType="secondary"
                                 size="small"
@@ -178,7 +178,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     </Flex>
                     {event.conference_call.logo && (
                         <Flex alignItemsCenter>
-                            <FlexAnchor href={event.conference_call.url} target="_blank">
+                            <FlexAnchor href={event.conference_call.url}>
                                 <GTButton
                                     styleType="secondary"
                                     size="small"
