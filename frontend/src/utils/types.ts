@@ -33,6 +33,7 @@ export interface TTask {
     time_allocated: number
     due_date: string
     external_status?: TExternalStatus
+    all_statuses?: TExternalStatus[]
     source: TTaskSource
     sender: string
     is_done: boolean
@@ -83,6 +84,7 @@ export interface TLinearUser {
 }
 
 export interface TExternalStatus {
+    external_id: string // the id of the status on linear
     state: string // the custom name of the status (e.g. Todo) - note: these are self-defined by the users of linear and can be different even across teams
     type: 'backlog' | 'unstarted' | 'started' | 'completed' | 'canceled' // the type of status native to the task application
 }
@@ -214,7 +216,7 @@ export interface TUserInfo {
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type
 
-export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation'
+export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' | 'meeting_preparation' | 'due_today'
 
 export interface TOverviewView {
     id: string

@@ -120,7 +120,7 @@ func TestSlackTaskCreate(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"internal server error\"}", string(body))
 	})
 
-	t.Run("SuccessMessageAction", func(t *testing.T) {
+	t.Run("NotOKMessageAction", func(t *testing.T) {
 		database.GetExternalTokenCollection(db).InsertOne(
 			context.Background(),
 			&database.ExternalAPIToken{
@@ -134,7 +134,36 @@ func TestSlackTaskCreate(t *testing.T) {
 		payloadDecoded := `{"type":"message_action","team":{"id":"valid-team","domain":"generaltask"},"user":{"id":"valid-user","username":"valid-user","team_id":"uhoh","name":"valid-user"},"channel":{"id":"channel","name":"directmessage"},"is_enterprise_install":false,"enterprise":null,"callback_id":"create_task","trigger_id":"3874062481760.1734323190625.501316e39308b13eaaf3d8366810ff0d","message_ts":"1658791396.156309","message":{"client_msg_id":"client_msg_id","type":"message","text":"sounds+good,+will+take+a+look","user":"U02A0P4D61J","ts":"1658791396.156309","team":"invalid-team","blocks":[{"type":"rich_text","block_id":"ajF","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"sounds+good,+will+take+a+look"}]}]}]}}`
 		payloadUrlEncoded := "payload=" + url.QueryEscape(payloadDecoded)
 
-		server := getServerForSlack()
+		server := getServerForSlackWithResponse("{\"ok\": false}")
+		defer server.Close()
+
+		request, _ := http.NewRequest(
+			"POST",
+			"/tasks/create_external/slack/",
+			bytes.NewBuffer([]byte(payloadUrlEncoded)))
+
+		request.Header.Add("X-Slack-Request-Timestamp", validTimestamp)
+		request.Header.Add("X-Slack-Signature", generateSlackSignature(validTimestamp, payloadUrlEncoded))
+		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		api.ExternalConfig.SlackOverrideURL = server.URL
+		router := GetRouter(api)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"internal server error\"}", string(body))
+	})
+
+	t.Run("SuccessMessageAction", func(t *testing.T) {
+		payloadDecoded := `{"type":"message_action","team":{"id":"valid-team","domain":"generaltask"},"user":{"id":"valid-user","username":"valid-user","team_id":"uhoh","name":"valid-user"},"channel":{"id":"channel","name":"directmessage"},"is_enterprise_install":false,"enterprise":null,"callback_id":"create_task","trigger_id":"3874062481760.1734323190625.501316e39308b13eaaf3d8366810ff0d","message_ts":"1658791396.156309","message":{"client_msg_id":"client_msg_id","type":"message","text":"sounds+good,+will+take+a+look","user":"U02A0P4D61J","ts":"1658791396.156309","team":"invalid-team","blocks":[{"type":"rich_text","block_id":"ajF","elements":[{"type":"rich_text_section","elements":[{"type":"text","text":"sounds+good,+will+take+a+look"}]}]}]}}`
+		payloadUrlEncoded := "payload=" + url.QueryEscape(payloadDecoded)
+
+		server := getServerForSlackWithResponse("{\"ok\": true}")
 		defer server.Close()
 
 		request, _ := http.NewRequest(
@@ -253,6 +282,12 @@ func TestGetSlackMessageTitle(t *testing.T) {
 
 func getServerForSlack() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+}
+
+func getServerForSlackWithResponse(response string) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(response))
+	}))
 }
 
 func generateSlackSignature(timestamp string, payload string) string {

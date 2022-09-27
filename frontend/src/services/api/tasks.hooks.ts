@@ -5,7 +5,7 @@ import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
-import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
+import { TTaskSection, TTask, TOverviewView, TOverviewItem, TExternalStatus } from "../../utils/types"
 
 export interface TCreateTaskData {
     title: string
@@ -24,11 +24,13 @@ export interface TModifyTaskData {
     timeAllocated?: number
     body?: string
     priorityNormalized?: number
+    status?: TExternalStatus
 }
 
 interface TTaskModifyRequestBody {
     task: {
         priority_normalized?: number
+        status?: TExternalStatus
     }
     id_task_section?: string
     id_ordering?: number
@@ -49,6 +51,11 @@ export interface TReorderTaskData {
     dropSectionId: string
     orderingId: number
     dragSectionId?: string
+}
+
+export interface TPostCommentData {
+    taskId: string
+    body: string
 }
 
 export const useGetTasks = (isEnabled = true) => {
@@ -210,6 +217,7 @@ export const useModifyTask = () => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
                 ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -223,6 +231,7 @@ export const useModifyTask = () => {
                         task.time_allocated = data.timeAllocated || task.time_allocated
                         task.body = data.body || task.body
                         task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                        task.external_status = data.status || task.external_status
                     })
 
                     queryClient.setQueryData('tasks', newSections)
@@ -245,6 +254,7 @@ export const useModifyTask = () => {
                         task.time_allocated = data.timeAllocated || task.time_allocated
                         task.body = data.body || task.body
                         task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                        task.external_status = data.status || task.external_status
                     })
 
                     queryClient.setQueryData('overview', newViews)
@@ -265,6 +275,7 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
+    if (data.status !== undefined) requestBody.task.status = data.status
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
@@ -383,6 +394,7 @@ export const useReorderTask = () => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
                 ])
 
                 if (sections) {
@@ -480,5 +492,30 @@ export const reorderTask = async (data: TReorderTaskData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('reorderTask failed')
+    }
+}
+
+export const usePostComment = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation((data: TPostCommentData) => postComment(data), {
+        onMutate: async (/* data: TPostCommentData */) => {
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('overview'),
+            ])
+            // TODO: Optimistic updates for the comments
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
+        },
+    })
+}
+const postComment = async (data: TPostCommentData) => {
+    try {
+        const res = await apiClient.post(`/tasks/${data.taskId}/comments/add/`, data)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('postComment failed')
     }
 }

@@ -33,7 +33,7 @@ import {
     faList,
     faTag,
     faTimer,
-    faHeadphones,
+
 } from '@fortawesome/pro-light-svg-icons'
 import {
     faSignalBars,
@@ -42,6 +42,9 @@ import {
     faSignalBarsGood,
     faSignalBarsSlash,
 } from '@fortawesome/pro-duotone-svg-icons'
+import {
+    faHeadphones
+} from '@fortawesome/pro-solid-svg-icons'
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',

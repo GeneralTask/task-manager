@@ -1,7 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
-import { TIconColor } from '../../../styles/colors'
+import { TIconColor, TTextColor } from '../../../styles/colors'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
@@ -58,6 +58,7 @@ const Button = styled(NoStyleButton)<{
     wrapText: boolean
     fitContent: boolean
     size: TButtonSize
+    textColor?: TTextColor
 }>`
     display: flex;
     justify-content: center;
@@ -89,6 +90,7 @@ const Button = styled(NoStyleButton)<{
                 props.styleType === 'primary' ? Colors.button.primary.default : Colors.button.secondary.default
             }`};
     }
+    ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -97,6 +99,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     wrapText?: boolean
     icon?: IconProp | string
     iconColor?: TIconColor
+    textColor?: TTextColor
     fitContent?: boolean
 }
 const GTButton = ({
@@ -106,12 +109,20 @@ const GTButton = ({
     fitContent = true,
     icon,
     iconColor,
+    textColor,
     value,
     ...rest
 }: GTButtonProps) => {
     const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
-        <Button styleType={styleType} size={size} wrapText={wrapText} fitContent={fitContent} {...rest}>
+        <Button
+            styleType={styleType}
+            size={size}
+            wrapText={wrapText}
+            fitContent={fitContent}
+            textColor={textColor}
+            {...rest}
+        >
             {icon && <Icon size={iconSize} icon={icon} color={iconColor ? Colors.icon[iconColor] : undefined} />}
             {value}
         </Button>
