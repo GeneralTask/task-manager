@@ -3,6 +3,7 @@ import produce, { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
+import * as Sentry from '@sentry/browser'
 
 type GHFilterPreference = `${string}github_filtering_preference`
 type GHSortPreference = `${string}github_sorting_preference`
@@ -42,6 +43,9 @@ export const useUpdateSetting = () => {
             const newSettings = produce(settings, draft => {
                 const setting = draft.find(setting => setting.field_key === key)
                 if (setting) setting.field_value = value
+                else {
+                    Sentry.captureMessage(`Setting ${key} not found`)
+                }
             })
             queryClient.setQueryData('settings', newSettings)
         },
