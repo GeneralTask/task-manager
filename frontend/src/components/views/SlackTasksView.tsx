@@ -73,7 +73,7 @@ const SlackTasksView = () => {
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Slack Messages" />
-                <LinearBodyHeader>All messages you've created tasks for</LinearBodyHeader>
+                <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
                 {slackTasks?.map((task) => (
                     <TaskTemplate key={task.id} isVisible={isVisible}>
                         <SlackSelectableContainer
