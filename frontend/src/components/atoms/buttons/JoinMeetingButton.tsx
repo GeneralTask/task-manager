@@ -10,7 +10,7 @@ interface JoinMeetingButtonProps {
 const JoinMeetingButton = ({ conferenceCall, shortened = true }: JoinMeetingButtonProps) => {
     const message = shortened ? 'Join' : 'Join Meeting'
     return (
-        <NoStyleAnchor href={conferenceCall.url} target="_blank">
+        <NoStyleAnchor href={conferenceCall.url}>
             <GTButton icon={conferenceCall.logo} iconColor="black" styleType="secondary" value={message} />
         </NoStyleAnchor>
     )

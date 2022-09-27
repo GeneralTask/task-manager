@@ -4,10 +4,12 @@ import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { linearStatus } from '../../styles/images'
+import { icons } from '../../styles/images'
 import CommentCount from '../atoms/CommentCount'
 import { Icon } from '../atoms/Icon'
 import SelectableContainer from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -58,6 +60,7 @@ const LinearView = () => {
     }, [taskSections])
 
     const { task } = useMemo(() => {
+        if (linearTasks.length === 0) return { task: null }
         for (const task of linearTasks) {
             if (task.id === linearIssueId) return { task }
         }
@@ -88,7 +91,11 @@ const LinearView = () => {
                     </LinearSelectableContainer>
                 ))}
             </ScrollableListTemplate>
-            <TaskDetails task={task} link={`/linear/${task.id}`} />
+            {task ? (
+                <TaskDetails task={task} link={`/linear/${task.id}`} />
+            ) : (
+                <EmptyDetails icon={icons.check} text="You have no Linear tasks" />
+            )}
         </>
     )
 }

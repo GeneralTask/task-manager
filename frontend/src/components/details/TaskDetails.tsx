@@ -20,6 +20,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import ActionOption from '../molecules/ActionOption'
+import GTDatePicker from '../molecules/GTDatePicker'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import LinearCommentList from './linear/LinearCommentList'
@@ -39,14 +40,6 @@ const MarginLeftAuto = styled.div`
 `
 const MarginLeft8 = styled.div`
     margin-left: ${Spacing._8};
-`
-const StatusContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: ${Spacing._8};
-    align-items: center;
-    color: ${Colors.text.light};
-    ${Typography.bodySmall};
 `
 const BodyContainer = styled.div`
     display: flex;
@@ -183,7 +176,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                 />
                             )}
                             {task.deeplink && (
-                                <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
+                                <NoStyleAnchor href={task.deeplink} rel="noreferrer">
                                     <GTIconButton icon={icons.external_link} size="small" />
                                 </NoStyleAnchor>
                             )}
@@ -206,12 +199,27 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                {task.external_status && (
-                    <StatusContainer>
-                        <Icon icon={linearStatus[task.external_status.type]} size="small" />
-                        {status}
-                    </StatusContainer>
+                {task.external_status && task.all_statuses && (
+                    <GTDropdownMenu
+                        items={task.all_statuses.map((status) => ({
+                            label: status.state,
+                            onClick: () => modifyTask({ id: task.id, status: status }),
+                            icon: linearStatus[status.type],
+                        }))}
+                        trigger={
+                            <GTButton
+                                value={status}
+                                icon={linearStatus[task.external_status.type]}
+                                size="small"
+                                styleType="simple"
+                            />
+                        }
+                    />
                 )}
+                <GTDatePicker
+                    initialDate={DateTime.fromISO(task.due_date).toJSDate()}
+                    setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                />
                 <GTDropdownMenu
                     items={TASK_PRIORITIES.map((priority, val) => ({
                         label: priority.label,

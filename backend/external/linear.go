@@ -371,7 +371,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	}
 	// not currently used, but should allow to work once the frontend logic changes
 	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {
-		request.Var("stateID", updateFields.Status.ExternalID)
+		request.Var("stateId", updateFields.Status.ExternalID)
 	}
 	if updateFields.DueDate != nil {
 		request.Var("dueDate", updateFields.DueDate.Time().Format("2006-01-02"))

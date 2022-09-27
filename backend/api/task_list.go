@@ -21,8 +21,9 @@ type TaskSource struct {
 }
 
 type externalStatus struct {
-	State string `json:"state,omitempty"`
-	Type  string `json:"type,omitempty"`
+	IDExternal string `json:"external_id,omitempty"`
+	State      string `json:"state,omitempty"`
+	Type       string `json:"type,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -297,16 +298,18 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
 		taskResult.ExternalStatus = &externalStatus{
-			State: t.Status.State,
-			Type:  t.Status.Type,
+			IDExternal: t.Status.ExternalID,
+			State:      t.Status.State,
+			Type:       t.Status.Type,
 		}
 	}
 	if t.AllStatuses != nil {
 		allStatuses := []*externalStatus{}
 		for _, status := range t.AllStatuses {
 			allStatuses = append(allStatuses, &externalStatus{
-				State: status.State,
-				Type:  status.Type,
+				IDExternal: status.ExternalID,
+				State:      status.State,
+				Type:       status.Type,
 			})
 		}
 		taskResult.AllStatuses = allStatuses

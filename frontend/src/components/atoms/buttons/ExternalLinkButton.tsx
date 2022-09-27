@@ -7,7 +7,7 @@ interface ExternalLinkButtonProps {
 }
 const ExternalLinkButton = ({ link }: ExternalLinkButtonProps) => {
     return (
-        <NoStyleAnchor href={link} target="_blank" rel="noreferrer">
+        <NoStyleAnchor href={link} rel="noreferrer">
             <GTIconButton icon={icons.external_link} size="small" />
         </NoStyleAnchor>
     )
