@@ -467,6 +467,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		{"is_completed": false},
 		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
+		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
 	}, nil)
 	if err != nil {
 		return nil, err
