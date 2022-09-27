@@ -116,13 +116,14 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
         `
             : 'flex-direction: row;'}
 `
-export const EventTitle = styled.div`
+export const EventIconAndTitle = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
-    margin-right: ${Spacing._8};
     max-height: 100%;
     min-width: 0;
+`
+export const EventTitle = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
