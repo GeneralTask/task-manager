@@ -35,7 +35,7 @@ const HeaderButton = styled(NoStyleButton)`
 `
 const HeaderText = styled.div<{ fontColor: TTextColor }>`
     color: ${({ fontColor }) => Colors.text[fontColor]};
-    word-break: break-all;
+    word-break: break-word;
     text-align: left;
     padding: ${Spacing._8};
     ${Typography.title};
