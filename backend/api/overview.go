@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 	"time"
 
@@ -357,7 +358,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 
 	result := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     repository.FullName,
+		Name:     fmt.Sprintf("GitHub PRs from %s", repository.FullName),
 		Logo:     external.TaskServiceGithub.LogoV2,
 		Type:     constants.ViewGithub,
 		IsLinked: view.IsLinked,

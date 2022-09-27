@@ -549,7 +549,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     "OrganizationTest/RepositoryTest",
+		Name:     "GitHub PRs from OrganizationTest/RepositoryTest",
 		Type:     constants.ViewGithub,
 		Logo:     "github",
 		IsLinked: true,
