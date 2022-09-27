@@ -14,6 +14,7 @@ import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
@@ -30,7 +31,8 @@ const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 50px;
+    flex-basis: 50px;
+    flex-shrink: 0;
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -45,6 +47,7 @@ const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
+    flex-basis: 750px;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -60,6 +63,11 @@ const MeetingPreparationTimeContainer = styled.div`
     color: ${Colors.text.light};
     ${Typography.label};
     ${Typography.bold};
+`
+const CommentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._24};
 `
 
 const SYNC_MESSAGES = {
@@ -184,14 +192,16 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     </>
                 )}
             </DetailsTopContainer>
-            <GTTextArea
-                initialValue={task.title}
-                disabled={task.isOptimistic || is_meeting_preparation_task}
-                onEdit={(val) => onEdit({ id: task.id, title: val })}
-                maxHeight={TITLE_MAX_HEIGHT}
-                fontSize="medium"
-                blurOnEnter
-            />
+            <div>
+                <GTTextArea
+                    initialValue={task.title}
+                    disabled={task.isOptimistic || is_meeting_preparation_task}
+                    onEdit={(val) => onEdit({ id: task.id, title: val })}
+                    maxHeight={TITLE_MAX_HEIGHT}
+                    fontSize="medium"
+                    blurOnEnter
+                />
+            </div>
             {meeting_preparation_params && (
                 <MeetingPreparationTimeContainer>
                     <TimeRange start={dateTimeStart} end={dateTimeEnd} />
@@ -250,7 +260,12 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             fontSize="small"
                         />
                     </BodyContainer>
-                    {task.comments && <LinearCommentList comments={task.comments} />}
+                    {task.comments && (
+                        <CommentContainer>
+                            <Divider color={Colors.border.extra_light} />
+                            <LinearCommentList comments={task.comments} />
+                        </CommentContainer>
+                    )}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
                     )}
