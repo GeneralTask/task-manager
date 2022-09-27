@@ -24,7 +24,7 @@ import CalendarView from '../views/CalendarView'
 const TemplateViewContainer = styled.div`
     height: 100%;
     background: url(${focusModeBackground});
-    background-size: contain;
+    background-size: cover;
 `
 const FloatingIcon = styled.div`
     position: fixed;
