@@ -3,10 +3,12 @@ import { useLayoutEffect } from 'react'
 import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { Colors, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
 const GTDatePickerWrapper = styled.div`
@@ -20,13 +22,23 @@ const GTDatePickerWrapper = styled.div`
         border-radius: 50%;
     }
 `
+const DateViewContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: ${Spacing._8};
+    padding: ${Spacing._4} ${Spacing._8};
+    gap: ${Spacing._8};
+    border-radius: ${Border.radius.mini};
+    border: ${Border.stroke.medium} solid ${Colors.border.light};
+`
 const getFormattedDate = (
     date: Date | null
 ): {
     dateString: string
     color: TTextColor
 } => {
-    if (!date || isNaN(+date)) {
+    if (!date || isNaN(+date) || +date === 0) {
         return { dateString: 'No due date', color: 'light' }
     }
     if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
@@ -55,9 +67,13 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
         onChange(initialDate)
     }, [initialDate])
 
-    const handleOnChange = (date: Date) => {
+    const handleOnChange = (date: Date | null) => {
         onChange(date)
-        setDate(DateTime.fromJSDate(date).toISO())
+        if (date) {
+            setDate(DateTime.fromJSDate(date).toISO())
+        } else {
+            setDate(DateTime.fromMillis(0).toISO())
+        }
     }
 
     const calendar = (
@@ -87,6 +103,13 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     return { color: Colors.text.black }
                 }}
             />
+            <DateViewContainer>
+                <Icon icon={icons.calendar_blank} size="small" color="black" />
+                <span style={{ flex: 1 }}>
+                    {!value || isNaN(+value) || +value === 0 ? 'No Due Date' : value?.toDateString()}
+                </span>
+                <GTIconButton icon={icons.x} size="small" color="black" onClick={() => handleOnChange(null)} />
+            </DateViewContainer>
         </GTDatePickerWrapper>
     )
 
