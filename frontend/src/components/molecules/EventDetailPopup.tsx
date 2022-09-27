@@ -194,7 +194,6 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(({ event, 
         </>,
         document.getElementById('event-details-popup') as HTMLElement
     )
-
     return <>{portal}</>
 })
 

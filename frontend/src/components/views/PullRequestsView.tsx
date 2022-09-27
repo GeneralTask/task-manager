@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
@@ -41,7 +41,10 @@ const PullRequestsView = () => {
     useFetchPullRequests()
 
     const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
-    useItemSelectionController(pullRequests, (itemId: string) => navigate(`/pull-requests/${itemId}`))
+    useItemSelectionController(
+        pullRequests,
+        useCallback((itemId: string) => navigate(`/pull-requests/${itemId}`), [])
+    )
 
     const selectedPullRequest = useMemo(() => {
         if (pullRequests.length === 0) return null

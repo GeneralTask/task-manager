@@ -14,12 +14,14 @@ import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import ActionOption from '../molecules/ActionOption'
+import GTDatePicker from '../molecules/GTDatePicker'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import LinearCommentList from './linear/LinearCommentList'
@@ -29,7 +31,8 @@ const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 50px;
+    flex-basis: 50px;
+    flex-shrink: 0;
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -40,18 +43,11 @@ const MarginLeftAuto = styled.div`
 const MarginLeft8 = styled.div`
     margin-left: ${Spacing._8};
 `
-const StatusContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: ${Spacing._8};
-    align-items: center;
-    color: ${Colors.text.light};
-    ${Typography.bodySmall};
-`
 const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
+    flex-basis: 750px;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -67,6 +63,11 @@ const MeetingPreparationTimeContainer = styled.div`
     color: ${Colors.text.light};
     ${Typography.label};
     ${Typography.bold};
+`
+const CommentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._24};
 `
 
 const SYNC_MESSAGES = {
@@ -183,7 +184,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                 />
                             )}
                             {task.deeplink && (
-                                <NoStyleAnchor href={task.deeplink} target="_blank" rel="noreferrer">
+                                <NoStyleAnchor href={task.deeplink} rel="noreferrer">
                                     <GTIconButton icon={icons.external_link} size="small" />
                                 </NoStyleAnchor>
                             )}
@@ -191,14 +192,16 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     </>
                 )}
             </DetailsTopContainer>
-            <GTTextArea
-                initialValue={task.title}
-                disabled={task.isOptimistic || is_meeting_preparation_task}
-                onEdit={(val) => onEdit({ id: task.id, title: val })}
-                maxHeight={TITLE_MAX_HEIGHT}
-                fontSize="medium"
-                blurOnEnter
-            />
+            <div>
+                <GTTextArea
+                    initialValue={task.title}
+                    disabled={task.isOptimistic || is_meeting_preparation_task}
+                    onEdit={(val) => onEdit({ id: task.id, title: val })}
+                    maxHeight={TITLE_MAX_HEIGHT}
+                    fontSize="medium"
+                    blurOnEnter
+                />
+            </div>
             {meeting_preparation_params && (
                 <MeetingPreparationTimeContainer>
                     <TimeRange start={dateTimeStart} end={dateTimeEnd} />
@@ -206,12 +209,27 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                {task.external_status && (
-                    <StatusContainer>
-                        <Icon icon={linearStatus[task.external_status.type]} size="small" />
-                        {status}
-                    </StatusContainer>
+                {task.external_status && task.all_statuses && (
+                    <GTDropdownMenu
+                        items={task.all_statuses.map((status) => ({
+                            label: status.state,
+                            onClick: () => modifyTask({ id: task.id, status: status }),
+                            icon: linearStatus[status.type],
+                        }))}
+                        trigger={
+                            <GTButton
+                                value={status}
+                                icon={linearStatus[task.external_status.type]}
+                                size="small"
+                                styleType="simple"
+                            />
+                        }
+                    />
                 )}
+                <GTDatePicker
+                    initialDate={DateTime.fromISO(task.due_date).toJSDate()}
+                    setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                />
                 <GTDropdownMenu
                     items={TASK_PRIORITIES.map((priority, val) => ({
                         label: priority.label,
@@ -242,7 +260,12 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             fontSize="small"
                         />
                     </BodyContainer>
-                    {task.comments && <LinearCommentList comments={task.comments} />}
+                    {task.comments && (
+                        <CommentContainer>
+                            <Divider color={Colors.border.extra_light} />
+                            <LinearCommentList comments={task.comments} />
+                        </CommentContainer>
+                    )}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
                     )}

@@ -18,6 +18,7 @@ const EventBodyDraggable = ({ event, children }: EventBodyDraggableProps) => {
             type: DropType.EVENT,
             item: { event },
             collect: (monitor) => monitor.isDragging(),
+            canDrag: event.can_modify,
         }),
         [event]
     )
