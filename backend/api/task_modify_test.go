@@ -99,6 +99,10 @@ func TestMarkAsDeleted(t *testing.T) {
 	})
 
 	t.Run("DeletionFlagFalse", func(t *testing.T) {
+		response = `{"data": {"issueUnarchive": {"success": true}}}`
+		taskUpdateServer = testutils.GetMockAPIServer(t, 200, response)
+		api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
+
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
 		assert.NoError(t, err)
 		ServeRequest(t,
@@ -138,6 +142,9 @@ func TestMarkAsDeleted(t *testing.T) {
 	})
 
 	t.Run("MarkAsDeletedSuccess", func(t *testing.T) {
+		response = `{"data": {"issueArchive": {"success": true}}}`
+		taskUpdateServer = testutils.GetMockAPIServer(t, 200, response)
+		api.ExternalConfig.Linear.ConfigValues.TaskUpdateURL = &taskUpdateServer.URL
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, false, *task.IsDeleted)

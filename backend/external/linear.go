@@ -304,10 +304,78 @@ const linearUpdateIssueWithProsemirrorQueryStr = `
 		  }
 		}`
 
+const linearDeleteIssueQueryStr = `
+        mutation IssueArchive (
+            $id: String!
+            , $trash: Boolean!
+        ) {
+          issueArchive(
+            id: $id,
+            trash: $trash,
+          ) {
+            success
+          }
+        }`
+
+const linearUndeleteIssueQueryStr = `
+		mutation IssueUnarchive (
+			$id: String!
+		) {
+		  issueUnarchive(
+			id: $id,
+		  ) {
+			success
+		  }
+		}`
+
 type linearUpdateIssueQuery struct {
 	IssueUpdate struct {
 		Success graphql.Boolean
 	} `graphql:"issueUpdate(id: $id, input: {title: $title, stateId: $stateId, dueDate: $dueDate, description: $description, priority: $priority})"`
+}
+
+type linearDeleteIssueQuery struct {
+	IssueArchive struct {
+		Success graphql.Boolean
+	} `graphql:"issueDelete(id: $id, trash: $trash)"`
+}
+
+type linearUndeleteIssueQuery struct {
+	IssueUnarchive struct {
+		Success graphql.Boolean
+	} `graphql:"issueDelete(id: $id)"`
+}
+
+func handleDeleteLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (bool, error) {
+	if updateFields.IsDeleted == nil {
+		return false, errors.New("cannot handle delete issue query without IsDeleted param set")
+	}
+	if *updateFields.IsDeleted {
+		deleteIssueQueryStr := linearDeleteIssueQueryStr
+		request := graphqlBasic.NewRequest(deleteIssueQueryStr)
+		request.Var("id", issueID)
+		request.Var("trash", true)
+		log.Debug().Msgf("sending request to Linear: %+v", request)
+		var query linearDeleteIssueQuery
+		logger := logging.GetSentryLogger()
+		if err := client.Run(context.Background(), request, &query); err != nil {
+			logger.Error().Err(err).Msg("failed to delete linear issue")
+			return false, err
+		}
+		return bool(query.IssueArchive.Success), nil
+	} else {
+		deleteIssueQueryStr := linearUndeleteIssueQueryStr
+		request := graphqlBasic.NewRequest(deleteIssueQueryStr)
+		request.Var("id", issueID)
+		log.Debug().Msgf("sending request to Linear: %+v", request)
+		var query linearUndeleteIssueQuery
+		logger := logging.GetSentryLogger()
+		if err := client.Run(context.Background(), request, &query); err != nil {
+			logger.Error().Err(err).Msg("failed to undelete linear issue")
+			return false, err
+		}
+		return bool(query.IssueUnarchive.Success), nil
+	}
 }
 
 const linearCommentCreateQueryStr = `
@@ -331,7 +399,7 @@ type linearCommentCreateQuery struct {
 	} `graphql:"commentCreate(input: {body: $body, issueId: $issueId})"`
 }
 
-func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (*linearUpdateIssueQuery, error) {
+func handleMutateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (bool, error) {
 	updateIssueQueryStr := linearUpdateIssueQueryStr
 	if updateFields.Body != nil && *updateFields.Body == "" {
 		updateIssueQueryStr = linearUpdateIssueWithProsemirrorQueryStr
@@ -341,7 +409,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	request.Var("id", issueID)
 	if updateFields.Title != nil {
 		if *updateFields.Title == "" {
-			return nil, errors.New("cannot set linear issue title to empty string")
+			return false, errors.New("cannot set linear issue title to empty string")
 		}
 		request.Var("title", *updateFields.Title)
 	}
@@ -359,10 +427,10 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 			logger := logging.GetSentryLogger()
 			if task.Status != nil && task.CompletedStatus != nil && task.Status.ExternalID != task.CompletedStatus.ExternalID {
 				logger.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
-				return nil, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
+				return false, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
 			} else if task.PreviousStatus != nil && task.PreviousStatus.ExternalID == "" {
 				logger.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
-				return nil, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
+				return false, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
 			}
 			if task.PreviousStatus != nil {
 				request.Var("stateId", task.PreviousStatus.ExternalID)
@@ -388,9 +456,20 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 	if err := client.Run(context.Background(), request, &query); err != nil {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("failed to update linear issue")
-		return nil, err
+		return false, err
 	}
-	return &query, nil
+	return bool(query.IssueUpdate.Success), nil
+}
+
+func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (bool, error) {
+	var success bool
+	var err error
+	if updateFields.IsDeleted != nil {
+		success, err = handleDeleteLinearIssue(client, issueID, updateFields, task)
+	} else {
+		success, err = handleMutateLinearIssue(client, issueID, updateFields, task)
+	}
+	return success, err
 }
 
 func addLinearComment(client *graphqlBasic.Client, issueID string, comment database.Comment) error {
