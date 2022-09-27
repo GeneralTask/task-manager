@@ -9,15 +9,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-var RoutePrefixesToLogInDetail = [...]string{
-	"/tasks/create_external/slack/",
-	"/events/create/",
-	"/events/delete/",
-	"/events/modify/",
-	"/tasks/create/",
-	"/tasks/modify/",
-}
-
 func GetRouter(handlers *API) *gin.Engine {
 	// Setting release mode has the benefit of reducing spam on the unit test output
 	gin.SetMode(gin.ReleaseMode)

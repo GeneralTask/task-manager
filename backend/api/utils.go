@@ -155,15 +155,6 @@ func isLocalServer() bool {
 
 func LogRequestMiddleware(db *mongo.Database) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		matchesRoute := false
-		for _, route := range RoutePrefixesToLogInDetail {
-			if strings.HasPrefix(c.Request.URL.Path, route) {
-				matchesRoute = true
-			}
-		}
-		if !matchesRoute {
-			return
-		}
 		startTime := time.Now()
 
 		// runs the rest of the request
@@ -184,11 +175,12 @@ func LogRequestMiddleware(db *mongo.Database) func(c *gin.Context) {
 			objectID, err := primitive.ObjectIDFromHex(id)
 			if err != nil {
 				// This means the task ID is improperly formatted
-				log.Debug().Err(err).Msgf("could not parse object_id=%s", objectID)
+				log.Error().Err(err).Msgf("could not parse object_id=%s", objectID)
 				return
 			}
 		}
 
-		database.LogRequestInfo(db, startTime, userObjectID, c.Request.URL.Path, time.Now().UnixMilli()-startTime.UnixMilli(), &objectID)
+		status := c.Writer.Status()
+		database.LogRequestInfo(db, startTime, userObjectID, c.Request.URL.Path, time.Now().UnixMilli()-startTime.UnixMilli(), &objectID, status)
 	}
 }

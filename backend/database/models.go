@@ -266,6 +266,7 @@ type ServerRequestInfo struct {
 	ObjectID      primitive.ObjectID `bson:"object_id,omitempty"` // can be task, event, pull_request, section, etc.
 	SourceID      string             `bson:"source_id,omitempty"`
 	TimeToCloseMS int64              `bson:"time_to_close_ms,omitempty"` // only will be populated when a task is completed
+	StatusCode    int                `bson:"status_code,omitempty"`
 }
 
 type TaskSection struct {

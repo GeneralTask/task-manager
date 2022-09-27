@@ -728,12 +728,13 @@ func AdjustOrderingIDsForCollection(collection *mongo.Collection, userID primiti
 	return nil
 }
 
-func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.ObjectID, method string, latencyMS int64, objectID *primitive.ObjectID) {
+func LogRequestInfo(db *mongo.Database, timestamp time.Time, userID primitive.ObjectID, method string, latencyMS int64, objectID *primitive.ObjectID, statusCode int) {
 	requestInfo := ServerRequestInfo{
-		Timestamp: primitive.NewDateTimeFromTime(timestamp),
-		UserID:    userID,
-		Method:    method,
-		LatencyMS: latencyMS,
+		Timestamp:  primitive.NewDateTimeFromTime(timestamp),
+		UserID:     userID,
+		Method:     method,
+		LatencyMS:  latencyMS,
+		StatusCode: statusCode,
 	}
 	if objectID != nil {
 		requestInfo.ObjectID = *objectID
