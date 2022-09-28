@@ -1,6 +1,6 @@
-import { useCallback } from "react"
-import { useFetchExternalTasks } from "../services/api/tasks.hooks"
-import { useGTQueryClient } from "../services/queryUtils"
+import { useCallback } from 'react'
+import { useFetchExternalTasks } from '../services/api/tasks.hooks'
+import { useGTQueryClient } from '../services/queryUtils'
 
 const useRefetchStaleQueries = () => {
     const queryClient = useGTQueryClient()
