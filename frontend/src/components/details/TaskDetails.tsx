@@ -17,6 +17,7 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
@@ -183,11 +184,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                     keyboardShortcut="showSectionEditor"
                                 />
                             )}
-                            {task.deeplink && (
-                                <NoStyleAnchor href={task.deeplink} rel="noreferrer">
-                                    <GTIconButton icon={icons.external_link} size="small" />
-                                </NoStyleAnchor>
-                            )}
+                            {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                         </MarginLeftAuto>
                     </>
                 )}
