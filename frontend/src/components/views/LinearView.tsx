@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { linearStatus } from '../../styles/images'
 import { icons } from '../../styles/images'
@@ -49,7 +49,6 @@ const LinearView = () => {
     const { data: taskSections } = useGetTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
-    useFetchExternalTasks()
 
     const onClick = (id: string) => {
         navigate(`/linear/${id}`)
