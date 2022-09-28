@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
-import { Border, Colors, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { PurpleEdge } from '../atoms/SelectableContainer'
 
 const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>`
@@ -11,8 +11,9 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>
     height: 100%;
     background-color: ${(props) =>
         props.isSelected || props.isHovered ? Colors.background.medium : Colors.background.white};
+    box-shadow: ${Shadows.button.default};
     border-radius: ${Border.radius.mini};
-    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+    ${(props) => props.isHovered && `outline: ${Border.stroke.medium} solid ${Colors.border.light};`};
     padding: 0 ${Spacing._16};
     cursor: pointer;
 `

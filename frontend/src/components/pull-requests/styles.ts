@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 
 const PULL_REQUEST_HEIGHT = '64px'
@@ -35,8 +35,10 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     border-radius: ${Border.radius.mini};
     position: relative;
     cursor: pointer;
+    box-shadow: ${Shadows.button.default};
     &:hover {
         background-color: ${Colors.background.medium};
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
     gap: ${Spacing._16};
     align-items: center;
