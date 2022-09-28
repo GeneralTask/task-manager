@@ -248,6 +248,17 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 
+	t.Run("InvalidStatusUpdate", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "invalid-status-id"}}}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
 		assert.NoError(t, err)

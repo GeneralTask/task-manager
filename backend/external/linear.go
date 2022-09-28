@@ -25,6 +25,8 @@ const (
 	LinearGraphqlEndpoint = "https://api.linear.app/graphql"
 	LinearAuthUrl         = "https://linear.app/oauth/authorize"
 	LinearTokenUrl        = "https://api.linear.app/oauth/token"
+	LinearCompletedType   = "completed"
+	LinearCanceledType    = "canceled"
 )
 
 type LinearConfigValues struct {
@@ -455,7 +457,7 @@ func processLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]
 			ExternalID:        (node.Id).(string),
 			State:             string(node.Name),
 			Type:              string(node.Type),
-			IsCompletedStatus: string(node.Type) == "completed" || string(node.Type) == "canceled",
+			IsCompletedStatus: string(node.Type) == LinearCompletedType || string(node.Type) == LinearCanceledType,
 		})
 	}
 	return teamToStatuses
