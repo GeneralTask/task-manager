@@ -46,7 +46,9 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                                                 item.renderer()
                                             ) : (
                                                 <>
-                                                    {item.icon && <Icon size="xSmall" icon={item.icon} />}
+                                                    {item.icon && (
+                                                        <Icon size="xSmall" icon={item.icon} color={item.iconColor} />
+                                                    )}
                                                     <MenuItemLabel>{item.label}</MenuItemLabel>
                                                     {item.selected && (
                                                         <MarginLeftIcon>

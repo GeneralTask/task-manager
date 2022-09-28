@@ -82,6 +82,7 @@ type GithubPRData struct {
 	ChecksDidFinish      bool
 	IsOwnedByUser        bool
 	UserLogin            string
+	UserIsReviewer       bool
 }
 
 type GithubPRRequestData struct {
@@ -270,7 +271,9 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 	}
 
 	requiredAction := ActionNoneNeeded
-	if userIsOwner(githubUser, pullRequest) || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
+	isOwner := userIsOwner(githubUser, pullRequest)
+	isReviewer := userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams)
+	if isOwner || isReviewer {
 		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
@@ -307,8 +310,9 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 			HaveRequestedChanges: reviewersHaveRequestedChanges(reviews),
 			ChecksDidFail:        checksDidFail,
 			ChecksDidFinish:      checksDidFinish,
-			IsOwnedByUser:        pullRequest.User.GetLogin() == githubUser.GetLogin(),
+			IsOwnedByUser:        isOwner,
 			UserLogin:            githubUser.GetLogin(),
+			UserIsReviewer:       isReviewer,
 		})
 	}
 
@@ -671,12 +675,8 @@ func getPullRequestRequiredAction(data GithubPRData) string {
 			action = ActionWaitingOnReview
 		}
 	} else {
-		reviewerUserIDs := data.Reviewers.Users
-		for _, reviewer := range reviewerUserIDs {
-			if reviewer.GetLogin() == data.UserLogin {
-				action = ActionReviewPR
-				break
-			}
+		if data.UserIsReviewer {
+			action = ActionReviewPR
 		}
 		if action == "" {
 			action = ActionWaitingOnAuthor

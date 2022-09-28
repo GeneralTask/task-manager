@@ -123,7 +123,7 @@ const GTButton = ({
             textColor={textColor}
             {...rest}
         >
-            {icon && <Icon size={iconSize} icon={icon} color={iconColor ? Colors.icon[iconColor] : undefined} />}
+            {icon && <Icon size={iconSize} icon={icon} color={iconColor} />}
             {value}
         </Button>
     )

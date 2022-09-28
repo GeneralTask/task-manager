@@ -5,17 +5,19 @@ import useIsDragging from './useIsDragging'
 import useItemSelectionController from './useItemSelectionController'
 import useKeyboardShortcut from './useKeyboardShortcut'
 import useNavigateToTask from './useNavigateToTask'
+import useSetting from './useSetting'
 import useSortAndFilter from './useSortAndFilter'
 import useTimeout from './useTimeout'
 
 export {
     useClickOutside,
+    useEventBanners,
     useInterval,
-    useItemSelectionController,
     useIsDragging,
+    useItemSelectionController,
     useKeyboardShortcut,
+    useNavigateToTask,
+    useSetting,
     useSortAndFilter,
     useTimeout,
-    useEventBanners,
-    useNavigateToTask,
 }

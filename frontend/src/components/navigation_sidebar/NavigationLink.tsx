@@ -118,7 +118,7 @@ const NavigationLink = ({
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler} data-testid={testId}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
-                {icon && <Icon size="xSmall" icon={icon} color={Colors.icon.black} />}
+                {icon && <Icon size="xSmall" icon={icon} color="black" />}
                 <SectionTitle>{title}</SectionTitle>
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>

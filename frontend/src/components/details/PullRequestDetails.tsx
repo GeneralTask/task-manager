@@ -63,7 +63,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         <DetailsViewTemplate data-testid="details-view-container">
             <MarginHorizontal8>
                 <DetailsTopContainer>
-                    <Icon icon={logos.github} size="small" color={Colors.icon.black} />
+                    <Icon icon={logos.github} size="small" color="black" />
                     <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
                     <MarginLeftAuto>
                         <ExternalLinkButton link={deeplink} />
