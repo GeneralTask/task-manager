@@ -14,8 +14,16 @@ const GoogleSignInImage = styled.img`
 
 export const GoogleSignInButtonImage = <GoogleSignInImage src={Images.buttons.google_sign_in} />
 
-const GoogleSignInButton = () => {
-    return <Anchor href={LOGIN_URL}>{GoogleSignInButtonImage}</Anchor>
+interface GoogleSignInButtonProps {
+    hasLink?: boolean
+}
+const GoogleSignInButton = ({ hasLink = true }: GoogleSignInButtonProps) => {
+    if (!hasLink) return <Anchor as="div">{GoogleSignInButtonImage}</Anchor>
+    return (
+        <Anchor href={LOGIN_URL} target="_self">
+            {GoogleSignInButtonImage}
+        </Anchor>
+    )
 }
 
 export default GoogleSignInButton

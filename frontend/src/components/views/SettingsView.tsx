@@ -92,7 +92,7 @@ const SettingsView = () => {
             label: supportedType.name,
             onClick: () => openPopupWindow(supportedType.authorization_url, refetchStaleQueries),
             icon: supportedType.logo,
-            renderer: supportedType.name === 'Google' ? GoogleSignInButton : undefined,
+            renderer: supportedType.name === 'Google' ? () => <GoogleSignInButton hasLink={false} /> : undefined,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) // so the order is always the same
 
