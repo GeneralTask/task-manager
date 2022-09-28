@@ -1,6 +1,5 @@
 import produce, { castImmutable } from "immer"
 import { QueryFunctionContext, useMutation, useQuery } from "react-query"
-import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
@@ -11,6 +10,7 @@ export interface TCreateTaskData {
     title: string
     body?: string
     taskSectionId: string
+    optimisticId: string
 }
 
 export interface TCreateTaskResponse {
@@ -91,7 +91,6 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
 
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
-    const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -108,7 +107,7 @@ export const useCreateTask = () => {
                     if (!section) return
                     const orderingId = section.tasks.length > 0 ? section.tasks[0].id_ordering - 1 : 1
                     const newTask: TTask = {
-                        id: optimisticId,
+                        id: data.optimisticId,
                         id_ordering: orderingId,
                         title: data.title,
                         body: data.body ?? '',
@@ -139,7 +138,7 @@ export const useCreateTask = () => {
                     if (!section) return
                     const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
                     const newTask = <TOverviewItem>{
-                        id: optimisticId,
+                        id: data.optimisticId,
                         id_ordering: orderingId,
                         title: data.title,
                         body: data.body ?? '',
@@ -170,7 +169,7 @@ export const useCreateTask = () => {
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, optimisticId, createData.taskSectionId)
+                    const task = getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
                     if (!task?.id) return
                     task.id = response.task_id
                     task.isOptimistic = false
@@ -180,7 +179,7 @@ export const useCreateTask = () => {
             if (views) {
                 const updatedViews = produce(views, (draft) => {
                     const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
-                    const task = section?.view_items.find((task) => task.id === optimisticId)
+                    const task = section?.view_items.find((task) => task.id === createData.optimisticId)
                     if (!task) return
                     task.id = response.task_id
                     task.isOptimistic = false
