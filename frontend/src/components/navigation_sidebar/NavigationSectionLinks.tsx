@@ -104,6 +104,12 @@ const NavigationSectionLinks = () => {
         return tasks.filter((task) => task.source.name === 'Linear').length
     }, [folders])
 
+    const slackTasksCount = useMemo(() => {
+        const tasks =
+            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
+        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
+    }, [folders])
+
     if (!folders) {
         return <Loading />
     }
@@ -140,6 +146,7 @@ const NavigationSectionLinks = () => {
                 link="/slack"
                 title="Slack"
                 icon={logos.slack}
+                count={slackTasksCount}
                 isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
