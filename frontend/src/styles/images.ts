@@ -51,7 +51,7 @@ export const logos = Object.freeze({
     gcal: '/images/gcal.png',
     google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
-    slack: faSlack,
+    slack: '/images/slack.svg',
 })
 
 export const icons = Object.freeze({
