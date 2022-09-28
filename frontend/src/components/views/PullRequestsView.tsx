@@ -6,7 +6,8 @@ import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pul
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
 import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
-import usePRSortAndFilter from '../../utils/sortAndFilter/useSortAndFilterSettings'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
+import { TPullRequest } from '../../utils/types'
 import { isGithubLinkedAccount } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
@@ -28,8 +29,8 @@ const MarginBottonContainer = styled.div`
 `
 
 const PullRequestsView = () => {
-    const { sortItems, selectedSort, setSelectedSort, selectedSortDirection, setSelectedSortDirection } =
-        usePRSortAndFilter(PR_SORT_AND_FILTER_CONFIG)
+    const { sortOptions, selectedSort, setSelectedSort, selectedSortDirection, setSelectedSortDirection } =
+        useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const { isLoading: areSettingsLoading } = useGetSettings()
     const navigate = useNavigate()
@@ -66,7 +67,7 @@ const PullRequestsView = () => {
                     <SectionHeader sectionName="GitHub Pull Requests" />
                     <MarginBottonContainer>
                         <SortSelector
-                            items={sortItems}
+                            sortOptions={sortOptions}
                             selectedSort={selectedSort}
                             setSelectedSort={setSelectedSort}
                             selectedSortDirection={selectedSortDirection}

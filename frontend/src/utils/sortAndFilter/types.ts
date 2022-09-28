@@ -42,7 +42,7 @@ export interface SortAndFilterSettingsConfig<T> {
 }
 
 export interface SortAndFilterSettings<T> {
-    sortItems: SortOptions<T>
+    sortOptions: SortOptions<T>
     selectedSort: Sort<T>
     setSelectedSort: (selectedSort: Sort<T>) => void
     selectedSortDirection: SORT_ORDER

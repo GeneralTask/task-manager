@@ -10,7 +10,7 @@ import { ViewItemsProps } from './viewItems.types'
 
 const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewItemId } = useParams()
-    const { sortItems, selectedSort, setSelectedSort, selectedSortDirection, setSelectedSortDirection } =
+    const { sortOptions, selectedSort, setSelectedSort, selectedSortDirection, setSelectedSortDirection } =
         useSortAndFilterSettings(PR_SORT_AND_FILTER_CONFIG, view.id)
     return (
         <>
@@ -18,7 +18,7 @@ const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsP
                 <ViewName>{view.name}</ViewName>
                 {view.view_items.length > 0 && (
                     <SortSelector
-                        items={sortItems}
+                        sortOptions={sortOptions}
                         selectedSort={selectedSort}
                         setSelectedSort={setSelectedSort}
                         selectedSortDirection={selectedSortDirection}

@@ -52,7 +52,7 @@ export const PR_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TPullRequest
     sortPreferenceId: 'github_sorting_preference',
     sortDirectionId: 'github_sorting_direction',
     defaultSortsAndFilters: {
-        sortItems: PR_SORT_SELECTOR_ITEMS,
+        sortOptions: PR_SORT_SELECTOR_ITEMS,
         selectedSort: PR_SORT_SELECTOR_ITEMS.required_action,
         setSelectedSort: emptyFunction,
         selectedSortDirection: SORT_ORDER.DESC,

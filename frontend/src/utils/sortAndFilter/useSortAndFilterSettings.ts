@@ -25,7 +25,7 @@ const useSortAndFilterSettings = <T>(
     }
 
     return {
-        sortItems: config.sortOptions,
+        sortOptions: config.sortOptions,
         selectedSort,
         setSelectedSort,
         selectedSortDirection,

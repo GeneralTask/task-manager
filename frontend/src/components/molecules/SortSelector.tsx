@@ -5,20 +5,20 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 
 interface SortSelectorProps<T> {
-    items: SortOptions<T> // constant determining the sort options
+    sortOptions: SortOptions<T> // constant determining the sort options
     selectedSort: Sort<T>
     setSelectedSort: (sort: Sort<T>) => void
     selectedSortDirection: SORT_ORDER
     setSelectedSortDirection: (selectedSortDirection: SORT_ORDER) => void
 }
 const SortSelector = <T,>({
-    items,
+    sortOptions,
     selectedSort,
     setSelectedSort,
     selectedSortDirection,
     setSelectedSortDirection,
 }: SortSelectorProps<T>) => {
-    const sortItems: GTMenuItem[] = Object.entries(items).map(([, value]) => ({
+    const sortItems: GTMenuItem[] = Object.entries(sortOptions).map(([, value]) => ({
         ...value,
         selected: selectedSort.id === value.id,
         icon: icons.priority_urgent,
@@ -45,7 +45,7 @@ const SortSelector = <T,>({
             trigger={
                 <GTButton
                     icon={selectedSortDirection === SORT_ORDER.ASC ? icons.arrow_up : icons.arrow_down}
-                    value={items[selectedSort.id].label}
+                    value={sortOptions[selectedSort.id].label}
                     styleType="secondary"
                     size="small"
                 />
