@@ -1,4 +1,4 @@
-import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
@@ -53,7 +53,7 @@ export const logos = Object.freeze({
     gcal: '/images/gcal.png',
     google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
-    slack: faSlack,
+    slack: '/images/slack.svg',
 })
 
 export const icons = Object.freeze({
