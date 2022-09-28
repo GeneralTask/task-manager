@@ -15,15 +15,12 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
     cursor: pointer;
     outline: none;
     border-radius: ${Border.radius.mini};
-    white-space: nowrap;
-    overflow: clip;
-    text-overflow: ellipsis;
     ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
     ${({ $isSelected }) => $isSelected && `background-color: ${Colors.background.medium};`}
     :hover, :focus {
         background-color: ${Colors.background.dark};
     }
-`
+    `
 export const MenuContentShared = css`
     z-index: 5;
     width: ${MENU_WIDTH};
@@ -35,6 +32,12 @@ export const MenuContentShared = css`
 `
 export const MarginLeftIcon = styled.div`
     margin-left: auto;
+`
+export const MenuItemLabel = styled.span`
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 `
 
 export interface GTMenuItem {

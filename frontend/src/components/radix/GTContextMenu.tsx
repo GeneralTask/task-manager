@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemShared } from './RadixUIConstants'
+import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemLabel, MenuItemShared } from './RadixUIConstants'
 
 const ContextMenuTrigger = styled(ContextMenu.Trigger)`
     all: unset;
@@ -70,7 +70,7 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                                                     color={subItem.iconColor}
                                                                 />
                                                             )}
-                                                            {subItem.label}
+                                                            <MenuItemLabel>{subItem.label}</MenuItemLabel>
                                                             {subItem.selected && (
                                                                 <MarginLeftIcon>
                                                                     <Icon size="xSmall" icon={icons.check} />
