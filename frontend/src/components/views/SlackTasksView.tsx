@@ -14,6 +14,10 @@ import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
+const SlackTemplateContainer = styled(TaskTemplate)`
+    height: fit-content;
+`
+
 const SlackSelectableContainer = styled(SelectableContainer)`
     display: flex;
     align-items: center;
@@ -75,7 +79,7 @@ const SlackTasksView = () => {
                 <SectionHeader sectionName="Slack Messages" />
                 <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
                 {slackTasks?.map((task) => (
-                    <TaskTemplate key={task.id} isVisible={isVisible}>
+                    <SlackTemplateContainer key={task.id} isVisible={isVisible}>
                         <SlackSelectableContainer
                             isSelected={task.id === slackTaskId}
                             key={task.id}
@@ -96,7 +100,7 @@ const SlackTasksView = () => {
                                 <ExternalLinkButton link={task.deeplink} />
                             </ExternalLinkContainer>
                         </SlackSelectableContainer>
-                    </TaskTemplate>
+                    </SlackTemplateContainer>
                 ))}
             </ScrollableListTemplate>
             {task ? (
