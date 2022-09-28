@@ -25,7 +25,7 @@ const Dot = styled.div`
 
 const Domino = forwardRef<HTMLDivElement>((_, ref) => {
     return (
-        <DominoOuterContainer ref={ref} data-testid="drag-domino">
+        <DominoOuterContainer ref={ref}>
             <DominoContainer>
                 {Array(6)
                     .fill(0)

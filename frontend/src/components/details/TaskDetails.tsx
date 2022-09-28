@@ -165,7 +165,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const status = task.external_status ? task.external_status.state : ''
 
     return (
-        <DetailsViewTemplate data-testid="details-view-container">
+        <DetailsViewTemplate>
             <DetailsTopContainer>
                 <MarginLeft8>
                     <Icon icon={logos[task.source.logo_v2]} size="small" />

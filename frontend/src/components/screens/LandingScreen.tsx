@@ -135,7 +135,7 @@ const LandingScreen = () => {
                     />
                     <JoinWaitlistButton onSubmit={handleSubmit(onWaitlistSubmit, onWaitlistError)} />
                 </WaitlistContainer>
-                <ResponseContainer data-testid="response-container">{message}</ResponseContainer>
+                <ResponseContainer>{message}</ResponseContainer>
                 <SignInButtonContainer>
                     <GoogleSignInButton />
                 </SignInButtonContainer>

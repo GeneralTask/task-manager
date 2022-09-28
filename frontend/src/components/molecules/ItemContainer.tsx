@@ -25,13 +25,7 @@ interface ItemContainerProps {
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
     ({ isSelected, isHovered, onClick, children }, ref) => (
-        <ItemContainerDiv
-            isSelected={isSelected}
-            isHovered={isHovered}
-            onClick={onClick}
-            ref={ref}
-            data-testid="list-item"
-        >
+        <ItemContainerDiv isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={ref}>
             {children}
         </ItemContainerDiv>
     )

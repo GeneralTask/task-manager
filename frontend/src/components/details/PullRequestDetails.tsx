@@ -60,7 +60,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
 
     return (
-        <DetailsViewTemplate data-testid="details-view-container">
+        <DetailsViewTemplate>
             <MarginHorizontal8>
                 <DetailsTopContainer>
                     <Icon icon={logos.github} size="small" color="black" />
