@@ -46,7 +46,7 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                             {item.icon && (
                                                 <Icon size="xSmall" icon={item.icon} color={item.iconColor} />
                                             )}
-                                            {item.label}
+                                            <MenuItemLabel>{item.label}</MenuItemLabel>
                                             <MarginLeftIcon>
                                                 <Icon size="xSmall" icon={icons.caret_right} />
                                             </MarginLeftIcon>
