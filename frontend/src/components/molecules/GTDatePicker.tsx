@@ -4,8 +4,8 @@ import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
-import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
+import { getFormattedDate } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 import GTPopover from '../radix/GTPopover'
 
@@ -20,26 +20,6 @@ const GTDatePickerWrapper = styled.div`
         border-radius: 50%;
     }
 `
-export const getFormattedDate = (
-    date: Date | null
-): {
-    dateString: string
-    color: TTextColor
-} => {
-    if (!date || isNaN(+date)) {
-        return { dateString: 'No due date', color: 'light' }
-    }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
-        return { dateString: 'Today', color: 'red' }
-    }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
-        return { dateString: 'Tomorrow', color: 'orange' }
-    }
-    if (DateTime.fromJSDate(date) < DateTime.local()) {
-        return { dateString: 'Overdue', color: 'red' }
-    }
-    return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), color: 'light' }
-}
 
 interface GTDatePickerProps {
     initialDate: Date
