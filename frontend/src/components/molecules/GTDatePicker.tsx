@@ -4,8 +4,8 @@ import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
+import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -35,26 +35,6 @@ const DateViewContainer = styled.div`
 const DateViewText = styled.span`
     flex: 1;
 `
-const getFormattedDate = (
-    date: Date | null
-): {
-    dateString: string
-    color: TTextColor
-} => {
-    if (!date || isNaN(+date) || +date === 0) {
-        return { dateString: 'No due date', color: 'light' }
-    }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
-        return { dateString: 'Today', color: 'red' }
-    }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
-        return { dateString: 'Tomorrow', color: 'orange' }
-    }
-    if (DateTime.fromJSDate(date) < DateTime.local()) {
-        return { dateString: 'Overdue', color: 'red' }
-    }
-    return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), color: 'light' }
-}
 
 interface GTDatePickerProps {
     initialDate: Date
