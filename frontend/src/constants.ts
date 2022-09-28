@@ -1,5 +1,6 @@
 import { TIconType } from './components/atoms/Icon'
 import getEnvVars from './environment'
+import { TIconColor } from './styles/colors'
 import { icons } from './styles/images'
 
 export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
@@ -10,7 +11,7 @@ export const AUTHORIZATION_COOKE = 'authToken'
 export const MESSAGE_TYPE_DM = 'directmessage'
 
 // Time constants (in seconds)
-export const TASK_REFETCH_INTERVAL = 30
+export const TASK_REFETCH_INTERVAL = 60
 export const PR_REFETCH_INTERVAL = 60
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
@@ -55,11 +56,12 @@ export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 export interface TTaskPriority {
     icon: TIconType
     label: string
+    color: TIconColor
 }
 export const TASK_PRIORITIES: TTaskPriority[] = [
-    { icon: icons.priority_none, label: 'No Priority' },
-    { icon: icons.priority_urgent, label: 'Urgent' },
-    { icon: icons.priority_high, label: 'High' },
-    { icon: icons.priority_medium, label: 'Medium' },
-    { icon: icons.priority_low, label: 'Low' },
+    { icon: icons.priority_none, label: 'No Priority', color: 'black' },
+    { icon: icons.priority_urgent, label: 'Urgent', color: 'red' },
+    { icon: icons.priority_high, label: 'High Priority', color: 'yellow' },
+    { icon: icons.priority_medium, label: 'Medium Priority', color: 'blue' },
+    { icon: icons.priority_low, label: 'Low Priority', color: 'green' },
 ]

@@ -21,6 +21,7 @@ const SortSelector = <T,>({ items, selectedSort, setSelectedSort }: SortSelector
     const sortItems: GTMenuItem[] = Object.entries(items).map(([, value]) => ({
         ...value,
         selected: selectedSort.id === value.sort.id,
+        icon: icons.priority_urgent,
         onClick: () =>
             setSelectedSort({
                 ...value.sort,

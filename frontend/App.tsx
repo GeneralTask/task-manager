@@ -51,6 +51,14 @@ const App = () => {
                                     <Route index element={<MainScreen />} />
                                     <Route path=":pullRequest" element={<MainScreen />} />
                                 </Route>
+                                <Route path="linear" element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                    <Route path=":linearIssueId" element={<MainScreen />} />
+                                </Route>
+                                <Route path="slack" element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                    <Route path=":slackTaskId" element={<MainScreen />} />
+                                </Route>
                                 <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
                                     <Route index element={<FocusModeScreen />} />
                                 </Route>

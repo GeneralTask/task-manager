@@ -972,6 +972,27 @@ func TestAdjustOrderingIDs(t *testing.T) {
 	})
 }
 
+func TestLogRequestInfo(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	taskID := primitive.NewObjectID()
+
+	t.Run("Success", func(t *testing.T) {
+		LogRequestInfo(db, time.Now(), userID, "/testing/", 100, &taskID, 200)
+		collection := GetServerRequestCollection(db)
+		cursor, err := collection.Find(context.Background(), bson.M{"user_id": userID})
+		assert.NoError(t, err)
+
+		var requests []ServerRequestInfo
+		err = cursor.All(context.Background(), &requests)
+		assert.Equal(t, 1, len(requests))
+		assert.Equal(t, taskID, requests[0].ObjectID)
+		assert.Equal(t, "/testing/", requests[0].Method)
+	})
+}
+
 func createTestTaskSectionWithOrderingID(db *mongo.Database, userID primitive.ObjectID, orderingID int) (primitive.ObjectID, error) {
 	res, err := GetTaskSectionCollection(db).InsertOne(context.Background(), TaskSection{
 		UserID:     userID,

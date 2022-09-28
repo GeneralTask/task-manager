@@ -59,12 +59,6 @@ export const RepositoryName = styled.div`
     color: ${Colors.text.light};
     ${Typography.subtitle};
 `
-export const CommentsCountContainer = styled.div`
-    display: flex;
-    align-items: flex-start;
-    gap: ${Spacing._8};
-    line-height: 1;
-`
 export const BranchNameContainer = styled.div`
     display: flex;
     align-items: center;

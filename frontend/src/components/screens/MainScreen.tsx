@@ -10,9 +10,11 @@ import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import Loading from '../atoms/Loading'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
+import LinearView from '../views/LinearView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
 import Settings from '../views/SettingsView'
+import SlackTasksView from '../views/SlackTasksView'
 import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
@@ -29,6 +31,10 @@ const MainScreen = () => {
                 return <TaskSection />
             case 'pull-requests':
                 return <PullRequestsView />
+            case 'linear':
+                return <LinearView />
+            case 'slack':
+                return <SlackTasksView />
             case 'settings':
                 return <Settings />
             default:

@@ -235,7 +235,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		if t.DueDate.Time().Unix() == int64(0) {
 			dueDate = ""
 		} else {
-			dueDate = t.DueDate.Time().Format("2006-01-02")
+			dueDate = t.DueDate.Time().UTC().Format("2006-01-02")
 		}
 	}
 

@@ -1,29 +1,27 @@
 import { forwardRef } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { Colors, Spacing, Typography } from '../../../styles'
 import { TLinearComment } from '../../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../../utils/utils'
 
-const CommentContainer = styled.div`
-    border: ${Border.stroke.medium} solid ${Colors.background.dark};
-    border-radius: ${Border.radius.large};
-    padding: ${Spacing._8};
-`
 const TopContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing._8};
     padding: ${Spacing._4};
+    color: ${Colors.text.black};
+    ${Typography.bodySmall};
+    margin-bottom: ${Spacing._16};
 `
 const BodyContainer = styled.div`
     padding: ${Spacing._4};
+    margin-bottom: ${Spacing._32};
 `
-const BlackText = styled.span`
-    color: ${Colors.text.black};
-    ${Typography.bodySmall};
+const UsernameText = styled.div`
+    ${Typography.bold};
 `
-const GrayText = styled(BlackText)`
+const GrayText = styled.span`
     color: ${Colors.text.light};
 `
 
@@ -34,15 +32,15 @@ interface LinearCommentProps {
 const LinearComment = forwardRef<HTMLDivElement, LinearCommentProps>(({ comment }: LinearCommentProps, ref) => {
     const dateSent = DateTime.fromISO(comment.created_at)
     return (
-        <CommentContainer ref={ref}>
+        <div ref={ref}>
             <TopContainer>
-                <BlackText>{`${comment.user.Name} (${comment.user.DisplayName})`}</BlackText>
+                <UsernameText>{`${comment.user.Name} (${comment.user.DisplayName})`}</UsernameText>
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
-                <BlackText>{comment.body}</BlackText>
+                <span>{comment.body}</span>
             </BodyContainer>
-        </CommentContainer>
+        </div>
     )
 })
 

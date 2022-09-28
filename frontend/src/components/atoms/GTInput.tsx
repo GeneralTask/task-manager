@@ -21,6 +21,9 @@ const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
             box-shadow: ${Shadows.light};
             background-color: ${Colors.background.white};`}
     }
+    :focus {
+        outline: ${Border.stroke.medium} solid ${Colors.gtColor.primary};
+    }
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};

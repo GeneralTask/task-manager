@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
@@ -98,6 +98,11 @@ const NavigationSectionLinks = () => {
     // TODO(maz): uncomment after we actually support task deletion
     const trashFolder = folders?.find((section) => section.is_trash)
 
+    const linearTasksCount = useMemo(() => {
+        const tasks = folders?.flatMap((folder) => folder.tasks) ?? []
+        return tasks.filter((task) => task.source.name === 'Linear').length
+    }, [folders])
+
     if (!folders) {
         return <Loading />
     }
@@ -122,6 +127,19 @@ const NavigationSectionLinks = () => {
                 icon={logos.github}
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
+            />
+            <NavigationLink
+                link="/linear"
+                title="Linear Issues"
+                icon={logos.linear}
+                count={linearTasksCount}
+                isCurrentPage={pathname.split('/')[1] === 'linear'}
+            />
+            <NavigationLink
+                link="/slack"
+                title="Slack"
+                icon={logos.slack}
+                isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {defaultFolder && (
@@ -164,7 +182,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
+                                <Icon size="xSmall" icon={icons.folder} color="black" />
                             </div>
                             <InputContainer>
                                 <NoStyleInput

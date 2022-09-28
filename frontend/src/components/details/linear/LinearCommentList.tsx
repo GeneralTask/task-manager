@@ -1,21 +1,22 @@
 import { useEffect, useRef } from 'react'
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../../styles'
+import { Colors, Spacing, Typography } from '../../../styles'
 import { TLinearComment } from '../../../utils/types'
 import LinearComment from './LinearComment'
 
 const CommentListContainer = styled.div`
     display: flex;
     flex-direction: column;
-    max-height: 400px;
-    overflow-y: auto;
     gap: ${Spacing._8};
+    flex-basis: 400px;
+    flex-grow: 0;
+    flex-shrink: 1;
+    min-height: 0;
 `
-
-const DividerView = styled.div`
-    height: 1px;
-    background-color: ${Colors.background.dark};
-    margin: ${Spacing._8};
+const CommentHeader = styled.div`
+    color: ${Colors.text.light};
+    ${Typography.eyebrow};
+    margin-bottom: ${Spacing._24};
 `
 
 interface LinearCommentListProps {
@@ -30,18 +31,16 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
     }, [comments])
 
     return (
-        <>
-            <DividerView />
-            <CommentListContainer>
-                {[...comments].reverse().map((comment, i) => (
-                    <LinearComment
-                        key={comment.created_at}
-                        comment={comment}
-                        ref={i === comments.length - 1 ? bottomRef : undefined}
-                    />
-                ))}
-            </CommentListContainer>
-        </>
+        <CommentListContainer>
+            <CommentHeader>Comments ({comments.length})</CommentHeader>
+            {[...comments].reverse().map((comment, i) => (
+                <LinearComment
+                    key={comment.created_at}
+                    comment={comment}
+                    ref={i === comments.length - 1 ? bottomRef : undefined}
+                />
+            ))}
+        </CommentListContainer>
     )
 }
 

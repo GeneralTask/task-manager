@@ -169,7 +169,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     <Title data-testid="task-title">{task.title}</Title>
                     <RightContainer>
                         <DueDate color={formattedDate.color}>{formattedDate.dateString}</DueDate>
-                        <Icon icon={TASK_PRIORITIES[task.priority_normalized].icon} size="xSmall" />
+                        <Icon
+                            icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                            color={TASK_PRIORITIES[task.priority_normalized].color}
+                            size="xSmall"
+                        />
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                         ) : (
