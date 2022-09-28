@@ -8,17 +8,16 @@ import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '.
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, linearStatus, logos } from '../../styles/images'
+import { linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import ActionOption from '../molecules/ActionOption'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -183,11 +182,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                     keyboardShortcut="showSectionEditor"
                                 />
                             )}
-                            {task.deeplink && (
-                                <NoStyleAnchor href={task.deeplink} rel="noreferrer">
-                                    <GTIconButton icon={icons.external_link} size="small" />
-                                </NoStyleAnchor>
-                            )}
+                            {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                         </MarginLeftAuto>
                     </>
                 )}
