@@ -9,8 +9,7 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>
     flex-direction: row;
     align-items: center;
     height: 100%;
-    background-color: ${(props) =>
-        props.isSelected || props.isHovered ? Colors.background.medium : Colors.background.white};
+    background-color: ${(props) => (props.isHovered ? Colors.background.medium : Colors.background.white)};
     box-shadow: ${Shadows.button.default};
     border-radius: ${Border.radius.mini};
     ${(props) => props.isHovered && `outline: ${Border.stroke.medium} solid ${Colors.border.light};`};

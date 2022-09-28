@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../styles'
 
 const SelectableContainer = styled.div<{ isSelected: boolean }>`
-    background-color: ${(props) => (props.isSelected ? Colors.background.medium : Colors.background.white)};
+    background-color: ${Colors.background.white};
     border-radius: ${Border.radius.mini};
     position: relative;
     cursor: pointer;

@@ -31,7 +31,7 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
     height: ${PULL_REQUEST_HEIGHT};
     padding: ${Spacing._4} ${Spacing._4} ${Spacing._4} ${Spacing._24};
-    background-color: ${(props) => (props.isSelected ? Colors.background.medium : Colors.background.white)};
+    background-color: ${Colors.background.white};
     border-radius: ${Border.radius.mini};
     position: relative;
     cursor: pointer;
