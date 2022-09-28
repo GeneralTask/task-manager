@@ -17,7 +17,6 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
     outline: none;
     border-radius: ${Border.radius.mini};
     ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
-    ${({ $isSelected }) => $isSelected && `background-color: ${Colors.background.medium};`}
     :hover, :focus {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
