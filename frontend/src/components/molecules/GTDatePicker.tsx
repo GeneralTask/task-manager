@@ -32,6 +32,9 @@ const DateViewContainer = styled.div`
     border-radius: ${Border.radius.mini};
     border: ${Border.stroke.medium} solid ${Colors.border.light};
 `
+const DateViewText = styled.span`
+    flex: 1;
+`
 const getFormattedDate = (
     date: Date | null
 ): {
@@ -105,9 +108,9 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             />
             <DateViewContainer>
                 <Icon icon={icons.calendar_blank} size="small" color="black" />
-                <span style={{ flex: 1 }}>
+                <DateViewText>
                     {!value || isNaN(+value) || +value === 0 ? 'No Due Date' : value?.toDateString()}
-                </span>
+                </DateViewText>
                 <GTIconButton icon={icons.x} size="small" color="black" onClick={() => handleOnChange(null)} />
             </DateViewContainer>
         </GTDatePickerWrapper>
