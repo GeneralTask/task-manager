@@ -10,8 +10,8 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>
     height: 100%;
     background-color: ${(props) =>
         props.isSelected || props.isHovered ? Colors.background.medium : Colors.background.white};
-    box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
-    border-radius: ${Border.radius.small};
+    box-shadow: ${(props) => (props.isSelected ? `inset 1004px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
+    border-radius: ${Border.radius.mini};
     border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
     padding: 0 ${Spacing._16};
     cursor: pointer;
