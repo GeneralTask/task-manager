@@ -1,6 +1,10 @@
 import { useMemo } from 'react'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
+<<<<<<< HEAD
 import { SORT_DIRECTION, Sort } from '../../utils/sortAndFilter/types'
+=======
+import { SORT_ORDER, Sort } from '../../utils/sortAndFilter/types'
+>>>>>>> persist sort settings
 import { TPullRequest } from '../../utils/types'
 import PullRequest from './PullRequest'
 import { Repository } from './styles'

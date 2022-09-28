@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from '../../utils/sortAndFilter/types'
+=======
+import { SORT_ORDER, SortAndFilterSettingsConfig, SortOptions } from '../../utils/sortAndFilter/types'
+>>>>>>> persist sort settings
 import { TPullRequest } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 
