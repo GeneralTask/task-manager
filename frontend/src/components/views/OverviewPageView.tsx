@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
+import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -28,6 +29,7 @@ const ActionsContainer = styled.div`
 
 const OverviewView = () => {
     const { data: views, isLoading } = useGetOverviewViews()
+    const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
     useFetchPullRequests()
     const { overviewViewId, overviewItemId } = useParams()
@@ -68,7 +70,7 @@ const OverviewView = () => {
         }
     }, [isLoading, overviewViewId, overviewItemId])
 
-    if (isLoading) {
+    if (isLoading || areSettingsLoading) {
         return <Spinner />
     } else if (!views) {
         return <div>No views yet</div>

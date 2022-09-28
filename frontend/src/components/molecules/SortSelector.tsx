@@ -1,53 +1,41 @@
-import { Sort } from '../../hooks/useSortAndFilter'
 import { icons } from '../../styles/images'
-import { SORT_ORDER } from '../../utils/enums'
+import { SORT_ORDER, Sort, SortOptions } from '../../utils/sortAndFilter/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 
-export interface SortSelectorItems<T> {
-    [key: string]: {
-        label: string
-        sort: Omit<Sort<T>, 'direction'>
-    }
-}
-
 interface SortSelectorProps<T> {
-    items: SortSelectorItems<T> // constant determining the sort options
+    items: SortOptions<T> // constant determining the sort options
     selectedSort: Sort<T>
     setSelectedSort: (sort: Sort<T>) => void
+    selectedSortDirection: SORT_ORDER
+    setSelectedSortDirection: (selectedSortDirection: SORT_ORDER) => void
 }
-const SortSelector = <T,>({ items, selectedSort, setSelectedSort }: SortSelectorProps<T>) => {
+const SortSelector = <T,>({
+    items,
+    selectedSort,
+    setSelectedSort,
+    selectedSortDirection,
+    setSelectedSortDirection,
+}: SortSelectorProps<T>) => {
     const sortItems: GTMenuItem[] = Object.entries(items).map(([, value]) => ({
         ...value,
-        selected: selectedSort.id === value.sort.id,
+        selected: selectedSort.id === value.id,
         icon: icons.priority_urgent,
-        onClick: () =>
-            setSelectedSort({
-                ...value.sort,
-                direction: selectedSort.direction,
-            }),
+        onClick: () => setSelectedSort(value),
     }))
     const sortOrderGroups: GTMenuItem[] = [
         {
             label: 'Ascending',
             icon: icons.arrow_up,
-            selected: selectedSort.direction === SORT_ORDER.ASC,
-            onClick: () =>
-                setSelectedSort({
-                    ...selectedSort,
-                    direction: SORT_ORDER.ASC,
-                }),
+            selected: selectedSortDirection === SORT_ORDER.ASC,
+            onClick: () => setSelectedSortDirection(SORT_ORDER.ASC),
         },
         {
             label: 'Descending',
             icon: icons.arrow_down,
-            selected: selectedSort.direction === SORT_ORDER.DESC,
-            onClick: () =>
-                setSelectedSort({
-                    ...selectedSort,
-                    direction: SORT_ORDER.DESC,
-                }),
+            selected: selectedSortDirection === SORT_ORDER.DESC,
+            onClick: () => setSelectedSortDirection(SORT_ORDER.DESC),
         },
     ]
 
@@ -56,7 +44,7 @@ const SortSelector = <T,>({ items, selectedSort, setSelectedSort }: SortSelector
             items={[sortItems, sortOrderGroups]}
             trigger={
                 <GTButton
-                    icon={selectedSort.direction === SORT_ORDER.ASC ? icons.arrow_up : icons.arrow_down}
+                    icon={selectedSortDirection === SORT_ORDER.ASC ? icons.arrow_up : icons.arrow_down}
                     value={items[selectedSort.id].label}
                     styleType="secondary"
                     size="small"
