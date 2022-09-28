@@ -2,6 +2,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styled from 'styled-components'
 import { Colors, Dimensions } from '../../styles'
+import { TIconColor } from '../../styles/colors'
 import { TIconSize } from '../../styles/dimensions'
 
 export type TIconType = IconProp | string
@@ -23,18 +24,18 @@ const ImageContainer = styled.img`
 interface IconProps {
     icon: TIconType
     size: TIconSize
-    color?: string
+    color?: TIconColor
 }
 export const Icon = (props: IconProps) => {
     const dimension = Dimensions.iconSize[props.size]
-    const iconColor = props.color ? props.color : Colors.icon.gray
+    const iconColor = props.color ? props.color : 'black'
 
     return (
         <IconContainer width={dimension} height={dimension}>
             {typeof props.icon === 'string' ? (
                 <ImageContainer src={props.icon} />
             ) : (
-                <FontAwesomeIcon icon={props.icon} color={iconColor} />
+                <FontAwesomeIcon icon={props.icon} color={Colors.icon[iconColor]} />
             )}
         </IconContainer>
     )

@@ -235,6 +235,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         label: priority.label,
                         onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                         icon: priority.icon,
+                        iconColor: TASK_PRIORITIES[val].color,
                     }))}
                     trigger={
                         <GTButton
@@ -242,6 +243,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             icon={TASK_PRIORITIES[task.priority_normalized].icon}
                             size="small"
                             styleType="simple"
+                            iconColor={TASK_PRIORITIES[task.priority_normalized].color}
                         />
                     }
                 />

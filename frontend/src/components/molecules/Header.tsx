@@ -108,11 +108,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <>
                         <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
                         <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
-                            <Icon
-                                size="small"
-                                icon={icons.spinner}
-                                color={isHovering ? Colors.gtColor.primary : Colors.text.black}
-                            />
+                            <Icon size="small" icon={icons.spinner} color={isHovering ? 'purple' : 'black'} />
                         </RefreshSpinner>
                     </>
                 )}
