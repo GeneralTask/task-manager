@@ -22,6 +22,9 @@ const StyledTextArea = styled.textarea<{ isFullHeight: boolean; fontSize: 'small
             box-shadow: ${Shadows.light};
             background-color: ${Colors.background.white};`}
     }
+    :focus {
+        outline: ${Border.stroke.medium} solid ${Colors.gtColor.primary};
+    }
     width: 100%;
     box-sizing: border-box;
     ${({ isFullHeight }) => isFullHeight && `height: 100%;`}

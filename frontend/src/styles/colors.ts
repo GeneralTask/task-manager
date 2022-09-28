@@ -68,6 +68,9 @@ export const icon = {
     white: WHITE,
     gray: GRAY._500,
     red: RED._1,
+    yellow: YELLOW._1,
+    blue: BLUE._1,
+    green: GREEN._1,
     purple: PURPLE._1,
     black: BLACK,
 }

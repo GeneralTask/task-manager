@@ -100,12 +100,13 @@ const NavigationSectionLinks = () => {
 
     const linearTasksCount = useMemo(() => {
         const tasks =
-            folders?.filter((section) => !section.is_done && !section.is_trash)?.flatMap((folder) => folder.tasks) ?? []
+            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
         return tasks.filter((task) => task.source.name === 'Linear').length
     }, [folders])
 
     const slackTasksCount = useMemo(() => {
-        const tasks = folders?.flatMap((folder) => folder.tasks) ?? []
+        const tasks =
+            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
         return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
     }, [folders])
 
@@ -189,7 +190,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
+                                <Icon size="xSmall" icon={icons.folder} color="black" />
                             </div>
                             <InputContainer>
                                 <NoStyleInput

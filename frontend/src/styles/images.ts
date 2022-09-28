@@ -1,4 +1,4 @@
-import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
@@ -36,13 +36,11 @@ import {
 
 } from '@fortawesome/pro-light-svg-icons'
 import {
-    faSignalBars,
-    faSignalBarsWeak,
-    faSignalBarsFair,
-    faSignalBarsGood,
-    faSignalBarsSlash,
-} from '@fortawesome/pro-duotone-svg-icons'
-import {
+    faMinus,
+    faCircleUp,
+    faCircleChevronUp,
+    faCircleDot,
+    faCircleChevronDown,
     faHeadphones
 } from '@fortawesome/pro-solid-svg-icons'
 
@@ -91,11 +89,11 @@ export const icons = Object.freeze({
     timer: faTimer,
     trash: faTrash,
     x: faXmark,
-    priority_urgent: faSignalBars,
-    priority_low: faSignalBarsWeak,
-    priority_medium: faSignalBarsFair,
-    priority_high: faSignalBarsGood,
-    priority_none: faSignalBarsSlash,
+    priority_urgent: faCircleUp,
+    priority_low: faCircleChevronDown,
+    priority_medium: faCircleDot,
+    priority_high: faCircleChevronUp,
+    priority_none: faMinus,
 })
 
 export const buttons: { [key: string]: string } = {

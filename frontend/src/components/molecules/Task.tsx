@@ -6,25 +6,23 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
-import { useModifyTask } from '../../services/api/tasks.hooks'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
+import { TTextColor } from '../../styles/colors'
 import { logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
+import { getFormattedDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
-import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
-import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
-import GTDatePicker from './GTDatePicker'
 import ItemContainer from './ItemContainer'
 
 const RightContainer = styled.span`
     display: flex;
     align-items: center;
-    gap: ${Spacing._8};
+    gap: ${Spacing._12};
     margin-left: auto;
     min-width: fit-content;
 `
@@ -38,6 +36,10 @@ const Title = styled.span`
 `
 const DominoContainer = styled.div<{ isVisible: boolean }>`
     opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+`
+const DueDate = styled.span<{ color: TTextColor }>`
+    color: ${(props) => Colors.text[props.color]};
+    ${Typography.bodySmall};
 `
 
 interface TaskProps {
@@ -60,8 +62,6 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
-
-    const { mutate: modifyTask } = useModifyTask()
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -140,10 +140,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     }, [])
 
     const [isVisible, setIsVisible] = useState(true)
-
     const taskFadeOut = () => {
         if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
     }
+
+    const formattedDate = getFormattedDate(DateTime.fromISO(task.due_date).toJSDate())
 
     return (
         <TaskContextMenuWrapper task={task} sectionId={sectionId}>
@@ -167,24 +168,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     />
                     <Title data-testid="task-title">{task.title}</Title>
                     <RightContainer>
-                        <GTDatePicker
-                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
-                            setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
-                            showIcon={false}
-                        />
-                        <GTDropdownMenu
-                            items={TASK_PRIORITIES.map((priority, val) => ({
-                                label: priority.label,
-                                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
-                                icon: priority.icon,
-                            }))}
-                            trigger={
-                                <GTButton
-                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                                    size="small"
-                                    styleType="simple"
-                                />
-                            }
+                        <DueDate color={formattedDate.color}>{formattedDate.dateString}</DueDate>
+                        <Icon
+                            icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                            color={TASK_PRIORITIES[task.priority_normalized].color}
+                            size="xSmall"
                         />
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
