@@ -1,8 +1,8 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
+import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
+import { TTextColor } from '../styles/colors'
 import { TLinkedAccount, TTask, TTaskSection } from './types'
-import KEYBOARD_SHORTCUTS from '../constants/shortcuts';
-import { TTextColor } from '../styles/colors';
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -130,7 +130,7 @@ export const stopKeydownPropogation = (e: KeyboardEvent | React.KeyboardEvent, e
     }
 }
 export const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Github');
+    return linkedAccounts.some((account) => account.name === 'Github')
 }
 
 export const getFormattedDate = (
@@ -139,7 +139,7 @@ export const getFormattedDate = (
     dateString: string
     color: TTextColor
 } => {
-    if (!date || isNaN(+date)) {
+    if (!date || !isValidDueDate(date)) {
         return { dateString: 'No due date', color: 'light' }
     }
     if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
@@ -152,4 +152,8 @@ export const getFormattedDate = (
         return { dateString: 'Overdue', color: 'red' }
     }
     return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), color: 'light' }
+}
+
+export const isValidDueDate = (date: Date | null) => {
+    return !(!date || isNaN(+date) || +date === 0)
 }

@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { getFormattedDate } from '../../utils/utils'
+import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -91,9 +91,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             />
             <DateViewContainer>
                 <Icon icon={icons.calendar_blank} size="xSmall" color="black" />
-                <DateViewText>
-                    {!value || isNaN(+value) || +value === 0 ? 'No Due Date' : value?.toDateString()}
-                </DateViewText>
+                <DateViewText>{isValidDueDate(value) ? value?.toDateString() : 'No Due Date'}</DateViewText>
                 <GTIconButton icon={icons.x} size="xSmall" color="black" onClick={() => handleOnChange(null)} />
             </DateViewContainer>
         </GTDatePickerWrapper>
