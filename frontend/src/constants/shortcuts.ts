@@ -43,7 +43,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'calendar_days'
     },
     showSectionEditor: {
-        label: 'Change section',
+        label: 'Change folder',
         key: 'l',
         keyLabel: 'L',
         category: 'Tasks',
