@@ -14,7 +14,7 @@
     "prettier:write": "prettier --write \"src/**/*.{ts,css,html,tsx}\""
   },
   "lint-staged": {
-    "*.tsx": [
+    "*.{tsx,ts}": [
       "prettier --write"
     ]
   },
