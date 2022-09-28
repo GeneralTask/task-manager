@@ -1,19 +1,15 @@
 import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import * as Sentry from '@sentry/browser'
 import produce, { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
 import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
-import * as Sentry from '@sentry/browser'
 
-type GHFilterPreference = `${string}github_filtering_preference`
-type GHSortPreference = `${string}github_sorting_preference`
-type GHSortDirection = `${string}github_sorting_direction`
+export type GHFilterPreference = `${string}github_filtering_preference`
+export type GHSortPreference = `${string}github_sorting_preference`
+export type GHSortDirection = `${string}github_sorting_direction`
 
-export type TSettingsKey =
-    'calendar_account_id_for_new_tasks' |
-    GHFilterPreference |
-    GHSortPreference |
-    GHSortDirection
+export type TSettingsKey = 'calendar_account_id_for_new_tasks' | GHFilterPreference | GHSortPreference | GHSortDirection
 
 type TUpdateSettingsData = {
     key: TSettingsKey
@@ -40,8 +36,8 @@ export const useUpdateSetting = () => {
             const settings = queryClient.getQueryData<TSetting[]>('settings')
             if (!settings) return
 
-            const newSettings = produce(settings, draft => {
-                const setting = draft.find(setting => setting.field_key === key)
+            const newSettings = produce(settings, (draft) => {
+                const setting = draft.find((setting) => setting.field_key === key)
                 if (setting) setting.field_value = value
                 else {
                     Sentry.captureMessage(`Setting ${key} not found`)
