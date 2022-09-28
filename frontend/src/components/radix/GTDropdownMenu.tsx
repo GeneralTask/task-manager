@@ -5,7 +5,7 @@ import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemShared } from './RadixUIConstants'
+import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemLabel, MenuItemShared } from './RadixUIConstants'
 
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     all: unset;
@@ -49,7 +49,7 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                                                     {item.icon && (
                                                         <Icon size="xSmall" icon={item.icon} color={item.iconColor} />
                                                     )}
-                                                    {item.label}
+                                                    <MenuItemLabel>{item.label}</MenuItemLabel>
                                                     {item.selected && (
                                                         <MarginLeftIcon>
                                                             <Icon size="xSmall" icon={icons.check} />
