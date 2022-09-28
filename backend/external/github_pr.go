@@ -314,7 +314,6 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 			UserLogin:            githubUser.GetLogin(),
 			UserIsReviewer:       isReviewer,
 		})
-		fmt.Println("required action:", pullRequest.GetTitle(), requiredAction, requestedReviewers, reviewers)
 	}
 
 	result <- &database.PullRequest{
@@ -503,7 +502,6 @@ func userIsReviewer(githubUser *github.User, pullRequest *github.PullRequest, re
 	if pullRequest == nil || githubUser == nil {
 		return false
 	}
-	fmt.Println("user is reviewer:", pullRequest.GetTitle(), userTeams)
 	for _, reviewer := range pullRequest.RequestedReviewers {
 		if githubUser.ID != nil && reviewer.ID != nil && *githubUser.ID == *reviewer.ID {
 			return true
