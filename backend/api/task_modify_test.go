@@ -177,6 +177,20 @@ func TestMarkAsComplete(t *testing.T) {
 			State:      "In Progress",
 			Type:       "in-progress",
 		},
+		AllStatuses: []*database.ExternalTaskStatus{
+			{
+				ExternalID:        "previous-status-id",
+				State:             "In Progress",
+				Type:              "in-progress",
+				IsCompletedStatus: false,
+			},
+			{
+				ExternalID:        "new-status-id",
+				State:             "DONE",
+				Type:              "completed",
+				IsCompletedStatus: true,
+			},
+		},
 	})
 	assert.NoError(t, err)
 	linearTaskID := insertResult.InsertedID.(primitive.ObjectID)
@@ -234,6 +248,17 @@ func TestMarkAsComplete(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 
+	t.Run("InvalidStatusUpdate", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "invalid-status-id"}}}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+
 	t.Run("CompletionFlagFalse", func(t *testing.T) {
 		err := database.MarkCompleteWithCollection(database.GetTaskCollection(db), linearTaskID)
 		assert.NoError(t, err)
@@ -278,6 +303,28 @@ func TestMarkAsComplete(t *testing.T) {
 			"PATCH",
 			"/tasks/modify/"+linearTaskIDHex+"/",
 			bytes.NewBuffer([]byte(`{"is_completed": true}`)))
+		var task database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
+		assert.Equal(t, false, *task.IsCompleted)
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
+		assert.Equal(t, true, *task.IsCompleted)
+		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
+	})
+
+	t.Run("StatusMarkAsDoneSuccess", func(t *testing.T) {
+		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": linearTaskID}, bson.M{"$set": bson.M{"is_completed": false}})
+		assert.NoError(t, err)
+
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+linearTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"task": {"status": {"external_id": "new-status-id"}}}`)))
 		var task database.Task
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.Equal(t, false, *task.IsCompleted)
