@@ -152,8 +152,8 @@ func (api *API) extractSectionTasksV3(
 				break
 			}
 		}
-		if !addedToSection {
-			// add to "Today" section if task section id is not found
+		if !addedToSection && !taskResult.IsMeetingPreparationTask {
+			// add to "Default" section if task section id is not found
 			resultSections[0].Tasks = append(resultSections[0].Tasks, taskResult)
 		}
 	}
