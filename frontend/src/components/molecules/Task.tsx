@@ -166,7 +166,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                         isDisabled={task.isOptimistic}
                         onMarkComplete={taskFadeOut}
                     />
-                    <Title data-testid="task-title">{task.title}</Title>
+                    <Title>{task.title}</Title>
                     <RightContainer>
                         <DueDate color={formattedDate.color}>{formattedDate.dateString}</DueDate>
                         <Icon

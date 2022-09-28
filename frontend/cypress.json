@@ -1,9 +1,0 @@
-{
-    "projectId": "ytcc3m",
-    "baseUrl": "http://localhost:3000",
-    "supportFile": "cypress/support",
-    "defaultCommandTimeout": 10000,
-    "env": {
-        "api_url": "http://localhost:8080"
-    }
-}

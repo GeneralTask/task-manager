@@ -58,7 +58,6 @@ interface NavigationLinkProps {
     count?: number
     draggable?: boolean
     droppable?: boolean
-    testId?: string
 }
 const NavigationLink = ({
     isCurrentPage,
@@ -69,7 +68,6 @@ const NavigationLink = ({
     count,
     draggable = false,
     droppable,
-    testId,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { setCalendarType } = useCalendarContext()
@@ -116,7 +114,7 @@ const NavigationLink = ({
     }
 
     return (
-        <NavigationLinkTemplate ref={drop} onClick={onClickHandler} data-testid={testId}>
+        <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon size="xSmall" icon={icon} color="black" />}
                 <SectionTitle>{title}</SectionTitle>

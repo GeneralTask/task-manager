@@ -152,7 +152,6 @@ const NavigationSectionLinks = () => {
                         taskSection={defaultFolder}
                         count={defaultFolder.tasks.length}
                         droppable
-                        testId="task-section-link"
                     />
                 )}
                 {folders
@@ -175,7 +174,6 @@ const NavigationSectionLinks = () => {
                                 count={section.tasks.length}
                                 draggable
                                 droppable
-                                testId="task-section-link"
                             />
                         </ReorderDropContainer>
                     ))}
@@ -192,7 +190,6 @@ const NavigationSectionLinks = () => {
                                     onChange={onKeyChangeHandler}
                                     onKeyDown={onKeyDownHandler}
                                     placeholder="Add Section"
-                                    data-testid="add-section-input"
                                 />
                             </InputContainer>
                         </AddSectionContainer>
@@ -215,7 +212,6 @@ const NavigationSectionLinks = () => {
                                 taskSection={doneFolder}
                                 count={doneFolder.tasks.length}
                                 droppable
-                                testId="task-section-link"
                             />
                         )}
                         {SHOW_TRASH_SECTION && trashFolder && (
@@ -227,7 +223,6 @@ const NavigationSectionLinks = () => {
                                 taskSection={defaultFolder}
                                 count={trashFolder.tasks.length}
                                 droppable
-                                testId="task-section-link"
                             />
                         )}
                     </>

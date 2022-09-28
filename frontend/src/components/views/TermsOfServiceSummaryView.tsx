@@ -121,7 +121,7 @@ const TermsOfServiceSummaryView = () => {
                 <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
             </LinkContainer>
             <VerticalFlex>
-                <NoStyleButton data-testid="terms-check-button" onClick={() => setTermsCheck(!termsCheck)}>
+                <NoStyleButton onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
                         <Icon size="small" icon={termsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
                         <AgreementText required>
@@ -141,7 +141,7 @@ const TermsOfServiceSummaryView = () => {
                 </NoStyleButton>
             </VerticalFlex>
             <SubmitButtonContainer>
-                <div data-testid="terms-submit-button">
+                <div>
                     <GTButton onClick={onSubmit} value="Continue" styleType="primary" disabled={!termsCheck} />
                 </div>
                 <GTButton onClick={onCancel} styleType="secondary" value="Cancel" />

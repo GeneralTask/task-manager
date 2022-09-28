@@ -123,11 +123,7 @@ const ReorderDropContainer = ({
     }, [dropRef])
 
     return (
-        <DropOverlay
-            ref={dropRef}
-            isLast={indicatorType === 'TOP_ONLY'}
-            data-testid={indicatorType === 'TOP_ONLY' && 'reorder-bottom-drop-area'}
-        >
+        <DropOverlay ref={dropRef} isLast={indicatorType === 'TOP_ONLY'}>
             {indicatorType !== 'WHOLE' && (
                 <DropIndicatorAbove
                     isVisible={isOver && dropDirection == DropDirection.ABOVE}
