@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
+import { PurpleEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { Column, LinkButtonContainer, PullRequestRow, Status, TitleContainer } from './styles'
 
@@ -22,6 +23,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
 
     return (
         <PullRequestRow onClick={onClickHandler} isSelected={isSelected}>
+            {isSelected && <PurpleEdge />}
             <TitleContainer>{title}</TitleContainer>
             <Column>
                 <Status type={status.color}>{status.text}</Status>
