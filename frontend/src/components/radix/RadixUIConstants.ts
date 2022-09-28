@@ -20,7 +20,7 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
     :hover, :focus {
         background-color: ${Colors.background.dark};
     }
-    `
+`
 export const MenuContentShared = css`
     z-index: 5;
     width: ${MENU_WIDTH};
