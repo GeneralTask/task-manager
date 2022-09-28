@@ -463,7 +463,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 	}
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
-	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, timeNow.Location())
+	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, time.FixedZone("", 0))
 	dueTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
 		{"is_completed": false},
 		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
