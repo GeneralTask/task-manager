@@ -104,7 +104,7 @@ const TermsOfServiceSummaryView = () => {
 
     return (
         <TermsOfServiceContainer>
-            <Icon size="large" icon={icons.check_circle_wavy} color={Colors.icon.purple} />
+            <Icon size="large" icon={icons.check_circle_wavy} color="purple" />
             <TermsOfServiceHeader>
                 <TitleLargeContainer>
                     <TitleLarge>Terms of Service</TitleLarge>

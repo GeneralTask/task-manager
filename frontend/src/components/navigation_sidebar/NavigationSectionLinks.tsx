@@ -182,7 +182,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
+                                <Icon size="xSmall" icon={icons.folder} color="black" />
                             </div>
                             <InputContainer>
                                 <NoStyleInput

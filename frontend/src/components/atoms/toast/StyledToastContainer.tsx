@@ -18,7 +18,7 @@ interface CloseButtonProps {
 }
 const CloseButton = ({ closeToast, theme }: CloseButtonProps) => (
     <ButtonMarginLeft onClick={closeToast}>
-        <Icon icon={icons.x} size="small" color={theme === 'light' ? Colors.icon.black : Colors.icon.white} />
+        <Icon icon={icons.x} size="small" color={theme === 'light' ? 'black' : 'white'} />
     </ButtonMarginLeft>
 )
 
