@@ -24,7 +24,7 @@ const App = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
-            {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} />}
+            {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
             <AppContextProvider>
                 <GlobalStyle />
                 <BrowserRouter>
