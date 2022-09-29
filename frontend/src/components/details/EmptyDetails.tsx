@@ -26,7 +26,7 @@ const EmptyDetails = ({ icon, text }: EmptyDetailsProps) => {
     return (
         <DetailsViewTemplate>
             <EmptyMessage>
-                <Icon size="xLarge" icon={icon} />
+                <Icon size="large" icon={icon} color="gray" />
                 <Text>{text}</Text>
             </EmptyMessage>
         </DetailsViewTemplate>

@@ -105,7 +105,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     return (
         <>
             <CreateNewTaskContainer data-tip data-for="createNewTaskTip" ref={containerRef}>
-                <Icon icon={icons.plus} size={'small'} />
+                <Icon icon={icons.plus} />
                 <TaskInput
                     ref={inputRef}
                     value={text}

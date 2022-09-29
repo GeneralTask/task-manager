@@ -172,12 +172,11 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                         <Icon
                             icon={TASK_PRIORITIES[task.priority_normalized].icon}
                             color={TASK_PRIORITIES[task.priority_normalized].color}
-                            size="xSmall"
                         />
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                         ) : (
-                            <Icon icon={logos[task.source.logo_v2]} size="small" />
+                            <Icon icon={logos[task.source.logo_v2]} />
                         )}
                     </RightContainer>
                 </ItemContainer>

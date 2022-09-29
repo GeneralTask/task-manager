@@ -46,13 +46,11 @@ const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps
                                                 item.renderer()
                                             ) : (
                                                 <>
-                                                    {item.icon && (
-                                                        <Icon size="xSmall" icon={item.icon} color={item.iconColor} />
-                                                    )}
+                                                    {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                                     <MenuItemLabel>{item.label}</MenuItemLabel>
                                                     {item.selected && (
                                                         <MarginLeftIcon>
-                                                            <Icon size="xSmall" icon={icons.check} />
+                                                            <Icon icon={icons.check} />
                                                         </MarginLeftIcon>
                                                     )}
                                                 </>

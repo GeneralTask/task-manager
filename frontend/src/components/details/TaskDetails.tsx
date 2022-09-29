@@ -168,7 +168,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <MarginLeft8>
-                    <Icon icon={logos[task.source.logo_v2]} size="small" />
+                    <Icon icon={logos[task.source.logo_v2]} />
                 </MarginLeft8>
                 {!task.isOptimistic && (
                     <>

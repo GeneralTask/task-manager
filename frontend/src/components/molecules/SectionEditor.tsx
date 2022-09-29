@@ -86,10 +86,10 @@ export default function SectionEditor({ task_id, closeSectionEditor }: SectionEd
         return (
             <ListItem key={section.id} onClick={handleOnClick}>
                 <SectionTitleBox isSelected={isCurrentSection}>
-                    <Icon size={'small'} icon={icons.folder} color={isCurrentSection ? 'purple' : 'gray'} />
+                    <Icon icon={icons.folder} color={isCurrentSection ? 'purple' : 'gray'} />
                     <SectionName>{section.name}</SectionName>
                 </SectionTitleBox>
-                {isCurrentSection && <Icon size={'xSmall'} icon={icons.checkbox_checked} color="purple" />}
+                {isCurrentSection && <Icon icon={icons.checkbox_checked} color="purple" />}
             </ListItem>
         )
     })
