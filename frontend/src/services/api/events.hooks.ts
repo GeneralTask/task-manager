@@ -109,7 +109,7 @@ export const useCreateEvent = () => {
     }, [selectedEvent])
 
     return useMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
-        onMutate: async ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
+        onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
             if (!events) return
 
@@ -137,11 +137,12 @@ export const useCreateEvent = () => {
             })
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
         },
-        onSuccess: async ({ id }: TCreateEventResponse, { createEventPayload, date, optimisticId }: TCreateEventParams) => {
+        onSuccess: ({ id }: TCreateEventResponse, { createEventPayload, date, optimisticId }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
             if (!events) return
 
             const eventIndex = events.findIndex((event) => event.id === optimisticId)
+            if (eventIndex === -1) return
             const newEvents = produce(events, (draft) => {
                 draft[eventIndex].id = id
             })
@@ -170,7 +171,7 @@ const createEvent = async (data: TCreateEventPayload) => {
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
     const useMutationResult = useMutation((data: TDeleteEventData) => deleteEvent(data.id), {
-        onMutate: async (data: TDeleteEventData) => {
+        onMutate: (data: TDeleteEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
             if (!events) return
 
@@ -219,7 +220,7 @@ export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
     return useMutation((data: TModifyEventData) => modifyEvent(data), {
-        onMutate: async ({ event, payload, date }: TModifyEventData) => {
+        onMutate: ({ event, payload, date }: TModifyEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(date, event.datetime_start, event.datetime_end)
             if (!events) return
 
