@@ -1,14 +1,9 @@
 import { SORT_DIRECTION, SortAndFilterItemsArgs } from './types'
 
-const sortAndFilterItems = <T>({
-    items,
-    sort,
-    sortDirection = SORT_DIRECTION.DESC,
-    filter,
-}: SortAndFilterItemsArgs<T>) => {
+const sortAndFilterItems = <T>({ items, sort, sortDirection, filter }: SortAndFilterItemsArgs<T>) => {
     let sortedAndFiltered = items
     if (filter) {
-        sortedAndFiltered = sortedAndFiltered.filter(filter)
+        sortedAndFiltered = sortedAndFiltered.filter(filter.lambda)
     }
     if (sort && sortDirection) {
         sortedAndFiltered = sortedAndFiltered.sort((a, b) => {

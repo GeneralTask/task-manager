@@ -1,7 +1,8 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
-import SortSelector from '../../molecules/SortSelector'
+import { TPullRequest } from '../../../utils/types'
 import PullRequestList from '../../pull-requests/PullRequestList'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../pull-requests/constants'
 import { ViewHeader, ViewName } from '../styles'
@@ -10,22 +11,14 @@ import { ViewItemsProps } from './viewItems.types'
 
 const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewItemId } = useParams()
-    const { sortOptions, selectedSort, setSelectedSort, selectedSortDirection, setSelectedSortDirection } =
-        useSortAndFilterSettings(PR_SORT_AND_FILTER_CONFIG, view.id)
+    const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG, view.id)
+    const { selectedSort, selectedSortDirection, selectedFilter } = sortAndFilterSettings
     return (
         <>
             <ViewHeader ref={ref}>
                 <ViewName>{view.name}</ViewName>
-                {view.view_items.length > 0 && (
-                    <SortSelector
-                        sortOptions={sortOptions}
-                        selectedSort={selectedSort}
-                        setSelectedSort={setSelectedSort}
-                        selectedSortDirection={selectedSortDirection}
-                        setSelectedSortDirection={setSelectedSortDirection}
-                    />
-                )}
             </ViewHeader>
+            {view.view_items.length > 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
             {view.view_items.length === 0 && view.is_linked && (
                 <EmptyViewItem
                     header="You have no more pull requests!"
@@ -37,6 +30,7 @@ const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsP
                 selectedPrId={overviewItemId}
                 sort={selectedSort}
                 sortDirection={selectedSortDirection}
+                filter={selectedFilter}
                 overviewViewId={view.id}
                 visibleItemsCount={visibleItemsCount}
             />

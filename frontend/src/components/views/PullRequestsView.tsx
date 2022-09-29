@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
-import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
 import { isGithubLinkedAccount } from '../../utils/utils'
@@ -14,7 +14,6 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
-import SortSelector from '../molecules/SortSelector'
 import PullRequestList from '../pull-requests/PullRequestList'
 import { PR_SORT_AND_FILTER_CONFIG } from '../pull-requests/constants'
 import { Repository, RepositoryName } from '../pull-requests/styles'
@@ -24,13 +23,10 @@ const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
 `
-const MarginBottonContainer = styled.div`
-    margin-bottom: ${Spacing._16};
-`
 
 const PullRequestsView = () => {
-    const { sortOptions, selectedSort, setSelectedSort, selectedSortDirection, setSelectedSortDirection } =
-        useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
+    const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
+    const { selectedSort, selectedSortDirection, selectedFilter } = sortAndFilterSettings
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const { isLoading: areSettingsLoading } = useGetSettings()
     const navigate = useNavigate()
@@ -65,15 +61,7 @@ const PullRequestsView = () => {
             <PullRequestsContainer>
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="GitHub Pull Requests" />
-                    <MarginBottonContainer>
-                        <SortSelector
-                            sortOptions={sortOptions}
-                            selectedSort={selectedSort}
-                            setSelectedSort={setSelectedSort}
-                            selectedSortDirection={selectedSortDirection}
-                            setSelectedSortDirection={setSelectedSortDirection}
-                        />
-                    </MarginBottonContainer>
+                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
@@ -88,6 +76,7 @@ const PullRequestsView = () => {
                                         selectedPrId={params.pullRequest}
                                         sort={selectedSort}
                                         sortDirection={selectedSortDirection}
+                                        filter={selectedFilter}
                                     />
                                 )}
                                 <br />

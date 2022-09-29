@@ -10,9 +10,6 @@ export const ViewContainer = styled.div`
     box-shadow: ${Shadows.light};
 `
 export const ViewHeader = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin: ${Spacing._8} 0;
     background-color: ${Colors.background.white};
     cursor: pointer;

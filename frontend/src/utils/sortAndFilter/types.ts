@@ -1,4 +1,4 @@
-import { GHSortDirection, GHSortPreference } from '../../services/api/settings.hooks'
+import { GHFilterPreference, GHSortDirection, GHSortPreference } from '../../services/api/settings.hooks'
 
 export enum SORT_DIRECTION {
     ASC = 'ascending',
@@ -20,8 +20,12 @@ export interface Sort<T> {
     customComparator?: (a: T, b: T) => number
 }
 
-// should return true if item should be included in the filtered list
-export type Filter<T> = (item: T) => boolean
+export interface Filter<T> {
+    id: string
+    label: string
+    // should return true if item should be included in the filtered list
+    lambda: (item: T) => boolean
+}
 
 export interface SortAndFilterItemsArgs<T> {
     items: T[]
@@ -34,17 +38,26 @@ export interface SortOptions<T> {
     [key: string]: Sort<T>
 }
 
+export interface FilterOptions<T> {
+    [key: string]: Filter<T>
+}
+
 export interface SortAndFilterSettingsConfig<T> {
     sortOptions: SortOptions<T>
+    filterOptions: FilterOptions<T>
     sortPreferenceId: GHSortPreference
     sortDirectionId: GHSortDirection
+    filterPreferenceId: GHFilterPreference
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }
 
 export interface SortAndFilterSettings<T> {
     sortOptions: SortOptions<T>
+    filterOptions: FilterOptions<T>
     selectedSort: Sort<T>
     setSelectedSort: (selectedSort: Sort<T>) => void
     selectedSortDirection: SORT_DIRECTION
     setSelectedSortDirection: (selectedSortDirection: SORT_DIRECTION) => void
+    selectedFilter: Filter<T>
+    setSelectedFilter: (selectedFilter: Filter<T>) => void
 }
