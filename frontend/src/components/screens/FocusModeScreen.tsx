@@ -49,13 +49,15 @@ const ClockContainer = styled.div`
     padding: ${Spacing._24} ${Spacing._32};
     text-align: right;
 `
-const JoinMeetingContainer = styled.div`
+const NotificationMessage = styled.div<{ isCentered?: boolean }>`
+    position: relative;
     border: 1px solid ${Colors.border.light};
     border-radius: ${Border.radius.large};
     display: flex;
-    padding: ${Spacing._8} ${Spacing._16};
+    padding: ${Spacing._24} ${Spacing._16};
     align-items: center;
     justify-content: space-between;
+    ${(props) => props.isCentered && `justify-content: center;`}
     ${Typography.bodySmall};
 `
 const BoldText = styled.span`
@@ -99,6 +101,10 @@ const CurrentEvent = styled(GTShadowContainer)`
     border-radius: ${Border.radius.small};
     border: ${Border.stroke.small} solid ${Colors.border.light};
     cursor: pointer;
+`
+const RightAbsoluteContainer = styled.div`
+    position: absolute;
+    right: ${Spacing._16};
 `
 
 const getEventsCurrentlyHappening = (events: TEvent[]) => {
@@ -144,6 +150,7 @@ const FocusModeScreen = () => {
 
     const clockTime = DateTime.local().toFormat('h:mm a')
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
+    const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
 
     const navigate = useNavigate()
     return (
@@ -184,13 +191,23 @@ const FocusModeScreen = () => {
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
                                     {conferenceCall && (
-                                        <JoinMeetingContainer>
+                                        <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
                                                 <BoldText> right now.</BoldText>
                                             </span>
-                                            <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
-                                        </JoinMeetingContainer>
+                                            <RightAbsoluteContainer>
+                                                <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
+                                            </RightAbsoluteContainer>
+                                        </NotificationMessage>
+                                    )}
+                                    {eventHasEnded && (
+                                        <NotificationMessage isCentered>
+                                            <span>
+                                                <span>This event is</span>
+                                                <BoldText> in the past.</BoldText>
+                                            </span>
+                                        </NotificationMessage>
                                     )}
                                     <div>
                                         {chosenEvent.linked_view_id ? (
