@@ -14,7 +14,6 @@ import {
     EventInfoContainer,
     EventTime,
     EventTitle,
-    IconContainer,
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
 
@@ -125,11 +124,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 )}
                 <EventInfo isLongEvent={isLongEvent}>
                     <EventIconAndTitle>
-                        {props.event.linked_task_id && (
-                            <IconContainer>
-                                <Icon size="xSmall" icon={logos[props.event.logo]} />
-                            </IconContainer>
-                        )}
+                        {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
                         <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                     </EventIconAndTitle>
                     <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>

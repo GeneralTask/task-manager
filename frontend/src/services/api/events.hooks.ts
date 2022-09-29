@@ -1,12 +1,12 @@
 import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
-import { v4 as uuidv4 } from 'uuid'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
-import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent, TOverviewView, TTask } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
+import { useCalendarContext } from '../../components/calendar/CalendarContext'
+import { useRef, useEffect } from 'react'
 
 interface TEventAttendee {
     name: string
@@ -42,11 +42,15 @@ interface TModifyEventData {
     payload: TModifyEventPayload
     date: DateTime
 }
-interface CreateEventParams {
+interface TCreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
     linkedTask?: TTask
     linkedView?: TOverviewView
+    optimisticId: string
+}
+interface TCreateEventResponse {
+    id: string
 }
 interface TModifyEventPayload {
     account_id: string
@@ -96,22 +100,21 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
 
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(({ createEventPayload }: CreateEventParams) => createEvent(createEventPayload), {
-        onMutate: async ({ createEventPayload, date, linkedTask, linkedView }: CreateEventParams) => {
-            await queryClient.cancelQueries('events')
+    const { selectedEvent, setSelectedEvent } = useCalendarContext()
 
-            const start = DateTime.fromISO(createEventPayload.datetime_start)
-            const end = DateTime.fromISO(createEventPayload.datetime_end)
-            const timeBlocks = getMonthsAroundDate(date, 1)
-            const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
-            const block = timeBlocks[blockIndex]
+    // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback
+    const selectedEventRef = useRef(selectedEvent)
+    useEffect(() => {
+        selectedEventRef.current = selectedEvent
+    }, [selectedEvent])
 
-            const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
-
-            if (events == null) return
+    return useMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
+        onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
+            const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
+            if (!events) return
 
             const newEvent: TEvent = {
-                id: uuidv4(),
+                id: optimisticId,
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
@@ -132,7 +135,24 @@ export const useCreateEvent = () => {
             const newEvents = produce(events, (draft) => {
                 draft.push(newEvent)
             })
-            queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
+            queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
+        },
+        onSuccess: ({ id }: TCreateEventResponse, { createEventPayload, date, optimisticId }: TCreateEventParams) => {
+            const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
+            if (!events) return
+
+            const eventIndex = events.findIndex((event) => event.id === optimisticId)
+            if (eventIndex === -1) return
+            const newEvents = produce(events, (draft) => {
+                draft[eventIndex].id = id
+            })
+
+            queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
+
+            // if this event is selected, update the selectedEvent to the actual event ID
+            if (selectedEventRef.current?.id === optimisticId) {
+                setSelectedEvent(newEvents[eventIndex])
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries('events')
@@ -150,22 +170,9 @@ const createEvent = async (data: TCreateEventPayload) => {
 
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
-    const getCurrentEvents = (date: DateTime, datetime_start: string, datetime_end: string) => {
-        const start = DateTime.fromISO(datetime_start)
-        const end = DateTime.fromISO(datetime_end)
-        const timeBlocks = getMonthsAroundDate(date, 1)
-        const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
-        const block = timeBlocks[blockIndex]
-        const blockStartTime = block.start.toISO()
-        queryClient.cancelQueries(['events', 'calendar', blockStartTime])
-        return {
-            events: queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()]),
-            blockStartTime,
-        }
-    }
     const useMutationResult = useMutation((data: TDeleteEventData) => deleteEvent(data.id), {
-        onMutate: async (data: TDeleteEventData) => {
-            const { events, blockStartTime } = getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
+        onMutate: (data: TDeleteEventData) => {
+            const { events, blockStartTime } = queryClient.getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
             if (!events) return
 
             const newEvents = produce(events, (draft) => {
@@ -180,7 +187,7 @@ export const useDeleteEvent = () => {
         },
     })
     const deleteEventInCache = (data: TDeleteEventData) => {
-        const { events, blockStartTime } = getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
+        const { events, blockStartTime } = queryClient.getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
         if (!events) return
         const newEvents = produce(events, (draft) => {
             const eventIdx = draft.findIndex((event) => event.id === data.id)
@@ -190,7 +197,7 @@ export const useDeleteEvent = () => {
         queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
     }
     const undoDeleteEventInCache = (event: TEvent, date: DateTime) => {
-        const { events, blockStartTime } = getCurrentEvents(date, event.datetime_start, event.datetime_end)
+        const { events, blockStartTime } = queryClient.getCurrentEvents(date, event.datetime_start, event.datetime_end)
         if (!events) return
 
         const newEvents = produce(events, (draft) => {
@@ -213,16 +220,8 @@ export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
     return useMutation((data: TModifyEventData) => modifyEvent(data), {
-        onMutate: async ({ event, payload, date }: TModifyEventData) => {
-            await queryClient.cancelQueries('events')
-
-            const start = DateTime.fromISO(event.datetime_start)
-            const end = DateTime.fromISO(event.datetime_end)
-            const timeBlocks = getMonthsAroundDate(date, 1)
-            const blockIndex = timeBlocks.findIndex((block) => start >= block.start && end <= block.end)
-            const block = timeBlocks[blockIndex]
-
-            const events = queryClient.getImmutableQueryData<TEvent[]>(['events', 'calendar', block.start.toISO()])
+        onMutate: ({ event, payload, date }: TModifyEventData) => {
+            const { events, blockStartTime } = queryClient.getCurrentEvents(date, event.datetime_start, event.datetime_end)
             if (!events) return
 
             const eventIdx = events.findIndex((e) => e.id === event.id)
@@ -244,7 +243,7 @@ export const useModifyEvent = () => {
                     }
                 })
             })
-            queryClient.setQueryData(['events', 'calendar', block.start.toISO()], newEvents)
+            queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
         },
         onSettled: () => {
             queryClient.invalidateQueries('events')

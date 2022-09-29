@@ -23,7 +23,7 @@ const lineHeight = {
     l: '40px',
     xl: '56px',
 }
-export const weight = {
+const weight = {
     regular: '400',
     medium: '510',
     semibold: '590',
@@ -59,6 +59,11 @@ export const bodySmall = css`
     line-height: ${lineHeight.m}; // 24px
     font-weight: ${weight.regular}; // 400
     letter-spacing: -0.01em; // -1%
+`
+export const labelHeavy = css`
+    font-size: ${fontSize.xs}; // 12px
+    line-height: ${lineHeight.s}; // 16px
+    font-weight: ${weight.medium}; // 510
 `
 export const label = css`
     font-size: ${fontSize.xs}; // 12px

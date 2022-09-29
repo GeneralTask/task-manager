@@ -37,7 +37,7 @@ const FocusModeContainer = styled.div`
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    background-color ${Colors.background.white};
+    background-color: ${Colors.background.white};
 `
 const MainContainer = styled.div`
     display: flex;
@@ -138,9 +138,9 @@ const FocusModeScreen = () => {
         }
     }, [selectedEvent])
 
-    const { title, body, datetime_start, datetime_end } = currentEvents[0] ?? {}
-    const timeStart = DateTime.fromISO(datetime_start)
-    const timeEnd = DateTime.fromISO(datetime_end)
+    const { title, body, datetime_start, datetime_end } = chosenEvent ?? {}
+    const timeStart = DateTime.fromISO(datetime_start || '')
+    const timeEnd = DateTime.fromISO(datetime_end || '')
 
     const clockTime = DateTime.local().toFormat('h:mm a')
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
@@ -165,7 +165,7 @@ const FocusModeScreen = () => {
                                         {currentEvents.map((event) => (
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
                                                 <Flex alignItemsCenter gap={Spacing._8}>
-                                                    <Icon icon={logos[event.logo]} size="small" />
+                                                    <Icon icon={logos[event.logo]} />
                                                     <div>{event.title}</div>
                                                 </Flex>
                                                 <TimeRange
@@ -177,7 +177,7 @@ const FocusModeScreen = () => {
                                     </CurrentEventsContainer>
                                 </>
                             )}
-                            {currentEvents.length > 0 && chosenEvent != null && (
+                            {chosenEvent && (
                                 <>
                                     <GTHeader>{title}</GTHeader>
                                     <GTTitle>
@@ -198,7 +198,7 @@ const FocusModeScreen = () => {
                                         ) : (
                                             <>
                                                 <BodyHeader>MEETING NOTES</BodyHeader>
-                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
                                             </>
                                         )}
                                     </div>
@@ -218,7 +218,7 @@ const FocusModeScreen = () => {
                     <ClockContainer>{clockTime}</ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
-                    <Icon icon={logos.generaltask} size="medium" />
+                    <Icon icon={logos.generaltask} size="gtLogo" />
                 </FloatingIcon>
                 <ButtonContainer>
                     <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />

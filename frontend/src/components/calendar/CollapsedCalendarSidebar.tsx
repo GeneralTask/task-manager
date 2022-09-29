@@ -51,7 +51,7 @@ const CollapsedCalendarSidebar = ({ onClick }: CalendarHeaderProps) => {
     )
     return (
         <Sidebar onClick={onClick} showFlicker={isTaskDraggingOverDetailsView} ref={drop}>
-            <GTIconButton icon={icons.calendar_blank} size="small" />
+            <GTIconButton icon={icons.calendar_blank} />
         </Sidebar>
     )
 }

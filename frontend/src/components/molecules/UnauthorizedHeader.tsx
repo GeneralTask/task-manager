@@ -27,7 +27,7 @@ const UnauthorizedHeader = () => {
         <Header>
             <IconContainer>
                 <NoStyleButton onClick={() => navigate('/')}>
-                    <Icon icon={logos.generaltask} color="purple" size="medium" />
+                    <Icon icon={logos.generaltask} color="purple" size="gtLogo" />
                 </NoStyleButton>
             </IconContainer>
             <Divider />

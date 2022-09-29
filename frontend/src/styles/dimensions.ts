@@ -1,10 +1,7 @@
 export const iconSize = {
-    xxSmall: '10px',
-    xSmall: '15px',
-    small: '20px',
-    medium: '30px',
-    large: '40px',
-    xLarge: '50px',
+    default: '16px',
+    gtLogo: '30px',
+    large: '50px',
 }
 
 export type TIconSize = keyof typeof iconSize

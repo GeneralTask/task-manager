@@ -108,7 +108,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <>
                         <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
                         <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
-                            <Icon size="small" icon={icons.spinner} color={isHovering ? 'purple' : 'black'} />
+                            <Icon icon={icons.spinner} color={isHovering ? 'purple' : 'black'} />
                         </RefreshSpinner>
                     </>
                 )}
@@ -119,15 +119,12 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         onClick={() => handleDelete(props.taskSectionId)}
                         icon={icons.trash}
                         iconColor="red"
-                        size="small"
                     />
                 )}
                 {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
-                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
+                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} />
                 )}
-                {isEditingTitle && (
-                    <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
-                )}
+                {isEditingTitle && <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} />}
             </MarginLeftAutoFlex>
         </SectionHeaderContainer>
     )

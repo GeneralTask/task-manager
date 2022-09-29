@@ -13,7 +13,7 @@ interface CommentsCountProps {
 }
 const CommentCount = ({ count }: CommentsCountProps) => (
     <CommentsCountContainer>
-        <Icon icon={icons.comment} size="xSmall" />
+        <Icon icon={icons.comment} />
         {count}
     </CommentsCountContainer>
 )
