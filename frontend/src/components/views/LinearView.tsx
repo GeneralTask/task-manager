@@ -83,9 +83,7 @@ const LinearView = () => {
                     >
                         {linearIssueId === task.id && <PurpleEdge />}
                         <LeftContainer>
-                            {task.external_status && (
-                                <Icon icon={linearStatus[task.external_status?.type]} size="small" />
-                            )}
+                            {task.external_status && <Icon icon={linearStatus[task.external_status?.type]} />}
                             <LinearTitle>{task.title}</LinearTitle>
                         </LeftContainer>
                         <RightContainer>

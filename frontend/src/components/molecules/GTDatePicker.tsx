@@ -87,11 +87,11 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 }}
             />
             <DateViewContainer>
-                <Icon icon={icons.calendar_blank} size="small" color="black" />
+                <Icon icon={icons.calendar_blank} color="black" />
                 <DateViewText>
                     {!value || isNaN(+value) || +value === 0 ? 'No Due Date' : value?.toDateString()}
                 </DateViewText>
-                <GTIconButton icon={icons.x} size="small" color="black" onClick={() => handleOnChange(null)} />
+                <GTIconButton icon={icons.x} color="black" onClick={() => handleOnChange(null)} />
             </DateViewContainer>
         </GTDatePickerWrapper>
     )

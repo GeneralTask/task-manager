@@ -7,10 +7,10 @@ import { TIconSize } from '../../styles/dimensions'
 
 export type TIconType = IconProp | string
 
-const IconContainer = styled.div<{ width: string; height: string }>`
-    width: ${(props) => props.width};
-    height: ${(props) => props.height};
-    font-size: ${(props) => props.height};
+const IconContainer = styled.div<{ size: string }>`
+    width: ${({ size }) => size};
+    height: ${({ size }) => size};
+    font-size: ${({ size }) => size};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -23,19 +23,18 @@ const ImageContainer = styled.img`
 `
 interface IconProps {
     icon: TIconType
-    size: TIconSize
+    size?: TIconSize
     color?: TIconColor
 }
-export const Icon = (props: IconProps) => {
-    const dimension = Dimensions.iconSize[props.size]
-    const iconColor = props.color ? props.color : 'black'
+export const Icon = ({ icon, size = 'default', color = 'black' }: IconProps) => {
+    const dimension = Dimensions.iconSize[size]
 
     return (
-        <IconContainer width={dimension} height={dimension}>
-            {typeof props.icon === 'string' ? (
-                <ImageContainer src={props.icon} />
+        <IconContainer size={dimension}>
+            {typeof icon === 'string' ? (
+                <ImageContainer src={icon} />
             ) : (
-                <FontAwesomeIcon icon={props.icon} color={Colors.icon[iconColor]} />
+                <FontAwesomeIcon icon={icon} color={Colors.icon[color]} />
             )}
         </IconContainer>
     )

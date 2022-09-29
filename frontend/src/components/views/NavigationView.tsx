@@ -65,7 +65,7 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
-                <Icon size="medium" icon={logos.generaltask} color="purple" />
+                <Icon size="gtLogo" icon={logos.generaltask} color="purple" />
                 <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>
