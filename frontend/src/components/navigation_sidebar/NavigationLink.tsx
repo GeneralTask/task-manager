@@ -19,13 +19,13 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     width: 100%;
     border-radius: ${Border.radius.small};
     background-color: ${(props) =>
-        props.isOver ? Colors.background.dark : props.isSelected ? Colors.background.white : 'inherit'};
+        props.isOver ? Colors.background.white : props.isSelected ? Colors.background.dark : 'inherit'};
     color: ${Colors.text.black};
     box-sizing: border-box;
     gap: ${Spacing._12};
     transform: translate(0, 0); // to hide corners when dragging
     :hover {
-        background-color: ${Colors.background.dark};
+        background-color: ${Colors.background.white};
     }
 `
 const SectionTitle = styled.span`
