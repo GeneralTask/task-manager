@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { useEffect } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { DateTime } from 'luxon'
@@ -107,6 +108,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                         },
                         date,
                         linkedTask: item.task,
+                        optimisticId: uuidv4(),
                     })
                     break
                 }
@@ -157,6 +159,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                         },
                         date,
                         linkedView: item.view,
+                        optimisticId: uuidv4(),
                     })
                     break
                 }
