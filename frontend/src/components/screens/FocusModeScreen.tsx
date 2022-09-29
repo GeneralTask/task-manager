@@ -138,9 +138,9 @@ const FocusModeScreen = () => {
         }
     }, [selectedEvent])
 
-    const { title, body, datetime_start, datetime_end } = currentEvents[0] ?? {}
-    const timeStart = DateTime.fromISO(datetime_start)
-    const timeEnd = DateTime.fromISO(datetime_end)
+    const { title, body, datetime_start, datetime_end } = chosenEvent ?? {}
+    const timeStart = DateTime.fromISO(datetime_start || '')
+    const timeEnd = DateTime.fromISO(datetime_end || '')
 
     const clockTime = DateTime.local().toFormat('h:mm a')
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
@@ -177,7 +177,7 @@ const FocusModeScreen = () => {
                                     </CurrentEventsContainer>
                                 </>
                             )}
-                            {currentEvents.length > 0 && chosenEvent != null && (
+                            {chosenEvent && (
                                 <>
                                     <GTHeader>{title}</GTHeader>
                                     <GTTitle>
@@ -198,7 +198,7 @@ const FocusModeScreen = () => {
                                         ) : (
                                             <>
                                                 <BodyHeader>MEETING NOTES</BodyHeader>
-                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
                                             </>
                                         )}
                                     </div>
