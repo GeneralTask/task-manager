@@ -123,7 +123,7 @@ function GTInputSelect(props: Props): JSX.Element {
             <InputContainer valid={valid}>
                 {inputIcon && (
                     <IconContainer>
-                        <Icon icon={inputIcon} size="xSmall" />
+                        <Icon icon={inputIcon} />
                     </IconContainer>
                 )}
                 <Input
@@ -137,7 +137,7 @@ function GTInputSelect(props: Props): JSX.Element {
                 />
                 {options.length && (
                     <ExpandButton onClick={() => setExpanded(!expanded)}>
-                        <Icon icon={icons.caret_down} size="xSmall" />
+                        <Icon icon={icons.caret_down} />
                     </ExpandButton>
                 )}
             </InputContainer>

@@ -7,12 +7,15 @@ import { DateTime } from 'luxon'
 import { useEventBanners } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
+import { focusModeBackground } from '../../styles/images'
 import Loading from '../atoms/Loading'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
+import LinearView from '../views/LinearView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
 import Settings from '../views/SettingsView'
+import SlackTasksView from '../views/SlackTasksView'
 import TaskSection from '../views/TaskSectionView'
 
 const MainScreen = () => {
@@ -29,6 +32,10 @@ const MainScreen = () => {
                 return <TaskSection />
             case 'pull-requests':
                 return <PullRequestsView />
+            case 'linear':
+                return <LinearView />
+            case 'slack':
+                return <SlackTasksView />
             case 'settings':
                 return <Settings />
             default:
@@ -41,6 +48,7 @@ const MainScreen = () => {
 
     return (
         <DndProvider backend={HTML5Backend}>
+            <link rel="preload" as="image" href={focusModeBackground} />
             <DefaultTemplate>
                 <>{currentPage}</>
             </DefaultTemplate>

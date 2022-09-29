@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 export const CELL_HEIGHT_VALUE = 64
 export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`
@@ -102,10 +102,9 @@ export const EventInfoContainer = styled.div`
 `
 export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     display: flex;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    margin: 0 ${Spacing._12};
+    padding: 0 ${Spacing._12};
+    width: 100%;
+    box-sizing: border-box;
     ${Typography.label};
     ${(props) =>
         props.isLongEvent
@@ -117,17 +116,23 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
         `
             : 'flex-direction: row;'}
 `
-export const EventTitle = styled.div`
+export const EventIconAndTitle = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
-    margin-right: ${Spacing._8};
     max-height: 100%;
+    min-width: 0;
+`
+export const EventTitle = styled.div`
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 `
 export const EventTime = styled.div`
     color: ${Colors.text.light};
     float: left;
     max-height: 100%;
+    white-space: nowrap;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
@@ -192,7 +197,4 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     top: ${(props) => props.offset}px;
     z-index: 1;
     background-color: ${Colors.background.dropIndicator};
-`
-export const IconContainer = styled.div`
-    width: ${Dimensions.iconSize.xSmall};
 `

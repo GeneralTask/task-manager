@@ -51,14 +51,13 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
     return (
         <BannerContainer hasBorder={hasBorder}>
             <IconContainer>
-                <Icon size="small" icon={logos[logo]} />
+                <Icon icon={logos[logo]} />
                 <Title>{`Connect ${name} to General Task`}</Title>
             </IconContainer>
             <GTButton
                 value="Connect"
                 color={Colors.gtColor.primary}
                 onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
-                size="small"
             />
         </BannerContainer>
     )

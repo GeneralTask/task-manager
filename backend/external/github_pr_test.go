@@ -1279,6 +1279,7 @@ func TestGetPullRequestRequiredAction(t *testing.T) {
 			IsOwnedByUser:        false,
 			UserLogin:            authorUserLogin,
 			Reviewers:            &reviewers,
+			UserIsReviewer:       true,
 		}
 		action := getPullRequestRequiredAction(pullRequestData)
 		assert.Equal(t, "Review PR", action)

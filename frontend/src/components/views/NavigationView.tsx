@@ -1,7 +1,7 @@
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { Colors, Shadows, Spacing } from '../../styles'
+import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -43,6 +43,12 @@ const GapView = styled.div`
     padding-bottom: ${Spacing._8};
     margin-top: auto;
 `
+const CopyrightText = styled.span`
+    margin-top: ${Spacing._4};
+    text-align: center;
+    color: ${Colors.text.placeholder};
+    ${Typography.eyebrow};
+`
 
 const NavigationView = () => {
     const navigate = useNavigate()
@@ -59,7 +65,7 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
-                <Icon size="medium" icon={logos.generaltask} color={Colors.icon.purple} />
+                <Icon size="gtLogo" icon={logos.generaltask} color="purple" />
                 <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>
@@ -70,6 +76,7 @@ const NavigationView = () => {
                 <GTButton
                     value="Account settings"
                     styleType="secondary"
+                    size="small"
                     fitContent={false}
                     onClick={() => {
                         setCalendarType('day')
@@ -77,6 +84,7 @@ const NavigationView = () => {
                     }}
                 />
             </GapView>
+            <CopyrightText>© GeneralTask 2022</CopyrightText>
         </NavigationViewContainer>
     )
 }

@@ -1,4 +1,3 @@
-import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
 import toast from '../../utils/toast'
 import { Icon } from '../atoms/Icon'
@@ -26,7 +25,7 @@ const BranchName = ({ name }: BranchNameProps) => {
         <TooltipWrapper dataTip={name} tooltipId="tooltip">
             <BranchNameContainer onClick={handleClick}>
                 <BranchNameText>{name}</BranchNameText>
-                <Icon size="xSmall" icon={icons.copy} color={Colors.icon.purple} />
+                <Icon icon={icons.copy} color="purple" />
             </BranchNameContainer>
         </TooltipWrapper>
     )

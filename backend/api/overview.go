@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 	"time"
 
@@ -232,18 +233,14 @@ func (api *API) UpdateViewsLinkedStatus(views *[]database.View, userID primitive
 			return errors.New("invalid user")
 		}
 		var serviceID string
-		if view.Type == string(constants.ViewTaskSection) {
-			continue
+		if view.Type == string(constants.ViewTaskSection) || view.Type == string(constants.ViewMeetingPreparation) || view.Type == string(constants.ViewDueToday) {
+			serviceID = external.TaskServiceGeneralTask.ID
 		} else if view.Type == string(constants.ViewLinear) {
 			serviceID = external.TaskServiceLinear.ID
 		} else if view.Type == string(constants.ViewSlack) {
 			serviceID = external.TaskServiceSlack.ID
 		} else if view.Type == string(constants.ViewGithub) {
 			serviceID = external.TaskServiceGithub.ID
-		} else if view.Type == string(constants.ViewMeetingPreparation) {
-			continue
-		} else if view.Type == string(constants.ViewDueToday) {
-			continue
 		} else {
 			return errors.New("invalid view type")
 		}
@@ -361,7 +358,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 
 	result := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     repository.FullName,
+		Name:     fmt.Sprintf("GitHub PRs from %s", repository.FullName),
 		Logo:     external.TaskServiceGithub.LogoV2,
 		Type:     constants.ViewGithub,
 		IsLinked: view.IsLinked,
@@ -457,30 +454,27 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 		Name:          constants.ViewDueTodayName,
 		Logo:          external.TaskServiceGeneralTask.LogoV2,
 		Type:          constants.ViewDueToday,
-		IsLinked:      view.IsLinked,
+		IsLinked:      true,
 		Sources:       []SourcesResult{},
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
 		ViewItems:     []*TaskResult{},
 	}
-	if !view.IsLinked {
-		return &result, nil
-	}
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
-	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, timeNow.Location())
+	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, time.FixedZone("", 0))
 	dueTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
 		{"is_completed": false},
 		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
+		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
 	}, nil)
 	if err != nil {
 		return nil, err
 	}
 	taskResults := api.taskListToTaskResultList(dueTasks, userID)
 	taskResults = reorderTaskResultsByDueDate(taskResults)
-	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
 	return &result, nil
 }

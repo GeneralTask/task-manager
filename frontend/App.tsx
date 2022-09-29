@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { enableMapSet } from 'immer'
 import Loading from './src/components/atoms/Loading'
@@ -8,6 +9,7 @@ import FocusModeScreen from './src/components/screens/FocusModeScreen'
 import LandingScreen from './src/components/screens/LandingScreen'
 import { FOCUS_MODE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import AppContextProvider from './src/context/AppContextProvider'
+import { isDevelopmentMode } from './src/environment'
 import PrivateOutlet from './src/services/PrivateOutlet'
 import { GlobalStyle } from './src/styles'
 
@@ -22,6 +24,7 @@ const App = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
+            {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
             <AppContextProvider>
                 <GlobalStyle />
                 <BrowserRouter>
@@ -50,6 +53,14 @@ const App = () => {
                                 <Route path="pull-requests" element={<PrivateOutlet />}>
                                     <Route index element={<MainScreen />} />
                                     <Route path=":pullRequest" element={<MainScreen />} />
+                                </Route>
+                                <Route path="linear" element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                    <Route path=":linearIssueId" element={<MainScreen />} />
+                                </Route>
+                                <Route path="slack" element={<PrivateOutlet />}>
+                                    <Route index element={<MainScreen />} />
+                                    <Route path=":slackTaskId" element={<MainScreen />} />
                                 </Route>
                                 <Route path={FOCUS_MODE_ROUTE} element={<PrivateOutlet />}>
                                     <Route index element={<FocusModeScreen />} />

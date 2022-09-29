@@ -24,6 +24,7 @@ const ResizeHandle = ({ event }: ResizeHandleProps) => {
         () => ({
             type: DropType.EVENT_RESIZE_HANDLE,
             item: { event },
+            canDrag: event.can_modify,
             collect: (monitor) => monitor.isDragging(),
         }),
         [event]

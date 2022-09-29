@@ -7,6 +7,7 @@ const PopoverTrigger = styled(Popover.Trigger)`
 `
 const PopoverContent = styled(Popover.Content)`
     ${MenuContentShared};
+    width: unset;
 `
 
 interface GTPopoverProps {

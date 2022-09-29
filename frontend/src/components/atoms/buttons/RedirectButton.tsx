@@ -25,7 +25,7 @@ const RedirectButton = ({ to, text, target }: RedirectButtonProps) => {
         <NoStyleLink to={to} target={target}>
             <VerticalFlex>
                 <PurpleText>{text}</PurpleText>
-                <Icon size="xxSmall" icon={icons.caret_right} color={Colors.icon.purple}></Icon>
+                <Icon icon={icons.caret_right} color="purple"></Icon>
             </VerticalFlex>
         </NoStyleLink>
     )

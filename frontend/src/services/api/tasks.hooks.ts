@@ -1,16 +1,16 @@
 import produce, { castImmutable } from "immer"
 import { QueryFunctionContext, useMutation, useQuery } from "react-query"
-import { v4 as uuidv4 } from 'uuid'
 import apiClient from "../../utils/api"
 import { useGTQueryClient } from "../queryUtils"
 import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
 import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
-import { TTaskSection, TTask, TOverviewView, TOverviewItem } from "../../utils/types"
+import { TTaskSection, TTask, TOverviewView, TOverviewItem, TExternalStatus } from "../../utils/types"
 
 export interface TCreateTaskData {
     title: string
     body?: string
     taskSectionId: string
+    optimisticId: string
 }
 
 export interface TCreateTaskResponse {
@@ -24,11 +24,13 @@ export interface TModifyTaskData {
     timeAllocated?: number
     body?: string
     priorityNormalized?: number
+    status?: TExternalStatus
 }
 
 interface TTaskModifyRequestBody {
     task: {
         priority_normalized?: number
+        status?: TExternalStatus
     }
     id_task_section?: string
     id_ordering?: number
@@ -49,6 +51,11 @@ export interface TReorderTaskData {
     dropSectionId: string
     orderingId: number
     dragSectionId?: string
+}
+
+export interface TPostCommentData {
+    taskId: string
+    body: string
 }
 
 export const useGetTasks = (isEnabled = true) => {
@@ -84,7 +91,6 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
 
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
-    const optimisticId = uuidv4()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -101,7 +107,7 @@ export const useCreateTask = () => {
                     if (!section) return
                     const orderingId = section.tasks.length > 0 ? section.tasks[0].id_ordering - 1 : 1
                     const newTask: TTask = {
-                        id: optimisticId,
+                        id: data.optimisticId,
                         id_ordering: orderingId,
                         title: data.title,
                         body: data.body ?? '',
@@ -132,7 +138,7 @@ export const useCreateTask = () => {
                     if (!section) return
                     const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
                     const newTask = <TOverviewItem>{
-                        id: optimisticId,
+                        id: data.optimisticId,
                         id_ordering: orderingId,
                         title: data.title,
                         body: data.body ?? '',
@@ -163,7 +169,7 @@ export const useCreateTask = () => {
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, optimisticId, createData.taskSectionId)
+                    const task = getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
                     if (!task?.id) return
                     task.id = response.task_id
                     task.isOptimistic = false
@@ -173,7 +179,7 @@ export const useCreateTask = () => {
             if (views) {
                 const updatedViews = produce(views, (draft) => {
                     const section = draft.find((section) => section.task_section_id === createData.taskSectionId)
-                    const task = section?.view_items.find((task) => task.id === optimisticId)
+                    const task = section?.view_items.find((task) => task.id === createData.optimisticId)
                     if (!task) return
                     task.id = response.task_id
                     task.isOptimistic = false
@@ -210,6 +216,7 @@ export const useModifyTask = () => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
                 ])
 
                 const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -223,6 +230,7 @@ export const useModifyTask = () => {
                         task.time_allocated = data.timeAllocated || task.time_allocated
                         task.body = data.body || task.body
                         task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                        task.external_status = data.status || task.external_status
                     })
 
                     queryClient.setQueryData('tasks', newSections)
@@ -245,6 +253,7 @@ export const useModifyTask = () => {
                         task.time_allocated = data.timeAllocated || task.time_allocated
                         task.body = data.body || task.body
                         task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                        task.external_status = data.status || task.external_status
                     })
 
                     queryClient.setQueryData('overview', newViews)
@@ -265,6 +274,7 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
+    if (data.status !== undefined) requestBody.task.status = data.status
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
@@ -289,6 +299,7 @@ export const useMarkTaskDone = () => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
                     if (task) {
                         task.is_done = data.isDone
+                        task.isOptimistic = true
                         if (task.is_done) {
                             if (task.source.name === 'Linear' && task.external_status) {
                                 task.external_status.state = 'Done'
@@ -383,6 +394,7 @@ export const useReorderTask = () => {
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
+                    queryClient.cancelQueries('tasks'),
                 ])
 
                 if (sections) {
@@ -480,5 +492,30 @@ export const reorderTask = async (data: TReorderTaskData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('reorderTask failed')
+    }
+}
+
+export const usePostComment = () => {
+    const queryClient = useGTQueryClient()
+    return useMutation((data: TPostCommentData) => postComment(data), {
+        onMutate: async (/* data: TPostCommentData */) => {
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('overview'),
+            ])
+            // TODO: Optimistic updates for the comments
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
+        },
+    })
+}
+const postComment = async (data: TPostCommentData) => {
+    try {
+        const res = await apiClient.post(`/tasks/${data.taskId}/comments/add/`, data)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('postComment failed')
     }
 }

@@ -8,16 +8,16 @@ import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '.
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, linearStatus, logos } from '../../styles/images'
+import { linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
-import NoStyleAnchor from '../atoms/NoStyleAnchor'
+import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import ActionOption from '../molecules/ActionOption'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -30,7 +30,8 @@ const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 50px;
+    flex-basis: 50px;
+    flex-shrink: 0;
 `
 const MarginLeftAuto = styled.div`
     display: flex;
@@ -41,18 +42,11 @@ const MarginLeftAuto = styled.div`
 const MarginLeft8 = styled.div`
     margin-left: ${Spacing._8};
 `
-const StatusContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: ${Spacing._8};
-    align-items: center;
-    color: ${Colors.text.light};
-    ${Typography.bodySmall};
-`
 const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1;
+    flex-basis: 750px;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -68,6 +62,11 @@ const MeetingPreparationTimeContainer = styled.div`
     color: ${Colors.text.light};
     ${Typography.label};
     ${Typography.bold};
+`
+const CommentContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._24};
 `
 
 const SYNC_MESSAGES = {
@@ -166,10 +165,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const status = task.external_status ? task.external_status.state : ''
 
     return (
-        <DetailsViewTemplate data-testid="details-view-container">
+        <DetailsViewTemplate>
             <DetailsTopContainer>
                 <MarginLeft8>
-                    <Icon icon={logos[task.source.logo_v2]} size="small" />
+                    <Icon icon={logos[task.source.logo_v2]} />
                 </MarginLeft8>
                 {!task.isOptimistic && (
                     <>
@@ -183,23 +182,22 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                     keyboardShortcut="showSectionEditor"
                                 />
                             )}
-                            {task.deeplink && (
-                                <NoStyleAnchor href={task.deeplink} rel="noreferrer">
-                                    <GTIconButton icon={icons.external_link} size="small" />
-                                </NoStyleAnchor>
-                            )}
+                            {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                         </MarginLeftAuto>
                     </>
                 )}
             </DetailsTopContainer>
-            <GTTextArea
-                initialValue={task.title}
-                disabled={task.isOptimistic || is_meeting_preparation_task}
-                onEdit={(val) => onEdit({ id: task.id, title: val })}
-                maxHeight={TITLE_MAX_HEIGHT}
-                fontSize="medium"
-                blurOnEnter
-            />
+            <div>
+                <GTTextArea
+                    initialValue={task.title}
+                    disabled={task.isOptimistic || is_meeting_preparation_task}
+                    onEdit={(val) => onEdit({ id: task.id, title: val })}
+                    maxHeight={TITLE_MAX_HEIGHT}
+                    fontSize="medium"
+                    isFullHeight
+                    blurOnEnter
+                />
+            </div>
             {meeting_preparation_params && (
                 <MeetingPreparationTimeContainer>
                     <TimeRange start={dateTimeStart} end={dateTimeEnd} />
@@ -207,11 +205,22 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                {task.external_status && (
-                    <StatusContainer>
-                        <Icon icon={linearStatus[task.external_status.type]} size="small" />
-                        {status}
-                    </StatusContainer>
+                {task.external_status && task.all_statuses && (
+                    <GTDropdownMenu
+                        items={task.all_statuses.map((status) => ({
+                            label: status.state,
+                            onClick: () => modifyTask({ id: task.id, status: status }),
+                            icon: linearStatus[status.type],
+                        }))}
+                        trigger={
+                            <GTButton
+                                value={status}
+                                icon={linearStatus[task.external_status.type]}
+                                size="small"
+                                styleType="simple"
+                            />
+                        }
+                    />
                 )}
                 <GTDatePicker
                     initialDate={DateTime.fromISO(task.due_date).toJSDate()}
@@ -222,6 +231,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         label: priority.label,
                         onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                         icon: priority.icon,
+                        iconColor: TASK_PRIORITIES[val].color,
                     }))}
                     trigger={
                         <GTButton
@@ -229,6 +239,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             icon={TASK_PRIORITIES[task.priority_normalized].icon}
                             size="small"
                             styleType="simple"
+                            iconColor={TASK_PRIORITIES[task.priority_normalized].color}
                             asDiv
                         />
                     }
@@ -248,7 +259,12 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             fontSize="small"
                         />
                     </BodyContainer>
-                    {task.comments && <LinearCommentList comments={task.comments} />}
+                    {task.comments && (
+                        <CommentContainer>
+                            <Divider color={Colors.border.extra_light} />
+                            <LinearCommentList comments={task.comments} />
+                        </CommentContainer>
+                    )}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
                     )}

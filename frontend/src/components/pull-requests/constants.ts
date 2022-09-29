@@ -1,5 +1,6 @@
+import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from '../../utils/sortAndFilter/types'
 import { TPullRequest } from '../../utils/types'
-import { SortSelectorItems } from '../molecules/SortSelector'
+import { emptyFunction } from '../../utils/utils'
 
 const PULL_REQUEST_REQUIRED_ACTIONS = [
     'Review PR',
@@ -18,38 +19,43 @@ const requiredActionToIndexMap = new Map<string, number>(
     PULL_REQUEST_REQUIRED_ACTIONS.map((action, index) => [action, index])
 )
 
-export const PR_SORT_SELECTOR_ITEMS: SortSelectorItems<TPullRequest> = {
-    requiredAction: {
+export const PR_SORT_SELECTOR_ITEMS: SortOptions<TPullRequest> = {
+    required_action: {
+        id: 'required_action',
         label: 'Required action',
-        sort: {
-            id: 'requiredAction',
-            customComparator: (a: TPullRequest, b: TPullRequest) => {
-                const aPriority = requiredActionToIndexMap.get(a.status.text)
-                const bPriority = requiredActionToIndexMap.get(b.status.text)
-                if (aPriority === undefined || bPriority === undefined) return 0
-                return bPriority - aPriority
-            },
+        customComparator: (a: TPullRequest, b: TPullRequest) => {
+            const aPriority = requiredActionToIndexMap.get(a.status.text)
+            const bPriority = requiredActionToIndexMap.get(b.status.text)
+            if (aPriority === undefined || bPriority === undefined) return 0
+            return bPriority - aPriority
         },
     },
-    prNumber: {
+    pr_number: {
+        id: 'pr_number',
         label: 'PR number',
-        sort: {
-            id: 'prNumber',
-            field: 'number',
-        },
+        field: 'number',
     },
-    lastUpdated: {
+    updated_at: {
+        id: 'updated_at',
         label: 'Last updated',
-        sort: {
-            id: 'lastUpdated',
-            field: 'last_updated_at',
-        },
+        field: 'last_updated_at',
     },
-    createdAt: {
+    created_at: {
+        id: 'created_at',
         label: 'Created at',
-        sort: {
-            id: 'createdAt',
-            field: 'number',
-        },
+        field: 'number',
+    },
+}
+
+export const PR_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TPullRequest> = {
+    sortOptions: PR_SORT_SELECTOR_ITEMS,
+    sortPreferenceId: 'github_sorting_preference',
+    sortDirectionId: 'github_sorting_direction',
+    defaultSortsAndFilters: {
+        sortOptions: PR_SORT_SELECTOR_ITEMS,
+        selectedSort: PR_SORT_SELECTOR_ITEMS.required_action,
+        setSelectedSort: emptyFunction,
+        selectedSortDirection: SORT_DIRECTION.DESC,
+        setSelectedSortDirection: emptyFunction,
     },
 }

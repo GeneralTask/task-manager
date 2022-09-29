@@ -104,7 +104,7 @@ const TermsOfServiceSummaryView = () => {
 
     return (
         <TermsOfServiceContainer>
-            <Icon size="large" icon={icons.check_circle_wavy} color={Colors.icon.purple} />
+            <Icon size="large" icon={icons.check_circle_wavy} color="purple" />
             <TermsOfServiceHeader>
                 <TitleLargeContainer>
                     <TitleLarge>Terms of Service</TitleLarge>
@@ -121,9 +121,9 @@ const TermsOfServiceSummaryView = () => {
                 <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
             </LinkContainer>
             <VerticalFlex>
-                <NoStyleButton data-testid="terms-check-button" onClick={() => setTermsCheck(!termsCheck)}>
+                <NoStyleButton onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
-                        <Icon size="small" icon={termsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
+                        <Icon icon={termsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
                         <AgreementText required>
                             I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
                             service.
@@ -135,13 +135,13 @@ const TermsOfServiceSummaryView = () => {
             <VerticalFlex>
                 <NoStyleButton onClick={() => setPromotionsCheck(!promotionsCheck)}>
                     <HorizontalFlex>
-                        <Icon size="small" icon={promotionsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
+                        <Icon icon={promotionsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
                         <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                     </HorizontalFlex>
                 </NoStyleButton>
             </VerticalFlex>
             <SubmitButtonContainer>
-                <div data-testid="terms-submit-button">
+                <div>
                     <GTButton onClick={onSubmit} value="Continue" styleType="primary" disabled={!termsCheck} />
                 </div>
                 <GTButton onClick={onCancel} styleType="secondary" value="Cancel" />

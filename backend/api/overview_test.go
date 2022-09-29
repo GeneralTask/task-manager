@@ -549,7 +549,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 	authURL := "http://localhost:8080/link/github/"
 	expectedViewResult := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     "OrganizationTest/RepositoryTest",
+		Name:     "GitHub PRs from OrganizationTest/RepositoryTest",
 		Type:     constants.ViewGithub,
 		Logo:     "github",
 		IsLinked: true,
@@ -902,6 +902,9 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		primitiveAfter := primitive.NewDateTimeFromTime(after)
 
+		primitiveEmptyDateTime := primitive.NewDateTimeFromTime(time.Time{})
+		primitiveZeroDateTime := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+
 		items := []interface{}{
 			// due before but later
 			database.Task{
@@ -967,10 +970,26 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				ParentTaskID: primitive.NewObjectID(),
 				IDOrdering:   7,
 			},
+			// empty date time
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     &primitiveEmptyDateTime,
+				IDOrdering:  8,
+			},
+			// zero date time
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     &primitiveZeroDateTime,
+				IDOrdering:  9,
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(context.Background(), items)
 		assert.NoError(t, err)
-		assert.Equal(t, 8, len(taskResult.InsertedIDs))
+		assert.Equal(t, 10, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
@@ -1065,6 +1084,19 @@ func TestUpdateViewsLinkedStatus(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(views))
 		assert.False(t, views[0].IsLinked)
+	})
+	t.Run("UpdateSingleGTView", func(t *testing.T) {
+		views := []database.View{
+			{
+				UserID:   userID,
+				IsLinked: false,
+				Type:     "task_section",
+			},
+		}
+		err := api.UpdateViewsLinkedStatus(&views, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(views))
+		assert.True(t, views[0].IsLinked)
 	})
 	t.Run("UpdateSingleUnlinkedView", func(t *testing.T) {
 		views := []database.View{

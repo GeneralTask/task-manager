@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
-import { Border, Colors, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../styles'
+import { PurpleEdge } from '../atoms/SelectableContainer'
 
 const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>`
     position: relative;
@@ -8,11 +9,10 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; isHovered: boolean }>
     flex-direction: row;
     align-items: center;
     height: 100%;
-    background-color: ${(props) =>
-        props.isSelected || props.isHovered ? Colors.background.medium : Colors.background.white};
-    box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
-    border-radius: ${Border.radius.small};
-    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+    background-color: ${(props) => (props.isHovered ? Colors.background.medium : Colors.background.white)};
+    box-shadow: ${Shadows.button.default};
+    border-radius: ${Border.radius.mini};
+    ${(props) => props.isHovered && `outline: ${Border.stroke.medium} solid ${Colors.border.light};`};
     padding: 0 ${Spacing._16};
     cursor: pointer;
 `
@@ -25,13 +25,8 @@ interface ItemContainerProps {
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
     ({ isSelected, isHovered, onClick, children }, ref) => (
-        <ItemContainerDiv
-            isSelected={isSelected}
-            isHovered={isHovered}
-            onClick={onClick}
-            ref={ref}
-            data-testid="list-item"
-        >
+        <ItemContainerDiv isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={ref}>
+            {isSelected && <PurpleEdge />}
             {children}
         </ItemContainerDiv>
     )

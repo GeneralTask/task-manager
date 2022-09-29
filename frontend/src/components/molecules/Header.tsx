@@ -35,7 +35,7 @@ const HeaderButton = styled(NoStyleButton)`
 `
 const HeaderText = styled.div<{ fontColor: TTextColor }>`
     color: ${({ fontColor }) => Colors.text[fontColor]};
-    word-break: break-all;
+    word-break: break-word;
     text-align: left;
     padding: ${Spacing._8};
     ${Typography.title};
@@ -108,11 +108,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                     <>
                         <HeaderText fontColor={isHovering ? 'purple' : 'black'}>{sectionName}</HeaderText>
                         <RefreshSpinner isRefreshing={isFetching} style={{ opacity: showRefreshButton ? 1 : 0 }}>
-                            <Icon
-                                size="small"
-                                icon={icons.spinner}
-                                color={isHovering ? Colors.gtColor.primary : Colors.text.black}
-                            />
+                            <Icon icon={icons.spinner} color={isHovering ? 'purple' : 'black'} />
                         </RefreshSpinner>
                     </>
                 )}
@@ -123,15 +119,12 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         onClick={() => handleDelete(props.taskSectionId)}
                         icon={icons.trash}
                         iconColor="red"
-                        size="small"
                     />
                 )}
                 {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
-                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} size="small" />
+                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} />
                 )}
-                {isEditingTitle && (
-                    <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} size="small" />
-                )}
+                {isEditingTitle && <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} />}
             </MarginLeftAutoFlex>
         </SectionHeaderContainer>
     )

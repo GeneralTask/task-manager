@@ -107,13 +107,8 @@ export default function CalendarHeader({
                                 <GTIconButton
                                     onClick={toggleCalendar}
                                     icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
-                                    size="xSmall"
                                 />
-                                <GTIconButton
-                                    onClick={() => setIsCollapsed(true)}
-                                    icon={icons.caret_right}
-                                    size="xSmall"
-                                />
+                                <GTIconButton onClick={() => setIsCollapsed(true)} icon={icons.caret_right} />
                             </HeaderIconsContainer>
                         </HeaderBodyContainer>
                     </PaddedContainer>
@@ -127,8 +122,8 @@ export default function CalendarHeader({
                             'ccc, LLL d'
                         )}`}</TitleBold>
                         <ButtonContainer>
-                            <GTIconButton onClick={selectPrevious} icon={icons.caret_left} size="xSmall" />
-                            <GTIconButton onClick={selectNext} icon={icons.caret_right} size="xSmall" />
+                            <GTIconButton onClick={selectPrevious} icon={icons.caret_left} />
+                            <GTIconButton onClick={selectNext} icon={icons.caret_right} />
                         </ButtonContainer>
                     </HeaderBodyContainer>
                 </PaddedContainer>

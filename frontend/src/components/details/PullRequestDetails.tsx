@@ -60,10 +60,10 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
 
     return (
-        <DetailsViewTemplate data-testid="details-view-container">
+        <DetailsViewTemplate>
             <MarginHorizontal8>
                 <DetailsTopContainer>
-                    <Icon icon={logos.github} size="small" color={Colors.icon.black} />
+                    <Icon icon={logos.github} color="black" />
                     <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
                     <MarginLeftAuto>
                         <ExternalLinkButton link={deeplink} />

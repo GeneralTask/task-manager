@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
@@ -98,6 +98,18 @@ const NavigationSectionLinks = () => {
     // TODO(maz): uncomment after we actually support task deletion
     const trashFolder = folders?.find((section) => section.is_trash)
 
+    const linearTasksCount = useMemo(() => {
+        const tasks =
+            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
+        return tasks.filter((task) => task.source.name === 'Linear').length
+    }, [folders])
+
+    const slackTasksCount = useMemo(() => {
+        const tasks =
+            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
+        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
+    }, [folders])
+
     if (!folders) {
         return <Loading />
     }
@@ -123,6 +135,20 @@ const NavigationSectionLinks = () => {
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
+            <NavigationLink
+                link="/linear"
+                title="Linear Issues"
+                icon={logos.linear}
+                count={linearTasksCount}
+                isCurrentPage={pathname.split('/')[1] === 'linear'}
+            />
+            <NavigationLink
+                link="/slack"
+                title="Slack"
+                icon={logos.slack}
+                count={slackTasksCount}
+                isCurrentPage={pathname.split('/')[1] === 'slack'}
+            />
             <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {defaultFolder && (
                     <NavigationLink
@@ -133,7 +159,6 @@ const NavigationSectionLinks = () => {
                         taskSection={defaultFolder}
                         count={defaultFolder.tasks.length}
                         droppable
-                        testId="task-section-link"
                     />
                 )}
                 {folders
@@ -156,7 +181,6 @@ const NavigationSectionLinks = () => {
                                 count={section.tasks.length}
                                 draggable
                                 droppable
-                                testId="task-section-link"
                             />
                         </ReorderDropContainer>
                     ))}
@@ -164,7 +188,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} color={Colors.icon.black} />
+                                <Icon icon={icons.folder} color="black" />
                             </div>
                             <InputContainer>
                                 <NoStyleInput
@@ -173,7 +197,6 @@ const NavigationSectionLinks = () => {
                                     onChange={onKeyChangeHandler}
                                     onKeyDown={onKeyDownHandler}
                                     placeholder="Add Section"
-                                    data-testid="add-section-input"
                                 />
                             </InputContainer>
                         </AddSectionContainer>
@@ -196,7 +219,6 @@ const NavigationSectionLinks = () => {
                                 taskSection={doneFolder}
                                 count={doneFolder.tasks.length}
                                 droppable
-                                testId="task-section-link"
                             />
                         )}
                         {SHOW_TRASH_SECTION && trashFolder && (
@@ -208,7 +230,6 @@ const NavigationSectionLinks = () => {
                                 taskSection={defaultFolder}
                                 count={trashFolder.tasks.length}
                                 droppable
-                                testId="task-section-link"
                             />
                         )}
                     </>

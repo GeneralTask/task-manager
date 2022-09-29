@@ -3,10 +3,12 @@ import { useLayoutEffect } from 'react'
 import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { Colors, Typography } from '../../styles'
-import { TTextColor } from '../../styles/colors'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { getFormattedDate, isValidDueDate } from '../../utils/utils'
+import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
 const GTDatePickerWrapper = styled.div`
@@ -20,26 +22,21 @@ const GTDatePickerWrapper = styled.div`
         border-radius: 50%;
     }
 `
-const getFormattedDate = (
-    date: Date | null
-): {
-    dateString: string
-    color: TTextColor
-} => {
-    if (!date || isNaN(+date)) {
-        return { dateString: 'No due date', color: 'light' }
-    }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
-        return { dateString: 'Today', color: 'red' }
-    }
-    if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
-        return { dateString: 'Tomorrow', color: 'orange' }
-    }
-    if (DateTime.fromJSDate(date) < DateTime.local()) {
-        return { dateString: 'Overdue', color: 'red' }
-    }
-    return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), color: 'light' }
-}
+const DateViewContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: ${Spacing._8};
+    padding: ${Spacing._4} ${Spacing._8};
+    gap: ${Spacing._8};
+    border-radius: ${Border.radius.mini};
+    border: ${Border.stroke.medium} solid ${Colors.border.light};
+    background-color: ${Colors.background.light};
+`
+const DateViewText = styled.span`
+    ${Typography.bodySmall};
+    flex: 1;
+`
 
 interface GTDatePickerProps {
     initialDate: Date
@@ -55,9 +52,13 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
         onChange(initialDate)
     }, [initialDate])
 
-    const handleOnChange = (date: Date) => {
+    const handleOnChange = (date: Date | null) => {
         onChange(date)
-        setDate(DateTime.fromJSDate(date).toISO())
+        if (date) {
+            setDate(DateTime.fromJSDate(date).toISO())
+        } else {
+            setDate(DateTime.fromMillis(0).toISO())
+        }
     }
 
     const calendar = (
@@ -78,7 +79,8 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     }
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
-                            backgroundColor: Colors.background.medium,
+                            outline: `${Border.stroke.medium} solid ${Colors.gtColor.primary}`,
+                            zIndex: 1,
                         }
                     }
                     if (modifiers.outside) {
@@ -87,6 +89,11 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     return { color: Colors.text.black }
                 }}
             />
+            <DateViewContainer>
+                <Icon icon={icons.calendar_blank} color="black" />
+                <DateViewText>{isValidDueDate(value) ? value?.toDateString() : 'No Due Date'}</DateViewText>
+                <GTIconButton icon={icons.x} color="black" onClick={() => handleOnChange(null)} />
+            </DateViewContainer>
         </GTDatePickerWrapper>
     )
 
@@ -101,7 +108,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 <GTButton
                     styleType="simple"
                     size="small"
-                    icon={showIcon ? icons.timer : undefined}
+                    icon={showIcon ? icons.clock : undefined}
                     value={getFormattedDate(value).dateString}
                     textColor={getFormattedDate(value).color}
                     onClick={() => setIsOpen(!isOpen)}

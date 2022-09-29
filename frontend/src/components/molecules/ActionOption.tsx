@@ -68,7 +68,7 @@ const ActionOption = ({ task, isShown, keyboardShortcut, setIsShown }: ActionOpt
     return (
         <ButtonAndPopoverContainer ref={actionRef}>
             <TooltipWrapper inline dataTip={section} tooltipId="tooltip">
-                <GTIconButton icon={icon} size="small" onClick={() => setIsShown(!isShown)} />
+                <GTIconButton icon={icon} onClick={() => setIsShown(!isShown)} />
             </TooltipWrapper>
             {isShown && popover}
         </ButtonAndPopoverContainer>

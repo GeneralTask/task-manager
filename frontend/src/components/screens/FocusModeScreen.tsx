@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
+import { useInterval } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
@@ -24,7 +25,7 @@ import CalendarView from '../views/CalendarView'
 const TemplateViewContainer = styled.div`
     height: 100%;
     background: url(${focusModeBackground});
-    background-size: contain;
+    background-size: cover;
 `
 const FloatingIcon = styled.div`
     position: fixed;
@@ -37,7 +38,7 @@ const FocusModeContainer = styled.div`
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    background-color ${Colors.background.white};
+    background-color: ${Colors.background.white};
 `
 const MainContainer = styled.div`
     display: flex;
@@ -125,6 +126,7 @@ const FocusModeScreen = () => {
     const { data: events } = useGetEvents(monthBlocks[1], 'calendar')
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
+    const [time, setTime] = useState(DateTime.local())
 
     useEffect(() => {
         if (currentEvents.length === 1) {
@@ -138,11 +140,18 @@ const FocusModeScreen = () => {
         }
     }, [selectedEvent])
 
-    const { title, body, datetime_start, datetime_end } = currentEvents[0] ?? {}
-    const timeStart = DateTime.fromISO(datetime_start)
-    const timeEnd = DateTime.fromISO(datetime_end)
+    const { title, body, datetime_start, datetime_end } = chosenEvent ?? {}
+    const timeStart = DateTime.fromISO(datetime_start || '')
+    const timeEnd = DateTime.fromISO(datetime_end || '')
 
-    const clockTime = DateTime.local().toFormat('h:mm a')
+    useInterval(
+        () => {
+            setTime(DateTime.local())
+        },
+        1,
+        false
+    )
+
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
 
     const navigate = useNavigate()
@@ -165,7 +174,7 @@ const FocusModeScreen = () => {
                                         {currentEvents.map((event) => (
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
                                                 <Flex alignItemsCenter gap={Spacing._8}>
-                                                    <Icon icon={logos[event.logo]} size="small" />
+                                                    <Icon icon={logos[event.logo]} />
                                                     <div>{event.title}</div>
                                                 </Flex>
                                                 <TimeRange
@@ -177,7 +186,7 @@ const FocusModeScreen = () => {
                                     </CurrentEventsContainer>
                                 </>
                             )}
-                            {currentEvents.length > 0 && chosenEvent != null && (
+                            {chosenEvent && (
                                 <>
                                     <GTHeader>{title}</GTHeader>
                                     <GTTitle>
@@ -198,7 +207,7 @@ const FocusModeScreen = () => {
                                         ) : (
                                             <>
                                                 <BodyHeader>MEETING NOTES</BodyHeader>
-                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
                                             </>
                                         )}
                                     </div>
@@ -215,10 +224,10 @@ const FocusModeScreen = () => {
                             />
                         </CalendarContainer>
                     </MainContainer>
-                    <ClockContainer>{clockTime}</ClockContainer>
+                    <ClockContainer>{time.toFormat('h:mm a')}</ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
-                    <Icon icon={logos.generaltask} size="medium" />
+                    <Icon icon={logos.generaltask} size="gtLogo" />
                 </FloatingIcon>
                 <ButtonContainer>
                     <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />

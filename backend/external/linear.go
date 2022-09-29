@@ -25,6 +25,8 @@ const (
 	LinearGraphqlEndpoint = "https://api.linear.app/graphql"
 	LinearAuthUrl         = "https://linear.app/oauth/authorize"
 	LinearTokenUrl        = "https://api.linear.app/oauth/token"
+	LinearCompletedType   = "completed"
+	LinearCanceledType    = "canceled"
 )
 
 type LinearConfigValues struct {
@@ -369,7 +371,6 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 			}
 		}
 	}
-	// not currently used, but should allow to work once the frontend logic changes
 	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {
 		request.Var("stateId", updateFields.Status.ExternalID)
 	}
@@ -456,7 +457,7 @@ func processLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]
 			ExternalID:        (node.Id).(string),
 			State:             string(node.Name),
 			Type:              string(node.Type),
-			IsCompletedStatus: string(node.Type) == "completed",
+			IsCompletedStatus: string(node.Type) == LinearCompletedType || string(node.Type) == LinearCanceledType,
 		})
 	}
 	return teamToStatuses

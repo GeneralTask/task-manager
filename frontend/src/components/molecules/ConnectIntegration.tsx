@@ -93,7 +93,7 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
     return (
         <Container>
             <IconAndText>
-                <Icon icon={icon} size="xSmall" color={Colors.icon.black} />
+                <Icon icon={icon} color="black" />
                 <Text>{title}</Text>
             </IconAndText>
             {!hideConnectButton && (

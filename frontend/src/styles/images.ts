@@ -1,4 +1,4 @@
-import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
@@ -6,44 +6,44 @@ import {
     faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
     faArrowUpRightFromSquare,
+    faBadgeCheck,
+    faBars,
+    faBarsSort,
     faCalendar,
     faCalendarDays,
     faCheck,
     faCheckSquare,
-    faFolder,
-    faMagnifyingGlass,
-    faMessage,
-    faPencil,
-    faPlus,
-    faSquare,
-    faTrash,
-    faXmark,
-    faBadgeCheck,
-    faBars,
     faChevronDown,
     faChevronLeft,
     faChevronRight,
     faChevronUp,
     faCircleSmall,
+    faCircleUp as faCircleUpLight,
+    faClock,
     faCopy,
     faCubes,
+    faFolder,
     faGear,
     faGripDotsVertical,
     faInbox,
     faList,
+    faMagnifyingGlass,
+    faMessage,
+    faPencil,
+    faPlus,
+    faSquare,
     faTag,
     faTimer,
-
+    faTrash,
+    faXmark,
 } from '@fortawesome/pro-light-svg-icons'
 import {
-    faSignalBars,
-    faSignalBarsWeak,
-    faSignalBarsFair,
-    faSignalBarsGood,
-    faSignalBarsSlash,
-} from '@fortawesome/pro-duotone-svg-icons'
-import {
-    faHeadphones
+    faCircleChevronDown,
+    faCircleChevronUp,
+    faCircleDot,
+    faCircleUp,
+    faHeadphones,
+    faMinus,
 } from '@fortawesome/pro-solid-svg-icons'
 
 export const logos = Object.freeze({
@@ -53,7 +53,7 @@ export const logos = Object.freeze({
     gcal: '/images/gcal.png',
     google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
-    slack: faSlack,
+    slack: '/images/slack.svg',
 })
 
 export const icons = Object.freeze({
@@ -71,6 +71,7 @@ export const icons = Object.freeze({
     check: faCheck,
     checkbox_checked: faCheckSquare,
     checkbox_unchecked: faSquare,
+    clock: faClock,
     copy: faCopy,
     dot: faCircleSmall,
     domino: faGripDotsVertical,
@@ -86,16 +87,18 @@ export const icons = Object.freeze({
     pencil: faPencil,
     repository: faCubes,
     hamburger: faBars,
+    sort: faBarsSort,
     comment: faMessage,
     spinner: faArrowRotateRight,
     timer: faTimer,
     trash: faTrash,
     x: faXmark,
-    priority_urgent: faSignalBars,
-    priority_low: faSignalBarsWeak,
-    priority_medium: faSignalBarsFair,
-    priority_high: faSignalBarsGood,
-    priority_none: faSignalBarsSlash,
+    priority: faCircleUpLight,
+    priority_urgent: faCircleUp,
+    priority_low: faCircleChevronDown,
+    priority_medium: faCircleDot,
+    priority_high: faCircleChevronUp,
+    priority_none: faMinus,
 })
 
 export const buttons: { [key: string]: string } = {
