@@ -15,30 +15,24 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
     align-items: center;
     ${({ isLast }) => (isLast ? 'flex: 1;' : '')}
 `
-const DropIndicatorStyles = css<{ isVisible: boolean; dividerStyleType: 'gray' | 'purple' }>`
+const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: relative;
     width: 100%;
-    background-color: ${Colors.background.dark};
+    background-color: ${Colors.border.purple};
     visibility: ${(props) => (props.isVisible ? 'visible' : 'hidden')};
     position: absolute;
     height: ${INDICATOR_HEIGHT}px;
     z-index: 1;
-    background-color: ${({ dividerStyleType }) =>
-        dividerStyleType === 'purple' ? Colors.border.purple : Colors.background.dark};
-    ${({ dividerStyleType }) =>
-        dividerStyleType === 'purple' &&
-        `
-        ::before {
-            content: '';
-            position: absolute;
-            width: ${INDICATOR_HEIGHT * 3}px;
-            height: ${INDICATOR_HEIGHT * 3}px;
-            border-radius: 50%;
-            background-color: ${Colors.border.purple};
-            top: -${INDICATOR_HEIGHT}px;
-            left: 0;
-        }
-    `}
+    ::before {
+        content: '';
+        position: absolute;
+        width: ${INDICATOR_HEIGHT * 3}px;
+        height: ${INDICATOR_HEIGHT * 3}px;
+        border-radius: 50%;
+        background-color: ${Colors.border.purple};
+        top: -${INDICATOR_HEIGHT}px;
+        left: 0;
+    }
 `
 const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
@@ -48,7 +42,7 @@ const DropIndicatorBelow = styled.div`
     bottom: -${INDICATOR_HEIGHT}px;
 `
 const WholeDropIndicatorStyle = css`
-    border: ${Border.stroke.medium} solid ${Colors.background.dark};
+    border: ${Border.stroke.medium} solid ${Colors.gtColor.primary};
     border-radius: ${Border.radius.small};
 `
 const WholeDropIndicator = styled.div<{ isVisible: boolean }>`
@@ -68,7 +62,6 @@ interface ReorderDropContainerProps {
     acceptDropType: DropType
     onReorder: (item: DropItem, dropIndex: number) => void
     indicatorType?: IndicatorType
-    dividerStyleType?: 'gray' | 'purple'
 }
 const ReorderDropContainer = ({
     children,
@@ -76,7 +69,6 @@ const ReorderDropContainer = ({
     acceptDropType,
     onReorder,
     indicatorType = 'TOP_AND_BOTTOM',
-    dividerStyleType = 'gray',
 }: ReorderDropContainerProps) => {
     const dropRef = useRef<HTMLDivElement>(null)
     const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
@@ -125,10 +117,7 @@ const ReorderDropContainer = ({
     return (
         <DropOverlay ref={dropRef} isLast={indicatorType === 'TOP_ONLY'}>
             {indicatorType !== 'WHOLE' && (
-                <DropIndicatorAbove
-                    isVisible={isOver && dropDirection == DropDirection.ABOVE}
-                    dividerStyleType={dividerStyleType}
-                />
+                <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
             )}
             {indicatorType === 'WHOLE' ? (
                 <WholeDropIndicator isVisible={isOver}>{children}</WholeDropIndicator>
@@ -136,10 +125,7 @@ const ReorderDropContainer = ({
                 children
             )}
             {indicatorType === 'TOP_AND_BOTTOM' && (
-                <DropIndicatorBelow
-                    isVisible={isOver && dropDirection == DropDirection.BELOW}
-                    dividerStyleType={dividerStyleType}
-                />
+                <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW} />
             )}
         </DropOverlay>
     )
