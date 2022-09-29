@@ -7,7 +7,7 @@ import { linearStatus } from '../../styles/images'
 import { icons } from '../../styles/images'
 import CommentCount from '../atoms/CommentCount'
 import { Icon } from '../atoms/Icon'
-import SelectableContainer from '../atoms/SelectableContainer'
+import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -81,6 +81,7 @@ const LinearView = () => {
                         onClick={() => onClick(task.id)}
                         isSelected={linearIssueId === task.id}
                     >
+                        {linearIssueId === task.id && <PurpleEdge />}
                         <LeftContainer>
                             {task.external_status && (
                                 <Icon icon={linearStatus[task.external_status?.type]} size="small" />

@@ -1,9 +1,8 @@
 import styled from 'styled-components'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 
 const PULL_REQUEST_HEIGHT = '64px'
-
 
 export const Column = styled.div`
     display: flex;
@@ -32,12 +31,14 @@ export const PullRequestRow = styled.div<{ isSelected: boolean }>`
     display: flex;
     height: ${PULL_REQUEST_HEIGHT};
     padding: ${Spacing._4} ${Spacing._4} ${Spacing._4} ${Spacing._24};
-    background-color: ${(props) => (props.isSelected ? Colors.background.medium : Colors.background.white)};
-    box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
-    border-radius: ${Border.radius.small};
+    background-color: ${Colors.background.white};
+    border-radius: ${Border.radius.mini};
+    position: relative;
     cursor: pointer;
+    box-shadow: ${Shadows.button.default};
     &:hover {
         background-color: ${Colors.background.medium};
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
     gap: ${Spacing._16};
     align-items: center;

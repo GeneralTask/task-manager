@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import SelectableContainer from '../atoms/SelectableContainer'
+import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
@@ -85,6 +85,7 @@ const SlackTasksView = () => {
                             key={task.id}
                             onClick={() => onClick(task.id)}
                         >
+                            {slackTaskId === task.id && <PurpleEdge />}
                             <MarkTaskDoneButton
                                 isDone={task.is_done}
                                 taskId={task.id}
