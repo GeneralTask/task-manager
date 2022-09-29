@@ -1,9 +1,9 @@
 import styled, { css } from 'styled-components'
-import { Spacing, Border, Colors, Shadows, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TIconColor, TTextColor } from '../../styles/colors'
 import { TIconType } from '../atoms/Icon'
 
-const MENU_WIDTH = '152px'
+const MENU_WIDTH = '172px'
 
 export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor }>`
     display: flex;
@@ -17,9 +17,9 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
     outline: none;
     border-radius: ${Border.radius.mini};
     ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
-    ${({ $isSelected }) => $isSelected && `background-color: ${Colors.background.medium};`}
     :hover, :focus {
-        background-color: ${Colors.background.dark};
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        background-color: ${Colors.background.medium};
     }
 `
 export const MenuContentShared = css`
