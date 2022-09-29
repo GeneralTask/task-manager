@@ -1,6 +1,6 @@
 import { GHSortDirection, GHSortPreference } from '../../services/api/settings.hooks'
 
-export enum SORT_ORDER {
+export enum SORT_DIRECTION {
     ASC = 'ascending',
     DESC = 'descending',
 }
@@ -26,7 +26,7 @@ export type Filter<T> = (item: T) => boolean
 export interface SortAndFilterItemsArgs<T> {
     items: T[]
     sort?: Sort<T>
-    sortDirection?: SORT_ORDER
+    sortDirection?: SORT_DIRECTION
     filter?: Filter<T>
 }
 
@@ -45,6 +45,6 @@ export interface SortAndFilterSettings<T> {
     sortOptions: SortOptions<T>
     selectedSort: Sort<T>
     setSelectedSort: (selectedSort: Sort<T>) => void
-    selectedSortDirection: SORT_ORDER
-    setSelectedSortDirection: (selectedSortDirection: SORT_ORDER) => void
+    selectedSortDirection: SORT_DIRECTION
+    setSelectedSortDirection: (selectedSortDirection: SORT_DIRECTION) => void
 }

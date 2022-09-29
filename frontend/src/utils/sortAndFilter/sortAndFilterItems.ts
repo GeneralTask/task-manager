@@ -1,4 +1,4 @@
-import { SORT_ORDER, SortAndFilterItemsArgs } from './types'
+import { SORT_DIRECTION, SortAndFilterItemsArgs } from './types'
 
 const sortAndFilterItems = <T>({ items, sort, sortDirection, filter }: SortAndFilterItemsArgs<T>) => {
     let sortedAndFiltered = items
@@ -13,7 +13,7 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter }: SortAndFi
             } else if (sort.field) {
                 result = a[sort.field] > b[sort.field] ? 1 : -1
             }
-            if (sortDirection === SORT_ORDER.ASC) {
+            if (sortDirection === SORT_DIRECTION.ASC) {
                 return result
             } else {
                 return -result

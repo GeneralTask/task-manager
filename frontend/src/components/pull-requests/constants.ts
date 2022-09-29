@@ -1,4 +1,4 @@
-import { SORT_ORDER, SortAndFilterSettingsConfig, SortOptions } from '../../utils/sortAndFilter/types'
+import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from '../../utils/sortAndFilter/types'
 import { TPullRequest } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 
@@ -55,7 +55,7 @@ export const PR_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TPullRequest
         sortOptions: PR_SORT_SELECTOR_ITEMS,
         selectedSort: PR_SORT_SELECTOR_ITEMS.required_action,
         setSelectedSort: emptyFunction,
-        selectedSortDirection: SORT_ORDER.DESC,
+        selectedSortDirection: SORT_DIRECTION.DESC,
         setSelectedSortDirection: emptyFunction,
     },
 }

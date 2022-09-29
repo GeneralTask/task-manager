@@ -1,5 +1,5 @@
 import { useSetting } from '../../hooks'
-import { SORT_ORDER, Sort, SortAndFilterSettings, SortAndFilterSettingsConfig } from './types'
+import { SORT_DIRECTION, Sort, SortAndFilterSettings, SortAndFilterSettingsConfig } from './types'
 
 // groupId is the id of the repo or task section (used when sorting views in the overview page)
 const useSortAndFilterSettings = <T>(
@@ -19,8 +19,8 @@ const useSortAndFilterSettings = <T>(
     const setSelectedSort = (selectedSort: Sort<T>) => {
         sortingPreference.updateSetting(selectedSort.id)
     }
-    const selectedSortDirection = sortDirection.field_value as SORT_ORDER
-    const setSelectedSortDirection = (selectedSortDirection: SORT_ORDER) => {
+    const selectedSortDirection = sortDirection.field_value as SORT_DIRECTION
+    const setSelectedSortDirection = (selectedSortDirection: SORT_DIRECTION) => {
         sortDirection.updateSetting(selectedSortDirection)
     }
 

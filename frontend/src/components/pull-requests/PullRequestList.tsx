@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
-import { SORT_ORDER, Sort } from '../../utils/sortAndFilter/types'
+import { SORT_DIRECTION, Sort } from '../../utils/sortAndFilter/types'
 import { TPullRequest } from '../../utils/types'
 import PullRequest from './PullRequest'
 import { Repository } from './styles'
@@ -9,7 +9,7 @@ interface PullRequestListProps {
     pullRequests: TPullRequest[]
     selectedPrId?: string
     sort: Sort<TPullRequest>
-    sortDirection: SORT_ORDER
+    sortDirection: SORT_DIRECTION
     filter?: (item: TPullRequest) => boolean // should return true if item should be included in the filtered list
     overviewViewId?: string // used to determine link to pull request
     visibleItemsCount?: number
