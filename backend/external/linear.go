@@ -337,13 +337,13 @@ type linearUpdateIssueQuery struct {
 type linearDeleteIssueQuery struct {
 	IssueArchive struct {
 		Success graphql.Boolean
-	} `graphql:"issueDelete(id: $id, trash: $trash)"`
+	} `graphql:"issueArchive(id: $id, trash: $trash)"`
 }
 
 type linearUndeleteIssueQuery struct {
 	IssueUnarchive struct {
 		Success graphql.Boolean
-	} `graphql:"issueDelete(id: $id)"`
+	} `graphql:"issueUnarchive(id: $id)"`
 }
 
 func handleDeleteLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (bool, error) {
