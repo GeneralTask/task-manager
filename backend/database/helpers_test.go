@@ -589,7 +589,7 @@ func TestTaskSectionName(t *testing.T) {
 	t.Run("DefaultTaskSection", func(t *testing.T) {
 		name, err := GetTaskSectionName(db, constants.IDTaskSectionDefault, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, "Default", name)
+		assert.Equal(t, "Task Inbox", name)
 	})
 	t.Run("CustomTaskSection", func(t *testing.T) {
 		sectionName := "TestSection"
@@ -943,7 +943,7 @@ func TestGetDefaultSectionName(t *testing.T) {
 		)
 
 		sectionName := GetDefaultSectionName(db, otherUserID)
-		assert.Equal(t, "Default", sectionName)
+		assert.Equal(t, "Task Inbox", sectionName)
 
 	})
 }
