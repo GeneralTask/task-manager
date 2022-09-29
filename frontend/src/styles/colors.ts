@@ -7,8 +7,8 @@ const GRAY = {
     _500: '#717179',
 }
 const RED = {
-    _1: '#FF135A',
-    _2: '#FFE7EE',
+    _1: '#C70000',
+    _2: '#EEB3B3',
 }
 const ORANGE = {
     _1: '#FF8213',
@@ -19,8 +19,8 @@ const YELLOW = {
     _2: '#FFF8E7',
 }
 const GREEN = {
-    _1: '#00A538',
-    _2: '#E5F6EB',
+    _1: '#41802E',
+    _2: '#C6D9C0',
 }
 const CYAN = {
     _1: '#00CBD8',
@@ -33,8 +33,7 @@ const BLUE = {
 const PURPLE = {
     _1: '#5634CF',
     _2: '#EEEBFA',
-    _3: '#452AA5',
-    _4: '#E1D7FD33',
+    _3: '#E1D7FD33', // NOT IN DESIGN DOC (only used for drop indicator)
 }
 
 export const background = {
@@ -43,7 +42,7 @@ export const background = {
     medium: GRAY._100,
     dark: GRAY._200,
     black: BLACK,
-    dropIndicator: PURPLE._4,
+    dropIndicator: PURPLE._3,
 }
 
 export const border = {
