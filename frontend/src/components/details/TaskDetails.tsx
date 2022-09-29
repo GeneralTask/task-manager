@@ -239,6 +239,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             size="small"
                             styleType="simple"
                             iconColor={TASK_PRIORITIES[task.priority_normalized].color}
+                            asDiv
                         />
                     }
                 />

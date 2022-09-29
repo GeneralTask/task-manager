@@ -101,6 +101,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     iconColor?: TIconColor
     textColor?: TTextColor
     fitContent?: boolean
+    asDiv?: boolean
 }
 const GTButton = ({
     styleType = 'primary',
@@ -111,6 +112,7 @@ const GTButton = ({
     iconColor,
     textColor,
     value,
+    asDiv = false,
     ...rest
 }: GTButtonProps) => {
     return (
@@ -120,6 +122,7 @@ const GTButton = ({
             wrapText={wrapText}
             fitContent={fitContent}
             textColor={textColor}
+            as={asDiv ? 'div' : 'button'}
             {...rest}
         >
             {icon && <Icon icon={icon} color={iconColor} />}
