@@ -43,12 +43,10 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                             $isSelected={item.selected}
                                             $textColor={item.textColor}
                                         >
-                                            {item.icon && (
-                                                <Icon size="xSmall" icon={item.icon} color={item.iconColor} />
-                                            )}
+                                            {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                             <MenuItemLabel>{item.label}</MenuItemLabel>
                                             <MarginLeftIcon>
-                                                <Icon size="xSmall" icon={icons.caret_right} />
+                                                <Icon icon={icons.caret_right} />
                                             </MarginLeftIcon>
                                         </ContextMenuSubTrigger>
                                         <ContextMenu.Portal>
@@ -64,16 +62,12 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                                             $isSelected={subItem.selected}
                                                         >
                                                             {subItem.icon && (
-                                                                <Icon
-                                                                    size="xSmall"
-                                                                    icon={subItem.icon}
-                                                                    color={subItem.iconColor}
-                                                                />
+                                                                <Icon icon={subItem.icon} color={subItem.iconColor} />
                                                             )}
                                                             <MenuItemLabel>{subItem.label}</MenuItemLabel>
                                                             {subItem.selected && (
                                                                 <MarginLeftIcon>
-                                                                    <Icon size="xSmall" icon={icons.check} />
+                                                                    <Icon icon={icons.check} />
                                                                 </MarginLeftIcon>
                                                             )}
                                                         </ContextMenuItem>
@@ -90,11 +84,11 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                         $isSelected={item.selected}
                                         $textColor={item.textColor}
                                     >
-                                        {item.icon && <Icon size="xSmall" icon={item.icon} color={item.iconColor} />}
+                                        {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                         {item.label}
                                         {item.selected && (
                                             <MarginLeftIcon>
-                                                <Icon size="xSmall" icon={icons.check} />
+                                                <Icon icon={icons.check} />
                                             </MarginLeftIcon>
                                         )}
                                     </ContextMenuItem>

@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
-import { Sort } from '../../hooks/useSortAndFilter'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { Spacing } from '../../styles'
+import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
-import { SORT_ORDER } from '../../utils/enums'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
 import { isGithubLinkedAccount } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
@@ -15,9 +14,8 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
-import SortSelector from '../molecules/SortSelector'
 import PullRequestList from '../pull-requests/PullRequestList'
-import { PR_SORT_SELECTOR_ITEMS } from '../pull-requests/constants'
+import { PR_SORT_AND_FILTER_CONFIG } from '../pull-requests/constants'
 import { Repository, RepositoryName } from '../pull-requests/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -25,16 +23,12 @@ const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
 `
-const MarginBottonContainer = styled.div`
-    margin-bottom: ${Spacing._16};
-`
 
 const PullRequestsView = () => {
-    const [sort, setSort] = useState<Sort<TPullRequest>>({
-        ...PR_SORT_SELECTOR_ITEMS.requiredAction.sort,
-        direction: SORT_ORDER.DESC,
-    })
+    const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
+    const { selectedSort, selectedSortDirection, selectedFilter } = sortAndFilterSettings
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
+    const { isLoading: areSettingsLoading } = useGetSettings()
     const navigate = useNavigate()
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
@@ -58,12 +52,8 @@ const PullRequestsView = () => {
         }
     }, [selectedPullRequest])
 
-    if (!repositories) {
-        if (isLoading) {
-            return <Spinner />
-        } else {
-            return <div>No repositories</div>
-        }
+    if (!repositories || isLoading || areSettingsLoading) {
+        return <Spinner />
     }
 
     return (
@@ -71,9 +61,7 @@ const PullRequestsView = () => {
             <PullRequestsContainer>
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="GitHub Pull Requests" />
-                    <MarginBottonContainer>
-                        <SortSelector items={PR_SORT_SELECTOR_ITEMS} selectedSort={sort} setSelectedSort={setSort} />
-                    </MarginBottonContainer>
+                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
@@ -86,7 +74,9 @@ const PullRequestsView = () => {
                                     <PullRequestList
                                         pullRequests={repository.pull_requests}
                                         selectedPrId={params.pullRequest}
-                                        sort={sort}
+                                        sort={selectedSort}
+                                        sortDirection={selectedSortDirection}
+                                        filter={selectedFilter}
                                     />
                                 )}
                                 <br />

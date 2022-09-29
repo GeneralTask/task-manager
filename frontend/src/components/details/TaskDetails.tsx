@@ -168,7 +168,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <MarginLeft8>
-                    <Icon icon={logos[task.source.logo_v2]} size="small" />
+                    <Icon icon={logos[task.source.logo_v2]} />
                 </MarginLeft8>
                 {!task.isOptimistic && (
                     <>
@@ -194,7 +194,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     onEdit={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
-                    isFullHeight
                     blurOnEnter
                 />
             </div>

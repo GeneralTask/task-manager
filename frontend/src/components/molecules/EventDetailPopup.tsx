@@ -135,19 +135,19 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                     }}
                 >
                     <EventHeader>
-                        <Icon icon={logos[event.logo]} size="xSmall" />
+                        <Icon icon={logos[event.logo]} />
                         <EventHeaderIcons>
                             <IconButton onClick={onDelete}>
-                                <Icon icon={icons.trash} size="xSmall" />
+                                <Icon icon={icons.trash} />
                             </IconButton>
                             <IconButton onClick={onClose}>
-                                <Icon icon={icons.x} size="xSmall" />
+                                <Icon icon={icons.x} />
                             </IconButton>
                         </EventHeaderIcons>
                     </EventHeader>
                     <EventTitle>{event.title}</EventTitle>
                     <EventDateContainer>
-                        <Icon icon={icons.calendar_blank} size="xSmall" />
+                        <Icon icon={icons.calendar_blank} />
                         <EventDate>
                             {`${date.toFormat('cccc, LLLL d')}`} · {`${startTimeString} - ${endTimeString}`}
                         </EventDate>
@@ -188,7 +188,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                                 />
                             </FlexAnchor>
                             <CopyButton onClick={onCopyMeetingLink}>
-                                <Icon size="xSmall" icon={icons.copy} />
+                                <Icon icon={icons.copy} />
                             </CopyButton>
                         </Flex>
                     )}

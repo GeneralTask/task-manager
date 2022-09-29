@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { getFormattedDate } from '../../utils/utils'
+import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -31,8 +31,10 @@ const DateViewContainer = styled.div`
     gap: ${Spacing._8};
     border-radius: ${Border.radius.mini};
     border: ${Border.stroke.medium} solid ${Colors.border.light};
+    background-color: ${Colors.background.light};
 `
 const DateViewText = styled.span`
+    ${Typography.bodySmall};
     flex: 1;
 `
 
@@ -77,7 +79,8 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     }
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
-                            backgroundColor: Colors.background.medium,
+                            outline: `${Border.stroke.medium} solid ${Colors.gtColor.primary}`,
+                            zIndex: 1,
                         }
                     }
                     if (modifiers.outside) {
@@ -87,11 +90,9 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 }}
             />
             <DateViewContainer>
-                <Icon icon={icons.calendar_blank} size="small" color="black" />
-                <DateViewText>
-                    {!value || isNaN(+value) || +value === 0 ? 'No Due Date' : value?.toDateString()}
-                </DateViewText>
-                <GTIconButton icon={icons.x} size="small" color="black" onClick={() => handleOnChange(null)} />
+                <Icon icon={icons.calendar_blank} color="black" />
+                <DateViewText>{isValidDueDate(value) ? value?.toDateString() : 'No Due Date'}</DateViewText>
+                <GTIconButton icon={icons.x} color="black" onClick={() => handleOnChange(null)} />
             </DateViewContainer>
         </GTDatePickerWrapper>
     )
@@ -107,7 +108,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 <GTButton
                     styleType="simple"
                     size="small"
-                    icon={showIcon ? icons.timer : undefined}
+                    icon={showIcon ? icons.clock : undefined}
                     value={getFormattedDate(value).dateString}
                     textColor={getFormattedDate(value).color}
                     onClick={() => setIsOpen(!isOpen)}

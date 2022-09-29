@@ -151,6 +151,20 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
 	}
+	if updateFields.Task.Status != nil {
+		var statusToUpdateTo *database.ExternalTaskStatus
+		for _, status := range task.AllStatuses {
+			if status.ExternalID == updateFields.Task.Status.ExternalID {
+				statusToUpdateTo = status
+			}
+		}
+		if statusToUpdateTo == nil {
+			c.JSON(400, gin.H{"detail": "status value not in all status field for task"})
+			return false
+		}
+		updateFields.IsCompleted = &statusToUpdateTo.IsCompletedStatus
+	}
+
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
 		updateFields.CompletedAt = primitive.NewDateTimeFromTime(time.Now())
 	}

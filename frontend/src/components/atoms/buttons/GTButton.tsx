@@ -113,7 +113,6 @@ const GTButton = ({
     value,
     ...rest
 }: GTButtonProps) => {
-    const iconSize = size === 'small' ? 'xSmall' : 'small'
     return (
         <Button
             styleType={styleType}
@@ -123,7 +122,7 @@ const GTButton = ({
             textColor={textColor}
             {...rest}
         >
-            {icon && <Icon size={iconSize} icon={icon} color={iconColor} />}
+            {icon && <Icon icon={icon} color={iconColor} />}
             {value}
         </Button>
     )

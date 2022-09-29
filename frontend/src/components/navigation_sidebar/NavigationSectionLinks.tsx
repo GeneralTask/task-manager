@@ -154,7 +154,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLink
                         link={`/tasks/${defaultFolder.id}`}
                         title={defaultFolder.name}
-                        icon={icons.folder}
+                        icon={icons.inbox}
                         isCurrentPage={sectionId === defaultFolder.id}
                         taskSection={defaultFolder}
                         count={defaultFolder.tasks.length}
@@ -188,7 +188,7 @@ const NavigationSectionLinks = () => {
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
                             <div>
-                                <Icon size="xSmall" icon={icons.folder} color="black" />
+                                <Icon icon={icons.folder} color="black" />
                             </div>
                             <InputContainer>
                                 <NoStyleInput

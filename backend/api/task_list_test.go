@@ -41,7 +41,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			SourceID: external.TASK_SOURCE_ID_LINEAR,
 			DueDate:  &primitiveDueDate,
 		}, userID)
-		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
+		assert.Equal(t, primitiveDueDate.Time().UTC().Format("2006-01-02"), result.DueDate)
 	})
 	t.Run("AllFieldSuccess", func(t *testing.T) {
 		dueDate := time.Unix(420, 0)
@@ -78,7 +78,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			AllStatuses:        allStatuses,
 		}, userID)
 		// TODO change to a helper method to compare taskResults
-		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
+		assert.Equal(t, primitiveDueDate.Time().UTC().Format("2006-01-02"), result.DueDate)
 		assert.Equal(t, timeAllocation, result.TimeAllocation)
 		assert.False(t, result.IsDone)
 		assert.Equal(t, title, result.Title)
@@ -138,7 +138,7 @@ func TestTaskListToTaskResultList(t *testing.T) {
 
 		result := results[0]
 		// TODO change to a helper method to compare taskResults
-		assert.Equal(t, primitiveDueDate.Time().Format("2006-01-02"), result.DueDate)
+		assert.Equal(t, primitiveDueDate.Time().UTC().Format("2006-01-02"), result.DueDate)
 		assert.Equal(t, timeAllocation, result.TimeAllocation)
 		assert.False(t, result.IsDone)
 		assert.Equal(t, title, result.Title)

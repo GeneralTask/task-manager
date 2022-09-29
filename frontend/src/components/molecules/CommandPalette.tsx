@@ -128,7 +128,6 @@ const CommandPalette = () => {
                 ref={buttonRef}
                 icon={icons.magnifying_glass}
                 onClick={() => setShowCommandPalette(!showCommandPalette)}
-                size="small"
             />
             <CommandDialog
                 open={showCommandPalette}
@@ -141,7 +140,7 @@ const CommandPalette = () => {
             >
                 <Searchbar>
                     <IconContainer>
-                        <Icon icon={icons.magnifying_glass} size="xSmall" />
+                        <Icon icon={icons.magnifying_glass} />
                     </IconContainer>
                     <CommandInput placeholder="Type a command" />
                 </Searchbar>
@@ -161,9 +160,7 @@ const CommandPalette = () => {
                                             }}
                                         >
                                             <Flex alignItemsCenter>
-                                                <IconContainer>
-                                                    {icon && <Icon icon={icons[icon]} size="xSmall" />}
-                                                </IconContainer>
+                                                <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
                                                 {label}
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>

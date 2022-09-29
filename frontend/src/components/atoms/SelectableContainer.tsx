@@ -1,13 +1,23 @@
 import styled from 'styled-components'
-import { Border, Colors } from '../../styles'
+import { Border, Colors, Shadows } from '../../styles'
 
 const SelectableContainer = styled.div<{ isSelected: boolean }>`
-    background-color: ${(props) => (props.isSelected ? Colors.background.medium : Colors.background.white)};
-    box-shadow: ${(props) => (props.isSelected ? `inset 1005px 0px 0px -1000px ${Colors.gtColor.primary}` : 'none')};
-    border-radius: ${Border.radius.small};
+    background-color: ${Colors.background.white};
+    border-radius: ${Border.radius.mini};
+    position: relative;
     cursor: pointer;
+    box-shadow: ${Shadows.button.default};
     &:hover {
         background-color: ${Colors.background.medium};
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
     }
+`
+export const PurpleEdge = styled.div`
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: 4px;
+    background-color: ${Colors.gtColor.primary};
+    border-radius: ${Border.radius.mini} 0 0 ${Border.radius.mini};
 `
 export default SelectableContainer

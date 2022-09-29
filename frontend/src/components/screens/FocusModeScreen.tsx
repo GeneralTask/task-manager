@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
+import { useInterval } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
@@ -37,7 +38,7 @@ const FocusModeContainer = styled.div`
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    background-color ${Colors.background.white};
+    background-color: ${Colors.background.white};
 `
 const MainContainer = styled.div`
     display: flex;
@@ -49,13 +50,15 @@ const ClockContainer = styled.div`
     padding: ${Spacing._24} ${Spacing._32};
     text-align: right;
 `
-const JoinMeetingContainer = styled.div`
+const NotificationMessage = styled.div<{ isCentered?: boolean }>`
+    position: relative;
     border: 1px solid ${Colors.border.light};
     border-radius: ${Border.radius.large};
     display: flex;
-    padding: ${Spacing._8} ${Spacing._16};
+    padding: ${Spacing._24} ${Spacing._16};
     align-items: center;
     justify-content: space-between;
+    ${(props) => props.isCentered && `justify-content: center;`}
     ${Typography.bodySmall};
 `
 const BoldText = styled.span`
@@ -100,6 +103,10 @@ const CurrentEvent = styled(GTShadowContainer)`
     border: ${Border.stroke.small} solid ${Colors.border.light};
     cursor: pointer;
 `
+const RightAbsoluteContainer = styled.div`
+    position: absolute;
+    right: ${Spacing._16};
+`
 
 const getEventsCurrentlyHappening = (events: TEvent[]) => {
     return events?.filter((event) => {
@@ -125,6 +132,7 @@ const FocusModeScreen = () => {
     const { data: events } = useGetEvents(monthBlocks[1], 'calendar')
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
+    const [time, setTime] = useState(DateTime.local())
 
     useEffect(() => {
         if (currentEvents.length === 1) {
@@ -138,12 +146,20 @@ const FocusModeScreen = () => {
         }
     }, [selectedEvent])
 
-    const { title, body, datetime_start, datetime_end } = currentEvents[0] ?? {}
-    const timeStart = DateTime.fromISO(datetime_start)
-    const timeEnd = DateTime.fromISO(datetime_end)
+    const { title, body, datetime_start, datetime_end } = chosenEvent ?? {}
+    const timeStart = DateTime.fromISO(datetime_start || '')
+    const timeEnd = DateTime.fromISO(datetime_end || '')
 
-    const clockTime = DateTime.local().toFormat('h:mm a')
+    useInterval(
+        () => {
+            setTime(DateTime.local())
+        },
+        1,
+        false
+    )
+
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
+    const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
 
     const navigate = useNavigate()
     return (
@@ -165,7 +181,7 @@ const FocusModeScreen = () => {
                                         {currentEvents.map((event) => (
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
                                                 <Flex alignItemsCenter gap={Spacing._8}>
-                                                    <Icon icon={logos[event.logo]} size="small" />
+                                                    <Icon icon={logos[event.logo]} />
                                                     <div>{event.title}</div>
                                                 </Flex>
                                                 <TimeRange
@@ -177,20 +193,30 @@ const FocusModeScreen = () => {
                                     </CurrentEventsContainer>
                                 </>
                             )}
-                            {currentEvents.length > 0 && chosenEvent != null && (
+                            {chosenEvent && (
                                 <>
                                     <GTHeader>{title}</GTHeader>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
                                     {conferenceCall && (
-                                        <JoinMeetingContainer>
+                                        <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
                                                 <BoldText> right now.</BoldText>
                                             </span>
-                                            <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
-                                        </JoinMeetingContainer>
+                                            <RightAbsoluteContainer>
+                                                <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
+                                            </RightAbsoluteContainer>
+                                        </NotificationMessage>
+                                    )}
+                                    {eventHasEnded && (
+                                        <NotificationMessage isCentered>
+                                            <span>
+                                                <span>This event is</span>
+                                                <BoldText> in the past.</BoldText>
+                                            </span>
+                                        </NotificationMessage>
                                     )}
                                     <div>
                                         {chosenEvent.linked_view_id ? (
@@ -198,13 +224,13 @@ const FocusModeScreen = () => {
                                         ) : (
                                             <>
                                                 <BodyHeader>MEETING NOTES</BodyHeader>
-                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body) }} />
+                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
                                             </>
                                         )}
                                     </div>
                                 </>
                             )}
-                            {currentEvents.length === 0 && <div>No Event</div>}
+                            {!chosenEvent && currentEvents.length === 0 && <div>No Event</div>}
                         </EventContainer>
                         <CalendarContainer>
                             <CalendarView
@@ -215,10 +241,10 @@ const FocusModeScreen = () => {
                             />
                         </CalendarContainer>
                     </MainContainer>
-                    <ClockContainer>{clockTime}</ClockContainer>
+                    <ClockContainer>{time.toFormat('h:mm a')}</ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
-                    <Icon icon={logos.generaltask} size="medium" />
+                    <Icon icon={logos.generaltask} size="gtLogo" />
                 </FloatingIcon>
                 <ButtonContainer>
                     <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />

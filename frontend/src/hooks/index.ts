@@ -6,7 +6,6 @@ import useItemSelectionController from './useItemSelectionController'
 import useKeyboardShortcut from './useKeyboardShortcut'
 import useNavigateToTask from './useNavigateToTask'
 import useSetting from './useSetting'
-import useSortAndFilter from './useSortAndFilter'
 import useTimeout from './useTimeout'
 
 export {
@@ -18,6 +17,5 @@ export {
     useKeyboardShortcut,
     useNavigateToTask,
     useSetting,
-    useSortAndFilter,
     useTimeout,
 }

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Border, Colors, Dimensions, Shadows, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
 export const CELL_HEIGHT_VALUE = 64
 export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`
@@ -197,7 +197,4 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     top: ${(props) => props.offset}px;
     z-index: 1;
     background-color: ${Colors.background.dropIndicator};
-`
-export const IconContainer = styled.div`
-    width: ${Dimensions.iconSize.xSmall};
 `

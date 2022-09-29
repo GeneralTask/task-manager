@@ -10,7 +10,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
-import { getFormattedDate } from '../../utils/utils'
+import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -144,7 +144,8 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
         if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
     }
 
-    const formattedDate = getFormattedDate(DateTime.fromISO(task.due_date).toJSDate())
+    const dueDate = DateTime.fromISO(task.due_date).toJSDate()
+    const formattedDate = getFormattedDate(dueDate)
 
     return (
         <TaskContextMenuWrapper task={task} sectionId={sectionId}>
@@ -168,16 +169,19 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     />
                     <Title>{task.title}</Title>
                     <RightContainer>
-                        <DueDate color={formattedDate.color}>{formattedDate.dateString}</DueDate>
-                        <Icon
-                            icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                            color={TASK_PRIORITIES[task.priority_normalized].color}
-                            size="xSmall"
-                        />
+                        {isValidDueDate(dueDate) && (
+                            <DueDate color={formattedDate.color}>{formattedDate.dateString}</DueDate>
+                        )}
+                        {task.priority_normalized !== 0 && (
+                            <Icon
+                                icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                                color={TASK_PRIORITIES[task.priority_normalized].color}
+                            />
+                        )}
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>
                         ) : (
-                            <Icon icon={logos[task.source.logo_v2]} size="small" />
+                            <Icon icon={logos[task.source.logo_v2]} />
                         )}
                     </RightContainer>
                 </ItemContainer>
