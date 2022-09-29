@@ -204,7 +204,7 @@ const FocusModeScreen = () => {
                                     </div>
                                 </>
                             )}
-                            {currentEvents.length === 0 && <div>No Event</div>}
+                            {!chosenEvent && currentEvents.length === 0 && <div>No Event</div>}
                         </EventContainer>
                         <CalendarContainer>
                             <CalendarView
