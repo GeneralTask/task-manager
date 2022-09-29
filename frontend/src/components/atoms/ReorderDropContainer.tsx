@@ -42,7 +42,7 @@ const DropIndicatorBelow = styled.div`
     bottom: -${INDICATOR_HEIGHT}px;
 `
 const WholeDropIndicatorStyle = css`
-    border: ${Border.stroke.medium} solid ${Colors.gtColor.primary};
+    border: ${Border.stroke.medium} solid ${Colors.border.purple};
     border-radius: ${Border.radius.small};
 `
 const WholeDropIndicator = styled.div<{ isVisible: boolean }>`
