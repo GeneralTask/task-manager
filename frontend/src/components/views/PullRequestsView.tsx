@@ -5,7 +5,7 @@ import { useItemSelectionController } from '../../hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
-import SortAndFilterDropdowns from '../../utils/sortAndFilter/SortAndFilterDropdowns'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
 import { isGithubLinkedAccount } from '../../utils/utils'
@@ -61,7 +61,7 @@ const PullRequestsView = () => {
             <PullRequestsContainer>
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="GitHub Pull Requests" />
-                    <SortAndFilterDropdowns settings={sortAndFilterSettings} />
+                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (

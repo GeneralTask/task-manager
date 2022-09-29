@@ -1,6 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
-import SortAndFilterDropdowns from '../../../utils/sortAndFilter/SortAndFilterDropdowns'
+import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../../utils/types'
 import PullRequestList from '../../pull-requests/PullRequestList'
@@ -18,7 +18,7 @@ const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsP
             <ViewHeader ref={ref}>
                 <ViewName>{view.name}</ViewName>
             </ViewHeader>
-            {view.view_items.length > 0 && <SortAndFilterDropdowns settings={sortAndFilterSettings} />}
+            {view.view_items.length > 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
             {view.view_items.length === 0 && view.is_linked && (
                 <EmptyViewItem
                     header="You have no more pull requests!"
