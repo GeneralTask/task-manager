@@ -217,6 +217,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                 icon={linearStatus[task.external_status.type]}
                                 size="small"
                                 styleType="simple"
+                                asDiv
                             />
                         }
                     />
