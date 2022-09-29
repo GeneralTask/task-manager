@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
+import { useInterval } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
@@ -125,6 +126,7 @@ const FocusModeScreen = () => {
     const { data: events } = useGetEvents(monthBlocks[1], 'calendar')
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
+    const [time, setTime] = useState(DateTime.local())
 
     useEffect(() => {
         if (currentEvents.length === 1) {
@@ -142,7 +144,14 @@ const FocusModeScreen = () => {
     const timeStart = DateTime.fromISO(datetime_start || '')
     const timeEnd = DateTime.fromISO(datetime_end || '')
 
-    const clockTime = DateTime.local().toFormat('h:mm a')
+    useInterval(
+        () => {
+            setTime(DateTime.local())
+        },
+        1,
+        false
+    )
+
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
 
     const navigate = useNavigate()
@@ -215,7 +224,7 @@ const FocusModeScreen = () => {
                             />
                         </CalendarContainer>
                     </MainContainer>
-                    <ClockContainer>{clockTime}</ClockContainer>
+                    <ClockContainer>{time.toFormat('h:mm a')}</ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
                     <Icon icon={logos.generaltask} size="gtLogo" />
