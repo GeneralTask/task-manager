@@ -86,7 +86,6 @@ const TaskSectionView = () => {
             if (!section) {
                 navigate(`/tasks/${firstSectionId}/`)
             } else if (!task && section.tasks.length > taskIndex) {
-                console.log('taskIndex', taskIndex)
                 navigate(`/tasks/${section.id}/${section.tasks[taskIndex].id}`)
             } else if (!task && section.tasks.length === taskIndex && taskIndex > 0) {
                 navigate(`/tasks/${section.id}/${section.tasks[taskIndex - 1].id}`)
