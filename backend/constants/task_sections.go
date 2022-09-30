@@ -11,7 +11,7 @@ var IDTaskSectionDone primitive.ObjectID = primitive.ObjectID{0, 0, 0, 0, 0, 0, 
 var IDTaskSectionTrash primitive.ObjectID = primitive.ObjectID{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5}
 
 const (
-	TaskSectionNameDefault string = "Default"
+	TaskSectionNameDefault string = "Task Inbox"
 	TaskSectionNameDone    string = "Done"
 	TaskSectionNameTrash   string = "Trash"
 )
