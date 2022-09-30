@@ -11,21 +11,13 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
+const CALENDAR_DAY_WIDTH = '32px'
+
 const GTDatePickerWrapper = styled.div`
     display: flex;
     flex-direction: column;
     .mantine-Calendar-calendarHeaderLevel {
-        color: ${Colors.text.light};
         ${Typography.eyebrow};
-    }
-    .mantine-Calendar-day {
-        border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        margin: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 `
 const DateViewContainer = styled.div`
@@ -93,6 +85,23 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         return {}
                     }
                     return { color: Colors.text.black }
+                }}
+                styles={{
+                    calendarBase: {
+                        maxWidth: 'none',
+                    },
+                    calendarHeaderLevel: {
+                        color: Colors.text.light,
+                    },
+                    day: {
+                        borderRadius: '50%',
+                        width: CALENDAR_DAY_WIDTH,
+                        height: CALENDAR_DAY_WIDTH,
+                        margin: Spacing._4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    },
                 }}
             />
             {isValidDueDate(value) && (
