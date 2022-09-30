@@ -11,7 +11,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
-const CALENDAR_DAY_WIDTH = '32px'
+const CALENDAR_DAY_SIZE = '32px'
 
 const GTDatePickerWrapper = styled.div`
     display: flex;
@@ -95,8 +95,8 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     },
                     day: {
                         borderRadius: '50%',
-                        width: CALENDAR_DAY_WIDTH,
-                        height: CALENDAR_DAY_WIDTH,
+                        width: CALENDAR_DAY_SIZE,
+                        height: CALENDAR_DAY_SIZE,
                         margin: Spacing._4,
                         display: 'flex',
                         alignItems: 'center',
