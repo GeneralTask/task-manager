@@ -496,7 +496,7 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 }
 
 func userNeedsToSubmitReview(githubUser *github.User, reviewers *github.Reviewers, userTeams []*github.Team) bool {
-	if reviewers == nil {
+	if githubUser == nil || reviewers == nil {
 		return false
 	}
 	for _, reviewer := range reviewers.Users {
