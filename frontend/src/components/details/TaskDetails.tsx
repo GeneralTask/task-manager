@@ -32,6 +32,7 @@ const DetailsTopContainer = styled.div`
     align-items: center;
     flex-basis: 50px;
     flex-shrink: 0;
+    gap: ${Spacing._8};
 `
 const MarginLeftAuto = styled.div`
     display: flex;
