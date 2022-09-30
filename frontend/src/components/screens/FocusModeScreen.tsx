@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
@@ -130,8 +130,11 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 }
 
 const FocusModeScreen = () => {
-    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled } = useCalendarContext()
-    useEffect(() => {
+    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
+        useCalendarContext()
+    useLayoutEffect(() => {
+        setIsCollapsed(false)
+        setCalendarType('day')
         setIsPopoverDisabled(true)
         setSelectedEvent(null)
         return () => {
