@@ -49,7 +49,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
             if (!popupRef.current) return
             setPopupHeight(popupRef.current.getBoundingClientRect().height)
         }, [])
-        const onClose = () => setSelectedEvent(null)
+        const onClose = useCallback(() => setSelectedEvent(null), [])
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
