@@ -1,10 +1,10 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useInterval } from '../../hooks'
+import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
@@ -166,12 +166,20 @@ const FocusModeScreen = () => {
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())
-
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
     const nextEvent = events?.find((event) => {
         const start = DateTime.fromISO(event.datetime_start)
         return start > time
     })
+
+    const { key: keyLocation } = useLocation()
+    const backAction = useCallback(() => {
+        // Check if focus mode was opened from landing page or if it was the initial page
+        const isInitialLocation = keyLocation === 'default'
+        if (isInitialLocation) navigate('/')
+        else navigate(-1)
+    }, [keyLocation])
+    useKeyboardShortcut('close', backAction)
 
     useEffect(() => {
         if (currentEvents.length === 1) {
@@ -312,7 +320,7 @@ const FocusModeScreen = () => {
                     <Icon icon={logos.generaltask} size="gtLogo" />
                 </FloatingIcon>
                 <ButtonContainer>
-                    <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />
+                    <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />
                 </ButtonContainer>
             </TemplateViewContainer>
         </SingleViewTemplate>
