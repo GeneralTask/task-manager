@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
@@ -52,7 +52,6 @@ const ClockContainer = styled.div`
     border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
-    text-align: right;
 `
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     position: relative;
@@ -65,7 +64,11 @@ const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     ${Typography.bodySmall};
 `
 const NextEventContainer = styled.div`
-    margin-top: auto;
+    ${Typography.body};
+`
+const AdvanceEventContainer = styled.div`
+    position: absolute;
+    bottom: ${Spacing._24};
     display: flex;
     align-items: center;
     user-select: none;
@@ -120,6 +123,21 @@ const RightAbsoluteContainer = styled.div`
     right: ${Spacing._16};
 `
 
+const getTimeUntilNextEvent = (event: TEvent) => {
+    const now = DateTime.local()
+    const eventStart = DateTime.fromISO(event.datetime_start)
+    const minutesUntilEvent = eventStart.diff(now, 'minutes').minutes
+    if (minutesUntilEvent === 1) {
+        return '1 minute'
+    } else if (minutesUntilEvent < 60) {
+        return `${minutesUntilEvent} minutes`
+    } else if (minutesUntilEvent < 120) {
+        return '1 hour'
+    } else {
+        return `${Math.floor(minutesUntilEvent / 60)} hours`
+    }
+}
+
 const getEventsCurrentlyHappening = (events: TEvent[]) => {
     return events?.filter((event) => {
         const now = DateTime.local()
@@ -130,8 +148,11 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 }
 
 const FocusModeScreen = () => {
-    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled } = useCalendarContext()
-    useEffect(() => {
+    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
+        useCalendarContext()
+    useLayoutEffect(() => {
+        setIsCollapsed(false)
+        setCalendarType('day')
         setIsPopoverDisabled(true)
         setSelectedEvent(null)
         return () => {
@@ -146,6 +167,10 @@ const FocusModeScreen = () => {
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
+    const nextEvent = events?.find((event) => {
+        const start = DateTime.fromISO(event.datetime_start)
+        return start > time
+    })
 
     const { key: keyLocation } = useLocation()
     const backAction = useCallback(() => {
@@ -211,7 +236,6 @@ const FocusModeScreen = () => {
                                         event you want to focus on at the moment.
                                     </Subtitle>
                                     <BodyHeader>MULTIPLE EVENTS — SELECT WHICH EVENT TO FOCUS ON</BodyHeader>
-
                                     <CurrentEventsContainer>
                                         {currentEvents.map((event) => (
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
@@ -277,11 +301,19 @@ const FocusModeScreen = () => {
                         </CalendarContainer>
                     </MainContainer>
                     <ClockContainer>
-                        <NextEventContainer onClick={() => setShouldAutoAdvanceEvent(!shouldAutoAdvanceEvent)}>
+                        <NextEventContainer>
+                            {nextEvent && (
+                                <span>
+                                    Next event is in
+                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}.</BoldText>
+                                </span>
+                            )}
+                        </NextEventContainer>
+                        <AdvanceEventContainer onClick={() => setShouldAutoAdvanceEvent(!shouldAutoAdvanceEvent)}>
                             <GTStaticCheckbox isChecked={shouldAutoAdvanceEvent} />
                             Automatically advance to next event
-                        </NextEventContainer>
-                        {time.toFormat('h:mm a')}
+                        </AdvanceEventContainer>
+                        <span>{time.toFormat('h:mm a')}</span>
                     </ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
