@@ -109,6 +109,16 @@ To run tests through VS Code, put the following snippet in your `settings.json`:
 
 To run tests through GoLand, go to `Run | Edit Configurations` and then add a new `Go Test` configuration with `DB_NAME=test`
 
+### Testing New User Experience
+We should test our new user experience every so often. You can achieve this locally by nuking your database. However, this is not always desired.
+
+While we still have the waitlist in place (until October 7th), these are the steps that should be taken to get the New User Experience without nuking the database:
+1. Get a new email account that you have not logged in to General Task with
+2. Add `&& lowerEmail != <email address>` to the if statement located here: https://github.com/GeneralTask/task-manager/blob/48a2171f27af0f07f9950bfaf807bc42fc839929/backend/api/login.go#L155-L158 
+3. Spin up the frontend, and login as you normally would, with the email that you have added to the if statement
+
+Follow these steps, and you should see what a new user to General Task would see when signing up.
+
 ## Deploying backend
 Our backend is currently on AWS EKS in us-west-1 region. These are the steps to setup access
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
