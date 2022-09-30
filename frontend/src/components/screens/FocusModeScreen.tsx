@@ -149,6 +149,7 @@ const FocusModeScreen = () => {
 
     const { key: keyLocation } = useLocation()
     const backAction = useCallback(() => {
+        // Check if focus mode was opened from landing page or if it was the initial page
         const isInitialLocation = keyLocation === 'default'
         if (isInitialLocation) navigate('/')
         else navigate(-1)
