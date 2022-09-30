@@ -47,6 +47,7 @@ const CopyrightText = styled.span`
     margin-top: ${Spacing._4};
     text-align: center;
     color: ${Colors.text.placeholder};
+    user-select: none;
     ${Typography.eyebrow};
 `
 
