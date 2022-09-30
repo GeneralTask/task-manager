@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -12,6 +13,7 @@ import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
 import GTShadowContainer from '../atoms/GTShadowContainer'
+import GTStaticCheckbox from '../atoms/GTStaticCheckbox'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
@@ -45,6 +47,8 @@ const MainContainer = styled.div`
     min-height: 0;
 `
 const ClockContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
     border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
@@ -52,14 +56,22 @@ const ClockContainer = styled.div`
 `
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     position: relative;
+    ${(props) => props.isCentered && `justify-content: center;`}
     border: 1px solid ${Colors.border.light};
     border-radius: ${Border.radius.large};
     display: flex;
     padding: ${Spacing._24} ${Spacing._16};
     align-items: center;
-    justify-content: space-between;
-    ${(props) => props.isCentered && `justify-content: center;`}
     ${Typography.bodySmall};
+`
+const NextEventContainer = styled.div`
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+    gap: ${Spacing._8};
+    ${Typography.body};
 `
 const BoldText = styled.span`
     ${Typography.bold};
@@ -134,6 +146,8 @@ const FocusModeScreen = () => {
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())
 
+    const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
+
     useEffect(() => {
         if (currentEvents.length === 1) {
             setChosenEvent(currentEvents[0])
@@ -152,9 +166,22 @@ const FocusModeScreen = () => {
 
     useInterval(
         () => {
-            setTime(DateTime.local())
+            const currentTime = DateTime.local().minus({ seconds: SINGLE_SECOND_INTERVAL })
+            setTime(currentTime)
+            if (!shouldAutoAdvanceEvent) return
+            for (const event of currentEvents) {
+                const startTime = DateTime.fromISO(event.datetime_start)
+                if (
+                    startTime.hour === currentTime.hour &&
+                    startTime.minute === currentTime.minute &&
+                    currentTime.second === 0
+                ) {
+                    setChosenEvent(event)
+                    return
+                }
+            }
         },
-        1,
+        SINGLE_SECOND_INTERVAL,
         false
     )
 
@@ -168,7 +195,7 @@ const FocusModeScreen = () => {
                 <FocusModeContainer>
                     <MainContainer>
                         <EventContainer>
-                            {currentEvents.length > 0 && chosenEvent === null && (
+                            {currentEvents.length > 1 && chosenEvent === null && (
                                 <>
                                     <GTHeader>Multiple Events</GTHeader>
                                     <Subtitle>
@@ -241,7 +268,13 @@ const FocusModeScreen = () => {
                             />
                         </CalendarContainer>
                     </MainContainer>
-                    <ClockContainer>{time.toFormat('h:mm a')}</ClockContainer>
+                    <ClockContainer>
+                        <NextEventContainer onClick={() => setShouldAutoAdvanceEvent(!shouldAutoAdvanceEvent)}>
+                            <GTStaticCheckbox isChecked={shouldAutoAdvanceEvent} />
+                            Automatically advance to next event
+                        </NextEventContainer>
+                        {time.toFormat('h:mm a')}
+                    </ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
                     <Icon icon={logos.generaltask} size="gtLogo" />

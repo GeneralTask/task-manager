@@ -12,8 +12,6 @@ import {
     faBarsFilter,
     faCalendar,
     faCalendarDays,
-    faCheck,
-    faCheckSquare,
     faChevronDown,
     faChevronLeft,
     faChevronRight,
@@ -39,6 +37,8 @@ import {
     faXmark,
 } from '@fortawesome/pro-light-svg-icons'
 import {
+    faCheck,
+    faCheckSquare,
     faCircleChevronDown,
     faCircleChevronUp,
     faCircleDot,

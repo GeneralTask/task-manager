@@ -217,6 +217,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                 icon={linearStatus[task.external_status.type]}
                                 size="small"
                                 styleType="simple"
+                                asDiv
                             />
                         }
                     />
@@ -239,6 +240,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             size="small"
                             styleType="simple"
                             iconColor={TASK_PRIORITIES[task.priority_normalized].color}
+                            asDiv
                         />
                     }
                 />
