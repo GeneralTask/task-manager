@@ -56,6 +56,7 @@ const TaskSectionView = () => {
     }, [taskSections, params.task, params.section])
 
     const taskIndex = useMemo(() => {
+        // Find the index of the currently selected task. If the task is not found, return 0
         const index = section?.tasks.findIndex(({ id }) => id === task?.id)
         return !index || index === -1 ? 0 : index
     }, [params.task, params.section])
