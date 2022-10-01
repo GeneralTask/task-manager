@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { getMonthsAroundDate } from '../../utils/time'
+import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent, TLinkedAccount } from '../../utils/types'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
@@ -96,14 +96,13 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         eventsContainerRef,
         isWeekView: isWeekCalendar,
     })
+    const isToday = isDateToday(date)
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
             {isWeekCalendar && (
                 <CalendarDayHeader>
-                    <DayHeaderText isToday={date.startOf('day').equals(DateTime.now().startOf('day'))}>
-                        {date.toFormat('ccc dd')}
-                    </DayHeaderText>
+                    <DayHeaderText isToday={isToday}>{date.toFormat('ccc dd')}</DayHeaderText>
                 </CalendarDayHeader>
             )}
             <DayContainer>
@@ -122,7 +121,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                     ))}
-                <TimeIndicator />
+                {(isWeekCalendar || isToday) && <TimeIndicator />}
                 <CalendarDayTable hasBorder={isWeekCalendar} />
             </DayContainer>
         </DayAndHeaderContainer>
@@ -192,7 +191,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
             <TimeAndHeaderContainer>
                 {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
-                    <TimeIndicator ref={timeIndicatorRef} />
+                    {isDateToday(date) && <TimeIndicator ref={timeIndicatorRef} />}
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
