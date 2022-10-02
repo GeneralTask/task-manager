@@ -7,6 +7,7 @@ import useKeyboardShortcut from './useKeyboardShortcut'
 import useNavigateToTask from './useNavigateToTask'
 import useSetting from './useSetting'
 import useTimeout from './useTimeout'
+import useToast from './useToast'
 
 export {
     useClickOutside,
@@ -18,4 +19,5 @@ export {
     useNavigateToTask,
     useSetting,
     useTimeout,
+    useToast,
 }
