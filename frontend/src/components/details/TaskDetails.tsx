@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useCallback, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
-import { MarkdownEditor } from '@remirror/react-editors/markdown'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
@@ -14,6 +13,7 @@ import { TTask } from '../../utils/types'
 import GTTextArea from '../atoms/GTTextArea'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
+import RichText from '../atoms/RichText'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
@@ -251,7 +251,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <BodyContainer>
-                        <MarkdownEditor />
+                        <RichText value={task.body} onChange={(val) => onEdit({ id: task.id, body: val })} />
                         <GTTextArea
                             initialValue={task.body}
                             placeholder="Add details"
