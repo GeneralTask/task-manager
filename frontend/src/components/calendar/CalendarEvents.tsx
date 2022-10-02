@@ -133,6 +133,15 @@ const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Google')
 }
 
+const removeDuplicateEvents = (events: TEvent[]) => {
+    const uniqueEvents = new Set()
+    return events.filter((event) => {
+        const isUnique = !uniqueEvents.has(event.id)
+        uniqueEvents.add(event.id)
+        return isUnique
+    })
+}
+
 interface CalendarEventsProps {
     date: DateTime
     primaryAccountID: string | undefined
@@ -156,11 +165,12 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
+        const uniqueEvents = removeDuplicateEvents(events)
         const allGroups: TEvent[][][] = []
         for (let i = 0; i < numberOfDays; i++) {
             const startDate = date.plus({ days: i }).startOf('day')
             const endDate = startDate.endOf('day')
-            const eventList = events?.filter(
+            const eventList = uniqueEvents?.filter(
                 (event) =>
                     DateTime.fromISO(event.datetime_end) >= startDate &&
                     DateTime.fromISO(event.datetime_start) <= endDate
