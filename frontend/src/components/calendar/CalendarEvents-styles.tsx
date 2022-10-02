@@ -133,6 +133,8 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
