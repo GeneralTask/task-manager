@@ -258,7 +258,7 @@ const FocusModeScreen = () => {
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
-                                    {conferenceCall && (
+                                    {conferenceCall && !eventHasEnded && (
                                         <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
