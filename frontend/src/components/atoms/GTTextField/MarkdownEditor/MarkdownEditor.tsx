@@ -4,13 +4,21 @@ import { EditorComponent, Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
 import typescript from 'refractor/lang/typescript'
 import * as RemirrorExtensions from 'remirror/extensions'
-import { stopKeydownPropogation } from '../../utils/utils'
+import styled from 'styled-components'
+import { GTTextFieldProps } from '../types'
 
-interface Props {
-    value: string
-    onChange: (newValue: string) => void
-}
-const RichText = (props: Props) => {
+const EditorContainer = styled.div<{ maxHeight?: number }>`
+    overflow: auto;
+    /* height: 100%; */
+    ${({ maxHeight }) => (maxHeight ? `max-height: ${maxHeight}px` : '')}
+    .remirror-editor {
+        /* overflow: hidden;  */
+        /* height: 100%;  */
+        outline: none;
+    }
+`
+
+const MarkdownEditor = (props: GTTextFieldProps) => {
     const { manager, state } = useRemirror({
         extensions: () => [
             new RemirrorExtensions.LinkExtension({ autoLink: true }),
@@ -18,7 +26,6 @@ const RichText = (props: Props) => {
             new RemirrorExtensions.StrikeExtension(),
             new RemirrorExtensions.ItalicExtension(),
             new RemirrorExtensions.HeadingExtension(),
-            new RemirrorExtensions.LinkExtension(),
             new RemirrorExtensions.BlockquoteExtension(),
             new RemirrorExtensions.BulletListExtension({ enableSpine: true }),
             new RemirrorExtensions.OrderedListExtension(),
@@ -30,22 +37,22 @@ const RichText = (props: Props) => {
             new RemirrorExtensions.MarkdownExtension({ copyAsMarkdown: false }),
             new RemirrorExtensions.HardBreakExtension(),
         ],
-        content: props.value,
+        content: props.initialValue,
         selection: 'end',
         stringHandler: 'markdown',
     })
 
-    const onEdit = useCallback(({ helpers, state }: RemirrorEventListenerProps<Remirror.Extensions>) => {
+    const onEdit = useCallback(({ helpers }: RemirrorEventListenerProps<Remirror.Extensions>) => {
         props.onChange(helpers.getMarkdown())
     }, [])
 
     return (
-        <div onKeyDown={stopKeydownPropogation}>
-            <Remirror manager={manager} initialContent={state} onChange={onEdit}>
+        <Remirror manager={manager} initialContent={state} onChange={onEdit}>
+            <EditorContainer maxHeight={props.maxHeight}>
                 <EditorComponent />
-            </Remirror>
-        </div>
+            </EditorContainer>
+        </Remirror>
     )
 }
 
-export default RichText
+export default MarkdownEditor

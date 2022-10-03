@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
 import { useCallback, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
@@ -10,10 +10,9 @@ import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import GTTextArea from '../atoms/GTTextArea'
+import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
-import RichText from '../atoms/RichText'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
@@ -189,10 +188,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 )}
             </DetailsTopContainer>
             <div>
-                <GTTextArea
+                <GTTextField
                     initialValue={task.title}
                     disabled={task.isOptimistic || is_meeting_preparation_task}
-                    onEdit={(val) => onEdit({ id: task.id, title: val })}
+                    onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     blurOnEnter
@@ -251,13 +250,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <BodyContainer>
-                        <RichText value={task.body} onChange={(val) => onEdit({ id: task.id, body: val })} />
-                        <GTTextArea
+                        <GTTextField
+                            type="markdown"
                             initialValue={task.body}
                             placeholder="Add details"
                             isFullHeight={!task.slack_message_params}
-                            onEdit={(val) => onEdit({ id: task.id, body: val })}
-                            maxHeight={BODY_MAX_HEIGHT}
+                            onChange={(val) => onEdit({ id: task.id, body: val })}
+                            // maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />
                     </BodyContainer>

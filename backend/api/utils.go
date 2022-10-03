@@ -145,7 +145,7 @@ func Handle500(c *gin.Context) {
 
 func FakeLagMiddleware(c *gin.Context) {
 	if isLocalServer() {
-		time.Sleep(time.Second / 2)
+		time.Sleep(0 * time.Second / 2)
 	}
 }
 

@@ -4,7 +4,7 @@ import { usePostFeedback } from '../../services/api/feedback.hooks'
 import { Spacing } from '../../styles'
 import toast from '../../utils/toast'
 import GTModal from '../atoms/GTModal'
-import GTTextArea from '../atoms/GTTextArea'
+import GTTextArea from '../atoms/GTTextField/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TitleSmall } from '../atoms/title/Title'
@@ -55,7 +55,7 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             <TitleSmall>Feedback</TitleSmall>
             <FeedbackTextArea
                 initialValue={feedback}
-                onEdit={(val) => setFeedback(val)}
+                onChange={(val) => setFeedback(val)}
                 fontSize="small"
                 placeholder="Type in your feedback here."
                 isFullHeight
