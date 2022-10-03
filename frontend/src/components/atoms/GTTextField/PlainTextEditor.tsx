@@ -14,32 +14,32 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
-    height: 100%;
 `
 
 const PlainTextEditor = (props: GTTextFieldProps) => {
-    const { isFullHeight, maxHeight, value, onChange } = props
+    const { isFullHeight, maxHeight, initialValue, onChange, ...rest } = props
     const ref = useRef<HTMLTextAreaElement>(null)
     useLayoutEffect(() => {
         if (!isFullHeight && ref.current) {
             ref.current.style.height = '0px'
             ref.current.style.height =
                 maxHeight && ref.current.scrollHeight > maxHeight ? `${maxHeight}px` : `${ref.current.scrollHeight}px`
-            console.log({ sh: ref.current.scrollHeight, h: ref.current.style.height, maxHeight })
         }
-    }, [value, maxHeight])
-    return (
-        <PlainTextArea
-            ref={ref}
-            value={value}
-            onChange={(e) => {
-                console.log({ whytho: e.target.value })
-                onChange(e.target.value)
-            }}
-            fontSize={props.fontSize}
-            // {...rest}
-        />
-    )
+    }, [initialValue, maxHeight])
+
+    useLayoutEffect(() => {
+        if (ref.current) {
+            ref.current.value = initialValue
+        }
+    }, [initialValue])
+
+    const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+        if (ref.current && (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter'))) {
+            ref.current.blur()
+        }
+    }
+
+    return <PlainTextArea ref={ref} onChange={(e) => onChange(e.target.value)} onKeyDown={handleKeyDown} {...rest} />
 }
 
 export default PlainTextEditor

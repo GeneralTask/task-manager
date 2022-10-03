@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
@@ -6,7 +6,7 @@ import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-const Container = styled.div<{ isFullHeight: boolean; disabled?: boolean; maxHeight?: number }>`
+const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean }>`
     background-color: inherit;
     padding: ${Spacing._8};
     border: ${Border.stroke.medium} solid transparent;
@@ -25,45 +25,14 @@ const Container = styled.div<{ isFullHeight: boolean; disabled?: boolean; maxHei
     ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
 `
 
-const GTTextField = ({
-    initialValue,
-    onChange,
-    fontSize,
-    type = 'plaintext',
-    maxHeight,
-    isFullHeight = false,
-    blurOnEnter,
-    ...rest
-}: GTTextFieldProps) => {
-    const [value, setValue] = useState(initialValue)
+const GTTextField = ({ onChange, initialValue, type = 'plaintext', ...rest }: GTTextFieldProps) => {
     const containerRef = useRef<HTMLDivElement>(null)
-
-    const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-        if (containerRef.current && (e.key === 'Escape' || (blurOnEnter && e.key === 'Enter'))) {
-            containerRef.current.blur()
-        }
-        stopKeydownPropogation(e)
-    }
-
-    useLayoutEffect(() => {
-        setValue(value)
-    }, [initialValue])
 
     const Editor = type === 'markdown' ? MarkdownEditor : PlainTextEditor
 
     return (
-        <Container ref={containerRef} onKeyDown={handleKeyDown} isFullHeight={isFullHeight} maxHeight={maxHeight}>
-            <Editor
-                fontSize={fontSize}
-                initialValue={initialValue}
-                value={value}
-                onChange={(val) => {
-                    setValue(val)
-                    onChange(val)
-                }}
-                maxHeight={maxHeight}
-                {...rest}
-            />
+        <Container ref={containerRef} onKeyDown={stopKeydownPropogation} isFullHeight={rest.isFullHeight}>
+            <Editor initialValue={initialValue} onChange={onChange} {...rest} />
         </Container>
     )
 }

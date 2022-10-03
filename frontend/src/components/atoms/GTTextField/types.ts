@@ -8,4 +8,5 @@ export interface GTTextFieldProps extends Omit<React.TextareaHTMLAttributes<HTML
     maxHeight?: number
     isFullHeight?: boolean
     blurOnEnter?: boolean
+    autoSelect?: boolean
 }

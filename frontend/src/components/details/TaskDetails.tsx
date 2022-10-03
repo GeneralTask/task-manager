@@ -149,18 +149,16 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         [task.id, modifyTask]
     )
 
-    const onEdit = useCallback(
-        ({ id, title, body }: TModifyTaskData) => {
-            setIsEditing(true)
-            const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
-            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-            timers.current[timerId] = {
-                timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
-                callback: () => syncDetails({ id, title, body }),
-            }
-        },
-        [syncDetails]
-    )
+    const onEdit = ({ id, title, body }: TModifyTaskData) => {
+        // console.log({ id, body })
+        setIsEditing(true)
+        const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
+        if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
+        timers.current[timerId] = {
+            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
+            callback: () => syncDetails({ id, title, body }),
+        }
+    }
 
     const status = task.external_status ? task.external_status.state : ''
 
@@ -250,13 +248,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <BodyContainer>
+                        {task.id}
                         <GTTextField
                             type="markdown"
                             initialValue={task.body}
                             placeholder="Add details"
                             isFullHeight={!task.slack_message_params}
                             onChange={(val) => onEdit({ id: task.id, body: val })}
-                            // maxHeight={BODY_MAX_HEIGHT}
+                            maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />
                     </BodyContainer>

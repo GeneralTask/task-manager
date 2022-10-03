@@ -38,6 +38,7 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
     word-break: break-word;
     text-align: left;
     padding: ${Spacing._8};
+    border: ${Border.stroke.medium} solid transparent;
     ${Typography.title};
 `
 

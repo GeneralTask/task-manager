@@ -1,26 +1,16 @@
 import { useCallback } from 'react'
 import { ExtensionPriority, RemirrorEventListenerProps } from '@remirror/core'
-import { EditorComponent, Remirror, useRemirror } from '@remirror/react'
+import { Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
 import typescript from 'refractor/lang/typescript'
 import * as RemirrorExtensions from 'remirror/extensions'
-import styled from 'styled-components'
 import { GTTextFieldProps } from '../types'
-
-const EditorContainer = styled.div<{ maxHeight?: number }>`
-    overflow: auto;
-    /* height: 100%; */
-    ${({ maxHeight }) => (maxHeight ? `max-height: ${maxHeight}px` : '')}
-    .remirror-editor {
-        /* overflow: hidden;  */
-        /* height: 100%;  */
-        outline: none;
-    }
-`
+import MarkdownEditorInternal from './MarkdownEditorInternal'
 
 const MarkdownEditor = (props: GTTextFieldProps) => {
     const { manager, state } = useRemirror({
         extensions: () => [
+            new RemirrorExtensions.PlaceholderExtension({ placeholder: props.placeholder }),
             new RemirrorExtensions.LinkExtension({ autoLink: true }),
             new RemirrorExtensions.BoldExtension(),
             new RemirrorExtensions.StrikeExtension(),
@@ -37,7 +27,6 @@ const MarkdownEditor = (props: GTTextFieldProps) => {
             new RemirrorExtensions.MarkdownExtension({ copyAsMarkdown: false }),
             new RemirrorExtensions.HardBreakExtension(),
         ],
-        content: props.initialValue,
         selection: 'end',
         stringHandler: 'markdown',
     })
@@ -47,10 +36,14 @@ const MarkdownEditor = (props: GTTextFieldProps) => {
     }, [])
 
     return (
-        <Remirror manager={manager} initialContent={state} onChange={onEdit}>
-            <EditorContainer maxHeight={props.maxHeight}>
-                <EditorComponent />
-            </EditorContainer>
+        <Remirror
+            manager={manager}
+            initialContent={state}
+            onChange={onEdit}
+            autoFocus={props.autoFocus}
+            editable={!props.disabled}
+        >
+            <MarkdownEditorInternal {...props} />
         </Remirror>
     )
 }
