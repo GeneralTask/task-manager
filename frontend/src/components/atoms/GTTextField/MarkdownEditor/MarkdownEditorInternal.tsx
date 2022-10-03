@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { EditorComponent, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Spacing, Typography } from '../../../../styles'
@@ -24,7 +24,7 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
 `
 
 const MarkdownEditorInternal = (props: GTTextFieldProps) => {
-    const { setContent, blur, selectAll } = useCommands()
+    const { blur, selectAll } = useCommands()
 
     useEffect(() => {
         if (props.autoSelect) {
@@ -32,11 +32,6 @@ const MarkdownEditorInternal = (props: GTTextFieldProps) => {
         }
     }, [])
     console.log(props.initialValue)
-
-    useLayoutEffect(() => {
-        console.log('initialValue', props.initialValue)
-        setContent(props.initialValue)
-    }, [props.initialValue])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter')) {
