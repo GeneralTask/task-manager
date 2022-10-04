@@ -1,10 +1,10 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { useItemSelectionController } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { linearStatus } from '../../styles/images'
-import { icons } from '../../styles/images'
+import { icons, linearStatus } from '../../styles/images'
 import CommentCount from '../atoms/CommentCount'
 import { Icon } from '../atoms/Icon'
 import SelectableContainer from '../atoms/SelectableContainer'
@@ -61,6 +61,11 @@ const LinearView = () => {
                 .flatMap((section) => section.tasks) ?? []
         return tasks.filter((task) => task.source.name === 'Linear')
     }, [taskSections])
+
+    useItemSelectionController(
+        linearTasks,
+        useCallback((itemId: string) => navigate(`/linear/${itemId}`), [])
+    )
 
     const { task } = useMemo(() => {
         if (linearTasks.length === 0) return { task: null }
