@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { EditorComponent, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Spacing, Typography } from '../../../../styles'
-import { FontSize, GTTextFieldProps } from '../types'
+import { FontSize, MarkdownEditorProps } from '../types'
 
 const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean; fontSize: FontSize }>`
     overflow: auto;
@@ -24,7 +24,7 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
     }
 `
 
-const MarkdownEditorInternal = (props: GTTextFieldProps) => {
+const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
     const { blur, selectAll } = useCommands()
     useEffect(() => {
         if (props.autoSelect) {

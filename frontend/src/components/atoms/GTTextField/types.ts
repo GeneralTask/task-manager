@@ -1,7 +1,7 @@
 export type FontSize = 'small' | 'medium' | 'large'
 
 // props we support for markdown
-export interface GTMarkdownEditorProps {
+export interface MarkdownEditorProps {
     value: string
     onChange: (newValue: string) => void
     placeholder?: string
@@ -17,10 +17,10 @@ export interface GTMarkdownEditorProps {
 }
 
 // all props we support for markdown + native textarea props
-export interface GTPlainTextEditorProps
-    extends Omit<GTMarkdownEditorProps, 'type'>,
+export interface PlainTextEditorProps
+    extends Omit<MarkdownEditorProps, 'type'>,
         Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange' | 'value'> {
     type: 'plaintext'
 }
 
-export type GTTextFieldProps = GTMarkdownEditorProps | GTPlainTextEditorProps
+export type GTTextFieldProps = MarkdownEditorProps | PlainTextEditorProps

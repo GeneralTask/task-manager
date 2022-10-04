@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { Typography } from '../../../styles'
-import { FontSize, GTTextFieldProps } from './types'
+import { FontSize, PlainTextEditorProps } from './types'
 
 const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     background-color: inherit;
@@ -17,7 +17,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
 `
 
-const PlainTextEditor = (props: GTTextFieldProps) => {
+const PlainTextEditor = (props: PlainTextEditorProps) => {
     const { isFullHeight, maxHeight, value, onChange, ...rest } = props
     const ref = useRef<HTMLTextAreaElement>(null)
     const resizeEditor = () => {
