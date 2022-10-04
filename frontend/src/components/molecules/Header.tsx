@@ -98,6 +98,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             >
                 {isEditingTitle ? (
                     <GTTextField
+                        type="plaintext"
                         value={sectionName}
                         fontSize="large"
                         onChange={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}

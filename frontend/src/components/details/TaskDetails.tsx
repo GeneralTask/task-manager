@@ -186,6 +186,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             </DetailsTopContainer>
             <div>
                 <GTTextField
+                    type="plaintext"
                     itemId={task.id}
                     value={task.title}
                     disabled={task.isOptimistic || is_meeting_preparation_task}

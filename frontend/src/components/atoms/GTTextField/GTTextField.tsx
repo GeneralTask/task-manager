@@ -27,14 +27,20 @@ const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean; maxHe
     ${({ isFullHeight }) => (isFullHeight ? `height: 100%;` : '')}
 `
 
-const GTTextField = ({ onChange, value, type = 'plaintext', ...rest }: GTTextFieldProps) => {
+const GTTextField = (props: GTTextFieldProps) => {
     const containerRef = useRef<HTMLDivElement>(null)
 
-    const Editor = type === 'markdown' ? MarkdownEditor : PlainTextEditor
+    const getEditor = () => {
+        if (props.type === 'markdown') {
+            return <MarkdownEditor {...props} />
+        } else {
+            return <PlainTextEditor {...props} />
+        }
+    }
 
     return (
-        <Container ref={containerRef} onKeyDown={stopKeydownPropogation} isFullHeight={rest.isFullHeight}>
-            <Editor value={value} onChange={onChange} {...rest} />
+        <Container ref={containerRef} onKeyDown={stopKeydownPropogation} isFullHeight={props.isFullHeight}>
+            {getEditor()}
         </Container>
     )
 }

@@ -4,10 +4,10 @@ import { Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
 import typescript from 'refractor/lang/typescript'
 import * as RemirrorExtensions from 'remirror/extensions'
-import { GTTextFieldProps } from '../types'
+import { GTMarkdownEditorProps } from '../types'
 import MarkdownEditorInternal from './MarkdownEditorInternal'
 
-const MarkdownEditor = (props: GTTextFieldProps) => {
+const MarkdownEditor = (props: GTMarkdownEditorProps) => {
     const { manager, state } = useRemirror({
         extensions: () => [
             new RemirrorExtensions.BlockquoteExtension(),
