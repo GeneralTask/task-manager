@@ -6,6 +6,7 @@ import typescript from 'refractor/lang/typescript'
 import * as RemirrorExtensions from 'remirror/extensions'
 import { MarkdownEditorProps } from '../types'
 import MarkdownEditorInternal from './MarkdownEditorInternal'
+import RichTextEditorMenu from './RichTextEditorMenu'
 
 const MarkdownEditor = (props: MarkdownEditorProps) => {
     const { manager, state } = useRemirror({
@@ -55,6 +56,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             editable={!props.disabled}
         >
             <MarkdownEditorInternal {...props} />
+            <RichTextEditorMenu />
         </Remirror>
     )
 }

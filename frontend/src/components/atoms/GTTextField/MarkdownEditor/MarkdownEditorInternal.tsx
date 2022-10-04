@@ -8,6 +8,8 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
     overflow: auto;
     height: 100%;
     width: 100%;
+    padding: ${Spacing._8} ${Spacing._8} 0 ${Spacing._8};
+    box-sizing: border-box;
     ${({ maxHeight, isFullHeight }) => (maxHeight && !isFullHeight ? `max-height: ${maxHeight}px;` : '')}
     ${({ isFullHeight }) => (isFullHeight ? 'height: 100%;' : '')}
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
