@@ -187,7 +187,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             <div>
                 <GTTextField
                     itemId={task.id}
-                    initialValue={task.title}
+                    value={task.title}
                     disabled={task.isOptimistic || is_meeting_preparation_task}
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
@@ -251,7 +251,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         <GTTextField
                             itemId={task.id}
                             type="markdown"
-                            initialValue={task.body}
+                            value={task.body}
                             placeholder="Add details"
                             isFullHeight={!task.slack_message_params}
                             onChange={(val) => onEdit({ id: task.id, body: val })}

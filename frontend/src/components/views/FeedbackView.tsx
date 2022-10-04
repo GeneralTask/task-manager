@@ -54,7 +54,7 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
             <FeedbackTextArea
-                initialValue={feedback}
+                value={feedback}
                 onChange={(val) => setFeedback(val)}
                 fontSize="small"
                 placeholder="Type in your feedback here."

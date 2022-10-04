@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useLayoutEffect } from 'react'
 import { ExtensionPriority, RemirrorEventListenerProps } from '@remirror/core'
 import { Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
@@ -29,10 +29,15 @@ const MarkdownEditor = (props: GTTextFieldProps) => {
             new RemirrorExtensions.TrailingNodeExtension(),
             new RemirrorExtensions.UnderlineExtension(),
         ],
-        content: props.initialValue,
+        content: props.value,
         selection: 'end',
         stringHandler: 'markdown',
     })
+
+    // when the selected task changes, update the content
+    useLayoutEffect(() => {
+        manager.view.updateState(manager.createState({ content: props.value }))
+    }, [props.itemId])
 
     const onEdit = useCallback(
         ({ helpers }: RemirrorEventListenerProps<Remirror.Extensions>) => {

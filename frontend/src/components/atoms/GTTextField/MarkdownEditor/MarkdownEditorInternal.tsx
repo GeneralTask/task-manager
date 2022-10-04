@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect } from 'react'
-import { EditorComponent, useCommands, useRemirrorContext } from '@remirror/react'
+import { useEffect } from 'react'
+import { EditorComponent, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Spacing, Typography } from '../../../../styles'
 import { FontSize, GTTextFieldProps } from '../types'
@@ -26,17 +26,11 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
 
 const MarkdownEditorInternal = (props: GTTextFieldProps) => {
     const { blur, selectAll } = useCommands()
-    const { manager } = useRemirrorContext()
     useEffect(() => {
         if (props.autoSelect) {
             selectAll()
         }
     }, [props.autoSelect])
-
-    // when the selected task changes, update the content
-    useLayoutEffect(() => {
-        manager.view.updateState(manager.createState({ content: props.initialValue }))
-    }, [props.itemId])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter')) {

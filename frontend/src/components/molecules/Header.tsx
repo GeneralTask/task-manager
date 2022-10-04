@@ -98,7 +98,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
             >
                 {isEditingTitle ? (
                     <GTTextField
-                        initialValue={sectionName}
+                        value={sectionName}
                         fontSize="large"
                         onChange={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
                         onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}

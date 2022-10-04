@@ -18,7 +18,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
 `
 
 const PlainTextEditor = (props: GTTextFieldProps) => {
-    const { isFullHeight, maxHeight, initialValue, onChange, ...rest } = props
+    const { isFullHeight, maxHeight, value, onChange, ...rest } = props
     const ref = useRef<HTMLTextAreaElement>(null)
     const resizeEditor = () => {
         if (!isFullHeight && ref.current) {
@@ -30,11 +30,11 @@ const PlainTextEditor = (props: GTTextFieldProps) => {
 
     useLayoutEffect(() => {
         if (ref.current) {
-            ref.current.value = initialValue
+            ref.current.value = value
         }
-    }, [initialValue])
+    }, [value])
 
-    useEffect(resizeEditor, [initialValue, maxHeight])
+    useEffect(resizeEditor, [value, maxHeight])
 
     useEffect(() => {
         if (props.autoSelect && ref.current) {
