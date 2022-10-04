@@ -45,7 +45,7 @@ const MarkdownEditorInternal = (props: GTTextFieldProps) => {
             isFullHeight={props.isFullHeight}
             fontSize={props.fontSize}
         >
-            <EditorComponent key="duck" />
+            <EditorComponent />
         </EditorContainer>
     )
 }
