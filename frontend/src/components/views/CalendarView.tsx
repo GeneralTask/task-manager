@@ -17,6 +17,7 @@ import {
 import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
 import TasksDue from '../calendar/TasksDue'
+import TasksDueWeek from '../calendar/TasksDueWeek'
 
 export type TCalendarType = 'day' | 'week'
 
@@ -92,6 +93,8 @@ const CalendarView = ({
                         </CalendarDayHeader>
                     ))}
             </CalendarWeekDateHeaderContainer>
+            {calendarType === 'week' && <TasksDueWeek date={date} />}
+
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )
