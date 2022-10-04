@@ -155,7 +155,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
             >
-                <ItemContainer isSelected={isSelected} isHovered={isHovered} onClick={onClick} ref={drag}>
+                <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag}>
                     <DominoContainer isVisible={isHovered && !dragDisabled}>
                         <Domino />
                     </DominoContainer>

@@ -169,6 +169,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean }>`
     min-width: 300px;
+    ${(props) => !props.isExpanded && `width: 300px;`}
     height: 100%;
     flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
