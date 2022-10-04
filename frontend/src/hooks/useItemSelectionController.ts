@@ -8,7 +8,7 @@ export default function useItemSelectionController(
     selectItem: (itemId: string) => void
 ) {
     const params = useParams()
-    const selectedItemId = params.task ?? params.pullRequest ?? params.linearIssueId
+    const selectedItemId = params.task ?? params.pullRequest ?? params.linearIssueId ?? params.slackTaskId
 
     // on press DOWN -> select first item
     const onUpDown = useCallback(
