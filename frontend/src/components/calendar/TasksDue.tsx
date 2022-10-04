@@ -1,21 +1,23 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { useNavigateToTask } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { logos } from '../../styles/images'
-import { TTask } from '../../utils/types'
-import { getTaskIndexFromSections } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import ItemContainer from '../molecules/ItemContainer'
+
+const CONTAINER_MAX_HEIGHT = '130px'
 
 const TasksDueContainer = styled.div`
     background-color: ${Colors.background.white};
     padding: ${Spacing._16} ${Spacing._24};
     border-top: ${Border.stroke.medium} solid ${Colors.border.light};
     border-bottom: ${Border.stroke.large} solid ${Colors.border.light};
+    max-height: ${CONTAINER_MAX_HEIGHT};
+    overflow-y: auto;
 `
 const TasksDueHeader = styled.div`
     ${Typography.eyebrow};
@@ -32,12 +34,16 @@ const CaretContainer = styled.div`
 `
 const TasksDueBody = styled.div`
     margin-top: ${Spacing._8};
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._4};
 `
 const TaskTitle = styled.span`
     margin-left: ${Spacing._8};
     min-width: 0;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
 `
 const TaskDue = styled.div`
     padding: ${Spacing._8} 0;
@@ -50,27 +56,15 @@ interface TasksDueProps {
     date: DateTime
 }
 const TasksDue = ({ date }: TasksDueProps) => {
-    const naviagte = useNavigate()
+    const navigateToTask = useNavigateToTask()
     const [isCollapsed, setIsCollapsed] = useState(false)
     const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
 
     const { data: taskSections } = useGetTasks()
-    const allTasks = taskSections?.flatMap((section) => section.tasks) ?? []
-    const tasksDueToday = allTasks.filter((task) => DateTime.fromISO(task.due_date).hasSame(date, 'day'))
-
-    const onClickHandler = (task: TTask) => {
-        if (task.source.name === 'General Task') {
-            if (!taskSections) return
-            const { sectionIndex } = getTaskIndexFromSections(taskSections, task.id)
-            if (sectionIndex === undefined) return
-            const sectionId = taskSections[sectionIndex].id
-            naviagte(`/tasks/${sectionId}/${task.id}`)
-        } else if (task.source.name === 'Linear') {
-            naviagte(`/linear/${task.id}`)
-        } else if (task.source.name === 'GitHub') {
-            naviagte(`/pull-requests/${task.id}`)
-        }
-    }
+    const tasksDueToday = useMemo(() => {
+        const allTasks = taskSections?.flatMap((section) => section.tasks) ?? []
+        return allTasks.filter((task) => DateTime.fromISO(task.due_date).hasSame(date, 'day'))
+    }, [taskSections, date])
 
     if (tasksDueToday.length === 0) return null
     return (
@@ -94,7 +88,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
                                 key={task.id}
                                 isSelected={false}
                                 onClick={() => {
-                                    onClickHandler(task)
+                                    navigateToTask(task.id)
                                 }}
                             >
                                 <TaskDue>
