@@ -91,6 +91,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
                     {tasksDueToday.map((task) => {
                         return (
                             <ItemContainer
+                                key={task.id}
                                 isSelected={false}
                                 onClick={() => {
                                     onClickHandler(task)
