@@ -5,10 +5,15 @@ import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { getMonthsAroundDate } from '../../utils/time'
+import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CalendarEvents from '../calendar/CalendarEvents'
-import { CalendarContainer } from '../calendar/CalendarEvents-styles'
+import {
+    CalendarContainer,
+    CalendarDayHeader,
+    CalendarWeekDateHeaderContainer,
+    DayHeaderText,
+} from '../calendar/CalendarEvents-styles'
 import CalendarHeader from '../calendar/CalendarHeader'
 import CollapsedCalendarSidebar from '../calendar/CollapsedCalendarSidebar'
 import TasksDue from '../calendar/TasksDue'
@@ -77,6 +82,16 @@ const CalendarView = ({
                 showDateHeader={showDateHeader}
             />
             {calendarType === 'day' && <TasksDue date={date} />}
+            <CalendarWeekDateHeaderContainer>
+                {calendarType === 'week' &&
+                    [...Array(7)].map((_, offset) => (
+                        <CalendarDayHeader>
+                            <DayHeaderText isToday={isDateToday(date.plus({ days: offset }))}>
+                                {date.plus({ days: offset }).toFormat('ccc dd')}
+                            </DayHeaderText>
+                        </CalendarDayHeader>
+                    ))}
+            </CalendarWeekDateHeaderContainer>
             <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )
