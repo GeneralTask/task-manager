@@ -29,7 +29,6 @@ const MarkdownEditorInternal = (props: GTTextFieldProps) => {
     const { manager } = useRemirrorContext()
     useEffect(() => {
         if (props.autoSelect) {
-            console.log('booop')
             selectAll()
         }
     }, [props.autoSelect])
