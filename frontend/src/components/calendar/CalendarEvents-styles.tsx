@@ -20,6 +20,11 @@ const getEventWidth = (squishFactor: number) => `calc(
     (${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/(${squishFactor})
 )`
 
+export const CalendarWeekDateHeaderContainer = styled.div`
+    display: flex;
+    margin-left: ${CELL_TIME_WIDTH};
+`
+
 export const DayContainer = styled.div`
     width: 100%;
     height: fit-content;
@@ -159,6 +164,7 @@ export const CalendarDayHeader = styled.div`
     background-color: ${Colors.background.medium};
     top: 0;
     z-index: 2;
+    margin: 0 auto;
 `
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
@@ -188,6 +194,7 @@ export const TimeAndHeaderContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: fit-content;
+    width: ${CELL_TIME_WIDTH};
 `
 export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     position: absolute;

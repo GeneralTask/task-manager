@@ -12,14 +12,12 @@ import {
     CALENDAR_DEFAULT_SCROLL_HOUR,
     CELL_HEIGHT_VALUE,
     CalendarCell,
-    CalendarDayHeader,
     CalendarRow,
     CalendarTD,
     CalendarTableStyle,
     CalendarTimesTableStyle,
     DayAndHeaderContainer,
     DayContainer,
-    DayHeaderText,
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
     TimeAndHeaderContainer,
@@ -100,11 +98,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
-            {isWeekCalendar && (
-                <CalendarDayHeader>
-                    <DayHeaderText isToday={isToday}>{date.toFormat('ccc dd')}</DayHeaderText>
-                </CalendarDayHeader>
-            )}
             <DayContainer>
                 {groups.map((group, index) => (
                     <CollisionGroupColumns key={index} events={group} date={date} />
@@ -199,7 +192,6 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     return (
         <AllDaysContainer ref={scrollRef}>
             <TimeAndHeaderContainer>
-                {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
                     {isDateToday(date) && <TimeIndicator ref={timeIndicatorRef} />}
                     <CalendarTimeTable />
