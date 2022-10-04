@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { EditorComponent, useCommands } from '@remirror/react'
+import { useEffect, useLayoutEffect } from 'react'
+import { EditorComponent, useCommands, useRemirrorContext } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Spacing, Typography } from '../../../../styles'
 import { FontSize, GTTextFieldProps } from '../types'
@@ -7,6 +7,7 @@ import { FontSize, GTTextFieldProps } from '../types'
 const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean; fontSize: FontSize }>`
     overflow: auto;
     height: 100%;
+    width: 100%;
     ${({ maxHeight, isFullHeight }) => (maxHeight && !isFullHeight ? `max-height: ${maxHeight}px;` : '')}
     ${({ isFullHeight }) => (isFullHeight ? 'height: 100%;' : '')}
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
@@ -25,13 +26,18 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
 
 const MarkdownEditorInternal = (props: GTTextFieldProps) => {
     const { blur, selectAll } = useCommands()
-
+    const { manager } = useRemirrorContext()
     useEffect(() => {
         if (props.autoSelect) {
+            console.log('booop')
             selectAll()
         }
-    }, [])
-    console.log(props.initialValue)
+    }, [props.autoSelect])
+
+    // when the selected task changes, update the content
+    useLayoutEffect(() => {
+        manager.view.updateState(manager.createState({ content: props.initialValue }))
+    }, [props.itemId])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter')) {
@@ -46,7 +52,7 @@ const MarkdownEditorInternal = (props: GTTextFieldProps) => {
             isFullHeight={props.isFullHeight}
             fontSize={props.fontSize}
         >
-            <EditorComponent />
+            <EditorComponent key="duck" />
         </EditorContainer>
     )
 }

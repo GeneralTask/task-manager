@@ -150,7 +150,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     )
 
     const onEdit = ({ id, title, body }: TModifyTaskData) => {
-        // console.log({ id, body })
         setIsEditing(true)
         const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
@@ -187,6 +186,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             </DetailsTopContainer>
             <div>
                 <GTTextField
+                    itemId={task.id}
                     initialValue={task.title}
                     disabled={task.isOptimistic || is_meeting_preparation_task}
                     onChange={(val) => onEdit({ id: task.id, title: val })}
@@ -248,8 +248,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <BodyContainer>
-                        {task.id}
                         <GTTextField
+                            itemId={task.id}
                             type="markdown"
                             initialValue={task.body}
                             placeholder="Add details"

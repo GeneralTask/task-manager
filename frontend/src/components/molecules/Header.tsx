@@ -40,6 +40,8 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
     padding: ${Spacing._8};
     border: ${Border.stroke.medium} solid transparent;
     ${Typography.title};
+    box-sizing: border-box;
+    margin-bottom: 3.5px;
 `
 
 const MAX_SECTION_NAME_LENGTH = 200
@@ -101,9 +103,7 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                         onChange={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
                         onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
                         blurOnEnter
-                        disabled={!isEditingTitle}
-                        onFocus={(e) => e.target.select()}
-                        autoFocus
+                        autoSelect
                     />
                 ) : (
                     <>

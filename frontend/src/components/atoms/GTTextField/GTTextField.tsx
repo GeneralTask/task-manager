@@ -6,11 +6,13 @@ import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean }>`
+const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean; maxHeight?: number }>`
     background-color: inherit;
     padding: ${Spacing._8};
+    box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
     border-radius: ${Border.radius.small};
+    width: 100%;
     :hover,
     :focus-within {
         box-shadow: ${Shadows.light};
@@ -22,7 +24,7 @@ const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean }>`
     :focus-within {
         border-color: ${Colors.gtColor.primary};
     }
-    ${({ isFullHeight }) => isFullHeight && `height: 100%;`}
+    ${({ isFullHeight }) => (isFullHeight ? `height: 100%;` : '')}
 `
 
 const GTTextField = ({ onChange, initialValue, type = 'plaintext', ...rest }: GTTextFieldProps) => {

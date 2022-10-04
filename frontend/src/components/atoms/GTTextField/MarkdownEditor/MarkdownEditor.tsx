@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect } from 'react'
+import { useCallback } from 'react'
 import { ExtensionPriority, RemirrorEventListenerProps } from '@remirror/core'
 import { Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
@@ -26,15 +26,12 @@ const MarkdownEditor = (props: GTTextFieldProps) => {
             new RemirrorExtensions.TableExtension(),
             new RemirrorExtensions.MarkdownExtension({ copyAsMarkdown: false }),
             new RemirrorExtensions.HardBreakExtension(),
+            new RemirrorExtensions.HistoryExtension(),
         ],
         content: props.initialValue,
         selection: 'end',
         stringHandler: 'markdown',
     })
-
-    useLayoutEffect(() => {
-        manager.view.updateState(manager.createState({ content: props.initialValue }))
-    }, [props.initialValue])
 
     const onEdit = useCallback(
         ({ helpers }: RemirrorEventListenerProps<Remirror.Extensions>) => {
