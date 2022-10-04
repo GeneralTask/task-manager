@@ -60,7 +60,7 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
                 <Icon icon={caretIcon} />
             </AbsoluteCaretIcon>
             {[...Array(7)].map((_, index) => (
-                <TaskDueContainer>
+                <TaskDueContainer key={index}>
                     {tasksDueWeek[index].length > 0 && (
                         <>
                             <TasksDueHeader
