@@ -21,6 +21,9 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
         outline: none;
         height: 100%;
         white-space: pre-wrap;
+        > * {
+            margin-top: 0;
+        }
     }
 `
 
