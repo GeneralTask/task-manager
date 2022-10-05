@@ -8,9 +8,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
-	"github.com/GeneralTask/task-manager/backend/database"
-
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -195,40 +192,6 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, 2, len(sectionResult))
 		assert.Equal(t, "important videos 2", sectionResult[0].Name)
 		assert.Equal(t, "things i dont want to do", sectionResult[1].Name)
-	})
-	t.Run("ModifyDefaultSuccess", func(t *testing.T) {
-		api, dbCleanup := GetAPIWithDBCleanup()
-		defer dbCleanup()
-		router := GetRouter(api)
-		request, _ := http.NewRequest(
-			"PATCH",
-			"/sections/modify/"+constants.IDTaskSectionDefault.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"name": "New Default"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
-
-		// make same request to verify updating with same name is ok
-		request, _ = http.NewRequest(
-			"PATCH",
-			"/sections/modify/"+constants.IDTaskSectionDefault.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"name": "New Default"}`)))
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder = httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
-
-		// Check that DB is updated
-		userID := getUserIDFromAuthToken(t, api.DB, authToken)
-		defaultSectionName := database.GetDefaultSectionName(api.DB, userID)
-		assert.Equal(t, "New Default", defaultSectionName)
 	})
 	t.Run("DeleteBadURL", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()

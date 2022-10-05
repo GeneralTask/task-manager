@@ -906,48 +906,6 @@ func TestGetExternalTokens(t *testing.T) {
 	})
 }
 
-func TestGetDefaultSectionName(t *testing.T) {
-	db, dbCleanup, err := GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	userID := primitive.NewObjectID()
-
-	t.Run("SuccessUnset", func(t *testing.T) {
-		sectionName := GetDefaultSectionName(db, userID)
-		assert.Equal(t, constants.TaskSectionNameDefault, sectionName)
-	})
-	t.Run("SuccessEmptyString", func(t *testing.T) {
-		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
-			context.Background(),
-			&DefaultSectionSettings{
-				UserID:       userID,
-				NameOverride: "New Default",
-			},
-		)
-
-		sectionName := GetDefaultSectionName(db, userID)
-		assert.Equal(t, "New Default", sectionName)
-
-	})
-	t.Run("Success", func(t *testing.T) {
-		otherUserID := primitive.NewObjectID()
-		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
-			context.Background(),
-			&DefaultSectionSettings{
-				UserID: otherUserID,
-			},
-			&DefaultSectionSettings{
-				UserID:       otherUserID,
-				NameOverride: "",
-			},
-		)
-
-		sectionName := GetDefaultSectionName(db, otherUserID)
-		assert.Equal(t, "Task Inbox", sectionName)
-
-	})
-}
-
 func TestAdjustOrderingIDs(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
