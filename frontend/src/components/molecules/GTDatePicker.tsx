@@ -11,15 +11,13 @@ import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTPopover from '../radix/GTPopover'
 
+const CALENDAR_DAY_SIZE = '32px'
+
 const GTDatePickerWrapper = styled.div`
     display: flex;
     flex-direction: column;
     .mantine-Calendar-calendarHeaderLevel {
-        color: ${Colors.text.light};
         ${Typography.eyebrow};
-    }
-    .mantine-Calendar-day {
-        border-radius: 50%;
     }
 `
 const DateViewContainer = styled.div`
@@ -79,7 +77,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     }
                     if (date.toDateString() === new Date().toDateString()) {
                         return {
-                            outline: `${Border.stroke.medium} solid ${Colors.gtColor.primary}`,
+                            border: `${Border.stroke.medium} solid ${Colors.gtColor.primary}`,
                             zIndex: 1,
                         }
                     }
@@ -88,12 +86,31 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     }
                     return { color: Colors.text.black }
                 }}
+                styles={{
+                    calendarBase: {
+                        maxWidth: 'none',
+                    },
+                    calendarHeaderLevel: {
+                        color: Colors.text.light,
+                    },
+                    day: {
+                        borderRadius: '50%',
+                        width: CALENDAR_DAY_SIZE,
+                        height: CALENDAR_DAY_SIZE,
+                        margin: Spacing._4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    },
+                }}
             />
-            <DateViewContainer>
-                <Icon icon={icons.calendar_blank} color="black" />
-                <DateViewText>{isValidDueDate(value) ? value?.toDateString() : 'No Due Date'}</DateViewText>
-                <GTIconButton icon={icons.x} color="black" onClick={() => handleOnChange(null)} />
-            </DateViewContainer>
+            {isValidDueDate(value) && (
+                <DateViewContainer>
+                    <Icon icon={icons.calendar_blank} color="black" />
+                    <DateViewText>{value?.toDateString()}</DateViewText>
+                    <GTIconButton icon={icons.x} color="black" onClick={() => handleOnChange(null)} />
+                </DateViewContainer>
+            )}
         </GTDatePickerWrapper>
     )
 
@@ -112,6 +129,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     value={getFormattedDate(value).dateString}
                     textColor={getFormattedDate(value).color}
                     onClick={() => setIsOpen(!isOpen)}
+                    asDiv
                 />
             }
         />

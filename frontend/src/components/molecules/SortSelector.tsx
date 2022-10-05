@@ -48,6 +48,7 @@ const SortSelector = <T,>({
                     value={sortOptions[selectedSort.id].label}
                     styleType="secondary"
                     size="small"
+                    asDiv
                 />
             }
         />

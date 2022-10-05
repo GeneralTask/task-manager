@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { getMonthsAroundDate } from '../../utils/time'
+import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent, TLinkedAccount } from '../../utils/types'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
@@ -12,14 +12,12 @@ import {
     CALENDAR_DEFAULT_SCROLL_HOUR,
     CELL_HEIGHT_VALUE,
     CalendarCell,
-    CalendarDayHeader,
     CalendarRow,
     CalendarTD,
     CalendarTableStyle,
     CalendarTimesTableStyle,
     DayAndHeaderContainer,
     DayContainer,
-    DayHeaderText,
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
     TimeAndHeaderContainer,
@@ -96,16 +94,10 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         eventsContainerRef,
         isWeekView: isWeekCalendar,
     })
+    const isToday = isDateToday(date)
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
-            {isWeekCalendar && (
-                <CalendarDayHeader>
-                    <DayHeaderText isToday={date.startOf('day').equals(DateTime.now().startOf('day'))}>
-                        {date.toFormat('ccc dd')}
-                    </DayHeaderText>
-                </CalendarDayHeader>
-            )}
             <DayContainer>
                 {groups.map((group, index) => (
                     <CollisionGroupColumns key={index} events={group} date={date} />
@@ -122,7 +114,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                     ))}
-                <TimeIndicator />
+                {(isWeekCalendar || isToday) && <TimeIndicator />}
                 <CalendarDayTable hasBorder={isWeekCalendar} />
             </DayContainer>
         </DayAndHeaderContainer>
@@ -131,6 +123,15 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
 
 const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Google')
+}
+
+const removeDuplicateEvents = (events: TEvent[]) => {
+    const uniqueEvents = new Set()
+    return events.filter((event) => {
+        const isUnique = !uniqueEvents.has(event.id)
+        uniqueEvents.add(event.id)
+        return isUnique
+    })
 }
 
 interface CalendarEventsProps {
@@ -156,11 +157,12 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
 
     const allGroups = useMemo(() => {
         const events = [...(eventPreviousMonth ?? []), ...(eventsCurrentMonth ?? []), ...(eventsNextMonth ?? [])]
+        const uniqueEvents = removeDuplicateEvents(events)
         const allGroups: TEvent[][][] = []
         for (let i = 0; i < numberOfDays; i++) {
             const startDate = date.plus({ days: i }).startOf('day')
             const endDate = startDate.endOf('day')
-            const eventList = events?.filter(
+            const eventList = uniqueEvents?.filter(
                 (event) =>
                     DateTime.fromISO(event.datetime_end) >= startDate &&
                     DateTime.fromISO(event.datetime_start) <= endDate
@@ -190,9 +192,8 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
     return (
         <AllDaysContainer ref={scrollRef}>
             <TimeAndHeaderContainer>
-                {calendarType == 'week' && <CalendarDayHeader />}
                 <TimeContainer>
-                    <TimeIndicator ref={timeIndicatorRef} />
+                    {isDateToday(date) && <TimeIndicator ref={timeIndicatorRef} />}
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>

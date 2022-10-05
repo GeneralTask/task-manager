@@ -20,6 +20,11 @@ const getEventWidth = (squishFactor: number) => `calc(
     (${TABLE_WIDTH_PERCENTAGE} - ${CELL_BORDER_WIDTH} - ${CELL_LEFT_MARGIN}) * 1/(${squishFactor})
 )`
 
+export const CalendarWeekDateHeaderContainer = styled.div`
+    display: flex;
+    margin-left: ${CELL_TIME_WIDTH};
+`
+
 export const DayContainer = styled.div`
     width: 100%;
     height: fit-content;
@@ -133,6 +138,8 @@ export const EventTime = styled.div`
     float: left;
     max-height: 100%;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
@@ -157,6 +164,7 @@ export const CalendarDayHeader = styled.div`
     background-color: ${Colors.background.medium};
     top: 0;
     z-index: 2;
+    margin: 0 auto;
 `
 export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
@@ -165,8 +173,9 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
 `
-export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean }>`
+export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
     min-width: 300px;
+    ${(props) => !props.isExpanded && `width: 300px;`}
     height: 100%;
     flex: ${(isExpanded) => (isExpanded ? '1' : '0')};
     background-color: ${Colors.background.medium};
@@ -174,6 +183,7 @@ export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: b
     z-index: 1;
     box-shadow: ${({ showShadow }) => (showShadow ? Shadows.light : 'none')};
     flex-direction: column;
+    border-left: ${({ hasLeftBorder }) => (hasLeftBorder ? Border.stroke.medium : 'none')} solid ${Colors.border.light};
 `
 export const DayAndHeaderContainer = styled.div`
     display: flex;
@@ -185,6 +195,7 @@ export const TimeAndHeaderContainer = styled.div`
     display: flex;
     flex-direction: column;
     height: fit-content;
+    width: ${CELL_TIME_WIDTH};
 `
 export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     position: absolute;

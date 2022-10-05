@@ -272,8 +272,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 
 	requiredAction := ActionNoneNeeded
 	isOwner := userIsOwner(githubUser, pullRequest)
-	isReviewer := userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams)
-	if isOwner || isReviewer {
+	if isOwner || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
 		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
@@ -312,7 +311,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 			ChecksDidFinish:      checksDidFinish,
 			IsOwnedByUser:        isOwner,
 			UserLogin:            githubUser.GetLogin(),
-			UserIsReviewer:       isReviewer,
+			UserIsReviewer:       userNeedsToSubmitReview(githubUser, reviewers, requestData.UserTeams),
 		})
 	}
 
@@ -461,7 +460,6 @@ func listReviewers(ctx context.Context, githubClient *github.Client, repository 
 	}
 	reviewers, _, err := githubClient.PullRequests.ListReviewers(ctx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	return reviewers, err
-
 }
 
 func listComments(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURL *string) ([]*github.PullRequestComment, error) {
@@ -495,6 +493,25 @@ func userIsOwner(githubUser *github.User, pullRequest *github.PullRequest) bool 
 	return (githubUser.ID != nil &&
 		pullRequest.User.ID != nil &&
 		*githubUser.ID == *pullRequest.User.ID)
+}
+
+func userNeedsToSubmitReview(githubUser *github.User, reviewers *github.Reviewers, userTeams []*github.Team) bool {
+	if githubUser == nil || reviewers == nil {
+		return false
+	}
+	for _, reviewer := range reviewers.Users {
+		if reviewer.GetID() == githubUser.GetID() {
+			return true
+		}
+	}
+	for _, userTeam := range userTeams {
+		for _, team := range reviewers.Teams {
+			if team.GetID() == userTeam.GetID() {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // Github API does not consider users who have submitted a review as reviewers

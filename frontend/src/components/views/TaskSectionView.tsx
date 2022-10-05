@@ -55,6 +55,12 @@ const TaskSectionView = () => {
         return { section, task }
     }, [taskSections, params.task, params.section])
 
+    const taskIndex = useMemo(() => {
+        // Find the index of the currently selected task. If the task is not found, return 0
+        const index = section?.tasks.findIndex(({ id }) => id === task?.id)
+        return !index || index === -1 ? 0 : index
+    }, [params.task, params.section])
+
     const selectTask = useCallback(
         (itemId: string) => {
             if (section) navigate(`/tasks/${section.id}/${itemId}`)
@@ -80,6 +86,10 @@ const TaskSectionView = () => {
             const firstSectionId = taskSections[0].id
             if (!section) {
                 navigate(`/tasks/${firstSectionId}/`)
+            } else if (!task && section.tasks.length > taskIndex) {
+                navigate(`/tasks/${section.id}/${section.tasks[taskIndex].id}`)
+            } else if (!task && section.tasks.length === taskIndex && taskIndex > 0) {
+                navigate(`/tasks/${section.id}/${section.tasks[taskIndex - 1].id}`)
             } else if (!task && section.tasks.length > 0) {
                 navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
             }

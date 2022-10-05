@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
-import { useInterval } from '.'
+import { useInterval, useToast } from '.'
 import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
 import { icons } from '../styles/images'
-import toast, { dismissToast, isActive, updateToast } from '../utils/toast'
 import { TEvent } from '../utils/types'
 
 const eventBannerLastShownAt = new Map<string, number>()
@@ -24,6 +23,7 @@ export default function useEventBanners(date: DateTime) {
         },
         'banner'
     )
+    const toast = useToast()
     useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
     useInterval(
@@ -39,7 +39,7 @@ export default function useEventBanners(date: DateTime) {
 
     eventBannerLastShownAt.forEach((_, id) => {
         if (!eventsWithinTenMinutes.map((event) => event.id).includes(id)) {
-            dismissToast(id)
+            toast.dismiss()
             eventBannerLastShownAt.delete(id)
         }
     })
@@ -69,12 +69,12 @@ export default function useEventBanners(date: DateTime) {
                       },
                   }),
         }
-        if (isActive(event.id)) {
-            updateToast(event.id, toastProps)
+        if (toast.isActive()) {
+            toast.update(toastProps)
             eventBannerLastShownAt.set(event.id, timeUntilEvent)
         } else {
             if (!lastShownAt || (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))) {
-                toast(toastProps, {
+                toast.show(toastProps, {
                     toastId: event.id,
                     autoClose: false,
                     closeOnClick: false,

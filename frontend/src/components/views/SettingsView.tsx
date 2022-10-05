@@ -5,6 +5,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
+import { emptyFunction } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -90,9 +91,12 @@ const SettingsView = () => {
     const dropdownItems = supportedTypes
         .map((supportedType) => ({
             label: supportedType.name,
-            onClick: () => openPopupWindow(supportedType.authorization_url, refetchStaleQueries),
+            onClick:
+                supportedType.name === 'Google'
+                    ? emptyFunction
+                    : () => openPopupWindow(supportedType.authorization_url, refetchStaleQueries),
             icon: supportedType.logo,
-            renderer: supportedType.name === 'Google' ? GoogleSignInButton : undefined,
+            renderer: supportedType.name === 'Google' ? () => <GoogleSignInButton /> : undefined,
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) // so the order is always the same
 
@@ -106,7 +110,7 @@ const SettingsView = () => {
                             <ShowLinkAccountsButtonContainer>
                                 <GTDropdownMenu
                                     items={dropdownItems}
-                                    trigger={<GTButton value="Add new Account" styleType="primary" />}
+                                    trigger={<GTButton value="Add new Account" styleType="primary" asDiv />}
                                 />
                             </ShowLinkAccountsButtonContainer>
                             <SignOutButton />

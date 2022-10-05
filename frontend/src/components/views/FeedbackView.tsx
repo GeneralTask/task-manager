@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import styled from 'styled-components'
+import { useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import { Spacing } from '../../styles'
-import toast from '../../utils/toast'
 import GTModal from '../atoms/GTModal'
-import GTTextArea from '../atoms/GTTextArea'
+import GTTextArea from '../atoms/GTTextField/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import { TitleSmall } from '../atoms/title/Title'
@@ -25,11 +25,12 @@ interface FeedbackViewProps {
 const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
     const [feedback, setFeedback] = useState('')
     const { mutate: postFeedback } = usePostFeedback()
+    const toast = useToast()
     const submitFeedback = () => {
         postFeedback({ feedback: feedback })
         setFeedback('')
         setModalIsOpen(false)
-        toast(
+        toast.show(
             {
                 message: 'Thank you for your feedback',
             },
@@ -54,8 +55,9 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             </FeedbackHeader>
             <TitleSmall>Feedback</TitleSmall>
             <FeedbackTextArea
-                initialValue={feedback}
-                onEdit={(val) => setFeedback(val)}
+                type="plaintext"
+                value={feedback}
+                onChange={(val) => setFeedback(val)}
                 fontSize="small"
                 placeholder="Type in your feedback here."
                 isFullHeight

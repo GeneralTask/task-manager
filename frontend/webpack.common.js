@@ -39,6 +39,7 @@ module.exports = {
                     path.resolve(__dirname, 'src'),
                     path.resolve(__dirname, 'node_modules/react-toastify'),
                     path.resolve(__dirname, 'node_modules/animate.css'),
+                    path.resolve(__dirname, 'node_modules/@remirror'),
                 ]
             },
         ],

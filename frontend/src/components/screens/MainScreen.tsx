@@ -1,5 +1,3 @@
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
@@ -47,13 +45,13 @@ const MainScreen = () => {
     if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
-        <DndProvider backend={HTML5Backend}>
+        <>
             <link rel="preload" as="image" href={focusModeBackground} />
             <DefaultTemplate>
                 <>{currentPage}</>
             </DefaultTemplate>
             <DragLayer />
-        </DndProvider>
+        </>
     )
 }
 

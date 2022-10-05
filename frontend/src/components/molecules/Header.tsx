@@ -9,7 +9,7 @@ import { useDeleteTaskSection, useModifyTaskSection } from '../../services/api/t
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
-import GTTextArea from '../atoms/GTTextArea'
+import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
@@ -38,7 +38,10 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
     word-break: break-word;
     text-align: left;
     padding: ${Spacing._8};
+    border: ${Border.stroke.medium} solid transparent;
     ${Typography.title};
+    box-sizing: border-box;
+    margin-bottom: 3.5px;
 `
 
 const MAX_SECTION_NAME_LENGTH = 200
@@ -94,15 +97,14 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                 onClick={refetchStaleQueries}
             >
                 {isEditingTitle ? (
-                    <GTTextArea
-                        initialValue={sectionName}
+                    <GTTextField
+                        type="plaintext"
+                        value={sectionName}
                         fontSize="large"
-                        onEdit={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
+                        onChange={(val) => setSectionName(val.substring(0, MAX_SECTION_NAME_LENGTH))}
                         onBlur={() => handleChangeSectionName(props.taskSectionId, sectionName)}
                         blurOnEnter
-                        disabled={!isEditingTitle}
-                        onFocus={(e) => e.target.select()}
-                        autoFocus
+                        autoSelect
                     />
                 ) : (
                     <>

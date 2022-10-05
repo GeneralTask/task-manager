@@ -1,5 +1,5 @@
+import { useToast } from '../../hooks'
 import { icons } from '../../styles/images'
-import toast from '../../utils/toast'
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import { BranchNameContainer, BranchNameText } from './styles'
@@ -8,9 +8,10 @@ interface BranchNameProps {
     name: string
 }
 const BranchName = ({ name }: BranchNameProps) => {
+    const toast = useToast()
     const handleClick = () => {
         navigator.clipboard.writeText(name)
-        toast(
+        toast.show(
             {
                 message: 'Branch copied to clipboard',
             },

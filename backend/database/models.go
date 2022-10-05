@@ -158,6 +158,7 @@ type CalendarEvent struct {
 	Deeplink        string             `bson:"deeplink,omitempty"`
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`
+	Location        string             `bson:"location,omitempty"`
 	DatetimeEnd     primitive.DateTime `bson:"datetime_end,omitempty"`
 	DatetimeStart   primitive.DateTime `bson:"datetime_start,omitempty"`
 	//time in nanoseconds

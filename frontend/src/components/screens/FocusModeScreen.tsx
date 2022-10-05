@@ -1,26 +1,31 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
-import { useInterval } from '../../hooks'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
-import { getMonthsAroundDate } from '../../utils/time'
+import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
 import GTShadowContainer from '../atoms/GTShadowContainer'
+import GTStaticCheckbox from '../atoms/GTStaticCheckbox'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
+
+const FOCUS_MODE_WIDTH = '956px'
 
 const TemplateViewContainer = styled.div`
     height: 100%;
@@ -33,33 +38,49 @@ const FloatingIcon = styled.div`
     left: ${Spacing._16};
 `
 const FocusModeContainer = styled.div`
-    width: 60%;
+    width: ${FOCUS_MODE_WIDTH};
     height: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     background-color: ${Colors.background.white};
+    box-shadow: ${Shadows.medium};
 `
 const MainContainer = styled.div`
     display: flex;
     min-height: 0;
 `
+// This div uses a hard coded font weight that needs to be updated
 const ClockContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
     border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
-    text-align: right;
+    font-weight: 274;
 `
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     position: relative;
+    ${(props) => props.isCentered && `justify-content: center;`}
     border: 1px solid ${Colors.border.light};
     border-radius: ${Border.radius.large};
     display: flex;
     padding: ${Spacing._24} ${Spacing._16};
     align-items: center;
-    justify-content: space-between;
-    ${(props) => props.isCentered && `justify-content: center;`}
     ${Typography.bodySmall};
+`
+const NextEventContainer = styled.div`
+    ${Typography.body};
+`
+const AdvanceEventContainer = styled.div`
+    position: absolute;
+    bottom: ${Spacing._24};
+    display: flex;
+    align-items: center;
+    user-select: none;
+    cursor: pointer;
+    gap: ${Spacing._8};
+    ${Typography.body};
 `
 const BoldText = styled.span`
     ${Typography.bold};
@@ -81,7 +102,7 @@ const ButtonContainer = styled.div`
     right: ${Spacing._16};
 `
 const BodyHeader = styled.div`
-    ${Typography.label};
+    ${Typography.eyebrow};
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div`
@@ -108,6 +129,21 @@ const RightAbsoluteContainer = styled.div`
     right: ${Spacing._16};
 `
 
+const getTimeUntilNextEvent = (event: TEvent) => {
+    const now = DateTime.local()
+    const eventStart = DateTime.fromISO(event.datetime_start)
+    const minutesUntilEvent = Math.floor(eventStart.diff(now, 'minutes').minutes)
+    if (minutesUntilEvent === 1) {
+        return '1 minute'
+    } else if (minutesUntilEvent < 60) {
+        return `${minutesUntilEvent} minutes`
+    } else if (minutesUntilEvent < 120) {
+        return '1 hour'
+    } else {
+        return `${Math.floor(minutesUntilEvent / 60)} hours`
+    }
+}
+
 const getEventsCurrentlyHappening = (events: TEvent[]) => {
     return events?.filter((event) => {
         const now = DateTime.local()
@@ -118,10 +154,12 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 }
 
 const FocusModeScreen = () => {
-    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled } = useCalendarContext()
-    useEffect(() => {
+    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
+        useCalendarContext()
+    useLayoutEffect(() => {
+        setIsCollapsed(false)
+        setCalendarType('day')
         setIsPopoverDisabled(true)
-        setSelectedEvent(null)
         return () => {
             setIsPopoverDisabled(false)
             setSelectedEvent(null)
@@ -133,9 +171,32 @@ const FocusModeScreen = () => {
     const currentEvents = getEventsCurrentlyHappening(events ?? [])
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())
+    const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
+    const nextEvent = events?.find((event) => {
+        const start = DateTime.fromISO(event.datetime_start)
+        return start > time
+    })
+
+    useLayoutEffect(() => {
+        if (selectedEvent != null) return
+        const currentEvents = getEventsCurrentlyHappening(events ?? [])
+        if (currentEvents.length === 0) return
+        setSelectedEvent(currentEvents[0])
+    }, [events])
+
+    const { key: keyLocation } = useLocation()
+    const backAction = useCallback(() => {
+        // Check if focus mode was opened from landing page or if it was the initial page
+        const isInitialLocation = keyLocation === 'default'
+        if (isInitialLocation) navigate('/')
+        else navigate(-1)
+    }, [keyLocation])
+    useKeyboardShortcut('close', backAction)
 
     useEffect(() => {
-        if (currentEvents.length === 1) {
+        if (currentEvents.length === 0) {
+            setChosenEvent(null)
+        } else if (currentEvents.length === 1) {
             setChosenEvent(currentEvents[0])
         }
     }, [events])
@@ -152,9 +213,22 @@ const FocusModeScreen = () => {
 
     useInterval(
         () => {
-            setTime(DateTime.local())
+            const currentTime = DateTime.local().minus({ seconds: SINGLE_SECOND_INTERVAL })
+            setTime(currentTime)
+            if (!shouldAutoAdvanceEvent) return
+            for (const event of currentEvents) {
+                const startTime = DateTime.fromISO(event.datetime_start)
+                if (
+                    startTime.hour === currentTime.hour &&
+                    startTime.minute === currentTime.minute &&
+                    currentTime.second === 0
+                ) {
+                    setChosenEvent(event)
+                    return
+                }
+            }
         },
-        1,
+        SINGLE_SECOND_INTERVAL,
         false
     )
 
@@ -168,7 +242,7 @@ const FocusModeScreen = () => {
                 <FocusModeContainer>
                     <MainContainer>
                         <EventContainer>
-                            {currentEvents.length > 0 && chosenEvent === null && (
+                            {currentEvents.length > 1 && chosenEvent === null && (
                                 <>
                                     <GTHeader>Multiple Events</GTHeader>
                                     <Subtitle>
@@ -176,7 +250,6 @@ const FocusModeScreen = () => {
                                         event you want to focus on at the moment.
                                     </Subtitle>
                                     <BodyHeader>MULTIPLE EVENTS — SELECT WHICH EVENT TO FOCUS ON</BodyHeader>
-
                                     <CurrentEventsContainer>
                                         {currentEvents.map((event) => (
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
@@ -195,15 +268,15 @@ const FocusModeScreen = () => {
                             )}
                             {chosenEvent && (
                                 <>
-                                    <GTHeader>{title}</GTHeader>
+                                    <GTHeader title={title}>{title}</GTHeader>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
-                                    {conferenceCall && (
+                                    {conferenceCall && !eventHasEnded && (
                                         <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
-                                                <BoldText> right now.</BoldText>
+                                                <BoldText> right now</BoldText>.
                                             </span>
                                             <RightAbsoluteContainer>
                                                 <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
@@ -214,7 +287,7 @@ const FocusModeScreen = () => {
                                         <NotificationMessage isCentered>
                                             <span>
                                                 <span>This event is</span>
-                                                <BoldText> in the past.</BoldText>
+                                                <BoldText> in the past</BoldText>.
                                             </span>
                                         </NotificationMessage>
                                     )}
@@ -230,7 +303,7 @@ const FocusModeScreen = () => {
                                     </div>
                                 </>
                             )}
-                            {!chosenEvent && currentEvents.length === 0 && <div>No Event</div>}
+                            {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
                         </EventContainer>
                         <CalendarContainer>
                             <CalendarView
@@ -238,16 +311,31 @@ const FocusModeScreen = () => {
                                 initialShowDateHeader={false}
                                 initialShowMainHeader={false}
                                 hideContainerShadow
+                                hasLeftBorder
                             />
                         </CalendarContainer>
                     </MainContainer>
-                    <ClockContainer>{time.toFormat('h:mm a')}</ClockContainer>
+                    <ClockContainer>
+                        <NextEventContainer>
+                            {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
+                                <span>
+                                    Next event is in
+                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
+                                </span>
+                            )}
+                        </NextEventContainer>
+                        <AdvanceEventContainer onClick={() => setShouldAutoAdvanceEvent(!shouldAutoAdvanceEvent)}>
+                            <GTStaticCheckbox isChecked={shouldAutoAdvanceEvent} />
+                            Automatically advance to next event
+                        </AdvanceEventContainer>
+                        <span>{time.toFormat('h:mm a')}</span>
+                    </ClockContainer>
                 </FocusModeContainer>
                 <FloatingIcon>
                     <Icon icon={logos.generaltask} size="gtLogo" />
                 </FloatingIcon>
                 <ButtonContainer>
-                    <GTButton onClick={() => navigate(-1)} value="Exit Focus Mode" styleType="secondary" />
+                    <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />
                 </ButtonContainer>
             </TemplateViewContainer>
         </SingleViewTemplate>
