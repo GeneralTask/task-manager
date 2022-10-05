@@ -26,7 +26,8 @@ const TasksDue = ({ date }: TasksDueProps) => {
     const { data: taskSections } = useGetTasks()
     const tasksDueToday = useMemo(() => {
         const allTasks = taskSections?.flatMap((section) => section.tasks) ?? []
-        return allTasks.filter((task) => DateTime.fromISO(task.due_date).hasSame(date, 'day'))
+        const incompleteTasks = allTasks.filter((task) => !task.is_done)
+        return incompleteTasks.filter((task) => DateTime.fromISO(task.due_date).hasSame(date, 'day'))
     }, [taskSections, date])
 
     if (tasksDueToday.length === 0) return null
