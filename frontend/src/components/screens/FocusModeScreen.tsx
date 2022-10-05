@@ -158,7 +158,6 @@ const FocusModeScreen = () => {
         setIsCollapsed(false)
         setCalendarType('day')
         setIsPopoverDisabled(true)
-        setSelectedEvent(null)
         return () => {
             setIsPopoverDisabled(false)
             setSelectedEvent(null)
@@ -175,6 +174,13 @@ const FocusModeScreen = () => {
         const start = DateTime.fromISO(event.datetime_start)
         return start > time
     })
+
+    useLayoutEffect(() => {
+        if (selectedEvent != null) return
+        const currentEvents = getEventsCurrentlyHappening(events ?? [])
+        if (currentEvents.length === 0) return
+        setSelectedEvent(currentEvents[0])
+    }, [events])
 
     const { key: keyLocation } = useLocation()
     const backAction = useCallback(() => {
