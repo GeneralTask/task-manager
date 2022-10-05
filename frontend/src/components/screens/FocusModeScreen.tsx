@@ -296,7 +296,7 @@ const FocusModeScreen = () => {
                                             <CardSwitcher viewId={chosenEvent.linked_view_id} />
                                         ) : (
                                             <>
-                                                <BodyHeader>MEETING NOTES</BodyHeader>
+                                                <BodyHeader>EVENT DESCRIPTON</BodyHeader>
                                                 <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
                                             </>
                                         )}
