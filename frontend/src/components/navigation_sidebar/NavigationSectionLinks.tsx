@@ -195,7 +195,7 @@ const NavigationSectionLinks = () => {
                                     value={sectionName}
                                     onChange={onKeyChangeHandler}
                                     onKeyDown={onKeyDownHandler}
-                                    placeholder="Add Section"
+                                    placeholder="Add Folder"
                                 />
                             </InputContainer>
                         </AddSectionContainer>
