@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
+import { useCalendarContext } from './CalendarContext'
 import TaskDueBody from './TaskDueBody'
 import TasksDueHeader from './TasksDueHeader'
 
@@ -23,8 +24,7 @@ interface TasksDueProps {
     date: DateTime
 }
 const TasksDue = ({ date }: TasksDueProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(false)
-
+    const { isTasksDueViewCollapsed } = useCalendarContext()
     const location = useLocation()
     const isOnFocusMode = location.pathname.includes('focus-mode')
     const { data: taskSections } = useGetTasks()
@@ -36,13 +36,8 @@ const TasksDue = ({ date }: TasksDueProps) => {
 
     return (
         <TasksDueContainer isFocusModeCalendar={isOnFocusMode}>
-            <TasksDueHeader
-                type="day"
-                isCollapsed={isCollapsed}
-                setIsCollapsed={setIsCollapsed}
-                numTasksDue={tasksDueToday.length}
-            />
-            {!isCollapsed && <TaskDueBody tasksDue={tasksDueToday} />}
+            <TasksDueHeader type="day" numTasksDue={tasksDueToday.length} />
+            {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueToday} />}
         </TasksDueContainer>
     )
 }

@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { useCalendarContext } from './CalendarContext'
 
 const TasksDueHeaderContainer = styled.div`
     ${Typography.eyebrow};
@@ -18,19 +19,12 @@ const CaretContainer = styled.div`
 `
 interface TasksDueHeaderProps {
     type: 'day' | 'week'
-    isCollapsed: boolean
-    setIsCollapsed: (isCollapsed: boolean) => void
     numTasksDue: number
     hideCollapseButton?: boolean
 }
-const TasksDueHeader = ({
-    type,
-    isCollapsed,
-    setIsCollapsed,
-    numTasksDue,
-    hideCollapseButton,
-}: TasksDueHeaderProps) => {
-    const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
+const TasksDueHeader = ({ type, numTasksDue, hideCollapseButton }: TasksDueHeaderProps) => {
+    const { isTasksDueViewCollapsed, setIsTasksDueViewCollapsed } = useCalendarContext()
+    const caretIcon = isTasksDueViewCollapsed ? icons.caret_right : icons.caret_down
     const dayMessage = `Due Today (${numTasksDue})`
     const weekMessage = numTasksDue === 1 ? `1 Task Due` : `${numTasksDue} Tasks Due`
     const message = type === 'day' ? dayMessage : weekMessage
@@ -38,7 +32,7 @@ const TasksDueHeader = ({
     return (
         <TasksDueHeaderContainer
             onClick={() => {
-                setIsCollapsed(!isCollapsed)
+                setIsTasksDueViewCollapsed(!isTasksDueViewCollapsed)
             }}
         >
             <Icon icon={icons.clock} color="gray" />
