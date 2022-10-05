@@ -258,25 +258,19 @@ func TestGetSlackMessageTitle(t *testing.T) {
 		Token: `{"access_token":"Hello!"}`,
 	}
 
-	t.Run("InvalidTimestamp", func(t *testing.T) {
-		invalidParams := slackMessageParams
-		invalidParams.Message.TimeSent = "HELLO.THERE"
-		_, err := getSlackMessageTitle(source, invalidParams, &externalToken)
-		assert.Error(t, err)
-	})
 	t.Run("SuccessDirectMessage", func(t *testing.T) {
 		dmParams := slackMessageParams
 		dmParams.Channel.Name = "directmessage"
 		title, err := getSlackMessageTitle(source, dmParams, &externalToken)
 		assert.NoError(t, err)
 		// prefix to avoid timezone issues
-		assert.True(t, strings.HasPrefix(title, "From  in a direct message @ 2012-12"))
+		assert.True(t, strings.HasPrefix(title, " in a direct message: HELLO!"))
 	})
 	t.Run("SuccessChannel", func(t *testing.T) {
 		title, err := getSlackMessageTitle(source, slackMessageParams, &externalToken)
 		assert.NoError(t, err)
 		// prefix to avoid timezone issues
-		assert.True(t, strings.HasPrefix(title, "From  in #channel_name @ 2012-12"))
+		assert.True(t, strings.HasPrefix(title, " in #channel_name: HELLO!"))
 	})
 }
 
