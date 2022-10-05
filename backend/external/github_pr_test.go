@@ -685,6 +685,35 @@ func TestUserIsReviewer(t *testing.T) {
 	})
 }
 
+func TestUserNeedsToSubmitReview(t *testing.T) {
+	testGithubUserReviewer := &github.User{
+		ID: github.Int64(1),
+	}
+	testGithubUserNotReviewer := &github.User{
+		ID: github.Int64(2),
+	}
+	teamID := int64(69420)
+	reviewers := &github.Reviewers{
+		Teams: []*github.Team{{ID: &teamID}},
+		Users: []*github.User{testGithubUserReviewer},
+	}
+	t.Run("UserIsReviewer", func(t *testing.T) {
+		assert.True(t, userNeedsToSubmitReview(testGithubUserReviewer, reviewers, []*github.Team{}))
+	})
+	t.Run("UserIsReviewerViaTeam", func(t *testing.T) {
+		assert.True(t, userNeedsToSubmitReview(testGithubUserNotReviewer, reviewers, []*github.Team{{ID: &teamID}}))
+	})
+	t.Run("UserIsNotReviewerAndNotSubmittedReview", func(t *testing.T) {
+		assert.False(t, userNeedsToSubmitReview(testGithubUserNotReviewer, reviewers, []*github.Team{}))
+	})
+	t.Run("NilUser", func(t *testing.T) {
+		assert.False(t, userNeedsToSubmitReview(nil, reviewers, []*github.Team{}))
+	})
+	t.Run("NilReviewers", func(t *testing.T) {
+		assert.False(t, userNeedsToSubmitReview(testGithubUserReviewer, nil, []*github.Team{}))
+	})
+}
+
 func TestPullRequestIsApproved(t *testing.T) {
 	t.Run("PullRequestIsApproved", func(t *testing.T) {
 		assert.True(t, pullRequestIsApproved([]*github.PullRequestReview{

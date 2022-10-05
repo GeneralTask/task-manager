@@ -1,14 +1,12 @@
 import { forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { Id as ToastId } from 'react-toastify'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useIsDragging, useKeyboardShortcut, useNavigateToTask } from '../../hooks'
+import { useIsDragging, useKeyboardShortcut, useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import toast, { dismissToast } from '../../utils/toast'
 import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
@@ -40,16 +38,16 @@ interface EventDetailProps {
 
 const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
     ({ event, date, xCoord, yCoord, eventHeight, eventWidth, windowHeight }, ref) => {
+        const toast = useToast()
         const { setSelectedEvent } = useCalendarContext()
         const popupRef = useRef<HTMLDivElement | null>(null)
-        const undoToastRef = useRef<ToastId>()
         const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
         const [popupHeight, setPopupHeight] = useState(0)
         useLayoutEffect(() => {
             if (!popupRef.current) return
             setPopupHeight(popupRef.current.getBoundingClientRect().height)
         }, [])
-        const onClose = () => setSelectedEvent(null)
+        const onClose = useCallback(() => setSelectedEvent(null), [])
 
         const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
         const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
@@ -63,24 +61,22 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                 datetime_start: event.datetime_start,
                 datetime_end: event.datetime_end,
             })
-            const timeout = setTimeout(() => {
-                deleteEvent({
-                    id: event.id,
-                    date: date,
-                    datetime_start: event.datetime_start,
-                    datetime_end: event.datetime_end,
-                })
-            }, EVENT_UNDO_TIMEOUT * 1000)
-            undoToastRef.current = toast(
+            toast.show(
                 {
                     message: 'This calendar event has been deleted',
                     rightAction: {
                         label: 'Undo',
                         onClick: () => {
-                            clearTimeout(timeout)
-                            dismissToast(undoToastRef.current)
+                            toast.dismiss()
                             undoDeleteEventInCache(event, date)
                         },
+                        undoableAction: () =>
+                            deleteEvent({
+                                id: event.id,
+                                date: date,
+                                datetime_start: event.datetime_start,
+                                datetime_end: event.datetime_end,
+                            }),
                     },
                 },
                 {
@@ -103,7 +99,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
 
         const onCopyMeetingLink = () => {
             navigator.clipboard.writeText(event.conference_call.url)
-            toast(
+            toast.show(
                 {
                     message: 'Meeting link copied to clipboard',
                 },

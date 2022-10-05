@@ -326,12 +326,15 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 			Comments: nil,
 		}
-		database.GetOrCreateTask(
+		// need to update, because the previous test case has already created this task
+		database.UpdateOrCreateTask(
 			db,
 			userID,
 			"test-issue-id-1",
 			TASK_SOURCE_ID_LINEAR,
-			&expectedTask,
+			expectedTask,
+			expectedTask,
+			nil,
 		)
 		// switch a few fields from their existing db value to their expected output value
 		testTitle := "test title"

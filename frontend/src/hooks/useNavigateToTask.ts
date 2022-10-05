@@ -30,7 +30,13 @@ const useNavigateToTask = () => {
                 for (const task of section.tasks) {
                     if (task.id === taskID) {
                         setCalendarType('day')
-                        navigate(`/tasks/${section.id}/${task.id}`)
+                        if (task.source.name === 'Slack') {
+                            navigate(`/slack/${task.id}`)
+                        } else if (task.source.name === 'Linear') {
+                            navigate(`/linear/${task.id}`)
+                        } else {
+                            navigate(`/tasks/${section.id}/${task.id}`)
+                        }
                         return
                     }
                 }

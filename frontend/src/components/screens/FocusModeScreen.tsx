@@ -6,9 +6,9 @@ import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
-import { getMonthsAroundDate } from '../../utils/time'
+import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
@@ -20,6 +20,7 @@ import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
@@ -41,17 +42,20 @@ const FocusModeContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.background.white};
+    box-shadow: ${Shadows.medium};
 `
 const MainContainer = styled.div`
     display: flex;
     min-height: 0;
 `
+// This div uses a hard coded font weight that needs to be updated
 const ClockContainer = styled.div`
     display: flex;
     justify-content: space-between;
     border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
+    font-weight: 274;
 `
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     position: relative;
@@ -96,7 +100,7 @@ const ButtonContainer = styled.div`
     right: ${Spacing._16};
 `
 const BodyHeader = styled.div`
-    ${Typography.label};
+    ${Typography.eyebrow};
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div`
@@ -154,7 +158,6 @@ const FocusModeScreen = () => {
         setIsCollapsed(false)
         setCalendarType('day')
         setIsPopoverDisabled(true)
-        setSelectedEvent(null)
         return () => {
             setIsPopoverDisabled(false)
             setSelectedEvent(null)
@@ -172,6 +175,13 @@ const FocusModeScreen = () => {
         return start > time
     })
 
+    useLayoutEffect(() => {
+        if (selectedEvent != null) return
+        const currentEvents = getEventsCurrentlyHappening(events ?? [])
+        if (currentEvents.length === 0) return
+        setSelectedEvent(currentEvents[0])
+    }, [events])
+
     const { key: keyLocation } = useLocation()
     const backAction = useCallback(() => {
         // Check if focus mode was opened from landing page or if it was the initial page
@@ -182,7 +192,9 @@ const FocusModeScreen = () => {
     useKeyboardShortcut('close', backAction)
 
     useEffect(() => {
-        if (currentEvents.length === 1) {
+        if (currentEvents.length === 0) {
+            setChosenEvent(null)
+        } else if (currentEvents.length === 1) {
             setChosenEvent(currentEvents[0])
         }
     }, [events])
@@ -258,11 +270,11 @@ const FocusModeScreen = () => {
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
-                                    {conferenceCall && (
+                                    {conferenceCall && !eventHasEnded && (
                                         <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
-                                                <BoldText> right now.</BoldText>
+                                                <BoldText> right now</BoldText>.
                                             </span>
                                             <RightAbsoluteContainer>
                                                 <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
@@ -273,7 +285,7 @@ const FocusModeScreen = () => {
                                         <NotificationMessage isCentered>
                                             <span>
                                                 <span>This event is</span>
-                                                <BoldText> in the past.</BoldText>
+                                                <BoldText> in the past</BoldText>.
                                             </span>
                                         </NotificationMessage>
                                     )}
@@ -289,7 +301,7 @@ const FocusModeScreen = () => {
                                     </div>
                                 </>
                             )}
-                            {!chosenEvent && currentEvents.length === 0 && <div>No Event</div>}
+                            {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
                         </EventContainer>
                         <CalendarContainer>
                             <CalendarView
@@ -297,15 +309,16 @@ const FocusModeScreen = () => {
                                 initialShowDateHeader={false}
                                 initialShowMainHeader={false}
                                 hideContainerShadow
+                                hasLeftBorder
                             />
                         </CalendarContainer>
                     </MainContainer>
                     <ClockContainer>
                         <NextEventContainer>
-                            {nextEvent && (
+                            {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
-                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}.</BoldText>
+                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
                                 </span>
                             )}
                         </NextEventContainer>

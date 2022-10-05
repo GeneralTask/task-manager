@@ -1,10 +1,10 @@
-import produce, { castImmutable } from "immer"
-import { QueryFunctionContext, useMutation, useQuery } from "react-query"
-import apiClient from "../../utils/api"
-import { useGTQueryClient } from "../queryUtils"
-import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from "../../utils/utils"
-import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from "../../constants"
-import { TTaskSection, TTask, TOverviewView, TOverviewItem, TExternalStatus } from "../../utils/types"
+import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import produce, { castImmutable } from 'immer'
+import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from '../../constants'
+import apiClient from '../../utils/api'
+import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection } from '../../utils/types'
+import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from '../../utils/utils'
+import { useGTQueryClient } from '../queryUtils'
 
 export interface TCreateTaskData {
     title: string
@@ -25,6 +25,7 @@ export interface TModifyTaskData {
     body?: string
     priorityNormalized?: number
     status?: TExternalStatus
+    isDeleted?: boolean
 }
 
 interface TTaskModifyRequestBody {
@@ -34,6 +35,7 @@ interface TTaskModifyRequestBody {
     }
     id_task_section?: string
     id_ordering?: number
+    is_deleted?: boolean
     title?: string
     due_date?: string
     time_duration?: number
@@ -134,10 +136,10 @@ export const useCreateTask = () => {
             }
             if (views) {
                 const updatedViews = produce(views, (draft) => {
-                    const section = draft.find(view => view.task_section_id === data.taskSectionId)
+                    const section = draft.find((view) => view.task_section_id === data.taskSectionId)
                     if (!section) return
                     const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
-                    const newTask = <TOverviewItem>{
+                    const newTask = {
                         id: data.optimisticId,
                         id_ordering: orderingId,
                         title: data.title,
@@ -157,7 +159,8 @@ export const useCreateTask = () => {
                         sender: '',
                         is_done: false,
                         isOptimistic: true,
-                    }
+                        is_meeting_preparation_task: false,
+                    } as TOverviewItem
                     section.view_items = [newTask, ...section.view_items]
                 })
                 queryClient.setQueryData('overview', updatedViews)
@@ -208,64 +211,57 @@ export const createTask = async (data: TCreateTaskData) => {
 
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(
-        (data: TModifyTaskData) =>
-            modifyTask(data),
-        {
-            onMutate: async (data: TModifyTaskData) => {
-                await Promise.all([
-                    queryClient.cancelQueries('overview-supported-views'),
-                    queryClient.cancelQueries('overview'),
-                    queryClient.cancelQueries('tasks'),
-                ])
+    return useMutation((data: TModifyTaskData) => modifyTask(data), {
+        onMutate: async (data: TModifyTaskData) => {
+            await Promise.all([
+                queryClient.cancelQueries('overview-supported-views'),
+                queryClient.cancelQueries('overview'),
+                queryClient.cancelQueries('tasks'),
+            ])
 
-                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                if (sections) {
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            if (sections) {
+                const newSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, data.id)
+                    if (!task) return
+                    task.title = data.title || task.title
+                    task.due_date = data.dueDate || task.due_date
+                    task.time_allocated = data.timeAllocated || task.time_allocated
+                    task.body = data.body || task.body
+                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                    task.external_status = data.status || task.external_status
+                })
 
-                    const newSections = produce(sections, (draft) => {
-                        const task = getTaskFromSections(draft, data.id)
-                        if (!task) return
-                        task.title = data.title || task.title
-                        task.due_date = data.dueDate || task.due_date
-                        task.time_allocated = data.timeAllocated || task.time_allocated
-                        task.body = data.body || task.body
-                        task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                        task.external_status = data.status || task.external_status
-                    })
+                queryClient.setQueryData('tasks', newSections)
+            }
 
-                    queryClient.setQueryData('tasks', newSections)
-                }
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            if (views) {
+                const newViews = produce(views, (draft) => {
+                    const sections = views.map((view) => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items,
+                    }))
+                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
+                    if (sectionIndex === undefined || taskIndex === undefined) return
+                    const task = draft[sectionIndex].view_items[taskIndex]
+                    if (!task) return
+                    task.title = data.title || task.title
+                    task.due_date = data.dueDate || task.due_date
+                    task.time_allocated = data.timeAllocated || task.time_allocated
+                    task.body = data.body || task.body
+                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                    task.external_status = data.status || task.external_status
+                })
 
-                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                if (views) {
-
-                    const newViews = produce(views, (draft) => {
-                        const sections = views.map(view => ({
-                            id: view.task_section_id,
-                            tasks: view.view_items
-                        }))
-                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
-                        if (sectionIndex === undefined || taskIndex === undefined) return
-                        const task = draft[sectionIndex].view_items[taskIndex]
-                        if (!task) return
-                        task.title = data.title || task.title
-                        task.due_date = data.dueDate || task.due_date
-                        task.time_allocated = data.timeAllocated || task.time_allocated
-                        task.body = data.body || task.body
-                        task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                        task.external_status = data.status || task.external_status
-                    })
-
-                    queryClient.setQueryData('overview', newViews)
-                }
-
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('overview')
-            },
-        }
-    )
+                queryClient.setQueryData('overview', newViews)
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
+        },
+    })
 }
 const modifyTask = async (data: TModifyTaskData) => {
     const requestBody: TTaskModifyRequestBody = { task: {} }
@@ -273,6 +269,7 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
     if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
+    if (data.isDeleted !== undefined) requestBody.is_deleted = data.isDeleted
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
     if (data.status !== undefined) requestBody.task.status = data.status
     try {
@@ -289,10 +286,7 @@ export const useMarkTaskDone = () => {
         onMutate: async (data: TMarkTaskDoneData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await Promise.all([
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('overview'),
-            ])
+            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
 
             if (sections) {
                 const newSections = produce(sections, (draft) => {
@@ -332,9 +326,9 @@ export const useMarkTaskDone = () => {
             }
             if (views) {
                 const newViews = produce(views, (draft) => {
-                    const sections = views.map(view => ({
+                    const sections = views.map((view) => ({
                         id: view.task_section_id,
-                        tasks: view.view_items
+                        tasks: view.view_items,
                     }))
                     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                     if (sectionIndex === undefined || taskIndex === undefined) return
@@ -354,11 +348,15 @@ export const useMarkTaskDone = () => {
                         if (!views) return
 
                         const newViews = produce(views, (draft) => {
-                            const sections = views.map(view => ({
+                            const sections = views.map((view) => ({
                                 id: view.task_section_id,
-                                tasks: view.view_items
+                                tasks: view.view_items,
                             }))
-                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
+                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(
+                                sections,
+                                data.taskId,
+                                data.sectionId
+                            )
                             if (sectionIndex === undefined || taskIndex === undefined) return
                             if (draft[sectionIndex].view_items[taskIndex].is_done) {
                                 draft[sectionIndex].view_items.splice(taskIndex, 1)
@@ -384,104 +382,100 @@ export const markTaskDone = async (data: TMarkTaskDoneData) => {
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
-    return useMutation(
-        (data: TReorderTaskData) =>
-            reorderTask(data),
-        {
-            onMutate: async (data: TReorderTaskData) => {
-                const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                await Promise.all([
-                    queryClient.cancelQueries('overview-supported-views'),
-                    queryClient.cancelQueries('overview'),
-                    queryClient.cancelQueries('tasks'),
-                ])
+    return useMutation((data: TReorderTaskData) => reorderTask(data), {
+        onMutate: async (data: TReorderTaskData) => {
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            await Promise.all([
+                queryClient.cancelQueries('overview-supported-views'),
+                queryClient.cancelQueries('overview'),
+                queryClient.cancelQueries('tasks'),
+            ])
 
-                if (sections) {
-                    const newSections = produce(sections, (draft) => {
-                        // move within the existing section
-                        if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                            const section = draft.find((s) => s.id === data.dropSectionId)
-                            if (section == null) return
-                            const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
-                            if (startIndex === -1) return
-                            let endIndex = data.orderingId - 1
-                            if (startIndex < endIndex) {
-                                endIndex -= 1
-                            }
-                            arrayMoveInPlace(section.tasks, startIndex, endIndex)
-
-                            // update ordering ids
-                            resetOrderingIds(section.tasks)
+            if (sections) {
+                const newSections = produce(sections, (draft) => {
+                    // move within the existing section
+                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                        const section = draft.find((s) => s.id === data.dropSectionId)
+                        if (section == null) return
+                        const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
+                        if (startIndex === -1) return
+                        let endIndex = data.orderingId - 1
+                        if (startIndex < endIndex) {
+                            endIndex -= 1
                         }
-                        // move task from one section to the other
-                        else {
-                            // remove task from old location
-                            const dragSection = draft.find((section) => section.id === data.dragSectionId)
-                            if (dragSection == null) return
-                            const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
-                            if (dragTaskIndex === -1) return
-                            const dragTask = dragSection.tasks[dragTaskIndex]
-                            dragSection.tasks.splice(dragTaskIndex, 1)
+                        arrayMoveInPlace(section.tasks, startIndex, endIndex)
 
-                            // add task to new location
-                            const dropSection = draft.find((section) => section.id === data.dropSectionId)
-                            if (dropSection == null) return
-                            dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
+                        // update ordering ids
+                        resetOrderingIds(section.tasks)
+                    }
+                    // move task from one section to the other
+                    else {
+                        // remove task from old location
+                        const dragSection = draft.find((section) => section.id === data.dragSectionId)
+                        if (dragSection == null) return
+                        const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
+                        if (dragTaskIndex === -1) return
+                        const dragTask = dragSection.tasks[dragTaskIndex]
+                        dragSection.tasks.splice(dragTaskIndex, 1)
 
-                            // update ordering ids
-                            resetOrderingIds(dropSection.tasks)
-                            resetOrderingIds(dragSection.tasks)
+                        // add task to new location
+                        const dropSection = draft.find((section) => section.id === data.dropSectionId)
+                        if (dropSection == null) return
+                        dropSection.tasks.splice(data.orderingId - 1, 0, dragTask)
+
+                        // update ordering ids
+                        resetOrderingIds(dropSection.tasks)
+                        resetOrderingIds(dragSection.tasks)
+                    }
+                })
+                queryClient.setQueryData('tasks', newSections)
+            }
+            if (views) {
+                const newViews = produce(views, (draft) => {
+                    // move within the existing section
+                    if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
+                        const section = draft.find((view) => view.task_section_id === data.dropSectionId)
+                        if (section == null) return
+                        const startIndex = section.view_items.findIndex((t) => t.id === data.taskId)
+                        if (startIndex === -1) return
+                        let endIndex = data.orderingId - 1
+                        if (startIndex < endIndex) {
+                            endIndex -= 1
                         }
-                    })
-                    queryClient.setQueryData('tasks', newSections)
-                }
-                if (views) {
-                    const newViews = produce(views, (draft) => {
-                        // move within the existing section
-                        if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
-                            const section = draft.find(view => view.task_section_id === data.dropSectionId)
-                            if (section == null) return
-                            const startIndex = section.view_items.findIndex((t) => t.id === data.taskId)
-                            if (startIndex === -1) return
-                            let endIndex = data.orderingId - 1
-                            if (startIndex < endIndex) {
-                                endIndex -= 1
-                            }
-                            arrayMoveInPlace(section.view_items, startIndex, endIndex)
+                        arrayMoveInPlace(section.view_items, startIndex, endIndex)
 
-                            // update ordering ids
-                            resetOrderingIds(section.view_items)
-                        }
-                        // move task from one section to the other
-                        else {
-                            // remove task from old location
-                            const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
-                            if (dragSection == null) return
-                            const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.taskId)
-                            if (dragTaskIndex === -1) return
-                            const dragTask = dragSection.view_items[dragTaskIndex]
-                            dragSection.view_items.splice(dragTaskIndex, 1)
+                        // update ordering ids
+                        resetOrderingIds(section.view_items)
+                    }
+                    // move task from one section to the other
+                    else {
+                        // remove task from old location
+                        const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
+                        if (dragSection == null) return
+                        const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.taskId)
+                        if (dragTaskIndex === -1) return
+                        const dragTask = dragSection.view_items[dragTaskIndex]
+                        dragSection.view_items.splice(dragTaskIndex, 1)
 
-                            // add task to new location
-                            const dropSection = draft.find((section) => section.task_section_id === data.dropSectionId)
-                            if (dropSection == null) return
-                            dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
+                        // add task to new location
+                        const dropSection = draft.find((section) => section.task_section_id === data.dropSectionId)
+                        if (dropSection == null) return
+                        dropSection.view_items.splice(data.orderingId - 1, 0, dragTask)
 
-                            // update ordering ids
-                            resetOrderingIds(dropSection.view_items)
-                            resetOrderingIds(dragSection.view_items)
-                        }
-                    })
-                    queryClient.setQueryData('overview', newViews)
-                }
-            },
-            onSettled: () => {
-                queryClient.invalidateQueries('tasks')
-                queryClient.invalidateQueries('overview')
-            },
-        }
-    )
+                        // update ordering ids
+                        resetOrderingIds(dropSection.view_items)
+                        resetOrderingIds(dragSection.view_items)
+                    }
+                })
+                queryClient.setQueryData('overview', newViews)
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
+        },
+    })
 }
 export const reorderTask = async (data: TReorderTaskData) => {
     try {
@@ -499,10 +493,7 @@ export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TPostCommentData) => postComment(data), {
         onMutate: async (/* data: TPostCommentData */) => {
-            await Promise.all([
-                queryClient.cancelQueries('tasks'),
-                queryClient.cancelQueries('overview'),
-            ])
+            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
             // TODO: Optimistic updates for the comments
         },
         onSettled: () => {

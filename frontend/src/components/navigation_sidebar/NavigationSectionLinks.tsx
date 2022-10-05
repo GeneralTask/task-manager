@@ -15,8 +15,6 @@ import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
-const SHOW_TRASH_SECTION = false
-
 const AddSectionContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -95,7 +93,6 @@ const NavigationSectionLinks = () => {
 
     const defaultFolder = folders?.find((section) => section.id === DEFAULT_SECTION_ID)
     const doneFolder = folders?.find((section) => section.is_done)
-    // TODO(maz): uncomment after we actually support task deletion
     const trashFolder = folders?.find((section) => section.is_trash)
 
     const linearTasksCount = useMemo(() => {
@@ -149,7 +146,7 @@ const NavigationSectionLinks = () => {
                 count={slackTasksCount}
                 isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
-            <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {defaultFolder && (
                     <NavigationLink
                         link={`/tasks/${defaultFolder.id}`}
@@ -195,7 +192,7 @@ const NavigationSectionLinks = () => {
                                     value={sectionName}
                                     onChange={onKeyChangeHandler}
                                     onKeyDown={onKeyDownHandler}
-                                    placeholder="Add Section"
+                                    placeholder="Add Folder"
                                 />
                             </InputContainer>
                         </AddSectionContainer>
@@ -208,7 +205,7 @@ const NavigationSectionLinks = () => {
                     indicatorType="TOP_ONLY"
                 >
                     <>
-                        {doneFolder && ( // TODO(maz): remove after we actually support task deletion
+                        {doneFolder && (
                             <NavigationLink
                                 link={`/tasks/${doneFolder.id}`}
                                 title={doneFolder.name}
@@ -219,13 +216,13 @@ const NavigationSectionLinks = () => {
                                 droppable
                             />
                         )}
-                        {SHOW_TRASH_SECTION && trashFolder && (
+                        {trashFolder && (
                             <NavigationLink
                                 link={`/tasks/${trashFolder.id}`}
                                 title={trashFolder.name}
                                 icon={icons.trash}
                                 isCurrentPage={sectionId === trashFolder.id}
-                                taskSection={defaultFolder}
+                                taskSection={trashFolder}
                                 count={trashFolder.tasks.length}
                                 droppable
                             />

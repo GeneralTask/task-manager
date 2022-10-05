@@ -8,7 +8,7 @@ import RichTextToolbar from './RichTextToolbar'
 const EditorContainer = styled.div`
     overflow: auto;
     width: 100%;
-    height: 100%;
+    flex: 1;
 `
 const EditorAndToolbarContainer = styled.div<{
     maxHeight?: number
@@ -16,7 +16,8 @@ const EditorAndToolbarContainer = styled.div<{
     isFullHeight?: boolean
     fontSize: FontSize
 }>`
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
@@ -54,6 +55,9 @@ const EditorAndToolbarContainer = styled.div<{
         border-left: ${Spacing._4} solid ${Colors.border.light};
         margin-left: ${Spacing._12};
         padding-left: ${Spacing._8};
+    }
+    .remirror-list-item-marker-container {
+        display: none;
     }
 `
 
