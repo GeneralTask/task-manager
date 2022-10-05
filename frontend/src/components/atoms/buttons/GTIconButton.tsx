@@ -1,9 +1,8 @@
 import { forwardRef } from 'react'
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
-import { Icon } from '../Icon'
+import { Icon, TIconType } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
 const Button = styled(NoStyleButton)<{ forceShowHoverEffect?: boolean }>`
@@ -16,7 +15,7 @@ const Button = styled(NoStyleButton)<{ forceShowHoverEffect?: boolean }>`
 `
 
 interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    icon: IconProp | string
+    icon: TIconType
     iconColor?: TIconColor
     forceShowHoverEffect?: boolean
 }
