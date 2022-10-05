@@ -149,7 +149,7 @@ const NavigationSectionLinks = () => {
                 count={slackTasksCount}
                 isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
-            <NavigationLinkDropdown title="Tasks" openAddSectionInput={onOpenAddSectionInputHandler}>
+            <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {defaultFolder && (
                     <NavigationLink
                         link={`/tasks/${defaultFolder.id}`}
