@@ -25,6 +25,9 @@ const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean;
             margin-top: 0;
         }
     }
+    .remirror-list-item-marker-container {
+        display: none;
+    }
 `
 
 const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
