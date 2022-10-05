@@ -13,10 +13,10 @@ const MenuContainer = styled.div`
     border-bottom-left-radius: ${Border.radius.small};
     border-bottom-right-radius: ${Border.radius.small};
     gap: ${Spacing._8};
-    position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
+    overflow-x: auto;
 `
 const Divider = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.border.light};
@@ -25,7 +25,6 @@ const Divider = styled.div`
 
 const RichTextToolbar = () => {
     const commands = useCommands()
-
     const active = useActive()
 
     return (

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import styled from 'styled-components'
-import { Border, Typography } from '../../../styles'
+import { Border, Spacing, Typography } from '../../../styles'
 import { FontSize, PlainTextEditorProps } from './types'
 
 const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
@@ -12,7 +12,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     width: 100%;
     box-sizing: border-box;
     height: 100%;
-    padding: 8px;
+    padding: ${Spacing._8};
     white-space: pre-wrap;
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};

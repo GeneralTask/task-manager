@@ -8,7 +8,7 @@ import RichTextToolbar from './RichTextToolbar'
 const EditorContainer = styled.div`
     overflow: auto;
     width: 100%;
-    height: 100%;
+    flex: 1;
 `
 const EditorAndToolbarContainer = styled.div<{
     maxHeight?: number
@@ -16,7 +16,8 @@ const EditorAndToolbarContainer = styled.div<{
     isFullHeight?: boolean
     fontSize: FontSize
 }>`
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
     box-sizing: border-box;
