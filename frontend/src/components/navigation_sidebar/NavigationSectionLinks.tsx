@@ -211,8 +211,8 @@ const NavigationSectionLinks = () => {
                                 title={doneFolder.name}
                                 icon={icons.checkbox_checked}
                                 isCurrentPage={sectionId === doneFolder.id}
-                                taskSection={doneFolder}
                                 count={doneFolder.tasks.length}
+                                taskSection={doneFolder}
                                 droppable
                             />
                         )}
@@ -223,7 +223,6 @@ const NavigationSectionLinks = () => {
                                 icon={icons.trash}
                                 isCurrentPage={sectionId === trashFolder.id}
                                 taskSection={trashFolder}
-                                count={trashFolder.tasks.length}
                                 droppable
                             />
                         )}
