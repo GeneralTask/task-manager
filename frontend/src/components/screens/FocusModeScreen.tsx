@@ -130,7 +130,7 @@ const RightAbsoluteContainer = styled.div`
 const getTimeUntilNextEvent = (event: TEvent) => {
     const now = DateTime.local()
     const eventStart = DateTime.fromISO(event.datetime_start)
-    const minutesUntilEvent = eventStart.diff(now, 'minutes').minutes
+    const minutesUntilEvent = Math.floor(eventStart.diff(now, 'minutes').minutes)
     if (minutesUntilEvent === 1) {
         return '1 minute'
     } else if (minutesUntilEvent < 60) {
