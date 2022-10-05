@@ -50,6 +50,12 @@ const EditorAndToolbarContainer = styled.div<{
         border: ${Border.stroke.medium} solid ${Colors.border.light};
         border-radius: ${Border.radius.mini};
         padding: 0 ${Spacing._4};
+    }
+    blockquote {
+        border-left: ${Spacing._4} solid ${Colors.border.light};
+        margin-left: ${Spacing._12};
+        padding-left: ${Spacing._8};
+    }
     .remirror-list-item-marker-container {
         display: none;
     }

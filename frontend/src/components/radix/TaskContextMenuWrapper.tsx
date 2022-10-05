@@ -19,19 +19,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
 
     const contextMenuItems: GTMenuItem[] = [
         {
-            label: 'Set Priority',
-            icon: icons.priority,
-            subItems: [
-                ...TASK_PRIORITIES.map((priority, val) => ({
-                    label: priority.label,
-                    icon: priority.icon,
-                    selected: val === task.priority_normalized,
-                    iconColor: priority.color,
-                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
-                })),
-            ],
-        },
-        {
             label: 'Move to Folder',
             icon: icons.folder,
             subItems: taskSections
@@ -68,6 +55,19 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                         />
                     ),
                 },
+            ],
+        },
+        {
+            label: 'Set Priority',
+            icon: icons.priority,
+            subItems: [
+                ...TASK_PRIORITIES.map((priority, val) => ({
+                    label: priority.label,
+                    icon: priority.icon,
+                    selected: val === task.priority_normalized,
+                    iconColor: priority.color,
+                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                })),
             ],
         },
         {
