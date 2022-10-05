@@ -153,6 +153,9 @@ func (googleCalendar GoogleCalendarSource) CreateNewEvent(db *mongo.Database, us
 	if event.AddConferenceCall {
 		gcalEvent.ConferenceData = createConferenceCallRequest()
 	}
+	if event.LinkedTaskID != primitive.NilObjectID || event.LinkedViewID != primitive.NilObjectID {
+		gcalEvent.Visibility = "private"
+	}
 
 	gcalEvent, err = calendarService.Events.Insert(accountID, gcalEvent).
 		ConferenceDataVersion(1).
