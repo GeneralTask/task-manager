@@ -1,8 +1,8 @@
-import { IconProp } from '@fortawesome/fontawesome-svg-core'
+import { TIconType } from '../../Icon'
 import GTIconButton from '../../buttons/GTIconButton'
 
 interface Props {
-    icon: IconProp
+    icon: TIconType
     action: () => void
     isActive: boolean
 }

@@ -9,9 +9,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -157,6 +155,12 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 	// if message_action, this means that the modal must be created
 	if requestParams.Type == SLACK_MESSAGE_ACTION {
+		// ensuring that we can create the modal (by truncating long messages)
+		// Slack only supports modals of length 3000
+		if len(slackParams.Message.Text) > 800 {
+			slackParams.Message.Text = slackParams.Message.Text[:800]
+		}
+
 		// encoding body to put into request
 		// we do this as the form submission does not return the same values
 
@@ -286,7 +290,7 @@ func authenticateSlackRequest(signingSecret string, timestamp string, signature 
 }
 
 func getSlackMessageTitle(slackTask external.SlackSavedTaskSource, messageParams database.SlackMessageParams, externalToken *database.ExternalAPIToken) (string, error) {
-	title := "From "
+	title := ""
 
 	var oauthToken oauth2.Token
 	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
@@ -307,16 +311,10 @@ func getSlackMessageTitle(slackTask external.SlackSavedTaskSource, messageParams
 
 	title = title + username + " in " + channel
 
-	tsParts := strings.Split(messageParams.Message.TimeSent, ".")
-	tsFirst, err := strconv.ParseInt(tsParts[0], 10, 64)
-	if err != nil {
-		return "", err
+	messageText := messageParams.Message.Text
+	if len(messageText) > 50 {
+		messageText = messageParams.Message.Text[:50] + "..."
 	}
-	tsSecond, err := strconv.ParseInt(tsParts[1], 10, 64)
-	if err != nil {
-		return "", err
-	}
-	tsTime := time.Unix(tsFirst, tsSecond)
-	title = title + " @ " + tsTime.Format("2006-01-02 15:04:05")
+	title = title + ": " + messageText
 	return title, nil
 }
