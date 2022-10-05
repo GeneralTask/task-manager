@@ -27,12 +27,14 @@ interface CalendarViewProps {
     initialShowDateHeader?: boolean
     isInitiallyCollapsed?: boolean
     hideContainerShadow?: boolean
+    hasLeftBorder?: boolean
 }
 const CalendarView = ({
     initialType,
     initialShowMainHeader,
     isInitiallyCollapsed,
     hideContainerShadow = false,
+    hasLeftBorder = false,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowMainHeader ?? true)
@@ -75,7 +77,11 @@ const CalendarView = ({
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
-        <CalendarContainer isExpanded={calendarType === 'week'} showShadow={!hideContainerShadow}>
+        <CalendarContainer
+            isExpanded={calendarType === 'week'}
+            showShadow={!hideContainerShadow}
+            hasLeftBorder={hasLeftBorder}
+        >
             <CalendarHeader
                 date={date}
                 setDate={setDate}
