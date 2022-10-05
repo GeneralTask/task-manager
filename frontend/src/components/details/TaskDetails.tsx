@@ -76,6 +76,7 @@ const SYNC_MESSAGES = {
 }
 
 const TITLE_MAX_HEIGHT = 208
+const BODY_MIN_HEIGHT = 200
 const BODY_MAX_HEIGHT = 420
 
 interface TaskDetailsProps {
@@ -255,7 +256,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             value={task.body}
                             placeholder="Add details"
                             onChange={(val) => onEdit({ id: task.id, body: val })}
-                            minHeight={200}
+                            minHeight={BODY_MIN_HEIGHT}
                             maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />
