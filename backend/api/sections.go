@@ -4,12 +4,10 @@ import (
 	"context"
 	"sort"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type SectionCreateParams struct {
@@ -97,10 +95,6 @@ func (api *API) SectionModify(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "invalid or missing task section modify parameter"})
 		return
 	}
-	if sectionID == constants.IDTaskSectionDefault {
-		api.setDefaultSectionName(c, params.Name)
-		return
-	}
 
 	sectionCollection := database.GetTaskSectionCollection(api.DB)
 
@@ -140,30 +134,6 @@ func (api *API) SectionModify(c *gin.Context) {
 		}
 	}
 	c.JSON(200, gin.H{})
-}
-
-func (api *API) setDefaultSectionName(c *gin.Context, name string) {
-	settingsCollection := database.GetDefaultSectionSettingsCollection(api.DB)
-
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
-
-	_, err := settingsCollection.UpdateOne(
-		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-		}},
-		bson.M{"$set": bson.M{"name_override": name}},
-		options.Update().SetUpsert(true),
-	)
-	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to set default task section name")
-		Handle500(c)
-		return
-	}
-	c.JSON(200, gin.H{})
-	return
-
 }
 
 func (api *API) SectionDelete(c *gin.Context) {
