@@ -108,7 +108,7 @@ export default function CalendarHeader({
                                     onClick={toggleCalendar}
                                     icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
                                 />
-                                <GTIconButton onClick={() => setIsCollapsed(true)} icon={icons.caret_right} />
+                                <GTIconButton onClick={() => setIsCollapsed(true)} icon={icons.close_calendar} />
                             </HeaderIconsContainer>
                         </HeaderBodyContainer>
                     </PaddedContainer>
