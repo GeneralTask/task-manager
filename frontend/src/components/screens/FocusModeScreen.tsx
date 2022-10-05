@@ -25,6 +25,8 @@ import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
+const FOCUS_MODE_WIDTH = '956px'
+
 const TemplateViewContainer = styled.div`
     height: 100%;
     background: url(${focusModeBackground});
@@ -36,7 +38,7 @@ const FloatingIcon = styled.div`
     left: ${Spacing._16};
 `
 const FocusModeContainer = styled.div`
-    width: 60%;
+    width: ${FOCUS_MODE_WIDTH};
     height: 100%;
     margin: 0 auto;
     display: flex;
