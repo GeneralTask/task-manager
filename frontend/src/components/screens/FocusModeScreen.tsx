@@ -186,7 +186,9 @@ const FocusModeScreen = () => {
     useKeyboardShortcut('close', backAction)
 
     useEffect(() => {
-        if (currentEvents.length === 1) {
+        if (currentEvents.length === 0) {
+            setChosenEvent(null)
+        } else if (currentEvents.length === 1) {
             setChosenEvent(currentEvents[0])
         }
     }, [events])
