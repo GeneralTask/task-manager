@@ -3,9 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useGetLinkedAccounts, useGetSettings } from '../../services/api/settings.hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
+import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
 import { isGithubLinkedAccount } from '../../utils/utils'
@@ -14,7 +15,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
-import PullRequestList from '../pull-requests/PullRequestList'
+import PullRequest from '../pull-requests/PullRequest'
 import { PR_SORT_AND_FILTER_CONFIG } from '../pull-requests/constants'
 import { Repository, RepositoryName } from '../pull-requests/styles'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -26,24 +27,46 @@ const PullRequestsContainer = styled.div`
 
 const PullRequestsView = () => {
     const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
-    const { selectedSort, selectedSortDirection, selectedFilter } = sortAndFilterSettings
+    const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
-    const { isLoading: areSettingsLoading } = useGetSettings()
     const navigate = useNavigate()
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
     useFetchPullRequests()
 
-    const pullRequests = useMemo(() => repositories?.flatMap((r) => r.pull_requests) ?? [], [repositories])
+    // Repos in the same order they are passed in as, with pull requests sorted and filtered
+    const sortedAndFilteredRepositories = useMemo(
+        () =>
+            repositories
+                ?.flatMap((repo) => ({
+                    ...repo,
+                    pull_requests: sortAndFilterItems({
+                        items: repo.pull_requests,
+                        sort: selectedSort,
+                        sortDirection: selectedSortDirection,
+                        filter: selectedFilter,
+                    }),
+                }))
+                .filter((repo) => repo.pull_requests.length > 0) ?? [],
+        [repositories, selectedSort, selectedSortDirection, selectedFilter]
+    )
+
+    const sortedAndFilteredPullRequests = useMemo(
+        () => sortedAndFilteredRepositories?.flatMap((repo) => repo.pull_requests) ?? [],
+        [sortedAndFilteredRepositories]
+    )
+
     useItemSelectionController(
-        pullRequests,
+        sortedAndFilteredPullRequests,
         useCallback((itemId: string) => navigate(`/pull-requests/${itemId}`), [])
     )
 
     const selectedPullRequest = useMemo(() => {
-        if (pullRequests.length === 0) return null
-        return pullRequests.find((pr) => pr.id === params.pullRequest) ?? pullRequests[0]
-    }, [params.pullRequest, JSON.stringify(pullRequests)])
+        if (sortedAndFilteredPullRequests.length === 0 || areSettingsLoading) return null
+        return (
+            sortedAndFilteredPullRequests.find((pr) => pr.id === params.pullRequest) ?? sortedAndFilteredPullRequests[0]
+        )
+    }, [params.pullRequest, sortedAndFilteredRepositories])
 
     const isGithubLinked = isGithubLinkedAccount(linkedAccounts ?? [])
     useEffect(() => {
@@ -65,19 +88,22 @@ const PullRequestsView = () => {
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
-                        repositories.map((repository) => (
+                        sortedAndFilteredRepositories.map((repository) => (
                             <Repository key={repository.id}>
                                 <RepositoryName>{repository.name}</RepositoryName>
                                 {repository.pull_requests.length === 0 ? (
                                     'No pull requests'
                                 ) : (
-                                    <PullRequestList
-                                        pullRequests={repository.pull_requests}
-                                        selectedPrId={params.pullRequest}
-                                        sort={selectedSort}
-                                        sortDirection={selectedSortDirection}
-                                        filter={selectedFilter}
-                                    />
+                                    <Repository>
+                                        {repository.pull_requests.map((pr) => (
+                                            <PullRequest
+                                                key={pr.id}
+                                                pullRequest={pr}
+                                                link={`/pull-requests/${pr.id}`}
+                                                isSelected={pr.id === selectedPullRequest?.id}
+                                            />
+                                        ))}
+                                    </Repository>
                                 )}
                                 <br />
                             </Repository>

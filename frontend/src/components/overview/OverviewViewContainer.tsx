@@ -21,7 +21,8 @@ interface OverviewViewProps {
 const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     const { overviewViewId, overviewItemId } = useParams()
     const [visibleItemsCount, setVisibleItemsCount] = useState(0)
-    const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
+    const [numViewItems, setNumViewItems] = useState(view.view_items.length)
+    const nextPageLength = Math.min(numViewItems - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
         if (view.isOptimistic) {
@@ -51,10 +52,10 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     useLayoutEffect(() => {
         setVisibleItemsCount(
             Math.max(
-                // Ensure that visibleItemsCount <= view.view_items.length, and that we do not decrease the number of visible items when selecting a new item
-                Math.min(visibleItemsCount, view.view_items.length),
-                // If view.view_items.length drops below PAGE_SIZE, set visibleItemsCount to view.view_items.length
-                Math.min(view.view_items.length, PAGE_SIZE),
+                // Ensure that visibleItemsCount <= numViewItems, and that we do not decrease the number of visible items when selecting a new item
+                Math.min(visibleItemsCount, numViewItems),
+                // If numViewItems drops below PAGE_SIZE, set visibleItemsCount to numViewItems
+                Math.min(numViewItems, PAGE_SIZE),
                 // if the selected item is in this view, ensure it is visible
                 view.id === overviewViewId ? view.view_items.findIndex((item) => item.id === overviewItemId) + 1 : 0
             )
@@ -72,7 +73,13 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
 
     return (
         <ViewContainer>
-            <ViewItems ref={drag} view={view} visibleItemsCount={visibleItemsCount} scrollRef={scrollRef} />
+            <ViewItems
+                ref={drag}
+                view={view}
+                visibleItemsCount={visibleItemsCount}
+                scrollRef={scrollRef}
+                setNumViewItems={setNumViewItems}
+            />
             {!view.is_linked &&
                 view.sources.map((source) => (
                     <AuthBanner
@@ -83,7 +90,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
                         hasBorder={true}
                     />
                 ))}
-            {visibleItemsCount < view.view_items.length && (
+            {visibleItemsCount < numViewItems && (
                 <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
                     View more ({nextPageLength})
                 </PaginateTextButton>

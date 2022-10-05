@@ -38,6 +38,7 @@ const useSortAndFilterSettings = <T>(
         setSelectedSortDirection,
         selectedFilter,
         setSelectedFilter,
+        isLoading: false,
     }
 }
 
