@@ -266,7 +266,7 @@ const FocusModeScreen = () => {
                                         <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
-                                                <BoldText> right now.</BoldText>
+                                                <BoldText> right now</BoldText>.
                                             </span>
                                             <RightAbsoluteContainer>
                                                 <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
@@ -277,7 +277,7 @@ const FocusModeScreen = () => {
                                         <NotificationMessage isCentered>
                                             <span>
                                                 <span>This event is</span>
-                                                <BoldText> in the past.</BoldText>
+                                                <BoldText> in the past</BoldText>.
                                             </span>
                                         </NotificationMessage>
                                     )}
@@ -310,7 +310,7 @@ const FocusModeScreen = () => {
                             {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
-                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}.</BoldText>
+                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
                                 </span>
                             )}
                         </NextEventContainer>
