@@ -44,9 +44,9 @@ const TaskTitle = styled.span`
     margin-left: ${Spacing._16};
 `
 
-const currentThirtyMinuteBlock = (currentTime: DateTime) => {
-    // Round down to nearest 30 minutes
-    const minutes = Math.floor(currentTime.minute / 30) * 30
+const currentFifteenMinuteBlock = (currentTime: DateTime) => {
+    // Round down to nearest 15 minutes
+    const minutes = Math.floor(currentTime.minute / 15) * 15
     return DateTime.local().set({ minute: minutes, second: 0, millisecond: 0 })
 }
 
@@ -73,7 +73,7 @@ interface FlexTimeProps {
 }
 
 const FlexTime = ({ nextEvent }: FlexTimeProps) => {
-    const thirtyMinuteBlock = currentThirtyMinuteBlock(DateTime.local())
+    const fifteenMinuteBlock = currentFifteenMinuteBlock(DateTime.local())
     const nextEventTime = nextEvent
         ? DateTime.fromISO(nextEvent.datetime_start)
         : DateTime.local().set({ hour: 23, minute: 59 }) //midnight
@@ -111,8 +111,8 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         createEvent({
             createEventPayload: {
                 account_id: primaryAccountID,
-                datetime_start: thirtyMinuteBlock.toISO(),
-                datetime_end: thirtyMinuteBlock.plus({ hours: 1 }).toISO(),
+                datetime_start: fifteenMinuteBlock.toISO(),
+                datetime_end: fifteenMinuteBlock.plus({ hours: 1 }).toISO(),
                 summary: task.title,
                 description,
                 task_id: task.id,
@@ -127,7 +127,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         <FlexTimeContainer>
             <GTHeader>Flex Time</GTHeader>
             <GTTitle>
-                <TimeRange start={thirtyMinuteBlock} end={nextEventTime} />
+                <TimeRange start={fifteenMinuteBlock} end={nextEventTime} />
             </GTTitle>
             <Subtitle>
                 If you need something to work on, we’ve picked a couple tasks that you may be interested in doing now.
