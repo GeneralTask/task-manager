@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { useCalendarContext } from './CalendarContext'
 import { CELL_TIME_WIDTH } from './CalendarEvents-styles'
 import TaskDueBody from './TaskDueBody'
 import { CONTAINER_MAX_HEIGHT } from './TasksDue'
@@ -42,8 +43,8 @@ interface TasksDueWeekProps {
 }
 const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
     const { data: taskSections } = useGetTasks()
-    const [isCollapsed, setIsCollapsed] = useState(false)
-    const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
+    const { isTasksDueViewCollapsed, setIsTasksDueViewCollapsed } = useCalendarContext()
+    const caretIcon = isTasksDueViewCollapsed ? icons.caret_right : icons.caret_down
 
     const tasksDueWeek = useMemo(() => {
         const allTasks = taskSections?.flatMap((section) => section.tasks) ?? []
@@ -56,21 +57,15 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
     if (!anyTasksDueThisWeek) return null
     return (
         <TasksDueWeekContainer>
-            <AbsoluteCaretIcon onClick={() => setIsCollapsed(!isCollapsed)}>
+            <AbsoluteCaretIcon onClick={() => setIsTasksDueViewCollapsed(!isTasksDueViewCollapsed)}>
                 <Icon icon={caretIcon} />
             </AbsoluteCaretIcon>
             {[...Array(7)].map((_, index) => (
                 <TaskDueContainer key={index}>
                     {tasksDueWeek[index].length > 0 && (
                         <>
-                            <TasksDueHeader
-                                type="week"
-                                isCollapsed={isCollapsed}
-                                setIsCollapsed={setIsCollapsed}
-                                numTasksDue={tasksDueWeek[index].length}
-                                hideCollapseButton
-                            />
-                            {!isCollapsed && <TaskDueBody tasksDue={tasksDueWeek[index]} />}
+                            <TasksDueHeader type="week" numTasksDue={tasksDueWeek[index].length} hideCollapseButton />
+                            {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueWeek[index]} />}
                         </>
                     )}
                 </TaskDueContainer>
