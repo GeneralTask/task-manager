@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
 import { useCallback, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
@@ -10,7 +10,7 @@ import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import GTTextArea from '../atoms/GTTextArea'
+import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import { Divider } from '../atoms/SectionDivider'
@@ -76,7 +76,8 @@ const SYNC_MESSAGES = {
 }
 
 const TITLE_MAX_HEIGHT = 208
-const BODY_MAX_HEIGHT = 200
+const BODY_MIN_HEIGHT = 200
+const BODY_MAX_HEIGHT = 420
 
 interface TaskDetailsProps {
     task: TTask
@@ -149,18 +150,15 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         [task.id, modifyTask]
     )
 
-    const onEdit = useCallback(
-        ({ id, title, body }: TModifyTaskData) => {
-            setIsEditing(true)
-            const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
-            if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-            timers.current[timerId] = {
-                timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
-                callback: () => syncDetails({ id, title, body }),
-            }
-        },
-        [syncDetails]
-    )
+    const onEdit = ({ id, title, body }: TModifyTaskData) => {
+        setIsEditing(true)
+        const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
+        if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
+        timers.current[timerId] = {
+            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
+            callback: () => syncDetails({ id, title, body }),
+        }
+    }
 
     const status = task.external_status ? task.external_status.state : ''
 
@@ -172,7 +170,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MarginLeft8>
                 {!task.isOptimistic && (
                     <>
-                        <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        <MarginLeft8>
+                            <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        </MarginLeft8>
                         <MarginLeftAuto>
                             {!is_meeting_preparation_task && (
                                 <ActionOption
@@ -188,10 +188,12 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 )}
             </DetailsTopContainer>
             <div>
-                <GTTextArea
-                    initialValue={task.title}
+                <GTTextField
+                    type="plaintext"
+                    itemId={task.id}
+                    value={task.title}
                     disabled={task.isOptimistic || is_meeting_preparation_task}
-                    onEdit={(val) => onEdit({ id: task.id, title: val })}
+                    onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     blurOnEnter
@@ -250,11 +252,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <BodyContainer>
-                        <GTTextArea
-                            initialValue={task.body}
+                        <GTTextField
+                            itemId={task.id}
+                            type="markdown"
+                            value={task.body}
                             placeholder="Add details"
-                            isFullHeight={!task.slack_message_params}
-                            onEdit={(val) => onEdit({ id: task.id, body: val })}
+                            onChange={(val) => onEdit({ id: task.id, body: val })}
+                            minHeight={BODY_MIN_HEIGHT}
                             maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />

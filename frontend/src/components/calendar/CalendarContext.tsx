@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
@@ -11,6 +11,7 @@ export interface ContextValues {
     isTaskDraggingOverDetailsView: boolean
     selectedEvent: TEvent | null
     isPopoverDisabled: boolean
+    isTasksDueViewCollapsed: boolean
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
@@ -18,6 +19,7 @@ export interface ContextValues {
     setIsTaskDraggingOverDetailsView: (isTaskDraggingOverDetailsView: boolean) => void
     setSelectedEvent: (event: TEvent | null) => void
     setIsPopoverDisabled: React.Dispatch<React.SetStateAction<boolean>>
+    setIsTasksDueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
 const CalendarContext = createContext<ContextValues>({
     calendarType: 'day',
@@ -27,6 +29,7 @@ const CalendarContext = createContext<ContextValues>({
     isTaskDraggingOverDetailsView: false,
     selectedEvent: null,
     isPopoverDisabled: false,
+    isTasksDueViewCollapsed: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -34,6 +37,7 @@ const CalendarContext = createContext<ContextValues>({
     setIsTaskDraggingOverDetailsView: emptyFunction,
     setSelectedEvent: emptyFunction,
     setIsPopoverDisabled: emptyFunction,
+    setIsTasksDueViewCollapsed: emptyFunction,
 })
 
 export const useCalendarContext = () => {
@@ -51,6 +55,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
     const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
+    const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useState<boolean>(false)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
@@ -64,6 +69,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         isTaskDraggingOverDetailsView,
         selectedEvent,
         isPopoverDisabled,
+        isTasksDueViewCollapsed,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
@@ -71,6 +77,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         setIsTaskDraggingOverDetailsView,
         setSelectedEvent,
         setIsPopoverDisabled,
+        setIsTasksDueViewCollapsed,
     }
 
     return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>

@@ -54,7 +54,7 @@ const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: Naviga
                 <SectionTitle>{title}</SectionTitle>
                 {openAddSectionInput && (
                     <AddSectionContainer onClick={openAddSectionHandler}>
-                        <TooltipWrapper dataTip="Add Section" tooltipId="tooltip">
+                        <TooltipWrapper dataTip="Add Folder" tooltipId="tooltip">
                             <Icon icon={icons.plus} color="black" />
                         </TooltipWrapper>
                     </AddSectionContainer>
