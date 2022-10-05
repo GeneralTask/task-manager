@@ -186,10 +186,11 @@ func TestGetPullRequests(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		// correct values to find in DB
+		isCompleted := true
 		_, err = pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
 			UserID:      userID,
 			IDExternal:  "1",
-			IsCompleted: &falseBool,
+			IsCompleted: &isCompleted,
 			Title:       "something cached in the db",
 		})
 		assert.NoError(t, err)
@@ -207,6 +208,7 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, 1, len(result.PullRequests))
 		// if it fetched from the proper API, it wouldn't still have this title
 		assert.Equal(t, "something cached in the db", result.PullRequests[0].Title)
+		assert.False(t, *result.PullRequests[0].IsCompleted)
 
 		// run it again now with a "has been modified" server response
 		githubPR.Github.Config.ConfigValues.PullRequestModifiedURL = pullRequestModifiedURL

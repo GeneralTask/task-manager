@@ -197,6 +197,18 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 
 		// don't update or create if pull request has DB ID already (it's a cached PR from the DB)
 		if pullRequest.ID != primitive.NilObjectID {
+			if pullRequest.IsCompleted != nil && *pullRequest.IsCompleted {
+				// if PR was previously marked as complete, we should update it to be incomplete
+				res, err := database.GetPullRequestCollection(db).UpdateOne(context.Background(), bson.M{"$and": []bson.M{
+					{"_id": pullRequest.ID},
+					{"user_id": userID},
+				}}, bson.M{"is_completed": "false"})
+				if err != nil || res.ModifiedCount != 1 {
+					logger.Error().Err(err).Msg("failed to update PR to incomplete")
+				}
+				isCompleted := false
+				pullRequest.IsCompleted = &isCompleted
+			}
 			pullRequests = append(pullRequests, pullRequest)
 			continue
 		}
