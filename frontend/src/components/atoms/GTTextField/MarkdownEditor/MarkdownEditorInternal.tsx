@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { EditorComponent, useCommands } from '@remirror/react'
+import { useEffect, useState } from 'react'
+import { EditorComponent, useCommands, useSelectedText } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Spacing, Typography } from '../../../../styles'
 import { FontSize, MarkdownEditorProps } from '../types'
@@ -42,6 +42,13 @@ const EditorAndToolbarContainer = styled.div<{
 
 const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
     const { blur, selectAll } = useCommands()
+    const selectedText = useSelectedText()
+    const [isTextSelected, setIsTextSelected] = useState(selectedText !== undefined)
+
+    useEffect(() => {
+        setIsTextSelected(selectedText !== undefined)
+    }, [selectedText])
+
     useEffect(() => {
         if (props.autoSelect) {
             selectAll()
@@ -60,11 +67,12 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
             maxHeight={props.maxHeight}
             isFullHeight={props.isFullHeight}
             fontSize={props.fontSize}
+            onBlur={() => setIsTextSelected(false)}
         >
             <EditorContainer>
                 <EditorComponent />
             </EditorContainer>
-            <RichTextToolbar />
+            {isTextSelected && <RichTextToolbar />}
         </EditorAndToolbarContainer>
     )
 }

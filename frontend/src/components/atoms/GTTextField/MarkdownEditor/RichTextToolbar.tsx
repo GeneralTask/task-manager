@@ -1,4 +1,4 @@
-import { useCommands } from '@remirror/react'
+import { useActive, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
@@ -24,33 +24,25 @@ const Divider = styled.div`
 `
 
 const RichTextToolbar = () => {
-    const {
-        toggleBold,
-        toggleItalic,
-        toggleUnderline,
-        toggleStrike,
-        toggleOrderedList,
-        toggleBulletList,
-        toggleBlockquote,
-        toggleCode,
-        toggleCodeBlock,
-    } = useCommands()
+    const commands = useCommands()
+
+    const active = useActive()
 
     return (
         <MenuContainer>
-            <ToolbarButton icon={icons.bold} action={toggleBold} />
-            <ToolbarButton icon={icons.italic} action={toggleItalic} />
-            <ToolbarButton icon={icons.underline} action={toggleUnderline} />
-            <ToolbarButton icon={icons.strikethrough} action={toggleStrike} />
+            <ToolbarButton icon={icons.bold} action={commands.toggleBold} isActive={active.bold()} />
+            <ToolbarButton icon={icons.italic} action={commands.toggleItalic} isActive={active.italic()} />
+            <ToolbarButton icon={icons.underline} action={commands.toggleUnderline} isActive={active.underline()} />
+            <ToolbarButton icon={icons.strikethrough} action={commands.toggleStrike} isActive={active.strike()} />
             <Divider />
-            <ToolbarButton icon={icons.link} action={emptyFunction} />
+            <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} />
             <Divider />
-            <ToolbarButton icon={icons.list_ol} action={toggleOrderedList} />
-            <ToolbarButton icon={icons.list_ul} action={toggleBulletList} />
+            <ToolbarButton icon={icons.list_ol} action={commands.toggleOrderedList} isActive={active.orderedList()} />
+            <ToolbarButton icon={icons.list_ul} action={commands.toggleBulletList} isActive={active.bulletList()} />
             <Divider />
-            <ToolbarButton icon={icons.quote_right} action={toggleBlockquote} />
-            <ToolbarButton icon={icons.code} action={toggleCode} />
-            <ToolbarButton icon={icons.code_block} action={toggleCodeBlock} />
+            <ToolbarButton icon={icons.quote_right} action={commands.toggleBlockquote} isActive={active.blockquote()} />
+            <ToolbarButton icon={icons.code} action={commands.toggleCode} isActive={active.code()} />
+            <ToolbarButton icon={icons.code_block} action={commands.toggleCodeBlock} isActive={active.codeBlock()} />
         </MenuContainer>
     )
 }
