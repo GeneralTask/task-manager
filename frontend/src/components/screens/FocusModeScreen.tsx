@@ -8,7 +8,7 @@ import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
-import { getMonthsAroundDate } from '../../utils/time'
+import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
@@ -302,7 +302,7 @@ const FocusModeScreen = () => {
                     </MainContainer>
                     <ClockContainer>
                         <NextEventContainer>
-                            {nextEvent && (
+                            {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
                                     <BoldText> {getTimeUntilNextEvent(nextEvent)}.</BoldText>
