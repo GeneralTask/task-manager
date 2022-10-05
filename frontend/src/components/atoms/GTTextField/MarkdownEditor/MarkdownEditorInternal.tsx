@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { EditorComponent, useCommands, useSelectedText } from '@remirror/react'
 import styled from 'styled-components'
-import { Border, Spacing, Typography } from '../../../../styles'
+import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { FontSize, MarkdownEditorProps } from '../types'
 import RichTextToolbar from './RichTextToolbar'
 
@@ -37,6 +37,18 @@ const EditorAndToolbarContainer = styled.div<{
         > * {
             margin-top: 0;
         }
+    }
+    .language-markup {
+        background-color: ${Colors.background.medium};
+        border: ${Border.stroke.medium} solid ${Colors.border.light};
+        border-radius: ${Border.radius.mini};
+        padding: ${Spacing._4};
+    }
+    p > code {
+        background-color: ${Colors.background.medium};
+        border: ${Border.stroke.medium} solid ${Colors.border.light};
+        border-radius: ${Border.radius.mini};
+        padding: 0 ${Spacing._4};
     }
 `
 
