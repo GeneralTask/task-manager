@@ -19,6 +19,13 @@ var StarterViews = []StarterView{
 		IsReorderable: true,
 	},
 	{
+		Type:          "linear",
+		TaskSectionID: primitive.NilObjectID,
+		IsLinked:      false,
+		IsPaginated:   false,
+		IsReorderable: false,
+	},
+	{
 		Type:          "slack",
 		TaskSectionID: primitive.NilObjectID,
 		IsLinked:      false,

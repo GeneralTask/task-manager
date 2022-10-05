@@ -24,3 +24,7 @@ export function getDiffBetweenISOTimes(start: string, end: string) {
     const endDateTime = DateTime.fromISO(end)
     return endDateTime.diff(startDateTime)
 }
+
+export function isDateToday(date: DateTime) {
+    return date.hasSame(DateTime.local(), 'day')
+}

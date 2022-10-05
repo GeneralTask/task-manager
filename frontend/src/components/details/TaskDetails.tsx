@@ -170,7 +170,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MarginLeft8>
                 {!task.isOptimistic && (
                     <>
-                        <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        <MarginLeft8>
+                            <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                        </MarginLeft8>
                         <MarginLeftAuto>
                             {!is_meeting_preparation_task && (
                                 <ActionOption
@@ -255,6 +257,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             type="markdown"
                             value={task.body}
                             placeholder="Add details"
+                            isFullHeight={!task.slack_message_params}
                             onChange={(val) => onEdit({ id: task.id, body: val })}
                             minHeight={BODY_MIN_HEIGHT}
                             maxHeight={BODY_MAX_HEIGHT}
