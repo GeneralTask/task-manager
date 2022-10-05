@@ -32,6 +32,22 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
             ],
         },
         {
+            label: 'Set Due Date',
+            icon: icons.clock,
+            subItems: [
+                {
+                    label: 'Calendar',
+                    renderer: () => (
+                        <GTDatePicker
+                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
+                            setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                            onlyCalendar
+                        />
+                    ),
+                },
+            ],
+        },
+        {
             label: 'Move to Folder',
             icon: icons.folder,
             subItems: taskSections
@@ -53,22 +69,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                           })),
                   ]
                 : [],
-        },
-        {
-            label: 'Set Due Date',
-            icon: icons.clock,
-            subItems: [
-                {
-                    label: 'Calendar',
-                    renderer: () => (
-                        <GTDatePicker
-                            initialDate={DateTime.fromISO(task.due_date).toJSDate()}
-                            setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
-                            onlyCalendar
-                        />
-                    ),
-                },
-            ],
         },
         // {
         //     label: 'Delete task',
