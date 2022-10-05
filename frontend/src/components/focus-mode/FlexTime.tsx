@@ -39,9 +39,13 @@ const RecommendedTaskContainer = styled.div`
     display: flex;
     padding: ${Spacing._8} 0;
     align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 const TaskTitle = styled.span`
     margin-left: ${Spacing._16};
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 const NewTaskRecommendationsButton = styled.div`
     color: ${Colors.text.purple};
