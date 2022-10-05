@@ -47,12 +47,14 @@ const MainContainer = styled.div`
     display: flex;
     min-height: 0;
 `
+// This div uses a hard coded font weight that needs to be updated
 const ClockContainer = styled.div`
     display: flex;
     justify-content: space-between;
     border-top: ${Border.radius.mini} solid ${Colors.border.light};
     ${Typography.header};
     padding: ${Spacing._24} ${Spacing._32};
+    font-weight: 274;
 `
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
     position: relative;
