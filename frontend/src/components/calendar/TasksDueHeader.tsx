@@ -28,7 +28,7 @@ const TasksDueHeader = ({
     isCollapsed,
     setIsCollapsed,
     numTasksDue,
-    hideCollapseButton = false,
+    hideCollapseButton,
 }: TasksDueHeaderProps) => {
     const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
     const dayMessage = `Due Today (${numTasksDue})`
