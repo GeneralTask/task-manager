@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useGetEvents } from '../../services/api/events.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
@@ -42,6 +42,7 @@ const FocusModeContainer = styled.div`
     display: flex;
     flex-direction: column;
     background-color: ${Colors.background.white};
+    box-shadow: ${Shadows.medium};
 `
 const MainContainer = styled.div`
     display: flex;
