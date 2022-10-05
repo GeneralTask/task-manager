@@ -901,39 +901,6 @@ func TestGetExternalToken(t *testing.T) {
 	})
 }
 
-func TestGetExternalTokenByExternalID(t *testing.T) {
-	db, dbCleanup, err := GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	userID := primitive.NewObjectID()
-	serviceID := "test service"
-	accountID := "id222"
-	externalID := "exampleID"
-
-	_, err = GetExternalTokenCollection(db).InsertOne(
-		context.Background(),
-		&ExternalAPIToken{
-			ServiceID:  serviceID,
-			AccountID:  accountID,
-			UserID:     userID,
-			ExternalID: externalID,
-		},
-	)
-	assert.NoError(t, err)
-
-	t.Run("invalid", func(t *testing.T) {
-		_, err := GetExternalTokenByExternalID(db, "wrong account", serviceID)
-		assert.Equal(t, mongo.ErrNoDocuments, err)
-	})
-	t.Run("Success", func(t *testing.T) {
-		token, err := GetExternalTokenByExternalID(db, externalID, serviceID)
-		assert.NoError(t, err)
-		assert.Equal(t, userID, token.UserID)
-		assert.Equal(t, serviceID, token.ServiceID)
-		assert.Equal(t, accountID, token.AccountID)
-	})
-}
-
 func TestGetExternalTokens(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)

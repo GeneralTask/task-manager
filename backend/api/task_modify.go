@@ -275,3 +275,35 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 		return
 	}
 }
+
+func (api *API) UpdateTaskInDBWithError(task *database.Task, userID primitive.ObjectID, updateFields *database.Task) error {
+	taskCollection := database.GetTaskCollection(api.DB)
+
+	if updateFields.IsCompleted != nil {
+		updateFields.PreviousStatus = task.Status
+		if *updateFields.IsCompleted {
+			updateFields.Status = task.CompletedStatus
+		} else {
+			updateFields.Status = task.PreviousStatus
+		}
+	}
+
+	res, err := taskCollection.UpdateOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": task.ID},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": updateFields},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to update internal DB")
+		return err
+	}
+	if res.MatchedCount != 1 {
+		log.Print("failed to update task", res)
+		return err
+	}
+
+	return nil
+}

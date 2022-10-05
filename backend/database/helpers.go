@@ -638,25 +638,6 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
-func GetExternalTokenByExternalID(db *mongo.Database, externalID string, serviceID string) (*ExternalAPIToken, error) {
-	var externalAPIToken ExternalAPIToken
-	err := GetExternalTokenCollection(db).FindOne(
-		context.Background(),
-		bson.M{
-			"$and": []bson.M{
-				{"service_id": serviceID},
-				{"external_id": externalID},
-			},
-		},
-	).Decode(&externalAPIToken)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to load external api token")
-		return nil, err
-	}
-	return &externalAPIToken, nil
-}
-
 func GetExternalTokens(db *mongo.Database, userID primitive.ObjectID, serviceID string) (*[]ExternalAPIToken, error) {
 	var tokens []ExternalAPIToken
 	err := FindWithCollection(

@@ -40,7 +40,6 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/waitlist/", handlers.WaitlistAdd)
 	router.POST("/tasks/create_external/slack/", handlers.SlackTaskCreate)
 
-	// TODO remove comment here once we change the refresh logic
 	router.POST("/linear/webhook/", handlers.LinearWebhook)
 
 	// Slack App (Workspace level) endpoint for oauth verification

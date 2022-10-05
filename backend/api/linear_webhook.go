@@ -66,19 +66,23 @@ type LinearCommentPayload struct {
 func (api *API) LinearWebhook(c *gin.Context) {
 	requestIP := c.Request.Header.Get("X-Forwarded-For")
 	if requestIP != ValidLinearIP1 && requestIP != ValidLinearIP2 {
-		c.JSON(400, gin.H{"detail": "invalid linear request IP"})
+		c.JSON(400, gin.H{"detail": "invalid request format"})
 		return
 	}
 
 	// make request body readable
-	body, _ := ioutil.ReadAll(c.Request.Body)
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "unable to read request body"})
+		return
+	}
 	// this is required, as the first write fully consumes the body
 	// the Form in the body is required for payload extraction
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	// unmarshal into request params for type and trigger id
 	var webhookPayload LinearWebhookPayload
-	err := json.Unmarshal(body, &webhookPayload)
+	err = json.Unmarshal(body, &webhookPayload)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "unable to process linear webhook payload"})
 		return
@@ -115,12 +119,13 @@ func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload Linea
 		return err
 	}
 
-	userIDExternal := commentPayload.UserID
-	token, err := database.GetExternalTokenByExternalID(api.DB, userIDExternal, external.TASK_SERVICE_ID_LINEAR)
+	token, err := database.GetExternalToken(api.DB, task.SourceAccountID, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
 		logger.Error().Err(err).Msg("could not find matching external ID")
 		return err
 	}
+
+	userIDExternal := commentPayload.UserID
 	userID := token.UserID
 	accountID := token.AccountID
 
@@ -133,6 +138,7 @@ func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload Linea
 		err = api.removeCommentFromPayload(c, userID, commentPayload, task)
 	default:
 		err = errors.New("action type not recognized")
+		logger.Error().Err(err).Msg("invalid action type")
 	}
 	return err
 }
@@ -182,11 +188,7 @@ func (api *API) createCommentFromPayload(c *gin.Context, userID primitive.Object
 		commentsNew = []database.Comment{commentToAdd}
 	}
 
-	updateTask := database.Task{
-		Comments: &commentsNew,
-	}
-	api.UpdateTaskInDB(c, task, userID, &updateTask)
-	return nil
+	return api.updateComments(task, userID, commentsNew)
 }
 
 func (api *API) modifyCommentFromPayload(c *gin.Context, userID primitive.ObjectID, commentPayload LinearCommentPayload, task *database.Task) error {
@@ -196,17 +198,11 @@ func (api *API) modifyCommentFromPayload(c *gin.Context, userID primitive.Object
 		// only accept body changes for modification
 		if comment.ExternalID == commentPayload.ID {
 			comment.Body = commentPayload.Body
-			commentsNew = append(commentsNew, comment)
-			continue
 		}
 		commentsNew = append(commentsNew, comment)
 	}
 
-	updateTask := database.Task{
-		Comments: &commentsNew,
-	}
-	api.UpdateTaskInDB(c, task, userID, &updateTask)
-	return nil
+	return api.updateComments(task, userID, commentsNew)
 }
 
 func (api *API) removeCommentFromPayload(c *gin.Context, userID primitive.ObjectID, commentPayload LinearCommentPayload, task *database.Task) error {
@@ -218,11 +214,14 @@ func (api *API) removeCommentFromPayload(c *gin.Context, userID primitive.Object
 		}
 	}
 
+	return api.updateComments(task, userID, commentsNew)
+}
+
+func (api *API) updateComments(task *database.Task, userID primitive.ObjectID, commentsNew []database.Comment) error {
 	updateTask := database.Task{
 		Comments: &commentsNew,
 	}
-	api.UpdateTaskInDB(c, task, userID, &updateTask)
-	return nil
+	return api.UpdateTaskInDBWithError(task, userID, &updateTask)
 }
 
 func (api *API) getLinearUserInfo(userID primitive.ObjectID, accountID string, externalUserID string) (*external.LinearExternalUserInfoQuery, error) {
