@@ -173,7 +173,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
     ${Typography.body};
 `
-export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean }>`
+export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`
     min-width: 300px;
     ${(props) => !props.isExpanded && `width: 300px;`}
     height: 100%;
@@ -183,6 +183,7 @@ export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: b
     z-index: 1;
     box-shadow: ${({ showShadow }) => (showShadow ? Shadows.light : 'none')};
     flex-direction: column;
+    border-left: ${({ hasLeftBorder }) => (hasLeftBorder ? Border.stroke.medium : 'none')} solid ${Colors.border.light};
 `
 export const DayAndHeaderContainer = styled.div`
     display: flex;

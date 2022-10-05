@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { TASK_PRIORITIES } from '../../constants'
+import { TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -70,12 +70,13 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                 },
             ],
         },
-        // {
-        //     label: 'Delete task',
-        //     icon: icons.trash,
-        //     iconColor: 'red',
-        //     textColor: 'red',
-        // },
+        {
+            label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
+            icon: icons.trash,
+            iconColor: 'red',
+            textColor: 'red',
+            onClick: () => modifyTask({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
+        },
     ]
 
     return <GTContextMenu items={contextMenuItems} trigger={children} />

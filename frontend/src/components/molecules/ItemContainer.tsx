@@ -18,6 +18,9 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
     }
     padding: 0 ${Spacing._16};
     cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `
 
 interface ItemContainerProps {

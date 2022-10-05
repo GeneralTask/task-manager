@@ -85,6 +85,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			SourceID:        TASK_SOURCE_ID_GCAL,
 			Title:           event.Summary,
 			Body:            event.Description,
+			Location:        event.Location,
 			TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
 			SourceAccountID: accountID,
 			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),

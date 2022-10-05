@@ -25,6 +25,8 @@ import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
+const FOCUS_MODE_WIDTH = '956px'
+
 const TemplateViewContainer = styled.div`
     height: 100%;
     background: url(${focusModeBackground});
@@ -36,7 +38,7 @@ const FloatingIcon = styled.div`
     left: ${Spacing._16};
 `
 const FocusModeContainer = styled.div`
-    width: 60%;
+    width: ${FOCUS_MODE_WIDTH};
     height: 100%;
     margin: 0 auto;
     display: flex;
@@ -100,7 +102,7 @@ const ButtonContainer = styled.div`
     right: ${Spacing._16};
 `
 const BodyHeader = styled.div`
-    ${Typography.label};
+    ${Typography.eyebrow};
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div`
@@ -130,7 +132,7 @@ const RightAbsoluteContainer = styled.div`
 const getTimeUntilNextEvent = (event: TEvent) => {
     const now = DateTime.local()
     const eventStart = DateTime.fromISO(event.datetime_start)
-    const minutesUntilEvent = eventStart.diff(now, 'minutes').minutes
+    const minutesUntilEvent = Math.floor(eventStart.diff(now, 'minutes').minutes)
     if (minutesUntilEvent === 1) {
         return '1 minute'
     } else if (minutesUntilEvent < 60) {
@@ -158,7 +160,6 @@ const FocusModeScreen = () => {
         setIsCollapsed(false)
         setCalendarType('day')
         setIsPopoverDisabled(true)
-        setSelectedEvent(null)
         return () => {
             setIsPopoverDisabled(false)
             setSelectedEvent(null)
@@ -176,6 +177,13 @@ const FocusModeScreen = () => {
         return start > time
     })
 
+    useLayoutEffect(() => {
+        if (selectedEvent != null) return
+        const currentEvents = getEventsCurrentlyHappening(events ?? [])
+        if (currentEvents.length === 0) return
+        setSelectedEvent(currentEvents[0])
+    }, [events])
+
     const { key: keyLocation } = useLocation()
     const backAction = useCallback(() => {
         // Check if focus mode was opened from landing page or if it was the initial page
@@ -186,7 +194,9 @@ const FocusModeScreen = () => {
     useKeyboardShortcut('close', backAction)
 
     useEffect(() => {
-        if (currentEvents.length === 1) {
+        if (currentEvents.length === 0) {
+            setChosenEvent(null)
+        } else if (currentEvents.length === 1) {
             setChosenEvent(currentEvents[0])
         }
     }, [events])
@@ -258,7 +268,7 @@ const FocusModeScreen = () => {
                             )}
                             {chosenEvent && (
                                 <>
-                                    <GTHeader>{title}</GTHeader>
+                                    <GTHeader title={title}>{title}</GTHeader>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
@@ -266,7 +276,7 @@ const FocusModeScreen = () => {
                                         <NotificationMessage>
                                             <span>
                                                 <span>This meeting is happening</span>
-                                                <BoldText> right now.</BoldText>
+                                                <BoldText> right now</BoldText>.
                                             </span>
                                             <RightAbsoluteContainer>
                                                 <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
@@ -277,7 +287,7 @@ const FocusModeScreen = () => {
                                         <NotificationMessage isCentered>
                                             <span>
                                                 <span>This event is</span>
-                                                <BoldText> in the past.</BoldText>
+                                                <BoldText> in the past</BoldText>.
                                             </span>
                                         </NotificationMessage>
                                     )}
@@ -301,6 +311,7 @@ const FocusModeScreen = () => {
                                 initialShowDateHeader={false}
                                 initialShowMainHeader={false}
                                 hideContainerShadow
+                                hasLeftBorder
                             />
                         </CalendarContainer>
                     </MainContainer>
@@ -309,7 +320,7 @@ const FocusModeScreen = () => {
                             {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
                                 <span>
                                     Next event is in
-                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}.</BoldText>
+                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
                                 </span>
                             )}
                         </NextEventContainer>
