@@ -64,7 +64,7 @@ export const BranchNameContainer = styled.div`
     display: flex;
     align-items: center;
     color: ${Colors.gtColor.primary};
-    border: ${Border.stroke.medium} solid ${Colors.border.gray};
+    border: ${Border.stroke.medium} solid ${Colors.border.purple};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._4} ${Spacing._4};
     gap: ${Spacing._8};
