@@ -100,7 +100,7 @@ const ButtonContainer = styled.div`
     right: ${Spacing._16};
 `
 const BodyHeader = styled.div`
-    ${Typography.label};
+    ${Typography.eyebrow};
     margin-bottom: ${Spacing._16};
 `
 const Body = styled.div`
