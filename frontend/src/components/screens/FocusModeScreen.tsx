@@ -20,6 +20,7 @@ import TimeRange from '../atoms/TimeRange'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
@@ -289,7 +290,7 @@ const FocusModeScreen = () => {
                                     </div>
                                 </>
                             )}
-                            {!chosenEvent && currentEvents.length === 0 && <div>No Event</div>}
+                            {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
                         </EventContainer>
                         <CalendarContainer>
                             <CalendarView
