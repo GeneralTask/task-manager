@@ -3,23 +3,11 @@ import { EditorComponent, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Spacing, Typography } from '../../../../styles'
 import { FontSize, MarkdownEditorProps } from '../types'
-import RichTextToolbar from './RichTextToolbar'
 
-const EditorContainer = styled.div`
+const EditorContainer = styled.div<{ maxHeight?: number; isFullHeight?: boolean; fontSize: FontSize }>`
     overflow: auto;
-    width: 100%;
     height: 100%;
-`
-const EditorAndToolbarContainer = styled.div<{
-    maxHeight?: number
-    minHeight?: number
-    isFullHeight?: boolean
-    fontSize: FontSize
-}>`
-    position: relative;
     width: 100%;
-    height: 100%;
-    box-sizing: border-box;
     ${({ maxHeight, isFullHeight }) => (maxHeight && !isFullHeight ? `max-height: ${maxHeight}px;` : '')}
     ${({ isFullHeight }) => (isFullHeight ? 'height: 100%;' : '')}
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
@@ -27,7 +15,6 @@ const EditorAndToolbarContainer = styled.div<{
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
     .remirror-editor-wrapper {
         /* subtract the border and padding of the Container in GTTextField */
-        padding: ${Spacing._8};
         height: calc(100% - 2 * (${Border.stroke.medium} + ${Spacing._8}));
     }
     .remirror-editor {
@@ -55,17 +42,14 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
     }
 
     return (
-        <EditorAndToolbarContainer
+        <EditorContainer
             onKeyDown={handleKeyDown}
             maxHeight={props.maxHeight}
             isFullHeight={props.isFullHeight}
             fontSize={props.fontSize}
         >
-            <EditorContainer>
-                <EditorComponent />
-            </EditorContainer>
-            <RichTextToolbar />
-        </EditorAndToolbarContainer>
+            <EditorComponent />
+        </EditorContainer>
     )
 }
 
