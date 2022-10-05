@@ -638,28 +638,7 @@ func GetExternalTokens(db *mongo.Database, userID primitive.ObjectID, serviceID 
 }
 
 func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
-	defaultSectionCollection := GetDefaultSectionSettingsCollection(db)
-
-	var settings DefaultSectionSettings
-	mongoResult := defaultSectionCollection.FindOne(
-		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-		}},
-	)
-	err := mongoResult.Decode(&settings)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
-			logger.Error().Err(err).Msg("failed to query default section settings")
-		}
-		return constants.TaskSectionNameDefault
-	}
-	if settings.NameOverride != "" {
-		return settings.NameOverride
-	} else {
-		return constants.TaskSectionNameDefault
-	}
+	return constants.TaskSectionNameDefault
 }
 
 func GetView(db *mongo.Database, userID primitive.ObjectID, viewID primitive.ObjectID) (*View, error) {
