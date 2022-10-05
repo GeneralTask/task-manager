@@ -1,21 +1,41 @@
-import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions, FilterOptions } from '../../utils/sortAndFilter/types'
+import {
+    FilterOptions,
+    SORT_DIRECTION,
+    SortAndFilterSettingsConfig,
+    SortOptions,
+} from '../../utils/sortAndFilter/types'
 import { TPullRequest } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 
+const ACTION_REVIEW_PR = 'Review PR'
+const ACTION_ADD_REVIEWERS = 'Add Reviewers'
+const ACTION_FIX_FAILED_CI = 'Fix Failed CI'
+const ACTION_ADDRESS_COMMENTS = 'Address Comments'
+const ACTION_FIX_MERGE_CONFLICTS = 'Fix Merge Conflicts'
+const ACTION_WAITING_ON_CI = 'Waiting on CI'
+const ACTION_MERGE_PR = 'Merge PR'
+const ACTION_WAITING_ON_REVIEW = 'Waiting on Review'
+const ACTION_WAITING_ON_AUTHOR = 'Waiting on Author'
+const ACTION_NOT_ACTIONABLE = 'Not Actionable'
+
 const PULL_REQUEST_REQUIRED_ACTIONS = [
-    'Review PR',
-    'Add Reviewers',
-    'Fix Failed CI',
-    'Address Comments',
-    'Fix Merge Conflicts',
-    'Waiting on CI',
-    'Merge PR',
-    'Waiting on Review',
-    'Waiting on Author',
-    'Not Actionable',
+    ACTION_REVIEW_PR,
+    ACTION_ADD_REVIEWERS,
+    ACTION_FIX_FAILED_CI,
+    ACTION_ADDRESS_COMMENTS,
+    ACTION_FIX_MERGE_CONFLICTS,
+    ACTION_WAITING_ON_CI,
+    ACTION_MERGE_PR,
+    ACTION_WAITING_ON_REVIEW,
+    ACTION_WAITING_ON_AUTHOR,
+    ACTION_NOT_ACTIONABLE,
 ]
 
-const NON_ACTIONABLE_REQUIRED_ACTIONS = new Set(['Waiting on Review', 'Waiting on Author', 'Not Actionable'])
+const NON_ACTIONABLE_REQUIRED_ACTIONS = new Set([
+    ACTION_WAITING_ON_REVIEW,
+    ACTION_WAITING_ON_AUTHOR,
+    ACTION_NOT_ACTIONABLE,
+])
 
 const requiredActionToIndexMap = new Map<string, number>(
     PULL_REQUEST_REQUIRED_ACTIONS.map((action, index) => [action, index])
