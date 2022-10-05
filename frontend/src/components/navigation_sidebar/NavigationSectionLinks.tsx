@@ -214,6 +214,7 @@ const NavigationSectionLinks = () => {
                                 title={doneFolder.name}
                                 icon={icons.checkbox_checked}
                                 isCurrentPage={sectionId === doneFolder.id}
+                                count={doneFolder.tasks.length}
                                 taskSection={doneFolder}
                                 droppable
                             />
