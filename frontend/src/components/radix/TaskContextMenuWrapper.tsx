@@ -19,6 +19,29 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
 
     const contextMenuItems: GTMenuItem[] = [
         {
+            label: 'Move to Folder',
+            icon: icons.folder,
+            subItems: taskSections
+                ? [
+                      ...taskSections
+                          .filter((s) => !s.is_done && !s.is_trash)
+                          .map((section) => ({
+                              label: section.name,
+                              icon: icons.folder,
+                              selected: section.id === sectionId,
+                              onClick: () => {
+                                  reorderTask({
+                                      taskId: task.id,
+                                      dropSectionId: section.id,
+                                      dragSectionId: sectionId,
+                                      orderingId: 1,
+                                  })
+                              },
+                          })),
+                  ]
+                : [],
+        },
+        {
             label: 'Set Priority',
             icon: icons.priority,
             subItems: [
@@ -46,29 +69,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                     ),
                 },
             ],
-        },
-        {
-            label: 'Move to Folder',
-            icon: icons.folder,
-            subItems: taskSections
-                ? [
-                      ...taskSections
-                          .filter((s) => !s.is_done && !s.is_trash)
-                          .map((section) => ({
-                              label: section.name,
-                              icon: icons.folder,
-                              selected: section.id === sectionId,
-                              onClick: () => {
-                                  reorderTask({
-                                      taskId: task.id,
-                                      dropSectionId: section.id,
-                                      dragSectionId: sectionId,
-                                      orderingId: 1,
-                                  })
-                              },
-                          })),
-                  ]
-                : [],
         },
         // {
         //     label: 'Delete task',
