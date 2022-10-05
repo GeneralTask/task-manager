@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import styled from 'styled-components'
-import { dismissToast } from '../../utils/toast'
+import { useToast } from '../../hooks'
 import DragLayer from '../molecules/DragLayer'
 
 const SingleViewContainer = styled.div`
@@ -12,8 +12,9 @@ interface SingleViewTemplateProps {
     children: React.ReactNode
 }
 const SingleViewTemplate = ({ children }: SingleViewTemplateProps) => {
+    const toast = useToast()
     useEffect(() => {
-        dismissToast()
+        toast.dismiss()
     }, [])
     return (
         <>

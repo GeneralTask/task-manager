@@ -51,11 +51,14 @@ interface ToastAction {
     icon?: IconProp | string
     onClick: () => void
 }
-interface ToastTemplateProps {
+interface UndoableToastAction extends ToastAction {
+    undoableAction?: () => void
+}
+export interface ToastTemplateProps {
     title?: string
     message: string
     leftAction?: ToastAction
-    rightAction?: ToastAction
+    rightAction?: UndoableToastAction
 }
 const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplateProps) => {
     return (
@@ -89,4 +92,3 @@ const ToastTemplate = ({ title, message, leftAction, rightAction }: ToastTemplat
     )
 }
 export default ToastTemplate
-export { ToastTemplateProps }

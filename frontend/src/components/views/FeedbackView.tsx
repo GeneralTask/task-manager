@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import styled from 'styled-components'
+import { useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import { Spacing } from '../../styles'
-import toast from '../../utils/toast'
 import GTModal from '../atoms/GTModal'
 import GTTextArea from '../atoms/GTTextField/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
@@ -25,11 +25,12 @@ interface FeedbackViewProps {
 const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
     const [feedback, setFeedback] = useState('')
     const { mutate: postFeedback } = usePostFeedback()
+    const toast = useToast()
     const submitFeedback = () => {
         postFeedback({ feedback: feedback })
         setFeedback('')
         setModalIsOpen(false)
-        toast(
+        toast.show(
             {
                 message: 'Thank you for your feedback',
             },

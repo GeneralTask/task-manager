@@ -127,7 +127,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
                         <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                     </EventIconAndTitle>
-                    <EventTime>{`${startTimeString} - ${endTimeString}`}</EventTime>
+                    <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
                 </EventInfo>
             </EventInfoContainer>
             <EventFill

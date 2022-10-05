@@ -6,7 +6,7 @@ import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
+const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean; minHeight?: number; }>`
     background-color: inherit;
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
