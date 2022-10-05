@@ -778,6 +778,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *item.IsCompleted)
+		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 		assert.NotNil(t, res)
 		assert.Equal(t, 2, len(res.ViewItems))
@@ -818,6 +819,7 @@ func TestGetMeetingPreparationOverviewResult(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": insertResult.InsertedID.(primitive.ObjectID)}).Decode(&item)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *item.IsCompleted)
+		assert.NotEqual(t, primitive.DateTime(0), item.CompletedAt)
 		assert.Equal(t, true, item.MeetingPreparationParams.HasBeenAutomaticallyCompleted)
 	})
 }

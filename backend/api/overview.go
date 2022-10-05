@@ -569,7 +569,11 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 					{"_id": task.ID},
 					{"user_id": userID},
 				}},
-				bson.M{"$set": bson.M{"is_completed": true, "meeting_preparation_params.has_been_automatically_completed": true}})
+				bson.M{"$set": bson.M{
+					"is_completed": true,
+					"completed_at": primitive.NewDateTimeFromTime(time.Now()),
+					"meeting_preparation_params.has_been_automatically_completed": true,
+				}})
 			if err != nil {
 				return nil, err
 			}
