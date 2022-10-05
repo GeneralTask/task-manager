@@ -28,6 +28,7 @@ func TestCalendar(t *testing.T) {
 			Created:         "2021-02-25T17:53:01.000Z",
 			Summary:         "Standard Event",
 			Description:     "event <strong>description</strong>",
+			Location:        "Event Location",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:        "generaltask.com",
@@ -45,6 +46,7 @@ func TestCalendar(t *testing.T) {
 			IDExternal:    "standard_event",
 			Deeplink:      "generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
+			Location:      "Event Location",
 			Body:          "event <strong>description</strong>",
 			SourceID:      TASK_SOURCE_ID_GCAL,
 			UserID:        userID,
@@ -109,6 +111,7 @@ func TestCalendar(t *testing.T) {
 			Created:         "2021-02-25T17:53:01.000Z",
 			Summary:         "Standard Event",
 			Description:     "new description",
+			Location:        "new location",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:        "generaltask.com",
@@ -127,6 +130,7 @@ func TestCalendar(t *testing.T) {
 			IDExternal:      "standard_event",
 			Deeplink:        "generaltask.com&authuser=exampleAccountID",
 			Title:           "Standard Event",
+			Location:        "old location",
 			Body:            "old description",
 			SourceID:        TASK_SOURCE_ID_GCAL,
 			UserID:          userID,
@@ -139,6 +143,7 @@ func TestCalendar(t *testing.T) {
 		// Rescheduling end time along shouldn't trigger a reset like in the next test case
 		standardDBEvent.DatetimeEnd = primitive.NewDateTimeFromTime(endTime)
 		standardDBEvent.Body = "new description"
+		standardDBEvent.Location = "new location"
 
 		autoEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
@@ -214,6 +219,7 @@ func TestCalendar(t *testing.T) {
 			IDExternal:      "standard_event",
 			Deeplink:        "generaltask.com&authuser=exampleAccountID",
 			Title:           "Standard Event",
+			Location:        "Standard Location",
 			SourceID:        TASK_SOURCE_ID_GCAL,
 			UserID:          userID,
 			SourceAccountID: "exampleAccountID",
@@ -274,6 +280,7 @@ func TestCalendar(t *testing.T) {
 		standardEvent := calendar.Event{
 			Created:         "2021-02-25T17:53:01.000Z",
 			Summary:         "Standard Event",
+			Location:        "Standard Location",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
 			HtmlLink:        "generaltask.com",
@@ -302,6 +309,7 @@ func TestCalendar(t *testing.T) {
 			IDExternal:    "standard_event",
 			Deeplink:      "generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
+			Location:      "Standard Location",
 			SourceID:      TASK_SOURCE_ID_GCAL,
 			UserID:        userID,
 			CanModify:     true,
@@ -630,6 +638,8 @@ func assertCalendarEventsEqual(t *testing.T, a *database.CalendarEvent, b *datab
 	assert.Equal(t, a.Deeplink, b.Deeplink)
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.Title, b.Title)
+	assert.Equal(t, a.Body, b.Body)
+	assert.Equal(t, a.Location, b.Location)
 	assert.Equal(t, a.SourceID, b.SourceID)
 	assert.Equal(t, a.CanModify, b.CanModify)
 	assert.Equal(t, a.CallLogo, b.CallLogo)
