@@ -53,7 +53,7 @@ const NavigationSectionLinks = () => {
         e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
-            addTaskSection({ name: sectionName })
+            addTaskSection({ name: sectionName, id_ordering: folders?.length })
             setIsAddSectionInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
             setSectionName('')
