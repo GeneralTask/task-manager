@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -101,7 +100,7 @@ func FindOneAndUpdateWithCollection(
 	// Unfortunately you cannot put both $set and $setOnInsert so they are separate operations
 
 	if fieldsToInsertIfMissing != nil {
-		res, err := collection.UpdateOne(
+		_, err := collection.UpdateOne(
 			context.Background(),
 			dbQuery,
 			bson.M{"$setOnInsert": fieldsToInsertIfMissing},
@@ -112,7 +111,6 @@ func FindOneAndUpdateWithCollection(
 			logger.Error().Err(err).Msg("failed to update or create task")
 			return nil, err
 		}
-		fmt.Println("res:", res.MatchedCount, res.ModifiedCount, res.UpsertedCount, res.UpsertedID)
 	}
 
 	mongoResult := collection.FindOneAndUpdate(

@@ -2,7 +2,6 @@ package external
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -284,7 +283,6 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
-		fmt.Println("success existing")
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
