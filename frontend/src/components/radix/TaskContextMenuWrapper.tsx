@@ -70,6 +70,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                 })),
             ],
         },
+        {
             label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
             icon: icons.trash,
             iconColor: 'red',
