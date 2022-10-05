@@ -175,6 +175,7 @@ func TestGetPullRequests(t *testing.T) {
 		_, err := pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
 			UserID:      userID,
 			IDExternal:  "oh no oopsie",
+			SourceID:    TASK_SOURCE_ID_GITHUB_PR,
 			IsCompleted: &falseBool,
 		})
 		assert.NoError(t, err)
@@ -182,6 +183,7 @@ func TestGetPullRequests(t *testing.T) {
 		_, err = pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
 			UserID:      primitive.NewObjectID(),
 			IDExternal:  "oh no oopsie",
+			SourceID:    TASK_SOURCE_ID_GITHUB_PR,
 			IsCompleted: &falseBool,
 		})
 		assert.NoError(t, err)
@@ -190,6 +192,7 @@ func TestGetPullRequests(t *testing.T) {
 		_, err = pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
 			UserID:      userID,
 			IDExternal:  "1",
+			SourceID:    TASK_SOURCE_ID_GITHUB_PR,
 			IsCompleted: &isCompleted,
 			Title:       "something cached in the db",
 		})
