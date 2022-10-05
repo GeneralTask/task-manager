@@ -1,13 +1,14 @@
 import { useRef } from 'react'
 import styled from 'styled-components'
-import { Border, Colors, Shadows } from '../../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
 import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
+const Container = styled.div<{ isFullHeight?: boolean; disabled?: boolean; maxHeight?: number }>`
     background-color: inherit;
+    padding: ${Spacing._8};
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
     border-radius: ${Border.radius.small};
@@ -24,7 +25,6 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
         border-color: ${Colors.gtColor.primary};
     }
     ${({ isFullHeight }) => (isFullHeight ? `height: 100%;` : '')}
-    ${({ minHeight }) => (minHeight ? `min-height: ${minHeight}px;` : '')}
 `
 
 const GTTextField = (props: GTTextFieldProps) => {
@@ -39,12 +39,7 @@ const GTTextField = (props: GTTextFieldProps) => {
     }
 
     return (
-        <Container
-            ref={containerRef}
-            onKeyDown={stopKeydownPropogation}
-            isFullHeight={props.isFullHeight}
-            minHeight={props.minHeight}
-        >
+        <Container ref={containerRef} onKeyDown={stopKeydownPropogation} isFullHeight={props.isFullHeight}>
             {getEditor()}
         </Container>
     )
