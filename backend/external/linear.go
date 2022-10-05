@@ -74,7 +74,7 @@ func (linear LinearService) HandleLinkCallback(db *mongo.Database, params Callba
 		return errors.New("internal server error")
 	}
 
-	accountID, err := getLinearAccountID(token, linear.Config.ConfigValues.UserInfoURL)
+	accountID, externalID, err := getLinearEmailAndID(token, linear.Config.ConfigValues.UserInfoURL)
 	if err != nil {
 		accountID = "" // TODO: maybe add a placeholder instead of empty string
 	}
@@ -89,6 +89,7 @@ func (linear LinearService) HandleLinkCallback(db *mongo.Database, params Callba
 			Token:          string(tokenString),
 			AccountID:      accountID,
 			DisplayID:      accountID,
+			ExternalID:     externalID,
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
 		}},
@@ -102,7 +103,7 @@ func (linear LinearService) HandleLinkCallback(db *mongo.Database, params Callba
 	return nil
 }
 
-func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error) {
+func getLinearEmailAndID(token *oauth2.Token, overrideURL *string) (string, string, error) {
 	client := getLinearClientFromToken(token, overrideURL)
 
 	var query struct {
@@ -116,10 +117,10 @@ func getLinearAccountID(token *oauth2.Token, overrideURL *string) (string, error
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Interface("query", query).Msg("could not execute query")
-		return "", err
+		return "", "", err
 	}
 	log.Debug().Interface("query", query).Send()
-	return string(query.Viewer.Email), nil
+	return string(query.Viewer.Email), string(query.Viewer.Id), nil
 }
 
 func (linear LinearService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
@@ -137,7 +138,7 @@ func getLinearClientFromToken(token *oauth2.Token, overrideURL *string) *graphql
 	return client
 }
 
-func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphql.Client, error) {
+func GetLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphql.Client, error) {
 	var client *graphql.Client
 	var err error
 	logger := logging.GetSentryLogger()
@@ -158,7 +159,7 @@ func getLinearClient(overrideURL *string, db *mongo.Database, userID primitive.O
 	return client, nil
 }
 
-func getBasicLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphqlBasic.Client, error) {
+func GetBasicLinearClient(overrideURL *string, db *mongo.Database, userID primitive.ObjectID, accountID string) (*graphqlBasic.Client, error) {
 	var client *graphqlBasic.Client
 	var err error
 	logger := logging.GetSentryLogger()
@@ -204,6 +205,29 @@ type linearUserInfoQuery struct {
 	}
 }
 
+const linearExternalUserInfoQueryString = `
+		query User (
+			$id: String!
+		) {
+		  user(
+			id: $id,
+		  ) {
+			id
+			, name
+			, displayName
+			, email
+		  }
+		}`
+
+type LinearExternalUserInfoQuery struct {
+	User struct {
+		Id          graphql.String
+		Name        graphql.String
+		DisplayName graphql.String
+		Email       graphql.String
+	}
+}
+
 type linearWorkflowStatesQuery struct {
 	WorkflowStates struct {
 		Nodes []struct {
@@ -245,6 +269,7 @@ type linearAssignedIssuesQuery struct {
 			}
 			Comments struct {
 				Nodes []struct {
+					ID        graphql.ID
 					Body      graphql.String
 					CreatedAt graphql.String
 					User      struct {
@@ -420,6 +445,20 @@ func getLinearUserInfoStruct(client *graphql.Client) (*linearUserInfoQuery, erro
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch user info")
+		return nil, err
+	}
+	return &query, nil
+}
+
+func GetLinearUserInfoStructByID(client *graphqlBasic.Client, externalID string) (*LinearExternalUserInfoQuery, error) {
+	request := graphqlBasic.NewRequest(linearExternalUserInfoQueryString)
+	request.Var("id", externalID)
+
+	log.Debug().Msgf("sending request to Linear: %+v", request)
+	var query LinearExternalUserInfoQuery
+	logger := logging.GetSentryLogger()
+	if err := client.Run(context.Background(), request, &query); err != nil {
+		logger.Error().Err(err).Msg("failed to fetch linear user info by ID")
 		return nil, err
 	}
 	return &query, nil

@@ -23,7 +23,7 @@ func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitiv
 }
 
 func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	client, err := getLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
+	client, err := GetLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create linear client")
@@ -37,7 +37,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		return
 	}
 
-	client, err = getLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
+	client, err = GetLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create linear client")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
@@ -50,7 +50,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		return
 	}
 
-	client, err = getLinearClient(linearTask.Linear.Config.ConfigValues.StatusFetchURL, db, userID, accountID)
+	client, err = GetLinearClient(linearTask.Linear.Config.ConfigValues.StatusFetchURL, db, userID, accountID)
 	statuses, err := getLinearWorkflowStates(client)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to get linear workflow states")
@@ -96,7 +96,8 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			for _, linearComment := range linearIssue.Comments.Nodes {
 				commentCreatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearComment.CreatedAt))
 				dbComment := database.Comment{
-					Body: string(linearComment.Body),
+					ExternalID: (linearComment.ID).(string),
+					Body:       string(linearComment.Body),
 					User: database.ExternalUser{
 						ExternalID:  (linearComment.User.Id).(string),
 						Name:        string(linearComment.User.Name),
@@ -169,7 +170,7 @@ func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID pr
 }
 
 func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
-	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	client, err := GetBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create linear client")
@@ -205,7 +206,7 @@ func (linearTask LinearTaskSource) ModifyEvent(db *mongo.Database, userID primit
 }
 
 func (linearTask LinearTaskSource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
-	client, err := getBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
+	client, err := GetBasicLinearClient(linearTask.Linear.Config.ConfigValues.TaskUpdateURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create linear client")
