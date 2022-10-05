@@ -21,6 +21,10 @@ const CreateNewTaskContainer = styled.div`
     align-items: center;
     padding: 0px ${Spacing._8};
     border-radius: ${Border.radius.medium};
+    box-sizing: border-box;
+    :focus-within {
+        border: ${Border.stroke.medium} solid ${Colors.border.purple};
+    }
     margin-bottom: ${Spacing._8};
 `
 const TaskInput = styled.input`
