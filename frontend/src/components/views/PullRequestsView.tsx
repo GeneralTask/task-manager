@@ -37,15 +37,17 @@ const PullRequestsView = () => {
     // Repos in the same order they are passed in as, with pull requests sorted and filtered
     const sortedAndFilteredRepositories = useMemo(
         () =>
-            repositories?.flatMap((repo) => ({
-                ...repo,
-                pull_requests: sortAndFilterItems({
-                    items: repo.pull_requests,
-                    sort: selectedSort,
-                    sortDirection: selectedSortDirection,
-                    filter: selectedFilter,
-                }),
-            })) ?? [],
+            repositories
+                ?.flatMap((repo) => ({
+                    ...repo,
+                    pull_requests: sortAndFilterItems({
+                        items: repo.pull_requests,
+                        sort: selectedSort,
+                        sortDirection: selectedSortDirection,
+                        filter: selectedFilter,
+                    }),
+                }))
+                .filter((repo) => repo.pull_requests.length > 0) ?? [],
         [repositories, selectedSort, selectedSortDirection, selectedFilter]
     )
 
