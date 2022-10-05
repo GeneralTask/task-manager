@@ -19,8 +19,8 @@ const CommentType = "Comment"
 const CreateAction = "create"
 const UpdateAction = "update"
 const RemoveAction = "remove"
-const ValidIP1 = "35.231.147.226"
-const ValidIP2 = "35.243.134.228"
+const ValidLinearIP1 = "35.231.147.226"
+const ValidLinearIP2 = "35.243.134.228"
 
 type LinearWebhookPayload struct {
 	Action      string           `json:"action"`
@@ -65,7 +65,7 @@ type LinearCommentPayload struct {
 
 func (api *API) LinearWebhook(c *gin.Context) {
 	requestIP := c.Request.Header.Get("X-Forwarded-For")
-	if requestIP != ValidIP1 && requestIP != ValidIP2 {
+	if requestIP != ValidLinearIP1 && requestIP != ValidLinearIP2 {
 		c.JSON(400, gin.H{"detail": "invalid linear request IP"})
 		return
 	}
@@ -116,8 +116,9 @@ func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload Linea
 	}
 
 	userIDExternal := commentPayload.UserID
-	token, err := database.GetExternalTokeByExternalID(api.DB, userIDExternal, external.TASK_SERVICE_ID_LINEAR)
+	token, err := database.GetExternalTokenByExternalID(api.DB, userIDExternal, external.TASK_SERVICE_ID_LINEAR)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not find matching external ID")
 		return err
 	}
 	userID := token.UserID
@@ -141,9 +142,11 @@ func (api *API) createCommentFromPayload(c *gin.Context, userID primitive.Object
 	// if so, we don't add to DB because would be duplicate
 	shouldAddComment := true
 	comments := task.Comments
-	for _, comment := range *comments {
-		if comment.ExternalID == commentPayload.ID {
-			shouldAddComment = false
+	if comments != nil {
+		for _, comment := range *comments {
+			if comment.ExternalID == commentPayload.ID {
+				shouldAddComment = false
+			}
 		}
 	}
 
@@ -158,8 +161,10 @@ func (api *API) createCommentFromPayload(c *gin.Context, userID primitive.Object
 		return err
 	}
 
+	var commentsNew []database.Comment
 	commentCreatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(commentPayload.CreatedAt))
-	commentsNew := append(*comments, database.Comment{
+
+	commentToAdd := database.Comment{
 		ExternalID: commentPayload.ID,
 		Body:       commentPayload.Body,
 		User: database.ExternalUser{
@@ -169,7 +174,14 @@ func (api *API) createCommentFromPayload(c *gin.Context, userID primitive.Object
 			Email:       string(userStruct.User.Email),
 		},
 		CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
-	})
+	}
+
+	if comments != nil {
+		commentsNew = append(*comments, commentToAdd)
+	} else {
+		commentsNew = []database.Comment{commentToAdd}
+	}
+
 	updateTask := database.Task{
 		Comments: &commentsNew,
 	}

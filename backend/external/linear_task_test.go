@@ -48,6 +48,7 @@ func TestLoadLinearTasks(t *testing.T) {
 						"comments": {
 							"nodes": [
 								{
+									"id": "example external id",
 									"body": "test comment body",
 									"createdAt": "2019-04-21T00:00:00.000Z",
 									"user": {
@@ -243,7 +244,8 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 			Comments: &[]database.Comment{
 				{
-					Body: "test comment body",
+					ExternalID: "example external id",
+					Body:       "test comment body",
 					User: database.ExternalUser{
 						ExternalID:  "test-commenter-id",
 						Name:        "Test Commenter",
@@ -340,7 +342,8 @@ func TestLoadLinearTasks(t *testing.T) {
 		expectedTask.Body = &testDescription
 		expectedTask.Comments = &[]database.Comment{
 			{
-				Body: "test comment body",
+				ExternalID: "example external id",
+				Body:       "test comment body",
 				User: database.ExternalUser{
 					ExternalID:  "test-commenter-id",
 					Name:        "Test Commenter",

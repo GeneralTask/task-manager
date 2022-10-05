@@ -652,7 +652,7 @@ func GetExternalToken(db *mongo.Database, externalID string, serviceID string) (
 	return &externalAPIToken, nil
 }
 
-func GetExternalTokeByExternalID(db *mongo.Database, externalID string, serviceID string) (*ExternalAPIToken, error) {
+func GetExternalTokenByExternalID(db *mongo.Database, externalID string, serviceID string) (*ExternalAPIToken, error) {
 	var externalAPIToken ExternalAPIToken
 	err := GetExternalTokenCollection(db).FindOne(
 		context.Background(),
