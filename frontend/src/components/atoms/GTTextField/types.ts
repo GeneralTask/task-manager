@@ -14,6 +14,7 @@ export interface MarkdownEditorProps {
     disabled?: boolean
     isFullHeight?: boolean
     maxHeight?: number
+    minHeight?: number
 }
 
 // all props we support for markdown + native textarea props
