@@ -114,6 +114,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			Comments:           task.Comments,
 			Status:             task.Status,
 			CompletedStatus:    task.CompletedStatus,
+			IsCompleted:        task.IsCompleted,
 			PriorityNormalized: task.PriorityNormalized,
 		}
 
