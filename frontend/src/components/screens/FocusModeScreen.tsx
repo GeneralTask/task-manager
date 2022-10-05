@@ -266,7 +266,7 @@ const FocusModeScreen = () => {
                             )}
                             {chosenEvent && (
                                 <>
-                                    <GTHeader>{title}</GTHeader>
+                                    <GTHeader title={title}>{title}</GTHeader>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
