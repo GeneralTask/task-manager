@@ -6,22 +6,24 @@ import { TIconColor } from '../../../styles/colors'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
-const Button = styled(NoStyleButton)`
+const Button = styled(NoStyleButton)<{ forceShowHover?: boolean }>`
     padding: ${Spacing._8};
     border-radius: 50%;
     :hover {
         background: ${Colors.background.dark};
     }
+    ${({ forceShowHover }) => (forceShowHover ? `background: ${Colors.background.dark};` : '')}
 `
 
 interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon: IconProp | string
     iconColor?: TIconColor
+    forceShowHover?: boolean
 }
 const GTIconButton = forwardRef(
-    ({ icon, iconColor, onClick, ...props }: GTIconButtonProps, ref: React.Ref<HTMLButtonElement>) => {
+    ({ icon, iconColor, forceShowHover, onClick, ...props }: GTIconButtonProps, ref: React.Ref<HTMLButtonElement>) => {
         return (
-            <Button ref={ref} onClick={onClick} {...props}>
+            <Button ref={ref} onClick={onClick} forceShowHover={forceShowHover} {...props}>
                 <Icon icon={icon} color={iconColor} />
             </Button>
         )

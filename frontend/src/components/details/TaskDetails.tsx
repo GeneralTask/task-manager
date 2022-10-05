@@ -255,6 +255,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             value={task.body}
                             placeholder="Add details"
                             onChange={(val) => onEdit({ id: task.id, body: val })}
+                            minHeight={200}
                             maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />

@@ -6,7 +6,7 @@ import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-const Container = styled.div<{ isFullHeight?: boolean }>`
+const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     background-color: inherit;
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
@@ -24,6 +24,7 @@ const Container = styled.div<{ isFullHeight?: boolean }>`
         border-color: ${Colors.gtColor.primary};
     }
     ${({ isFullHeight }) => (isFullHeight ? `height: 100%;` : '')}
+    ${({ minHeight }) => (minHeight ? `min-height: ${minHeight}px;` : '')}
 `
 
 const GTTextField = (props: GTTextFieldProps) => {
@@ -38,7 +39,12 @@ const GTTextField = (props: GTTextFieldProps) => {
     }
 
     return (
-        <Container ref={containerRef} onKeyDown={stopKeydownPropogation} isFullHeight={props.isFullHeight}>
+        <Container
+            ref={containerRef}
+            onKeyDown={stopKeydownPropogation}
+            isFullHeight={props.isFullHeight}
+            minHeight={props.minHeight}
+        >
             {getEditor()}
         </Container>
     )
