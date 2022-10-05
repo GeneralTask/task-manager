@@ -77,6 +77,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
             textColor: 'red',
             onClick: () => modifyTask({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
         },
+        //
     ]
 
     return <GTContextMenu items={contextMenuItems} trigger={children} />
