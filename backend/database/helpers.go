@@ -137,20 +137,6 @@ func GetTask(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &task, nil
 }
 
-func GetTaskByExternalID(db *mongo.Database, externalID string, userID primitive.ObjectID) (*Task, error) {
-	logger := logging.GetSentryLogger()
-	taskCollection := GetTaskCollection(db)
-	mongoResult := FindOneExternalWithCollection(taskCollection, userID, externalID)
-
-	var task Task
-	err := mongoResult.Decode(&task)
-	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get external task: %+v", externalID)
-		return nil, err
-	}
-	return &task, nil
-}
-
 func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	taskCollection := GetTaskCollection(db)

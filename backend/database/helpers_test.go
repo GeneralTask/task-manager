@@ -444,6 +444,38 @@ func TestGetTask(t *testing.T) {
 	})
 }
 
+func TestGetTaskByExternalIDWithoutUser(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notCompleted := false
+	task1, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abd",
+		"foobar_source",
+		&Task{
+			IDExternal:  "123abd",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &notCompleted,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("WrongID", func(t *testing.T) {
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "invalid")
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respTask)
+	})
+	t.Run("Success", func(t *testing.T) {
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "123abd")
+		assert.NoError(t, err)
+		assert.Equal(t, task1.ID, respTask.ID)
+	})
+}
+
 func TestGetCalendarEvent(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -862,6 +894,39 @@ func TestGetExternalToken(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		token, err := GetExternalToken(db, accountID, serviceID)
+		assert.NoError(t, err)
+		assert.Equal(t, userID, token.UserID)
+		assert.Equal(t, serviceID, token.ServiceID)
+		assert.Equal(t, accountID, token.AccountID)
+	})
+}
+
+func TestGetExternalTokenByExternalID(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	serviceID := "test service"
+	accountID := "id222"
+	externalID := "exampleID"
+
+	_, err = GetExternalTokenCollection(db).InsertOne(
+		context.Background(),
+		&ExternalAPIToken{
+			ServiceID:  serviceID,
+			AccountID:  accountID,
+			UserID:     userID,
+			ExternalID: externalID,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("invalid", func(t *testing.T) {
+		_, err := GetExternalTokenByExternalID(db, "wrong account", serviceID)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		token, err := GetExternalTokenByExternalID(db, externalID, serviceID)
 		assert.NoError(t, err)
 		assert.Equal(t, userID, token.UserID)
 		assert.Equal(t, serviceID, token.ServiceID)

@@ -113,7 +113,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalID(db, "externalID", userID)
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*task.Comments))
 	})
@@ -128,7 +128,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalID(db, "externalID", userID)
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*task.Comments))
 		assert.Equal(t, "modified text", (*task.Comments)[0].Body)
@@ -144,7 +144,7 @@ func TestProcessComments(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
 
-		task, err := database.GetTaskByExternalID(db, "externalID", userID)
+		task, err := database.GetTaskByExternalIDWithoutUser(db, "externalID")
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(*task.Comments))
 	})
