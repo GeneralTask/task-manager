@@ -2,6 +2,7 @@ package external
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -283,6 +284,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
+		fmt.Println("success existing")
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
@@ -326,12 +328,14 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 			Comments: nil,
 		}
-		database.GetOrCreateTask(
+		database.UpdateOrCreateTask(
 			db,
 			userID,
 			"test-issue-id-1",
 			TASK_SOURCE_ID_LINEAR,
-			&expectedTask,
+			expectedTask,
+			expectedTask,
+			nil,
 		)
 		// switch a few fields from their existing db value to their expected output value
 		testTitle := "test title"

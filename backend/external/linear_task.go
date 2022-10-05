@@ -2,6 +2,7 @@ package external
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -114,6 +115,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			Comments:           task.Comments,
 			Status:             task.Status,
 			CompletedStatus:    task.CompletedStatus,
+			IsCompleted:        task.IsCompleted,
 			PriorityNormalized: task.PriorityNormalized,
 		}
 
@@ -136,6 +138,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			return
 		}
 
+		fmt.Println("update or create task")
 		dbTask, err := database.UpdateOrCreateTask(
 			db,
 			userID,
