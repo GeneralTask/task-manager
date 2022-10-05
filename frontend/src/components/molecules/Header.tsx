@@ -47,7 +47,7 @@ const HeaderText = styled.div<{ fontColor: TTextColor }>`
 const MAX_SECTION_NAME_LENGTH = 200
 
 const undeletableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID]
-const uneditableSectionIds = [DONE_SECTION_ID, TRASH_SECTION_ID]
+const uneditableSectionIds = [DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID]
 const isDeletable = (id: string) => !undeletableSectionIds.includes(id)
 const isEditable = (id: string) => !uneditableSectionIds.includes(id)
 interface SectionHeaderProps {
