@@ -42,19 +42,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                 : [],
         },
         {
-            label: 'Set Priority',
-            icon: icons.priority,
-            subItems: [
-                ...TASK_PRIORITIES.map((priority, val) => ({
-                    label: priority.label,
-                    icon: priority.icon,
-                    selected: val === task.priority_normalized,
-                    iconColor: priority.color,
-                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
-                })),
-            ],
-        },
-        {
             label: 'Set Due Date',
             icon: icons.clock,
             subItems: [
@@ -70,8 +57,21 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                 },
             ],
         },
+        {
+            label: 'Set Priority',
+            icon: icons.priority,
+            subItems: [
+                ...TASK_PRIORITIES.map((priority, val) => ({
+                    label: priority.label,
+                    icon: priority.icon,
+                    selected: val === task.priority_normalized,
+                    iconColor: priority.color,
+                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                })),
+            ],
+        },
         // {
-        //     label: 'Delete task',
+        //     label: 'Delete Task',
         //     icon: icons.trash,
         //     iconColor: 'red',
         //     textColor: 'red',
