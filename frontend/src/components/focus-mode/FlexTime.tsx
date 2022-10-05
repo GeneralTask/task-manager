@@ -1,11 +1,11 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateEvent } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TEvent, TTask } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
@@ -42,6 +42,12 @@ const RecommendedTaskContainer = styled.div`
 `
 const TaskTitle = styled.span`
     margin-left: ${Spacing._16};
+`
+const NewTaskRecommendationsButton = styled.div`
+    color: ${Colors.text.purple};
+    ${Typography.bodySmall};
+    cursor: pointer;
+    user-select: none;
 `
 
 const currentFifteenMinuteBlock = (currentTime: DateTime) => {
@@ -82,17 +88,21 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
     const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
+
+    const getNewRecommendedTasks = useCallback(() => {
+        if (!taskSections) return
+        const allTasks = taskSections
+            .filter((section) => !section.is_done && !section.is_trash)
+            .flatMap((section) => section.tasks)
+            .filter((task) => task.source.name === 'General Task')
+        const [firstId, secondId] = getRandomUniqueTaskIds(allTasks.length)
+        const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
+        const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
+        setRecommendedTasks([firstTask, secondTask])
+    }, [taskSections])
+
     useLayoutEffect(() => {
-        if (taskSections) {
-            const allTasks = taskSections
-                .filter((section) => !section.is_done && !section.is_trash)
-                .flatMap((section) => section.tasks)
-                .filter((task) => task.source.name === 'General Task')
-            const [firstId, secondId] = getRandomUniqueTaskIds(allTasks.length)
-            const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
-            const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
-            setRecommendedTasks([firstTask, secondTask])
-        }
+        getNewRecommendedTasks()
     }, [taskSections])
 
     const primaryAccountID = useMemo(
@@ -151,6 +161,9 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
                             )
                     )}
                 </RecommendedTasks>
+                <NewTaskRecommendationsButton onClick={getNewRecommendedTasks}>
+                    Find me something else to work on
+                </NewTaskRecommendationsButton>
             </TaskSelectionContainer>
         </FlexTimeContainer>
     )
