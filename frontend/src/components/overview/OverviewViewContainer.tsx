@@ -70,7 +70,6 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     useEffect(() => {
         dragPreview(getEmptyImage(), { captureDraggingState: true })
     }, [dragPreview])
-    if (view.id === '633debb64bca27e870eb6a80') console.log({ nextPageLength, visibleItemsCount, numViewItems })
 
     return (
         <ViewContainer>
