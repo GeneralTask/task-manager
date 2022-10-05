@@ -328,6 +328,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			},
 			Comments: nil,
 		}
+		// need to update, because the previous test case has already created this task
 		database.UpdateOrCreateTask(
 			db,
 			userID,
