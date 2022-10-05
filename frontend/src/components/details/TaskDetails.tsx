@@ -76,7 +76,7 @@ const SYNC_MESSAGES = {
 }
 
 const TITLE_MAX_HEIGHT = 208
-const BODY_MAX_HEIGHT = 200
+const BODY_MAX_HEIGHT = 420
 
 interface TaskDetailsProps {
     task: TTask
@@ -254,8 +254,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             type="markdown"
                             value={task.body}
                             placeholder="Add details"
-                            isFullHeight={!task.slack_message_params}
                             onChange={(val) => onEdit({ id: task.id, body: val })}
+                            minHeight={200}
                             maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />
