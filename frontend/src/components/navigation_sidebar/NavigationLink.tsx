@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
+import Log from '../../services/api/log'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
@@ -110,6 +111,7 @@ const NavigationLink = ({
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
         setCalendarType('day')
+        Log('navigate_to', title)
         navigate(link)
     }
 
