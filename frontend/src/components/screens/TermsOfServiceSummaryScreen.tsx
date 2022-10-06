@@ -14,7 +14,13 @@ const TermsOfServiceSummaryScreen = () => {
     if (!isLoading && data.agreed_to_terms) return <Navigate to="/" />
     return (
         <SingleViewTemplate>
-            <GTModal isOpen={modalIsOpen} canClose={false} onClose={() => setModalIsOpen(false)} type="medium">
+            <GTModal
+                isOpen={modalIsOpen}
+                canClose={false}
+                onClose={() => setModalIsOpen(false)}
+                type="medium"
+                shouldCloseOnOverlayClick={false}
+            >
                 <TermsOfServiceView />
             </GTModal>
         </SingleViewTemplate>
