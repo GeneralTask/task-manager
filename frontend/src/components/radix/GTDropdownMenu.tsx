@@ -21,14 +21,16 @@ interface GTDropdownMenuProps {
     items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     align?: 'start' | 'end'
+    isOpen?: boolean
+    setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const GTDropdownMenu = ({ items, trigger, align = 'start' }: GTDropdownMenuProps) => {
+const GTDropdownMenu = ({ items, trigger, align = 'start', isOpen, setIsOpen }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
     return (
         <div onKeyDown={(e) => e.stopPropagation()}>
-            <DropdownMenu.Root>
+            <DropdownMenu.Root modal open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger>{trigger}</DropdownMenuTrigger>
                 <DropdownMenu.Portal>
                     <DropdownMenuContent align={align}>
