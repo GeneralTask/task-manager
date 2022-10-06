@@ -3,14 +3,25 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { FOCUS_MODE_ROUTE } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { isGoogleCalendarLinked } from '../../utils/utils'
 import NoStyleLink from '../atoms/NoStyleLink'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
 
+const RelativeDiv = styled.div`
+    position: relative;
+`
+const ConnectContainer = styled.div`
+    position: absolute;
+    width: 100%;
+    z-index: 100;
+`
 const PaddedContainer = styled.div`
     padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
 `
@@ -78,9 +89,12 @@ export default function CalendarHeader({
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
 
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
+
     if (!showMainHeader && !showDateHeader) return null
     return (
-        <div>
+        <RelativeDiv>
             {showMainHeader && (
                 <>
                     <PaddedContainer>
@@ -121,6 +135,11 @@ export default function CalendarHeader({
                     </HeaderBodyContainer>
                 </PaddedContainer>
             )}
-        </div>
+            {showOauthPrompt && (
+                <ConnectContainer>
+                    <ConnectIntegration type="google_calendar" />
+                </ConnectContainer>
+            )}
+        </RelativeDiv>
     )
 }
