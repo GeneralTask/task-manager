@@ -28,6 +28,7 @@ export const TASK_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TTask> = {
     sortPreferenceId: 'task_sorting_preference',
     sortDirectionId: 'task_sorting_direction',
     filterPreferenceId: 'task_filtering_preference',
+    tieBreakerField: 'id_ordering',
     defaultSortsAndFilters: {
         sortOptions: TASK_SORT_SELECTOR_ITEMS,
         filterOptions: {},

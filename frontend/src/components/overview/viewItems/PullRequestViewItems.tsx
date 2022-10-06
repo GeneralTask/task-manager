@@ -22,6 +22,7 @@ const PullRequestViewItems = forwardRef(
                 sort: selectedSort,
                 sortDirection: selectedSortDirection,
                 filter: selectedFilter,
+                tieBreakerField: PR_SORT_AND_FILTER_CONFIG.tieBreakerField,
             })
             setNumViewItems(sortedAndFiltered.length)
             return sortedAndFiltered.slice(0, visibleItemsCount)

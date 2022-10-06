@@ -39,6 +39,7 @@ export interface SortAndFilterItemsArgs<T> {
     sort?: Sort<T>
     sortDirection?: SORT_DIRECTION
     filter?: Filter<T>
+    tieBreakerField: keyof T
 }
 
 export interface SortOptions<T> {
@@ -55,6 +56,7 @@ export interface SortAndFilterSettingsConfig<T> {
     sortPreferenceId: GHSortPreference | TaskSortPreference
     sortDirectionId: GHSortDirection | TaskSortDirection
     filterPreferenceId: GHFilterPreference | TaskFilterPreference
+    tieBreakerField: keyof T
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }
 

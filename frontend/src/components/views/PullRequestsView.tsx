@@ -45,6 +45,7 @@ const PullRequestsView = () => {
                         sort: selectedSort,
                         sortDirection: selectedSortDirection,
                         filter: selectedFilter,
+                        tieBreakerField: PR_SORT_AND_FILTER_CONFIG.tieBreakerField,
                     }),
                 }))
                 .filter((repo) => repo.pull_requests.length > 0) ?? [],

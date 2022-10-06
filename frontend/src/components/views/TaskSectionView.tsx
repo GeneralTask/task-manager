@@ -5,6 +5,7 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
@@ -67,6 +68,7 @@ const TaskSectionView = () => {
             items: section.tasks,
             sort: selectedSort,
             sortDirection: selectedSortDirection,
+            tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
     }, [section, selectedSort, selectedSortDirection, selectedFilter])
 
@@ -122,6 +124,7 @@ const TaskSectionView = () => {
                         ) : (
                             <>
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
+                                <SortAndFilterSelectors settings={sortAndFilterSettings} />
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>
                                     {sortedTasks.map((task, index) => (
@@ -133,7 +136,10 @@ const TaskSectionView = () => {
                                         >
                                             <Task
                                                 task={task}
-                                                dragDisabled={section.is_done}
+                                                dragDisabled={
+                                                    section.is_done ||
+                                                    sortAndFilterSettings.selectedSort.id !== 'manual'
+                                                }
                                                 index={index}
                                                 sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}

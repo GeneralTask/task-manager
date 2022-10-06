@@ -121,6 +121,7 @@ export const PR_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TPullRequest
     sortPreferenceId: 'github_sorting_preference',
     sortDirectionId: 'github_sorting_direction',
     filterPreferenceId: 'github_filtering_preference',
+    tieBreakerField: 'number',
     defaultSortsAndFilters: {
         sortOptions: PR_SORT_SELECTOR_ITEMS,
         filterOptions: PR_FILTER_OPTIONS,
