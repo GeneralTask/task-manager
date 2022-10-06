@@ -76,7 +76,7 @@ const NavigationView = () => {
             <GapView>
                 <FeedbackButton />
                 <GTButton
-                    value="Account settings"
+                    value="Settings"
                     styleType="secondary"
                     size="small"
                     fitContent={false}
