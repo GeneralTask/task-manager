@@ -917,6 +917,11 @@ func (api *API) getSupportedTaskSectionViews(db *mongo.Database, userID primitiv
 		Name:          defaultSectionName,
 		TaskSectionID: constants.IDTaskSectionDefault,
 	}}
+	sort.SliceStable(*sections, func(i, j int) bool {
+		a := (*sections)[i]
+		b := (*sections)[j]
+		return a.IDOrdering < b.IDOrdering
+	})
 	for _, section := range *sections {
 		supportedViewItems = append(supportedViewItems, SupportedViewItem{
 			Name:          section.Name,
