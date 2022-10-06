@@ -38,9 +38,6 @@ const EditorAndToolbarContainer = styled.div<{
         outline: none;
         flex: 1;
         white-space: pre-wrap;
-        > * {
-            margin-top: 0;
-        }
     }
     .language-markup {
         background-color: ${Colors.background.medium};
@@ -66,6 +63,9 @@ const EditorAndToolbarContainer = styled.div<{
     a {
         cursor: pointer;
         color: ${Colors.gtColor.primary};
+    }
+    * {
+        margin: 0;
     }
 `
 
