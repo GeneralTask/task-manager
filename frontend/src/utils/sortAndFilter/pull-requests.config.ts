@@ -1,11 +1,6 @@
-import {
-    FilterOptions,
-    SORT_DIRECTION,
-    SortAndFilterSettingsConfig,
-    SortOptions,
-} from '../../utils/sortAndFilter/types'
-import { TPullRequest } from '../../utils/types'
-import { emptyFunction } from '../../utils/utils'
+import { TPullRequest } from '../types'
+import { emptyFunction } from '../utils'
+import { FilterOptions, SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from './types'
 
 const ACTION_REVIEW_PR = { text: 'Review PR', description: 'You have been added as a requested reviewer for the PR' }
 const ACTION_ADD_REVIEWERS = {

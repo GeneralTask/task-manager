@@ -1,4 +1,11 @@
-import { GHFilterPreference, GHSortDirection, GHSortPreference } from '../../services/api/settings.hooks'
+import {
+    GHFilterPreference,
+    GHSortDirection,
+    GHSortPreference,
+    TaskFilterPreference,
+    TaskSortDirection,
+    TaskSortPreference,
+} from '../../services/api/settings.hooks'
 
 export enum SORT_DIRECTION {
     ASC = 'ascending',
@@ -45,9 +52,9 @@ export interface FilterOptions<T> {
 export interface SortAndFilterSettingsConfig<T> {
     sortOptions: SortOptions<T>
     filterOptions: FilterOptions<T>
-    sortPreferenceId: GHSortPreference
-    sortDirectionId: GHSortDirection
-    filterPreferenceId: GHFilterPreference
+    sortPreferenceId: GHSortPreference | TaskSortPreference
+    sortDirectionId: GHSortDirection | TaskSortDirection
+    filterPreferenceId: GHFilterPreference | TaskFilterPreference
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }
 
