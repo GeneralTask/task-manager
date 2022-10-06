@@ -62,6 +62,10 @@ const EditorAndToolbarContainer = styled.div<{
     .remirror-list-item-marker-container {
         display: none;
     }
+    a {
+        cursor: pointer;
+        color: ${Colors.gtColor.primary};
+    }
 `
 
 const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
