@@ -37,7 +37,6 @@ const EditorAndToolbarContainer = styled.div<{
     .remirror-editor {
         outline: none;
         flex: 1;
-        /* height: 100%; */
         white-space: pre-wrap;
         > * {
             margin-top: 0;
