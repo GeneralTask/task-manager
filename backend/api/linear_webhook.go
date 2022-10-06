@@ -160,26 +160,12 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 
 	task := populateLinearTask(userID, accountID, webhookPayload, issuePayload)
 
-	client, err := api.getLinearStatusClient(userID, accountID)
+	statuses, err := api.getTaskStatuses(userID, accountID, issuePayload)
 	if err != nil {
-		logger.Error().Err(err).Msg("unable to generate linear client")
 		return err
 	}
 
-	statuses, err := external.GetLinearWorkflowStates(client)
-	if err != nil {
-		logger.Error().Err(err).Msg("unable to get linear workflow states")
-		return err
-	}
-	teamToStatus := external.ProcessLinearStatuses(statuses)
-	if val, ok := teamToStatus[string(issuePayload.Team.Name)]; ok {
-		task.AllStatuses = val
-	} else {
-		err = errors.New("could not match team with status")
-		logger.Error().Err(err).Send()
-		return err
-	}
-
+	task.AllStatuses = statuses
 	task.CompletedStatus = getCompletedLinearStatus(task.AllStatuses)
 
 	_, err = database.UpdateOrCreateTask(
@@ -330,16 +316,14 @@ func (api *API) updateComments(task *database.Task, userID primitive.ObjectID, c
 }
 
 func (api *API) getLinearStatusClient(userID primitive.ObjectID, accountID string) (*graphql.Client, error) {
-	var err error
 	logger := logging.GetSentryLogger()
 
-	taskSource, err := api.ExternalConfig.GetSourceResult(external.TASK_SOURCE_ID_LINEAR)
+	linearTaskSource, err := api.getLinearTaskSource()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to get task source result for linear")
 		return nil, err
 	}
 
-	linearTaskSource := taskSource.Source.(external.LinearTaskSource)
 	client, err := external.GetLinearClient(linearTaskSource.Linear.Config.ConfigValues.StatusFetchURL, api.DB, userID, accountID)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create linear client")
@@ -350,16 +334,14 @@ func (api *API) getLinearStatusClient(userID primitive.ObjectID, accountID strin
 }
 
 func (api *API) getLinearUserInfo(userID primitive.ObjectID, accountID string, externalUserID string) (*external.LinearExternalUserInfoQuery, error) {
-	var err error
 	logger := logging.GetSentryLogger()
 
-	taskSource, err := api.ExternalConfig.GetSourceResult(external.TASK_SOURCE_ID_LINEAR)
+	linearTaskSource, err := api.getLinearTaskSource()
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to get task source result for linear")
 		return nil, err
 	}
 
-	linearTaskSource := taskSource.Source.(external.LinearTaskSource)
 	client, err := external.GetBasicLinearClient(linearTaskSource.Linear.Config.ConfigValues.UserInfoURL, api.DB, userID, accountID)
 	if err != nil {
 		logger.Error().Err(err).Msg("unable to create linear client")
@@ -431,4 +413,41 @@ func (api *API) removeTaskOwnerIfExists(issuePayload LinearIssuePayload) {
 		logger := logging.GetSentryLogger()
 		logger.Error().Err(err).Msg("unable to delete task with owner not in GT")
 	}
+}
+
+func (api *API) getTaskStatuses(userID primitive.ObjectID, accountID string, issuePayload LinearIssuePayload) ([]*database.ExternalTaskStatus, error) {
+	logger := logging.GetSentryLogger()
+
+	client, err := api.getLinearStatusClient(userID, accountID)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to generate linear client")
+		return nil, err
+	}
+
+	statuses, err := external.GetLinearWorkflowStates(client)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to get linear workflow states")
+		return nil, err
+	}
+	teamToStatus := external.ProcessLinearStatuses(statuses)
+	if val, ok := teamToStatus[string(issuePayload.Team.Name)]; ok {
+		return val, nil
+	}
+
+	err = errors.New("could not match team with status")
+	logger.Error().Err(err).Send()
+	return nil, err
+}
+
+func (api *API) getLinearTaskSource() (external.LinearTaskSource, error) {
+	logger := logging.GetSentryLogger()
+
+	taskSource, err := api.ExternalConfig.GetSourceResult(external.TASK_SOURCE_ID_LINEAR)
+	if err != nil {
+		logger.Error().Err(err).Msg("unable to get task source result for linear")
+		return external.LinearTaskSource{}, err
+	}
+
+	linearTaskSource := taskSource.Source.(external.LinearTaskSource)
+	return linearTaskSource, nil
 }

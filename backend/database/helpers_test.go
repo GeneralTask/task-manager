@@ -921,8 +921,12 @@ func TestGetExternalTokeByExternalID(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	t.Run("WrongUserID", func(t *testing.T) {
+	t.Run("WrongExternalID", func(t *testing.T) {
 		_, err := GetExternalTokenByExternalID(db, "wrong account", serviceID)
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+	})
+	t.Run("WrongServiceID", func(t *testing.T) {
+		_, err := GetExternalTokenByExternalID(db, externalID, "wrong service")
 		assert.Equal(t, mongo.ErrNoDocuments, err)
 	})
 	t.Run("Success", func(t *testing.T) {

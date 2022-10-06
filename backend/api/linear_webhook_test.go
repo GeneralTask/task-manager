@@ -322,7 +322,7 @@ func TestProcessIssue(t *testing.T) {
 		assert.Equal(t, "Hello there!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
 	})
-	t.Run("ModifyWithDifferentUserSuccess", func(t *testing.T) {
+	t.Run("ModifyWithDifferentUser", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
 			"/linear/webhook/",
@@ -335,6 +335,10 @@ func TestProcessIssue(t *testing.T) {
 
 		_, err := database.GetTaskByExternalIDWithoutUser(db, "aaad850c-8df6-482f-90b0-82725bd54155")
 		assert.Equal(t, mongo.ErrNoDocuments, err)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"unable to process linear issue webhook\"}", string(body))
 	})
 	t.Run("ModifyIssueSuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(
@@ -366,6 +370,21 @@ func TestProcessIssue(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there 2.0!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
+	})
+	t.Run("RemoveIssueNotFound", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"POST",
+			"/linear/webhook/",
+			bytes.NewBuffer([]byte(`{"action":"remove","createdAt":"2022-10-06T20:16:30.266Z","data":{"id":"oopsie","createdAt":"2022-10-06T20:16:30.266Z","updatedAt":"2022-10-06T20:16:30.266Z","number":326,"title":"Hello there!","description":"As title!","priority":0,"boardOrder":0,"sortOrder":-130039,"teamId":"83abfaf9-ded6-4a55-93e9-81a181a1ac0a","cycleId":"4361a9d5-d18f-479e-a942-bcb4bac207ac","previousIdentifiers":[],"creatorId":"c4665594-0dc5-4913-8102-cbfa03ec8a69","assigneeId":"userIDExternal","stateId":"94594b14-e584-4635-bcf6-7e4c4a401f63","priorityLabel":"No priority","subscriberIds":["c4665594-0dc5-4913-8102-cbfa03ec8a69"],"labelIds":[],"assignee":{"id":"c4665594-0dc5-4913-8102-cbfa03ec8a69","name":"Julian Christensen"},"cycle":{"id":"4361a9d5-d18f-479e-a942-bcb4bac207ac","number":25,"startsAt":"2022-10-03T07:00:00.000Z","endsAt":"2022-10-10T07:00:00.000Z"},"state":{"id":"6942069420","name":"Todo","color":"#e2e2e2","type":"unstarted"},"team":{"id":"83abfaf9-ded6-4a55-93e9-81a181a1ac0a","name":"Backend","key":"BACK"}},"url":"https://linear.app/general-task/issue/BACK-326/hello-there","type":"Issue","organizationId":"572f6728-59c0-4844-96b1-34b5e77b704e"}`)),
+		)
+		request.Header.Add("X-Forwarded-For", ValidLinearIP1)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"unable to process linear issue webhook\"}", string(body))
 	})
 	t.Run("RemoveIssueSuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(
