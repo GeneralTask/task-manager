@@ -170,7 +170,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     <Title>{task.title}</Title>
                     <RightContainer>
                         {isValidDueDate(dueDate) && (
-                            <DueDate color={formattedDate.color}>{formattedDate.dateString}</DueDate>
+                            <DueDate color={formattedDate.textColor}>{formattedDate.dateString}</DueDate>
                         )}
                         {task.priority_normalized !== 0 && (
                             <Icon
