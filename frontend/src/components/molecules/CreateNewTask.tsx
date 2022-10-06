@@ -121,6 +121,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
                     place="top"
                     type="light"
                     effect="solid"
+                    delayShow={500}
                     className="tooltip"
                     overridePosition={overrideTooltipPosition}
                 >
