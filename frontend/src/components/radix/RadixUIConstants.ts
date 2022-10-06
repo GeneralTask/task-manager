@@ -21,6 +21,10 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
+    &[data-state='open'] {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        background-color: ${Colors.background.medium};
+    }
 `
 export const MenuContentShared = css`
     z-index: 5;
