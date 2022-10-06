@@ -96,7 +96,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 	switch webhookPayload.Type {
 	case IssueType:
 		var issuePayload LinearIssuePayload
-		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &issuePayload); err != nil {
+		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &issuePayload); (err != nil || issuePayload == LinearIssuePayload{}) {
 			api.Logger.Error().Err(err).Msg("failed to unmarshal linear comment object")
 			c.JSON(400, gin.H{"detail": "unable to unmarshal linear issue object"})
 			return
@@ -108,7 +108,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 		}
 	case CommentType:
 		var commentPayload LinearCommentPayload
-		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &commentPayload); err != nil {
+		if err := json.Unmarshal([]byte(*webhookPayload.RawData), &commentPayload); (err != nil || commentPayload == LinearCommentPayload{}) {
 			api.Logger.Error().Err(err).Msg("failed to unmarshal linear comment object")
 			c.JSON(400, gin.H{"detail": "unable to unmarshal linear issue object"})
 			return
@@ -388,6 +388,7 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 	return task
 }
 
+// TODO increase test coverage of the below code
 func getCompletedLinearStatus(teamStatuses []*database.ExternalTaskStatus) *database.ExternalTaskStatus {
 	for _, status := range teamStatuses {
 		if status.Type == external.LinearCompletedType {

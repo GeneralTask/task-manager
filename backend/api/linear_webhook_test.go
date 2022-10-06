@@ -102,50 +102,6 @@ func TestProcessComments(t *testing.T) {
 		ExternalID: "userIDExternal",
 	})
 
-	t.Run("InvalidIP", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/linear/webhook/",
-			nil)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"invalid request format\"}", string(body))
-	})
-
-	t.Run("InvalidFormat", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/linear/webhook/",
-			bytes.NewBuffer([]byte(`"uhoh"`)),
-		)
-		request.Header.Add("X-Forwarded-For", ValidLinearIP1)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"unable to process linear webhook payload\"}", string(body))
-	})
-	t.Run("InvalidType", func(t *testing.T) {
-		request, _ := http.NewRequest(
-			"POST",
-			"/linear/webhook/",
-			bytes.NewBuffer([]byte(`{"action":"remove","createdAt":"2022-10-05T18:36:25.922Z","data":{"id":"e17bd25c-fa0b-49a0-8658-82fbec96427f","createdAt":"2022-10-05T18:12:23.127Z","updatedAt":"2022-10-05T18:18:54.049Z","body":"here we","issueId":"7ca5cb7c-9038-4f72-b880-f4209e1d1466","userId":"c4665594-0dc5-4913-8102-cbfa03ec8a69","editedAt":"2022-10-05T18:18:54.049Z","issue":{"id":"7ca5cb7c-9038-4f72-b880-f4209e1d1466","title":"New issue for modification purposes"},"user":{"id":"c4665594-0dc5-4913-8102-cbfa03ec8a69","name":"Julian Christensen"}},"type":"InvalidType","organizationId":"572f6728-59c0-4844-96b1-34b5e77b704e"}`)),
-		)
-		request.Header.Add("X-Forwarded-For", ValidLinearIP1)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"unrecognized linear payload format\"}", string(body))
-	})
 	t.Run("InvalidTaskID", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
@@ -306,6 +262,36 @@ func TestProcessIssue(t *testing.T) {
 		ExternalID: "userIDExternal",
 	})
 
+	t.Run("InvalidAction", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"POST",
+			"/linear/webhook/",
+			bytes.NewBuffer([]byte(`{"action":"invalid","createdAt":"2022-10-06T20:16:30.266Z","data":{"id":"aaad850c-8df6-482f-90b0-82725bd54155","createdAt":"2022-10-06T20:16:30.266Z","updatedAt":"2022-10-06T20:16:30.266Z","number":326,"title":"Hello there!","description":"As title!","priority":0,"boardOrder":0,"sortOrder":-130039,"teamId":"83abfaf9-ded6-4a55-93e9-81a181a1ac0a","cycleId":"4361a9d5-d18f-479e-a942-bcb4bac207ac","previousIdentifiers":[],"creatorId":"c4665594-0dc5-4913-8102-cbfa03ec8a69","assigneeId":"userIDExternal","stateId":"94594b14-e584-4635-bcf6-7e4c4a401f63","priorityLabel":"No priority","subscriberIds":["c4665594-0dc5-4913-8102-cbfa03ec8a69"],"labelIds":[],"assignee":{"id":"c4665594-0dc5-4913-8102-cbfa03ec8a69","name":"Julian Christensen"},"cycle":{"id":"4361a9d5-d18f-479e-a942-bcb4bac207ac","number":25,"startsAt":"2022-10-03T07:00:00.000Z","endsAt":"2022-10-10T07:00:00.000Z"},"state":{"id":"6942069420","name":"Todo","color":"#e2e2e2","type":"unstarted"},"team":{"id":"83abfaf9-ded6-4a55-93e9-81a181a1ac0a","name":"Backend","key":"BACK"}},"url":"https://linear.app/general-task/issue/BACK-326/hello-there","type":"Issue","organizationId":"572f6728-59c0-4844-96b1-34b5e77b704e"}`)),
+		)
+		request.Header.Add("X-Forwarded-For", ValidLinearIP1)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"unable to process linear issue webhook\"}", string(body))
+	})
+	t.Run("InvalidIssuePayload", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"POST",
+			"/linear/webhook/",
+			bytes.NewBuffer([]byte(`{"action":"create","createdAt":"2022-10-06T20:16:30.266Z","data":{"BABABABA":123},"url":"https://linear.app/general-task/issue/BACK-326/hello-there","type":"Issue","organizationId":"572f6728-59c0-4844-96b1-34b5e77b704e"}`)),
+		)
+		request.Header.Add("X-Forwarded-For", ValidLinearIP1)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"unable to unmarshal linear issue object\"}", string(body))
+	})
 	t.Run("CreateIssueSuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"POST",
