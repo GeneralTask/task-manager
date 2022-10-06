@@ -70,6 +70,7 @@ export const icon = {
     yellow: YELLOW._1,
     blue: BLUE._1,
     green: GREEN._1,
+    orange: ORANGE._1,
     purple: PURPLE._1,
     black: BLACK,
 }

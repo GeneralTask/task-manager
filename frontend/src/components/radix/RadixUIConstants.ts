@@ -3,7 +3,7 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TIconColor, TTextColor } from '../../styles/colors'
 import { TIconType } from '../atoms/Icon'
 
-const MENU_WIDTH = '172px'
+const MENU_WIDTH = '192px'
 
 export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor }>`
     display: flex;
@@ -32,6 +32,9 @@ export const MenuContentShared = css`
 `
 export const MarginLeftIcon = styled.div`
     margin-left: auto;
+`
+export const FixedSizeIcon = styled.div<{ visible?: boolean }>`
+    opacity: ${({ visible }) => (visible ? 1 : 0)};
 `
 export const MenuItemLabel = styled.span`
     flex: 1;

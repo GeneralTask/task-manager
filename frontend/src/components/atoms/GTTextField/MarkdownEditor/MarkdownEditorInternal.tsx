@@ -38,15 +38,13 @@ const EditorAndToolbarContainer = styled.div<{
         outline: none;
         flex: 1;
         white-space: pre-wrap;
-        > * {
-            margin-top: 0;
-        }
     }
     .language-markup {
         background-color: ${Colors.background.medium};
         border: ${Border.stroke.medium} solid ${Colors.border.light};
         border-radius: ${Border.radius.mini};
         padding: ${Spacing._4};
+        white-space: pre-wrap;
     }
     p > code {
         background-color: ${Colors.background.medium};
@@ -61,6 +59,13 @@ const EditorAndToolbarContainer = styled.div<{
     }
     .remirror-list-item-marker-container {
         display: none;
+    }
+    a {
+        cursor: pointer;
+        color: ${Colors.gtColor.primary};
+    }
+    * {
+        margin: 0;
     }
 `
 

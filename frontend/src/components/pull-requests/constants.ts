@@ -35,6 +35,7 @@ const NON_ACTIONABLE_REQUIRED_ACTIONS = new Set([
     ACTION_WAITING_ON_REVIEW,
     ACTION_WAITING_ON_AUTHOR,
     ACTION_NOT_ACTIONABLE,
+    ACTION_WAITING_ON_CI,
 ])
 
 const requiredActionToIndexMap = new Map<string, number>(
@@ -77,7 +78,7 @@ export const PR_FILTER_OPTIONS: FilterOptions<TPullRequest> = {
     },
     actionable_only: {
         id: 'actionable_only',
-        label: 'Actionable pull requests',
+        label: 'Actionable PRs',
         lambda: (pr: TPullRequest) => !NON_ACTIONABLE_REQUIRED_ACTIONS.has(pr.status.text),
     },
 }

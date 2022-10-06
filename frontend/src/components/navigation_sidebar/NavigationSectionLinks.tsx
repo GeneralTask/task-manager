@@ -127,7 +127,7 @@ const NavigationSectionLinks = () => {
             />
             <NavigationLink
                 link="/pull-requests"
-                title="GitHub Pull Requests"
+                title="GitHub PRs"
                 icon={logos.github}
                 count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}

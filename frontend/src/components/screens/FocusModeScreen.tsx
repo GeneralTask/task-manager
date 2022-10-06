@@ -10,7 +10,6 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, logos } from '../../styles/images'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
-import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import GTStaticCheckbox from '../atoms/GTStaticCheckbox'
@@ -128,6 +127,17 @@ const RightAbsoluteContainer = styled.div`
     position: absolute;
     right: ${Spacing._16};
 `
+const EventTitle = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    white-space: nowrap;
+    min-width: 0;
+`
+const EventTitleText = styled.span`
+    overflow: hidden;
+    text-overflow: ellipsis;
+`
 
 const getTimeUntilNextEvent = (event: TEvent) => {
     const now = DateTime.local()
@@ -180,7 +190,7 @@ const FocusModeScreen = () => {
     useLayoutEffect(() => {
         if (selectedEvent != null) return
         const currentEvents = getEventsCurrentlyHappening(events ?? [])
-        if (currentEvents.length === 0) return
+        if (currentEvents.length === 0 || currentEvents.length > 1) return
         setSelectedEvent(currentEvents[0])
     }, [events])
 
@@ -253,13 +263,14 @@ const FocusModeScreen = () => {
                                     <CurrentEventsContainer>
                                         {currentEvents.map((event) => (
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
-                                                <Flex alignItemsCenter gap={Spacing._8}>
+                                                <EventTitle>
                                                     <Icon icon={logos[event.logo]} />
-                                                    <div>{event.title}</div>
-                                                </Flex>
+                                                    <EventTitleText>{event.title}</EventTitleText>
+                                                </EventTitle>
                                                 <TimeRange
                                                     start={DateTime.fromISO(event.datetime_start)}
                                                     end={DateTime.fromISO(event.datetime_end)}
+                                                    wrapText={false}
                                                 />
                                             </CurrentEvent>
                                         ))}
