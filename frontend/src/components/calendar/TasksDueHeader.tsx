@@ -5,7 +5,7 @@ import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from './CalendarContext'
 
 const TasksDueHeaderContainer = styled.div`
-    ${Typography.eyebrow};
+    ${Typography.bodySmall};
     display: flex;
     gap: ${Spacing._12};
     align-items: center;

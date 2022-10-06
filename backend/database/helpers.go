@@ -137,6 +137,24 @@ func GetTask(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &task, nil
 }
 
+func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Task, error) {
+	logger := logging.GetSentryLogger()
+	taskCollection := GetTaskCollection(db)
+	mongoResult := taskCollection.FindOne(
+		context.Background(),
+		bson.M{
+			"id_external": externalID,
+		})
+
+	var task Task
+	err := mongoResult.Decode(&task)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get external task: %+v", externalID)
+		return nil, err
+	}
+	return &task, nil
+}
+
 func GetCalendarEvent(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*CalendarEvent, error) {
 	logger := logging.GetSentryLogger()
 	eventCollection := GetCalendarEventCollection(db)
@@ -638,28 +656,7 @@ func GetExternalTokens(db *mongo.Database, userID primitive.ObjectID, serviceID 
 }
 
 func GetDefaultSectionName(db *mongo.Database, userID primitive.ObjectID) string {
-	defaultSectionCollection := GetDefaultSectionSettingsCollection(db)
-
-	var settings DefaultSectionSettings
-	mongoResult := defaultSectionCollection.FindOne(
-		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"user_id": userID},
-		}},
-	)
-	err := mongoResult.Decode(&settings)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		if err != mongo.ErrNoDocuments {
-			logger.Error().Err(err).Msg("failed to query default section settings")
-		}
-		return constants.TaskSectionNameDefault
-	}
-	if settings.NameOverride != "" {
-		return settings.NameOverride
-	} else {
-		return constants.TaskSectionNameDefault
-	}
+	return constants.TaskSectionNameDefault
 }
 
 func GetView(db *mongo.Database, userID primitive.ObjectID, viewID primitive.ObjectID) (*View, error) {

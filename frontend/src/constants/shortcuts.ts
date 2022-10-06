@@ -1,4 +1,4 @@
-import { TShortcut, TShortcutCategory } from "../utils/types";
+import { TShortcut, TShortcutCategory } from '../utils/types'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
@@ -40,14 +40,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 's',
         keyLabel: 'S',
         category: 'Tasks',
-        icon: 'calendar_days'
+        icon: 'calendar_days',
     },
     showSectionEditor: {
         label: 'Change folder',
         key: 'l',
         keyLabel: 'L',
         category: 'Tasks',
-        icon: 'folder'
+        icon: 'folder',
     },
     showTimeEstimationPicker: {
         label: 'Show time estimate picker',
@@ -58,8 +58,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',
-        key: '[',
-        keyLabel: '[',
+        key: ']',
+        keyLabel: ']',
         category: 'Calendar',
         icon: 'calendar_blank',
     },

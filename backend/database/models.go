@@ -42,6 +42,7 @@ type ExternalAPIToken struct {
 	IsUnlinkable   bool               `bson:"is_unlinkable"`
 	IsPrimaryLogin bool               `bson:"is_primary_login"`
 	IsBadToken     bool               `bson:"is_bad_token"`
+	ExternalID     string             `bson:"external_id"`
 	// For paginated refreshes
 	LatestHistoryID         uint64 `bson:"history_id"`
 	NextHistoryPageToken    string `bson:"next_history_page"`
@@ -219,9 +220,10 @@ type ExternalUser struct {
 }
 
 type Comment struct {
-	Body      string             `bson:"body" json:"body"`
-	User      ExternalUser       `bson:"user" json:"user"`
-	CreatedAt primitive.DateTime `bson:"created_at" json:"created_at"`
+	ExternalID string             `bson:"external_id" json:"external_id"`
+	Body       string             `bson:"body" json:"body"`
+	User       ExternalUser       `bson:"user" json:"user"`
+	CreatedAt  primitive.DateTime `bson:"created_at" json:"created_at"`
 }
 
 type ExternalTaskStatus struct {

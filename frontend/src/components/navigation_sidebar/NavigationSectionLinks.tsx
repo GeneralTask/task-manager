@@ -53,7 +53,7 @@ const NavigationSectionLinks = () => {
         e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
-            addTaskSection({ name: sectionName })
+            addTaskSection({ name: sectionName, id_ordering: folders?.length })
             setIsAddSectionInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
             setSectionName('')
@@ -211,8 +211,8 @@ const NavigationSectionLinks = () => {
                                 title={doneFolder.name}
                                 icon={icons.checkbox_checked}
                                 isCurrentPage={sectionId === doneFolder.id}
-                                taskSection={doneFolder}
                                 count={doneFolder.tasks.length}
+                                taskSection={doneFolder}
                                 droppable
                             />
                         )}
@@ -223,7 +223,6 @@ const NavigationSectionLinks = () => {
                                 icon={icons.trash}
                                 isCurrentPage={sectionId === trashFolder.id}
                                 taskSection={trashFolder}
-                                count={trashFolder.tasks.length}
                                 droppable
                             />
                         )}

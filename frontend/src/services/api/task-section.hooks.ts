@@ -3,11 +3,12 @@ import produce, { castImmutable } from 'immer'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import apiClient from '../../utils/api'
 import { TTaskSection } from '../../utils/types'
-import { useGTQueryClient } from '../queryUtils'
 import { arrayMoveInPlace } from '../../utils/utils'
+import { useGTQueryClient } from '../queryUtils'
 
 interface TAddTaskSectionData {
     name: string
+    id_ordering?: number
 }
 
 interface TModifyTaskSectionData {

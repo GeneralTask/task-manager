@@ -195,8 +195,8 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 			continue
 		}
 
-		// don't update or create if pull request has DB ID already (it's a cached PR from the DB)
-		if pullRequest.ID != primitive.NilObjectID {
+		// don't update or create if it's a cached PR from the DB, unless needs to be marked incomplete
+		if pullRequest.ID != primitive.NilObjectID && (pullRequest.IsCompleted == nil || !*pullRequest.IsCompleted) {
 			pullRequests = append(pullRequests, pullRequest)
 			continue
 		}

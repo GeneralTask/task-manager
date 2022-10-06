@@ -60,4 +60,5 @@ export interface SortAndFilterSettings<T> {
     setSelectedSortDirection: (selectedSortDirection: SORT_DIRECTION) => void
     selectedFilter: Filter<T>
     setSelectedFilter: (selectedFilter: Filter<T>) => void
+    isLoading: boolean
 }

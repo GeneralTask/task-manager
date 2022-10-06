@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { EditorComponent, useCommands, useSelectedText } from '@remirror/react'
+import { useEffect } from 'react'
+import { EditorComponent, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { FontSize, MarkdownEditorProps } from '../types'
@@ -30,10 +30,13 @@ const EditorAndToolbarContainer = styled.div<{
         /* subtract the border and padding of the Container in GTTextField */
         padding: ${Spacing._8};
         height: calc(100% - 2 * (${Border.stroke.medium} + ${Spacing._8}));
+        display: flex;
+        flex-direction: column;
+        flex: 1;
     }
     .remirror-editor {
         outline: none;
-        height: 100%;
+        flex: 1;
         white-space: pre-wrap;
         > * {
             margin-top: 0;
@@ -50,6 +53,12 @@ const EditorAndToolbarContainer = styled.div<{
         border: ${Border.stroke.medium} solid ${Colors.border.light};
         border-radius: ${Border.radius.mini};
         padding: 0 ${Spacing._4};
+    }
+    blockquote {
+        border-left: ${Spacing._4} solid ${Colors.border.light};
+        margin-left: ${Spacing._12};
+        padding-left: ${Spacing._8};
+    }
     .remirror-list-item-marker-container {
         display: none;
     }
@@ -57,12 +66,6 @@ const EditorAndToolbarContainer = styled.div<{
 
 const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
     const { blur, selectAll } = useCommands()
-    const selectedText = useSelectedText()
-    const [isTextSelected, setIsTextSelected] = useState(selectedText !== undefined)
-
-    useEffect(() => {
-        setIsTextSelected(selectedText !== undefined)
-    }, [selectedText])
 
     useEffect(() => {
         if (props.autoSelect) {
@@ -82,12 +85,11 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
             maxHeight={props.maxHeight}
             isFullHeight={props.isFullHeight}
             fontSize={props.fontSize}
-            onBlur={() => setIsTextSelected(false)}
         >
             <EditorContainer>
                 <EditorComponent />
             </EditorContainer>
-            {isTextSelected && <RichTextToolbar />}
+            <RichTextToolbar />
         </EditorAndToolbarContainer>
     )
 }

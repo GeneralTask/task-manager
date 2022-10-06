@@ -1,5 +1,5 @@
-import { TIconImage, TLogoImage } from "../styles/images"
-import { TStatusColors } from "../styles/colors"
+import { TStatusColors } from '../styles/colors'
+import { TIconImage, TLogoImage } from '../styles/images'
 
 export type EmptyString = ''
 
@@ -184,6 +184,7 @@ export interface TLinkedAccount {
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
+    DUE_TASK = 'due-task',
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',

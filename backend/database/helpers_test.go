@@ -444,6 +444,38 @@ func TestGetTask(t *testing.T) {
 	})
 }
 
+func TestGetTaskByExternalIDWithoutUser(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notCompleted := false
+	task1, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abd",
+		"foobar_source",
+		&Task{
+			IDExternal:  "123abd",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &notCompleted,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("WrongID", func(t *testing.T) {
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "invalid")
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respTask)
+	})
+	t.Run("Success", func(t *testing.T) {
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "123abd")
+		assert.NoError(t, err)
+		assert.Equal(t, task1.ID, respTask.ID)
+	})
+}
+
 func TestGetCalendarEvent(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
@@ -903,48 +935,6 @@ func TestGetExternalTokens(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tokens))
 		assert.Equal(t, "elon", (*tokens)[0].ServiceID)
-	})
-}
-
-func TestGetDefaultSectionName(t *testing.T) {
-	db, dbCleanup, err := GetDBConnection()
-	assert.NoError(t, err)
-	defer dbCleanup()
-	userID := primitive.NewObjectID()
-
-	t.Run("SuccessUnset", func(t *testing.T) {
-		sectionName := GetDefaultSectionName(db, userID)
-		assert.Equal(t, constants.TaskSectionNameDefault, sectionName)
-	})
-	t.Run("SuccessEmptyString", func(t *testing.T) {
-		_, err = GetDefaultSectionSettingsCollection(db).InsertOne(
-			context.Background(),
-			&DefaultSectionSettings{
-				UserID:       userID,
-				NameOverride: "New Default",
-			},
-		)
-
-		sectionName := GetDefaultSectionName(db, userID)
-		assert.Equal(t, "New Default", sectionName)
-
-	})
-	t.Run("Success", func(t *testing.T) {
-		otherUserID := primitive.NewObjectID()
-		_, err = GetDefaultSectionSettingsCollection(db).UpdateOne(
-			context.Background(),
-			&DefaultSectionSettings{
-				UserID: otherUserID,
-			},
-			&DefaultSectionSettings{
-				UserID:       otherUserID,
-				NameOverride: "",
-			},
-		)
-
-		sectionName := GetDefaultSectionName(db, otherUserID)
-		assert.Equal(t, "Task Inbox", sectionName)
-
 	})
 }
 

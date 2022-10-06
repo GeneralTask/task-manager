@@ -439,6 +439,45 @@ func TestCreateNewEvent(t *testing.T) {
 		err := googleCalendar.CreateNewEvent(db, userID, "exampleAccountID", eventCreateObj)
 		assert.NoError(t, err)
 	})
+	t.Run("SuccessLinkedTask", func(t *testing.T) {
+		userID := primitive.NewObjectID()
+
+		eventCreateObj := EventCreateObject{
+			AccountID:         "test_account_id",
+			Summary:           "test summary",
+			Location:          "test location",
+			Description:       "test description",
+			TimeZone:          "test timezone",
+			DatetimeStart:     testutils.CreateTimestamp("2019-04-20"),
+			DatetimeEnd:       testutils.CreateTimestamp("2020-04-20"),
+			Attendees:         []Attendee{{Name: "test attendee", Email: "test_attendee@generaltask.com"}},
+			AddConferenceCall: false,
+			LinkedTaskID:      primitive.NewObjectID(),
+		}
+		expectedRequestEvent := calendar.Event{
+			Attendees: []*calendar.EventAttendee{{
+				DisplayName: "test attendee",
+				Email:       "test_attendee@generaltask.com",
+			}},
+			Description: "test description",
+			Start:       &calendar.EventDateTime{Date: "", DateTime: "2019-04-20T00:00:00Z", TimeZone: "test timezone"},
+			End:         &calendar.EventDateTime{Date: "", DateTime: "2020-04-20T00:00:00Z", TimeZone: "test timezone"},
+			Location:    "test location",
+			Summary:     "test summary",
+			Visibility:  "private",
+		}
+
+		server := getEventCreateServer(t, eventCreateObj, &expectedRequestEvent)
+		defer server.Close()
+
+		googleCalendar := GoogleCalendarSource{
+			Google: GoogleService{
+				OverrideURLs: GoogleURLOverrides{CalendarCreateURL: &server.URL},
+			},
+		}
+		err := googleCalendar.CreateNewEvent(db, userID, "exampleAccountID", eventCreateObj)
+		assert.NoError(t, err)
+	})
 	t.Run("SuccessWithConferenceCall", func(t *testing.T) {
 		userID := primitive.NewObjectID()
 
@@ -651,6 +690,7 @@ func assertGcalCalendarEventsEqual(t *testing.T, a *calendar.Event, b *calendar.
 	assert.Equal(t, a.Description, b.Description)
 	assert.Equal(t, a.Location, b.Location)
 	assert.Equal(t, a.Summary, b.Summary)
+	assert.Equal(t, a.Visibility, b.Visibility)
 	if a.Start != nil && b.Start != nil {
 		assert.Equal(t, a.Start.DateTime, b.Start.DateTime)
 		assert.Equal(t, a.Start.TimeZone, b.Start.TimeZone)
