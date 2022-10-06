@@ -111,7 +111,7 @@ const NavigationLink = ({
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
         setCalendarType('day')
-        Log('navigate_to', title)
+        Log(`navigate_to_${title}`)
         navigate(link)
     }
 
