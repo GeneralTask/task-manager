@@ -55,6 +55,7 @@ func TestMigrate011(t *testing.T) {
 		assert.Equal(t, external.TASK_SERVICE_ID_LINEAR, result.ServiceID)
 		assert.Equal(t, linearID, result.ID)
 		assert.Equal(t, "{}", result.Token)
+		assert.True(t, result.IsBadToken)
 
 		filter = bson.M{"account_id": "test_migrate_11", "service_id": "slack"}
 		count, err = externalTokenCollection.CountDocuments(context.Background(), filter)
