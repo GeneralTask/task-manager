@@ -91,7 +91,7 @@ func TestGetSettingsOptions(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		settings, err := GetSettingsOptions(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 11, len(*settings))
+		assert.Equal(t, 15, len(*settings))
 		assert.Equal(t, insertedViewID+"_github_filtering_preference", (*settings)[3].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_sorting_preference", (*settings)[4].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_sorting_direction", (*settings)[5].FieldKey)
@@ -99,7 +99,11 @@ func TestGetSettingsOptions(t *testing.T) {
 		assert.Equal(t, insertedSectionID+"_task_sorting_direction_main", (*settings)[7].FieldKey)
 		assert.Equal(t, insertedSectionID+"_task_sorting_preference_overview", (*settings)[8].FieldKey)
 		assert.Equal(t, insertedSectionID+"_task_sorting_direction_overview", (*settings)[9].FieldKey)
-		calendarSetting := (*settings)[10]
+		assert.Equal(t, "000000000000000000000001_task_sorting_preference_main", (*settings)[10].FieldKey)
+		assert.Equal(t, "000000000000000000000001_task_sorting_direction_main", (*settings)[11].FieldKey)
+		assert.Equal(t, "000000000000000000000001_task_sorting_preference_overview", (*settings)[12].FieldKey)
+		assert.Equal(t, "000000000000000000000001_task_sorting_direction_overview", (*settings)[13].FieldKey)
+		calendarSetting := (*settings)[14]
 		assert.Equal(t, SettingFieldCalendarForNewTasks, calendarSetting.FieldKey)
 		assert.Equal(t, "a", calendarSetting.DefaultChoice)
 		assert.Equal(t, []SettingChoice{
