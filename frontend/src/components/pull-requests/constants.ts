@@ -78,7 +78,7 @@ export const PR_FILTER_OPTIONS: FilterOptions<TPullRequest> = {
     },
     actionable_only: {
         id: 'actionable_only',
-        label: 'Actionable pull requests',
+        label: 'Actionable PRs',
         lambda: (pr: TPullRequest) => !NON_ACTIONABLE_REQUIRED_ACTIONS.has(pr.status.text),
     },
 }
