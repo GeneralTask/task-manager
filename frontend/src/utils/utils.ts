@@ -1,7 +1,7 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
-import { TTextColor } from '../styles/colors'
+import { TIconColor, TTextColor } from '../styles/colors'
 import { TLinkedAccount, TTask, TTaskSection } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
@@ -137,21 +137,22 @@ export const getFormattedDate = (
     date: Date | null
 ): {
     dateString: string
-    color: TTextColor
+    textColor: TTextColor
+    iconColor: TIconColor
 } => {
     if (!date || !isValidDueDate(date)) {
-        return { dateString: 'No due date', color: 'light' }
+        return { dateString: 'No due date', textColor: 'light', iconColor: 'gray' }
     }
     if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
-        return { dateString: 'Today', color: 'red' }
+        return { dateString: 'Today', textColor: 'red', iconColor: 'red' }
     }
     if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
-        return { dateString: 'Tomorrow', color: 'orange' }
+        return { dateString: 'Tomorrow', textColor: 'orange', iconColor: 'orange' }
     }
     if (DateTime.fromJSDate(date) < DateTime.local()) {
-        return { dateString: 'Overdue', color: 'red' }
+        return { dateString: 'Overdue', textColor: 'red', iconColor: 'red' }
     }
-    return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), color: 'light' }
+    return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
 }
 
 export const isValidDueDate = (date: Date | null) => {

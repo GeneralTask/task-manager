@@ -35,6 +35,7 @@ const NON_ACTIONABLE_REQUIRED_ACTIONS = new Set([
     ACTION_WAITING_ON_REVIEW,
     ACTION_WAITING_ON_AUTHOR,
     ACTION_NOT_ACTIONABLE,
+    ACTION_WAITING_ON_CI,
 ])
 
 const requiredActionToIndexMap = new Map<string, number>(

@@ -190,7 +190,7 @@ const FocusModeScreen = () => {
     useLayoutEffect(() => {
         if (selectedEvent != null) return
         const currentEvents = getEventsCurrentlyHappening(events ?? [])
-        if (currentEvents.length !== 1) return
+        if (currentEvents.length === 0 || currentEvents.length > 1) return
         setSelectedEvent(currentEvents[0])
     }, [events])
 

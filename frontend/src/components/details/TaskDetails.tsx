@@ -211,6 +211,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             label: status.state,
                             onClick: () => modifyTask({ id: task.id, status: status }),
                             icon: linearStatus[status.type],
+                            selected: status.state === task.external_status?.state,
                         }))}
                         trigger={
                             <GTButton
@@ -233,6 +234,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                         icon: priority.icon,
                         iconColor: TASK_PRIORITIES[val].color,
+                        selected: val === task.priority_normalized,
                     }))}
                     trigger={
                         <GTButton

@@ -42,7 +42,7 @@ const Tooltip = styled.div`
     ${Typography.bodySmall};
 `
 
-const blurShortcuts = [KEYBOARD_SHORTCUTS.arrowUp.key, KEYBOARD_SHORTCUTS.arrowDown.key, KEYBOARD_SHORTCUTS.close.key]
+const blurShortcuts = [KEYBOARD_SHORTCUTS.close.key]
 
 interface CreateNewTaskProps {
     sectionId: string

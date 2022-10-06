@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect } from 'react'
+import { useCallback, useLayoutEffect, useMemo } from 'react'
 import { ExtensionPriority, RemirrorEventListenerProps } from '@remirror/core'
 import { Remirror, useRemirror } from '@remirror/react'
 import jsx from 'refractor/lang/jsx'
@@ -8,6 +8,15 @@ import { MarkdownEditorProps } from '../types'
 import MarkdownEditorInternal from './MarkdownEditorInternal'
 
 const MarkdownEditor = (props: MarkdownEditorProps) => {
+    const linkExtension = useMemo(() => {
+        const extension = new RemirrorExtensions.LinkExtension({ autoLink: true })
+        extension.addHandler('onClick', (_, data) => {
+            window.open(data.href, '_blank')
+            return true
+        })
+        return extension
+    }, [])
+
     const { manager, state } = useRemirror({
         extensions: () => [
             new RemirrorExtensions.BlockquoteExtension(),
@@ -19,7 +28,7 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
             new RemirrorExtensions.HeadingExtension(),
             new RemirrorExtensions.HistoryExtension(),
             new RemirrorExtensions.ItalicExtension(),
-            new RemirrorExtensions.LinkExtension({ autoLink: true }),
+            linkExtension,
             new RemirrorExtensions.ListItemExtension({ priority: ExtensionPriority.High, enableCollapsible: true }),
             new RemirrorExtensions.MarkdownExtension({ copyAsMarkdown: false }),
             new RemirrorExtensions.OrderedListExtension(),
