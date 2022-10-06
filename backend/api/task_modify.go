@@ -245,32 +245,8 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 }
 
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primitive.ObjectID, updateFields *database.Task) {
-	taskCollection := database.GetTaskCollection(api.DB)
-
-	if updateFields.IsCompleted != nil {
-		updateFields.PreviousStatus = task.Status
-		if *updateFields.IsCompleted {
-			updateFields.Status = task.CompletedStatus
-		} else {
-			updateFields.Status = task.PreviousStatus
-		}
-	}
-
-	res, err := taskCollection.UpdateOne(
-		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"_id": task.ID},
-			{"user_id": userID},
-		}},
-		bson.M{"$set": updateFields},
-	)
+	err := api.UpdateTaskInDBWithError(task, userID, updateFields)
 	if err != nil {
-		api.Logger.Error().Err(err).Msg("failed to update internal DB")
-		Handle500(c)
-		return
-	}
-	if res.MatchedCount != 1 {
-		log.Print("failed to update task", res)
 		Handle500(c)
 		return
 	}
@@ -302,7 +278,7 @@ func (api *API) UpdateTaskInDBWithError(task *database.Task, userID primitive.Ob
 	}
 	if res.MatchedCount != 1 {
 		log.Print("failed to update task", res)
-		return err
+		return errors.New("failed to update task")
 	}
 
 	return nil

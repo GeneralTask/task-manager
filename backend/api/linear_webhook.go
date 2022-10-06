@@ -98,7 +98,7 @@ func (api *API) LinearWebhook(c *gin.Context) {
 		}
 		err = api.processLinearCommentWebhook(c, webhookPayload, commentPayload)
 		if err != nil {
-			c.JSON(400, gin.H{"detail": "unable to process Linear comment webhook"})
+			c.JSON(400, gin.H{"detail": "unable to process linear comment webhook"})
 			return
 		}
 	default:
@@ -208,9 +208,9 @@ func (api *API) modifyCommentFromPayload(c *gin.Context, userID primitive.Object
 func (api *API) removeCommentFromPayload(c *gin.Context, userID primitive.ObjectID, commentPayload LinearCommentPayload, task *database.Task) error {
 	comments := task.Comments
 	var commentsNew []database.Comment
-	for i, comment := range *comments {
-		if comment.ExternalID == commentPayload.ID {
-			commentsNew = append((*comments)[:i], (*comments)[i+1:]...)
+	for _, comment := range *comments {
+		if comment.ExternalID != commentPayload.ID {
+			commentsNew = append(commentsNew, comment)
 		}
 	}
 

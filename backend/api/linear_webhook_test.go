@@ -107,7 +107,7 @@ func TestProcessComments(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"unable to process Linear comment webhook\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"unable to process linear comment webhook\"}", string(body))
 	})
 	t.Run("InvalidAction", func(t *testing.T) {
 		request, _ := http.NewRequest(
@@ -122,7 +122,7 @@ func TestProcessComments(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"unable to process Linear comment webhook\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"unable to process linear comment webhook\"}", string(body))
 	})
 	t.Run("CreateCommentSuccess", func(t *testing.T) {
 		request, _ := http.NewRequest(
