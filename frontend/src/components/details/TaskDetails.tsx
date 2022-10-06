@@ -6,7 +6,13 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
-import { TModifyTaskData, useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
+import {
+    TModifyTaskData,
+    useGetTasks,
+    useModifyTask,
+    usePostComment,
+    useReorderTask,
+} from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -87,6 +93,9 @@ interface TaskDetailsProps {
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+
+    const { mutate: postComment } = usePostComment()
+    const [comment, setComment] = useState('')
 
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
@@ -302,12 +311,18 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         <GTTextField
                             itemId={task.id + 'comment'}
                             type="markdown"
-                            value=""
+                            value={comment}
                             placeholder="Add a comment"
-                            onChange={() => void 0}
+                            onChange={(val) => setComment(val)}
                             minHeight={COMMENT_MIN_HEIGHT}
                             fontSize="small"
-                            hasSubmitButton
+                            actionButton={{
+                                label: 'Comment',
+                                onClick: () => {
+                                    postComment({ taskId: task.id, body: comment })
+                                    setComment('')
+                                },
+                            }}
                         />
                     )}
                 </>

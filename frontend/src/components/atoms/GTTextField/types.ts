@@ -1,3 +1,5 @@
+import { TIconType } from '../Icon'
+
 export type FontSize = 'small' | 'medium' | 'large'
 
 // props we support for markdown
@@ -15,7 +17,7 @@ export interface MarkdownEditorProps {
     isFullHeight?: boolean
     maxHeight?: number
     minHeight?: number
-    hasSubmitButton?: boolean
+    actionButton?: RichTextActionButtonProps
 }
 
 // all props we support for markdown + native textarea props
@@ -26,3 +28,9 @@ export interface PlainTextEditorProps
 }
 
 export type GTTextFieldProps = MarkdownEditorProps | PlainTextEditorProps
+
+export interface RichTextActionButtonProps {
+    label?: string
+    icon?: TIconType
+    onClick?: () => void
+}

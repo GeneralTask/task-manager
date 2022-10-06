@@ -4,6 +4,7 @@ import { Border, Colors, Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
 import { emptyFunction } from '../../../../utils/utils'
 import GTButton from '../../buttons/GTButton'
+import { RichTextActionButtonProps } from '../types'
 import ToolbarButton from './ToolbarButton'
 
 const MenuContainer = styled.div`
@@ -23,11 +24,14 @@ const Divider = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.border.light};
     height: ${Spacing._16};
 `
+const MarginLeftAuto = styled.div`
+    margin-left: auto !important;
+`
 
 interface RichTextToolbarProps {
-    hasSubmitButton?: boolean
+    actionButton?: RichTextActionButtonProps
 }
-const RichTextToolbar = ({ hasSubmitButton }: RichTextToolbarProps) => {
+const RichTextToolbar = ({ actionButton }: RichTextToolbarProps) => {
     const commands = useCommands()
     const active = useActive()
 
@@ -81,10 +85,16 @@ const RichTextToolbar = ({ hasSubmitButton }: RichTextToolbarProps) => {
                 isActive={active.codeBlock()}
                 title="Code block"
             />
-            {hasSubmitButton && (
-                <div style={{ marginLeft: 'auto' }}>
-                    <GTButton value="Submit" onClick={emptyFunction} styleType="secondary" size="small" />
-                </div>
+            {actionButton && (
+                <MarginLeftAuto>
+                    <GTButton
+                        value={actionButton.label}
+                        onClick={actionButton.onClick}
+                        icon={actionButton.icon}
+                        styleType="secondary"
+                        size="small"
+                    />
+                </MarginLeftAuto>
             )}
         </MenuContainer>
     )

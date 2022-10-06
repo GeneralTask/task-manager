@@ -94,7 +94,7 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
             <EditorContainer>
                 <EditorComponent />
             </EditorContainer>
-            <RichTextToolbar hasSubmitButton={props.hasSubmitButton} />
+            <RichTextToolbar actionButton={props.actionButton} />
         </EditorAndToolbarContainer>
     )
 }
