@@ -64,7 +64,6 @@ const EditorAndToolbarContainer = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
-
     * {
         margin: 0;
     }
