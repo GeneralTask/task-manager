@@ -32,7 +32,6 @@ const NavigationViewHeader = styled.div`
 `
 const OverflowContainer = styled.div`
     flex: 1;
-    margin-bottom: ${Spacing._8};
     display: flex;
     flex-direction: column;
     overflow: auto;
