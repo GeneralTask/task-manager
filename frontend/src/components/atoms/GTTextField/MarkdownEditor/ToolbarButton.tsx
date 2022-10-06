@@ -5,8 +5,9 @@ interface Props {
     icon: TIconType
     action: () => void
     isActive: boolean
+    title: string
 }
-const ToolbarButton = ({ icon, action, isActive }: Props) => {
+const ToolbarButton = ({ icon, action, isActive, title }: Props) => {
     return (
         <GTIconButton
             onMouseDown={(e) => e.preventDefault()}
@@ -14,6 +15,7 @@ const ToolbarButton = ({ icon, action, isActive }: Props) => {
             iconColor="gray"
             onClick={() => action()}
             forceShowHoverEffect={isActive}
+            title={title}
         />
     )
 }
