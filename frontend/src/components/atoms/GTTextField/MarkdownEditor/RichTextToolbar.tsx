@@ -29,19 +29,54 @@ const RichTextToolbar = () => {
 
     return (
         <MenuContainer>
-            <ToolbarButton icon={icons.bold} action={commands.toggleBold} isActive={active.bold()} />
-            <ToolbarButton icon={icons.italic} action={commands.toggleItalic} isActive={active.italic()} />
-            <ToolbarButton icon={icons.underline} action={commands.toggleUnderline} isActive={active.underline()} />
-            <ToolbarButton icon={icons.strikethrough} action={commands.toggleStrike} isActive={active.strike()} />
+            <ToolbarButton icon={icons.bold} action={commands.toggleBold} isActive={active.bold()} title="Bold" />
+            <ToolbarButton
+                icon={icons.italic}
+                action={commands.toggleItalic}
+                isActive={active.italic()}
+                title="Italic"
+            />
+            <ToolbarButton
+                icon={icons.underline}
+                action={commands.toggleUnderline}
+                isActive={active.underline()}
+                title="Underline"
+            />
+            <ToolbarButton
+                icon={icons.strikethrough}
+                action={commands.toggleStrike}
+                isActive={active.strike()}
+                title="Strikethrough"
+            />
             <Divider />
-            <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} />
+            <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} title="Add link" />
             <Divider />
-            <ToolbarButton icon={icons.list_ol} action={commands.toggleOrderedList} isActive={active.orderedList()} />
-            <ToolbarButton icon={icons.list_ul} action={commands.toggleBulletList} isActive={active.bulletList()} />
+            <ToolbarButton
+                icon={icons.list_ol}
+                action={commands.toggleOrderedList}
+                isActive={active.orderedList()}
+                title="Ordered list"
+            />
+            <ToolbarButton
+                icon={icons.list_ul}
+                action={commands.toggleBulletList}
+                isActive={active.bulletList()}
+                title="Bullet list"
+            />
             <Divider />
-            <ToolbarButton icon={icons.quote_right} action={commands.toggleBlockquote} isActive={active.blockquote()} />
-            <ToolbarButton icon={icons.code} action={commands.toggleCode} isActive={active.code()} />
-            <ToolbarButton icon={icons.code_block} action={commands.toggleCodeBlock} isActive={active.codeBlock()} />
+            <ToolbarButton
+                icon={icons.quote_right}
+                action={commands.toggleBlockquote}
+                isActive={active.blockquote()}
+                title="Quote"
+            />
+            <ToolbarButton icon={icons.code} action={commands.toggleCode} isActive={active.code()} title="Code" />
+            <ToolbarButton
+                icon={icons.code_block}
+                action={commands.toggleCodeBlock}
+                isActive={active.codeBlock()}
+                title="Code block"
+            />
         </MenuContainer>
     )
 }

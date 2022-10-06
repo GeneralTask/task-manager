@@ -32,6 +32,7 @@ const NavigationViewHeader = styled.div`
 `
 const OverflowContainer = styled.div`
     flex: 1;
+    margin-bottom: ${Spacing._8};
     display: flex;
     flex-direction: column;
     overflow: auto;
@@ -85,7 +86,7 @@ const NavigationView = () => {
                     }}
                 />
             </GapView>
-            <CopyrightText>© GeneralTask 2022</CopyrightText>
+            <CopyrightText>© 2022 GENERAL TASK</CopyrightText>
         </NavigationViewContainer>
     )
 }

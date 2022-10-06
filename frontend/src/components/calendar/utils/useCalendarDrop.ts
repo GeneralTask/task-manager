@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { useEffect } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { DateTime } from 'luxon'
+import showdown from 'showdown'
+import { v4 as uuidv4 } from 'uuid'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
@@ -88,10 +89,12 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
             const dropPosition = getDropPosition(monitor)
             const dropTime = getTimeFromDropPosition(dropPosition)
             switch (itemType) {
+                case DropType.DUE_TASK:
                 case DropType.TASK: {
                     if (!item.task) return
                     const end = dropTime.plus({ minutes: 30 })
-                    let description = item.task.body
+                    const converter = new showdown.Converter()
+                    let description = converter.makeHtml(item.task.body)
                     if (description !== '') {
                         description += '\n'
                     }
@@ -170,7 +173,13 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: [DropType.TASK, DropType.EVENT, DropType.EVENT_RESIZE_HANDLE, DropType.OVERVIEW_VIEW_HEADER],
+            accept: [
+                DropType.TASK,
+                DropType.DUE_TASK,
+                DropType.EVENT,
+                DropType.EVENT_RESIZE_HANDLE,
+                DropType.OVERVIEW_VIEW_HEADER,
+            ],
             collect: (monitor) => {
                 return monitor.isOver()
             },
@@ -181,6 +190,11 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 const itemType = monitor.getItemType()
                 switch (itemType) {
                     case DropType.TASK: {
+                        setEventPreview(undefined)
+                        setDropPreviewPosition(dropPosition)
+                        break
+                    }
+                    case DropType.DUE_TASK: {
                         setEventPreview(undefined)
                         setDropPreviewPosition(dropPosition)
                         break

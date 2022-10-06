@@ -98,7 +98,6 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         const allTasks = taskSections
             .filter((section) => !section.is_done && !section.is_trash)
             .flatMap((section) => section.tasks)
-            .filter((task) => task.source.name === 'General Task')
         const [firstId, secondId] = getRandomUniqueTaskIds(allTasks.length)
         const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
         const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
@@ -106,7 +105,9 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     }, [taskSections])
 
     useLayoutEffect(() => {
-        getNewRecommendedTasks()
+        if (!recommendedTasks[0] && !recommendedTasks[1]) {
+            getNewRecommendedTasks()
+        }
     }, [taskSections])
 
     const primaryAccountID = useMemo(
@@ -144,8 +145,8 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
                 <TimeRange start={fifteenMinuteBlock} end={nextEventTime} />
             </GTTitle>
             <Subtitle>
-                If you need something to work on, we’ve picked a couple tasks that you may be interested in doing now.
-                You can click either one to get started, or have us pick a couple other options for you.
+                If you need something to work on, we&apos;ve picked a couple tasks that you may be interested in doing
+                now. You can click either one to get started, or have us pick a couple other options for you.
                 <br />
                 <br />
                 Remember, you can always schedule tasks by dragging them onto the calendar before entering Focus Mode.
@@ -156,7 +157,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
                     {recommendedTasks.map(
                         (task) =>
                             task && (
-                                <ItemContainer isSelected={false} onClick={() => onClickHandler(task)}>
+                                <ItemContainer key={task.id} isSelected={false} onClick={() => onClickHandler(task)}>
                                     <RecommendedTaskContainer>
                                         <Icon icon={logos.generaltask} />
                                         <TaskTitle>{task.title}</TaskTitle>

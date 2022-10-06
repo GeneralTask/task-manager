@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -93,10 +92,7 @@ const SlackTasksView = () => {
                                 isDisabled={task.isOptimistic}
                                 onMarkComplete={taskFadeOut}
                             />
-                            <LinearTitle>
-                                From {task.sender} @{' '}
-                                {DateTime.fromISO(task.sent_at).toLocaleString(DateTime.TIME_SIMPLE)}
-                            </LinearTitle>
+                            <LinearTitle>{task.title}</LinearTitle>
                             <ExternalLinkContainer>
                                 <ExternalLinkButton link={task.deeplink} />
                             </ExternalLinkContainer>
@@ -107,7 +103,7 @@ const SlackTasksView = () => {
             {task ? (
                 <TaskDetails task={task} link={`/slack/${task.id}`} />
             ) : (
-                <EmptyDetails icon={icons.check} text="You have no tasks" />
+                <EmptyDetails icon={icons.check} text="You have no Slack tasks" />
             )}
         </>
     )

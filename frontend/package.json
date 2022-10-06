@@ -78,6 +78,7 @@
     "react-toastify": "^9.0.1",
     "react-tooltip": "^4.2.21",
     "sanitize-html": "^2.7.1",
+    "showdown": "^2.1.0",
     "styled-components": "^5.3.5",
     "uuid": "^8.3.2"
   },
@@ -102,6 +103,7 @@
     "@types/react-modal": "^3.13.1",
     "@types/react-native": "~0.64.12",
     "@types/sanitize-html": "^2.6.2",
+    "@types/showdown": "^2.0.0",
     "@types/styled-components": "^5.1.26",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.14.0",

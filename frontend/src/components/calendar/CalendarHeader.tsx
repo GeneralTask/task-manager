@@ -28,13 +28,8 @@ const HeaderIconsContainer = styled.div`
     display: flex;
     align-items: center;
 `
-const Title = styled.span`
-    color: ${Colors.text.black};
-    ${Typography.bodySmall};
-`
-const TitleBold = styled(Title)<{ purple: boolean }>`
-    ${({ purple }) => purple && `color: ${Colors.gtColor.primary};`}
-    ${Typography.bold};
+const CalendarDateText = styled.div`
+    ${Typography.subtitle};
 `
 
 interface CalendarHeaderProps {
@@ -118,9 +113,7 @@ export default function CalendarHeader({
             {showDateHeader && (
                 <PaddedContainer>
                     <HeaderBodyContainer>
-                        <TitleBold purple={date.hasSame(DateTime.now(), 'day')}>{`${date.toFormat(
-                            'ccc, LLL d'
-                        )}`}</TitleBold>
+                        <CalendarDateText>{`${date.toFormat('ccc, LLL d')}`}</CalendarDateText>
                         <ButtonContainer>
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} />

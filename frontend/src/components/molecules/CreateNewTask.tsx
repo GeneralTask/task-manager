@@ -21,6 +21,11 @@ const CreateNewTaskContainer = styled.div`
     align-items: center;
     padding: 0px ${Spacing._8};
     border-radius: ${Border.radius.medium};
+    box-sizing: border-box;
+    border: ${Border.stroke.medium} solid transparent;
+    :focus-within {
+        border: ${Border.stroke.medium} solid ${Colors.border.purple};
+    }
     margin-bottom: ${Spacing._8};
 `
 const TaskInput = styled.input`
@@ -37,7 +42,7 @@ const Tooltip = styled.div`
     ${Typography.bodySmall};
 `
 
-const blurShortcuts = [KEYBOARD_SHORTCUTS.arrowUp.key, KEYBOARD_SHORTCUTS.arrowDown.key, KEYBOARD_SHORTCUTS.close.key]
+const blurShortcuts = [KEYBOARD_SHORTCUTS.close.key]
 
 interface CreateNewTaskProps {
     sectionId: string
@@ -121,6 +126,7 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
                     place="top"
                     type="light"
                     effect="solid"
+                    delayShow={500}
                     className="tooltip"
                     overridePosition={overrideTooltipPosition}
                 >

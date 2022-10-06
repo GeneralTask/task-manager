@@ -4,7 +4,14 @@ import styled from 'styled-components'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { GTMenuItem, MarginLeftIcon, MenuContentShared, MenuItemLabel, MenuItemShared } from './RadixUIConstants'
+import {
+    FixedSizeIcon,
+    GTMenuItem,
+    MarginLeftIcon,
+    MenuContentShared,
+    MenuItemLabel,
+    MenuItemShared,
+} from './RadixUIConstants'
 
 const ContextMenuTrigger = styled(ContextMenu.Trigger)`
     all: unset;
@@ -61,15 +68,13 @@ const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
                                                             onClick={subItem.onClick}
                                                             $isSelected={subItem.selected}
                                                         >
+                                                            <FixedSizeIcon visible={subItem.selected}>
+                                                                <Icon icon={icons.check} />
+                                                            </FixedSizeIcon>
                                                             {subItem.icon && (
                                                                 <Icon icon={subItem.icon} color={subItem.iconColor} />
                                                             )}
                                                             <MenuItemLabel>{subItem.label}</MenuItemLabel>
-                                                            {subItem.selected && (
-                                                                <MarginLeftIcon>
-                                                                    <Icon icon={icons.check} />
-                                                                </MarginLeftIcon>
-                                                            )}
                                                         </ContextMenuItem>
                                                     )
                                                 )}

@@ -77,7 +77,6 @@ const SYNC_MESSAGES = {
 
 const TITLE_MAX_HEIGHT = 208
 const BODY_MIN_HEIGHT = 200
-const BODY_MAX_HEIGHT = 420
 
 interface TaskDetailsProps {
     task: TTask
@@ -212,6 +211,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             label: status.state,
                             onClick: () => modifyTask({ id: task.id, status: status }),
                             icon: linearStatus[status.type],
+                            selected: status.state === task.external_status?.state,
                         }))}
                         trigger={
                             <GTButton
@@ -234,6 +234,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
                         icon: priority.icon,
                         iconColor: TASK_PRIORITIES[val].color,
+                        selected: val === task.priority_normalized,
                     }))}
                     trigger={
                         <GTButton
@@ -259,7 +260,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             placeholder="Add details"
                             onChange={(val) => onEdit({ id: task.id, body: val })}
                             minHeight={BODY_MIN_HEIGHT}
-                            maxHeight={BODY_MAX_HEIGHT}
                             fontSize="small"
                         />
                     </BodyContainer>
