@@ -250,25 +250,28 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     initialDate={DateTime.fromISO(task.due_date).toJSDate()}
                     setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                 />
-                <GTDropdownMenu
-                    items={TASK_PRIORITIES.map((priority, val) => ({
-                        label: priority.label,
-                        onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
-                        icon: priority.icon,
-                        iconColor: TASK_PRIORITIES[val].color,
-                        selected: val === task.priority_normalized,
-                    }))}
-                    trigger={
-                        <GTButton
-                            value={TASK_PRIORITIES[task.priority_normalized].label}
-                            icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                            size="small"
-                            styleType="simple"
-                            iconColor={TASK_PRIORITIES[task.priority_normalized].color}
-                            asDiv
-                        />
-                    }
-                />
+                <MarginLeftAuto>
+                    <GTDropdownMenu
+                        items={TASK_PRIORITIES.map((priority, val) => ({
+                            label: priority.label,
+                            onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                            icon: priority.icon,
+                            iconColor: TASK_PRIORITIES[val].color,
+                            selected: val === task.priority_normalized,
+                        }))}
+                        trigger={
+                            <GTButton
+                                value={TASK_PRIORITIES[task.priority_normalized].label}
+                                icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                                size="small"
+                                styleType="simple"
+                                iconColor={TASK_PRIORITIES[task.priority_normalized].color}
+                                isDropdown
+                                asDiv
+                            />
+                        }
+                    />
+                </MarginLeftAuto>
             </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />

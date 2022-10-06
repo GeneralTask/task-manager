@@ -2,6 +2,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
+import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
 import NoStyleButton from './NoStyleButton'
 
@@ -102,6 +103,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     iconColor?: TIconColor
     textColor?: TTextColor
     fitContent?: boolean
+    isDropdown?: boolean
     asDiv?: boolean
 }
 const GTButton = ({
@@ -113,6 +115,7 @@ const GTButton = ({
     iconColor,
     textColor,
     value,
+    isDropdown = false,
     asDiv = false,
     ...rest
 }: GTButtonProps) => {
@@ -128,6 +131,7 @@ const GTButton = ({
         >
             {icon && <Icon icon={icon} color={iconColor} />}
             {value}
+            {isDropdown && <Icon icon={icons.caret_down_solid} color="gray" />}
         </Button>
     )
 }
