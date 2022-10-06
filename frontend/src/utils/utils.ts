@@ -49,6 +49,9 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
 export const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Google')
 }
+export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Slack')
+}
 
 export const getHumanDateTime = (date: DateTime) => {
     const { days } = DateTime.now().endOf('day').diff(date, ['milliseconds', 'days'])
