@@ -98,7 +98,6 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         const allTasks = taskSections
             .filter((section) => !section.is_done && !section.is_trash)
             .flatMap((section) => section.tasks)
-            .filter((task) => task.source.name === 'General Task')
         const [firstId, secondId] = getRandomUniqueTaskIds(allTasks.length)
         const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
         const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
