@@ -83,7 +83,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="GitHub Pull Requests" />
+                    <SectionHeader sectionName="GitHub PRs" />
                     <SortAndFilterSelectors settings={sortAndFilterSettings} />
                     {!isGithubLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
