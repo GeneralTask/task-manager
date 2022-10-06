@@ -1,12 +1,10 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import { isGoogleCalendarLinked } from '../../utils/utils'
-import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
 import {
     AllDaysContainer,
@@ -29,12 +27,6 @@ import EventBody from './EventBody'
 import { TimeIndicator } from './TimeIndicator'
 import { findCollisionGroups } from './utils/eventLayout'
 import useCalendarDrop from './utils/useCalendarDrop'
-
-const ConnectContainer = styled.div`
-    position: absolute;
-    width: 100%;
-    z-index: 100;
-`
 
 interface CalendarDayTableProps {
     hasBorder: boolean
@@ -194,11 +186,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
-            {showOauthPrompt && (
-                <ConnectContainer>
-                    <ConnectIntegration type="google_calendar" />
-                </ConnectContainer>
-            )}
+
             {allGroups.map((groups, dayOffset) => (
                 <WeekCalendarEvents
                     key={dayOffset}
