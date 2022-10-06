@@ -444,6 +444,38 @@ func TestGetTask(t *testing.T) {
 	})
 }
 
+func TestGetTaskByExternalIDWithoutUser(t *testing.T) {
+	db, dbCleanup, err := GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+	userID := primitive.NewObjectID()
+	notCompleted := false
+	task1, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abd",
+		"foobar_source",
+		&Task{
+			IDExternal:  "123abd",
+			SourceID:    "foobar_source",
+			UserID:      userID,
+			IsCompleted: &notCompleted,
+		},
+	)
+	assert.NoError(t, err)
+
+	t.Run("WrongID", func(t *testing.T) {
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "invalid")
+		assert.Equal(t, mongo.ErrNoDocuments, err)
+		assert.Nil(t, respTask)
+	})
+	t.Run("Success", func(t *testing.T) {
+		respTask, err := GetTaskByExternalIDWithoutUser(db, "123abd")
+		assert.NoError(t, err)
+		assert.Equal(t, task1.ID, respTask.ID)
+	})
+}
+
 func TestGetCalendarEvent(t *testing.T) {
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)

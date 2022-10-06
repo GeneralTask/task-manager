@@ -245,6 +245,14 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 }
 
 func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primitive.ObjectID, updateFields *database.Task) {
+	err := api.UpdateTaskInDBWithError(task, userID, updateFields)
+	if err != nil {
+		Handle500(c)
+		return
+	}
+}
+
+func (api *API) UpdateTaskInDBWithError(task *database.Task, userID primitive.ObjectID, updateFields *database.Task) error {
 	taskCollection := database.GetTaskCollection(api.DB)
 
 	if updateFields.IsCompleted != nil {
@@ -266,12 +274,12 @@ func (api *API) UpdateTaskInDB(c *gin.Context, task *database.Task, userID primi
 	)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to update internal DB")
-		Handle500(c)
-		return
+		return err
 	}
 	if res.MatchedCount != 1 {
 		log.Print("failed to update task", res)
-		Handle500(c)
-		return
+		return errors.New("failed to update task")
 	}
+
+	return nil
 }
