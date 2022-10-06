@@ -22,6 +22,7 @@ const CreateNewTaskContainer = styled.div`
     padding: 0px ${Spacing._8};
     border-radius: ${Border.radius.medium};
     box-sizing: border-box;
+    border: ${Border.stroke.medium} solid transparent;
     :focus-within {
         border: ${Border.stroke.medium} solid ${Colors.border.purple};
     }
