@@ -80,6 +80,7 @@ interface GTModalProps {
     rightButtons?: ReactElement | ReactElement[]
     isOpen: boolean
     canClose?: boolean
+    shouldCloseOnOverlayClick?: boolean
     onClose?: () => void
 }
 const GTModal = (props: GTModalProps) => {
@@ -88,11 +89,17 @@ const GTModal = (props: GTModalProps) => {
             props.onClose()
         }
     }
+    const shouldCloseOverlay = props.shouldCloseOnOverlayClick ?? true
     return (
         // ignoring TS warning here because react-modal typing does not support react 18, even though the library does
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        <Modal isOpen={props.isOpen} style={getModalStyle(props.type)} onRequestClose={handleClose}>
+        <Modal
+            isOpen={props.isOpen}
+            style={getModalStyle(props.type)}
+            onRequestClose={handleClose}
+            shouldCloseOnOverlayClick={shouldCloseOverlay}
+        >
             <ModalContainer type={props.type}>
                 <Header>
                     <div>{props.title}</div>
