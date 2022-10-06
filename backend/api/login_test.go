@@ -129,38 +129,6 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"missing query params\"}", string(body))
 	})
 
-	t.Run("EmailNotApprovedOnWaitlist", func(t *testing.T) {
-		// Waitlist entry doesn't matter if has_access = false or if different email
-		_, err := waitlistCollection.InsertOne(
-			context.Background(),
-			&database.WaitlistEntry{Email: "unapproved@gmail.com"},
-		)
-		assert.NoError(t, err)
-		_, err = waitlistCollection.InsertOne(
-			context.Background(),
-			&database.WaitlistEntry{
-				Email:     "different_email@gmail.com",
-				HasAccess: true,
-			},
-		)
-		assert.NoError(t, err)
-
-		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "", "example-token", "example-token", true, false)
-		assert.Equal(t, http.StatusForbidden, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-	})
-	t.Run("EmailNotApproved", func(t *testing.T) {
-		err := waitlistCollection.Drop(context.Background())
-		assert.NoError(t, err)
-		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "", "example-token", "example-token", true, false)
-		assert.Equal(t, http.StatusForbidden, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-		verifyLoginCallback(t, api.DB, "unapproved@gmail.com", "noice420", true, false)
-	})
 	t.Run("Idempotent", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
