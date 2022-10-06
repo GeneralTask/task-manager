@@ -162,7 +162,10 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 			c.JSON(400, gin.H{"detail": "status value not in all status field for task"})
 			return false
 		}
-		updateFields.IsCompleted = &statusToUpdateTo.IsCompletedStatus
+
+		if (task.IsCompleted != nil) && ((*task.IsCompleted && statusToUpdateTo.IsCompletedStatus == false) || (task.IsCompleted != nil && !*task.IsCompleted && statusToUpdateTo.IsCompletedStatus == true)) {
+			updateFields.IsCompleted = &statusToUpdateTo.IsCompletedStatus
+		}
 	}
 
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
