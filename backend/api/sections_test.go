@@ -68,7 +68,7 @@ func TestSections(t *testing.T) {
 		request, _ = http.NewRequest(
 			"POST",
 			"/sections/create/",
-			bytes.NewBuffer([]byte(`{"name": "important videos 2"}`)))
+			bytes.NewBuffer([]byte(`{"name": "important videos 2", "id_ordering": 2}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusCreated, recorder.Code)
@@ -90,7 +90,9 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, 2, len(sectionResult))
 		// should be in same order as created until ordering ID is set
 		assert.Equal(t, "important videos", sectionResult[0].Name)
+		assert.Equal(t, 0, sectionResult[0].IDOrdering)
 		assert.Equal(t, "important videos 2", sectionResult[1].Name)
+		assert.Equal(t, 2, sectionResult[1].IDOrdering)
 		createdTaskID = sectionResult[0].ID.Hex()
 		createdTaskID2 = sectionResult[1].ID.Hex()
 	})
