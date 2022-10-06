@@ -128,6 +128,7 @@ const CommandPalette = () => {
                 ref={buttonRef}
                 icon={icons.magnifying_glass}
                 onClick={() => setShowCommandPalette(!showCommandPalette)}
+                shortcutName="toggleCommandPalette"
             />
             <CommandDialog
                 open={showCommandPalette}
