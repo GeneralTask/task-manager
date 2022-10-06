@@ -8,7 +8,7 @@ import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../
 import { useInterval } from '../../hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
-import { logos } from '../../styles/images'
+import { linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
@@ -167,6 +167,17 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                         isDisabled={task.isOptimistic}
                         onMarkComplete={taskFadeOut}
                     />
+                    {task.external_status && (
+                        <MarkTaskDoneButton
+                            taskId={task.id}
+                            sectionId={sectionId}
+                            isDone={task.is_done}
+                            isSelected={isSelected}
+                            isDisabled={task.isOptimistic}
+                            onMarkComplete={taskFadeOut}
+                        />
+                    )}
+                    {task.external_status && <Icon icon={linearStatus[task.external_status?.type]} />}
                     <Title>{task.title}</Title>
                     <RightContainer>
                         {isValidDueDate(dueDate) && (
