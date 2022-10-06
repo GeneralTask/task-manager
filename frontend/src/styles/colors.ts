@@ -7,28 +7,28 @@ const GRAY = {
     _500: '#717179',
 }
 const RED = {
-    _1: '#C70000',
-    _2: '#EEB3B3',
+    _1: '#E24858',
+    _2: '#F6C8CD',
 }
 const ORANGE = {
-    _1: '#FF8213',
-    _2: '#FFF2E7',
+    _1: '#FF7A00',
+    _2: '#FFD7B3',
 }
 const YELLOW = {
     _1: '#FFBA0D',
-    _2: '#FFF8E7',
+    _2: '#FFEAB6',
 }
 const GREEN = {
     _1: '#41802E',
-    _2: '#C6D9C0',
+    _2: '#CFDFCB',
 }
 const CYAN = {
-    _1: '#00CBD8',
-    _2: '#E5FAFB',
+    _1: '#00D8BE',
+    _2: '#B3F3EC',
 }
 const BLUE = {
     _1: '#25BEFF',
-    _2: '#E9F8FF',
+    _2: '#BEEBFF',
 }
 const PURPLE = {
     _1: '#5634CF',
