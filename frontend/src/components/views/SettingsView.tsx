@@ -1,72 +1,79 @@
 import styled from 'styled-components'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
-import { emptyFunction } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
-import TaskTemplate from '../atoms/TaskTemplate'
+import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { SectionHeader } from '../molecules/Header'
-import SignOutButton from '../molecules/SignOutButton'
-import GTDropdownMenu from '../radix/GTDropdownMenu'
+import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const ScrollViewMimic = styled.div`
-    margin: 40px 10px 100px 10px;
-    flex: 1;
-`
+const SERVICE_WIDTH = '160px'
+
 const SettingsViewContainer = styled.div`
+    display: flex;
+    flex-direction: column;
     min-width: ${DEFAULT_VIEW_WIDTH};
+    gap: ${Spacing._24};
+    padding: ${Spacing._24};
 `
-const AccountsContainer = styled.div`
-    margin-top: ${Spacing._16};
+const Account = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 `
-const AccountSpacing = styled.div`
-    margin-top: ${Spacing._16};
-`
-const AccountContainer = styled.div`
+const AccountInfo = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.large};
-    height: 100%;
+    gap: ${Spacing._16};
 `
-const IconContainer = styled.div`
-    margin-left: ${Spacing._16};
-    margin-right: ${Spacing._16};
-`
-const AccountButtonContainer = styled.div<{ important?: boolean }>`
-    margin-right: ${Spacing._16};
-    background-color: ${(props) => (props.important ? Colors.status.red.light : Colors.background.medium)};
-    outline: 1px solid ${(props) => (props.important ? Colors.status.red.default : Colors.background.medium)};
-    color: ${Colors.text.black};
-    border-radius: ${Border.radius.small};
-    padding: ${Spacing._4} ${Spacing._8};
-    min-width: fit-content;
-`
-const AccountNameSpan = styled.span`
-    margin-right: auto;
-    ${Typography.bodySmall};
-`
-const FullWidth = styled.div`
-    display: flex;
-    justify-content: end;
-    margin-right: ${Spacing._16};
-`
-const ShowLinkAccountsButtonContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-`
-const GapView = styled.div`
+const AccountButtons = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing._8};
+`
+const AccountNameContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+`
+const AccountName = styled.span`
+    ${Typography.label};
+    color: ${Colors.text.black};
+`
+const AccountID = styled.span`
+    ${Typography.label};
+    color: ${Colors.text.light};
+`
+const SectionDescriptor = styled.span`
+    ${Typography.body};
+    color: ${Colors.text.black};
+`
+const ServicesContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: ${Spacing._32};
+`
+const Service = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: ${Spacing._12};
+    width: ${SERVICE_WIDTH};
+`
+const ServiceName = styled.div`
+    ${Typography.bodySmall};
+    color: ${Colors.text.black};
+`
+const ServiceDetails = styled.div`
+    ${Typography.label};
+    color: ${Colors.text.light};
 `
 
 const SettingsView = () => {
@@ -88,63 +95,68 @@ const SettingsView = () => {
 
     if (!supportedTypes || !linkedAccounts) return <Loading />
 
-    const dropdownItems = supportedTypes
-        .map((supportedType) => ({
-            label: supportedType.name,
-            onClick:
-                supportedType.name === 'Google'
-                    ? emptyFunction
-                    : () => openPopupWindow(supportedType.authorization_url, refetchStaleQueries),
-            icon: supportedType.logo,
-            renderer: supportedType.name === 'Google' ? () => <GoogleSignInButton /> : undefined,
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)) // so the order is always the same
-
     return (
-        <ScrollViewMimic>
+        <ScrollableListTemplate>
+            <SectionHeader sectionName="Settings" />
             <SettingsViewContainer>
-                <SectionHeader sectionName="Settings" />
-                <AccountsContainer>
-                    <FullWidth>
-                        <GapView>
-                            <ShowLinkAccountsButtonContainer>
-                                <GTDropdownMenu
-                                    items={dropdownItems}
-                                    trigger={<GTButton value="Add new Account" styleType="primary" asDiv />}
+                <SectionDescriptor>Add a new service</SectionDescriptor>
+                <ServicesContainer>
+                    {supportedTypes
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((supportedType) => (
+                            <Service key={supportedType.name}>
+                                <Icon icon={supportedType.logo} />
+                                <ServiceName>{supportedType.name}</ServiceName>
+                                <ServiceDetails>
+                                    {'Some supporting text here to describe connected account functionality.'}
+                                </ServiceDetails>
+                                <GTButton
+                                    icon={icons.external_link}
+                                    value={`Connect ${supportedType.name}`}
+                                    onClick={() =>
+                                        openPopupWindow(supportedType.authorization_url, refetchStaleQueries)
+                                    }
+                                    styleType="secondary"
+                                    size="small"
                                 />
-                            </ShowLinkAccountsButtonContainer>
-                            <SignOutButton />
-                        </GapView>
-                    </FullWidth>
-                </AccountsContainer>
+                            </Service>
+                        ))}
+                </ServicesContainer>
+                <Divider color={Colors.border.light} />
+                <SectionDescriptor>My services</SectionDescriptor>
                 {linkedAccounts?.map((account) => (
-                    <AccountSpacing key={account.id}>
-                        <TaskTemplate>
-                            <AccountContainer>
-                                <IconContainer>
-                                    <Icon icon={logos[account.logo_v2]}></Icon>
-                                </IconContainer>
-                                <AccountNameSpan>{account.display_id}</AccountNameSpan>
-                                {account.has_bad_token && (
-                                    <AccountButtonContainer important>
-                                        <NoStyleButton onClick={() => onRelink(account.name)}>
-                                            <AccountNameSpan>Re-link Account</AccountNameSpan>
-                                        </NoStyleButton>
-                                    </AccountButtonContainer>
-                                )}
-                                {account.is_unlinkable && (
-                                    <AccountButtonContainer>
-                                        <NoStyleButton onClick={() => onUnlink(account.id)}>
-                                            <AccountNameSpan>Remove link</AccountNameSpan>
-                                        </NoStyleButton>
-                                    </AccountButtonContainer>
-                                )}
-                            </AccountContainer>
-                        </TaskTemplate>
-                    </AccountSpacing>
+                    <Account key={account.id}>
+                        <AccountInfo>
+                            <Icon icon={logos[account.logo_v2]} />
+                            <AccountNameContainer>
+                                <AccountName>{account.name}</AccountName>
+                                <AccountID>{account.display_id}</AccountID>
+                            </AccountNameContainer>
+                        </AccountInfo>
+                        <AccountButtons>
+                            {account.has_bad_token && (
+                                <GTButton
+                                    onClick={() => onRelink(account.name)}
+                                    value="Re-link account"
+                                    styleType="secondary"
+                                    size="small"
+                                    textColor="red"
+                                />
+                            )}
+                            {account.is_unlinkable && (
+                                <GTButton
+                                    onClick={() => onUnlink(account.id)}
+                                    value="Remove account"
+                                    styleType="secondary"
+                                    size="small"
+                                />
+                            )}
+                        </AccountButtons>
+                    </Account>
                 ))}
+                <Divider color={Colors.border.light} />
             </SettingsViewContainer>
-        </ScrollViewMimic>
+        </ScrollableListTemplate>
     )
 }
 
