@@ -155,7 +155,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
                     {recommendedTasks.map(
                         (task) =>
                             task && (
-                                <ItemContainer isSelected={false} onClick={() => onClickHandler(task)}>
+                                <ItemContainer key={task.id} isSelected={false} onClick={() => onClickHandler(task)}>
                                     <RecommendedTaskContainer>
                                         <Icon icon={logos.generaltask} />
                                         <TaskTitle>{task.title}</TaskTitle>
