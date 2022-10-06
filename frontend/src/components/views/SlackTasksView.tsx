@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { isSlackLinked } from '../../utils/utils'
 import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
+import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -49,6 +52,10 @@ const SlackTasksView = () => {
         return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic))
     }, [taskSections])
 
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+
+    const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
+
     const { task } = useMemo(() => {
         if (slackTasks.length === 0) return { task: null }
         for (const task of slackTasks) {
@@ -76,29 +83,37 @@ const SlackTasksView = () => {
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Slack Messages" />
-                <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
-                {slackTasks?.map((task) => (
-                    <SlackTemplateContainer key={task.id} isVisible={isVisible}>
-                        <SlackSelectableContainer
-                            isSelected={task.id === slackTaskId}
-                            key={task.id}
-                            onClick={() => onClick(task.id)}
-                        >
-                            {slackTaskId === task.id && <PurpleEdge />}
-                            <MarkTaskDoneButton
-                                isDone={task.is_done}
-                                taskId={task.id}
-                                isSelected={true}
-                                isDisabled={task.isOptimistic}
-                                onMarkComplete={taskFadeOut}
-                            />
-                            <LinearTitle>{task.title}</LinearTitle>
-                            <ExternalLinkContainer>
-                                <ExternalLinkButton link={task.deeplink} />
-                            </ExternalLinkContainer>
-                        </SlackSelectableContainer>
-                    </SlackTemplateContainer>
-                ))}
+                {isSlackIntegrationLinked ? (
+                    <>
+                        <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
+                        {slackTasks?.map((task) => (
+                            <SlackTemplateContainer key={task.id} isVisible={isVisible}>
+                                <SlackSelectableContainer
+                                    isSelected={task.id === slackTaskId}
+                                    key={task.id}
+                                    onClick={() => onClick(task.id)}
+                                >
+                                    {slackTaskId === task.id && <PurpleEdge />}
+                                    <MarkTaskDoneButton
+                                        isDone={task.is_done}
+                                        taskId={task.id}
+                                        isSelected={true}
+                                        isDisabled={task.isOptimistic}
+                                        onMarkComplete={taskFadeOut}
+                                    />
+                                    <LinearTitle>{task.title}</LinearTitle>
+                                    <ExternalLinkContainer>
+                                        <ExternalLinkButton link={task.deeplink} />
+                                    </ExternalLinkContainer>
+                                </SlackSelectableContainer>
+                            </SlackTemplateContainer>
+                        ))}
+                    </>
+                ) : (
+                    <div>
+                        <ConnectIntegration type="slack" />
+                    </div>
+                )}
             </ScrollableListTemplate>
             {task ? (
                 <TaskDetails task={task} link={`/slack/${task.id}`} />
