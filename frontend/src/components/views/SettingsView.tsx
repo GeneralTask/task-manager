@@ -151,36 +151,42 @@ const SettingsView = () => {
                 </ServicesContainer>
                 <Divider color={Colors.border.light} />
                 <SectionDescriptor>My services</SectionDescriptor>
-                {linkedAccounts?.map((account) => (
-                    <Account key={account.id}>
-                        <AccountInfo>
-                            <Icon icon={logos[account.logo_v2]} />
-                            <AccountNameContainer>
-                                <AccountName>{account.name}</AccountName>
-                                <AccountID>{account.display_id}</AccountID>
-                            </AccountNameContainer>
-                        </AccountInfo>
-                        <AccountButtons>
-                            {account.has_bad_token && (
-                                <GTButton
-                                    onClick={() => onRelink(account.name)}
-                                    value="Re-link account"
-                                    styleType="secondary"
-                                    size="small"
-                                    textColor="red"
-                                />
-                            )}
-                            {account.is_unlinkable && (
-                                <GTButton
-                                    onClick={() => onUnlink(account.id)}
-                                    value="Remove account"
-                                    styleType="secondary"
-                                    size="small"
-                                />
-                            )}
-                        </AccountButtons>
-                    </Account>
-                ))}
+                {linkedAccounts.length > 0 ? (
+                    linkedAccounts?.map((account) => (
+                        <Account key={account.id}>
+                            <AccountInfo>
+                                <Icon icon={logos[account.logo_v2]} />
+                                <AccountNameContainer>
+                                    <AccountName>{account.name}</AccountName>
+                                    <AccountID>{account.display_id}</AccountID>
+                                </AccountNameContainer>
+                            </AccountInfo>
+                            <AccountButtons>
+                                {account.has_bad_token && (
+                                    <GTButton
+                                        onClick={() => onRelink(account.name)}
+                                        value="Re-link account"
+                                        styleType="secondary"
+                                        size="small"
+                                        textColor="red"
+                                    />
+                                )}
+                                {account.is_unlinkable && (
+                                    <GTButton
+                                        onClick={() => onUnlink(account.id)}
+                                        value="Remove account"
+                                        styleType="secondary"
+                                        size="small"
+                                    />
+                                )}
+                            </AccountButtons>
+                        </Account>
+                    ))
+                ) : (
+                    <ServiceDetails>
+                        You have no connected services. Click from the options above to get started.
+                    </ServiceDetails>
+                )}
                 <Divider color={Colors.border.light} />
                 <SignOutButton />
             </SettingsViewContainer>
