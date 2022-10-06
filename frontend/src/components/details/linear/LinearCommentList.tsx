@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { TLinearComment } from '../../../utils/types'
@@ -23,25 +22,13 @@ interface LinearCommentListProps {
     comments: TLinearComment[]
 }
 
-const LinearCommentList = ({ comments }: LinearCommentListProps) => {
-    const bottomRef = useRef<HTMLDivElement>(null)
-
-    useEffect(() => {
-        bottomRef.current?.scrollIntoView()
-    }, [comments])
-
-    return (
-        <CommentListContainer>
-            <CommentHeader>Comments ({comments.length})</CommentHeader>
-            {[...comments].reverse().map((comment, i) => (
-                <LinearComment
-                    key={comment.created_at}
-                    comment={comment}
-                    ref={i === comments.length - 1 ? bottomRef : undefined}
-                />
-            ))}
-        </CommentListContainer>
-    )
-}
+const LinearCommentList = ({ comments }: LinearCommentListProps) => (
+    <CommentListContainer>
+        <CommentHeader>Comments ({comments.length})</CommentHeader>
+        {[...comments].reverse().map((comment) => (
+            <LinearComment key={comment.created_at} comment={comment} />
+        ))}
+    </CommentListContainer>
+)
 
 export default LinearCommentList
