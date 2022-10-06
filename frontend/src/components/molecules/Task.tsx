@@ -22,6 +22,12 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
 
+const GTButtonHack = styled(GTButton)`
+    width: 20px !important;
+    padding: ${Spacing._4} !important;
+    box-sizing: border-box;
+    max-width: 20px;
+`
 const RightContainer = styled.span`
     display: flex;
     align-items: center;
@@ -61,7 +67,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
-    const { mutate: modifyTask, isError, isLoading } = useModifyTask()
+    const { mutate: modifyTask } = useModifyTask()
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
@@ -172,7 +178,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                                 icon: linearStatus[status.type],
                             }))}
                             trigger={
-                                <GTButton
+                                <GTButtonHack
                                     value={status}
                                     icon={linearStatus[task.external_status.type]}
                                     size="small"
