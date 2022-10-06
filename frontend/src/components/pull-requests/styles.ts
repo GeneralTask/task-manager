@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 
-const PULL_REQUEST_HEIGHT = '64px'
+const PULL_REQUEST_HEIGHT = '48px'
 
 export const Column = styled.div`
     display: flex;
