@@ -107,7 +107,7 @@ const SlackTasksView = () => {
             {task ? (
                 <TaskDetails task={task} link={`/slack/${task.id}`} />
             ) : (
-                <EmptyDetails icon={icons.check} text="You have no tasks" />
+                <EmptyDetails icon={icons.check} text="You have no Slack tasks" />
             )}
         </>
     )
