@@ -105,7 +105,9 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     }, [taskSections])
 
     useLayoutEffect(() => {
-        getNewRecommendedTasks()
+        if (!recommendedTasks[0] && !recommendedTasks[1]) {
+            getNewRecommendedTasks()
+        }
     }, [taskSections])
 
     const primaryAccountID = useMemo(
