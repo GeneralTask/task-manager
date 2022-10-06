@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { DateTime } from 'luxon'
+import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
@@ -92,7 +93,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 case DropType.TASK: {
                     if (!item.task) return
                     const end = dropTime.plus({ minutes: 30 })
-                    let description = item.task.body
+                    const converter = new showdown.Converter()
+                    let description = converter.makeHtml(item.task.body)
                     if (description !== '') {
                         description += '\n'
                     }
