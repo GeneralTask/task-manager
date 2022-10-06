@@ -75,6 +75,7 @@ const ServiceName = styled.div`
 const ServiceDetails = styled.div`
     ${Typography.label};
     color: ${Colors.text.light};
+    margin-bottom: auto;
 `
 
 const SettingsView = () => {
@@ -94,6 +95,13 @@ const SettingsView = () => {
         }
     }
 
+    const serviceDetails = {
+        Slack: 'Turn any Slack message into an actionable task.',
+        Google: 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
+        Linear: 'See, update, and schedule the issues assigned to you.',
+        Github: 'See pull requests from the repos that matter to you.',
+    }
+
     if (!supportedTypes || !linkedAccounts) return <Loading />
 
     return (
@@ -109,17 +117,19 @@ const SettingsView = () => {
                                 <Icon icon={supportedType.logo} />
                                 <ServiceName>{supportedType.name}</ServiceName>
                                 <ServiceDetails>
-                                    {'Some supporting text here to describe connected account functionality.'}
+                                    {serviceDetails[supportedType.name as keyof typeof serviceDetails]}
                                 </ServiceDetails>
-                                <GTButton
-                                    icon={icons.external_link}
-                                    value={`Connect ${supportedType.name}`}
-                                    onClick={() =>
-                                        openPopupWindow(supportedType.authorization_url, refetchStaleQueries)
-                                    }
-                                    styleType="secondary"
-                                    size="small"
-                                />
+                                <div>
+                                    <GTButton
+                                        icon={icons.external_link}
+                                        value={`Connect ${supportedType.name}`}
+                                        onClick={() =>
+                                            openPopupWindow(supportedType.authorization_url, refetchStaleQueries)
+                                        }
+                                        styleType="secondary"
+                                        size="small"
+                                    />
+                                </div>
                             </Service>
                         ))}
                 </ServicesContainer>
