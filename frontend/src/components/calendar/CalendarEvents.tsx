@@ -4,7 +4,8 @@ import styled from 'styled-components'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
-import { TEvent, TLinkedAccount } from '../../utils/types'
+import { TEvent } from '../../utils/types'
+import { isGoogleCalendarLinked } from '../../utils/utils'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { useCalendarContext } from './CalendarContext'
 import {
@@ -119,10 +120,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
             </DayContainer>
         </DayAndHeaderContainer>
     )
-}
-
-const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Google')
 }
 
 const removeDuplicateEvents = (events: TEvent[]) => {
