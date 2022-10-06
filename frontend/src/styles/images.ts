@@ -47,6 +47,7 @@ import {
 } from '@fortawesome/pro-light-svg-icons'
 import {
     faBold,
+    faCaretDown,
     faCheck,
     faCheckSquare,
     faCircleChevronDown,
@@ -77,6 +78,7 @@ export const icons = Object.freeze({
     calendar_blank: faCalendar,
     calendar_days: faCalendarDays,
     caret_down: faChevronDown,
+    caret_down_solid: faCaretDown,
     caret_left: faChevronLeft,
     caret_right: faChevronRight,
     caret_up: faChevronUp,
