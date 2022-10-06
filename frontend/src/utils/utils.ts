@@ -111,6 +111,12 @@ export const getTaskFromSections = (
     return sections[sectionIndex].tasks[taskIndex]
 }
 
+export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TTaskSection | undefined => {
+    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId)
+    if (taskIndex === undefined || sectionIndex === undefined) return undefined
+    return sections[sectionIndex]
+}
+
 export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
     let keyName = ''
     if (e.ctrlKey) {

@@ -6,10 +6,11 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
-import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { linearStatus, logos } from '../../styles/images'
+import { icons, linearStatus, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
+import { getSectionFromTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -18,8 +19,8 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import ActionOption from '../molecules/ActionOption'
 import GTDatePicker from '../molecules/GTDatePicker'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
@@ -84,9 +85,10 @@ interface TaskDetailsProps {
 }
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
-    const [sectionEditorShown, setSectionEditorShown] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
+    const { data: taskSections } = useGetTasks(false)
+    const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
@@ -161,6 +163,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const status = task.external_status ? task.external_status.state : ''
 
+    const sectionId = taskSections && getSectionFromTask(taskSections, task.id)?.id
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -174,11 +178,29 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         </MarginLeft8>
                         <MarginLeftAuto>
                             {!is_meeting_preparation_task && (
-                                <ActionOption
-                                    isShown={sectionEditorShown}
-                                    setIsShown={setSectionEditorShown}
-                                    task={task}
-                                    keyboardShortcut="showSectionEditor"
+                                <GTDropdownMenu
+                                    items={
+                                        taskSections
+                                            ? [
+                                                  ...taskSections
+                                                      .filter((s) => !s.is_done && !s.is_trash)
+                                                      .map((section) => ({
+                                                          label: section.name,
+                                                          icon: icons.folder,
+                                                          selected: section.id === sectionId,
+                                                          onClick: () => {
+                                                              reorderTask({
+                                                                  taskId: task.id,
+                                                                  dropSectionId: section.id,
+                                                                  dragSectionId: sectionId,
+                                                                  orderingId: 1,
+                                                              })
+                                                          },
+                                                      })),
+                                              ]
+                                            : []
+                                    }
+                                    trigger={<GTIconButton icon={icons.folder} asDiv />}
                                 />
                             )}
                             {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
