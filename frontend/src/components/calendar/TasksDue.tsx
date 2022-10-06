@@ -34,6 +34,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
         return incompleteTasks.filter((task) => DateTime.fromISO(task.due_date).hasSame(date, 'day'))
     }, [taskSections, date])
 
+    if (tasksDueToday.length === 0) return null
     return (
         <TasksDueContainer isFocusModeCalendar={isOnFocusMode}>
             <TasksDueHeader type="day" numTasksDue={tasksDueToday.length} />
