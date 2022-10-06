@@ -47,6 +47,7 @@ const EditorAndToolbarContainer = styled.div<{
         border: ${Border.stroke.medium} solid ${Colors.border.light};
         border-radius: ${Border.radius.mini};
         padding: ${Spacing._4};
+        white-space: pre-wrap;
     }
     p > code {
         background-color: ${Colors.background.medium};
