@@ -85,7 +85,7 @@ const NavigationView = () => {
                     }}
                 />
             </GapView>
-            <CopyrightText>© GeneralTask 2022</CopyrightText>
+            <CopyrightText>© 2022 GENERAL TASK</CopyrightText>
         </NavigationViewContainer>
     )
 }
