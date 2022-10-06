@@ -143,7 +143,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
                 <TimeRange start={fifteenMinuteBlock} end={nextEventTime} />
             </GTTitle>
             <Subtitle>
-                If you need something to work on, we’ve picked a couple tasks that you may be interested in doing now.
+                If you need something to work on, we've picked a couple tasks that you may be interested in doing now.
                 You can click either one to get started, or have us pick a couple other options for you.
                 <br />
                 <br />
