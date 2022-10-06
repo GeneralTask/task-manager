@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
 import { emptyFunction } from '../../../../utils/utils'
+import GTButton from '../../buttons/GTButton'
 import ToolbarButton from './ToolbarButton'
 
 const MenuContainer = styled.div`
@@ -23,7 +24,10 @@ const Divider = styled.div`
     height: ${Spacing._16};
 `
 
-const RichTextToolbar = () => {
+interface RichTextToolbarProps {
+    hasSubmitButton?: boolean
+}
+const RichTextToolbar = ({ hasSubmitButton }: RichTextToolbarProps) => {
     const commands = useCommands()
     const active = useActive()
 
@@ -77,6 +81,11 @@ const RichTextToolbar = () => {
                 isActive={active.codeBlock()}
                 title="Code block"
             />
+            {hasSubmitButton && (
+                <div style={{ marginLeft: 'auto' }}>
+                    <GTButton value="Submit" onClick={emptyFunction} styleType="secondary" size="small" />
+                </div>
+            )}
         </MenuContainer>
     )
 }

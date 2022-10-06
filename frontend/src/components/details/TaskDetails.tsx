@@ -78,6 +78,7 @@ const SYNC_MESSAGES = {
 
 const TITLE_MAX_HEIGHT = 208
 const BODY_MIN_HEIGHT = 200
+const COMMENT_MIN_HEIGHT = 100
 
 interface TaskDetailsProps {
     task: TTask
@@ -296,6 +297,18 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                     {task.slack_message_params && (
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
+                    )}
+                    {task.all_statuses && (
+                        <GTTextField
+                            itemId={task.id + 'comment'}
+                            type="markdown"
+                            value=""
+                            placeholder="Add a comment"
+                            onChange={() => void 0}
+                            minHeight={COMMENT_MIN_HEIGHT}
+                            fontSize="small"
+                            hasSubmitButton
+                        />
                     )}
                 </>
             )}
