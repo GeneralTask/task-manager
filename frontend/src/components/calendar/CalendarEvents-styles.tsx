@@ -111,6 +111,7 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     width: 100%;
     box-sizing: border-box;
     ${Typography.label};
+    justify-content: ${({ isLongEvent }) => (isLongEvent ? 'flex-start' : 'space-between')};
     ${(props) =>
         props.isLongEvent
             ? `
