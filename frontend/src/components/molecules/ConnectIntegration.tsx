@@ -35,7 +35,7 @@ const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: string) => 
 }
 
 interface ConnectIntegrationProps {
-    type: 'github' | 'google_calendar' | 'slack'
+    type: 'github' | 'google_calendar' | 'slack' | 'linear'
 }
 
 const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
@@ -62,6 +62,12 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                     name: 'Slack',
                     authUrl: getAuthorizationUrl(supportedTypes || [], 'Slack'),
                 }
+            case 'linear':
+                return {
+                    icon: logos.linear,
+                    name: 'Linear',
+                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Linear'),
+                }
             default:
                 return { icon: null, name: null, authUrl: null }
         }
@@ -74,6 +80,8 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
             title = 'Connecting to Google Calendar...'
         } else if (type === 'slack') {
             title = 'Connecting to Slack...'
+        } else if (type === 'linear') {
+            title = 'Connecting to Linear...'
         }
     } else {
         if (type === 'github') {
@@ -82,6 +90,8 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
             title = 'Google Calendar'
         } else if (type === 'slack') {
             title = 'Connect to Slack'
+        } else if (type === 'linear') {
+            title = 'Connect to Linear'
         }
     }
 

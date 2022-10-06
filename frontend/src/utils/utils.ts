@@ -53,6 +53,10 @@ export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')
 }
 
+export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Linear')
+}
+
 export const getHumanDateTime = (date: DateTime) => {
     const { days } = DateTime.now().endOf('day').diff(date, ['milliseconds', 'days'])
 

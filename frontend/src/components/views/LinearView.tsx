@@ -2,15 +2,18 @@ import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, linearStatus } from '../../styles/images'
+import { isLinearLinked } from '../../utils/utils'
 import CommentCount from '../atoms/CommentCount'
 import { Icon } from '../atoms/Icon'
 import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
+import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -75,28 +78,39 @@ const LinearView = () => {
         return { task: linearTasks[0] }
     }, [taskSections, linearIssueId])
 
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
+
     return (
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Linear Issues" />
-                <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
-                {linearTasks?.map((task) => (
-                    <LinearSelectableContainer
-                        key={task.id}
-                        onClick={() => onClick(task.id)}
-                        isSelected={linearIssueId === task.id}
-                    >
-                        {linearIssueId === task.id && <PurpleEdge />}
-                        <LeftContainer>
-                            {task.external_status && <Icon icon={linearStatus[task.external_status?.type]} />}
-                            <LinearTitle>{task.title}</LinearTitle>
-                        </LeftContainer>
-                        <RightContainer>
-                            {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
-                            <ExternalLinkButton link={task.deeplink} />
-                        </RightContainer>
-                    </LinearSelectableContainer>
-                ))}
+                {isLinearIntegrationLinked ? (
+                    <>
+                        <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
+                        {linearTasks?.map((task) => (
+                            <LinearSelectableContainer
+                                key={task.id}
+                                onClick={() => onClick(task.id)}
+                                isSelected={linearIssueId === task.id}
+                            >
+                                {linearIssueId === task.id && <PurpleEdge />}
+                                <LeftContainer>
+                                    {task.external_status && <Icon icon={linearStatus[task.external_status?.type]} />}
+                                    <LinearTitle>{task.title}</LinearTitle>
+                                </LeftContainer>
+                                <RightContainer>
+                                    {task.comments && task.comments.length > 0 && (
+                                        <CommentCount count={task.comments.length} />
+                                    )}
+                                    <ExternalLinkButton link={task.deeplink} />
+                                </RightContainer>
+                            </LinearSelectableContainer>
+                        ))}
+                    </>
+                ) : (
+                    <ConnectIntegration type="linear" />
+                )}
             </ScrollableListTemplate>
             {task ? (
                 <TaskDetails task={task} link={`/linear/${task.id}`} />
