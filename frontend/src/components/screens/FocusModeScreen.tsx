@@ -223,17 +223,16 @@ const FocusModeScreen = () => {
 
     useInterval(
         () => {
-            const currentTime = DateTime.local().minus({ seconds: SINGLE_SECOND_INTERVAL })
+            const currentTime = DateTime.local().plus({ seconds: SINGLE_SECOND_INTERVAL })
             setTime(currentTime)
             if (!shouldAutoAdvanceEvent) return
+            const isCurrentEventOver = DateTime.fromISO(selectedEvent?.datetime_end || '') < currentTime
+            if (!isCurrentEventOver) return
             for (const event of currentEvents) {
-                const startTime = DateTime.fromISO(event.datetime_start)
-                if (
-                    startTime.hour === currentTime.hour &&
-                    startTime.minute === currentTime.minute &&
-                    currentTime.second === 0
-                ) {
+                const isCandidateEventOver = DateTime.fromISO(event.datetime_end || '') < currentTime
+                if (!isCandidateEventOver) {
                     setChosenEvent(event)
+                    setSelectedEvent(event)
                     return
                 }
             }
