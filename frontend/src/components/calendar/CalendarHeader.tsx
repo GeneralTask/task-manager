@@ -33,11 +33,12 @@ const HeaderBodyContainer = styled.div`
 const ButtonContainer = styled.div`
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: ${Spacing._8};
 `
 const HeaderIconsContainer = styled.div`
     display: flex;
     align-items: center;
+    gap: ${Spacing._8};
 `
 const CalendarDateText = styled.div`
     ${Typography.subtitle};
