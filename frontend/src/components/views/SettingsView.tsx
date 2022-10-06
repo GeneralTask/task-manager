@@ -10,6 +10,7 @@ import Loading from '../atoms/Loading'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { SectionHeader } from '../molecules/Header'
+import SignOutButton from '../molecules/SignOutButton'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const SERVICE_WIDTH = '160px'
@@ -155,6 +156,7 @@ const SettingsView = () => {
                     </Account>
                 ))}
                 <Divider color={Colors.border.light} />
+                <SignOutButton />
             </SettingsViewContainer>
         </ScrollableListTemplate>
     )
