@@ -1,4 +1,3 @@
-import { forwardRef } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'
@@ -29,10 +28,10 @@ interface LinearCommentProps {
     comment: TLinearComment
 }
 
-const LinearComment = forwardRef<HTMLDivElement, LinearCommentProps>(({ comment }: LinearCommentProps, ref) => {
+const LinearComment = ({ comment }: LinearCommentProps) => {
     const dateSent = DateTime.fromISO(comment.created_at)
     return (
-        <div ref={ref}>
+        <div>
             <TopContainer>
                 <UsernameText>{`${comment.user.Name} (${comment.user.DisplayName})`}</UsernameText>
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
@@ -42,6 +41,6 @@ const LinearComment = forwardRef<HTMLDivElement, LinearCommentProps>(({ comment 
             </BodyContainer>
         </div>
     )
-})
+}
 
 export default LinearComment
