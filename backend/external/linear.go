@@ -557,7 +557,7 @@ func getLinearAssignedIssues(client *graphql.Client, email graphql.String) (*lin
 	return &query, nil
 }
 
-func getLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery, error) {
+func GetLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery, error) {
 	var query linearWorkflowStatesQuery
 	err := client.Query(context.Background(), &query, nil)
 	logger := logging.GetSentryLogger()
@@ -568,7 +568,7 @@ func getLinearWorkflowStates(client *graphql.Client) (*linearWorkflowStatesQuery
 	return &query, nil
 }
 
-func processLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]*database.ExternalTaskStatus {
+func ProcessLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]*database.ExternalTaskStatus {
 	teamToStatuses := make(map[string][]*database.ExternalTaskStatus)
 	for _, node := range statusQuery.WorkflowStates.Nodes {
 		teamToStatuses[string(node.Team.Name)] = append(teamToStatuses[string(node.Team.Name)], &database.ExternalTaskStatus{
