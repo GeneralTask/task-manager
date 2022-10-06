@@ -108,7 +108,7 @@ const TaskSectionView = () => {
                         ) : (
                             <>
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
-                                {(!section.is_done || !section.is_trash) && <CreateNewTask sectionId={section.id} />}
+                                {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>
                                     {section.tasks.map((task, index) => (
                                         <ReorderDropContainer
