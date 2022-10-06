@@ -10,7 +10,7 @@ import { KeyboardShortcutContainer } from '../KeyboardShortcut'
 import TooltipWrapper from '../TooltipWrapper'
 import NoStyleButton from './NoStyleButton'
 
-const Button = styled(NoStyleButton)<{ forceShowHoverEffect?: boolean }>`
+const Button = styled(NoStyleButton)<{ forceShowHoverEffect?: boolean; active?: boolean }>`
     padding: ${Spacing._8};
     border-radius: 50%;
     :hover {
