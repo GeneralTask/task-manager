@@ -5,9 +5,12 @@ import useItemSelectionController from '../../hooks/useItemSelectionController'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
-import { DropItem, DropType } from '../../utils/types'
-import Loading from '../atoms/Loading'
+import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
+import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
+import { DropItem, DropType, TTask } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import CreateNewTask from '../molecules/CreateNewTask'
@@ -55,11 +58,23 @@ const TaskSectionView = () => {
         return { section, task }
     }, [taskSections, params.task, params.section])
 
+    const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
+    const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
+
+    const sortedTasks = useMemo(() => {
+        if (!section || areSettingsLoading) return []
+        return sortAndFilterItems({
+            items: section.tasks,
+            sort: selectedSort,
+            sortDirection: selectedSortDirection,
+        })
+    }, [section, selectedSort, selectedSortDirection, selectedFilter])
+
     const taskIndex = useMemo(() => {
         // Find the index of the currently selected task. If the task is not found, return 0
-        const index = section?.tasks.findIndex(({ id }) => id === task?.id)
-        return !index || index === -1 ? 0 : index
-    }, [params.task, params.section])
+        const index = sortedTasks.findIndex(({ id }) => id === task?.id)
+        return index === -1 ? 0 : index
+    }, [sortedTasks, params.task])
 
     const selectTask = useCallback(
         (itemId: string) => {
@@ -86,31 +101,30 @@ const TaskSectionView = () => {
             const firstSectionId = taskSections[0].id
             if (!section) {
                 navigate(`/tasks/${firstSectionId}/`)
-            } else if (!task && section.tasks.length > taskIndex) {
-                navigate(`/tasks/${section.id}/${section.tasks[taskIndex].id}`)
-            } else if (!task && section.tasks.length === taskIndex && taskIndex > 0) {
-                navigate(`/tasks/${section.id}/${section.tasks[taskIndex - 1].id}`)
-            } else if (!task && section.tasks.length > 0) {
-                navigate(`/tasks/${section.id}/${section.tasks[0].id}`)
+            } else if (!task && sortedTasks.length > taskIndex) {
+                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex].id}`)
+            } else if (!task && sortedTasks.length === taskIndex && taskIndex > 0) {
+                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex - 1].id}`)
+            } else if (!task && sortedTasks.length > 0) {
+                navigate(`/tasks/${section.id}/${sortedTasks[0].id}`)
             }
         }
     }, [taskSections, params.section, params.task])
 
-    useItemSelectionController(section?.tasks ?? [], selectTask)
-
+    useItemSelectionController(sortedTasks, selectTask)
     return (
         <>
             <TaskSectionContainer>
                 <ScrollableListTemplate ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
-                        {isLoadingTasks || !section ? (
-                            <Loading />
+                        {isLoadingTasks || !section || areSettingsLoading ? (
+                            <Spinner />
                         ) : (
                             <>
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>
-                                    {section.tasks.map((task, index) => (
+                                    {sortedTasks.map((task, index) => (
                                         <ReorderDropContainer
                                             key={task.id}
                                             index={index}
@@ -130,7 +144,7 @@ const TaskSectionView = () => {
                                     ))}
                                 </TasksContainer>
                                 <ReorderDropContainer
-                                    index={section.tasks.length + 1}
+                                    index={sortedTasks.length + 1}
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
                                     indicatorType="TOP_ONLY"
