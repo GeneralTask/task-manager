@@ -150,6 +150,7 @@ func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]Setti
 	if err != nil {
 		return nil, err
 	}
+	*taskSections = append(*taskSections, database.TaskSection{ID: constants.IDTaskSectionDefault})
 	for _, taskSection := range *taskSections {
 		for _, settingType := range TaskSectionSettingTypes {
 			settingsOptions = append(
