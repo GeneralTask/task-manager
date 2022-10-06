@@ -31,10 +31,11 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     iconColor?: TIconColor
     forceShowHoverEffect?: boolean
     shortcutName?: TShortcutName
+    asDiv?: boolean
 }
 const GTIconButton = forwardRef(
     (
-        { icon, iconColor, forceShowHoverEffect, shortcutName, onClick, ...props }: GTIconButtonProps,
+        { icon, iconColor, forceShowHoverEffect, shortcutName, asDiv = false, onClick, ...props }: GTIconButtonProps,
         ref: React.Ref<HTMLButtonElement>
     ) => {
         const tooltipData =
@@ -55,13 +56,25 @@ const GTIconButton = forwardRef(
         if (tooltipData)
             return (
                 <TooltipWrapper inline dataTip={tooltipData} tooltipId="tooltip">
-                    <Button ref={ref} onClick={onClick} forceShowHoverEffect={forceShowHoverEffect} {...props}>
+                    <Button
+                        ref={ref}
+                        onClick={onClick}
+                        forceShowHoverEffect={forceShowHoverEffect}
+                        as={asDiv ? 'div' : 'button'}
+                        {...props}
+                    >
                         <Icon icon={icon} color={iconColor} />
                     </Button>
                 </TooltipWrapper>
             )
         return (
-            <Button ref={ref} onClick={onClick} forceShowHoverEffect={forceShowHoverEffect} {...props}>
+            <Button
+                ref={ref}
+                onClick={onClick}
+                forceShowHoverEffect={forceShowHoverEffect}
+                as={asDiv ? 'div' : 'button'}
+                {...props}
+            >
                 <Icon icon={icon} color={iconColor} />
             </Button>
         )
