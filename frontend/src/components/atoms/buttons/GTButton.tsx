@@ -39,6 +39,7 @@ const SimpleButtonStyles = css`
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
     &:active {
+        background-color: ${Colors.background.light};
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
 `
