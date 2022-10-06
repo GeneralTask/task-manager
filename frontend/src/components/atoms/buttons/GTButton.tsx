@@ -1,3 +1,4 @@
+import { Ref, forwardRef } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled, { css } from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
@@ -32,15 +33,20 @@ const SecondaryButtonStyles = css`
         color: ${Colors.button.secondary.active_text};
     }
 `
-const SimpleButtonStyles = css`
+const SimpleButtonStyles = css<{ active?: boolean }>`
     background-color: inherit;
     color: ${Colors.text.light};
     &:hover {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
     &:active {
+        background-color: ${Colors.background.light};
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
+    ${({ active }) =>
+        active &&
+        `background-color: ${Colors.background.light};
+        outline: ${Border.stroke.small} solid ${Colors.border.light};`}
 `
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
@@ -59,6 +65,7 @@ const Button = styled(NoStyleButton)<{
     fitContent: boolean
     size: TButtonSize
     textColor?: TTextColor
+    active?: boolean
 }>`
     display: flex;
     justify-content: center;
@@ -102,33 +109,42 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     textColor?: TTextColor
     fitContent?: boolean
     asDiv?: boolean
+    active?: boolean
 }
-const GTButton = ({
-    styleType = 'primary',
-    size = 'large',
-    wrapText = false,
-    fitContent = true,
-    icon,
-    iconColor,
-    textColor,
-    value,
-    asDiv = false,
-    ...rest
-}: GTButtonProps) => {
-    return (
-        <Button
-            styleType={styleType}
-            size={size}
-            wrapText={wrapText}
-            fitContent={fitContent}
-            textColor={textColor}
-            as={asDiv ? 'div' : 'button'}
-            {...rest}
-        >
-            {icon && <Icon icon={icon} color={iconColor} />}
-            {value}
-        </Button>
-    )
-}
+const GTButton = forwardRef(
+    (
+        {
+            styleType = 'primary',
+            size = 'large',
+            wrapText = false,
+            fitContent = true,
+            icon,
+            iconColor,
+            textColor,
+            value,
+            active,
+            asDiv = false,
+            ...rest
+        }: GTButtonProps,
+        ref: Ref<HTMLButtonElement>
+    ) => {
+        return (
+            <Button
+                ref={ref}
+                styleType={styleType}
+                size={size}
+                wrapText={wrapText}
+                fitContent={fitContent}
+                textColor={textColor}
+                as={asDiv ? 'div' : 'button'}
+                active={active}
+                {...rest}
+            >
+                {icon && <Icon icon={icon} color={iconColor} />}
+                {value}
+            </Button>
+        )
+    }
+)
 
 export default GTButton
