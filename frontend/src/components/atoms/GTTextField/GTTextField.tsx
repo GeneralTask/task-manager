@@ -6,6 +6,21 @@ import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
+const PlainTextContainer = styled.div`
+    border: ${Border.stroke.medium} solid transparent;
+    border-radius: ${Border.radius.small};
+    flex: 1;
+    :focus-within {
+        box-shadow: ${Shadows.light};
+    }
+    :hover {
+        border-color: ${Colors.border.light};
+    }
+    :focus-within {
+        border-color: ${Colors.gtColor.primary};
+    }
+`
+
 const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     background-color: inherit;
     box-sizing: border-box;
@@ -36,6 +51,10 @@ const GTTextField = (props: GTTextFieldProps) => {
         } else {
             return <PlainTextEditor {...props} />
         }
+    }
+
+    if (props.type === 'plaintext') {
+        return <PlainTextContainer>{getEditor()}</PlainTextContainer>
     }
 
     return (
