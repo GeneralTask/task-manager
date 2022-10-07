@@ -111,7 +111,7 @@ const SettingsView = () => {
                 <SectionDescriptor>Add a new service</SectionDescriptor>
                 <ServicesContainer>
                     {supportedTypes
-                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .sort((a, b) => b.name.localeCompare(a.name))
                         .map((supportedType) => (
                             <Service key={supportedType.name}>
                                 <Icon icon={supportedType.logo} />
