@@ -159,16 +159,16 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-		verifyLoginCallback(t, api.DB, "unapproved@gmail.com", "noice420", true, false)
+		verifyLoginCallback(t, api.DB, "unapproved@gmail.com", "noice420", false, false)
 	})
 	t.Run("Idempotent", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "TSLA", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "TSLA", false, true)
 	})
 	t.Run("UpdatesName", func(t *testing.T) {
 		userCollection := database.GetUserCollection(api.DB)
@@ -226,7 +226,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 	})
 	t.Run("SuccessDeeplink", func(t *testing.T) {
 		stateToken, err := newStateToken(api.DB, "", true)
@@ -236,7 +236,7 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
 		_, err := waitlistCollection.InsertOne(
@@ -251,6 +251,6 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "dogecoin@tothe.moon", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "dogecoin@tothe.moon", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "dogecoin@tothe.moon", "noice420", false, true)
 	})
 }

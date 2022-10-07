@@ -211,35 +211,38 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 		return primitive.NilObjectID, &userIsNew, nil, err
 	}
 
-	tokenString, err := json.Marshal(&token)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to load token")
-		return user.ID, &userIsNew, &userInfo.EMAIL, err
-	}
+	if len(token.RefreshToken) > 0 {
+		// Only update / save the external API key if refresh token is set (isn't set after first authorization)
+		tokenString, err := json.Marshal(&token)
+		if err != nil {
+			log.Printf("failed to serialize token json: %v", err)
 
-	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+			return primitive.NilObjectID, &userIsNew, nil, err
+		}
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
+		_, err = externalAPITokenCollection.UpdateOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"user_id": user.ID},
+				{"service_id": TASK_SERVICE_ID_GOOGLE},
+				{"account_id": userInfo.EMAIL},
+			}},
+			bson.M{"$set": &database.ExternalAPIToken{
+				UserID:         user.ID,
+				ServiceID:      TASK_SERVICE_ID_GOOGLE,
+				Token:          string(tokenString),
+				AccountID:      userInfo.EMAIL,
+				DisplayID:      userInfo.EMAIL,
+				IsUnlinkable:   false,
+				IsPrimaryLogin: true,
+			}},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			log.Printf("failed to create external token record: %v", err)
 
-	_, err = externalAPITokenCollection.UpdateOne(
-		context.Background(),
-		bson.M{"$and": []bson.M{
-			{"user_id": user.ID},
-			{"service_id": TASK_SERVICE_ID_GOOGLE},
-			{"account_id": userInfo.EMAIL},
-		}},
-		bson.M{"$set": &database.ExternalAPIToken{
-			UserID:         user.ID,
-			ServiceID:      TASK_SERVICE_ID_GOOGLE,
-			Token:          string(tokenString),
-			AccountID:      userInfo.EMAIL,
-			DisplayID:      userInfo.EMAIL,
-			IsUnlinkable:   true,
-			IsPrimaryLogin: false,
-		}},
-		options.Update().SetUpsert(true),
-	)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch token from google")
-		return user.ID, &userIsNew, &userInfo.EMAIL, err
+			return primitive.NilObjectID, &userIsNew, nil, err
+		}
 	}
 
 	return user.ID, &userIsNew, &userInfo.EMAIL, nil

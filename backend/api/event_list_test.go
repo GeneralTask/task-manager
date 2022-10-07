@@ -37,22 +37,22 @@ func TestEventList(t *testing.T) {
 	startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
 	endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
 	afterEndTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:01-05:00")
-	sourceAccountID := "dogecoinAccountID"
+	sourceAccountID := "TestEventList@generaltask.com"
 	authToken := login("TestEventList@generaltask.com", "")
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 
 	externalTokenCollection := database.GetExternalTokenCollection(api.DB)
-	_, err := externalTokenCollection.InsertOne(
-		context.Background(),
-		&database.ExternalAPIToken{
-			AccountID: sourceAccountID,
-			ServiceID: external.TASK_SERVICE_ID_GOOGLE,
-			UserID:    userID,
-		},
-	)
-	assert.NoError(t, err)
+	// _, err := externalTokenCollection.InsertOne(
+	// 	context.Background(),
+	// 	&database.ExternalAPIToken{
+	// 		AccountID: sourceAccountID,
+	// 		ServiceID: external.TASK_SERVICE_ID_GOOGLE,
+	// 		UserID:    userID,
+	// 	},
+	// )
+	// assert.NoError(t, err)
 	// wrong service
-	_, err = externalTokenCollection.InsertOne(
+	_, err := externalTokenCollection.InsertOne(
 		context.Background(),
 		&database.ExternalAPIToken{
 			AccountID: sourceAccountID,
