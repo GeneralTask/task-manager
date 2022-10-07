@@ -2,6 +2,7 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useCreateEvent } from '../../services/api/events.hooks'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -125,7 +126,8 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     }, [taskSections])
 
     const primaryAccountID = useMemo(
-        () => linkedAccounts?.filter((account) => account.name === 'Google Calendar')?.[0]?.display_id,
+        () =>
+            linkedAccounts?.filter((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.[0]?.display_id,
         [linkedAccounts]
     )
 

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -123,7 +124,9 @@ const SettingsView = () => {
                                     <GTButton
                                         icon={icons.external_link}
                                         value={`Connect ${
-                                            supportedType.name === 'Google Calendar' ? 'Google' : supportedType.name
+                                            supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
+                                                ? 'Google'
+                                                : supportedType.name
                                         }`}
                                         onClick={() =>
                                             openPopupWindow(supportedType.authorization_url, refetchStaleQueries)
