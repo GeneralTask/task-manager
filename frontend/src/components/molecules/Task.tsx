@@ -22,7 +22,7 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
 
-const GTButtonHack = styled(GTButton)`
+export const GTButtonHack = styled(GTButton)`
     width: 20px !important;
     padding: ${Spacing._4} !important;
     box-sizing: border-box;
