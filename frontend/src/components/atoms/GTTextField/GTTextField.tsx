@@ -54,7 +54,7 @@ const GTTextField = (props: GTTextFieldProps) => {
     }
 
     if (props.type === 'plaintext') {
-        return <PlainTextContainer>{getEditor()}</PlainTextContainer>
+        return <PlainTextContainer onKeyDown={stopKeydownPropogation}>{getEditor()}</PlainTextContainer>
     }
 
     return (
