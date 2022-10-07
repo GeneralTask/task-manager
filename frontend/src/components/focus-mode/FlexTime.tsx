@@ -108,26 +108,16 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
 
     useLayoutEffect(() => {
         if (!recommendedTasks[0] && !recommendedTasks[1]) {
-            let firstTask = undefined
-            let secondTask = undefined
             if (views === undefined) {
                 getNewRecommendedTasks()
                 return
             }
-            for (const view of views) {
-                if (view.type === 'slack' || view.type === 'task_section' || view.type === 'linear') {
-                    if (!firstTask) {
-                        firstTask = view.view_items.length > 0 ? view.view_items[0] : undefined
-                    }
-                    if (!secondTask) {
-                        secondTask = view.view_items.length > 1 ? view.view_items[1] : undefined
-                    }
-                }
-                if (firstTask && secondTask) {
-                    setRecommendedTasks([firstTask, secondTask])
-                    break
-                }
-            }
+            const allViewTasks = views
+                .filter((view) => view.type === 'slack' || view.type === 'task_section' || view.type === 'linear')
+                .flatMap((view) => view.view_items)
+            const firstTask = allViewTasks.length > 0 ? allViewTasks[0] : undefined
+            const secondTask = allViewTasks.length > 1 ? allViewTasks[1] : undefined
+            setRecommendedTasks([firstTask, secondTask])
             if (!firstTask && !secondTask) {
                 getNewRecommendedTasks()
             }
