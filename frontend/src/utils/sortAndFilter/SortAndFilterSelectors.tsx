@@ -11,6 +11,7 @@ const SortAndFilterContainer = styled.div`
     display: flex;
     gap: ${Spacing._8};
     margin-bottom: ${Spacing._16};
+    z-index: 1;
 `
 
 interface SortAndFilterDropdownsProps<T> {
