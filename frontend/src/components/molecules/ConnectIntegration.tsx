@@ -54,7 +54,7 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                 return {
                     icon: logos.gcal,
                     name: 'Google Calendar',
-                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Google'),
+                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Google Calendar'),
                 }
             case 'slack':
                 return {
