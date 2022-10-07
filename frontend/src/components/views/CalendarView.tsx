@@ -65,7 +65,7 @@ const CalendarView = ({
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
     const primaryAccountID = useMemo(
-        () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
+        () => linkedAccounts?.filter((account) => account.name === 'Google Calendar')?.[0]?.display_id,
         [linkedAccounts]
     )
 
