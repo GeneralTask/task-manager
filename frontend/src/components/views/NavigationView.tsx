@@ -20,7 +20,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     padding: ${Spacing._16};
     box-sizing: border-box;
     z-index: 1;
-    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.secondary.hover}`}
+    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover}`}
 `
 const NavigationViewHeader = styled.div`
     display: flex;
