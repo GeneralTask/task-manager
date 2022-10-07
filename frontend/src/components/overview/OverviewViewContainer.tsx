@@ -24,6 +24,10 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     const [numViewItems, setNumViewItems] = useState(view.view_items.length)
     const nextPageLength = Math.min(numViewItems - visibleItemsCount, PAGE_SIZE)
 
+    useEffect(() => {
+        setNumViewItems(view.view_items.length)
+    }, [view.view_items.length])
+
     const ViewItems = useMemo(() => {
         if (view.isOptimistic) {
             return () => (
