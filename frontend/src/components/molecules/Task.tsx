@@ -176,6 +176,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                                 label: status.state,
                                 onClick: () => modifyTask({ id: task.id, status: status }),
                                 icon: linearStatus[status.type],
+                                selected: status.state === task.external_status?.state,
                             }))}
                             trigger={
                                 <GTButtonHack
