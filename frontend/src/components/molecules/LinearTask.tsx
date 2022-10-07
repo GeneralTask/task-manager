@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { linearStatus } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
-import { Icon } from '../atoms/Icon'
 import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
+import { GTButtonHack } from './Task'
 
 const DominoIconContainer = styled.div`
     display: flex;
@@ -52,6 +54,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     const navigate = useNavigate()
     const { linearIssueId } = useParams()
     const [isHovered, setIsHovered] = useState(false)
+    const { mutate: modifyTask } = useModifyTask()
 
     const [, drag, dragPreview] = useDrag(
         () => ({
@@ -84,7 +87,25 @@ const LinearTask = ({ task }: LinearTaskProps) => {
                     <DominoContainer isHovered={isHovered}>
                         <Domino />
                     </DominoContainer>
-                    {task.external_status && <Icon icon={linearStatus[task.external_status?.type]} />}
+                    {task.external_status && task.all_statuses && (
+                        <GTDropdownMenu
+                            items={task.all_statuses.map((status) => ({
+                                label: status.state,
+                                onClick: () => modifyTask({ id: task.id, status: status }),
+                                icon: linearStatus[status.type],
+                                selected: status.state === task.external_status?.state,
+                            }))}
+                            trigger={
+                                <GTButtonHack
+                                    value={status}
+                                    icon={linearStatus[task.external_status.type]}
+                                    size="small"
+                                    styleType="simple"
+                                    asDiv
+                                />
+                            }
+                        />
+                    )}
                 </DominoIconContainer>
                 <LinearTitle>{task.title}</LinearTitle>
             </LeftContainer>
