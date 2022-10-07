@@ -364,10 +364,11 @@ export const useMarkTaskDone = () => {
                         })
 
                         queryClient.setQueryData('overview', newViews)
-                        queryClient.invalidateQueries('overview')
                     }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
                 }
             }
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
         },
     })
 }
