@@ -20,7 +20,7 @@ const SettingsViewContainer = styled.div`
     flex-direction: column;
     min-width: ${DEFAULT_VIEW_WIDTH};
     gap: ${Spacing._24};
-    padding: ${Spacing._24};
+    padding: ${Spacing._24} ${Spacing._16};
 `
 const Account = styled.div`
     display: flex;
