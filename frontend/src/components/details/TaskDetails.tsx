@@ -4,13 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval } from '../../hooks'
-import { TModifyTaskData, useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, linearStatus, logos } from '../../styles/images'
+import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import { getSectionFromTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -18,11 +17,11 @@ import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
-import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import GTDatePicker from '../molecules/GTDatePicker'
-import GTDropdownMenu from '../radix/GTDropdownMenu'
+import FolderDropdown from '../radix/FolderDropdown'
+import LinearStatusDropdown from '../radix/LinearStatusDropdown'
+import PriorityDropdown from '../radix/PriorityDropdown'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
@@ -87,8 +86,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
-    const { data: taskSections } = useGetTasks(false)
-    const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
@@ -161,10 +158,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         }
     }
 
-    const status = task.external_status ? task.external_status.state : ''
-
-    const sectionId = taskSections && getSectionFromTask(taskSections, task.id)?.id
-
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -177,32 +170,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         </MarginLeft8>
                         <MarginLeftAuto>
-                            {!is_meeting_preparation_task && (
-                                <GTDropdownMenu
-                                    items={
-                                        taskSections
-                                            ? [
-                                                  ...taskSections
-                                                      .filter((s) => !s.is_done && !s.is_trash)
-                                                      .map((section) => ({
-                                                          label: section.name,
-                                                          icon: icons.folder,
-                                                          selected: section.id === sectionId,
-                                                          onClick: () => {
-                                                              reorderTask({
-                                                                  taskId: task.id,
-                                                                  dropSectionId: section.id,
-                                                                  dragSectionId: sectionId,
-                                                                  orderingId: 1,
-                                                              })
-                                                          },
-                                                      })),
-                                              ]
-                                            : []
-                                    }
-                                    trigger={<GTIconButton icon={icons.folder} asDiv />}
-                                />
-                            )}
+                            {!is_meeting_preparation_task && <FolderDropdown task={task} />}
                             {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                         </MarginLeftAuto>
                     </>
@@ -227,50 +195,13 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                {task.external_status && task.all_statuses && (
-                    <GTDropdownMenu
-                        items={task.all_statuses.map((status) => ({
-                            label: status.state,
-                            onClick: () => modifyTask({ id: task.id, status: status }),
-                            icon: linearStatus[status.type],
-                            selected: status.state === task.external_status?.state,
-                        }))}
-                        trigger={
-                            <GTButton
-                                value={status}
-                                icon={linearStatus[task.external_status.type]}
-                                size="small"
-                                styleType="simple"
-                                asDiv
-                            />
-                        }
-                    />
-                )}
+                <PriorityDropdown task={task} />
                 <GTDatePicker
                     initialDate={DateTime.fromISO(task.due_date).toJSDate()}
                     setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
                 />
                 <MarginLeftAuto>
-                    <GTDropdownMenu
-                        items={TASK_PRIORITIES.map((priority, val) => ({
-                            label: priority.label,
-                            onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
-                            icon: priority.icon,
-                            iconColor: TASK_PRIORITIES[val].color,
-                            selected: val === task.priority_normalized,
-                        }))}
-                        trigger={
-                            <GTButton
-                                value={TASK_PRIORITIES[task.priority_normalized].label}
-                                icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                                size="small"
-                                styleType="simple"
-                                iconColor={TASK_PRIORITIES[task.priority_normalized].color}
-                                isDropdown
-                                asDiv
-                            />
-                        }
-                    />
+                    <LinearStatusDropdown task={task} />
                 </MarginLeftAuto>
             </TaskStatusContainer>
             {task.isOptimistic ? (

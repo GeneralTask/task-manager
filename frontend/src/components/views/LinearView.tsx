@@ -2,57 +2,28 @@ import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, linearStatus } from '../../styles/images'
-import CommentCount from '../atoms/CommentCount'
-import { Icon } from '../atoms/Icon'
-import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
-import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import { icons } from '../../styles/images'
+import { isLinearLinked } from '../../utils/utils'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
+import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
+import LinearTask from '../molecules/LinearTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const LinearSelectableContainer = styled(SelectableContainer)`
-    display: flex;
-    padding: ${Spacing._16} ${Spacing._24};
-    margin-bottom: ${Spacing._4};
-    align-items: center;
-    ${Typography.bodySmall};
-`
 const LinearBodyHeader = styled.div`
     ${Typography.body};
     color: ${Colors.text.light};
     margin-bottom: ${Spacing._16};
-`
-const LinearTitle = styled.span`
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-`
-const LeftContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-    min-width: 0;
-    margin-right: ${Spacing._16};
-`
-const RightContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._24};
-    margin-left: auto;
 `
 
 const LinearView = () => {
     const { data: taskSections } = useGetTasks()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
-
-    const onClick = (id: string) => {
-        navigate(`/linear/${id}`)
-    }
 
     const linearTasks = useMemo(() => {
         const tasks =
@@ -75,28 +46,23 @@ const LinearView = () => {
         return { task: linearTasks[0] }
     }, [taskSections, linearIssueId])
 
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
+
     return (
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Linear Issues" />
-                <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
-                {linearTasks?.map((task) => (
-                    <LinearSelectableContainer
-                        key={task.id}
-                        onClick={() => onClick(task.id)}
-                        isSelected={linearIssueId === task.id}
-                    >
-                        {linearIssueId === task.id && <PurpleEdge />}
-                        <LeftContainer>
-                            {task.external_status && <Icon icon={linearStatus[task.external_status?.type]} />}
-                            <LinearTitle>{task.title}</LinearTitle>
-                        </LeftContainer>
-                        <RightContainer>
-                            {task.comments && task.comments.length > 0 && <CommentCount count={task.comments.length} />}
-                            <ExternalLinkButton link={task.deeplink} />
-                        </RightContainer>
-                    </LinearSelectableContainer>
-                ))}
+                {isLinearIntegrationLinked ? (
+                    <>
+                        <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
+                        {linearTasks?.map((task) => (
+                            <LinearTask key={task.id} task={task} />
+                        ))}
+                    </>
+                ) : (
+                    <ConnectIntegration type="linear" />
+                )}
             </ScrollableListTemplate>
             {task ? (
                 <TaskDetails task={task} link={`/linear/${task.id}`} />

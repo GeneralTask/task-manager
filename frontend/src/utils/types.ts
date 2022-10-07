@@ -184,6 +184,7 @@ export interface TLinkedAccount {
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
+    LINEAR_TASK = 'linear-task',
     DUE_TASK = 'due-task',
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',

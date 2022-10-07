@@ -110,9 +110,7 @@ const SlackTasksView = () => {
                         ))}
                     </>
                 ) : (
-                    <div>
-                        <ConnectIntegration type="slack" />
-                    </div>
+                    <ConnectIntegration type="slack" />
                 )}
             </ScrollableListTemplate>
             {task ? (

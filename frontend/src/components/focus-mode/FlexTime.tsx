@@ -2,8 +2,10 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useCreateEvent } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -91,6 +93,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const { data: taskSections } = useGetTasks()
     const { mutate: createEvent } = useCreateEvent()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: views } = useGetOverviewViews()
 
     const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
 
@@ -103,16 +106,29 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
         const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
         setRecommendedTasks([firstTask, secondTask])
-    }, [taskSections])
+    }, [taskSections, views])
 
     useLayoutEffect(() => {
         if (!recommendedTasks[0] && !recommendedTasks[1]) {
-            getNewRecommendedTasks()
+            if (views === undefined) {
+                getNewRecommendedTasks()
+                return
+            }
+            const allViewTasks = views
+                .filter((view) => view.type === 'slack' || view.type === 'task_section' || view.type === 'linear')
+                .flatMap((view) => view.view_items)
+            const firstTask = allViewTasks.length > 0 ? allViewTasks[0] : undefined
+            const secondTask = allViewTasks.length > 1 ? allViewTasks[1] : undefined
+            setRecommendedTasks([firstTask, secondTask])
+            if (!firstTask && !secondTask) {
+                getNewRecommendedTasks()
+            }
         }
     }, [taskSections])
 
     const primaryAccountID = useMemo(
-        () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
+        () =>
+            linkedAccounts?.filter((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.[0]?.display_id,
         [linkedAccounts]
     )
 
