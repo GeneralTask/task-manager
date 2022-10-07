@@ -97,7 +97,7 @@ const SettingsView = () => {
 
     const serviceDetails = {
         Slack: 'Turn any Slack message into an actionable task.',
-        Google: 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
+        'Google Calendar': 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
         Linear: 'See, update, and schedule the issues assigned to you.',
         Github: 'See pull requests from the repos that matter to you.',
     }
@@ -114,7 +114,7 @@ const SettingsView = () => {
                         .sort((a, b) => b.name.localeCompare(a.name))
                         .map((supportedType) => (
                             <Service key={supportedType.name}>
-                                <Icon icon={supportedType.logo} />
+                                <Icon icon={logos[supportedType.logo_v2]} />
                                 <ServiceName>{supportedType.name}</ServiceName>
                                 <ServiceDetails>
                                     {serviceDetails[supportedType.name as keyof typeof serviceDetails]}
@@ -122,7 +122,9 @@ const SettingsView = () => {
                                 <div>
                                     <GTButton
                                         icon={icons.external_link}
-                                        value={`Connect ${supportedType.name}`}
+                                        value={`Connect ${
+                                            supportedType.name === 'Google Calendar' ? 'Google' : supportedType.name
+                                        }`}
                                         onClick={() =>
                                             openPopupWindow(supportedType.authorization_url, refetchStaleQueries)
                                         }
