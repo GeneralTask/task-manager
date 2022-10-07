@@ -9,7 +9,7 @@ import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
-const GT_BETA_LOGO_WIDTH = '100px'
+const GT_BETA_LOGO_WIDTH = '131px'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
