@@ -29,7 +29,7 @@ func TestSupportedAccountTypesList(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
+		assert.True(t, strings.Contains(string(body), "{\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"authorization_url\":\"http://localhost:8080/link/google/\"}"))
 		assert.Equal(t, 1, strings.Count(string(body), "{\"name\":\"Slack\",\"logo\":\"/images/slack.svg\",\"authorization_url\":\"http://localhost:8080/link/slack/\"}"))
 	})
 	UnauthorizedTest(t, "GET", "/linked_accounts/supported_types/", nil)
@@ -50,7 +50,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false}]", string(body))
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("linkedaccounts2@generaltask.com", "")
@@ -65,7 +65,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts2@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":false},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
 
 	})
 
@@ -86,7 +86,7 @@ func TestLinkedAccountsList(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		googleTokenID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID.Hex()
-		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google\",\"logo\":\"/images/gmail.svg\",\"logo_v2\":\"gmail\",\"is_unlinkable\":false,\"has_bad_token\":true},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
+		assert.Equal(t, "[{\"id\":\""+googleTokenID+"\",\"display_id\":\"linkedaccounts3@generaltask.com\",\"name\":\"Google Calendar\",\"logo\":\"/images/gcal.png\",\"logo_v2\":\"gcal\",\"is_unlinkable\":false,\"has_bad_token\":true},{\"id\":\""+linearTokenID+"\",\"display_id\":\"Linear\",\"name\":\"Linear\",\"logo\":\"/images/linear.png\",\"logo_v2\":\"linear\",\"is_unlinkable\":true,\"has_bad_token\":false}]", string(body))
 	})
 	UnauthorizedTest(t, "GET", "/linked_accounts/", nil)
 }
