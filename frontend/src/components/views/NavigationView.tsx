@@ -71,7 +71,6 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
-                {/* <Icon size="gtLogo" icon={logos.generaltask} /> */}
                 <GTBetaLogo src="/images/GT-beta-logo.png" />
                 <CommandPalette />
             </NavigationViewHeader>
