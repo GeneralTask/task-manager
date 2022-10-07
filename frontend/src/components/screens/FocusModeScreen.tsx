@@ -198,8 +198,8 @@ const FocusModeScreen = () => {
     const [time, setTime] = useState(DateTime.local())
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
     const nextEvent = events?.find((event) => {
-        const start = DateTime.fromISO(event.datetime_start)
-        return start > time
+        const eventStart = DateTime.fromISO(event.datetime_start)
+        return eventStart.hasSame(time, 'day') && eventStart > time
     })
 
     useLayoutEffect(() => {
