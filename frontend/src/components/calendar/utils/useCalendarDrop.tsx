@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
+import { renderToString } from 'react-dom/server'
 import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
@@ -13,6 +14,7 @@ import { openPopupWindow } from '../../../utils/auth'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
+import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
 import {
     CALENDAR_DAY_HEADER_HEIGHT,
     CELL_HEIGHT_VALUE,
@@ -121,12 +123,19 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                     if (!item.task) return
                     const end = dropTime.plus({ minutes: 30 })
                     const converter = new showdown.Converter()
-                    let description = converter.makeHtml(item.task.body)
-                    if (description !== '') {
-                        description += '\n'
+                    let description
+                    if (item.task.nux_number_id) {
+                        // if this is a nux task, override body
+                        description = renderToString(<NuxTaskBodyStatic task={item.task} />)
+                    } else {
+                        description = converter.makeHtml(item.task.body)
+                        if (description !== '') {
+                            description += '\n'
+                        }
+                        description = description.replaceAll('\n', '<br>')
+                        description +=
+                            '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                     }
-                    description = description.replaceAll('\n', '<br>')
-                    description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                     createEvent({
                         createEventPayload: {
                             account_id: primaryAccountID,

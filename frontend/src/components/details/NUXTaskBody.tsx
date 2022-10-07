@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -64,38 +63,100 @@ const FocusMode = () => {
     )
 }
 
+const IntegrationsStaticContent = ({
+    githubUrl,
+    linearUrl,
+    slackUrl,
+}: {
+    githubUrl: string
+    linearUrl: string
+    slackUrl: string
+}) => (
+    <>
+        We want to make it easy for you to get a bird’s-eye view of your day, so we integrate with other services to
+        reduce the need to jump from site to site.
+        <ul>
+            <li>
+                <a href={githubUrl}>Connect to GitHub</a> to see which pull requests you can take action on.
+            </li>
+            <li>
+                <a href={linearUrl}>Connect to Linear</a> to see and update the issues assigned to you.
+            </li>
+            <li>
+                <a href={slackUrl}>Connect to Slack</a> for the ability to turn any message into a task on the spot.
+            </li>
+        </ul>
+        <p>
+            You can find the full list via the Settings button in the lower left corner of the screen. (We’re just
+            getting started — if there are integrations you want to see, use the Share feedback button in the lower
+            right to let us know what you’d like to see next.)
+        </p>
+        <a href="/settings">
+            <img src="/images/nux-integrations.png" width="100%" />
+        </a>
+    </>
+)
+
 const Integrations = () => {
     const { data: supportedTypes } = useGetSupportedTypes()
-    const githubUrl = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url
-    const linearUrl = supportedTypes?.find((type) => type.name === 'Linear')?.authorization_url
-    const slackUrl = supportedTypes?.find((type) => type.name === 'Slack')?.authorization_url
+    const githubUrl = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url || ''
+    const linearUrl = supportedTypes?.find((type) => type.name === 'Linear')?.authorization_url || ''
+    const slackUrl = supportedTypes?.find((type) => type.name === 'Slack')?.authorization_url || ''
 
     return (
         <Container>
-            We want to make it easy for you to get a bird’s-eye view of your day, so we integrate with other services to
-            reduce the need to jump from site to site.
-            <ul>
-                <li>
-                    <a href={githubUrl}>Connect to GitHub</a> to see which pull requests you can take action on.
-                </li>
-                <li>
-                    <a href={linearUrl}>Connect to Linear</a> to see and update the issues assigned to you.
-                </li>
-                <li>
-                    <a href={slackUrl}>Connect to Slack</a> for the ability to turn any message into a task on the spot.
-                </li>
-            </ul>
-            <p>
-                You can find the full list via the Settings button in the lower left corner of the screen. (We’re just
-                getting started — if there are integrations you want to see, use the Share feedback button in the lower
-                right to let us know what you’d like to see next.)
-            </p>
-            <Link to="/settings">
-                <img src="/images/nux-integrations.png" width="100%" />
-            </Link>
+            <IntegrationsStaticContent githubUrl={githubUrl} linearUrl={linearUrl} slackUrl={slackUrl} />
         </Container>
     )
 }
+
+const JohnsLetterStaticContent = () => (
+    <>
+        <p>
+            Thank you for choosing General Task! We know that there are many productivity solutions on the market, and
+            we are truly honored that you landed on us.
+        </p>
+        <p>
+            We have spent the last year building what we believe to be the best productivity solution on the market for
+            software engineers. And it’s free! We don’t limit our software to those who can afford to pay $30+/month,
+            like many of our competitors do. At General Task, we believe that everyone, not just a select few, should
+            have access to the very best productivity tools and services. That means we will be keeping our personal
+            productivity solution <b>free forever</b>.
+        </p>
+        <p>
+            Productivity is close to our hearts. Our team has worked at some of the most successful companies in the
+            industry: Meta, Google, Netflix, Robinhood, as well as many other smaller companies. We learned a lot and
+            had a good time, but we also saw the downside of working at such companies: pointless meetings, constant
+            distractions and waiting way too long to get your code reviewed, among many other issues.
+        </p>
+        <p>
+            We know how crappy it can feel to have an unproductive day and how awesome it can feel to be super
+            productive day. We want to make those awesome days happen all the time. That’s why we built this. We use
+            General Task in-house daily, and we are already seeing substantial improvements in our own productivity. It
+            feels great. We hope you enjoy the tool as much as we do!
+        </p>
+        <p>
+            General Task, as it is currently available, is in beta. This means that it is an imperfect work in progress,
+            but will improve rapidly to help you be more and more productive over time. We are just getting started, and
+            we can’t wait to have you along for the ride.
+        </p>
+        <p>
+            <b>But we can’t do this alone!</b>
+        </p>
+        <p>
+            We are committed to listening to each and every one of your ideas, and will work tirelessly to improve our
+            software as much as possible, as fast as possible. Please send us any bugs you notice, or product ideas
+            you’d like to see in the app. Anything helps!
+        </p>
+        <p>
+            Reach out to us with any questions, comments, or concerns at{' '}
+            <a href="mailto:julian@generaltask.com">julian@generaltask.com</a> or{' '}
+            <a href="mailto:john@generaltask.com">john@generaltask.com</a>.
+        </p>
+        <p>Happy building!</p>
+        <p>Julian and John</p>
+    </>
+)
 
 const JohnsLetter = () => {
     const { data: userInfo } = useGetUserInfo()
@@ -104,49 +165,7 @@ const JohnsLetter = () => {
     return (
         <Container>
             Hi {firstName},
-            <p>
-                Thank you for choosing General Task! We know that there are many productivity solutions on the market,
-                and we are truly honored that you landed on us.
-            </p>
-            <p>
-                We have spent the last year building what we believe to be the best productivity solution on the market
-                for software engineers. And it’s free! We don’t limit our software to those who can afford to pay
-                $30+/month, like many of our competitors do. At General Task, we believe that everyone, not just a
-                select few, should have access to the very best productivity tools and services. That means we will be
-                keeping our personal productivity solution <b>free forever</b>.
-            </p>
-            <p>
-                Productivity is close to our hearts. Our team has worked at some of the most successful companies in the
-                industry: Meta, Google, Netflix, Robinhood, as well as many other smaller companies. We learned a lot
-                and had a good time, but we also saw the downside of working at such companies: pointless meetings,
-                constant distractions and waiting way too long to get your code reviewed, among many other issues.
-            </p>
-            <p>
-                We know how crappy it can feel to have an unproductive day and how awesome it can feel to be super
-                productive day. We want to make those awesome days happen all the time. That’s why we built this. We use
-                General Task in-house daily, and we are already seeing substantial improvements in our own productivity.
-                It feels great. We hope you enjoy the tool as much as we do!
-            </p>
-            <p>
-                General Task, as it is currently available, is in beta. This means that it is an imperfect work in
-                progress, but will improve rapidly to help you be more and more productive over time. We are just
-                getting started, and we can’t wait to have you along for the ride.
-            </p>
-            <p>
-                <b>But we can’t do this alone!</b>
-            </p>
-            <p>
-                We are committed to listening to each and every one of your ideas, and will work tirelessly to improve
-                our software as much as possible, as fast as possible. Please send us any bugs you notice, or product
-                ideas you’d like to see in the app. Anything helps!
-            </p>
-            <p>
-                Reach out to us with any questions, comments, or concerns at{' '}
-                <a href="mailto:julian@generaltask.com">julian@generaltask.com</a> or{' '}
-                <a href="mailto:john@generaltask.com">john@generaltask.com</a>.
-            </p>
-            <p>Happy building!</p>
-            <p>Julian and John</p>
+            <JohnsLetterStaticContent />
         </Container>
     )
 }
@@ -164,6 +183,27 @@ const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
             return <Integrations />
         case 4:
             return <JohnsLetter />
+        default:
+            return null
+    }
+}
+
+export const NuxTaskBodyStatic = ({ task }: NUXTaskBodyProps) => {
+    switch (task.nux_number_id) {
+        case 1:
+            return <TaskToCal />
+        case 2:
+            return <FocusMode />
+        case 3:
+            return (
+                <IntegrationsStaticContent
+                    githubUrl="https://api.generaltask.com/link/github/"
+                    slackUrl="https://api.generaltask.com/link/slack/"
+                    linearUrl="https://api.generaltask.com/link/linear/"
+                />
+            )
+        case 4:
+            return <JohnsLetterStaticContent />
         default:
             return null
     }
