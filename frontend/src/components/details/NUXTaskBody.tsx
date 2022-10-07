@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -18,9 +19,7 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
         border-color: ${Colors.border.light};
     }
 `
-const JohnsLetterHeader = styled.div`
-    font-size: 20px;
-`
+
 const TaskToCal = () => {
     return (
         <Container>
@@ -58,6 +57,7 @@ const FocusMode = () => {
                 Pro tip: Try pinning this tab in your browser for easy access, or keep it on a second monitor to get
                 details about your day at a quick glance.
             </p>
+            <img src="/images/nux-focus-mode.png" width="100%" />
         </Container>
     )
 }
@@ -73,10 +73,13 @@ const Integrations = () => {
                 <li>Connect to Slack for the ability to turn any message into a task on the spot.</li>
             </ul>
             <p>
-                You can find the full list via the Settings button in the lower right corner of the screen. (We’re just
+                You can find the full list via the Settings button in the lower left corner of the screen. (We’re just
                 getting started — if there are integrations you want to see, use the Share feedback button in the lower
                 right to let us know what you’d like to see next.)
             </p>
+            <Link to="/settings">
+                <img src="/images/nux-integrations.png" width="100%" />
+            </Link>
         </Container>
     )
 }
@@ -87,8 +90,7 @@ const JohnsLetter = () => {
     const firstName = userInfo.name.split(' ')[0]
     return (
         <Container>
-            <JohnsLetterHeader>We built this for you.</JohnsLetterHeader>
-            <p>Hi {firstName},</p>
+            Hi {firstName},
             <p>
                 Thank you for choosing General Task! We know that there are many productivity solutions on the market,
                 and we are truly honored that you landed on us.
