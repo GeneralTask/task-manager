@@ -2,14 +2,14 @@ import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+
+const GT_BETA_LOGO_WIDTH = '100px'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
@@ -51,6 +51,10 @@ const CopyrightText = styled.span`
     user-select: none;
     ${Typography.eyebrow};
 `
+const GTBetaLogo = styled.img`
+    pointer-events: none;
+    width: ${GT_BETA_LOGO_WIDTH};
+`
 
 const NavigationView = () => {
     const navigate = useNavigate()
@@ -67,7 +71,8 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
-                <Icon size="gtLogo" icon={logos.generaltask} color="purple" />
+                {/* <Icon size="gtLogo" icon={logos.generaltask} /> */}
+                <GTBetaLogo src="/images/GT-beta-logo.png" />
                 <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>

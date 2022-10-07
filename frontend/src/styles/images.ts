@@ -62,6 +62,7 @@ import {
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
+    generaltask_beta: '/images/GT-beta-logo.png',
     github: faGithub,
     gmail: '/images/google.svg',
     gcal: '/images/gcal.png',
