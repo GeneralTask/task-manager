@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
+import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TTask } from '../../utils/types'
@@ -63,14 +65,26 @@ const FocusMode = () => {
 }
 
 const Integrations = () => {
+    const { data: supportedTypes } = useGetSupportedTypes()
+    console.log({ supportedTypes })
+    const githubUrl = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url
+    const linearUrl = supportedTypes?.find((type) => type.name === 'Linear')?.authorization_url
+    const slackUrl = supportedTypes?.find((type) => type.name === 'Slack')?.authorization_url
+
     return (
         <Container>
             We want to make it easy for you to get a bird’s-eye view of your day, so we integrate with other services to
             reduce the need to jump from site to site.
             <ul>
-                <li>Connect to GitHub to see which pull requests you can take action on.</li>
-                <li>Connect to Linear to see and update the issues assigned to you.</li>
-                <li>Connect to Slack for the ability to turn any message into a task on the spot.</li>
+                <li>
+                    <a href={githubUrl}>Connect to GitHub</a> to see which pull requests you can take action on.
+                </li>
+                <li>
+                    <a href={linearUrl}>Connect to Linear</a> to see and update the issues assigned to you.
+                </li>
+                <li>
+                    <a href={slackUrl}>Connect to Slack</a> for the ability to turn any message into a task on the spot.
+                </li>
             </ul>
             <p>
                 You can find the full list via the Settings button in the lower left corner of the screen. (We’re just
