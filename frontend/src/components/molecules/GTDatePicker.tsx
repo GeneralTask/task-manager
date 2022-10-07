@@ -130,6 +130,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     textColor={getFormattedDate(value).textColor}
                     iconColor={getFormattedDate(value).iconColor}
                     onClick={() => setIsOpen(!isOpen)}
+                    active={isOpen}
                     asDiv
                 />
             }

@@ -33,7 +33,7 @@ const SecondaryButtonStyles = css`
         color: ${Colors.button.secondary.active_text};
     }
 `
-const SimpleButtonStyles = css`
+const SimpleButtonStyles = css<{ active?: boolean }>`
     background-color: inherit;
     color: ${Colors.text.light};
     &:hover {
@@ -43,6 +43,10 @@ const SimpleButtonStyles = css`
         background-color: ${Colors.background.light};
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
+    ${({ active }) =>
+        active &&
+        `background-color: ${Colors.background.light};
+        outline: ${Border.stroke.small} solid ${Colors.border.light};`}
 `
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
@@ -61,6 +65,7 @@ const Button = styled(NoStyleButton)<{
     fitContent: boolean
     size: TButtonSize
     textColor?: TTextColor
+    active?: boolean
 }>`
     display: flex;
     justify-content: center;
@@ -103,6 +108,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     iconColor?: TIconColor
     textColor?: TTextColor
     fitContent?: boolean
+    active?: boolean
     isDropdown?: boolean
     asDiv?: boolean
 }
@@ -115,6 +121,7 @@ const GTButton = ({
     iconColor,
     textColor,
     value,
+    active,
     isDropdown = false,
     asDiv = false,
     ...rest
@@ -126,6 +133,7 @@ const GTButton = ({
             wrapText={wrapText}
             fitContent={fitContent}
             textColor={textColor}
+            active={active}
             as={asDiv ? 'div' : 'button'}
             {...rest}
         >
