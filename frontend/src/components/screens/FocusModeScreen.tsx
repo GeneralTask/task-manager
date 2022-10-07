@@ -3,11 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
-import { SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useInterval, useKeyboardShortcut } from '../../hooks'
-import { useGetEvents } from '../../services/api/events.hooks'
+import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useInterval, useKeyboardShortcut, useToast } from '../../hooks'
+import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { focusModeBackground, logos } from '../../styles/images'
+import { focusModeBackground, icons, logos } from '../../styles/images'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
 import { TEvent } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
@@ -16,8 +16,10 @@ import GTStaticCheckbox from '../atoms/GTStaticCheckbox'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
 import TimeRange from '../atoms/TimeRange'
+import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
@@ -26,6 +28,19 @@ import CalendarView from '../views/CalendarView'
 
 const FOCUS_MODE_WIDTH = '956px'
 
+const EventHeaderContainer = styled.div`
+    display: flex;
+`
+const MarginLeftContainer = styled.div`
+    margin-left: auto;
+`
+export const IconButton = styled(NoStyleButton)`
+    padding: ${Spacing._8};
+    border-radius: 50vh;
+    &:hover {
+        background-color: ${Colors.background.dark};
+    }
+`
 const TemplateViewContainer = styled.div`
     height: 100%;
     background: url(${focusModeBackground});
@@ -243,6 +258,44 @@ const FocusModeScreen = () => {
 
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
     const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
+    const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
+    const toast = useToast()
+
+    const onDelete = useCallback(() => {
+        if (!chosenEvent) return
+        setSelectedEvent(null)
+        const date = DateTime.now()
+        deleteEventInCache({
+            id: chosenEvent.id,
+            date: date,
+            datetime_start: chosenEvent.datetime_start,
+            datetime_end: chosenEvent.datetime_end,
+        })
+        toast.show(
+            {
+                message: 'This calendar event has been deleted',
+                rightAction: {
+                    label: 'Undo',
+                    onClick: () => {
+                        toast.dismiss()
+                        undoDeleteEventInCache(chosenEvent, date)
+                    },
+                    undoableAction: () =>
+                        deleteEvent({
+                            id: chosenEvent.id,
+                            date: date,
+                            datetime_start: chosenEvent.datetime_start,
+                            datetime_end: chosenEvent.datetime_end,
+                        }),
+                },
+            },
+            {
+                autoClose: EVENT_UNDO_TIMEOUT * 1000,
+                pauseOnFocusLoss: false,
+                theme: 'dark',
+            }
+        )
+    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, toast, undoDeleteEventInCache])
 
     const navigate = useNavigate()
     return (
@@ -278,7 +331,15 @@ const FocusModeScreen = () => {
                             )}
                             {chosenEvent && (
                                 <>
-                                    <GTHeader title={title}>{title}</GTHeader>
+                                    <EventHeaderContainer>
+                                        <GTHeader title={title}>{title}</GTHeader>
+                                        <MarginLeftContainer>
+                                            <ExternalLinkButton link={chosenEvent.deeplink} />
+                                            <IconButton onClick={onDelete}>
+                                                <Icon icon={icons.trash} />
+                                            </IconButton>
+                                        </MarginLeftContainer>
+                                    </EventHeaderContainer>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
                                     </GTTitle>
