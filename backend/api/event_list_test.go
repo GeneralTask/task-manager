@@ -42,15 +42,6 @@ func TestEventList(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, api.DB, authToken)
 
 	externalTokenCollection := database.GetExternalTokenCollection(api.DB)
-	// _, err := externalTokenCollection.InsertOne(
-	// 	context.Background(),
-	// 	&database.ExternalAPIToken{
-	// 		AccountID: sourceAccountID,
-	// 		ServiceID: external.TASK_SERVICE_ID_GOOGLE,
-	// 		UserID:    userID,
-	// 	},
-	// )
-	// assert.NoError(t, err)
 	// wrong service
 	_, err := externalTokenCollection.InsertOne(
 		context.Background(),
