@@ -1,8 +1,9 @@
+import { useDrag } from 'react-dnd'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../styles'
 import { linearStatus } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { DropType, TTask } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import { Icon } from '../atoms/Icon'
 import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
@@ -42,6 +43,18 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     const navigate = useNavigate()
     const { linearIssueId } = useParams()
 
+    const [, drag, dragPreview] = useDrag(
+        () => ({
+            type: DropType.LINEAR_TASK,
+            item: { id: task.id, task },
+            collect: (monitor) => {
+                const isDragging = !!monitor.isDragging()
+                return { opacity: isDragging ? 0.5 : 1 }
+            },
+        }),
+        [task]
+    )
+
     const onClick = (id: string) => {
         navigate(`/linear/${id}`)
     }
@@ -51,6 +64,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             key={task.id}
             onClick={() => onClick(task.id)}
             isSelected={linearIssueId === task.id}
+            ref={(node) => drag(dragPreview(node))}
         >
             {linearIssueId === task.id && <PurpleEdge />}
             <LeftContainer>
