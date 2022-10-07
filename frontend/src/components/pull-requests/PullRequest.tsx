@@ -22,7 +22,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     const { title, status, num_comments, deeplink } = pullRequest
 
     const onClickHandler = useCallback(() => {
-        Log(`navigate_pr___${link}`)
+        Log(`pr_select___${link}`)
         navigate(link)
     }, [params, pullRequest])
 
