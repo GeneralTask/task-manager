@@ -100,6 +100,8 @@ type Task struct {
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
+	// for new user experience
+	NUXNumber int `bson:"nux_number_id,omitempty"`
 	// used to cache the current status before marking the task as done
 	Status          *ExternalTaskStatus   `bson:"status,omitempty"`
 	PreviousStatus  *ExternalTaskStatus   `bson:"previous_status,omitempty"`
