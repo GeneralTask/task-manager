@@ -147,15 +147,17 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const dueDate = DateTime.fromISO(task.due_date).toJSDate()
     const formattedDate = getFormattedDate(dueDate)
 
+    const [contextMenuOpen, setContextMenuOpen] = useState(false)
+
     return (
-        <TaskContextMenuWrapper task={task} sectionId={sectionId}>
+        <TaskContextMenuWrapper task={task} sectionId={sectionId} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
                 ref={elementRef}
                 isVisible={isVisible}
                 onMouseLeave={() => setIsHovered(false)}
                 onMouseEnter={() => setIsHovered(true)}
             >
-                <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag}>
+                <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
                     <DominoContainer isVisible={isHovered && !dragDisabled}>
                         <Domino />
                     </DominoContainer>
