@@ -47,7 +47,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
 }
 
 export const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Google')
+    return linkedAccounts.some((account) => account.name === 'Google Calendar')
 }
 export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')
