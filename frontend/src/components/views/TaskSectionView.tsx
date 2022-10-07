@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
@@ -59,6 +59,8 @@ const TaskSectionView = () => {
         return { section, task }
     }, [taskSections, params.task, params.section])
 
+    const [shouldScrollToTask, setShouldScrollToTask] = useState(false)
+
     const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
     const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
 
@@ -80,11 +82,11 @@ const TaskSectionView = () => {
 
     const selectTask = useCallback(
         (itemId: string) => {
+            setShouldScrollToTask(true)
             if (section) navigate(`/tasks/${section.id}/${itemId}`)
         },
         [section]
     )
-
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
             if (!section) return
@@ -145,6 +147,8 @@ const TaskSectionView = () => {
                                                 sectionScrollingRef={sectionScrollingRef}
                                                 isSelected={task.id === params.task}
                                                 link={`/tasks/${params.section}/${task.id}`}
+                                                shouldScrollToTask={shouldScrollToTask}
+                                                setShouldScrollToTask={setShouldScrollToTask}
                                             />
                                         </ReorderDropContainer>
                                     ))}

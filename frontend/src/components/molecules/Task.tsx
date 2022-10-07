@@ -60,9 +60,21 @@ interface TaskProps {
     isSelected: boolean
     link: string
     meetingPreparationStartTime?: DateTime
+    shouldScrollToTask?: boolean
+    setShouldScrollToTask?: (shouldScrollToTask: boolean) => void
 }
 
-const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSelected, link }: TaskProps) => {
+const Task = ({
+    task,
+    dragDisabled,
+    index,
+    sectionId,
+    sectionScrollingRef,
+    isSelected,
+    link,
+    shouldScrollToTask,
+    setShouldScrollToTask,
+}: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -113,18 +125,19 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
             if (observer.current) observer.current.disconnect()
             observer.current = new IntersectionObserver(
                 (entries) => {
-                    if (!entries[0].isIntersecting && isSelected && !isScrolling.current) {
+                    if (shouldScrollToTask && !entries[0].isIntersecting && isSelected && !isScrolling.current) {
                         node.scrollIntoView({
                             behavior: 'smooth',
                             block: 'center',
                         })
                     }
+                    if (setShouldScrollToTask) setShouldScrollToTask(false)
                 },
                 { threshold: 1.0 }
             )
             if (node) observer.current.observe(node)
         },
-        [isSelected, isScrolling.current]
+        [isSelected, isScrolling.current, shouldScrollToTask]
     )
 
     const onClick = useCallback(() => {
