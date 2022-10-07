@@ -235,6 +235,7 @@ type linearWorkflowStatesQuery struct {
 			Name     graphql.String
 			Type     graphql.String
 			Position graphql.Float
+			Color    graphql.String
 			Team     struct {
 				Name graphql.String
 			}
@@ -560,16 +561,33 @@ func ProcessLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]
 			State:             string(node.Name),
 			Type:              string(node.Type),
 			IsCompletedStatus: string(node.Type) == LinearCompletedType || string(node.Type) == LinearCanceledType,
+			Color:             string(node.Color),
 			Position:          float64(node.Position),
 		})
 	}
 
 	sortedStatuses := make(map[string][]*database.ExternalTaskStatus)
+	// have to hardcode ordering as Linear doesn't give us information surrounding this
+	statusOrdering := []string{"backlog", "unstarted", "started", "completed", "canceled", "triage"}
 	for team, statuses := range teamToStatuses {
 		sort.Slice(statuses, func(i, j int) bool {
+			difference := indexOf(statuses[i].Type, statusOrdering) - indexOf(statuses[j].Type, statusOrdering)
+			if difference != 0 {
+				return difference < 0
+			}
 			return (*statuses[i]).Position < (*statuses[j]).Position
 		})
 		sortedStatuses[team] = statuses
 	}
 	return sortedStatuses
+}
+
+// from https://stackoverflow.com/questions/8307478/how-to-find-out-element-position-in-slice
+func indexOf(element string, data []string) int {
+	for k, v := range data {
+		if element == v {
+			return k
+		}
+	}
+	return -1
 }

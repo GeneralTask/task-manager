@@ -24,6 +24,7 @@ type externalStatus struct {
 	IDExternal string `json:"external_id,omitempty"`
 	State      string `json:"state,omitempty"`
 	Type       string `json:"type,omitempty"`
+	Color      string `json:"color,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -312,6 +313,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 				IDExternal: status.ExternalID,
 				State:      status.State,
 				Type:       status.Type,
+				Color:      status.Color,
 			})
 		}
 		taskResult.AllStatuses = allStatuses

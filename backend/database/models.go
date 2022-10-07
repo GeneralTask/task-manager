@@ -234,6 +234,7 @@ type ExternalTaskStatus struct {
 	Type              string  `json:"type" bson:"type"`
 	IsCompletedStatus bool    `json:"is_completed_status" bson:"is_completed_status"`
 	Position          float64 `json:"position" bson:"position"`
+	Color             string  `json:"color" bson:"color"`
 }
 
 type UserSetting struct {

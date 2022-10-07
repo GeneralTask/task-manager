@@ -55,6 +55,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			ExternalID: "example ID",
 			State:      "example state",
 			Type:       "example type",
+			Color:      "#ffffff",
 		}
 		slackMessageParams := database.SlackMessageParams{
 			Channel: database.SlackChannel{
@@ -88,6 +89,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, priority, result.PriorityNormalized)
 		assert.Equal(t, 1, len(result.AllStatuses))
 		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
+		assert.Equal(t, externalStatus.Color, result.AllStatuses[0].Color)
 	})
 }
 
