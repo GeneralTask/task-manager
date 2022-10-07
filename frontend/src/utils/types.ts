@@ -42,6 +42,7 @@ export interface TTask {
     isOptimistic?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
+    nux_number_id: number
 }
 
 export interface TMeetingPreparationParams {
@@ -214,6 +215,7 @@ export interface TTaskCreateParams {
 export interface TUserInfo {
     agreed_to_terms: boolean
     opted_into_marketing: boolean
+    name: string
 }
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type

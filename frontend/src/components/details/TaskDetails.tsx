@@ -23,6 +23,7 @@ import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import TaskBody from './TaskBody'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
@@ -41,12 +42,6 @@ const MarginLeftAuto = styled.div`
 `
 const MarginLeft8 = styled.div`
     margin-left: ${Spacing._8};
-`
-const BodyContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    flex-basis: 750px;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -76,7 +71,6 @@ const SYNC_MESSAGES = {
 }
 
 const TITLE_MAX_HEIGHT = 208
-const BODY_MIN_HEIGHT = 200
 
 interface TaskDetailsProps {
     task: TTask
@@ -181,7 +175,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     type="plaintext"
                     itemId={task.id}
                     value={task.title}
-                    disabled={task.isOptimistic || is_meeting_preparation_task}
+                    disabled={task.isOptimistic || is_meeting_preparation_task || task.nux_number_id > 0}
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
@@ -208,17 +202,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <Spinner />
             ) : (
                 <>
-                    <BodyContainer>
-                        <GTTextField
-                            itemId={task.id}
-                            type="markdown"
-                            value={task.body}
-                            placeholder="Add details"
-                            onChange={(val) => onEdit({ id: task.id, body: val })}
-                            minHeight={BODY_MIN_HEIGHT}
-                            fontSize="small"
-                        />
-                    </BodyContainer>
+                    <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} />
                     {task.comments && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
