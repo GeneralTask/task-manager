@@ -15,7 +15,6 @@ const TasksDueHeaderContainer = styled.div`
 `
 const CaretContainer = styled.div`
     margin-left: auto;
-    margin-right: ${Spacing._8};
 `
 interface TasksDueHeaderProps {
     type: 'day' | 'week'
