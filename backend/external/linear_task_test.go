@@ -76,6 +76,14 @@ func TestLoadLinearTasks(t *testing.T) {
 			"workflowStates": {
 				"nodes": [
 					{
+						"id": "6942069419",
+						"name": "Triage",
+						"type": "triage",
+						"team": {
+							"name": "Backend"
+						}
+					},
+					{
 						"id": "6942069420",
 						"name": "Todo",
 						"type": "started",
@@ -283,6 +291,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
+		assert.Equal(t, "Triage", taskFromDB.AllStatuses[2].State)
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
