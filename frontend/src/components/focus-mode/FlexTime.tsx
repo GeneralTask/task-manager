@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateEvent } from '../../services/api/events.hooks'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -90,6 +91,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
     const { data: taskSections } = useGetTasks()
     const { mutate: createEvent } = useCreateEvent()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: views } = useGetOverviewViews()
 
     const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
 
@@ -102,11 +104,33 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
         const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
         setRecommendedTasks([firstTask, secondTask])
-    }, [taskSections])
+    }, [taskSections, views])
 
     useLayoutEffect(() => {
         if (!recommendedTasks[0] && !recommendedTasks[1]) {
-            getNewRecommendedTasks()
+            let firstTask = undefined
+            let secondTask = undefined
+            if (views === undefined) {
+                getNewRecommendedTasks()
+                return
+            }
+            for (const view of views) {
+                if (view.type === 'slack' || view.type === 'task_section' || view.type === 'linear') {
+                    if (!firstTask) {
+                        firstTask = view.view_items.length > 0 ? view.view_items[0] : undefined
+                    }
+                    if (!secondTask) {
+                        secondTask = view.view_items.length > 1 ? view.view_items[1] : undefined
+                    }
+                }
+                if (firstTask && secondTask) {
+                    setRecommendedTasks([firstTask, secondTask])
+                    break
+                }
+            }
+            if (!firstTask && !secondTask) {
+                getNewRecommendedTasks()
+            }
         }
     }, [taskSections])
 
