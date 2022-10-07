@@ -10,7 +10,7 @@ const LandingScreen = () => {
         }
     }, [])
 
-    if (!isDevelopment) return <div>Test</div>
+    if (!isDevelopment) return <div></div>
     if (isDevelopment) {
         return (
             <div>
