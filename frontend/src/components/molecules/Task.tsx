@@ -1,4 +1,4 @@
-import { MutableRefObject, memo, useCallback, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
@@ -154,7 +154,7 @@ const Task = ({
                 return { opacity: isDragging ? 0.5 : 1 }
             },
         }),
-        [task, index, sectionId]
+        [task, index, sectionId, dragDisabled]
     )
 
     // hide default drag preview
@@ -237,4 +237,4 @@ const Task = ({
     )
 }
 
-export default memo(Task)
+export default Task
