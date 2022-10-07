@@ -24,7 +24,7 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\",\"email\":\"userinfo@generaltask.com\"}", string(body))
 	})
 	UnauthorizedTest(t, "PATCH", "/user_info/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err = ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"name\":\"\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"name\":\"\",\"email\":\"userinfo@generaltask.com\"}", string(body))
 	})
 	t.Run("SuccessPartialUpdate", func(t *testing.T) {
 		// assuming the fields are still true as above
@@ -107,6 +107,6 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err = ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"name\":\"\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"name\":\"\",\"email\":\"userinfo@generaltask.com\"}", string(body))
 	})
 }
