@@ -1,12 +1,12 @@
 import { useCallback, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
+import { PULL_REQUEST_ACTIONS } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import { PurpleEdge } from '../atoms/SelectableContainer'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
-import { PULL_REQUEST_ACTIONS } from './constants'
 import { Column, LinkButtonContainer, PullRequestRow, Status, TitleContainer } from './styles'
 
 interface PullRequestProps {
