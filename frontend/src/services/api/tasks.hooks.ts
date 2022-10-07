@@ -305,8 +305,8 @@ export const useMarkTaskDone = () => {
 
                 queryClient.setQueryData('tasks', newSections)
 
-                if (data.isDone) {
-                    setTimeout(() => {
+                setTimeout(() => {
+                    if (data.isDone) {
                         const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                         if (!sections) return
 
@@ -320,9 +320,10 @@ export const useMarkTaskDone = () => {
                         })
 
                         queryClient.setQueryData('tasks', newSections)
-                        queryClient.invalidateQueries('tasks')
-                    }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-                }
+                    }
+                    queryClient.invalidateQueries('overview')
+                    queryClient.invalidateQueries('tasks')
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
             if (views) {
                 const newViews = produce(views, (draft) => {
@@ -341,9 +342,8 @@ export const useMarkTaskDone = () => {
                 })
 
                 queryClient.setQueryData('overview', newViews)
-
-                if (data.isDone) {
-                    setTimeout(() => {
+                setTimeout(() => {
+                    if (data.isDone) {
                         const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                         if (!views) return
 
@@ -364,11 +364,11 @@ export const useMarkTaskDone = () => {
                         })
 
                         queryClient.setQueryData('overview', newViews)
-                    }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-                }
+                    }
+                    queryClient.invalidateQueries('overview')
+                    queryClient.invalidateQueries('tasks')
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('overview')
         },
     })
 }
