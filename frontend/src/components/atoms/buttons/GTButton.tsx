@@ -13,11 +13,11 @@ const PrimaryButtonStyles = css`
     background-color: ${Colors.button.primary.default};
     color: ${Colors.text.white};
     &:hover {
-        box-shadow: ${Shadows.button.primary.hover};
+        box-shadow: ${Shadows.button.hover};
         background-color: ${Colors.button.primary.hover};
     }
     &:active {
-        box-shadow: ${Shadows.button.primary.active};
+        box-shadow: ${Shadows.button.active};
         color: ${Colors.button.primary.active_text};
     }
 `
@@ -25,11 +25,11 @@ const SecondaryButtonStyles = css`
     background-color: ${Colors.button.secondary.default};
     color: ${Colors.text.black};
     &:hover {
-        box-shadow: ${Shadows.button.secondary.hover};
+        box-shadow: ${Shadows.button.hover};
         background-color: ${Colors.button.secondary.hover};
     }
     &:active {
-        box-shadow: ${Shadows.button.secondary.active};
+        box-shadow: ${Shadows.button.active};
         color: ${Colors.button.secondary.active_text};
     }
 `
