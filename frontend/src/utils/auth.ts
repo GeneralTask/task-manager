@@ -1,5 +1,6 @@
 import Cookie from 'js-cookie'
 import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
+import getEnvVars from '../environment'
 
 const AUTH_WINDOW_WIDTH = 960
 const AUTH_WINDOW_HEIGHT = 640
@@ -9,7 +10,7 @@ export const isAuthenticated = () => Cookie.get(AUTHORIZATION_COOKE) !== undefin
 export const authSignOut = () => {
     Cookie.remove(AUTHORIZATION_COOKE, { path: '/', domain: COOKIE_DOMAIN })
     Cookie.remove(AUTHORIZATION_COOKE) // used for cypress tests
-    window.location.replace('/')
+    window.location.href = getEnvVars().REACT_APP_TRY_BASE_URL
 }
 
 export const openPopupWindow = (authorizationURL: string, onWindowClose: () => void) => {
