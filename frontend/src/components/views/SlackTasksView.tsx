@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -70,6 +71,7 @@ const SlackTasksView = () => {
 
     const onClick = (id: string) => {
         navigate(`/slack/${id}`)
+        Log(`slack_task_select__/slack/${id}`)
     }
 
     const [isVisible, setIsVisible] = useState(true)

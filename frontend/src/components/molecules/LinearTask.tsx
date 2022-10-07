@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { linearStatus } from '../../styles/images'
@@ -70,6 +71,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
 
     const onClick = (id: string) => {
         navigate(`/linear/${id}`)
+        Log(`linear_select_/linear/${id}`)
     }
 
     return (
