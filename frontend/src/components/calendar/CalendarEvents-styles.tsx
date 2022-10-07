@@ -52,6 +52,7 @@ export const CalendarTableStyle = styled.table`
 `
 export const CalendarTimesTableStyle = styled.table`
     border-collapse: collapse;
+    user-select: none;
 `
 export const CalendarRow = styled.tr`
     display: block;
