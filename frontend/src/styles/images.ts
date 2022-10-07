@@ -12,6 +12,7 @@ import {
     faBarsSort,
     faCalendar,
     faCalendarDays,
+    faCheck,
     faCheckSquare,
     faChevronDown,
     faChevronLeft,
@@ -49,7 +50,6 @@ import {
 import {
     faBold,
     faCaretDown,
-    faCheck,
     faCheckSquare as faCheckSquareSolid,
     faCircleChevronDown,
     faCircleChevronUp,
