@@ -34,7 +34,7 @@ const TaskToCal = () => {
                 Next, we’ll take a look at how to shut out distractions with Focus Mode. Click the checkbox to mark this
                 task as done whenever you’re ready.
             </p>
-            <video width="100%" autoPlay loop>
+            <video width="100%" autoPlay loop muted>
                 <source src="/video/task-to-cal.mp4" type="video/mp4" />
             </video>
         </Container>
