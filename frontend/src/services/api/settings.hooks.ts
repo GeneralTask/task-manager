@@ -5,11 +5,22 @@ import apiClient from '../../utils/api'
 import { TLinkedAccount, TSetting, TSupportedType } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
 
+export type GHSortPreference = `${string}github_sorting_preference${string}`
+export type GHSortDirection = `${string}github_sorting_direction${string}`
 export type GHFilterPreference = `${string}github_filtering_preference`
-export type GHSortPreference = `${string}github_sorting_preference`
-export type GHSortDirection = `${string}github_sorting_direction`
 
-export type TSettingsKey = 'calendar_account_id_for_new_tasks' | GHFilterPreference | GHSortPreference | GHSortDirection
+export type TaskSortPreference = `${string}task_sorting_preference${string}`
+export type TaskSortDirection = `${string}task_sorting_direction${string}`
+export type TaskFilterPreference = `${string}task_filtering_preference${string}`
+
+export type TSettingsKey =
+    | 'calendar_account_id_for_new_tasks'
+    | GHFilterPreference
+    | GHSortPreference
+    | GHSortDirection
+    | TaskSortPreference
+    | TaskSortDirection
+    | TaskFilterPreference
 
 type TUpdateSettingsData = {
     key: TSettingsKey

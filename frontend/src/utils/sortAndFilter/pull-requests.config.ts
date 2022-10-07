@@ -1,11 +1,6 @@
-import {
-    FilterOptions,
-    SORT_DIRECTION,
-    SortAndFilterSettingsConfig,
-    SortOptions,
-} from '../../utils/sortAndFilter/types'
-import { TPullRequest } from '../../utils/types'
-import { emptyFunction } from '../../utils/utils'
+import { TPullRequest } from '../types'
+import { emptyFunction } from '../utils'
+import { FilterOptions, SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from './types'
 
 const ACTION_REVIEW_PR = { text: 'Review PR', description: 'You have been added as a requested reviewer for the PR' }
 const ACTION_ADD_REVIEWERS = {
@@ -126,6 +121,7 @@ export const PR_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TPullRequest
     sortPreferenceId: 'github_sorting_preference',
     sortDirectionId: 'github_sorting_direction',
     filterPreferenceId: 'github_filtering_preference',
+    tieBreakerField: 'number',
     defaultSortsAndFilters: {
         sortOptions: PR_SORT_SELECTOR_ITEMS,
         filterOptions: PR_FILTER_OPTIONS,
