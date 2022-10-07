@@ -33,7 +33,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 	nameToService := api.ExternalConfig.GetNameToService()
 	supportedAccountTypes := []SupportedAccountType{}
 	for serviceName, service := range nameToService {
-		// need to check if Slack App (used in workflow installation)
+		// need to check if Slack App (used in workflow installations)
 		// we don't want this to appear in supported account typed list
 		if !service.Details.IsLinkable || serviceName == external.TASK_SERVICE_ID_SLACK_APP {
 			continue
