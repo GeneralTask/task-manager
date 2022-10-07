@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -35,7 +36,10 @@ const LinearView = () => {
 
     useItemSelectionController(
         linearTasks,
-        useCallback((itemId: string) => navigate(`/linear/${itemId}`), [])
+        useCallback((itemId: string) => {
+            navigate(`/linear/${itemId}`)
+            Log(`linear_task_select__/linear/${itemId}`)
+        }, [])
     )
 
     const { task } = useMemo(() => {

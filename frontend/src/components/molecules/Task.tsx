@@ -6,6 +6,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
+import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
@@ -142,6 +143,7 @@ const Task = ({
 
     const onClick = useCallback(() => {
         navigate(link)
+        Log(`task_select__${link}`)
     }, [link])
 
     const [, drag, dragPreview] = useDrag(

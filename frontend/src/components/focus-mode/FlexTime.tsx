@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import Log from '../../services/api/log'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -182,6 +183,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
             linkedTask: task,
             optimisticId: uuidv4(),
         })
+        Log(`flex_time_create_event_from_task`)
     }
 
     return (
