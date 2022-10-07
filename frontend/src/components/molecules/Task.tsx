@@ -6,19 +6,28 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
 import { useInterval } from '../../hooks'
+import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
-import { logos } from '../../styles/images'
+import { linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
+import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
 
+const GTButtonHack = styled(GTButton)`
+    width: 20px !important;
+    padding: ${Spacing._4} !important;
+    box-sizing: border-box;
+    max-width: 20px;
+`
 const RightContainer = styled.span`
     display: flex;
     align-items: center;
@@ -58,6 +67,7 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
     const [isHovered, setIsHovered] = useState(false)
+    const { mutate: modifyTask } = useModifyTask()
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
@@ -161,14 +171,36 @@ const Task = ({ task, dragDisabled, index, sectionId, sectionScrollingRef, isSel
                     <DominoContainer isVisible={isHovered && !dragDisabled}>
                         <Domino />
                     </DominoContainer>
-                    <MarkTaskDoneButton
-                        taskId={task.id}
-                        sectionId={sectionId}
-                        isDone={task.is_done}
-                        isSelected={isSelected}
-                        isDisabled={task.isOptimistic}
-                        onMarkComplete={taskFadeOut}
-                    />
+
+                    {task.external_status && task.all_statuses && (
+                        <GTDropdownMenu
+                            items={task.all_statuses.map((status) => ({
+                                label: status.state,
+                                onClick: () => modifyTask({ id: task.id, status: status }),
+                                icon: linearStatus[status.type],
+                                selected: status.state === task.external_status?.state,
+                            }))}
+                            trigger={
+                                <GTButtonHack
+                                    value={status}
+                                    icon={linearStatus[task.external_status.type]}
+                                    size="small"
+                                    styleType="simple"
+                                    asDiv
+                                />
+                            }
+                        />
+                    )}
+                    {(!task.external_status || !task.all_statuses) && (
+                        <MarkTaskDoneButton
+                            taskId={task.id}
+                            sectionId={sectionId}
+                            isDone={task.is_done}
+                            isSelected={isSelected}
+                            isDisabled={task.isOptimistic}
+                            onMarkComplete={taskFadeOut}
+                        />
+                    )}
                     <Title>{task.title}</Title>
                     <RightContainer>
                         {isValidDueDate(dueDate) && (
