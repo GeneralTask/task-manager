@@ -64,6 +64,7 @@ const TaskSectionView = () => {
     const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
     const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedTasks = useMemo(() => {
+        if (section && (section.is_done || section.is_trash)) return section.tasks
         if (!section || areSettingsLoading) return []
         return sortAndFilterItems({
             items: section.tasks,
@@ -120,12 +121,14 @@ const TaskSectionView = () => {
             <TaskSectionContainer>
                 <ScrollableListTemplate ref={sectionScrollingRef}>
                     <TaskSectionViewContainer>
-                        {isLoadingTasks || !section || areSettingsLoading ? (
+                        {isLoadingTasks || !section || (areSettingsLoading && !section.is_done && !section.is_trash) ? (
                             <Spinner />
                         ) : (
                             <>
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
-                                <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                                {!section.is_done && !section.is_trash && (
+                                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                                )}
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>
                                     {sortedTasks.map((task, index) => (
