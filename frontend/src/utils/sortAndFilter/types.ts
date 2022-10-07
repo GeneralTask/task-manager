@@ -25,6 +25,8 @@ export interface Sort<T> {
     label: string
     field?: keyof T
     customComparator?: (a: T, b: T) => number
+    // if this is set, the direction will be forced to this value and the direction selector will be hidden
+    forceAndHideDirection?: SORT_DIRECTION
 }
 
 export interface Filter<T> {

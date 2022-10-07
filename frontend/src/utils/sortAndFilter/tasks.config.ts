@@ -2,6 +2,8 @@ import { TTask } from '../types'
 import { emptyFunction } from '../utils'
 import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from './types'
 
+const NO_PRIORITY = 1000000
+
 export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
     manual: {
         id: 'manual',
@@ -9,6 +11,7 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
         customComparator: (a: TTask, b: TTask) => {
             return b.id_ordering - a.id_ordering
         },
+        forceAndHideDirection: SORT_DIRECTION.DESC,
     },
     due_date: {
         id: 'due_date',
@@ -18,7 +21,9 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
     priority: {
         id: 'priority',
         label: 'Priority',
-        field: 'priority_normalized',
+        customComparator: (a: TTask, b: TTask) => {
+            return (b.priority_normalized || NO_PRIORITY) - (a.priority_normalized || NO_PRIORITY)
+        },
     },
 }
 

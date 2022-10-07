@@ -40,7 +40,7 @@ const SortAndFilterDropdowns = <T,>({
             })),
         [sortOptions, selectedSort, setSelectedSort]
     )
-    const sortOrderGroups: GTMenuItem[] = useMemo(
+    const sortDirectionGroups: GTMenuItem[] = useMemo(
         () => [
             {
                 label: 'Ascending',
@@ -67,6 +67,11 @@ const SortAndFilterDropdowns = <T,>({
             })),
         [filterOptions, selectedFilter, setSelectedFilter]
     )
+    const sortSelectorItems = [sortItems]
+    if (!selectedSort.forceAndHideDirection) {
+        sortSelectorItems.push(sortDirectionGroups)
+    }
+
     return (
         <SortAndFilterContainer>
             {filterSelectorItems.length > 0 && (
@@ -84,7 +89,7 @@ const SortAndFilterDropdowns = <T,>({
                 />
             )}
             <GTDropdownMenu
-                items={[sortItems, sortOrderGroups]}
+                items={sortSelectorItems}
                 trigger={
                     <GTButton
                         icon={selectedSortDirection === SORT_DIRECTION.ASC ? icons.arrow_up : icons.arrow_down}

@@ -63,7 +63,7 @@ const TaskSectionView = () => {
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
     const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
-
+    console.log(sortAndFilterSettings)
     const sortedTasks = useMemo(() => {
         if (!section || areSettingsLoading) return []
         return sortAndFilterItems({
