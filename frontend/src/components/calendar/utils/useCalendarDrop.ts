@@ -180,9 +180,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
             ],
-            collect: (monitor) => {
-                return monitor.isOver()
-            },
+            collect: (monitor) => primaryAccountID && monitor.isOver(),
             drop: onDrop,
             canDrop: () => primaryAccountID !== undefined,
             hover: (item, monitor) => {
