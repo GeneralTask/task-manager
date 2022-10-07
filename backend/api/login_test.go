@@ -111,9 +111,6 @@ func TestLoginRedirect(t *testing.T) {
 }
 
 func TestLoginCallback(t *testing.T) {
-	//db, dbCleanup, err := database.GetDBConnection()
-	//assert.NoError(t, err)
-	//defer dbCleanup()
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	waitlistCollection := database.GetWaitlistCollection(api.DB)
