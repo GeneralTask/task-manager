@@ -74,6 +74,7 @@ const CommandEmpty = styled(Command.Empty)`
     ${Typography.bodySmall}
     display: flex;
     justify-content: center;
+    margin: ${Spacing._8} ${Spacing._8};
 `
 const IconContainer = styled.div`
     display: flex;
