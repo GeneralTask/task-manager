@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -10,6 +11,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
 	guuid "github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -120,7 +122,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 		LinkConfig:   api.ExternalConfig.GoogleAuthorizeConfig,
 		OverrideURLs: api.ExternalConfig.GoogleOverrideURLs,
 	}
-	userID, userIsNew, _, err := googleService.HandleSignupCallback(api.DB, external.CallbackParams{Oauth2Code: &redirectParams.Code})
+	userID, userIsNew, email, err := googleService.HandleSignupCallback(api.DB, external.CallbackParams{Oauth2Code: &redirectParams.Code})
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("Failed to handle signup")
 		Handle500(c)
@@ -138,22 +140,22 @@ func (api *API) LoginCallback(c *gin.Context) {
 		}
 	}
 
-	// lowerEmail := strings.ToLower(*email)
-	// waitlistCollection := database.GetWaitlistCollection(api.DB)
-	// count, err := waitlistCollection.CountDocuments(
-	// 	context.Background(),
-	// 	bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
-	// )
-	// if err != nil {
-	// 	api.Logger.Error().Err(err).Msg("failed to query waitlist")
-	// 	Handle500(c)
-	// 	return
-	// }
-	// isGTUser := strings.HasSuffix(lowerEmail, "@generaltask.com")
-	// if _, contains := constants.ALLOWED_USERNAMES[lowerEmail]; !contains && !isGTUser && count == 0 {
-	// 	c.JSON(403, gin.H{"detail": "email has not been approved."})
-	// 	return
-	// }
+	lowerEmail := strings.ToLower(*email)
+	waitlistCollection := database.GetWaitlistCollection(api.DB)
+	count, err := waitlistCollection.CountDocuments(
+		context.Background(),
+		bson.M{"$and": []bson.M{{"email": lowerEmail}, {"has_access": true}}},
+	)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to query waitlist")
+		Handle500(c)
+		return
+	}
+	isGTUser := strings.HasSuffix(lowerEmail, "@generaltask.com")
+	if _, contains := constants.ALLOWED_USERNAMES[lowerEmail]; !contains && !isGTUser && count == 0 {
+		c.JSON(403, gin.H{"detail": "email has not been approved."})
+		return
+	}
 
 	internalToken := guuid.New().String()
 	internalAPITokenCollection := database.GetInternalTokenCollection(api.DB)
