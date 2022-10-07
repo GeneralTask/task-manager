@@ -66,7 +66,6 @@ const FocusMode = () => {
 
 const Integrations = () => {
     const { data: supportedTypes } = useGetSupportedTypes()
-    console.log({ supportedTypes })
     const githubUrl = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url
     const linearUrl = supportedTypes?.find((type) => type.name === 'Linear')?.authorization_url
     const slackUrl = supportedTypes?.find((type) => type.name === 'Slack')?.authorization_url
