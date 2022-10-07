@@ -14,6 +14,7 @@ import (
 type SupportedAccountType struct {
 	Name             string `json:"name"`
 	Logo             string `json:"logo"`
+	LogoV2           string `json:"logo_v2"`
 	AuthorizationURL string `json:"authorization_url"`
 }
 
@@ -40,6 +41,7 @@ func (api *API) SupportedAccountTypesList(c *gin.Context) {
 		supportedAccountTypes = append(supportedAccountTypes, SupportedAccountType{
 			Name:             service.Details.Name,
 			Logo:             service.Details.Logo,
+			LogoV2:           service.Details.LogoV2,
 			AuthorizationURL: serverURL + "link/" + service.Details.ID + "/",
 		})
 	}
