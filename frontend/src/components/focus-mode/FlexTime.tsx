@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { useCreateEvent } from '../../services/api/events.hooks'
+import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -136,6 +137,7 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
             linkedTask: task,
             optimisticId: uuidv4(),
         })
+        Log(`flex_time_create_event_from_task`)
     }
 
     return (

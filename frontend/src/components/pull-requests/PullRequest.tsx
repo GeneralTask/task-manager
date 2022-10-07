@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import Log from '../../services/api/log'
 import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import { PurpleEdge } from '../atoms/SelectableContainer'
@@ -18,6 +19,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
     const { title, status, num_comments, deeplink } = pullRequest
 
     const onClickHandler = useCallback(() => {
+        Log(`navigate_pr___${link}`)
         navigate(link)
     }, [params, pullRequest])
 
