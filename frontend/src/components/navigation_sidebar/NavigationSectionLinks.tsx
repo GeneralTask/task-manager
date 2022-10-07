@@ -3,11 +3,13 @@ import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { DropItem, DropType } from '../../utils/types'
+import { isGithubLinkedAccount, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
@@ -107,6 +109,17 @@ const NavigationSectionLinks = () => {
         return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
     }, [folders])
 
+    const { data: linkedAccounts } = useGetLinkedAccounts()
+    const isGithubLinked = isGithubLinkedAccount(linkedAccounts || [])
+    const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
+    const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
+
+    const githubCount = isGithubLinked
+        ? pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)
+        : undefined
+    const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
+    const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
+
     if (!folders) {
         return <Loading />
     }
@@ -129,21 +142,21 @@ const NavigationSectionLinks = () => {
                 link="/pull-requests"
                 title="GitHub PRs"
                 icon={logos.github}
-                count={pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)}
+                count={githubCount}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
             <NavigationLink
                 link="/linear"
                 title="Linear Issues"
                 icon={logos.linear}
-                count={linearTasksCount}
+                count={linearCount}
                 isCurrentPage={pathname.split('/')[1] === 'linear'}
             />
             <NavigationLink
                 link="/slack"
                 title="Slack"
                 icon={logos.slack}
-                count={slackTasksCount}
+                count={slackCount}
                 isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
             <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>

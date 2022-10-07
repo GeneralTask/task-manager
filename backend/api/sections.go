@@ -11,7 +11,8 @@ import (
 )
 
 type SectionCreateParams struct {
-	Name string `json:"name" binding:"required"`
+	IDOrdering int    `json:"id_ordering"`
+	Name       string `json:"name" binding:"required"`
 }
 
 type SectionModifyParams struct {
@@ -68,8 +69,9 @@ func (api *API) SectionAdd(c *gin.Context) {
 	_, err = sectionCollection.InsertOne(
 		context.Background(),
 		&database.TaskSection{
-			UserID: userID.(primitive.ObjectID),
-			Name:   params.Name,
+			UserID:     userID.(primitive.ObjectID),
+			Name:       params.Name,
+			IDOrdering: params.IDOrdering,
 		},
 	)
 	if err != nil {

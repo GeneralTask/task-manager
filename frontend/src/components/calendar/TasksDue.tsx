@@ -12,7 +12,7 @@ export const CONTAINER_MAX_HEIGHT = '130px'
 
 export const TasksDueContainer = styled.div<{ isFocusModeCalendar: boolean }>`
     background-color: ${Colors.background.white};
-    padding: ${Spacing._16} ${Spacing._24};
+    padding: ${Spacing._16} ${Spacing._12};
     ${({ isFocusModeCalendar }) =>
         !isFocusModeCalendar && `border-top: ${Border.stroke.medium} solid ${Colors.border.light};`}
     border-bottom: ${Border.stroke.large} solid ${Colors.border.light};

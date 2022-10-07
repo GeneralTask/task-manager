@@ -28,7 +28,11 @@ const MarkTaskDoneButton = ({
             sectionId: sectionId,
             isDone: !isDone,
         })
-        Log('mark_task_done')
+        Log({
+            taskId: taskId,
+            sectionId: sectionId,
+            isDone: !isDone,
+        })
     }, [taskId, sectionId, isDone])
 
     useKeyboardShortcut('markComplete', onMarkTaskDone, !isSelected || isDisabled)

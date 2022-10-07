@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -20,7 +21,7 @@ const SettingsViewContainer = styled.div`
     flex-direction: column;
     min-width: ${DEFAULT_VIEW_WIDTH};
     gap: ${Spacing._24};
-    padding: ${Spacing._24};
+    padding: ${Spacing._24} ${Spacing._16};
 `
 const Account = styled.div`
     display: flex;
@@ -97,7 +98,7 @@ const SettingsView = () => {
 
     const serviceDetails = {
         Slack: 'Turn any Slack message into an actionable task.',
-        Google: 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
+        'Google Calendar': 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
         Linear: 'See, update, and schedule the issues assigned to you.',
         Github: 'See pull requests from the repos that matter to you.',
     }
@@ -111,10 +112,10 @@ const SettingsView = () => {
                 <SectionDescriptor>Add a new service</SectionDescriptor>
                 <ServicesContainer>
                     {supportedTypes
-                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .sort((a, b) => b.name.localeCompare(a.name))
                         .map((supportedType) => (
                             <Service key={supportedType.name}>
-                                <Icon icon={supportedType.logo} />
+                                <Icon icon={logos[supportedType.logo_v2]} />
                                 <ServiceName>{supportedType.name}</ServiceName>
                                 <ServiceDetails>
                                     {serviceDetails[supportedType.name as keyof typeof serviceDetails]}
@@ -122,7 +123,11 @@ const SettingsView = () => {
                                 <div>
                                     <GTButton
                                         icon={icons.external_link}
-                                        value={`Connect ${supportedType.name}`}
+                                        value={`Connect ${
+                                            supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
+                                                ? 'Google'
+                                                : supportedType.name
+                                        }`}
                                         onClick={() =>
                                             openPopupWindow(supportedType.authorization_url, refetchStaleQueries)
                                         }

@@ -174,6 +174,7 @@ func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 			SourceAccountID: external.GeneralTaskDefaultAccountID,
 			IsCompleted:     &completed,
 			IsDeleted:       &deleted,
+			NUXNumber:       index + 1,
 		}
 		_, err := taskCollection.InsertOne(context.Background(), newTask)
 		if err != nil {

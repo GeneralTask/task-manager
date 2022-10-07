@@ -1,4 +1,11 @@
-import { GHFilterPreference, GHSortDirection, GHSortPreference } from '../../services/api/settings.hooks'
+import {
+    GHFilterPreference,
+    GHSortDirection,
+    GHSortPreference,
+    TaskFilterPreference,
+    TaskSortDirection,
+    TaskSortPreference,
+} from '../../services/api/settings.hooks'
 
 export enum SORT_DIRECTION {
     ASC = 'ascending',
@@ -18,6 +25,8 @@ export interface Sort<T> {
     label: string
     field?: keyof T
     customComparator?: (a: T, b: T) => number
+    // if this is set, the direction will be forced to this value and the direction selector will be hidden
+    forceAndHideDirection?: SORT_DIRECTION
 }
 
 export interface Filter<T> {
@@ -32,6 +41,7 @@ export interface SortAndFilterItemsArgs<T> {
     sort?: Sort<T>
     sortDirection?: SORT_DIRECTION
     filter?: Filter<T>
+    tieBreakerField: keyof T
 }
 
 export interface SortOptions<T> {
@@ -45,9 +55,10 @@ export interface FilterOptions<T> {
 export interface SortAndFilterSettingsConfig<T> {
     sortOptions: SortOptions<T>
     filterOptions: FilterOptions<T>
-    sortPreferenceId: GHSortPreference
-    sortDirectionId: GHSortDirection
-    filterPreferenceId: GHFilterPreference
+    sortPreferenceId: GHSortPreference | TaskSortPreference
+    sortDirectionId: GHSortDirection | TaskSortDirection
+    filterPreferenceId: GHFilterPreference | TaskFilterPreference
+    tieBreakerField: keyof T
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }
 

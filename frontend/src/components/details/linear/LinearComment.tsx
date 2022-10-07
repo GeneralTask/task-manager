@@ -10,18 +10,20 @@ const TopContainer = styled.div`
     gap: ${Spacing._8};
     padding: ${Spacing._4};
     color: ${Colors.text.black};
-    ${Typography.bodySmall};
     margin-bottom: ${Spacing._16};
 `
 const BodyContainer = styled.div`
     padding: ${Spacing._4};
     margin-bottom: ${Spacing._32};
+    ${Typography.bodySmall};
 `
 const UsernameText = styled.div`
+    ${Typography.bodySmall};
     ${Typography.bold};
 `
 const GrayText = styled.span`
     color: ${Colors.text.light};
+    ${Typography.bodySmall};
 `
 
 interface LinearCommentProps {

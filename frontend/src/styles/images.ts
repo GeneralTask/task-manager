@@ -1,4 +1,4 @@
-import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
@@ -12,6 +12,7 @@ import {
     faBarsSort,
     faCalendar,
     faCalendarDays,
+    faCheckSquare,
     faChevronDown,
     faChevronLeft,
     faChevronRight,
@@ -49,7 +50,7 @@ import {
     faBold,
     faCaretDown,
     faCheck,
-    faCheckSquare,
+    faCheckSquare as faCheckSquareSolid,
     faCircleChevronDown,
     faCircleChevronUp,
     faCircleDot,
@@ -61,8 +62,9 @@ import {
 
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
+    generaltask_beta: '/images/GT-beta-logo.png',
     github: faGithub,
-    gmail: faGoogle,
+    gmail: '/images/google.svg',
     gcal: '/images/gcal.png',
     google_meet: '/images/google-meet.svg',
     linear: '/images/linear.png',
@@ -85,6 +87,7 @@ export const icons = Object.freeze({
     check_circle_wavy: faBadgeCheck,
     check: faCheck,
     checkbox_checked: faCheckSquare,
+    checkbox_checked_solid: faCheckSquareSolid,
     checkbox_unchecked: faSquare,
     clock: faClock,
     code_block: faSquareCode,

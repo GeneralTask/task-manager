@@ -143,8 +143,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 4, len(*tasks))
-		task := (*tasks)[3]
+		assert.Equal(t, 5, len(*tasks))
+		task := (*tasks)[4]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "", *task.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
@@ -190,8 +190,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 4, len(*tasks))
-		task := (*tasks)[3]
+		assert.Equal(t, 5, len(*tasks))
+		task := (*tasks)[4]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "seriously!", *task.Body)
 		assert.Equal(t, int64(300000000000), *task.TimeAllocation)
@@ -213,8 +213,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 4, len(*tasks))
-		task := (*tasks)[3]
+		assert.Equal(t, 5, len(*tasks))
+		task := (*tasks)[4]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "seriously!", *task.Body)
 		assert.Equal(t, int64(300000000000), *task.TimeAllocation)

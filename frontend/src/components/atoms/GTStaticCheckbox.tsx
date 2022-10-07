@@ -6,7 +6,7 @@ interface GTStaticCheckboxProps {
 }
 
 const GTStaticCheckbox = ({ isChecked }: GTStaticCheckboxProps) => (
-    <Icon icon={isChecked ? icons.checkbox_checked : icons.checkbox_unchecked} color="purple" />
+    <Icon icon={isChecked ? icons.checkbox_checked_solid : icons.checkbox_unchecked} color="purple" />
 )
 
 export default GTStaticCheckbox

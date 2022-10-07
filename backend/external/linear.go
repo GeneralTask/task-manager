@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -445,23 +444,6 @@ func handleMutateLinearIssue(client *graphqlBasic.Client, issueID string, update
 			request.Var("descriptionData", `{"type":"doc","content":[{"type":"paragraph"}]}`)
 		} else {
 			request.Var("description", *updateFields.Body)
-		}
-	}
-	if updateFields.IsCompleted != nil {
-		if task.CompletedStatus != nil && *updateFields.IsCompleted {
-			request.Var("stateId", task.CompletedStatus.ExternalID)
-		} else {
-			logger := logging.GetSentryLogger()
-			if task.Status != nil && task.CompletedStatus != nil && task.Status.ExternalID != task.CompletedStatus.ExternalID {
-				logger.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
-				return false, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
-			} else if task.PreviousStatus != nil && task.PreviousStatus.ExternalID == "" {
-				logger.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
-				return false, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
-			}
-			if task.PreviousStatus != nil {
-				request.Var("stateId", task.PreviousStatus.ExternalID)
-			}
 		}
 	}
 	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {

@@ -1,11 +1,11 @@
 import { Ref, forwardRef, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
+import { PR_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/pull-requests.config'
 import sortAndFilterItems from '../../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../../utils/types'
 import PullRequest from '../../pull-requests/PullRequest'
-import { PR_SORT_AND_FILTER_CONFIG } from '../../pull-requests/constants'
 import { Repository } from '../../pull-requests/styles'
 import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
@@ -22,6 +22,7 @@ const PullRequestViewItems = forwardRef(
                 sort: selectedSort,
                 sortDirection: selectedSortDirection,
                 filter: selectedFilter,
+                tieBreakerField: PR_SORT_AND_FILTER_CONFIG.tieBreakerField,
             })
             setNumViewItems(sortedAndFiltered.length)
             return sortedAndFiltered.slice(0, visibleItemsCount)

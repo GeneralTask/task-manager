@@ -11,8 +11,9 @@ interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
     children: React.ReactNode
+    onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -79,7 +80,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
         },
     ]
 
-    return <GTContextMenu items={contextMenuItems} trigger={children} />
+    return <GTContextMenu items={contextMenuItems} trigger={children} onOpenChange={onOpenChange} />
 }
 
 export default TaskContextMenuWrapper

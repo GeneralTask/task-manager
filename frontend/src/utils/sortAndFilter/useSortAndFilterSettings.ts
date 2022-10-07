@@ -4,11 +4,13 @@ import { Filter, SORT_DIRECTION, Sort, SortAndFilterSettings, SortAndFilterSetti
 // groupId is the id of the repo or task section (used when sorting views in the overview page)
 const useSortAndFilterSettings = <T>(
     config: SortAndFilterSettingsConfig<T>,
-    groupId?: string
+    groupId?: string,
+    suffix?: '_main' | '_overview' // main if a folder, overview if the overview page
 ): SortAndFilterSettings<T> => {
     const settingPrefix = groupId ? `${groupId}_` : ''
-    const sortingPreference = useSetting(`${settingPrefix}${config.sortPreferenceId}`)
-    const sortDirection = useSetting(`${settingPrefix}${config.sortDirectionId}`)
+    const settingSuffix = suffix ?? ''
+    const sortingPreference = useSetting(`${settingPrefix}${config.sortPreferenceId}${settingSuffix}`)
+    const sortDirection = useSetting(`${settingPrefix}${config.sortDirectionId}${settingSuffix}`)
     const filterPreference = useSetting(`${settingPrefix}${config.filterPreferenceId}`)
 
     // all settings come from one endpoint so we can just check if one is loading

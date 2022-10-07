@@ -52,6 +52,7 @@ export const CalendarTableStyle = styled.table`
 `
 export const CalendarTimesTableStyle = styled.table`
     border-collapse: collapse;
+    user-select: none;
 `
 export const CalendarRow = styled.tr`
     display: block;
@@ -111,6 +112,7 @@ export const EventInfo = styled.div<{ isLongEvent: boolean }>`
     width: 100%;
     box-sizing: border-box;
     ${Typography.label};
+    justify-content: ${({ isLongEvent }) => (isLongEvent ? 'flex-start' : 'space-between')};
     ${(props) =>
         props.isLongEvent
             ? `
@@ -140,6 +142,7 @@ export const EventTime = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: fit-content;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;

@@ -32,11 +32,12 @@ const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ $isSelected?: boo
 interface GTContextMenuProps {
     items: GTMenuItem[]
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
+    onOpenChange: (open: boolean) => void
 }
-const GTContextMenu = ({ items, trigger }: GTContextMenuProps) => {
+const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => {
     return (
         <div onKeyDown={(e) => e.stopPropagation()} style={{ width: '100%' }}>
-            <ContextMenu.Root>
+            <ContextMenu.Root onOpenChange={onOpenChange}>
                 <ContextMenuTrigger>{trigger}</ContextMenuTrigger>
                 <ContextMenu.Portal>
                     <ContextMenuContent>

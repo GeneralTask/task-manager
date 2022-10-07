@@ -18,12 +18,11 @@ const RelativeDiv = styled.div`
     position: relative;
 `
 const ConnectContainer = styled.div`
-    position: absolute;
     width: 100%;
     z-index: 100;
 `
 const PaddedContainer = styled.div`
-    padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._24};
+    padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._12};
 `
 const HeaderBodyContainer = styled.div`
     display: flex;
