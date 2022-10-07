@@ -52,7 +52,6 @@ export const TRASH_SECTION_ID = '000000000000000000000005'
 export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 
-
 export interface TTaskPriority {
     icon: TIconType
     label: string
@@ -65,3 +64,5 @@ export const TASK_PRIORITIES: TTaskPriority[] = [
     { icon: icons.priority_medium, label: 'Medium Priority', color: 'blue' },
     { icon: icons.priority_low, label: 'Low Priority', color: 'green' },
 ]
+
+export const GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME = 'Google Calendar'

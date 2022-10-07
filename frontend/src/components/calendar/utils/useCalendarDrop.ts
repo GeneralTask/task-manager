@@ -4,6 +4,7 @@ import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useToast } from '../../../hooks'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
@@ -34,7 +35,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
     const [eventPreview, setEventPreview] = useState<TEvent>()
     const toast = useToast()
     const { data: supportedTypes } = useGetSupportedTypes()
-    const googleSupportedType = supportedTypes?.find((type) => type.name === 'Google Calendar')
+    const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>

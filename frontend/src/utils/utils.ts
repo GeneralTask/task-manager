@@ -1,5 +1,6 @@
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
 import { TLinkedAccount, TTask, TTaskSection } from './types'
@@ -47,7 +48,7 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
 }
 
 export const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Google Calendar')
+    return linkedAccounts.some((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
 }
 export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')

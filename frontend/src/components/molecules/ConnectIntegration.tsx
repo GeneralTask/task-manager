@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { FIVE_SECOND_TIMEOUT } from '../../constants'
+import { FIVE_SECOND_TIMEOUT, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -54,7 +54,7 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                 return {
                     icon: logos.gcal,
                     name: 'Google Calendar',
-                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Google Calendar'),
+                    authUrl: getAuthorizationUrl(supportedTypes || [], GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME),
                 }
             case 'slack':
                 return {
