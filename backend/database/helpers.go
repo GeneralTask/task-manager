@@ -357,7 +357,7 @@ func GetActiveItemsWithCollection(collection *mongo.Collection, userID primitive
 	)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("failed to fetch PRs for user")
+		logger.Error().Err(err).Msg("failed to fetch items for user")
 		return nil, err
 	}
 	return cursor, nil

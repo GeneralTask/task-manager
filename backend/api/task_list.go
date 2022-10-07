@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/external"
-	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -372,8 +371,8 @@ func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, ac
 
 	var taskResults []*database.Task
 	for _, task := range tasks {
-		log.Print(task)
-		taskResults = append(taskResults, &task)
+		taskCopy := task
+		taskResults = append(taskResults, &taskCopy)
 	}
 
 	result <- external.TaskResult{
