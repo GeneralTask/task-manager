@@ -229,10 +229,11 @@ type Comment struct {
 }
 
 type ExternalTaskStatus struct {
-	ExternalID        string `json:"external_id" bson:"external_id"`
-	State             string `json:"state" bson:"state"`
-	Type              string `json:"type" bson:"type"`
-	IsCompletedStatus bool   `json:"is_completed_status" bson:"is_completed_status"`
+	ExternalID        string  `json:"external_id" bson:"external_id"`
+	State             string  `json:"state" bson:"state"`
+	Type              string  `json:"type" bson:"type"`
+	IsCompletedStatus bool    `json:"is_completed_status" bson:"is_completed_status"`
+	Position          float64 `json:"position" bson:"position"`
 }
 
 type UserSetting struct {

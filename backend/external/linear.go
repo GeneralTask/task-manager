@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"sort"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -230,10 +231,11 @@ type LinearExternalUserInfoQuery struct {
 type linearWorkflowStatesQuery struct {
 	WorkflowStates struct {
 		Nodes []struct {
-			Id   graphql.ID
-			Name graphql.String
-			Type graphql.String
-			Team struct {
+			Id       graphql.ID
+			Name     graphql.String
+			Type     graphql.String
+			Position graphql.Float
+			Team     struct {
 				Name graphql.String
 			}
 		}
@@ -558,7 +560,16 @@ func ProcessLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]
 			State:             string(node.Name),
 			Type:              string(node.Type),
 			IsCompletedStatus: string(node.Type) == LinearCompletedType || string(node.Type) == LinearCanceledType,
+			Position:          float64(node.Position),
 		})
 	}
-	return teamToStatuses
+
+	sortedStatuses := make(map[string][]*database.ExternalTaskStatus)
+	for team, statuses := range teamToStatuses {
+		sort.Slice(statuses, func(i, j int) bool {
+			return (*statuses[i]).Position < (*statuses[j]).Position
+		})
+		sortedStatuses[team] = statuses
+	}
+	return sortedStatuses
 }
