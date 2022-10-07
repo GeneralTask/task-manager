@@ -108,7 +108,7 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
 			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && time.Now().Sub(token.LastFullRefreshTime.Time()) < (15*time.Minute) {
-				tasks <- api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID)
+				go api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID, tasks)
 			} else {
 				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
 				api.updateLastFullRefreshTime(token)
@@ -352,7 +352,7 @@ func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID
 	}
 }
 
-func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, accountID string) external.TaskResult {
+func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, accountID string, result chan<- external.TaskResult) {
 	taskCollection := database.GetTaskCollection(api.DB)
 	additionalFilters := []bson.M{
 		{"source_account_id": accountID},
@@ -362,7 +362,7 @@ func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, ac
 	}
 	var tasks []*database.Task
 	err := database.FindWithCollection(taskCollection, userID, &additionalFilters, tasks, nil)
-	return external.TaskResult{
+	result <- external.TaskResult{
 		Tasks: tasks,
 		Error: err,
 	}
