@@ -11,13 +11,11 @@ const LandingScreen = () => {
     }, [])
 
     if (!isDevelopment) return <div></div>
-    if (isDevelopment) {
-        return (
-            <div>
-                <GoogleSignInButton />
-            </div>
-        )
-    }
+    return (
+        <div>
+            <GoogleSignInButton />
+        </div>
+    )
 }
 
 export default LandingScreen
