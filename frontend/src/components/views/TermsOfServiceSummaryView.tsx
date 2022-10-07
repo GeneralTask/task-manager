@@ -9,35 +9,34 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TermsOfServiceSummary } from '../atoms/CompanyPoliciesHTML'
 import { Icon } from '../atoms/Icon'
-import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import RedirectButton from '../atoms/buttons/RedirectButton'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { TitleLarge } from '../atoms/title/Title'
 
 const TermsOfServiceContainer = styled.div`
     display: flex;
     flex-direction: column;
     padding: ${Spacing._16};
+    gap: ${Spacing._12};
     height: 100%;
     box-sizing: border-box;
     min-height: 0;
 `
-const TermsOfServiceHeader = styled.div`
-    margin-top: ${Spacing._24};
-    margin-bottom: ${Spacing._16};
+const Title = styled.div`
+    color: ${Colors.text.black};
+    ${Typography.subtitle};
 `
-const TitleLargeContainer = styled.div`
-    margin-bottom: ${Spacing._8};
+const Subtitle = styled.div`
+    color: ${Colors.text.black};
+    ${Typography.label};
+    ${Typography.bold};
 `
 const TermsScrollDiv = styled.div`
     flex: 1;
     overflow-y: scroll;
-    margin-top: ${Spacing._8};
-    padding: ${Spacing._8};
-    border-top: ${Border.stroke.medium} solid ${Colors.border.gray};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.gray};
+    padding: ${Spacing._16} 0;
+    border-top: ${Border.stroke.medium} solid ${Colors.border.light};
+    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
 `
 const LinkContainer = styled.div`
     display: flex;
@@ -104,18 +103,11 @@ const TermsOfServiceSummaryView = () => {
 
     return (
         <TermsOfServiceContainer>
-            <Icon size="large" icon={icons.check_circle_wavy} color="purple" />
-            <TermsOfServiceHeader>
-                <TitleLargeContainer>
-                    <TitleLarge>Terms of Service</TitleLarge>
-                </TitleLargeContainer>
-                <SubtitleSmall>Please read and agree with the terms below.</SubtitleSmall>
-            </TermsOfServiceHeader>
-            <Divider />
+            <Title>Terms of Service</Title>
+            <Subtitle>Please read and agree with the terms below.</Subtitle>
             <TermsScrollDiv>
                 <TermsOfServiceSummary />
             </TermsScrollDiv>
-            <Divider />
             <LinkContainer>
                 <RedirectButton to="/terms-of-service" target="_blank" text="Read full terms of service" />
                 <RedirectButton to="/privacy-policy" target="_blank" text="Read privacy policy" />
@@ -123,7 +115,10 @@ const TermsOfServiceSummaryView = () => {
             <VerticalFlex>
                 <NoStyleButton onClick={() => setTermsCheck(!termsCheck)}>
                     <HorizontalFlex>
-                        <Icon icon={termsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
+                        <Icon
+                            icon={termsCheck ? icons.checkbox_checked_solid : icons.checkbox_unchecked}
+                            color="purple"
+                        />
                         <AgreementText required>
                             I acknowledge General Task&#39;s privacy policy and agree to General Task&#39;s terms of
                             service.
@@ -135,7 +130,10 @@ const TermsOfServiceSummaryView = () => {
             <VerticalFlex>
                 <NoStyleButton onClick={() => setPromotionsCheck(!promotionsCheck)}>
                     <HorizontalFlex>
-                        <Icon icon={promotionsCheck ? icons.checkbox_checked : icons.checkbox_unchecked} />
+                        <Icon
+                            icon={promotionsCheck ? icons.checkbox_checked_solid : icons.checkbox_unchecked}
+                            color="purple"
+                        />
                         <AgreementText>I would like to opt in on General Task&#39;s promotional emails.</AgreementText>
                     </HorizontalFlex>
                 </NoStyleButton>
