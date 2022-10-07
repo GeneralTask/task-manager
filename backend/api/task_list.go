@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"go.mongodb.org/mongo-driver/bson"
@@ -360,11 +361,23 @@ func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, ac
 		{"is_completed": false},
 		{"is_deleted": bson.M{"$ne": true}},
 	}
-	var tasks []*database.Task
-	err := database.FindWithCollection(taskCollection, userID, &additionalFilters, tasks, nil)
+	var tasks []database.Task
+	err := database.FindWithCollection(taskCollection, userID, &additionalFilters, &tasks, nil)
+	if err != nil {
+		result <- external.TaskResult{
+			Error: err,
+		}
+		return
+	}
+
+	var taskResults []*database.Task
+	for _, task := range tasks {
+		log.Print(task)
+		taskResults = append(taskResults, &task)
+	}
+
 	result <- external.TaskResult{
-		Tasks: tasks,
-		Error: err,
+		Tasks: taskResults,
 	}
 }
 

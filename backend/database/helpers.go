@@ -323,6 +323,7 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, err
 		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
+
 	return &tasks, nil
 }
 
