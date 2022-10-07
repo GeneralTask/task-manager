@@ -129,6 +129,7 @@ export const useCreateTask = () => {
                         is_done: false,
                         isOptimistic: true,
                         is_meeting_preparation_task: false,
+                        nux_number_id: 0,
                     }
                     section.tasks = [newTask, ...section.tasks]
                 })

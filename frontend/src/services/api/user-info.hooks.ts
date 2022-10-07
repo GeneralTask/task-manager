@@ -1,7 +1,6 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
-import { TUserInfo } from '../../utils/types'
 
 export const useGetUserInfo = () => {
     return useQuery('user_info', getUserInfo)
@@ -15,7 +14,12 @@ const getUserInfo = async ({ signal }: QueryFunctionContext) => {
     }
 }
 
-export const mutateUserInfo = async (userInfo: TUserInfo) => {
+interface TUserInfoUpdateParams {
+    agreed_to_terms?: boolean
+    opted_into_marketing?: boolean
+    name?: string
+}
+export const mutateUserInfo = async (userInfo: TUserInfoUpdateParams) => {
     try {
         const res = await apiClient.patch('/user_info/', JSON.stringify(userInfo))
         return castImmutable(res.data)
