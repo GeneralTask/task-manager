@@ -22,7 +22,7 @@ const TaskSectionViewItems = forwardRef(
         const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
             TASK_SORT_AND_FILTER_CONFIG,
             view.task_section_id,
-            '_main'
+            '_overview'
         )
         const {
             selectedSort,
