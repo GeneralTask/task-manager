@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval, useKeyboardShortcut, useToast } from '../../hooks'
 import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
+import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { focusModeBackground, icons, logos } from '../../styles/images'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
@@ -215,6 +216,7 @@ const FocusModeScreen = () => {
         const isInitialLocation = keyLocation === 'default'
         if (isInitialLocation) navigate('/')
         else navigate(-1)
+        Log(`leave_focus_mode`)
     }, [keyLocation])
     useKeyboardShortcut('close', backAction)
 

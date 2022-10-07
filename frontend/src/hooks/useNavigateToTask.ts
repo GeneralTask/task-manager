@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
+import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
 import { useGetTasks } from '../services/api/tasks.hooks'
 import { TOverviewView, TTaskSection } from '../utils/types'
@@ -21,6 +22,7 @@ const useNavigateToTask = () => {
                         if (item.id === taskID) {
                             setCalendarType('day')
                             navigate(`/overview/${view.id}/${item.id}`)
+                            Log(`task_navigate__/overview/${view.id}/${item.id}`)
                             return
                         }
                     }
@@ -32,10 +34,13 @@ const useNavigateToTask = () => {
                         setCalendarType('day')
                         if (task.source.name === 'Slack') {
                             navigate(`/slack/${task.id}`)
+                            Log(`task_navigate__/slack/${task.id}`)
                         } else if (task.source.name === 'Linear') {
                             navigate(`/linear/${task.id}`)
+                            Log(`task_navigate__/linear/${task.id}`)
                         } else {
                             navigate(`/tasks/${section.id}/${task.id}`)
+                            Log(`task_navigate__/tasks/${section.id}/${task.id}`)
                         }
                         return
                     }
