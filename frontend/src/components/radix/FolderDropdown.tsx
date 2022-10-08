@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -26,7 +27,7 @@ const FolderDropdown = ({ task }: FolderDropdownProps) => {
                           .filter((s) => !s.is_done && !s.is_trash)
                           .map((section) => ({
                               label: section.name,
-                              icon: icons.folder,
+                              icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
                               selected: section.id === sectionId,
                               onClick: () => {
                                   reorderTask({
