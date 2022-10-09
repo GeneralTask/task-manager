@@ -100,7 +100,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
         setWindowHeight(window.innerHeight)
     }
     return (
-        <div ref={eventRef}>
+        <div>
             <FocusModeContextMenuWrapper event={props.event}>
                 <EventBodyStyle
                     key={props.event.id}
@@ -110,6 +110,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     eventBodyHeight={eventBodyHeight}
                     eventHasEnded={eventHasEnded}
                     isBeingDragged={props.isBeingDragged}
+                    ref={eventRef}
                 >
                     <EventInfoContainer onClick={onClick}>
                         {selectedEvent?.id === props.event.id && !isPopoverDisabled && (
