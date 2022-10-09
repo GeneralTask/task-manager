@@ -37,6 +37,7 @@ export const SelectedView = styled.div`
     gap: ${Spacing._12};
     color: ${Colors.text.light};
     ${Typography.body};
+    cursor: pointer;
 `
 export const EditViewsDeleteButton = styled(RemoveButton)`
     margin-left: auto;
