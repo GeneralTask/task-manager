@@ -186,7 +186,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <GTTextField
                     type="plaintext"
                     itemId={task.id}
-                    value={`${task.title} (deleted)`}
+                    value={isInTrash ? `${task.title} (deleted)` : task.title}
                     disabled={task.isOptimistic || is_meeting_preparation_task || task.nux_number_id > 0 || isInTrash}
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
