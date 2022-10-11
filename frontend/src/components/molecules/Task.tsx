@@ -189,6 +189,7 @@ const Task = ({
 
                     {task.external_status && task.all_statuses ? (
                         <GTDropdownMenu
+                            disabled={sectionId === TRASH_SECTION_ID}
                             items={task.all_statuses.map((status) => ({
                                 label: status.state,
                                 onClick: () => modifyTask({ id: task.id, status: status }),
