@@ -1,9 +1,9 @@
-import { useActive, useCommands } from '@remirror/react'
-import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../../../styles'
-import { icons } from '../../../../styles/images'
-import { emptyFunction } from '../../../../utils/utils'
+import { useActive, useCommands } from '@remirror/react'
+
 import ToolbarButton from './ToolbarButton'
+import { icons } from '../../../../styles/images'
+import styled from 'styled-components'
 
 const MenuContainer = styled.div`
     display: flex;
@@ -49,7 +49,8 @@ const RichTextToolbar = () => {
                 title="Strikethrough"
             />
             <Divider />
-            <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} title="Add link" />
+            {/* TODO: will add this back with full link functionality */}
+            {/* <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} title="Add link" /> */}
             <Divider />
             <ToolbarButton
                 icon={icons.list_ol}
