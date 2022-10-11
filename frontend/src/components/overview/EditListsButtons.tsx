@@ -12,12 +12,12 @@ const EditListsButtons = () => {
     const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
     return (
         <>
-            <GTButton styleType="secondary" icon={icons.plus} onClick={() => setPageState('ADD')} value="Add Lists" />
+            <GTButton styleType="secondary" icon={icons.plus} onClick={() => setPageState('ADD')} value="Add lists" />
             <GTButton
                 styleType="secondary"
                 icon={icons.domino}
                 onClick={() => setPageState('EDIT')}
-                value="Edit Lists"
+                value="Edit lists"
             />
 
             <AddListsModal isOpen={pageState === 'ADD'} onClose={handleClose} />

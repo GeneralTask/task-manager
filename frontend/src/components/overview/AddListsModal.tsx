@@ -132,7 +132,7 @@ const AddListsModal = ({ isOpen, onClose }: AddListsModalProps) => {
     return (
         <GTModal
             isOpen={isOpen}
-            title="Add Lists"
+            title="Add lists"
             onClose={onClose}
             rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             type="medium"

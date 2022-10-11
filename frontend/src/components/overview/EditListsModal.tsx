@@ -29,7 +29,7 @@ const EditViewsModal = ({ isOpen, onClose }: EditViewsModalProps) => {
     return (
         <GTModal
             isOpen={isOpen}
-            title="Edit Lists"
+            title="Edit lists"
             onClose={onClose}
             rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             type="medium"
