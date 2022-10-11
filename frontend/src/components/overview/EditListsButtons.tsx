@@ -1,29 +1,29 @@
 import { useCallback, useState } from 'react'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
-import AddViewsModal from './AddViewsModal'
-import EditViewsModal from './EditViewsModal'
+import AddListsModal from './AddListsModal'
+import EditListsModal from './EditListsModal'
 
 type TPageState = 'NONE' | 'ADD' | 'EDIT'
 
-const EditViewsButtons = () => {
+const EditListsButtons = () => {
     const [pageState, setPageState] = useState<TPageState>('NONE')
 
     const handleClose = useCallback(() => setPageState('NONE'), []) // callback so that modal components do not re-render
     return (
         <>
-            <GTButton styleType="secondary" icon={icons.plus} onClick={() => setPageState('ADD')} value="Add view" />
+            <GTButton styleType="secondary" icon={icons.plus} onClick={() => setPageState('ADD')} value="Add Lists" />
             <GTButton
                 styleType="secondary"
                 icon={icons.domino}
                 onClick={() => setPageState('EDIT')}
-                value="Edit views"
+                value="Edit Lists"
             />
 
-            <AddViewsModal isOpen={pageState === 'ADD'} onClose={handleClose} />
-            <EditViewsModal isOpen={pageState === 'EDIT'} onClose={handleClose} />
+            <AddListsModal isOpen={pageState === 'ADD'} onClose={handleClose} />
+            <EditListsModal isOpen={pageState === 'EDIT'} onClose={handleClose} />
         </>
     )
 }
 
-export default EditViewsButtons
+export default EditListsButtons

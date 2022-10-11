@@ -5,7 +5,7 @@ import GTModal from '../atoms/GTModal'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
-import EditViewsSelectedView from './EditViewsSelectedView'
+import EditListsSelectedList from './EditListsSelectedList'
 
 interface EditViewsModalProps {
     isOpen: boolean
@@ -29,14 +29,14 @@ const EditViewsModal = ({ isOpen, onClose }: EditViewsModalProps) => {
     return (
         <GTModal
             isOpen={isOpen}
-            title="Edit lists"
+            title="Edit Lists"
             onClose={onClose}
             rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             type="medium"
         >
             <>
                 {views.map((view, index) => (
-                    <EditViewsSelectedView key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
+                    <EditListsSelectedList key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
                 ))}
                 <ReorderDropContainer
                     index={views.length}

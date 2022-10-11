@@ -25,7 +25,7 @@ export const RemoveButton = styled(NoStyleButton)`
         background-color: ${Colors.background.dark};
     }
 `
-export const SelectedView = styled.div`
+export const SelectedList = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
