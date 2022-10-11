@@ -168,7 +168,11 @@ export const getFormattedDate = (
         return { dateString: 'Tomorrow', textColor: 'orange', iconColor: 'orange' }
     }
     if (DateTime.fromJSDate(date) < DateTime.local()) {
-        return { dateString: 'Overdue', textColor: 'red', iconColor: 'red' }
+        return {
+            dateString: `Overdue (${DateTime.fromJSDate(date).toFormat('LLL dd')})`,
+            textColor: 'red',
+            iconColor: 'red',
+        }
     }
     return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
 }
