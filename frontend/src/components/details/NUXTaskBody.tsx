@@ -125,7 +125,7 @@ const JohnsLetterStaticContent = () => (
         </p>
         <p>
             Productivity is close to our hearts. Our team has worked at some of the most successful companies in the
-            industry: Meta, Google, Netflix, Robinhood, as well as many other smaller companies. We learned a lot and
+            industry: Meta, Netflix, LinkedIn, Robinhood, as well as many other smaller companies. We learned a lot and
             had a good time, but we also saw the downside of working at such companies: pointless meetings, constant
             distractions and waiting way too long to get your code reviewed, among many other issues.
         </p>

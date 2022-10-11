@@ -29,9 +29,10 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
             index={viewIndex}
             acceptDropType={DropType.OVERVIEW_VIEW}
             onReorder={onReorder}
+            ref={drag}
         >
             <SelectedList key={view.id} ref={dragPreview}>
-                <Domino ref={drag} />
+                <Domino />
                 <Icon icon={logos[view.logo]} />
                 {view.name}
                 <EditViewsDeleteButton onClick={() => removeView(view.id)}>
