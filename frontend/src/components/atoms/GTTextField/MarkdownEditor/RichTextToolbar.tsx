@@ -51,7 +51,7 @@ const RichTextToolbar = () => {
             <Divider />
             {/* TODO: will add this back with full link functionality */}
             {/* <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} title="Add link" /> */}
-            <Divider />
+            {/* <Divider /> */}
             <ToolbarButton
                 icon={icons.list_ol}
                 action={commands.toggleOrderedList}
