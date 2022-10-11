@@ -41,8 +41,9 @@ interface GTDatePickerProps {
     setDate: (date: string) => void
     showIcon?: boolean
     onlyCalendar?: boolean
+    disabled?: boolean
 }
-const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false }: GTDatePickerProps) => {
+const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
     const [value, onChange] = useState<Date | null>(initialDate)
     const [isOpen, setIsOpen] = useState(false)
 
@@ -121,6 +122,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             content={calendar}
+            disabled={disabled}
             trigger={
                 <GTButton
                     styleType="simple"

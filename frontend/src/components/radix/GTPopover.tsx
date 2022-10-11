@@ -15,11 +15,12 @@ interface GTPopoverProps {
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     isOpen: boolean
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+    disabled?: boolean
 }
-const GTPopover = ({ trigger, content, isOpen, setIsOpen }: GTPopoverProps) => {
+const GTPopover = ({ trigger, content, isOpen, setIsOpen, disabled }: GTPopoverProps) => {
     return (
         <Popover.Root modal open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger>{trigger}</PopoverTrigger>
+            <PopoverTrigger disabled={disabled}>{trigger}</PopoverTrigger>
             <Popover.Portal>
                 <PopoverContent>{content}</PopoverContent>
             </Popover.Portal>

@@ -1,10 +1,10 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -17,6 +17,7 @@ import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import GTDatePicker from '../molecules/GTDatePicker'
 import FolderDropdown from '../radix/FolderDropdown'
@@ -85,11 +86,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const navigate = useNavigate()
     const location = useLocation()
+    const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { is_meeting_preparation_task, meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
+
+    const isInTrash = params.section === TRASH_SECTION_ID
 
     useInterval(() => {
         if (!task.meeting_preparation_params) return
@@ -164,6 +168,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         </MarginLeft8>
                         <MarginLeftAuto>
+                            {isInTrash && (
+                                <GTButton
+                                    value="Restore Task"
+                                    onClick={() => modifyTask({ id: task.id, isDeleted: false })}
+                                    styleType="secondary"
+                                    size="small"
+                                />
+                            )}
                             {!is_meeting_preparation_task && <FolderDropdown task={task} />}
                             {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                         </MarginLeftAuto>
@@ -174,8 +186,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <GTTextField
                     type="plaintext"
                     itemId={task.id}
-                    value={task.title}
-                    disabled={task.isOptimistic || is_meeting_preparation_task || task.nux_number_id > 0}
+                    value={`${task.title} (deleted)`}
+                    disabled={task.isOptimistic || is_meeting_preparation_task || task.nux_number_id > 0 || isInTrash}
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
@@ -189,20 +201,21 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                <PriorityDropdown task={task} />
+                <PriorityDropdown task={task} disabled={isInTrash} />
                 <GTDatePicker
                     initialDate={DateTime.fromISO(task.due_date).toJSDate()}
                     setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                    disabled={isInTrash}
                 />
                 <MarginLeftAuto>
-                    <LinearStatusDropdown task={task} />
+                    <LinearStatusDropdown task={task} disabled={isInTrash} />
                 </MarginLeftAuto>
             </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />
             ) : (
                 <>
-                    <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} />
+                    <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
                     {task.comments && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
