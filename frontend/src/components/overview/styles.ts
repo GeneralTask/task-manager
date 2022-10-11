@@ -30,7 +30,7 @@ export const SelectedView = styled.div`
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    border-radius: ${Border.radius.large};
+    border-radius: ${Border.radius.mini};
     border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
     padding: ${Spacing._12};
     margin: ${Spacing._4} 0;
