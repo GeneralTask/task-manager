@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
@@ -84,6 +85,10 @@ const SettingsView = () => {
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
     const refetchStaleQueries = useRefetchStaleQueries()
+
+    useEffect(() => {
+        refetchStaleQueries()
+    }, [linkedAccounts])
 
     const onUnlink = (id: string) => deleteAccount({ id: id })
     const onRelink = (accountType: string) => {
