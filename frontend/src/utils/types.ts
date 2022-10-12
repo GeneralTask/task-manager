@@ -183,6 +183,13 @@ export interface TLinkedAccount {
     has_bad_token: boolean
 }
 
+export interface TUserInfo {
+    agreed_to_terms: boolean
+    opted_into_marketing: boolean
+    name: string
+    is_employee: boolean
+}
+
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
