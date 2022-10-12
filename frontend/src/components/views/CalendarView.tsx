@@ -40,6 +40,7 @@ const CalendarView = ({
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
+    const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
@@ -87,6 +88,8 @@ const CalendarView = ({
             <CalendarHeader
                 date={date}
                 setDate={setDate}
+                dayViewDate={dayViewDate}
+                setDayViewDate={setDayViewDate}
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
             />

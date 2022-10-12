@@ -46,6 +46,8 @@ const CalendarDateText = styled.div`
 interface CalendarHeaderProps {
     date: DateTime
     setDate: React.Dispatch<React.SetStateAction<DateTime>>
+    dayViewDate: DateTime
+    setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     showMainHeader?: boolean
     showDateHeader?: boolean
 }
@@ -54,6 +56,8 @@ export default function CalendarHeader({
     setDate,
     showMainHeader = true,
     showDateHeader = true,
+    dayViewDate,
+    setDayViewDate,
 }: CalendarHeaderProps) {
     const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
@@ -61,7 +65,7 @@ export default function CalendarHeader({
     const toggleCalendar = () => {
         if (calendarType === 'week') {
             setCalendarType('day')
-            setDate(DateTime.now())
+            setDate(dayViewDate)
         } else {
             setCalendarType('week')
             setDate(date.minus({ days: date.weekday % 7 }))
@@ -71,20 +75,22 @@ export default function CalendarHeader({
         setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
     }, [setDate, isCalendarExpanded])
 
-    const selectNext = useCallback(
-        () =>
-            setDate((date) => {
-                return date.plus({ days: isCalendarExpanded ? 7 : 1 })
-            }),
-        [date, setDate, isCalendarExpanded]
-    )
-    const selectPrevious = useCallback(
-        () =>
-            setDate((date) => {
-                return date.minus({ days: isCalendarExpanded ? 7 : 1 })
-            }),
-        [date, setDate, isCalendarExpanded]
-    )
+    const selectNext = useCallback(() => {
+        if (calendarType === 'day') {
+            setDayViewDate(dayViewDate.plus({ days: 1 }))
+        }
+        setDate((date) => {
+            return date.plus({ days: isCalendarExpanded ? 7 : 1 })
+        })
+    }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
+    const selectPrevious = useCallback(() => {
+        if (calendarType === 'day') {
+            setDayViewDate(dayViewDate.minus({ days: 1 }))
+        }
+        setDate((date) => {
+            return date.minus({ days: isCalendarExpanded ? 7 : 1 })
+        })
+    }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
     useKeyboardShortcut('today', selectToday)
     useKeyboardShortcut('nextDate', selectNext)
     useKeyboardShortcut('previousDate', selectPrevious)
