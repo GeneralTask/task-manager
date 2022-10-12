@@ -37,6 +37,7 @@ export interface TTask {
     source: TTaskSource
     sender: string
     is_done: boolean
+    is_deleted: boolean
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
     isOptimistic?: boolean
@@ -181,6 +182,13 @@ export interface TLinkedAccount {
     logo_v2: TLogoImage
     is_unlinkable: boolean
     has_bad_token: boolean
+}
+
+export interface TUserInfo {
+    agreed_to_terms: boolean
+    opted_into_marketing: boolean
+    name: string
+    is_employee: boolean
 }
 
 // React-DND Item Types

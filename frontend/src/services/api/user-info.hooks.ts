@@ -1,9 +1,10 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import { castImmutable } from 'immer'
 import apiClient from '../../utils/api'
+import { TUserInfo } from '../../utils/types'
 
 export const useGetUserInfo = () => {
-    return useQuery('user_info', getUserInfo)
+    return useQuery<TUserInfo>('user_info', getUserInfo)
 }
 const getUserInfo = async ({ signal }: QueryFunctionContext) => {
     try {

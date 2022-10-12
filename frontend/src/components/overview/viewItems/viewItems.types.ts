@@ -5,5 +5,4 @@ export interface ViewItemsProps {
     view: TOverviewView
     visibleItemsCount: number
     scrollRef?: React.RefObject<HTMLDivElement>
-    setNumViewItems: (numViewItems: number) => void
 }

@@ -1,6 +1,7 @@
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import { DropType } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
@@ -64,6 +65,7 @@ const GTBetaLogo = styled.img`
 const NavigationView = () => {
     const navigate = useNavigate()
     const { setCalendarType } = useCalendarContext()
+    const { data: userInfo } = useGetUserInfo()
 
     const [isOver, drop] = useDrop(
         () => ({
@@ -72,6 +74,7 @@ const NavigationView = () => {
         }),
         []
     )
+    const copyrightText = userInfo?.is_employee ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
 
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
@@ -95,7 +98,7 @@ const NavigationView = () => {
                     }}
                 />
             </GapView>
-            <CopyrightText>© 2022 GENERAL TASK</CopyrightText>
+            <CopyrightText>{copyrightText}</CopyrightText>
         </NavigationViewContainer>
     )
 }

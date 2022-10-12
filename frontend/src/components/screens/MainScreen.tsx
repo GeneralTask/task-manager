@@ -42,7 +42,7 @@ const MainScreen = () => {
     })()
 
     if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
-    if (!isTaskSectionsLoading && !userInfo.agreed_to_terms) return <Navigate to="/tos-summary" />
+    if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
         <>

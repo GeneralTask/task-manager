@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"strings"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ type UserInfo struct {
 	AgreedToTerms      bool   `json:"agreed_to_terms"`
 	OptedIntoMarketing bool   `json:"opted_into_marketing"`
 	Name               string `json:"name"`
+	IsEmployee         bool   `json:"is_employee"`
 }
 
 type UserInfoParams struct {
@@ -34,6 +36,7 @@ func (api *API) UserInfoGet(c *gin.Context) {
 		AgreedToTerms:      userObject.AgreedToTerms != nil && *userObject.AgreedToTerms,
 		OptedIntoMarketing: userObject.OptedIntoMarketing != nil && *userObject.OptedIntoMarketing,
 		Name:               userObject.Name,
+		IsEmployee:         strings.HasSuffix(strings.ToLower(userObject.Email), "@generaltask.com"),
 	})
 }
 
