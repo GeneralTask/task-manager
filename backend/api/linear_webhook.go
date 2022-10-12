@@ -168,6 +168,11 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 	task.AllStatuses = statuses
 	task.CompletedStatus = getCompletedLinearStatus(task.AllStatuses)
 
+	if task.Status.Type == external.LinearCompletedType || task.Status.Type == external.LinearCanceledType {
+		_true := true
+		task.IsCompleted = &_true
+	}
+
 	_, err = database.UpdateOrCreateTask(
 		api.DB,
 		userID,
@@ -364,7 +369,7 @@ func populateLinearTask(userID primitive.ObjectID, accountID string, webhookPayl
 		SourceID:           external.TASK_SOURCE_ID_LINEAR,
 		Title:              &issuePayload.Title,
 		Body:               &issuePayload.Description,
-		SourceAccountID:    issuePayload.AssigneeID,
+		SourceAccountID:    accountID,
 		CreatedAtExternal:  primitive.NewDateTimeFromTime(issueCreatedAt),
 		IsCompleted:        &_false,
 		IsDeleted:          &_false,
