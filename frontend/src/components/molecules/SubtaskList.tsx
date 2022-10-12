@@ -2,14 +2,28 @@ import { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { useClickOutside } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
-import { Spacing } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { getSectionFromTask } from '../../utils/utils'
-import ButtonWithText from '../atoms/buttons/ButtonWithText'
+import { Icon } from '../atoms/Icon'
 import CreateNewSubtask from './CreateNewSubtask'
 import Subtask from './Subtask'
 
-const AddTaskbutton = styled(ButtonWithText)`
+const AddTaskbutton = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    color: ${Colors.text.light};
+    ${Typography.mini};
+    cursor: pointer;
+    user-select: none;
+    padding: ${Spacing._8} ${Spacing._8};
+    width: fit-content;
+    border: ${Border.stroke.small} solid transparent;
+    :hover {
+        border-color: ${Colors.border.light};
+        border-radius: ${Border.radius.small};
+    }
     margin-bottom: ${Spacing._16};
 `
 const TaskListContainer = styled.div`
@@ -37,11 +51,10 @@ const SubtaskList = ({ taskId }: SubtasksProps) => {
 
     return (
         <div>
-            <AddTaskbutton
-                text="Add new subtask"
-                icon={icons.plus}
-                clickHandler={() => setShowCreateNewSubtask(true)}
-            />
+            <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
+                <Icon icon={icons.plus} color="gray" />
+                Add new subtask
+            </AddTaskbutton>
             <TaskListContainer>
                 {showCreateNewSubtask && sectionId && (
                     <CreateNewSubtask
