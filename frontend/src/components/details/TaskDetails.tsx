@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
-import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask, usePostComment } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -27,6 +27,9 @@ import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import TaskBody from './TaskBody'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
+
+const TITLE_MAX_HEIGHT = 208
+const LINEAR_ADD_COMMENT_HEIGHT = 100
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -64,14 +67,19 @@ const CommentContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._24};
 `
+const BottomStickyContainer = styled.div`
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* margin-top: ${LINEAR_ADD_COMMENT_HEIGHT}px; */
+`
 
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
     ERROR: 'There was an error syncing with our servers',
     COMPLETE: '',
 }
-
-const TITLE_MAX_HEIGHT = 208
 
 interface TaskDetailsProps {
     task: TTask
@@ -83,6 +91,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const { mutate: postComment } = usePostComment()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -95,6 +104,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     const isInTrash = params.section === TRASH_SECTION_ID
+
+    const [comment, setComment] = useState('')
 
     useInterval(() => {
         if (!task.meeting_preparation_params) return
@@ -227,6 +238,30 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                         <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
                     )}
                 </>
+            )}
+            {task.external_status && (
+                <BottomStickyContainer>
+                    <GTTextField
+                        type="markdown"
+                        placeholder="Add a comment"
+                        value={comment}
+                        fontSize="small"
+                        minHeight={LINEAR_ADD_COMMENT_HEIGHT}
+                        onChange={setComment}
+                        actions={
+                            <GTButton
+                                value="Comment"
+                                styleType="secondary"
+                                size="small"
+                                onClick={() => {
+                                    postComment({ taskId: task.id, body: comment })
+                                    setComment('')
+                                }}
+                            />
+                        }
+                        isFullHeight
+                    />
+                </BottomStickyContainer>
             )}
         </DetailsViewTemplate>
     )
