@@ -6,7 +6,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
-import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -82,6 +82,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -171,7 +172,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             {isInTrash && (
                                 <GTButton
                                     value="Restore Task"
-                                    onClick={() => modifyTask({ id: task.id, isDeleted: false })}
+                                    onClick={() => markTaskDoneOrDeleted({ taskId: task.id, isDeleted: false })}
                                     styleType="secondary"
                                     size="small"
                                 />

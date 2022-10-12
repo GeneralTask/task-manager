@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
-import { useMarkTaskDone } from '../../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
 import GTCheckbox from '../GTCheckbox'
 
 interface MarkTaskDoneButtonProps {
@@ -20,10 +20,10 @@ const MarkTaskDoneButton = ({
     isDisabled,
     onMarkComplete,
 }: MarkTaskDoneButtonProps) => {
-    const { mutate: markTaskDone } = useMarkTaskDone()
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const onMarkTaskDone = useCallback(() => {
         if (onMarkComplete) onMarkComplete()
-        markTaskDone({
+        markTaskDoneOrDeleted({
             taskId: taskId,
             sectionId: sectionId,
             isDone: !isDone,

@@ -37,6 +37,7 @@ export interface TTask {
     source: TTaskSource
     sender: string
     is_done: boolean
+    is_deleted: boolean
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
     isOptimistic?: boolean
