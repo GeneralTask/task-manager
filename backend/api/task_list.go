@@ -109,10 +109,11 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && time.Now().Sub(token.LastFullRefreshTime.Time()) < (15*time.Minute) {
+			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
 				go api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID, tasks)
 			} else {
 				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
+				// TODO update last full refresh after we fetch the tasks
 				api.updateLastFullRefreshTime(token)
 			}
 			taskChannels = append(taskChannels, tasks)
@@ -367,9 +368,7 @@ func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, ac
 	var tasks []database.Task
 	err := database.FindWithCollection(taskCollection, userID, &additionalFilters, &tasks, nil)
 	if err != nil {
-		result <- external.TaskResult{
-			Error: err,
-		}
+		result <- external.TaskResult{Error: err}
 		return
 	}
 
@@ -394,4 +393,8 @@ func (api *API) updateLastFullRefreshTime(token database.ExternalAPIToken) error
 		nil,
 	)
 	return err
+}
+
+func shouldPartialRefreshLinear(token database.ExternalAPIToken) bool {
+	return time.Now().Sub(token.LastFullRefreshTime.Time()) < (15 * time.Minute)
 }
