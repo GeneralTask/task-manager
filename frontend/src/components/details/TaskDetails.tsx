@@ -73,7 +73,7 @@ const BottomStickyContainer = styled.div`
     bottom: 0;
     left: 0;
     right: 0;
-    /* margin-top: ${LINEAR_ADD_COMMENT_HEIGHT}px; */
+    margin-top: ${Spacing._16};
 `
 
 const SYNC_MESSAGES = {
