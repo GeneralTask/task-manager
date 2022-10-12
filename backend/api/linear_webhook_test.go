@@ -307,6 +307,7 @@ func TestProcessIssue(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello there!", *task.Title)
 		assert.Equal(t, "6942069422", task.CompletedStatus.ExternalID)
+		assert.Equal(t, "example account ID", task.SourceAccountID)
 	})
 	t.Run("ModifyWithDifferentUser", func(t *testing.T) {
 		request, _ := http.NewRequest(
