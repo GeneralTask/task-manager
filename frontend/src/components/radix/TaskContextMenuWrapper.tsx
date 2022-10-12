@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { DEFAULT_SECTION_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
+import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -17,6 +17,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
 
     const contextMenuItems: GTMenuItem[] = [
         {
@@ -76,7 +77,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
-            onClick: () => modifyTask({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
+            onClick: () => markTaskDoneOrDeleted({ taskId: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
         },
     ]
 
