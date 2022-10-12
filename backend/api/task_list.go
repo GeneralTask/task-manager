@@ -24,6 +24,7 @@ type externalStatus struct {
 	IDExternal string `json:"external_id,omitempty"`
 	State      string `json:"state,omitempty"`
 	Type       string `json:"type,omitempty"`
+	Color      string `json:"color,omitempty"`
 }
 
 type MeetingPreparationParams struct {
@@ -52,6 +53,7 @@ type TaskResult struct {
 	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
 	SubTasks                 []*TaskResult                `json:"sub_tasks,omitempty"`
+	NUXNumber                int                          `json:"nux_number_id,omitempty"`
 }
 
 type TaskSection struct {
@@ -299,6 +301,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		IsDeleted:                deleted,
 		Comments:                 t.Comments,
 		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
+		NUXNumber:                t.NUXNumber,
 	}
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
@@ -315,6 +318,7 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 				IDExternal: status.ExternalID,
 				State:      status.State,
 				Type:       status.Type,
+				Color:      status.Color,
 			})
 		}
 		taskResult.AllStatuses = allStatuses

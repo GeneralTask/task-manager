@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -231,10 +231,12 @@ type LinearExternalUserInfoQuery struct {
 type linearWorkflowStatesQuery struct {
 	WorkflowStates struct {
 		Nodes []struct {
-			Id   graphql.ID
-			Name graphql.String
-			Type graphql.String
-			Team struct {
+			Id       graphql.ID
+			Name     graphql.String
+			Type     graphql.String
+			Position graphql.Float
+			Color    graphql.String
+			Team     struct {
 				Name graphql.String
 			}
 		}
@@ -447,23 +449,6 @@ func handleMutateLinearIssue(client *graphqlBasic.Client, issueID string, update
 			request.Var("description", *updateFields.Body)
 		}
 	}
-	if updateFields.IsCompleted != nil {
-		if task.CompletedStatus != nil && *updateFields.IsCompleted {
-			request.Var("stateId", task.CompletedStatus.ExternalID)
-		} else {
-			logger := logging.GetSentryLogger()
-			if task.Status != nil && task.CompletedStatus != nil && task.Status.ExternalID != task.CompletedStatus.ExternalID {
-				logger.Error().Msgf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
-				return false, fmt.Errorf("cannot mark task as undone because its Status does not equal its CompletedStatus, task: %+v", task)
-			} else if task.PreviousStatus != nil && task.PreviousStatus.ExternalID == "" {
-				logger.Error().Msgf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
-				return false, fmt.Errorf("cannot mark task as undone because it does not have a valid PreviousStatus, task: %+v", task)
-			}
-			if task.PreviousStatus != nil {
-				request.Var("stateId", task.PreviousStatus.ExternalID)
-			}
-		}
-	}
 	if (updateFields.Status != nil && *updateFields.Status != database.ExternalTaskStatus{}) {
 		request.Var("stateId", updateFields.Status.ExternalID)
 	}
@@ -576,7 +561,33 @@ func ProcessLinearStatuses(statusQuery *linearWorkflowStatesQuery) map[string][]
 			State:             string(node.Name),
 			Type:              string(node.Type),
 			IsCompletedStatus: string(node.Type) == LinearCompletedType || string(node.Type) == LinearCanceledType,
+			Color:             string(node.Color),
+			Position:          float64(node.Position),
 		})
 	}
-	return teamToStatuses
+
+	sortedStatuses := make(map[string][]*database.ExternalTaskStatus)
+	// have to hardcode ordering as Linear doesn't give us information surrounding this
+	statusOrdering := []string{"backlog", "unstarted", "started", "completed", "canceled", "triage"}
+	for team, statuses := range teamToStatuses {
+		sort.Slice(statuses, func(i, j int) bool {
+			difference := indexOf(statuses[i].Type, statusOrdering) - indexOf(statuses[j].Type, statusOrdering)
+			if difference != 0 {
+				return difference < 0
+			}
+			return (*statuses[i]).Position < (*statuses[j]).Position
+		})
+		sortedStatuses[team] = statuses
+	}
+	return sortedStatuses
+}
+
+// from https://stackoverflow.com/questions/8307478/how-to-find-out-element-position-in-slice
+func indexOf(element string, data []string) int {
+	for k, v := range data {
+		if element == v {
+			return k
+		}
+	}
+	return -1
 }

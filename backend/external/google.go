@@ -44,7 +44,7 @@ func getGoogleLoginConfig() OauthConfigWrapper {
 		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
 		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
 		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_LOGIN_REDIRECT_URL"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"},
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
 			TokenURL: "https://oauth2.googleapis.com/token",
@@ -209,6 +209,40 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 	if user.ID == primitive.NilObjectID {
 		logger.Error().Msg("unable to create user")
 		return primitive.NilObjectID, &userIsNew, nil, err
+	}
+
+	if len(token.RefreshToken) > 0 {
+		// Only update / save the external API key if refresh token is set (isn't set after first authorization)
+		tokenString, err := json.Marshal(&token)
+		if err != nil {
+			log.Printf("failed to serialize token json: %v", err)
+
+			return primitive.NilObjectID, &userIsNew, nil, err
+		}
+		externalAPITokenCollection := database.GetExternalTokenCollection(db)
+		_, err = externalAPITokenCollection.UpdateOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"user_id": user.ID},
+				{"service_id": TASK_SERVICE_ID_GOOGLE},
+				{"account_id": userInfo.EMAIL},
+			}},
+			bson.M{"$set": &database.ExternalAPIToken{
+				UserID:         user.ID,
+				ServiceID:      TASK_SERVICE_ID_GOOGLE,
+				Token:          string(tokenString),
+				AccountID:      userInfo.EMAIL,
+				DisplayID:      userInfo.EMAIL,
+				IsUnlinkable:   false,
+				IsPrimaryLogin: true,
+			}},
+			options.Update().SetUpsert(true),
+		)
+		if err != nil {
+			log.Printf("failed to create external token record: %v", err)
+
+			return primitive.NilObjectID, &userIsNew, nil, err
+		}
 	}
 
 	return user.ID, &userIsNew, &userInfo.EMAIL, nil

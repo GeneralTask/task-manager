@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { PurpleEdge } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
+const ItemContainerDiv = styled.div<{ isSelected: boolean; forceHoverStyle?: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -16,6 +16,11 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean }>`
         outline: ${Border.stroke.medium} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
+    ${({ forceHoverStyle }) =>
+        forceHoverStyle &&
+        `
+        outline: ${Border.stroke.medium} solid ${Colors.border.light};
+        background-color: ${Colors.background.medium};`}
     padding: 0 ${Spacing._16};
     cursor: pointer;
     white-space: nowrap;
@@ -27,12 +32,15 @@ interface ItemContainerProps {
     isSelected: boolean
     onClick: () => void
     children: React.ReactNode
+    forceHoverStyle?: boolean
 }
-const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(({ isSelected, onClick, children }, ref) => (
-    <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref}>
-        {isSelected && <PurpleEdge />}
-        {children}
-    </ItemContainerDiv>
-))
+const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
+    ({ isSelected, onClick, children, forceHoverStyle }, ref) => (
+        <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref} forceHoverStyle={forceHoverStyle}>
+            {isSelected && <PurpleEdge />}
+            {children}
+        </ItemContainerDiv>
+    )
+)
 
 export default ItemContainer

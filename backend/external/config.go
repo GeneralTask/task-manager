@@ -186,9 +186,9 @@ var TaskServiceGithub = TaskServiceDetails{
 }
 var TaskServiceGoogle = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_GOOGLE,
-	Name:         "Google",
-	Logo:         "/images/gmail.svg",
-	LogoV2:       "gmail",
+	Name:         "Google Calendar",
+	Logo:         "/images/gcal.png",
+	LogoV2:       "gcal",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   true,
 	IsSignupable: true,

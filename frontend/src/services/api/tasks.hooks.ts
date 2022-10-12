@@ -129,6 +129,7 @@ export const useCreateTask = () => {
                         is_done: false,
                         isOptimistic: true,
                         is_meeting_preparation_task: false,
+                        nux_number_id: 0,
                     }
                     section.tasks = [newTask, ...section.tasks]
                 })
@@ -246,12 +247,12 @@ export const useModifyTask = () => {
                     if (sectionIndex === undefined || taskIndex === undefined) return
                     const task = draft[sectionIndex].view_items[taskIndex]
                     if (!task) return
-                    task.title = data.title || task.title
-                    task.due_date = data.dueDate || task.due_date
-                    task.time_allocated = data.timeAllocated || task.time_allocated
-                    task.body = data.body || task.body
-                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                    task.external_status = data.status || task.external_status
+                    task.title = data.title ?? task.title
+                    task.due_date = data.dueDate ?? task.due_date
+                    task.time_allocated = data.timeAllocated ?? task.time_allocated
+                    task.body = data.body ?? task.body
+                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
+                    task.external_status = data.status ?? task.external_status
                 })
 
                 queryClient.setQueryData('overview', newViews)
@@ -305,8 +306,8 @@ export const useMarkTaskDone = () => {
 
                 queryClient.setQueryData('tasks', newSections)
 
-                if (data.isDone) {
-                    setTimeout(() => {
+                setTimeout(() => {
+                    if (data.isDone) {
                         const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                         if (!sections) return
 
@@ -320,9 +321,10 @@ export const useMarkTaskDone = () => {
                         })
 
                         queryClient.setQueryData('tasks', newSections)
-                        queryClient.invalidateQueries('tasks')
-                    }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-                }
+                    }
+                    queryClient.invalidateQueries('overview')
+                    queryClient.invalidateQueries('tasks')
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
             if (views) {
                 const newViews = produce(views, (draft) => {
@@ -341,9 +343,8 @@ export const useMarkTaskDone = () => {
                 })
 
                 queryClient.setQueryData('overview', newViews)
-
-                if (data.isDone) {
-                    setTimeout(() => {
+                setTimeout(() => {
+                    if (data.isDone) {
                         const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                         if (!views) return
 
@@ -364,9 +365,10 @@ export const useMarkTaskDone = () => {
                         })
 
                         queryClient.setQueryData('overview', newViews)
-                        queryClient.invalidateQueries('overview')
-                    }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
-                }
+                    }
+                    queryClient.invalidateQueries('overview')
+                    queryClient.invalidateQueries('tasks')
+                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
             }
         },
     })

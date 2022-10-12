@@ -85,6 +85,8 @@ type Task struct {
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
+	// for new user experience
+	NUXNumber int `bson:"nux_number_id,omitempty"`
 	// used to cache the current status before marking the task as done
 	Status          *ExternalTaskStatus   `bson:"status,omitempty"`
 	PreviousStatus  *ExternalTaskStatus   `bson:"previous_status,omitempty"`
@@ -212,10 +214,12 @@ type Comment struct {
 }
 
 type ExternalTaskStatus struct {
-	ExternalID        string `json:"external_id" bson:"external_id"`
-	State             string `json:"state" bson:"state"`
-	Type              string `json:"type" bson:"type"`
-	IsCompletedStatus bool   `json:"is_completed_status" bson:"is_completed_status"`
+	ExternalID        string  `json:"external_id" bson:"external_id"`
+	State             string  `json:"state" bson:"state"`
+	Type              string  `json:"type" bson:"type"`
+	IsCompletedStatus bool    `json:"is_completed_status" bson:"is_completed_status"`
+	Position          float64 `json:"position" bson:"position"`
+	Color             string  `json:"color" bson:"color"`
 }
 
 type UserSetting struct {

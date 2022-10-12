@@ -9,8 +9,9 @@ import (
 )
 
 type UserInfo struct {
-	AgreedToTerms      bool `json:"agreed_to_terms"`
-	OptedIntoMarketing bool `json:"opted_into_marketing"`
+	AgreedToTerms      bool   `json:"agreed_to_terms"`
+	OptedIntoMarketing bool   `json:"opted_into_marketing"`
+	Name               string `json:"name"`
 }
 
 type UserInfoParams struct {
@@ -32,6 +33,7 @@ func (api *API) UserInfoGet(c *gin.Context) {
 	c.JSON(200, UserInfo{
 		AgreedToTerms:      userObject.AgreedToTerms != nil && *userObject.AgreedToTerms,
 		OptedIntoMarketing: userObject.OptedIntoMarketing != nil && *userObject.OptedIntoMarketing,
+		Name:               userObject.Name,
 	})
 }
 

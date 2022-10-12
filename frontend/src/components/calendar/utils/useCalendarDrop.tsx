@@ -1,12 +1,20 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
+import { renderToString } from 'react-dom/server'
 import { DateTime } from 'luxon'
 import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
+import { useToast } from '../../../hooks'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
+import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
+import { logos } from '../../../styles/images'
+import { openPopupWindow } from '../../../utils/auth'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
+import { emptyFunction } from '../../../utils/utils'
+import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
 import {
     CALENDAR_DAY_HEADER_HEIGHT,
     CELL_HEIGHT_VALUE,
@@ -27,6 +35,9 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
     const [eventPreview, setEventPreview] = useState<TEvent>()
+    const toast = useToast()
+    const { data: supportedTypes } = useGetSupportedTypes()
+    const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -85,21 +96,46 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
     const onDrop = useCallback(
         (item: DropItem, monitor: DropTargetMonitor) => {
             const itemType = monitor.getItemType()
-            if (!primaryAccountID) return
+            if (!primaryAccountID) {
+                const toastProps = {
+                    title: '',
+                    message: 'Connect your Google account to create events from tasks.',
+                    rightAction: {
+                        icon: logos.gcal,
+                        label: 'Connect',
+                        onClick: () => {
+                            openPopupWindow(googleSupportedType?.authorization_url ?? '', emptyFunction)
+                        },
+                    },
+                }
+                toast.show(toastProps, {
+                    autoClose: 2000,
+                    pauseOnFocusLoss: false,
+                })
+                return
+            }
             const dropPosition = getDropPosition(monitor)
             const dropTime = getTimeFromDropPosition(dropPosition)
             switch (itemType) {
+                case DropType.LINEAR_TASK:
                 case DropType.DUE_TASK:
                 case DropType.TASK: {
                     if (!item.task) return
                     const end = dropTime.plus({ minutes: 30 })
                     const converter = new showdown.Converter()
-                    let description = converter.makeHtml(item.task.body)
-                    if (description !== '') {
-                        description += '\n'
+                    let description
+                    if (item.task.nux_number_id) {
+                        // if this is a nux task, override body
+                        description = renderToString(<NuxTaskBodyStatic task={item.task} />)
+                    } else {
+                        description = converter.makeHtml(item.task.body)
+                        if (description !== '') {
+                            description += '\n'
+                        }
+                        description = description.replaceAll('\n', '<br>')
+                        description +=
+                            '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                     }
-                    description = description.replaceAll('\n', '<br>')
-                    description += '<a href="https://generaltask.com/" __is_owner="true">created by General Task</a>'
                     createEvent({
                         createEventPayload: {
                             account_id: primaryAccountID,
@@ -175,20 +211,19 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
         () => ({
             accept: [
                 DropType.TASK,
+                DropType.LINEAR_TASK,
                 DropType.DUE_TASK,
                 DropType.EVENT,
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
             ],
-            collect: (monitor) => {
-                return monitor.isOver()
-            },
+            collect: (monitor) => primaryAccountID && monitor.isOver(),
             drop: onDrop,
-            canDrop: () => primaryAccountID !== undefined,
             hover: (item, monitor) => {
                 const dropPosition = getDropPosition(monitor)
                 const itemType = monitor.getItemType()
                 switch (itemType) {
+                    case DropType.LINEAR_TASK:
                     case DropType.TASK: {
                         setEventPreview(undefined)
                         setDropPreviewPosition(dropPosition)

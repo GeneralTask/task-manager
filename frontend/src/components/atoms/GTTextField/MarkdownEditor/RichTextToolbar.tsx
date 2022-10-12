@@ -2,7 +2,6 @@ import { useActive, useCommands } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
-import { emptyFunction } from '../../../../utils/utils'
 import ToolbarButton from './ToolbarButton'
 
 const MenuContainer = styled.div`
@@ -49,8 +48,9 @@ const RichTextToolbar = () => {
                 title="Strikethrough"
             />
             <Divider />
-            <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} title="Add link" />
-            <Divider />
+            {/* TODO: will add this back with full link functionality */}
+            {/* <ToolbarButton icon={icons.link} action={emptyFunction} isActive={active.link()} title="Add link" /> */}
+            {/* <Divider /> */}
             <ToolbarButton
                 icon={icons.list_ol}
                 action={commands.toggleOrderedList}

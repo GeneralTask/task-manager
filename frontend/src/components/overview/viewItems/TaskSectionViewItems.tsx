@@ -1,6 +1,10 @@
-import { Ref, forwardRef, useCallback } from 'react'
+import { Ref, forwardRef, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useReorderTask } from '../../../services/api/tasks.hooks'
+import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
+import sortAndFilterItems from '../../../utils/sortAndFilter/sortAndFilterItems'
+import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
+import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewTask from '../../molecules/CreateNewTask'
@@ -14,6 +18,28 @@ const TaskSectionViewItems = forwardRef(
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: reorderTask } = useReorderTask()
+
+        const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
+            TASK_SORT_AND_FILTER_CONFIG,
+            view.task_section_id,
+            '_overview'
+        )
+        const {
+            selectedSort,
+            selectedSortDirection,
+            selectedFilter,
+            isLoading: areSettingsLoading,
+        } = sortAndFilterSettings
+
+        const sortedTasks = useMemo(() => {
+            if (areSettingsLoading) return []
+            return sortAndFilterItems({
+                items: view.view_items,
+                sort: selectedSort,
+                sortDirection: selectedSortDirection,
+                tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
+            })
+        }, [view, selectedSort, selectedSortDirection, selectedFilter])
 
         const handleReorderTask = useCallback(
             (item: DropItem, dropIndex: number) => {
@@ -33,9 +59,10 @@ const TaskSectionViewItems = forwardRef(
                 <ViewHeader ref={ref}>
                     <ViewName>{view.name}</ViewName>
                 </ViewHeader>
+                {view.view_items.length > 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                 {sectionId && <CreateNewTask disableTooltip sectionId={sectionId} />}
-                {view.view_items.length > 0 ? (
-                    view.view_items.slice(0, visibleItemsCount).map((item, index) => (
+                {sortedTasks.length > 0 ? (
+                    sortedTasks.slice(0, visibleItemsCount).map((item, index) => (
                         <ReorderDropContainer
                             key={item.id}
                             index={index}
@@ -44,7 +71,7 @@ const TaskSectionViewItems = forwardRef(
                         >
                             <Task
                                 task={item as TTask}
-                                dragDisabled={false}
+                                dragDisabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                                 index={index}
                                 sectionId={sectionId}
                                 sectionScrollingRef={scrollRef}

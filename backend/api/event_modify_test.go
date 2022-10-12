@@ -111,6 +111,6 @@ func TestEventModify(t *testing.T) {
 		otherUserAuthToken := login("otheruser@aol.com", "")
 
 		body := bytes.NewBuffer([]byte(`{"account_id": "duck@duck.com", "summary": "duck"}`))
-		ServeRequest(t, otherUserAuthToken, "PATCH", validUrl, body, http.StatusUnauthorized, nil)
+		ServeRequest(t, otherUserAuthToken, "PATCH", validUrl, body, http.StatusNotFound, nil)
 	})
 }

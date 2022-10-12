@@ -84,5 +84,5 @@ export const mini = css`
     font-weight: ${weight.regular}; // 400
 `
 export const bold = css`
-    font-weight: ${weight.bold};
+    font-weight: ${weight.medium}; // 510
 `

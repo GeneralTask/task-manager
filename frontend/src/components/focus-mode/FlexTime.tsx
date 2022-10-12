@@ -2,16 +2,19 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { useCreateEvent } from '../../services/api/events.hooks'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import { useCreateEvent, useGetEvents } from '../../services/api/events.hooks'
+import Log from '../../services/api/log'
+import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
+import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent, TTask } from '../../utils/types'
 import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
-import TimeRange from '../atoms/TimeRange'
 import ItemContainer from '../molecules/ItemContainer'
 
 const FlexTimeContainer = styled.div`
@@ -78,18 +81,49 @@ const getRandomUniqueTaskIds = (tasksLength: number): [number?, number?] => {
     return taskIds
 }
 
+const getFlexTimeText = (events: TEvent[], nextEvent?: TEvent) => {
+    const latestPriorEvent = events.filter((event) => DateTime.fromISO(event.datetime_end) < DateTime.local()).pop()
+    //check if event ends after 11:30AM
+    const eventEndedBeforeMorningCutoff =
+        latestPriorEvent &&
+        DateTime.fromISO(latestPriorEvent.datetime_end).hour < 11 &&
+        DateTime.fromISO(latestPriorEvent.datetime_end).minute < 30
+    if (!latestPriorEvent && !nextEvent) {
+        return 'All day'
+    } else if (latestPriorEvent && nextEvent) {
+        const formattedStart = DateTime.fromISO(latestPriorEvent.datetime_end).toLocaleString(DateTime.TIME_SIMPLE)
+        const formattedEnd = DateTime.fromISO(nextEvent.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)
+        return `${formattedStart} - ${formattedEnd}`
+    } else if (!nextEvent && eventEndedBeforeMorningCutoff) {
+        return 'Starting at 11:30am'
+    } else if (nextEvent) {
+        const formattedEnd = DateTime.fromISO(nextEvent.datetime_start).toLocaleString(DateTime.TIME_SIMPLE)
+        return `Until ${formattedEnd}`
+    }
+    return 'Until Midnight'
+}
+
 interface FlexTimeProps {
     nextEvent?: TEvent
 }
 
 const FlexTime = ({ nextEvent }: FlexTimeProps) => {
+    const date = DateTime.local()
+    const monthBlocks = useMemo(() => {
+        const blocks = getMonthsAroundDate(date, 1)
+        return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
+    }, [date])
+    const { data: eventsCurrentMonth } = useGetEvents(monthBlocks[1], 'calendar')
+    const todayEvents = eventsCurrentMonth?.filter((event) =>
+        DateTime.fromISO(event.datetime_start).hasSame(date, 'day')
+    )
+    const flexTimeText = getFlexTimeText(todayEvents ?? [], nextEvent)
+
     const fifteenMinuteBlock = currentFifteenMinuteBlock(DateTime.local())
-    const nextEventTime = nextEvent
-        ? DateTime.fromISO(nextEvent.datetime_start)
-        : DateTime.local().set({ hour: 23, minute: 59 }) //midnight
     const { data: taskSections } = useGetTasks()
     const { mutate: createEvent } = useCreateEvent()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: views } = useGetOverviewViews()
 
     const [recommendedTasks, setRecommendedTasks] = useState<[TTask?, TTask?]>([])
 
@@ -102,16 +136,29 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         const firstTask = firstId !== undefined ? allTasks[firstId] : undefined
         const secondTask = secondId !== undefined ? allTasks[secondId] : undefined
         setRecommendedTasks([firstTask, secondTask])
-    }, [taskSections])
+    }, [taskSections, views])
 
     useLayoutEffect(() => {
         if (!recommendedTasks[0] && !recommendedTasks[1]) {
-            getNewRecommendedTasks()
+            if (views === undefined) {
+                getNewRecommendedTasks()
+                return
+            }
+            const allViewTasks = views
+                .filter((view) => view.type === 'slack' || view.type === 'task_section' || view.type === 'linear')
+                .flatMap((view) => view.view_items)
+            const firstTask = allViewTasks.length > 0 ? allViewTasks[0] : undefined
+            const secondTask = allViewTasks.length > 1 ? allViewTasks[1] : undefined
+            setRecommendedTasks([firstTask, secondTask])
+            if (!firstTask && !secondTask) {
+                getNewRecommendedTasks()
+            }
         }
     }, [taskSections])
 
     const primaryAccountID = useMemo(
-        () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
+        () =>
+            linkedAccounts?.filter((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.[0]?.display_id,
         [linkedAccounts]
     )
 
@@ -136,14 +183,13 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
             linkedTask: task,
             optimisticId: uuidv4(),
         })
+        Log(`flex_time_create_event_from_task`)
     }
 
     return (
         <FlexTimeContainer>
             <GTHeader>Flex Time</GTHeader>
-            <GTTitle>
-                <TimeRange start={fifteenMinuteBlock} end={nextEventTime} />
-            </GTTitle>
+            <GTTitle>{flexTimeText}</GTTitle>
             <Subtitle>
                 If you need something to work on, we&apos;ve picked a couple tasks that you may be interested in doing
                 now. You can click either one to get started, or have us pick a couple other options for you.

@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import { DEFAULT_SECTION_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -11,8 +11,9 @@ interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
     children: React.ReactNode
+    onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -27,7 +28,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
                           .filter((s) => !s.is_done && !s.is_trash)
                           .map((section) => ({
                               label: section.name,
-                              icon: icons.folder,
+                              icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
                               selected: section.id === sectionId,
                               onClick: () => {
                                   reorderTask({
@@ -79,7 +80,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children }: TaskContextMenuPr
         },
     ]
 
-    return <GTContextMenu items={contextMenuItems} trigger={children} />
+    return <GTContextMenu items={contextMenuItems} trigger={children} onOpenChange={onOpenChange} />
 }
 
 export default TaskContextMenuWrapper

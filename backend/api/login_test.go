@@ -111,9 +111,6 @@ func TestLoginRedirect(t *testing.T) {
 }
 
 func TestLoginCallback(t *testing.T) {
-	//db, dbCleanup, err := database.GetDBConnection()
-	//assert.NoError(t, err)
-	//defer dbCleanup()
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 	waitlistCollection := database.GetWaitlistCollection(api.DB)
@@ -129,46 +126,14 @@ func TestLoginCallback(t *testing.T) {
 		assert.Equal(t, "{\"detail\":\"missing query params\"}", string(body))
 	})
 
-	t.Run("EmailNotApprovedOnWaitlist", func(t *testing.T) {
-		// Waitlist entry doesn't matter if has_access = false or if different email
-		_, err := waitlistCollection.InsertOne(
-			context.Background(),
-			&database.WaitlistEntry{Email: "unapproved@gmail.com"},
-		)
-		assert.NoError(t, err)
-		_, err = waitlistCollection.InsertOne(
-			context.Background(),
-			&database.WaitlistEntry{
-				Email:     "different_email@gmail.com",
-				HasAccess: true,
-			},
-		)
-		assert.NoError(t, err)
-
-		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "", "example-token", "example-token", true, false)
-		assert.Equal(t, http.StatusForbidden, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-	})
-	t.Run("EmailNotApproved", func(t *testing.T) {
-		err := waitlistCollection.Drop(context.Background())
-		assert.NoError(t, err)
-		recorder := makeLoginCallbackRequest("noice420", "unapproved@gmail.com", "", "example-token", "example-token", true, false)
-		assert.Equal(t, http.StatusForbidden, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"email has not been approved.\"}", string(body))
-		verifyLoginCallback(t, api.DB, "unapproved@gmail.com", "noice420", true, false)
-	})
 	t.Run("Idempotent", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 		//change token and verify token updates and still only 1 row per user.
 		recorder = makeLoginCallbackRequest("TSLA", "approved@generaltask.com", "", "example-token", "example-token", true, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "TSLA", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "TSLA", false, true)
 	})
 	t.Run("UpdatesName", func(t *testing.T) {
 		userCollection := database.GetUserCollection(api.DB)
@@ -226,7 +191,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 	})
 	t.Run("SuccessDeeplink", func(t *testing.T) {
 		stateToken, err := newStateToken(api.DB, "", true)
@@ -236,7 +201,7 @@ func TestLoginCallback(t *testing.T) {
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
-		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)
 	})
 	t.Run("SuccessWaitlist", func(t *testing.T) {
 		_, err := waitlistCollection.InsertOne(
@@ -251,6 +216,6 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "dogecoin@tothe.moon", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		verifyLoginCallback(t, api.DB, "dogecoin@tothe.moon", "noice420", true, true)
+		verifyLoginCallback(t, api.DB, "dogecoin@tothe.moon", "noice420", false, true)
 	})
 }

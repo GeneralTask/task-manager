@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { DateTime } from 'luxon'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useGetEvents } from '../../services/api/events.hooks'
@@ -65,7 +66,8 @@ const CalendarView = ({
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
     const primaryAccountID = useMemo(
-        () => linkedAccounts?.filter((account) => account.name === 'Google')?.[0]?.display_id,
+        () =>
+            linkedAccounts?.filter((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.[0]?.display_id,
         [linkedAccounts]
     )
 
