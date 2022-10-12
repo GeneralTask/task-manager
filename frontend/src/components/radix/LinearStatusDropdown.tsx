@@ -7,8 +7,9 @@ import GTDropdownMenu from './GTDropdownMenu'
 
 interface LinearStatusDropdownProps {
     task: TTask
+    disabled?: boolean
 }
-const LinearStatusDropdown = ({ task }: LinearStatusDropdownProps) => {
+const LinearStatusDropdown = ({ task, disabled }: LinearStatusDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
@@ -18,6 +19,7 @@ const LinearStatusDropdown = ({ task }: LinearStatusDropdownProps) => {
         <GTDropdownMenu
             isOpen={isOpen}
             setIsOpen={setIsOpen}
+            disabled={disabled}
             items={task.all_statuses.map((status) => ({
                 label: status.state,
                 onClick: () => modifyTask({ id: task.id, status: status }),

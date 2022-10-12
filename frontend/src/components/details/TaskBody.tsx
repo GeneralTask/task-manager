@@ -15,8 +15,9 @@ const BodyContainer = styled.div`
 interface TaskBodyProps {
     task: TTask
     onChange: (val: string) => void
+    disabled?: boolean
 }
-const TaskBody = ({ task, onChange }: TaskBodyProps) => {
+const TaskBody = ({ task, onChange, disabled }: TaskBodyProps) => {
     if (!task.nux_number_id) {
         return (
             <BodyContainer>
@@ -27,6 +28,7 @@ const TaskBody = ({ task, onChange }: TaskBodyProps) => {
                     placeholder="Add details"
                     onChange={onChange}
                     minHeight={BODY_MIN_HEIGHT}
+                    disabled={disabled}
                     fontSize="small"
                 />
             </BodyContainer>

@@ -7,8 +7,9 @@ import GTDropdownMenu from './GTDropdownMenu'
 
 interface PriorityDropdownProps {
     task: TTask
+    disabled?: boolean
 }
-const PriorityDropdown = ({ task }: PriorityDropdownProps) => {
+const PriorityDropdown = ({ task, disabled }: PriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
@@ -16,6 +17,7 @@ const PriorityDropdown = ({ task }: PriorityDropdownProps) => {
         <GTDropdownMenu
             isOpen={isOpen}
             setIsOpen={setIsOpen}
+            disabled={disabled}
             items={TASK_PRIORITIES.map((priority, val) => ({
                 label: priority.label,
                 onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),

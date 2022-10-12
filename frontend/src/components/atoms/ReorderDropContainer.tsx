@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import styled, { css } from 'styled-components'
 import { Border, Colors } from '../../styles'
@@ -14,6 +14,7 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
     flex-direction: column;
     align-items: center;
     ${({ isLast }) => (isLast ? 'flex: 1;' : '')}
+    cursor: pointer;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: relative;
@@ -63,72 +64,81 @@ interface ReorderDropContainerProps {
     onReorder: (item: DropItem, dropIndex: number) => void
     indicatorType?: IndicatorType
 }
-const ReorderDropContainer = ({
-    children,
-    index,
-    acceptDropType,
-    onReorder,
-    indicatorType = 'TOP_AND_BOTTOM',
-}: ReorderDropContainerProps) => {
-    const dropRef = useRef<HTMLDivElement>(null)
-    const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
+const ReorderDropContainer = forwardRef(
+    (
+        { children, index, acceptDropType, onReorder, indicatorType = 'TOP_AND_BOTTOM' }: ReorderDropContainerProps,
+        ref: React.ForwardedRef<HTMLDivElement>
+    ) => {
+        const dropRef = useRef<HTMLDivElement>(null)
+        const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
 
-    const getDropDirection = useCallback(
-        (dropY: number): DropDirection => {
-            if (indicatorType !== 'TOP_AND_BOTTOM') return DropDirection.ABOVE
-            const boundingRect = dropRef.current?.getBoundingClientRect()
-            if (!boundingRect) {
-                return DropDirection.ABOVE
-            }
-            const midpoint = (boundingRect.top + boundingRect.bottom) / 2
-            return dropY < midpoint ? DropDirection.ABOVE : DropDirection.BELOW
-        },
-        [indicatorType]
-    )
-
-    const onDrop = useCallback(
-        (item: DropItem, monitor: DropTargetMonitor) => {
-            const dropDirection = getDropDirection(monitor.getClientOffset()?.y ?? 0)
-            setDropDirection(dropDirection)
-            const dropIndex = index + (dropDirection === DropDirection.ABOVE ? 1 : 2)
-            onReorder(item, dropIndex)
-        },
-        [index, onReorder]
-    )
-
-    const [isOver, drop] = useDrop(
-        () => ({
-            accept: acceptDropType,
-            collect: (monitor) => {
-                return !!monitor.isOver()
+        const getDropDirection = useCallback(
+            (dropY: number): DropDirection => {
+                if (indicatorType !== 'TOP_AND_BOTTOM') return DropDirection.ABOVE
+                const boundingRect = dropRef.current?.getBoundingClientRect()
+                if (!boundingRect) {
+                    return DropDirection.ABOVE
+                }
+                const midpoint = (boundingRect.top + boundingRect.bottom) / 2
+                return dropY < midpoint ? DropDirection.ABOVE : DropDirection.BELOW
             },
-            drop: onDrop,
-            hover: async (_, monitor) => {
-                setDropDirection(getDropDirection(monitor.getClientOffset()?.y ?? 0))
+            [indicatorType]
+        )
+
+        const onDrop = useCallback(
+            (item: DropItem, monitor: DropTargetMonitor) => {
+                const dropDirection = getDropDirection(monitor.getClientOffset()?.y ?? 0)
+                setDropDirection(dropDirection)
+                const dropIndex = index + (dropDirection === DropDirection.ABOVE ? 1 : 2)
+                onReorder(item, dropIndex)
             },
-        }),
-        [onDrop, acceptDropType, getDropDirection]
-    )
+            [index, onReorder]
+        )
 
-    useEffect(() => {
-        drop(dropRef)
-    }, [dropRef])
+        const [isOver, drop] = useDrop(
+            () => ({
+                accept: acceptDropType,
+                collect: (monitor) => {
+                    return !!monitor.isOver()
+                },
+                drop: onDrop,
+                hover: async (_, monitor) => {
+                    setDropDirection(getDropDirection(monitor.getClientOffset()?.y ?? 0))
+                },
+            }),
+            [onDrop, acceptDropType, getDropDirection]
+        )
 
-    return (
-        <DropOverlay ref={dropRef} isLast={indicatorType === 'TOP_ONLY'}>
-            {indicatorType !== 'WHOLE' && (
-                <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
-            )}
-            {indicatorType === 'WHOLE' ? (
-                <WholeDropIndicator isVisible={isOver}>{children}</WholeDropIndicator>
-            ) : (
-                children
-            )}
-            {indicatorType === 'TOP_AND_BOTTOM' && (
-                <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW} />
-            )}
-        </DropOverlay>
-    )
-}
+        useEffect(() => {
+            drop(dropRef)
+        }, [dropRef])
+
+        return (
+            <DropOverlay
+                ref={(node) => {
+                    drop(node)
+                    if (typeof ref === 'function') {
+                        ref(node)
+                    } else if (ref !== null) {
+                        ref.current = node
+                    }
+                }}
+                isLast={indicatorType === 'TOP_ONLY'}
+            >
+                {indicatorType !== 'WHOLE' && (
+                    <DropIndicatorAbove isVisible={isOver && dropDirection == DropDirection.ABOVE} />
+                )}
+                {indicatorType === 'WHOLE' ? (
+                    <WholeDropIndicator isVisible={isOver}>{children}</WholeDropIndicator>
+                ) : (
+                    children
+                )}
+                {indicatorType === 'TOP_AND_BOTTOM' && (
+                    <DropIndicatorBelow isVisible={isOver && dropDirection == DropDirection.BELOW} />
+                )}
+            </DropOverlay>
+        )
+    }
+)
 
 export default ReorderDropContainer
