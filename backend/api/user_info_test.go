@@ -24,7 +24,21 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":true}", string(body))
+	})
+	t.Run("SuccessNonEmployee", func(t *testing.T) {
+		nonEmployeeAuthToken := login("userinfo@gmail.com", "")
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest("GET", "/user_info/", nil)
+		request.Header.Add("Authorization", "Bearer "+nonEmployeeAuthToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":false}", string(body))
 	})
 	UnauthorizedTest(t, "PATCH", "/user_info/", nil)
 	t.Run("EmptyPayload", func(t *testing.T) {
@@ -80,7 +94,7 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err = ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"name\":\"\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"name\":\"\",\"is_employee\":true}", string(body))
 	})
 	t.Run("SuccessPartialUpdate", func(t *testing.T) {
 		// assuming the fields are still true as above
@@ -107,6 +121,6 @@ func TestUserInfo(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err = ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"name\":\"\"}", string(body))
+		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":true}", string(body))
 	})
 }
