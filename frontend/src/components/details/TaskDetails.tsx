@@ -12,6 +12,7 @@ import {
 } from '../../constants'
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -84,6 +85,7 @@ interface TaskDetailsProps {
     link: string
 }
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
+    const { data: userInfo } = useGetUserInfo()
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
@@ -223,7 +225,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
-                    {task.source.name === GENERAL_TASK_SOURCE_NAME && (
+                    {task.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && (
                         <SubtaskList taskId={task.id} subtasks={task.sub_tasks ?? []} />
                     )}
                     {task.comments && (
