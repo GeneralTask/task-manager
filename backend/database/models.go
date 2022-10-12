@@ -130,9 +130,11 @@ type PullRequest struct {
 	Number            int                  `bson:"number,omitempty"`
 	Author            string               `bson:"author,omitempty"`
 	Branch            string               `bson:"branch,omitempty"`
+	BaseBranch        string               `bson:"base_branch,omitempty"`
 	RequiredAction    string               `bson:"required_action,omitempty"`
 	Comments          []PullRequestComment `bson:"comments,omitempty"`
 	CommentCount      int                  `bson:"comment_count,omitempty"`
+	CommitCount       int                  `bson:"commit_count,omitempty"`
 	Additions         int                  `bson:"additions,omitempty"`
 	Deletions         int                  `bson:"deletions, omitempty"`
 	CreatedAtExternal primitive.DateTime   `bson:"created_at_external,omitempty"`
