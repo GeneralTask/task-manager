@@ -11,7 +11,7 @@ const TermsOfServiceSummaryScreen = () => {
     const { data, isLoading } = useGetUserInfo()
 
     if (isLoading) return <Loading />
-    if (!isLoading && data.agreed_to_terms) return <Navigate to="/" />
+    if (!isLoading && data?.agreed_to_terms) return <Navigate to="/" />
     return (
         <SingleViewTemplate>
             <GTModal
