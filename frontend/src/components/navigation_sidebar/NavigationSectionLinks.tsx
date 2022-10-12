@@ -14,6 +14,7 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
@@ -180,17 +181,19 @@ const NavigationSectionLinks = () => {
                             acceptDropType={DropType.FOLDER}
                             onReorder={handleReorder}
                         >
-                            <NavigationLink
-                                key={section.id}
-                                link={`/tasks/${section.id}`}
-                                title={section.name}
-                                icon={icons.folder}
-                                isCurrentPage={sectionId === section.id}
-                                taskSection={section}
-                                count={section.tasks.length}
-                                draggable
-                                droppable
-                            />
+                            <NavigationContextMenuWrapper sectionId={section.id}>
+                                <NavigationLink
+                                    key={section.id}
+                                    link={`/tasks/${section.id}`}
+                                    title={section.name}
+                                    icon={icons.folder}
+                                    isCurrentPage={sectionId === section.id}
+                                    taskSection={section}
+                                    count={section.tasks.length}
+                                    draggable
+                                    droppable
+                                />
+                            </NavigationContextMenuWrapper>
                         </ReorderDropContainer>
                     ))}
                 {isAddSectionInputVisible && (
