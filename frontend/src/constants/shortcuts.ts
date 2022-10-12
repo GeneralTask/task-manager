@@ -55,6 +55,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: 'F',
         category: 'Tasks',
     },
+    submitComment: {
+        label: 'Submit comment',
+        key: CMD_CTRL_KEY + '+Enter',
+        keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
+        category: 'Tasks',
+        icon: 'comment',
+    },
     // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',

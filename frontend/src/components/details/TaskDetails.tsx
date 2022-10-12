@@ -6,6 +6,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
+import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask, usePostComment } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
@@ -158,6 +159,15 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         [task.id, modifyTask]
     )
 
+    const submitComment = useCallback(() => {
+        if (comment) {
+            postComment({ taskId: task.id, body: comment })
+            setComment('')
+        }
+    }, [comment, postComment, task.id])
+
+    useKeyboardShortcut('submitComment', submitComment)
+
     const onEdit = ({ id, title, body }: TModifyTaskData) => {
         setIsEditing(true)
         const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
@@ -253,10 +263,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                                 value="Comment"
                                 styleType="secondary"
                                 size="small"
-                                onClick={() => {
-                                    postComment({ taskId: task.id, body: comment })
-                                    setComment('')
-                                }}
+                                onClick={() => submitComment()}
                             />
                         }
                         isFullHeight
