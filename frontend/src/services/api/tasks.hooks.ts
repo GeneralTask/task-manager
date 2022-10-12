@@ -10,6 +10,7 @@ export interface TCreateTaskData {
     title: string
     body?: string
     taskSectionId: string
+    parent_task_id?: string
     optimisticId: string
 }
 
@@ -95,6 +96,7 @@ export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TCreateTaskData) => createTask(data), {
         onMutate: async (data: TCreateTaskData) => {
+            if (data.parent_task_id) return
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
@@ -203,6 +205,7 @@ export const createTask = async (data: TCreateTaskData) => {
             title: data.title,
             body: data.body ?? '',
             id_task_section: data.taskSectionId,
+            parent_task_id: data.parent_task_id,
         })
         return castImmutable(res.data)
     } catch {
