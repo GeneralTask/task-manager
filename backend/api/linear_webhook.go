@@ -169,8 +169,8 @@ func (api *API) createOrModifyIssueFromPayload(userID primitive.ObjectID, accoun
 	task.CompletedStatus = getCompletedLinearStatus(task.AllStatuses)
 
 	if task.Status.Type == external.LinearCompletedType || task.Status.Type == external.LinearCanceledType {
-		_true := true
-		task.IsCompleted = &_true
+		isCompleted := true
+		task.IsCompleted = &isCompleted
 	}
 
 	_, err = database.UpdateOrCreateTask(
