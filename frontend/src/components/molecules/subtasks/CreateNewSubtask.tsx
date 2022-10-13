@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../../constants/shortcuts'
 import { useCreateTask } from '../../../services/api/tasks.hooks'
-import { Typography } from '../../../styles'
+import { Spacing, Typography } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
 import { TaskInput } from '../CreateNewTask'
 import { SubtaskContainer } from './Subtask'
@@ -12,6 +12,7 @@ const blurShortcuts = [KEYBOARD_SHORTCUTS.close.key]
 
 const CreateNewTaskContainer = styled(SubtaskContainer)`
     cursor: text;
+    padding: 0;
     :hover {
         background-color: transparent;
     }
@@ -23,6 +24,8 @@ const SubtaskInput = styled(TaskInput)`
     flex: 1;
     typography: ${Typography.body};
     width: 100%;
+    box-sizing: border-box;
+    padding: ${Spacing._16};
 `
 
 interface CreateNewSubtaskProps {
