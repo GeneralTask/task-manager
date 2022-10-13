@@ -28,6 +28,7 @@ const CommandDialog = styled(Command.Dialog)`
     border-radius: ${Border.radius.medium};
     padding-bottom: ${Spacing._4};
     z-index: 1500; // should appear over modals
+    user-select: none;
 `
 const Searchbar = styled.div`
     display: flex;
