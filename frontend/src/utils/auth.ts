@@ -1,6 +1,7 @@
 import Cookie from 'js-cookie'
 import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
 import getEnvVars from '../environment'
+import Log from '../services/api/log'
 
 const AUTH_WINDOW_WIDTH = 960
 const AUTH_WINDOW_HEIGHT = 640
@@ -14,6 +15,7 @@ export const authSignOut = () => {
 }
 
 export const openPopupWindow = (authorizationURL: string, onWindowClose: () => void) => {
+    Log(`open_auth_window_${authorizationURL}`)
     const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
     const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
     const win = window.open(
