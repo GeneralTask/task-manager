@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { TTask } from '../../utils/types'
 import { getSectionFromTask } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import CreateNewSubtask from './CreateNewSubtask'
@@ -33,14 +34,12 @@ const TaskListContainer = styled.div`
 
 interface SubtasksProps {
     taskId: string
+    subtasks: TTask[]
 }
 
-const SubtaskList = ({ taskId }: SubtasksProps) => {
+const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const { data: taskSections } = useGetTasks()
     const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
-    const subtasks =
-        taskSections?.find((section) => section.id === sectionId)?.tasks.find((task) => task.id === taskId)
-            ?.sub_tasks ?? []
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
 
     return (

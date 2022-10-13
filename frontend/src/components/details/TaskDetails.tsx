@@ -4,7 +4,12 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, GENERAL_TASK_SOURCE_NAME, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
+import {
+    DETAILS_SYNC_TIMEOUT,
+    GENERAL_TASK_SOURCE_NAME,
+    SINGLE_SECOND_INTERVAL,
+    TRASH_SECTION_ID,
+} from '../../constants'
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -218,7 +223,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
-                    {task.source.name === GENERAL_TASK_SOURCE_NAME && <SubtaskList taskId={task.id} />}
+                    {task.source.name === GENERAL_TASK_SOURCE_NAME && (
+                        <SubtaskList taskId={task.id} subtasks={task.sub_tasks ?? []} />
+                    )}
                     {task.comments && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
