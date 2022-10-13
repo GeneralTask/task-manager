@@ -1,5 +1,5 @@
 // returns overview lists with view items sorted and filtered
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useGetOverviewViews } from '../../services/api/overview.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import getSortAndFilterSettings from '../../utils/sortAndFilter/getSortAndFilterSettings'
@@ -11,7 +11,7 @@ import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.con
 const useOverviewLists = () => {
     const { data: lists, isLoading: areListsLoading } = useGetOverviewViews()
     const { data: settings, isLoading: areSettingsLoading } = useGetSettings()
-    useState()
+
     const sortedAndFilteredLists = useMemo(() => {
         if (areListsLoading || areSettingsLoading || !lists || !settings) return []
         return lists?.map((list) => {
