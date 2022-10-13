@@ -19,20 +19,20 @@ const NavigationContextMenuWrapper = ({
     const { mutate: deleteSection } = useDeleteTaskSection()
     const items: GTMenuItem[] = [
         {
+            label: 'Rename Section',
+            icon: icons.pencil,
+            onClick: () => {
+                setSectionName()
+                setSectionBeingEdited(sectionId)
+            },
+        },
+        {
             label: 'Delete Section',
             textColor: 'red',
             icon: icons.trash,
             iconColor: 'red',
             onClick: () => {
                 deleteSection({ sectionId: sectionId })
-            },
-        },
-        {
-            label: 'Rename Section',
-            icon: icons.pencil,
-            onClick: () => {
-                setSectionName()
-                setSectionBeingEdited(sectionId)
             },
         },
     ]
