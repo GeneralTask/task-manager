@@ -14,6 +14,7 @@ type UserInfo struct {
 	OptedIntoMarketing bool   `json:"opted_into_marketing"`
 	Name               string `json:"name"`
 	IsEmployee         bool   `json:"is_employee"`
+	Email              string `json:"email"`
 }
 
 type UserInfoParams struct {
@@ -37,6 +38,7 @@ func (api *API) UserInfoGet(c *gin.Context) {
 		OptedIntoMarketing: userObject.OptedIntoMarketing != nil && *userObject.OptedIntoMarketing,
 		Name:               userObject.Name,
 		IsEmployee:         strings.HasSuffix(strings.ToLower(userObject.Email), "@generaltask.com"),
+		Email:              userObject.Email,
 	})
 }
 
