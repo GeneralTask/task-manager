@@ -1,6 +1,5 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components'
-import { useClickOutside } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
@@ -43,11 +42,6 @@ const SubtaskList = ({ taskId }: SubtasksProps) => {
         taskSections?.find((section) => section.id === sectionId)?.tasks.find((task) => task.id === taskId)
             ?.sub_tasks ?? []
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
-    const ref = useRef<HTMLInputElement>(null)
-
-    useClickOutside(ref, () => {
-        setShowCreateNewSubtask(false)
-    })
 
     return (
         <div>
@@ -58,10 +52,9 @@ const SubtaskList = ({ taskId }: SubtasksProps) => {
             <TaskListContainer>
                 {showCreateNewSubtask && sectionId && (
                     <CreateNewSubtask
-                        ref={ref}
                         parentTaskId={taskId}
                         sectionId={sectionId}
-                        onBlur={() => setShowCreateNewSubtask(false)}
+                        hideCreateNewSubtask={() => setShowCreateNewSubtask(false)}
                     />
                 )}
                 {subtasks.map((subtask) => {

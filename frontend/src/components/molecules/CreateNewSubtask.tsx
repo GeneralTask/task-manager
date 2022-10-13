@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
@@ -28,59 +28,46 @@ const SubtaskInput = styled(TaskInput)`
 interface CreateNewSubtaskProps {
     parentTaskId: string
     sectionId: string
-    onBlur?: () => void
+    hideCreateNewSubtask: () => void
 }
 
-const CreateNewSubtask = forwardRef(
-    ({ parentTaskId, sectionId, onBlur }: CreateNewSubtaskProps, ref: React.ForwardedRef<HTMLInputElement>) => {
-        const { mutate: createTask } = useCreateTask()
-        const [taskTitle, setTaskTitle] = useState('')
-        const inputRef = React.useRef<HTMLInputElement | null>(null)
+const CreateNewSubtask = ({ parentTaskId, sectionId, hideCreateNewSubtask }: CreateNewSubtaskProps) => {
+    const { mutate: createTask } = useCreateTask()
+    const [taskTitle, setTaskTitle] = useState('')
+    const inputRef = useRef<HTMLInputElement>(null)
 
-        useEffect(() => {
-            inputRef.current?.focus()
-        }, [])
+    useEffect(() => {
+        inputRef.current?.focus()
+    }, [])
 
-        const handleKeyDown = (e: React.KeyboardEvent) => {
-            stopKeydownPropogation(e)
-            if (blurShortcuts.includes(e.key)) {
-                inputRef.current?.blur()
-                if (onBlur) {
-                    onBlur()
-                }
-            }
-            if (e.key === 'Enter') {
-                createTask({
-                    title: taskTitle,
-                    parent_task_id: parentTaskId,
-                    taskSectionId: sectionId,
-                    optimisticId: uuidv4(),
-                })
-                if (onBlur) {
-                    onBlur()
-                }
-            }
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        stopKeydownPropogation(e)
+        if (blurShortcuts.includes(e.key)) {
+            hideCreateNewSubtask()
         }
-
-        return (
-            <CreateNewTaskContainer>
-                <SubtaskInput
-                    ref={(node) => {
-                        inputRef.current = node
-                        if (typeof ref === 'function') {
-                            ref(node)
-                        } else if (ref !== null) {
-                            ref.current = node
-                        }
-                    }}
-                    value={taskTitle}
-                    placeholder="Write new subtask title"
-                    onKeyDown={handleKeyDown}
-                    onChange={(e) => setTaskTitle(e.target.value)}
-                />
-            </CreateNewTaskContainer>
-        )
+        if (e.key === 'Enter') {
+            createTask({
+                title: taskTitle,
+                parent_task_id: parentTaskId,
+                taskSectionId: sectionId,
+                optimisticId: uuidv4(),
+            })
+            hideCreateNewSubtask()
+        }
     }
-)
+
+    return (
+        <CreateNewTaskContainer>
+            <SubtaskInput
+                ref={inputRef}
+                onBlur={hideCreateNewSubtask}
+                value={taskTitle}
+                placeholder="Write new subtask title"
+                onKeyDown={handleKeyDown}
+                onChange={(e) => setTaskTitle(e.target.value)}
+            />
+        </CreateNewTaskContainer>
+    )
+}
 
 export default CreateNewSubtask
