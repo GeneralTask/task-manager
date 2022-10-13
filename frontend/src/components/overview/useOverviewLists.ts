@@ -1,4 +1,3 @@
-// returns overview lists with view items sorted and filtered
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useItemSelectionController } from '../../hooks'
