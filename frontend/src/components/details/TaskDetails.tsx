@@ -170,10 +170,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     useKeyboardShortcut('submitComment', submitComment)
 
-    useEffect(() => {
-        console.log(userInfo)
-    }, userInfo)
-
     const onEdit = ({ id, title, body }: TModifyTaskData) => {
         setIsEditing(true)
         const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
