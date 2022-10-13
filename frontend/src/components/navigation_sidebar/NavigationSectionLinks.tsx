@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
+import { useClickOutside } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
@@ -121,6 +122,30 @@ const NavigationSectionLinks = () => {
     const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
     const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
 
+    // Logic for updating section name from navigation view
+    const [sectionBeingEdited, setSectionBeingEdited] = useState<string | null>(null)
+    const [updatedSectionName, setUpdatedSectionName] = useState<string>('')
+    const ref = useRef<HTMLDivElement>(null)
+
+    const setCurrentSectionName = (sectionName: string) => setUpdatedSectionName(sectionName)
+    useClickOutside(ref, () => setSectionBeingEdited(null))
+
+    const onKeyDownHandlerSectionName = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        e.stopPropagation()
+        if (sectionBeingEdited == null) return
+        if (e.key === 'Enter' && updatedSectionName.trim() !== '') {
+            setSectionBeingEdited(null)
+            setUpdatedSectionName('')
+            modifyTaskSection({
+                sectionId: sectionBeingEdited,
+                name: updatedSectionName,
+            })
+        } else if (e.key === 'Escape') {
+            setUpdatedSectionName('')
+            setSectionBeingEdited(null)
+        }
+    }
+
     if (!folders) {
         return <Loading />
     }
@@ -174,28 +199,57 @@ const NavigationSectionLinks = () => {
                 )}
                 {folders
                     ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
-                    .map((section, index) => (
-                        <ReorderDropContainer
-                            key={section.id}
-                            index={index} // +1 because we skip the default folder
-                            acceptDropType={DropType.FOLDER}
-                            onReorder={handleReorder}
-                        >
-                            <NavigationContextMenuWrapper sectionId={section.id}>
-                                <NavigationLink
-                                    key={section.id}
-                                    link={`/tasks/${section.id}`}
-                                    title={section.name}
-                                    icon={icons.folder}
-                                    isCurrentPage={sectionId === section.id}
-                                    taskSection={section}
-                                    count={section.tasks.length}
-                                    draggable
-                                    droppable
-                                />
-                            </NavigationContextMenuWrapper>
-                        </ReorderDropContainer>
-                    ))}
+                    .map((section, index) =>
+                        sectionBeingEdited !== section.id ? (
+                            <ReorderDropContainer
+                                key={section.id}
+                                index={index} // +1 because we skip the default folder
+                                acceptDropType={DropType.FOLDER}
+                                onReorder={handleReorder}
+                            >
+                                <NavigationContextMenuWrapper
+                                    sectionId={section.id}
+                                    setSectionName={() => setCurrentSectionName(section.name)}
+                                    setSectionBeingEdited={setSectionBeingEdited}
+                                >
+                                    <NavigationLink
+                                        key={section.id}
+                                        link={`/tasks/${section.id}`}
+                                        title={section.name}
+                                        icon={icons.folder}
+                                        isCurrentPage={sectionId === section.id}
+                                        taskSection={section}
+                                        count={section.tasks.length}
+                                        draggable
+                                        droppable
+                                    />
+                                </NavigationContextMenuWrapper>
+                            </ReorderDropContainer>
+                        ) : (
+                            <NavigationLinkTemplate ref={ref}>
+                                <AddSectionContainer>
+                                    <div>
+                                        <Icon icon={icons.folder} color="black" />
+                                    </div>
+                                    <InputContainer>
+                                        <NoStyleInput
+                                            ref={(node) => {
+                                                if (!node) return
+                                                if (sectionBeingEdited === section.id) node.focus()
+                                                else if (sectionBeingEdited === null) node.blur()
+                                            }}
+                                            value={updatedSectionName}
+                                            onChange={(e) => {
+                                                setUpdatedSectionName(e.target.value)
+                                            }}
+                                            onKeyDown={onKeyDownHandlerSectionName}
+                                            placeholder="Enter a section name"
+                                        />
+                                    </InputContainer>
+                                </AddSectionContainer>
+                            </NavigationLinkTemplate>
+                        )
+                    )}
                 {isAddSectionInputVisible && (
                     <NavigationLinkTemplate>
                         <AddSectionContainer>
