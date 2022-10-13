@@ -33,32 +33,17 @@ type InternalAPIToken struct {
 
 // ExternalAPIToken model
 type ExternalAPIToken struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty"`
-	ServiceID      string             `bson:"service_id"`
-	Token          string             `bson:"token"`
-	UserID         primitive.ObjectID `bson:"user_id"`
-	AccountID      string             `bson:"account_id"`
-	DisplayID      string             `bson:"display_id"`
-	IsUnlinkable   bool               `bson:"is_unlinkable"`
-	IsPrimaryLogin bool               `bson:"is_primary_login"`
-	IsBadToken     bool               `bson:"is_bad_token"`
-	ExternalID     string             `bson:"external_id"`
-	// For paginated refreshes
-	LatestHistoryID         uint64 `bson:"history_id"`
-	NextHistoryPageToken    string `bson:"next_history_page"`
-	LatestRefreshTimestamp  string `bson:"latest_refresh"`
-	CurrentRefreshTimestamp string `bson:"current_refresh"`
-	NextRefreshPageToken    string `bson:"next_refresh_page"`
-}
-
-type ExternalAPITokenChangeable struct {
-	IsBadToken bool `bson:"is_bad_token,omitempty"`
-	// For paginated refreshes
-	LatestHistoryID         uint64 `bson:"history_id,omitempty"`
-	NextHistoryPageToken    string `bson:"next_history_page"`
-	LatestRefreshTimestamp  string `bson:"latest_refresh,omitempty"`
-	CurrentRefreshTimestamp string `bson:"current_refresh"`
-	NextRefreshPageToken    string `bson:"next_refresh_page"`
+	ID                  primitive.ObjectID `bson:"_id,omitempty"`
+	ServiceID           string             `bson:"service_id"`
+	Token               string             `bson:"token"`
+	UserID              primitive.ObjectID `bson:"user_id"`
+	AccountID           string             `bson:"account_id"`
+	DisplayID           string             `bson:"display_id"`
+	IsUnlinkable        bool               `bson:"is_unlinkable"`
+	IsPrimaryLogin      bool               `bson:"is_primary_login"`
+	IsBadToken          bool               `bson:"is_bad_token"`
+	ExternalID          string             `bson:"external_id"`
+	LastFullRefreshTime primitive.DateTime `bson:"last_full_refresh_time"`
 }
 
 type StateToken struct {

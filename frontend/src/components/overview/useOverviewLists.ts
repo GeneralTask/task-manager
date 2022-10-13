@@ -12,11 +12,13 @@ import { TOverviewItem } from '../../utils/types'
 
 type TOverviewItemWithListId = TOverviewItem & { listId: string }
 
+
 // returns overview lists with view items sorted and filtered
 const useOverviewLists = () => {
     const { data: lists, isLoading: areListsLoading } = useGetOverviewViews()
     const { data: settings, isLoading: areSettingsLoading } = useGetSettings()
     const navigate = useNavigate()
+
 
     const sortedAndFilteredLists = useMemo(() => {
         if (areListsLoading || areSettingsLoading || !lists || !settings) return []
@@ -65,7 +67,7 @@ const useOverviewLists = () => {
         Log(`overview_select__/overview/${item.listId}/${item.id}`)
     }, [])
     useItemSelectionController(flattenedLists, selectItem)
-
+    
     return { lists: sortedAndFilteredLists, isLoading: false }
 }
 

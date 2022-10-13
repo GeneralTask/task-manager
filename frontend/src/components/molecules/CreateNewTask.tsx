@@ -28,7 +28,7 @@ const CreateNewTaskContainer = styled.div`
     }
     margin-bottom: ${Spacing._8};
 `
-const TaskInput = styled.input`
+export const TaskInput = styled.input`
     border: none;
     outline: none;
     background-color: transparent;
