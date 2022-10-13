@@ -4,7 +4,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES } from '../../constants'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
@@ -187,8 +187,9 @@ const Task = ({
                         <Domino />
                     </DominoContainer>
 
-                    {task.external_status && task.all_statuses && (
+                    {task.external_status && task.all_statuses ? (
                         <GTDropdownMenu
+                            disabled={sectionId === TRASH_SECTION_ID}
                             items={task.all_statuses.map((status) => ({
                                 label: status.state,
                                 onClick: () => modifyTask({ id: task.id, status: status }),
@@ -205,14 +206,13 @@ const Task = ({
                                 />
                             }
                         />
-                    )}
-                    {(!task.external_status || !task.all_statuses) && (
+                    ) : (
                         <MarkTaskDoneButton
                             taskId={task.id}
                             sectionId={sectionId}
                             isDone={task.is_done}
                             isSelected={isSelected}
-                            isDisabled={task.isOptimistic}
+                            isDisabled={task.isOptimistic || sectionId === TRASH_SECTION_ID}
                             onMarkComplete={taskFadeOut}
                         />
                     )}

@@ -5,7 +5,7 @@ import { DropItem, DropType, TOverviewView } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
-import { EditViewsDeleteButton, SelectedView } from './styles'
+import { EditViewsDeleteButton, SelectedList } from './styles'
 
 interface EditViewsSelectedViewProps {
     view: TOverviewView
@@ -29,15 +29,16 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
             index={viewIndex}
             acceptDropType={DropType.OVERVIEW_VIEW}
             onReorder={onReorder}
+            ref={drag}
         >
-            <SelectedView key={view.id} ref={dragPreview}>
-                <Domino ref={drag} />
+            <SelectedList key={view.id} ref={dragPreview}>
+                <Domino />
                 <Icon icon={logos[view.logo]} />
                 {view.name}
                 <EditViewsDeleteButton onClick={() => removeView(view.id)}>
-                    <Icon icon={icons.x} />
+                    <Icon icon={icons.trash} />
                 </EditViewsDeleteButton>
-            </SelectedView>
+            </SelectedList>
         </ReorderDropContainer>
     )
 }

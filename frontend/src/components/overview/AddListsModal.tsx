@@ -30,12 +30,12 @@ const SupportedViewContent = styled.div`
     gap: ${Spacing._8};
     ${Typography.bodySmall};
 `
-interface AddViewsModalProps {
+interface AddListsModalProps {
     isOpen: boolean
     onClose: () => void
 }
 
-const AddViewsModalContent = () => {
+const AddListsModalContent = () => {
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
@@ -128,7 +128,7 @@ const AddViewsModalContent = () => {
     )
 }
 
-const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
+const AddListsModal = ({ isOpen, onClose }: AddListsModalProps) => {
     return (
         <GTModal
             isOpen={isOpen}
@@ -137,9 +137,9 @@ const AddViewsModal = ({ isOpen, onClose }: AddViewsModalProps) => {
             rightButtons={<GTButton value="Done" styleType="primary" onClick={onClose} />}
             type="medium"
         >
-            <AddViewsModalContent />
+            <AddListsModalContent />
         </GTModal>
     )
 }
 
-export default AddViewsModal
+export default AddListsModal

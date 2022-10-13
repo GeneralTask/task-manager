@@ -13,7 +13,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import EditViewsButtons from '../overview/EditViewsButtons'
+import EditListsButtons from '../overview/EditListsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -82,7 +82,7 @@ const OverviewView = () => {
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
-                        <EditViewsButtons />
+                        <EditListsButtons />
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />

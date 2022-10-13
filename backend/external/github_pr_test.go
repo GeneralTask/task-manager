@@ -135,6 +135,8 @@ func TestGetPullRequests(t *testing.T) {
 		assert.Equal(t, expectedComments, pullRequest.Comments)
 		assert.Equal(t, 93, pullRequest.Additions)
 		assert.Equal(t, 462, pullRequest.Deletions)
+		assert.Equal(t, "BaseExampleBranch", pullRequest.BaseBranch)
+		assert.Equal(t, 777, pullRequest.CommitCount)
 
 		// Check that repository for PR is created in the database
 		var repository database.Repository

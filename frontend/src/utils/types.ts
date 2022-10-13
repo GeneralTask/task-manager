@@ -37,11 +37,13 @@ export interface TTask {
     source: TTaskSource
     sender: string
     is_done: boolean
+    is_deleted: boolean
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
     isOptimistic?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
+    nux_number_id: number
 }
 
 export interface TMeetingPreparationParams {
@@ -181,6 +183,13 @@ export interface TLinkedAccount {
     has_bad_token: boolean
 }
 
+export interface TUserInfo {
+    agreed_to_terms: boolean
+    opted_into_marketing: boolean
+    name: string
+    is_employee: boolean
+}
+
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
@@ -214,6 +223,7 @@ export interface TTaskCreateParams {
 export interface TUserInfo {
     agreed_to_terms: boolean
     opted_into_marketing: boolean
+    name: string
 }
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type

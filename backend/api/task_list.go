@@ -109,7 +109,13 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
+			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
+				go api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID, tasks)
+			} else {
+				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
+				// TODO update last full refresh after we fetch the tasks
+				api.updateLastFullRefreshTime(token)
+			}
 			taskChannels = append(taskChannels, tasks)
 		}
 	}
@@ -349,4 +355,46 @@ func (api *API) getSubtaskResults(task *database.Task, userID primitive.ObjectID
 	} else {
 		return nil
 	}
+}
+
+func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, accountID string, result chan<- external.TaskResult) {
+	taskCollection := database.GetTaskCollection(api.DB)
+	additionalFilters := []bson.M{
+		{"source_account_id": accountID},
+		{"source_id": external.TASK_SOURCE_ID_LINEAR},
+		{"is_completed": false},
+		{"is_deleted": bson.M{"$ne": true}},
+	}
+	var tasks []database.Task
+	err := database.FindWithCollection(taskCollection, userID, &additionalFilters, &tasks, nil)
+	if err != nil {
+		result <- external.TaskResult{Error: err}
+		return
+	}
+
+	var taskResults []*database.Task
+	for _, task := range tasks {
+		taskCopy := task
+		taskResults = append(taskResults, &taskCopy)
+	}
+
+	result <- external.TaskResult{
+		Tasks: taskResults,
+	}
+}
+
+func (api *API) updateLastFullRefreshTime(token database.ExternalAPIToken) error {
+	externalAPITokenCollection := database.GetExternalTokenCollection(api.DB)
+	refreshTime := time.Now()
+	_, err := externalAPITokenCollection.UpdateOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{{"user_id": token.UserID}, {"service_id": token.ServiceID}}},
+		bson.M{"$set": bson.M{"last_full_refresh_time": primitive.NewDateTimeFromTime(refreshTime)}},
+		nil,
+	)
+	return err
+}
+
+func shouldPartialRefreshLinear(token database.ExternalAPIToken) bool {
+	return time.Now().Sub(token.LastFullRefreshTime.Time()) < (15 * time.Minute)
 }

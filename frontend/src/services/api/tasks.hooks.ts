@@ -25,7 +25,6 @@ export interface TModifyTaskData {
     body?: string
     priorityNormalized?: number
     status?: TExternalStatus
-    isDeleted?: boolean
 }
 
 interface TTaskModifyRequestBody {
@@ -35,17 +34,22 @@ interface TTaskModifyRequestBody {
     }
     id_task_section?: string
     id_ordering?: number
-    is_deleted?: boolean
     title?: string
     due_date?: string
     time_duration?: number
     body?: string
 }
 
-export interface TMarkTaskDoneData {
+export interface TMarkTaskDoneOrDeletedData {
     taskId: string
     sectionId?: string
-    isDone: boolean
+    isDone?: boolean
+    isDeleted?: boolean
+}
+
+interface TMarkTaskDoneOrDeletedRequestBody {
+    is_completed?: boolean
+    is_deleted?: boolean
 }
 
 export interface TReorderTaskData {
@@ -127,8 +131,10 @@ export const useCreateTask = () => {
                         },
                         sender: '',
                         is_done: false,
+                        is_deleted: false,
                         isOptimistic: true,
                         is_meeting_preparation_task: false,
+                        nux_number_id: 0,
                     }
                     section.tasks = [newTask, ...section.tasks]
                 })
@@ -158,6 +164,7 @@ export const useCreateTask = () => {
                         },
                         sender: '',
                         is_done: false,
+                        is_deleted: false,
                         isOptimistic: true,
                         is_meeting_preparation_task: false,
                     } as TOverviewItem
@@ -269,7 +276,6 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
     if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
-    if (data.isDeleted !== undefined) requestBody.is_deleted = data.isDeleted
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
     if (data.status !== undefined) requestBody.task.status = data.status
     try {
@@ -280,10 +286,10 @@ const modifyTask = async (data: TModifyTaskData) => {
     }
 }
 
-export const useMarkTaskDone = () => {
+export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TMarkTaskDoneData) => markTaskDone(data), {
-        onMutate: async (data: TMarkTaskDoneData) => {
+    return useMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
+        onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
@@ -292,21 +298,16 @@ export const useMarkTaskDone = () => {
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.taskId, data.sectionId)
                     if (task) {
-                        task.is_done = data.isDone
+                        if (data.isDone !== undefined) task.is_done = data.isDone
+                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                         task.isOptimistic = true
-                        if (task.is_done) {
-                            if (task.source.name === 'Linear' && task.external_status) {
-                                task.external_status.state = 'Done'
-                                task.external_status.type = 'completed'
-                            }
-                        }
                     }
                 })
 
                 queryClient.setQueryData('tasks', newSections)
 
                 setTimeout(() => {
-                    if (data.isDone) {
+                    if (data.isDone || data.isDeleted) {
                         const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
                         if (!sections) return
 
@@ -316,6 +317,10 @@ export const useMarkTaskDone = () => {
                             if (draft[sectionIndex].tasks[taskIndex].is_done) {
                                 const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
                                 draft.find((s) => s.is_done)?.tasks.unshift(...task)
+                            }
+                            if (draft[sectionIndex].tasks[taskIndex].is_deleted) {
+                                const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
+                                draft.find((s) => s.is_trash)?.tasks.unshift(...task)
                             }
                         })
 
@@ -334,16 +339,13 @@ export const useMarkTaskDone = () => {
                     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
                     if (sectionIndex === undefined || taskIndex === undefined) return
                     const task = draft[sectionIndex].view_items[taskIndex]
-                    task.is_done = data.isDone
-                    if (task.is_done && task.source.name === 'Linear' && task.external_status) {
-                        task.external_status.state = 'Done'
-                        task.external_status.type = 'completed'
-                    }
+                    if (data.isDone !== undefined) task.is_done = data.isDone
+                    if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                 })
 
                 queryClient.setQueryData('overview', newViews)
                 setTimeout(() => {
-                    if (data.isDone) {
+                    if (data.isDone || data.isDeleted) {
                         const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
                         if (!views) return
 
@@ -358,7 +360,10 @@ export const useMarkTaskDone = () => {
                                 data.sectionId
                             )
                             if (sectionIndex === undefined || taskIndex === undefined) return
-                            if (draft[sectionIndex].view_items[taskIndex].is_done) {
+                            if (
+                                draft[sectionIndex].view_items[taskIndex].is_done ||
+                                draft[sectionIndex].view_items[taskIndex].is_deleted
+                            ) {
                                 draft[sectionIndex].view_items.splice(taskIndex, 1)
                             }
                         })
@@ -372,9 +377,12 @@ export const useMarkTaskDone = () => {
         },
     })
 }
-export const markTaskDone = async (data: TMarkTaskDoneData) => {
+export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) => {
+    const requestBody: TMarkTaskDoneOrDeletedRequestBody = {}
+    if (data.isDone !== undefined) requestBody.is_completed = data.isDone
+    if (data.isDeleted !== undefined) requestBody.is_deleted = data.isDeleted
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, { is_completed: data.isDone })
+        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, requestBody)
         return castImmutable(res.data)
     } catch {
         throw new Error('markTaskDone failed')

@@ -25,18 +25,19 @@ export const RemoveButton = styled(NoStyleButton)`
         background-color: ${Colors.background.dark};
     }
 `
-export const SelectedView = styled.div`
+export const SelectedList = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    border-radius: ${Border.radius.large};
+    border-radius: ${Border.radius.mini};
     border: ${Border.stroke.medium} solid ${Colors.gtColor.secondary};
     padding: ${Spacing._12};
     margin: ${Spacing._4} 0;
     gap: ${Spacing._12};
     color: ${Colors.text.light};
     ${Typography.body};
+    cursor: pointer;
 `
 export const EditViewsDeleteButton = styled(RemoveButton)`
     margin-left: auto;

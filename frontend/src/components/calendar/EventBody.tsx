@@ -100,46 +100,48 @@ function EventBody(props: EventBodyProps): JSX.Element {
         setWindowHeight(window.innerHeight)
     }
     return (
-        <FocusModeContextMenuWrapper event={props.event}>
-            <EventBodyStyle
-                key={props.event.id}
-                squishFactor={props.collisionGroupSize}
-                leftOffset={props.leftOffset}
-                topOffset={top}
-                eventBodyHeight={eventBodyHeight}
-                eventHasEnded={eventHasEnded}
-                ref={eventRef}
-                isBeingDragged={props.isBeingDragged}
-            >
-                <EventInfoContainer onClick={onClick}>
-                    {selectedEvent?.id === props.event.id && !isPopoverDisabled && (
-                        <EventDetailPopup
-                            event={props.event}
-                            date={props.date}
-                            xCoord={coords.xCoord}
-                            yCoord={coords.yCoord}
-                            eventHeight={eventBodyHeight}
-                            eventWidth={eventWidth}
-                            windowHeight={windowHeight}
-                            ref={popupRef}
-                        />
-                    )}
-                    <EventInfo isLongEvent={isLongEvent}>
-                        <EventIconAndTitle>
-                            {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
-                            <EventTitle>{props.event.title || '(no title)'}</EventTitle>
-                        </EventIconAndTitle>
-                        <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
-                    </EventInfo>
-                </EventInfoContainer>
-                <EventFill
-                    squareStart={startedBeforeToday}
-                    squareEnd={endedAfterToday}
-                    isSelected={selectedEvent?.id === props.event.id}
-                />
-                <ResizeHandle event={props.event} />
-            </EventBodyStyle>
-        </FocusModeContextMenuWrapper>
+        <div>
+            <FocusModeContextMenuWrapper event={props.event}>
+                <EventBodyStyle
+                    key={props.event.id}
+                    squishFactor={props.collisionGroupSize}
+                    leftOffset={props.leftOffset}
+                    topOffset={top}
+                    eventBodyHeight={eventBodyHeight}
+                    eventHasEnded={eventHasEnded}
+                    isBeingDragged={props.isBeingDragged}
+                    ref={eventRef}
+                >
+                    <EventInfoContainer onClick={onClick}>
+                        {selectedEvent?.id === props.event.id && !isPopoverDisabled && (
+                            <EventDetailPopup
+                                event={props.event}
+                                date={props.date}
+                                xCoord={coords.xCoord}
+                                yCoord={coords.yCoord}
+                                eventHeight={eventBodyHeight}
+                                eventWidth={eventWidth}
+                                windowHeight={windowHeight}
+                                ref={popupRef}
+                            />
+                        )}
+                        <EventInfo isLongEvent={isLongEvent}>
+                            <EventIconAndTitle>
+                                {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
+                                <EventTitle>{props.event.title || '(no title)'}</EventTitle>
+                            </EventIconAndTitle>
+                            <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
+                        </EventInfo>
+                    </EventInfoContainer>
+                    <EventFill
+                        squareStart={startedBeforeToday}
+                        squareEnd={endedAfterToday}
+                        isSelected={selectedEvent?.id === props.event.id}
+                    />
+                    <ResizeHandle event={props.event} />
+                </EventBodyStyle>
+            </FocusModeContextMenuWrapper>
+        </div>
     )
 }
 

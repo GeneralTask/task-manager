@@ -1,12 +1,12 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
-import { TModifyTaskData, useModifyTask } from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -17,12 +17,14 @@ import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import GTDatePicker from '../molecules/GTDatePicker'
 import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import TaskBody from './TaskBody'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
@@ -41,12 +43,6 @@ const MarginLeftAuto = styled.div`
 `
 const MarginLeft8 = styled.div`
     margin-left: ${Spacing._8};
-`
-const BodyContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    flex-basis: 750px;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -76,7 +72,6 @@ const SYNC_MESSAGES = {
 }
 
 const TITLE_MAX_HEIGHT = 208
-const BODY_MIN_HEIGHT = 200
 
 interface TaskDetailsProps {
     task: TTask
@@ -87,15 +82,19 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
     const location = useLocation()
+    const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { is_meeting_preparation_task, meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
+
+    const isInTrash = params.section === TRASH_SECTION_ID
 
     useInterval(() => {
         if (!task.meeting_preparation_params) return
@@ -170,6 +169,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                             <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
                         </MarginLeft8>
                         <MarginLeftAuto>
+                            {isInTrash && (
+                                <GTButton
+                                    value="Restore Task"
+                                    onClick={() => markTaskDoneOrDeleted({ taskId: task.id, isDeleted: false })}
+                                    styleType="secondary"
+                                    size="small"
+                                />
+                            )}
                             {!is_meeting_preparation_task && <FolderDropdown task={task} />}
                             {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
                         </MarginLeftAuto>
@@ -180,8 +187,8 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 <GTTextField
                     type="plaintext"
                     itemId={task.id}
-                    value={task.title}
-                    disabled={task.isOptimistic || is_meeting_preparation_task}
+                    value={isInTrash ? `${task.title} (deleted)` : task.title}
+                    disabled={task.isOptimistic || is_meeting_preparation_task || task.nux_number_id > 0 || isInTrash}
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
@@ -195,30 +202,21 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                <PriorityDropdown task={task} />
+                <PriorityDropdown task={task} disabled={isInTrash} />
                 <GTDatePicker
                     initialDate={DateTime.fromISO(task.due_date).toJSDate()}
                     setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                    disabled={isInTrash}
                 />
                 <MarginLeftAuto>
-                    <LinearStatusDropdown task={task} />
+                    <LinearStatusDropdown task={task} disabled={isInTrash} />
                 </MarginLeftAuto>
             </TaskStatusContainer>
             {task.isOptimistic ? (
                 <Spinner />
             ) : (
                 <>
-                    <BodyContainer>
-                        <GTTextField
-                            itemId={task.id}
-                            type="markdown"
-                            value={task.body}
-                            placeholder="Add details"
-                            onChange={(val) => onEdit({ id: task.id, body: val })}
-                            minHeight={BODY_MIN_HEIGHT}
-                            fontSize="small"
-                        />
-                    </BodyContainer>
+                    <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
                     {task.comments && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />

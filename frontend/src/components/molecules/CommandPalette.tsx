@@ -49,7 +49,7 @@ const CommandList = styled(Command.List)`
 `
 const CommandGroup = styled(Command.Group)`
     [cmdk-group-heading] {
-        ${Typography.label}
+        ${Typography.eyebrow}
         padding: ${Spacing._8} ${Spacing._16};
         color: ${Colors.text.light};
     }
