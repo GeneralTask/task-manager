@@ -44,6 +44,7 @@ export interface TTask {
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
     nux_number_id: number
+    sub_tasks?: TTask[]
 }
 
 export interface TMeetingPreparationParams {
