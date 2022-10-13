@@ -8,6 +8,7 @@ import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask, usePostComment } from '../../services/api/tasks.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -93,6 +94,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { mutate: postComment } = usePostComment()
+    const { data: userInfo } = useGetUserInfo()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -167,6 +169,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     }, [comment, postComment, task.id])
 
     useKeyboardShortcut('submitComment', submitComment)
+
+    useEffect(() => {
+        console.log(userInfo)
+    }, userInfo)
 
     const onEdit = ({ id, title, body }: TModifyTaskData) => {
         setIsEditing(true)
@@ -249,7 +255,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
-            {task.external_status && (
+            {userInfo?.is_employee && task.external_status && (
                 <BottomStickyContainer>
                     <GTTextField
                         type="markdown"
