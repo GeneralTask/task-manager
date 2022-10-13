@@ -50,7 +50,8 @@ const useOverviewLists = () => {
                     tieBreakerField: PR_SORT_AND_FILTER_CONFIG.tieBreakerField,
                 })
                 return { ...list, view_items: sortedAndFiltered, total_view_items: list.view_items.length }
-            } else return list
+            }
+            return list
         })
     }, [lists, areListsLoading, settings, areSettingsLoading])
 
