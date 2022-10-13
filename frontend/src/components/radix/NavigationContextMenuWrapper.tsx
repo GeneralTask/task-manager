@@ -7,8 +7,15 @@ import { GTMenuItem } from './RadixUIConstants'
 interface NavigationContextMenuWrapperProps {
     children: React.ReactNode
     sectionId: string
+    setSectionName: () => void
+    setSectionBeingEdited: (sectionId: string) => void
 }
-const NavigationContextMenuWrapper = ({ children, sectionId }: NavigationContextMenuWrapperProps) => {
+const NavigationContextMenuWrapper = ({
+    children,
+    sectionId,
+    setSectionName,
+    setSectionBeingEdited,
+}: NavigationContextMenuWrapperProps) => {
     const { mutate: deleteSection } = useDeleteTaskSection()
     const items: GTMenuItem[] = [
         {
@@ -18,6 +25,14 @@ const NavigationContextMenuWrapper = ({ children, sectionId }: NavigationContext
             iconColor: 'red',
             onClick: () => {
                 deleteSection({ sectionId: sectionId })
+            },
+        },
+        {
+            label: 'Rename Section',
+            icon: icons.pencil,
+            onClick: () => {
+                setSectionName()
+                setSectionBeingEdited(sectionId)
             },
         },
     ]

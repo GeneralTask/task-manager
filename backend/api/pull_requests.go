@@ -35,8 +35,10 @@ type PullRequestResult struct {
 	Author        string               `json:"author"`
 	Comments      []PullRequestComment `json:"comments"`
 	NumComments   int                  `json:"num_comments"`
+	NumCommits    int                  `json:"num_commits"`
 	CreatedAt     string               `json:"created_at"`
 	Branch        string               `json:"branch"`
+	BaseBranch    string               `json:"base_branch"`
 	Deeplink      string               `json:"deeplink"`
 	Additions     int                  `json:"additions"`
 	Deletions     int                  `json:"deletions"`
@@ -165,8 +167,10 @@ func getResultFromPullRequest(pullRequest database.PullRequest) PullRequestResul
 		Author:        pullRequest.Author,
 		Comments:      comments,
 		NumComments:   pullRequest.CommentCount,
+		NumCommits:    pullRequest.CommitCount,
 		CreatedAt:     pullRequest.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		Branch:        pullRequest.Branch,
+		BaseBranch:    pullRequest.BaseBranch,
 		Deeplink:      pullRequest.Deeplink,
 		Additions:     pullRequest.Additions,
 		Deletions:     pullRequest.Deletions,

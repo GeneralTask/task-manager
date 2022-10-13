@@ -219,3 +219,77 @@ func TestGetSubtaskResults(t *testing.T) {
 	})
 
 }
+
+func TestUpdateLastFullRefreshTime(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	userID := primitive.NewObjectID()
+	accountID := "test@generaltask.com"
+
+	collection := database.GetExternalTokenCollection(api.DB)
+	token := database.ExternalAPIToken{
+		UserID:     userID,
+		AccountID:  accountID,
+		ServiceID:  external.TASK_SERVICE_ID_LINEAR,
+		ExternalID: "external",
+	}
+	collection.InsertOne(context.Background(), token)
+
+	t.Run("Success", func(t *testing.T) {
+		err := api.updateLastFullRefreshTime(token)
+		assert.NoError(t, err)
+
+		response := database.FindOneExternalWithCollection(collection, userID, "external")
+		var tokenDB database.ExternalAPIToken
+		response.Decode(&tokenDB)
+		assert.Less(t, (15 * time.Minute), time.Now().Sub(tokenDB.LastFullRefreshTime.Time()))
+	})
+}
+
+func TestGetActiveLinearTasksFromDBForToken(t *testing.T) {
+	api, dbCleanup := GetAPIWithDBCleanup()
+	defer dbCleanup()
+
+	userID := primitive.NewObjectID()
+	accountID := "test@generaltask.com"
+
+	collection := database.GetTaskCollection(api.DB)
+	_notCompleted := false
+	// not completed, not deleted
+	task := database.Task{
+		UserID:          userID,
+		SourceAccountID: accountID,
+		SourceID:        external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:     &_notCompleted,
+	}
+	collection.InsertOne(context.Background(), task)
+
+	// not completed, deleted
+	_deleted := true
+	task = database.Task{
+		UserID:          userID,
+		SourceAccountID: accountID,
+		SourceID:        external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:     &_notCompleted,
+		IsDeleted:       &_deleted,
+	}
+	collection.InsertOne(context.Background(), task)
+
+	// completed, not deleted
+	_completed := true
+	task = database.Task{
+		UserID:          userID,
+		SourceAccountID: accountID,
+		SourceID:        external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:     &_completed,
+	}
+	collection.InsertOne(context.Background(), task)
+
+	t.Run("Success", func(t *testing.T) {
+		var tasks = make(chan external.TaskResult)
+		go api.getActiveLinearTasksFromDBForToken(userID, accountID, tasks)
+		taskResult := <-tasks
+		assert.Equal(t, 1, len(taskResult.Tasks))
+	})
+}
