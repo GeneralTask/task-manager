@@ -13,7 +13,6 @@ const getSortAndFilterSettings = <T>(
     const sortingPreference = settings.find(
         (setting) => setting.field_key === `${settingPrefix}${config.sortPreferenceId}${settingSuffix}`
     )
-    console.log(sortingPreference)
     const sortDirection = settings.find(
         (setting) => setting.field_key === `${settingPrefix}${config.sortDirectionId}${settingSuffix}`
     )
