@@ -54,9 +54,7 @@ const CreateNewSubtask = ({ parentTaskId, sectionId, hideCreateNewSubtask }: Cre
     return (
         <CreateNewTaskContainer>
             <SubtaskInput
-                ref={(node) => {
-                    if (node) node.focus()
-                }}
+                ref={(node) => node?.focus()}
                 onBlur={hideCreateNewSubtask}
                 value={taskTitle}
                 placeholder="Write new subtask title"
