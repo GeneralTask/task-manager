@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
+import Log from '../../services/api/log'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
@@ -81,9 +82,12 @@ const TaskSectionView = () => {
     }, [sortedTasks, params.task])
 
     const selectTask = useCallback(
-        (itemId: string) => {
+        (task: TTask) => {
             setShouldScrollToTask(true)
-            if (section) navigate(`/tasks/${section.id}/${itemId}`)
+            if (section) {
+                navigate(`/tasks/${section.id}/${task.id}`)
+                Log(`task_select_${task.id}`)
+            }
         },
         [section]
     )

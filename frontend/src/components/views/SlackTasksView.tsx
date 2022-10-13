@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { TTask } from '../../utils/types'
 import { isSlackLinked } from '../../utils/utils'
 import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
@@ -80,6 +82,12 @@ const SlackTasksView = () => {
         if (!task) return
         setIsVisible(task.is_done)
     }
+
+    const selectTask = useCallback((task: TTask) => {
+        navigate(`/slack/${task.id}`)
+        Log(`slack_task_select__/slack/${task.id}`)
+    }, [])
+    useItemSelectionController(slackTasks, selectTask)
 
     return (
         <>
