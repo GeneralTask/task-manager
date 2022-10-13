@@ -8,8 +8,6 @@ const BODY_MIN_HEIGHT = 200
 const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex: 1;
-    flex-basis: 750px;
 `
 
 interface TaskBodyProps {
