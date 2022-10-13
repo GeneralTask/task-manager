@@ -34,11 +34,6 @@ interface CreateNewSubtaskProps {
 const CreateNewSubtask = ({ parentTaskId, sectionId, hideCreateNewSubtask }: CreateNewSubtaskProps) => {
     const { mutate: createTask } = useCreateTask()
     const [taskTitle, setTaskTitle] = useState('')
-    const inputRef = useRef<HTMLInputElement>(null)
-
-    useEffect(() => {
-        inputRef.current?.focus()
-    }, [])
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         stopKeydownPropogation(e)
@@ -59,7 +54,9 @@ const CreateNewSubtask = ({ parentTaskId, sectionId, hideCreateNewSubtask }: Cre
     return (
         <CreateNewTaskContainer>
             <SubtaskInput
-                ref={inputRef}
+                ref={(node) => {
+                    if (node) node.focus()
+                }}
                 onBlur={hideCreateNewSubtask}
                 value={taskTitle}
                 placeholder="Write new subtask title"
