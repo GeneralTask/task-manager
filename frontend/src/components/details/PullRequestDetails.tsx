@@ -53,12 +53,12 @@ const BranchInfoContainer = styled.div`
 `
 const Green = styled.span`
     color: ${Colors.text.green};
-    ${Typography.label};
+    ${Typography.bodySmall};
     ${Typography.bold};
 `
 const Red = styled.span`
     color: ${Colors.text.red};
-    ${Typography.label};
+    ${Typography.bodySmall};
     ${Typography.bold};
 `
 const Gap4 = styled.div`
