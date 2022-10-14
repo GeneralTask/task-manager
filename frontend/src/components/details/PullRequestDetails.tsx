@@ -113,7 +113,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
                 <Subtext>
                     <BranchInfoContainer>
-                        {`#${author} wants to merge ${num_commits} commits into\u00A0`}
+                        {`${author} wants to merge ${num_commits} commits into\u00A0`}
                         <BranchName name={base_branch} />
                         {`\u00A0from\u00A0`}
                         <BranchName name={branch} />
