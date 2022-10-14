@@ -7,9 +7,14 @@ import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask, usePostComment } from '../../services/api/tasks.hooks'
+import {
+    TModifyTaskData,
+    useMarkTaskDoneOrDeleted,
+    useModifyTask,
+    usePostComment,
+} from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
@@ -74,6 +79,8 @@ const BottomStickyContainer = styled.div`
     bottom: 0;
     left: 0;
     right: 0;
+    background-color: ${Colors.background.white};
+    border-radius: ${Border.radius.medium};
     margin-top: ${Spacing._16};
 `
 

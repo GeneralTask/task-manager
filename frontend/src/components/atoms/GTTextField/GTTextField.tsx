@@ -22,7 +22,7 @@ const PlainTextContainer = styled.div`
 `
 
 const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
-    background-color: ${Colors.background.white};
+    background-color: inherit;
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
     border-radius: ${Border.radius.small};
