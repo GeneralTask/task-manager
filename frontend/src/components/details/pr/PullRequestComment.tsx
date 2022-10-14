@@ -42,7 +42,7 @@ const PullRequestComment = ({ author, body, lastUpdatedAt, isAuthorOfPR = false 
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
-                <span>{body}</span>
+                <span>{body}</span> {/* TODO: Add markdown support here */}
             </BodyContainer>
         </CommentContainer>
     )
