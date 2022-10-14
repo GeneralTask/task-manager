@@ -188,5 +188,8 @@ export const isEmpty = (obj: unknown) => {
     } else if (typeof obj === 'number') {
         return obj === 0
     }
+    if (obj == null) {
+        return true
+    }
     return false
 }
