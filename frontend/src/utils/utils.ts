@@ -180,3 +180,13 @@ export const getFormattedDate = (
 export const isValidDueDate = (date: Date | null) => {
     return !(!date || isNaN(+date) || +date === 0)
 }
+
+// check if value is "empty" in golang
+export const isEmpty = (obj: unknown) => {
+    if (typeof obj === 'string') {
+        return obj.length === 0
+    } else if (typeof obj === 'number') {
+        return obj === 0
+    }
+    return false
+}
