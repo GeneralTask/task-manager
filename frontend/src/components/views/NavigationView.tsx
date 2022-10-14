@@ -9,7 +9,7 @@ import { DropType } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
-import FeedbackButton from '../molecules/FeedbackButton'
+import FeedbackModal from '../molecules/FeedbackModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
 const GT_BETA_LOGO_WIDTH = '111px'
@@ -109,7 +109,7 @@ const NavigationView = () => {
                 <NavigationSectionLinks />
             </OverflowContainer>
             <GapView>
-                <FeedbackButton />
+                <FeedbackModal />
                 <GTButton
                     value="Settings"
                     styleType="secondary"
