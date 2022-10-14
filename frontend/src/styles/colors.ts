@@ -58,6 +58,7 @@ export const text = {
     placeholder: GRAY._200,
     white: WHITE,
     orange: ORANGE._1,
+    green: GREEN._1,
     red: RED._1,
     purple: PURPLE._1,
 }

@@ -51,6 +51,21 @@ const BranchInfoContainer = styled.div`
     flex-direction: row;
     align-items: center;
 `
+const Green = styled.span`
+    color: ${Colors.text.green};
+    ${Typography.label};
+    ${Typography.bold};
+`
+const Red = styled.span`
+    color: ${Colors.text.red};
+    ${Typography.label};
+    ${Typography.bold};
+`
+const Gap4 = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing._4};
+`
 
 interface PullRequestDetailsProps {
     pullRequest: TPullRequest
@@ -72,6 +87,8 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         body,
         num_comments,
         comments,
+        additions,
+        deletions,
     } = pullRequest
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
 
@@ -87,7 +104,10 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             <TitleContainer>{title}</TitleContainer>
             <InfoContainer>
                 <Status type={status.color}>{status.text}</Status>
-                {/* lines added/removed go here */}
+                <Gap4>
+                    <Green>{`+${additions}`}</Green>
+                    <Red>{`-${deletions}`}</Red>
+                </Gap4>
             </InfoContainer>
             <div>
                 <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
@@ -104,20 +124,15 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
             <Divider color={Colors.border.extra_light} />
             <Subtext>{`Comments (${num_comments})`}</Subtext>
-            {[...comments]
-                .reverse()
-                .map(
-                    (c) =>
-                        c.type !== 'inline' && (
-                            <PullRequestComment
-                                key={c.last_updated_at}
-                                author={c.author}
-                                body={c.body}
-                                lastUpdatedAt={c.last_updated_at}
-                                isAuthorOfPR={c.author === author}
-                            />
-                        )
-                )}
+            {[...comments].reverse().map((c) => (
+                <PullRequestComment
+                    key={c.last_updated_at}
+                    author={c.author}
+                    body={c.body}
+                    lastUpdatedAt={c.last_updated_at}
+                    isAuthorOfPR={c.author === author}
+                />
+            ))}
         </DetailsViewTemplate>
     )
 }
