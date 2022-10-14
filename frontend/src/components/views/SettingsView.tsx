@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import styled from 'styled-components'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
+import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
@@ -90,8 +91,12 @@ const SettingsView = () => {
         refetchStaleQueries()
     }, [linkedAccounts])
 
-    const onUnlink = (id: string) => deleteAccount({ id: id })
+    const onUnlink = (id: string) => {
+        Log(`unlink_account_${id}`)
+        deleteAccount({ id: id })
+    }
     const onRelink = (accountType: string) => {
+        Log(`relink_acocount_${accountType}`)
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === accountType) {
@@ -148,7 +153,10 @@ const SettingsView = () => {
                         <ServiceDetails>
                             Add General Task to your Slack workspace. This is only required once per workspace.
                         </ServiceDetails>
-                        <a href="https://slack.com/oauth/v2/authorize?client_id=1734323190625.3674283101555&scope=commands,chat:write&user_scope=users:read">
+                        <a
+                            href="https://slack.com/oauth/v2/authorize?client_id=1734323190625.3674283101555&scope=commands,chat:write&user_scope=users:read"
+                            onClick={() => Log(`add_to_slack`)}
+                        >
                             <img
                                 alt="Add to Slack"
                                 height="40"

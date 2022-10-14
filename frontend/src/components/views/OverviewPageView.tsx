@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
+import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
@@ -15,6 +15,7 @@ import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import EditListsButtons from '../overview/EditListsButtons'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
+import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const OverviewPageContainer = styled.div`
@@ -28,7 +29,7 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: views, isLoading } = useGetOverviewViews()
+    const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
     useFetchPullRequests()
@@ -68,7 +69,18 @@ const OverviewView = () => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
-    }, [isLoading, overviewViewId, overviewItemId])
+        // check that selected item is in list of views
+        for (const view of views) {
+            if (view.id === overviewViewId) {
+                for (const item of view.view_items) {
+                    if (item.id === overviewItemId) {
+                        return
+                    }
+                }
+            }
+        }
+        selectFirstItem()
+    }, [isLoading, overviewViewId, overviewItemId, views])
 
     if (isLoading || areSettingsLoading) {
         return <Spinner />

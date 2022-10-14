@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
+import Log from '../../services/api/log'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { logos } from '../../styles/images'
@@ -59,7 +60,10 @@ const PullRequestsView = () => {
 
     useItemSelectionController(
         sortedAndFilteredPullRequests,
-        useCallback((itemId: string) => navigate(`/pull-requests/${itemId}`), [])
+        useCallback((pr: TPullRequest) => {
+            navigate(`/pull-requests/${pr.id}`)
+            Log(`pr_select_${pr.id}`)
+        }, [])
     )
 
     const selectedPullRequest = useMemo(() => {

@@ -1,6 +1,8 @@
+import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { useKeyboardShortcut } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import { DropType } from '../../utils/types'
@@ -75,6 +77,27 @@ const NavigationView = () => {
         []
     )
     const copyrightText = userInfo?.is_employee ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
+
+    useKeyboardShortcut(
+        'goToOverviewPage',
+        useCallback(() => navigate('/overview'), [])
+    )
+    useKeyboardShortcut(
+        'goToGithubPRsPage',
+        useCallback(() => navigate('/pull-requests'), [])
+    )
+    useKeyboardShortcut(
+        'goToLinearPage',
+        useCallback(() => navigate('/linear'), [])
+    )
+    useKeyboardShortcut(
+        'goToSlackPage',
+        useCallback(() => navigate('/slack'), [])
+    )
+    useKeyboardShortcut(
+        'goToTaskInbox',
+        useCallback(() => navigate('/tasks'), [])
+    )
 
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>

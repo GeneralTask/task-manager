@@ -172,7 +172,8 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		modalMetadata := strings.Replace(string(jsonBytes), "\"", "\\\"", -1)
+		modalMetadata := strings.Replace(string(jsonBytes), `\n`, ``, -1)
+		modalMetadata = strings.Replace(string(modalMetadata), `"`, `\"`, -1)
 
 		title, err := getSlackMessageTitle(source, slackParams, externalToken)
 		if err != nil {

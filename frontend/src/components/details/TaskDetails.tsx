@@ -4,7 +4,12 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SINGLE_SECOND_INTERVAL, TRASH_SECTION_ID } from '../../constants'
+import {
+    DETAILS_SYNC_TIMEOUT,
+    GENERAL_TASK_SOURCE_NAME,
+    SINGLE_SECOND_INTERVAL,
+    TRASH_SECTION_ID,
+} from '../../constants'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import {
@@ -27,6 +32,7 @@ import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
 import GTDatePicker from '../molecules/GTDatePicker'
+import SubtaskList from '../molecules/subtasks/SubtaskList'
 import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
@@ -247,6 +253,9 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
+                    {task.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && (
+                        <SubtaskList taskId={task.id} subtasks={task.sub_tasks ?? []} />
+                    )}
                     {task.comments && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />

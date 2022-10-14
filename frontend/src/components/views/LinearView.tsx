@@ -7,6 +7,7 @@ import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
+import { TTask } from '../../utils/types'
 import { isLinearLinked } from '../../utils/utils'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -34,13 +35,11 @@ const LinearView = () => {
         return tasks.filter((task) => task.source.name === 'Linear')
     }, [taskSections])
 
-    useItemSelectionController(
-        linearTasks,
-        useCallback((itemId: string) => {
-            navigate(`/linear/${itemId}`)
-            Log(`linear_task_select__/linear/${itemId}`)
-        }, [])
-    )
+    const selectTask = useCallback((task: TTask) => {
+        navigate(`/linear/${task.id}`)
+        Log(`linear_task_select__/linear/${task.id}`)
+    }, [])
+    useItemSelectionController(linearTasks, selectTask)
 
     const { task } = useMemo(() => {
         if (linearTasks.length === 0) return { task: null }

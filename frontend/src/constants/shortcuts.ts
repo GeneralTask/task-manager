@@ -2,6 +2,7 @@ import { TShortcut, TShortcutCategory } from '../utils/types'
 
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
+const SHIFT_KEY = 'Shift'
 
 // command palette categories will be sorted in the order they appear in this array
 export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'Navigation']
@@ -154,6 +155,41 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: 'Esc',
         category: 'Navigation',
         icon: 'x',
+    },
+    goToOverviewPage: {
+        label: 'Go to overview page',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+o`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+O`,
+        category: 'Navigation',
+        icon: 'list',
+    },
+    goToGithubPRsPage: {
+        label: 'Go to GitHub PRs page',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+g`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+G`,
+        category: 'Navigation',
+        icon: 'github',
+    },
+    goToLinearPage: {
+        label: 'Go to Linear page',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+l`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+L`,
+        category: 'Navigation',
+        icon: 'linear',
+    },
+    goToSlackPage: {
+        label: 'Go to Slack page',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+s`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+S`,
+        category: 'Navigation',
+        icon: 'slack',
+    },
+    goToTaskInbox: {
+        label: 'Go to task inbox',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+i`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+I`,
+        category: 'Navigation',
+        icon: 'inbox',
     },
 })
 

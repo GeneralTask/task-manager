@@ -44,6 +44,7 @@ export interface TTask {
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
     nux_number_id: number
+    sub_tasks?: TTask[]
 }
 
 export interface TMeetingPreparationParams {
@@ -238,6 +239,7 @@ export interface TOverviewView {
     is_reorderable: boolean
     logo: TLogoImage
     view_items: TOverviewItem[]
+    total_view_items?: number // the total number of items in the view without filters applied
     isOptimistic?: boolean
     sources: TSourcesResult[]
     is_linked: boolean
