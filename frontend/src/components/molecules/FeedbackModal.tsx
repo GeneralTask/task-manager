@@ -7,7 +7,7 @@ import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { TitleLarge, TitleSmall } from '../atoms/title/Title'
+import { TitleLarge } from '../atoms/title/Title'
 import GTModal from '../mantine/GTModal'
 
 const FeedbackTextField = styled(GTTextField)`
