@@ -124,15 +124,17 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
             <Divider color={Colors.border.extra_light} />
             <Subtext>{`Comments (${num_comments})`}</Subtext>
-            {[...comments].reverse().map((c) => (
-                <PullRequestComment
-                    key={c.last_updated_at}
-                    author={c.author}
-                    body={c.body}
-                    lastUpdatedAt={c.last_updated_at}
-                    isAuthorOfPR={c.author === author}
-                />
-            ))}
+            {comments
+                .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
+                .map((c) => (
+                    <PullRequestComment
+                        key={c.last_updated_at}
+                        author={c.author}
+                        body={c.body}
+                        lastUpdatedAt={c.last_updated_at}
+                        isAuthorOfPR={c.author === author}
+                    />
+                ))}
         </DetailsViewTemplate>
     )
 }
