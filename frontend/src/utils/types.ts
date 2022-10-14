@@ -128,18 +128,35 @@ export interface TMeetingAction {
 // Pull Request Types
 export interface TPullRequest {
     id: string
+    deeplink: string
     title: string
+    body: string
+    repository_name: string
     number: number
+    author: string
+    branch: string
+    base_branch: string
     status: {
         text: string
         color: TStatusColors
     }
-    author: string
+    comments: TPullRequestComment[]
     num_comments: number
+    num_commits: number
+    additions: number
+    deletions: number
     created_at: string
     last_updated_at: string
-    branch: string
-    deeplink: string
+}
+
+export interface TPullRequestComment {
+    type: 'inline' | 'toplevel'
+    body: string
+    author: string
+    filepath: string
+    line_number_start: number
+    line_number_end: number
+    last_updated_at: string
 }
 
 export interface TRepository {

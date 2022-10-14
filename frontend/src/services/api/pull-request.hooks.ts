@@ -11,6 +11,7 @@ export const useGetPullRequests = () => {
 const getPullRequests = async () => {
     try {
         const res = await apiClient.get('/pull_requests/')
+        console.dir(res.data)
         return castImmutable(res.data)
     } catch {
         throw new Error('getPullRequests failed')
