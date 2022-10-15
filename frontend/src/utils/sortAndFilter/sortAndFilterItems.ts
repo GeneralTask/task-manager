@@ -1,4 +1,3 @@
-import { isEmpty } from '../utils'
 import { SORT_DIRECTION, SortAndFilterItemsArgs } from './types'
 
 const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerField }: SortAndFilterItemsArgs<T>) => {
@@ -17,9 +16,9 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
                     result = a[sort.field] > b[sort.field] ? 1 : -1
                 }
                 // ensure that empty fields are always sorted to the bottom regardless of order
-                else if (isEmpty(a[sort.field])) {
+                else if (!a[sort.field]) {
                     result = sortDirectionMultiplier
-                } else if (isEmpty(b[sort.field])) {
+                } else if (!b[sort.field]) {
                     result = -sortDirectionMultiplier
                 }
             }
