@@ -14,7 +14,6 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
     flex-direction: column;
     align-items: center;
     ${({ isLast }) => (isLast ? 'flex: 1;' : '')}
-    cursor: pointer;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: relative;
