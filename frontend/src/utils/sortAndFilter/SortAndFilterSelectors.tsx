@@ -36,7 +36,7 @@ const SortAndFilterDropdowns = <T,>({
             Object.entries(sortOptions).map(([, value]) => ({
                 ...value,
                 selected: selectedSort.id === value.id,
-                icon: icons.priority_urgent,
+                icon: icons.sort,
                 onClick: () => setSelectedSort(value),
             })),
         [sortOptions, selectedSort, setSelectedSort]
@@ -63,7 +63,7 @@ const SortAndFilterDropdowns = <T,>({
             Object.entries(filterOptions).map(([, value]) => ({
                 ...value,
                 selected: selectedFilter.id === value.id,
-                icon: icons.priority_urgent,
+                icon: icons.filter,
                 onClick: () => setSelectedFilter(value),
             })),
         [filterOptions, selectedFilter, setSelectedFilter]
