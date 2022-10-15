@@ -13,7 +13,7 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
             } else if (sort.field && a[sort.field] === b[sort.field]) {
                 result = a[tieBreakerField] < b[tieBreakerField] ? -1 : 1
             } else if (sort.field) {
-                if (!isEmpty(a[sort.field]) && !isEmpty(b[sort.field])) {
+                if (!a[sort.field] && !b[sort.field]) {
                     result = a[sort.field] > b[sort.field] ? 1 : -1
                 }
                 // ensure that empty fields are always sorted to the bottom regardless of order
