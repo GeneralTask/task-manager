@@ -91,7 +91,6 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         deletions,
     } = pullRequest
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
-
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -122,19 +121,23 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             </div>
             <Subtext>Description</Subtext>
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
-            <Divider color={Colors.border.extra_light} />
-            <Subtext>{`Comments (${num_comments})`}</Subtext>
-            {comments
-                .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
-                .map((c) => (
-                    <PullRequestComment
-                        key={c.last_updated_at}
-                        author={c.author}
-                        body={c.body}
-                        lastUpdatedAt={c.last_updated_at}
-                        isAuthorOfPR={c.author === author}
-                    />
-                ))}
+            {num_comments > 0 && (
+                <>
+                    <Divider color={Colors.border.extra_light} />
+                    <Subtext>{`Comments (${num_comments})`}</Subtext>
+                    {comments
+                        .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
+                        .map((c) => (
+                            <PullRequestComment
+                                key={c.last_updated_at}
+                                author={c.author}
+                                body={c.body}
+                                lastUpdatedAt={c.last_updated_at}
+                                isAuthorOfPR={c.author === author}
+                            />
+                        ))}
+                </>
+            )}
         </DetailsViewTemplate>
     )
 }
