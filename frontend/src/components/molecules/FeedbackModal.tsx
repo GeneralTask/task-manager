@@ -6,8 +6,8 @@ import { Spacing } from '../../styles'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { TitleLarge } from '../atoms/title/Title'
+import { Subtitle } from '../atoms/subtitle/Subtitle'
+import { TitleMedium } from '../atoms/title/Title'
 import GTModal from '../mantine/GTModal'
 
 const FeedbackTextField = styled(GTTextField)`
@@ -49,15 +49,18 @@ const FeedbackModal = () => {
                 onClick={() => setModalIsOpen(true)}
             />
             <GTModal open={modalIsOpen} setOpen={setModalIsOpen}>
-                <TitleLarge>Got Feedback?</TitleLarge>
-                <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
+                <TitleMedium>Got feedback for us?</TitleMedium>
+                <Subtitle>
+                    Feedback is a gift — thank you. Let us know what things you’d like to see us do more and what things
+                    we can do better.
+                </Subtitle>
                 <FeedbackTextFieldContainer>
                     <FeedbackTextField
                         type="plaintext"
                         value={feedback}
                         onChange={(val) => setFeedback(val)}
                         fontSize="small"
-                        placeholder="Type in your feedback here."
+                        placeholder="Let us know your thoughts"
                         isFullHeight
                         autoFocus
                     />
