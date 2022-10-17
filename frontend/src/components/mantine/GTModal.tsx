@@ -1,6 +1,7 @@
 import { Modal } from '@mantine/core'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
+import { stopKeydownPropogation } from '../../utils/utils'
 
 const MODAL_WIDTH = '550px'
 
@@ -29,6 +30,7 @@ const GTModal = ({ open, setOpen, children }: GTModalProps) => {
             transition="pop"
             transitionDuration={100}
             transitionTimingFunction="ease"
+            onKeyDown={(e) => stopKeydownPropogation(e, [], true)}
         >
             <ModalOuterContainer>{children}</ModalOuterContainer>
         </Modal>

@@ -140,9 +140,15 @@ export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
 }
 
 // calls e.stopPropogation() unless the key is a listed extension or ⌘K
-export const stopKeydownPropogation = (e: KeyboardEvent | React.KeyboardEvent, exceptions: string[] = []) => {
+export const stopKeydownPropogation = (
+    e: KeyboardEvent | React.KeyboardEvent,
+    exceptions: string[] = [],
+    disableCommandPalette = false
+) => {
     const key = getKeyCode(e)
-    exceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
+    if (!disableCommandPalette) {
+        exceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
+    }
     if (!exceptions.includes(key)) {
         e.stopPropagation()
     }
