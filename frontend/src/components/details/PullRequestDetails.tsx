@@ -51,13 +51,8 @@ const BranchInfoContainer = styled.div`
     flex-direction: row;
     align-items: center;
 `
-const Green = styled.span`
-    color: ${Colors.text.green};
-    ${Typography.bodySmall};
-    ${Typography.bold};
-`
-const Red = styled.span`
-    color: ${Colors.text.red};
+const LinesModified = styled.span<{ color: 'green' | 'red' }>`
+    color: ${(props) => Colors.text[props.color]};
     ${Typography.bodySmall};
     ${Typography.bold};
 `
@@ -104,8 +99,8 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             <InfoContainer>
                 <Status type={status.color}>{status.text}</Status>
                 <Gap4>
-                    <Green>{`+${additions}`}</Green>
-                    <Red>{`-${deletions}`}</Red>
+                    <LinesModified color="green">{`+${additions}`}</LinesModified>
+                    <LinesModified color="red">{`-${deletions}`}</LinesModified>
                 </Gap4>
             </InfoContainer>
             <div>
