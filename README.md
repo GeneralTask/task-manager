@@ -107,7 +107,7 @@ To run tests through VS Code, put the following snippet in your `settings.json`:
     },
 ```
 
-To run tests through GoLand, go to `Run | Edit Configurations` and then add a new `Go Test` configuration with `DB_NAME=test`
+To run tests through GoLand, go to `Run | Edit Configurations` and then add a new `Go Test` configuration with `DB_NAME=test`.
 
 ### Testing New User Experience
 We should test our new user experience every so often. You can achieve this locally by nuking your database. However, this is not always desired.
