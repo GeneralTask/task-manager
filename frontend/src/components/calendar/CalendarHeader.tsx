@@ -22,7 +22,7 @@ const ConnectContainer = styled.div`
     z-index: 100;
 `
 const PaddedContainer = styled.div`
-    padding: ${Spacing._16} ${Spacing._4} ${Spacing._16} ${Spacing._12};
+    padding: ${Spacing._8} ${Spacing._12};
 `
 const HeaderBodyContainer = styled.div`
     display: flex;
