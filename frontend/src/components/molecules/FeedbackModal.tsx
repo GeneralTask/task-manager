@@ -2,7 +2,6 @@ import { useState } from 'react'
 import styled from 'styled-components'
 import { useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
-import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
 import { Subtitle } from '../atoms/subtitle/Subtitle'
@@ -58,10 +57,7 @@ const FeedbackModal = () => {
                     placeholder="Let us know your thoughts"
                     autoFocus
                 />
-                <Flex justifyContentSpaceBetween>
-                    <GTButton onClick={() => setModalIsOpen(false)} value="Cancel" styleType="secondary" />
-                    <GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" />
-                </Flex>
+                <GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" size="small" />
             </GTModal>
         </>
     )
