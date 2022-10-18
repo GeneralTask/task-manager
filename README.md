@@ -242,6 +242,30 @@ This request will fail. This is due to the fact that the cookies are localhost s
 
 Once the App has been linked to your account locally, it will continue to be linked unless the DB is nuked. In order to use this account to test, all that is required is to spin up an instance of `ngrok http 8080`, and then input the URL `https://ngrok...io/tasks/create_external/slack/` [here as the request URL](https://api.slack.com/apps/A03NMQNKUF2/interactive-messages?).
 
+## Working with Linear
+
+As with Slack, Linear has similar nuances with not allowing localhost addresses to interact with the app. Thus, the same steps are required.
+
+### How to link to local Linear App
+
+First, make sure you have the correct environment variables set. You will need both the `LINEAR_OAUTH_CLIENT_ID` and `LINEAR_OAUTH_CLIENT_SECRET` secrets. You can find both of these in the Basic Information section in the [Linear app settings page](https://linear.app/general-task/settings/api/applications/5f2152f7-7ba9-4a1a-9ca1-a89328340668).
+
+Linking to the local Linear App requires a number of additional steps, as Linear does not allow for interactions with localhost addresses. Thus, we must take the following steps:
+
+- Use ngrok to allow forwarding of our localhost to the internet: `ngrok http 8080`
+- Input your current ngrok url to the [Linear app as an acceptable callback](https://linear.app/general-task/settings/api/applications/5f2152f7-7ba9-4a1a-9ca1-a89328340668) 
+- Change your SERVER_URL in the .env file (in the backend directory) to match this ngrok URL
+
+Then, go to your localhost, and link as you would any other app. This should get you to a dialogue window, accept the terms, and you will be redirected to a URL beginning with ngrok-...
+
+This request will fail. This is due to the fact that the cookies are localhost specific, and the browser does not know that ngrok-... and localhost are the same. Thus:
+
+- Copy the URL from the popup, and paste it in a new tab (as most browsers do not allow for editing URLs in popups). Replace the beginning of the URL with localhost:8080. This should redirect you to the correct page, and you should see `Success`. This means that the linking was successful.
+
+### How to get new Linear tasks to local server
+
+Once the App has been linked to your account locally, it will continue to be linked unless the DB is nuked. In order to use this account to test, all that is required is to spin up an instance of `ngrok http 8080`, and then input the URL `https://ngrok...io/linear/webhook/` [here as the webhook URL](https://linear.app/general-task/settings/api/applications/5f2152f7-7ba9-4a1a-9ca1-a89328340668).
+
 ## Useful links
 
 Google Go client examples: https://github.com/googleapis/google-api-go-client/tree/master/examples

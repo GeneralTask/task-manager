@@ -2,8 +2,6 @@ import { TTask } from '../types'
 import { emptyFunction } from '../utils'
 import { SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from './types'
 
-const NO_PRIORITY = 1000000
-
 export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
     manual: {
         id: 'manual',
@@ -21,9 +19,7 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
     priority: {
         id: 'priority',
         label: 'Priority',
-        customComparator: (a: TTask, b: TTask) => {
-            return (b.priority_normalized || NO_PRIORITY) - (a.priority_normalized || NO_PRIORITY)
-        },
+        field: 'priority_normalized',
     },
 }
 

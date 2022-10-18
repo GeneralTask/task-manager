@@ -32,16 +32,15 @@ const HeaderButton = styled(NoStyleButton)`
     align-items: center;
     min-width: 0;
     border-radius: ${Border.radius.small};
+    gap: ${Spacing._8};
 `
 const HeaderText = styled.div<{ fontColor: TTextColor }>`
     color: ${({ fontColor }) => Colors.text[fontColor]};
     word-break: break-word;
     text-align: left;
-    padding: ${Spacing._8};
     border: ${Border.stroke.medium} solid transparent;
-    ${Typography.title};
     box-sizing: border-box;
-    margin-bottom: 3.5px;
+    ${Typography.title};
 `
 
 const MAX_SECTION_NAME_LENGTH = 200
