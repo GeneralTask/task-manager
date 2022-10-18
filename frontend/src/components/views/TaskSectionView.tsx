@@ -162,6 +162,7 @@ const TaskSectionView = () => {
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
                                     indicatorType="TOP_ONLY"
+                                    disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                                 >
                                     <BottomDropArea />
                                 </ReorderDropContainer>

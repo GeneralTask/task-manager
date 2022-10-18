@@ -116,7 +116,7 @@ const ReorderDropContainer = forwardRef(
                     setDropDirection(getDropDirection(monitor.getClientOffset()?.y ?? 0))
                 },
             }),
-            [onDrop, acceptDropType, getDropDirection]
+            [onDrop, acceptDropType, getDropDirection, disabled]
         )
 
         useEffect(() => {
