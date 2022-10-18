@@ -3,7 +3,9 @@ package external
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -37,6 +39,11 @@ type GoogleUserInfo struct {
 	SUB   string `json:"sub"`
 	EMAIL string `json:"email"`
 	Name  string `json:"name"`
+}
+
+// GoogleTokenInfo ...
+type GoogleTokenInfo struct {
+	Scope string `json:"scope"`
 }
 
 func getGoogleLoginConfig() OauthConfigWrapper {
@@ -141,6 +148,24 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 	return nil
 }
 
+func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
+	tokenResponse, err := (*client).Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s", token.AccessToken))
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to load token info")
+		return false
+	}
+	defer tokenResponse.Body.Close()
+
+	var tokenInfo GoogleTokenInfo
+	err = json.NewDecoder(tokenResponse.Body).Decode(&tokenInfo)
+	if err != nil {
+		logger.Error().Err(err).Msg("error decoding JSON")
+		return false
+	}
+	return strings.Contains(tokenInfo.Scope, "https://www.googleapis.com/auth/calendar.events")
+}
+
 func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	parentCtx := context.Background()
 
@@ -211,8 +236,8 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 		return primitive.NilObjectID, &userIsNew, nil, err
 	}
 
-	if len(token.RefreshToken) > 0 {
-		// Only update / save the external API key if refresh token is set (isn't set after first authorization)
+	// Only update / save the external API key if refresh token is set (isn't set after first authorization) and user granted scope to calendar
+	if (len(token.RefreshToken) > 0) && hasUserGrantedCalendarScope(&client, token) {
 		tokenString, err := json.Marshal(&token)
 		if err != nil {
 			log.Printf("failed to serialize token json: %v", err)
