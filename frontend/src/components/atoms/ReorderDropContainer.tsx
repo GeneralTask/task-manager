@@ -62,10 +62,18 @@ interface ReorderDropContainerProps {
     acceptDropType: DropType
     onReorder: (item: DropItem, dropIndex: number) => void
     indicatorType?: IndicatorType
+    disabled?: boolean
 }
 const ReorderDropContainer = forwardRef(
     (
-        { children, index, acceptDropType, onReorder, indicatorType = 'TOP_AND_BOTTOM' }: ReorderDropContainerProps,
+        {
+            children,
+            index,
+            acceptDropType,
+            onReorder,
+            indicatorType = 'TOP_AND_BOTTOM',
+            disabled,
+        }: ReorderDropContainerProps,
         ref: React.ForwardedRef<HTMLDivElement>
     ) => {
         const dropRef = useRef<HTMLDivElement>(null)
@@ -98,10 +106,13 @@ const ReorderDropContainer = forwardRef(
             () => ({
                 accept: acceptDropType,
                 collect: (monitor) => {
+                    if (disabled) return false
                     return !!monitor.isOver()
                 },
+                canDrop: () => !disabled,
                 drop: onDrop,
                 hover: async (_, monitor) => {
+                    if (disabled) return
                     setDropDirection(getDropDirection(monitor.getClientOffset()?.y ?? 0))
                 },
             }),
