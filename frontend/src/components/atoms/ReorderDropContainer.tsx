@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useRef, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import styled, { css } from 'styled-components'
 import { Border, Colors } from '../../styles'
@@ -76,7 +76,7 @@ const ReorderDropContainer = forwardRef(
         }: ReorderDropContainerProps,
         ref: React.ForwardedRef<HTMLDivElement>
     ) => {
-        const dropRef = useRef<HTMLDivElement>(null)
+        const dropRef = useRef<HTMLDivElement | null>()
         const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
 
         const getDropDirection = useCallback(
@@ -119,14 +119,11 @@ const ReorderDropContainer = forwardRef(
             [onDrop, acceptDropType, getDropDirection, disabled]
         )
 
-        useEffect(() => {
-            drop(dropRef)
-        }, [dropRef])
-
         return (
             <DropOverlay
                 ref={(node) => {
                     drop(node)
+                    dropRef.current = node
                     if (typeof ref === 'function') {
                         ref(node)
                     } else if (ref !== null) {
