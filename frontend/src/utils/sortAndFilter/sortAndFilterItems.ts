@@ -4,7 +4,6 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
     const sortedAndFiltered = filter ? items.filter(filter.lambda) : [...items]
     if (sort && sortDirection) {
         sortedAndFiltered.sort((a, b) => {
-            console.log('sup')
             const sortDirectionMultiplier =
                 (sort.forceAndHideDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
             let result = 0
