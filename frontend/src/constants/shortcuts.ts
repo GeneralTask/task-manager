@@ -62,6 +62,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
         category: 'Tasks',
         icon: 'comment',
+        hideFromCommandPalette: true,
     },
     // Calendar shortcuts
     calendar: {
