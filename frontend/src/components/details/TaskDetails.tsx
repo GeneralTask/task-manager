@@ -11,15 +11,9 @@ import {
     TRASH_SECTION_ID,
 } from '../../constants'
 import { useInterval } from '../../hooks'
-import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
-import {
-    TModifyTaskData,
-    useMarkTaskDoneOrDeleted,
-    useModifyTask,
-    usePostComment,
-} from '../../services/api/tasks.hooks'
+import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { Border, Colors, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
@@ -31,6 +25,7 @@ import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import CreateLinearComment from '../molecules/CreateLinearComment'
 import GTDatePicker from '../molecules/GTDatePicker'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import FolderDropdown from '../radix/FolderDropdown'
@@ -42,7 +37,6 @@ import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
-const LINEAR_ADD_COMMENT_HEIGHT = 100
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -80,15 +74,6 @@ const CommentContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._24};
 `
-const BottomStickyContainer = styled.div`
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: ${Colors.background.white};
-    border-radius: ${Border.radius.medium};
-    margin-top: ${Spacing._16};
-`
 
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
@@ -106,7 +91,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { mutate: postComment } = usePostComment()
     const { data: userInfo } = useGetUserInfo()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
@@ -120,8 +104,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     const isInTrash = params.section === TRASH_SECTION_ID
-
-    const [comment, setComment] = useState('')
 
     useInterval(() => {
         if (!task.meeting_preparation_params) return
@@ -173,15 +155,6 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         },
         [task.id, modifyTask]
     )
-
-    const submitComment = useCallback(() => {
-        if (comment) {
-            postComment({ taskId: task.id, body: comment })
-            setComment('')
-        }
-    }, [comment, postComment, task.id])
-
-    useKeyboardShortcut('submitComment', submitComment)
 
     const onEdit = ({ id, title, body }: TModifyTaskData) => {
         setIsEditing(true)
@@ -267,27 +240,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
-            {userInfo?.is_employee && task.external_status && (
-                <BottomStickyContainer>
-                    <GTTextField
-                        type="markdown"
-                        placeholder="Add a comment"
-                        value={comment}
-                        fontSize="small"
-                        minHeight={LINEAR_ADD_COMMENT_HEIGHT}
-                        onChange={setComment}
-                        actions={
-                            <GTButton
-                                value="Comment"
-                                styleType="secondary"
-                                size="small"
-                                onClick={() => submitComment()}
-                            />
-                        }
-                        isFullHeight
-                    />
-                </BottomStickyContainer>
-            )}
+            {userInfo?.is_employee && task.external_status && <CreateLinearComment taskId={task.id} />}
         </DetailsViewTemplate>
     )
 }
