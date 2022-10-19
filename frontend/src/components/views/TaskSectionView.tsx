@@ -141,13 +141,11 @@ const TaskSectionView = () => {
                                             index={index}
                                             acceptDropType={DropType.TASK}
                                             onReorder={handleReorderTask}
+                                            disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                                         >
                                             <Task
                                                 task={task}
-                                                dragDisabled={
-                                                    section.is_done ||
-                                                    sortAndFilterSettings.selectedSort.id !== 'manual'
-                                                }
+                                                dragDisabled={section.is_done}
                                                 index={index}
                                                 sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}
@@ -164,6 +162,7 @@ const TaskSectionView = () => {
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
                                     indicatorType="TOP_ONLY"
+                                    disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                                 >
                                     <BottomDropArea />
                                 </ReorderDropContainer>

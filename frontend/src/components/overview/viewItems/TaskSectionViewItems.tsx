@@ -50,10 +50,11 @@ const TaskSectionViewItems = forwardRef(
                             index={index}
                             acceptDropType={DropType.TASK}
                             onReorder={handleReorderTask}
+                            disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                         >
                             <Task
                                 task={item as TTask}
-                                dragDisabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
+                                dragDisabled={item.is_done}
                                 index={index}
                                 sectionId={sectionId}
                                 sectionScrollingRef={scrollRef}
@@ -68,6 +69,7 @@ const TaskSectionViewItems = forwardRef(
                         acceptDropType={DropType.TASK}
                         onReorder={handleReorderTask}
                         indicatorType="WHOLE"
+                        disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                     >
                         <EmptyViewItem
                             header="You've completed all your tasks!"

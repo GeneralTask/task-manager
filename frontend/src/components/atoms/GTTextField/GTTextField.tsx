@@ -7,7 +7,7 @@ import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
 const PlainTextContainer = styled.div`
-    border: ${Border.stroke.medium} solid transparent;
+    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     flex: 1;
     :focus-within {
@@ -24,7 +24,7 @@ const PlainTextContainer = styled.div`
 const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     background-color: inherit;
     box-sizing: border-box;
-    border: ${Border.stroke.medium} solid transparent;
+    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     width: 100%;
     :hover,

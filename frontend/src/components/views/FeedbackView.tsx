@@ -6,8 +6,7 @@ import { Spacing } from '../../styles'
 import GTModal from '../atoms/GTModal'
 import GTTextArea from '../atoms/GTTextField/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
-import { TitleSmall } from '../atoms/title/Title'
+import { Body, Label } from '../atoms/typography/Typography'
 
 const FeedbackHeader = styled.div`
     margin-bottom: ${Spacing._24};
@@ -51,9 +50,9 @@ const FeedbackView = ({ modalIsOpen, setModalIsOpen }: FeedbackViewProps) => {
             type="small"
         >
             <FeedbackHeader>
-                <SubtitleSmall>Let us know how we can improve!</SubtitleSmall>
+                <Label>Let us know how we can improve!</Label>
             </FeedbackHeader>
-            <TitleSmall>Feedback</TitleSmall>
+            <Body>Feedback</Body>
             <FeedbackTextArea
                 type="plaintext"
                 value={feedback}

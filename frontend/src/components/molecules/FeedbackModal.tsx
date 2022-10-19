@@ -4,8 +4,7 @@ import { useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
-import { Subtitle } from '../atoms/subtitle/Subtitle'
-import { TitleMedium } from '../atoms/title/Title'
+import { BodySmall, Subtitle } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 
 const FEEDBACK_MIN_HEIGHT = 100
@@ -44,11 +43,11 @@ const FeedbackModal = () => {
                 onClick={() => setModalIsOpen(true)}
             />
             <GTModal open={modalIsOpen} setOpen={setModalIsOpen}>
-                <TitleMedium>Got feedback for us?</TitleMedium>
-                <Subtitle>
+                <Subtitle>Got feedback for us?</Subtitle>
+                <BodySmall>
                     Feedback is a gift — thank you. Let us know what things you’d like to see us do more and what things
                     we can do better.
-                </Subtitle>
+                </BodySmall>
                 <FeedbackTextField
                     type="plaintext"
                     value={feedback}

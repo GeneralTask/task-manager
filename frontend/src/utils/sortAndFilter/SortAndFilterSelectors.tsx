@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
+import { TIconType } from '../../components/atoms/Icon'
 import GTButton from '../../components/atoms/buttons/GTButton'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
@@ -35,7 +36,7 @@ const SortAndFilterDropdowns = <T,>({
             Object.entries(sortOptions).map(([, value]) => ({
                 ...value,
                 selected: selectedSort.id === value.id,
-                icon: icons.priority_urgent,
+                icon: icons.sort,
                 onClick: () => setSelectedSort(value),
             })),
         [sortOptions, selectedSort, setSelectedSort]
@@ -62,7 +63,7 @@ const SortAndFilterDropdowns = <T,>({
             Object.entries(filterOptions).map(([, value]) => ({
                 ...value,
                 selected: selectedFilter.id === value.id,
-                icon: icons.priority_urgent,
+                icon: icons.filter,
                 onClick: () => setSelectedFilter(value),
             })),
         [filterOptions, selectedFilter, setSelectedFilter]
@@ -70,6 +71,10 @@ const SortAndFilterDropdowns = <T,>({
     const sortSelectorItems = [sortItems]
     if (!selectedSort.forceAndHideDirection) {
         sortSelectorItems.push(sortDirectionGroups)
+    }
+    let sortIcon: TIconType | undefined
+    if (!selectedSort.forceAndHideDirection) {
+        sortIcon = selectedSortDirection === SORT_DIRECTION.ASC ? icons.arrow_up : icons.arrow_down
     }
 
     return (
@@ -92,7 +97,7 @@ const SortAndFilterDropdowns = <T,>({
                 items={sortSelectorItems}
                 trigger={
                     <GTButton
-                        icon={selectedSortDirection === SORT_DIRECTION.ASC ? icons.arrow_up : icons.arrow_down}
+                        icon={sortIcon}
                         value={sortOptions[selectedSort.id].label}
                         styleType="secondary"
                         size="small"

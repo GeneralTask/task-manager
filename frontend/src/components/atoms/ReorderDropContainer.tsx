@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useRef, useState } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import styled, { css } from 'styled-components'
 import { Border, Colors } from '../../styles'
@@ -14,7 +14,6 @@ const DropOverlay = styled.div<{ isLast?: boolean }>`
     flex-direction: column;
     align-items: center;
     ${({ isLast }) => (isLast ? 'flex: 1;' : '')}
-    cursor: pointer;
 `
 const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: relative;
@@ -63,13 +62,21 @@ interface ReorderDropContainerProps {
     acceptDropType: DropType
     onReorder: (item: DropItem, dropIndex: number) => void
     indicatorType?: IndicatorType
+    disabled?: boolean
 }
 const ReorderDropContainer = forwardRef(
     (
-        { children, index, acceptDropType, onReorder, indicatorType = 'TOP_AND_BOTTOM' }: ReorderDropContainerProps,
+        {
+            children,
+            index,
+            acceptDropType,
+            onReorder,
+            indicatorType = 'TOP_AND_BOTTOM',
+            disabled,
+        }: ReorderDropContainerProps,
         ref: React.ForwardedRef<HTMLDivElement>
     ) => {
-        const dropRef = useRef<HTMLDivElement>(null)
+        const dropRef = useRef<HTMLDivElement | null>()
         const [dropDirection, setDropDirection] = useState<DropDirection>(DropDirection.ABOVE)
 
         const getDropDirection = useCallback(
@@ -99,24 +106,24 @@ const ReorderDropContainer = forwardRef(
             () => ({
                 accept: acceptDropType,
                 collect: (monitor) => {
+                    if (disabled) return false
                     return !!monitor.isOver()
                 },
+                canDrop: () => !disabled,
                 drop: onDrop,
                 hover: async (_, monitor) => {
+                    if (disabled) return
                     setDropDirection(getDropDirection(monitor.getClientOffset()?.y ?? 0))
                 },
             }),
-            [onDrop, acceptDropType, getDropDirection]
+            [onDrop, acceptDropType, getDropDirection, disabled]
         )
-
-        useEffect(() => {
-            drop(dropRef)
-        }, [dropRef])
 
         return (
             <DropOverlay
                 ref={(node) => {
                     drop(node)
+                    dropRef.current = node
                     if (typeof ref === 'function') {
                         ref(node)
                     } else if (ref !== null) {

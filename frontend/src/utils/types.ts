@@ -189,6 +189,7 @@ export interface TUserInfo {
     opted_into_marketing: boolean
     name: string
     is_employee: boolean
+    email: string
 }
 
 // React-DND Item Types
@@ -219,12 +220,6 @@ export interface TTaskCreateParams {
     due_date?: string
     time_duration?: number
     id_task_section?: string
-}
-
-export interface TUserInfo {
-    agreed_to_terms: boolean
-    opted_into_marketing: boolean
-    name: string
 }
 
 export type TOverviewItem = TTask & TPullRequest // TODO: change this to more general type

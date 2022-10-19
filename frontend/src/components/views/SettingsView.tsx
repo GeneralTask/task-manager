@@ -4,6 +4,7 @@ import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { icons, logos } from '../../styles/images'
@@ -82,6 +83,7 @@ const ServiceDetails = styled.div`
 `
 
 const SettingsView = () => {
+    const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
@@ -205,6 +207,12 @@ const SettingsView = () => {
                         You have no connected services. Click from the options above to get started.
                     </ServiceDetails>
                 )}
+                <Divider color={Colors.border.light} />
+                <SectionDescriptor>Account details</SectionDescriptor>
+                <Service>
+                    <AccountID>Email</AccountID>
+                    <AccountName>{userInfo?.email}</AccountName>
+                </Service>
                 <Divider color={Colors.border.light} />
                 <SignOutButton />
             </SettingsViewContainer>

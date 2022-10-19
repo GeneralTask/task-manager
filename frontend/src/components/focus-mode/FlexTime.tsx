@@ -55,6 +55,7 @@ const NewTaskRecommendationsButton = styled.div`
     ${Typography.bodySmall};
     cursor: pointer;
     user-select: none;
+    width: fit-content;
 `
 
 const currentFifteenMinuteBlock = (currentTime: DateTime) => {
