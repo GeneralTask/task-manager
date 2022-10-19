@@ -60,6 +60,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
+		updatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.UpdatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
 		isCompleted := false
@@ -75,6 +76,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			Body:               &stringBody,
 			SourceAccountID:    accountID,
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
+			UpdatedAt:          primitive.NewDateTimeFromTime(updatedAt),
 			IsCompleted:        &isCompleted,
 			IsDeleted:          &isDeleted,
 			PriorityNormalized: (*float64)(&linearIssue.Priority),

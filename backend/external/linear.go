@@ -252,6 +252,7 @@ type linearAssignedIssuesQuery struct {
 			DueDate     graphql.String
 			Url         graphql.String
 			CreatedAt   graphql.String
+			UpdatedAt   graphql.String
 			Priority    graphql.Float
 			Assignee    struct {
 				Email graphql.String

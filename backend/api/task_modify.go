@@ -105,6 +105,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			CompletedAt:        modifyParams.TaskItemChangeableFields.CompletedAt,
 			IsDeleted:          modifyParams.TaskItemChangeableFields.IsDeleted,
 			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
+			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 			PriorityID:         modifyParams.TaskItemChangeableFields.Task.PriorityID,
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
 			TaskNumber:         modifyParams.TaskItemChangeableFields.Task.TaskNumber,
