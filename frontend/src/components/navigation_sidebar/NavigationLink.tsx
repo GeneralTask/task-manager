@@ -1,6 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
+import ReactTooltip from 'react-tooltip'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
@@ -118,6 +119,12 @@ const NavigationLink = ({
         Log(`navigate__${link}`)
         navigate(link)
     }
+
+    useEffect(() => {
+        if (needsRelinking) {
+            ReactTooltip.rebuild()
+        }
+    }, [needsRelinking])
 
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
