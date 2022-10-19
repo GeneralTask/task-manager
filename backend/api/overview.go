@@ -159,10 +159,7 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 		return nil, err
 	}
 
-	tasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
-		{"is_completed": false},
-		{"id_task_section": view.TaskSectionID},
-	}, nil)
+	tasks, err := database.GetActiveTasks(api.DB, userID)
 	if err != nil {
 		return nil, err
 	}
