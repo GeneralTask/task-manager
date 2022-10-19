@@ -10,7 +10,14 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { DropItem, DropType } from '../../utils/types'
-import { isGithubLinkedAccount, isLinearLinked, isSlackLinked } from '../../utils/utils'
+import {
+    doesGithubNeedRelinking,
+    doesLinearNeedRelinking,
+    doesSlackNeedRelinking,
+    isGithubLinked,
+    isLinearLinked,
+    isSlackLinked,
+} from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
@@ -112,11 +119,11 @@ const NavigationSectionLinks = () => {
     }, [folders])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const isGithubLinked = isGithubLinkedAccount(linkedAccounts || [])
+    const isGithubIntegrationLinked = isGithubLinked(linkedAccounts || [])
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
     const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
 
-    const githubCount = isGithubLinked
+    const githubCount = isGithubIntegrationLinked
         ? pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)
         : undefined
     const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
@@ -169,6 +176,7 @@ const NavigationSectionLinks = () => {
                 title="GitHub PRs"
                 icon={logos.github}
                 count={githubCount}
+                needsRelinking={doesGithubNeedRelinking(linkedAccounts || [])}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
             <NavigationLink
@@ -176,6 +184,7 @@ const NavigationSectionLinks = () => {
                 title="Linear Issues"
                 icon={logos.linear}
                 count={linearCount}
+                needsRelinking={doesLinearNeedRelinking(linkedAccounts || [])}
                 isCurrentPage={pathname.split('/')[1] === 'linear'}
             />
             <NavigationLink
@@ -183,6 +192,7 @@ const NavigationSectionLinks = () => {
                 title="Slack"
                 icon={logos.slack}
                 count={slackCount}
+                needsRelinking={doesSlackNeedRelinking(linkedAccounts || [])}
                 isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
             <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>

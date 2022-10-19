@@ -46,16 +46,27 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     }
     return `just now`
 }
-
+export const isGithubLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Github')
+}
 export const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
 }
 export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')
 }
-
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
+}
+
+export const doesGithubNeedRelinking = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.find((account) => account.name === 'Github')?.has_bad_token
+}
+export const doesSlackNeedRelinking = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.find((account) => account.name === 'Slack')?.has_bad_token
+}
+export const doesLinearNeedRelinking = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.find((account) => account.name === 'Linear')?.has_bad_token
 }
 
 export const getHumanDateTime = (date: DateTime) => {
@@ -146,9 +157,6 @@ export const stopKeydownPropogation = (e: KeyboardEvent | React.KeyboardEvent, e
     if (!exceptions.includes(key)) {
         e.stopPropagation()
     }
-}
-export const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Github')
 }
 
 export const getFormattedDate = (

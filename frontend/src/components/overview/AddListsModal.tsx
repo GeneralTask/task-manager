@@ -6,7 +6,7 @@ import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
-import { isGithubLinkedAccount } from '../../utils/utils'
+import { isGithubLinked } from '../../utils/utils'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
@@ -40,7 +40,7 @@ const AddListsModalContent = () => {
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const isGithubLinked = isGithubLinkedAccount(linkedAccounts ?? [])
+    const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
     if (!supportedViews) {
         return <Spinner />
@@ -119,7 +119,7 @@ const AddListsModalContent = () => {
                                 )}
                             </Fragment>
                         ))}
-                    {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && isGithubLinked && (
+                    {supportedView.name === GITHUB_SUPPORTED_VIEW_NAME && isGithubIntegrationLinked && (
                         <MissingRepositoryMessage />
                     )}
                 </Fragment>

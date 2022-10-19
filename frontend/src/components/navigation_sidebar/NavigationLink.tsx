@@ -7,9 +7,11 @@ import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import Log from '../../services/api/log'
 import { useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
@@ -57,6 +59,7 @@ interface NavigationLinkProps {
     icon?: IconProp | string
     taskSection?: TTaskSection
     count?: number
+    needsRelinking?: boolean
     draggable?: boolean
     droppable?: boolean
 }
@@ -67,6 +70,7 @@ const NavigationLink = ({
     icon,
     taskSection,
     count,
+    needsRelinking = false,
     draggable = false,
     droppable,
 }: NavigationLinkProps) => {
@@ -120,6 +124,11 @@ const NavigationLink = ({
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon icon={icon} color="black" />}
                 <SectionTitle>{title}</SectionTitle>
+                {needsRelinking && (
+                    <TooltipWrapper dataTip="Account needs to be re-linked in settings" tooltipId="tooltip">
+                        <Icon icon={icons.warning} color="red" />
+                    </TooltipWrapper>
+                )}
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>
