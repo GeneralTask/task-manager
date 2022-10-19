@@ -24,7 +24,7 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
-import { SubtitleSmall } from '../atoms/subtitle/Subtitle'
+import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import GTDatePicker from '../molecules/GTDatePicker'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
@@ -175,7 +175,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 {!task.isOptimistic && (
                     <>
                         <MarginLeft8>
-                            <SubtitleSmall>{syncIndicatorText}</SubtitleSmall>
+                            <Label color="light">{syncIndicatorText}</Label>
                         </MarginLeft8>
                         <MarginLeftAuto>
                             {isInTrash && (

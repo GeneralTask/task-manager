@@ -141,6 +141,14 @@ func makeLoginCallbackRequest(
 			)))},
 		nil,
 	)
+	mockClient.On(
+		"Get",
+		fmt.Sprintf("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s", googleToken),
+	).Return(
+		&http.Response{
+			Body: ioutil.NopCloser(bytes.NewBufferString("{\"scope\": \"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events openid\"}"))},
+		nil,
+	)
 	mockConfig.On("Client", mock.Anything, &mockToken).Return(&mockClient)
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
