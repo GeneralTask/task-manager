@@ -79,7 +79,7 @@ export const PR_SORT_SELECTOR_ITEMS: SortOptions<TPullRequest> = {
         id: 'required_action',
         label: 'Required action',
         field: 'status',
-        customComparator: (a: TPullRequest, b: TPullRequest) => {
+        customComparator: (a, b) => {
             const aPriority = requiredActionToIndexMap.get(a.status.text)
             const bPriority = requiredActionToIndexMap.get(b.status.text)
             if (aPriority === undefined || bPriority === undefined) return 0
