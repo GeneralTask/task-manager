@@ -104,6 +104,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         justifyContent: 'center',
                     },
                 }}
+                renderDay={(date) => <div onMouseUp={() => handleOnChange(date)}>{date.getDate()}</div>}
             />
             {isValidDueDate(value) && (
                 <DateViewContainer>
