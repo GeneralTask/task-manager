@@ -1,6 +1,6 @@
 import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
-import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from '../../constants'
+import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import apiClient from '../../utils/api'
 import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection } from '../../utils/types'
 import {
@@ -408,6 +408,10 @@ export const useReorderTask = () => {
                         const dragTask = dragSection.tasks[dragTaskIndex]
                         dragSection.tasks.splice(dragTaskIndex, 1)
 
+                        // change done/trash status if needed
+                        dragTask.is_done = data.dropSectionId === DONE_SECTION_ID
+                        dragTask.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+
                         // add task to new location
                         const dropSection = draft.find((section) => section.id === data.dropSectionId)
                         if (dropSection == null) return
@@ -471,6 +475,8 @@ export const reorderTask = async (data: TReorderTaskData) => {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
+            is_completed: data.dropSectionId === DONE_SECTION_ID,
+            is_deleted: data.dropSectionId === TRASH_SECTION_ID,
         })
         return castImmutable(res.data)
     } catch {
