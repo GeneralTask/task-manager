@@ -57,6 +57,10 @@ const GTTextField = (props: GTTextFieldProps) => {
         return <PlainTextContainer onKeyDown={stopKeydownPropogation}>{getEditor()}</PlainTextContainer>
     }
 
+    if (props.readOnly) {
+        return getEditor()
+    }
+
     return (
         <Container
             ref={containerRef}

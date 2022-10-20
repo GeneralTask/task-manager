@@ -12,6 +12,7 @@ export interface MarkdownEditorProps {
     autoSelect?: boolean
     blurOnEnter?: boolean
     disabled?: boolean
+    readOnly?: boolean
     isFullHeight?: boolean
     maxHeight?: number
     minHeight?: number
