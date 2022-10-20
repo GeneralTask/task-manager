@@ -335,10 +335,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                             data.taskId,
                             data.sectionId
                         )
-                        if (sectionIndex === undefined || taskIndex === undefined) {
-                            alert('hi')
-                            return
-                        }
+                        if (sectionIndex === undefined || taskIndex === undefined) return
                         const task = draft[sectionIndex].view_items[taskIndex]
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
