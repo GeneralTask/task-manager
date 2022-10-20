@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
+import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useInterval } from '../../hooks'
@@ -29,7 +30,6 @@ interface CalendarViewProps {
     isInitiallyCollapsed?: boolean
     hideContainerShadow?: boolean
     hasLeftBorder?: boolean
-    isFocusModeEnabled?: boolean
 }
 const CalendarView = ({
     initialType,
@@ -37,7 +37,6 @@ const CalendarView = ({
     isInitiallyCollapsed,
     hideContainerShadow = false,
     hasLeftBorder = false,
-    isFocusModeEnabled = false,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowMainHeader ?? true)
@@ -49,6 +48,9 @@ const CalendarView = ({
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
+
+    const { pathname } = useLocation()
+    const isFocusMode = pathname.startsWith('/focus-mode')
 
     const { calendarType, isCollapsed, setCalendarType, setIsCollapsed } = useCalendarContext()
     useEffect(() => {
@@ -76,9 +78,8 @@ const CalendarView = ({
 
     useKeyboardShortcut(
         'calendar',
-        useCallback(() => {
-            if (!isFocusModeEnabled) setIsCollapsed(!isCollapsed)
-        }, [isCollapsed, setIsCollapsed, isFocusModeEnabled])
+        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed]),
+        isFocusMode
     )
 
     return isCollapsed ? (
@@ -96,7 +97,6 @@ const CalendarView = ({
                 setDayViewDate={setDayViewDate}
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
-                isFocusModeEnabled={isFocusModeEnabled}
             />
             {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>

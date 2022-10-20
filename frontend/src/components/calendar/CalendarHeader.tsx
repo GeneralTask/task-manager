@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { FOCUS_MODE_ROUTE } from '../../constants'
@@ -50,19 +51,19 @@ interface CalendarHeaderProps {
     setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     showMainHeader?: boolean
     showDateHeader?: boolean
-    isFocusModeEnabled?: boolean
 }
 export default function CalendarHeader({
     date,
     setDate,
     showMainHeader = true,
     showDateHeader = true,
-    isFocusModeEnabled = false,
     dayViewDate,
     setDayViewDate,
 }: CalendarHeaderProps) {
     const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
+    const { pathname } = useLocation()
+    const isFocusMode = pathname.startsWith('/focus-mode')
 
     const toggleCalendar = () => {
         if (calendarType === 'week') {
@@ -93,15 +94,9 @@ export default function CalendarHeader({
             return date.minus({ days: isCalendarExpanded ? 7 : 1 })
         })
     }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
-    useKeyboardShortcut('today', () => {
-        if (!isFocusModeEnabled) selectToday()
-    })
-    useKeyboardShortcut('nextDate', () => {
-        if (!isFocusModeEnabled) selectNext()
-    })
-    useKeyboardShortcut('previousDate', () => {
-        if (!isFocusModeEnabled) selectPrevious()
-    })
+    useKeyboardShortcut('today', selectToday, isFocusMode)
+    useKeyboardShortcut('nextDate', selectNext, isFocusMode)
+    useKeyboardShortcut('previousDate', selectPrevious, isFocusMode)
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
