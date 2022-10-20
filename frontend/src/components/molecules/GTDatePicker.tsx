@@ -124,6 +124,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             setIsOpen={setIsOpen}
             content={calendar}
             disabled={disabled}
+            align="start"
             trigger={
                 <GTButton
                     styleType="simple"
