@@ -18,6 +18,7 @@ import {
     faChevronLeft,
     faChevronRight,
     faChevronUp,
+    faCircleExclamation,
     faCircleSmall,
     faCircleUp as faCircleUpLight,
     faClock,
@@ -130,6 +131,7 @@ export const icons = Object.freeze({
     timer: faTimer,
     trash: faTrash,
     underline: faUnderline,
+    warning: faCircleExclamation,
     x: faXmark,
 })
 

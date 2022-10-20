@@ -11,7 +11,7 @@ import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-reques
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
-import { isGithubLinkedAccount } from '../../utils/utils'
+import { isGithubLinked } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
@@ -73,7 +73,7 @@ const PullRequestsView = () => {
         )
     }, [params.pullRequest, sortedAndFilteredRepositories])
 
-    const isGithubLinked = isGithubLinkedAccount(linkedAccounts ?? [])
+    const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
     useEffect(() => {
         if (selectedPullRequest) {
             navigate(`/pull-requests/${selectedPullRequest.id}`)
@@ -90,7 +90,7 @@ const PullRequestsView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="GitHub PRs" />
                     <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                    {!isGithubLinked && !isLinkedAccountsLoading ? (
+                    {!isGithubIntegrationLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
                         sortedAndFilteredRepositories.map((repository) => (
