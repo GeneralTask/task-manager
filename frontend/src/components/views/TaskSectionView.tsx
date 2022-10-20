@@ -73,7 +73,7 @@ const TaskSectionView = () => {
             sortDirection: selectedSortDirection,
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
-    }, [section, selectedSort, selectedSortDirection, selectedFilter])
+    }, [section, section?.tasks, selectedSort, selectedSortDirection, selectedFilter])
 
     const taskIndex = useMemo(() => {
         // Find the index of the currently selected task. If the task is not found, return 0
@@ -94,6 +94,7 @@ const TaskSectionView = () => {
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
             if (!section) return
+            console.log('reorder task', item, dropIndex)
             reorderTask({
                 taskId: item.id,
                 orderingId: dropIndex,
