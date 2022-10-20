@@ -18,8 +18,8 @@ export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex:
 }
 
 export function resetOrderingIds(tasks: { id_ordering: number }[]) {
-    for (let i = 1; i < tasks.length; i++) {
-        tasks[i].id_ordering = i
+    for (let i = 0; i < tasks.length; i++) {
+        tasks[i].id_ordering = i + 1
     }
 }
 
