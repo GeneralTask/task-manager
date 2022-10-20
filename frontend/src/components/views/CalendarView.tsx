@@ -29,6 +29,7 @@ interface CalendarViewProps {
     isInitiallyCollapsed?: boolean
     hideContainerShadow?: boolean
     hasLeftBorder?: boolean
+    isFocusModeEnabled?: boolean
 }
 const CalendarView = ({
     initialType,
@@ -36,6 +37,7 @@ const CalendarView = ({
     isInitiallyCollapsed,
     hideContainerShadow = false,
     hasLeftBorder = false,
+    isFocusModeEnabled = false,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowMainHeader ?? true)
@@ -74,7 +76,9 @@ const CalendarView = ({
 
     useKeyboardShortcut(
         'calendar',
-        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed])
+        useCallback(() => {
+            if (!isFocusModeEnabled) setIsCollapsed(!isCollapsed)
+        }, [isCollapsed, setIsCollapsed, isFocusModeEnabled])
     )
 
     return isCollapsed ? (
@@ -92,6 +96,7 @@ const CalendarView = ({
                 setDayViewDate={setDayViewDate}
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
+                isFocusModeEnabled={isFocusModeEnabled}
             />
             {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>
