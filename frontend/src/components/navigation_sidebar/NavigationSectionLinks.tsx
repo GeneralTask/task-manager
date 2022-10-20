@@ -10,14 +10,7 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { DropItem, DropType } from '../../utils/types'
-import {
-    doesGithubNeedRelinking,
-    doesLinearNeedRelinking,
-    doesSlackNeedRelinking,
-    isGithubLinked,
-    isLinearLinked,
-    isSlackLinked,
-} from '../../utils/utils'
+import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
@@ -176,7 +169,7 @@ const NavigationSectionLinks = () => {
                 title="GitHub PRs"
                 icon={logos.github}
                 count={githubCount}
-                needsRelinking={doesGithubNeedRelinking(linkedAccounts || [])}
+                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Github')}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
             />
             <NavigationLink
@@ -184,7 +177,7 @@ const NavigationSectionLinks = () => {
                 title="Linear Issues"
                 icon={logos.linear}
                 count={linearCount}
-                needsRelinking={doesLinearNeedRelinking(linkedAccounts || [])}
+                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
                 isCurrentPage={pathname.split('/')[1] === 'linear'}
             />
             <NavigationLink
@@ -192,7 +185,7 @@ const NavigationSectionLinks = () => {
                 title="Slack"
                 icon={logos.slack}
                 count={slackCount}
-                needsRelinking={doesSlackNeedRelinking(linkedAccounts || [])}
+                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
                 isCurrentPage={pathname.split('/')[1] === 'slack'}
             />
             <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>

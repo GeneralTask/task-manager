@@ -59,14 +59,10 @@ export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
 }
 
-export const doesGithubNeedRelinking = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.find((account) => account.name === 'Github')?.has_bad_token
-}
-export const doesSlackNeedRelinking = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.find((account) => account.name === 'Slack')?.has_bad_token
-}
-export const doesLinearNeedRelinking = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.find((account) => account.name === 'Linear')?.has_bad_token
+export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: string) => {
+    return linkedAccounts
+        .filter((linkedAccount) => linkedAccount.name === accountName)
+        .some((account) => account.has_bad_token)
 }
 
 export const getHumanDateTime = (date: DateTime) => {
