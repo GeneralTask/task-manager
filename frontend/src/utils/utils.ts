@@ -180,3 +180,5 @@ export const getFormattedDate = (
 export const isValidDueDate = (date: Date | null) => {
     return !(!date || isNaN(+date) || +date === 0)
 }
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
