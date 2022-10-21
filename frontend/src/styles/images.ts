@@ -2,6 +2,8 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
+    faArrowLeft,
+    faArrowRight,
     faArrowRotateRight,
     faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
@@ -74,6 +76,8 @@ export const logos = Object.freeze({
 
 export const icons = Object.freeze({
     arrow_down: faArrowDown,
+    arrow_left: faArrowLeft,
+    arrow_right: faArrowRight,
     arrow_up: faArrowUp,
     arrows_in: faArrowDownLeftAndArrowUpRightToCenter,
     arrows_out: faArrowUpRightAndArrowDownLeftFromCenter,
