@@ -5,12 +5,14 @@ import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
+import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import EditListsButtons from '../overview/EditListsButtons'
@@ -29,6 +31,7 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
+    const { data: userInfo } = useGetUserInfo()
     const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
@@ -56,7 +59,11 @@ const OverviewView = () => {
             for (const item of view.view_items) {
                 if (item.id !== overviewItemId) continue
                 if (view.type === 'github') {
-                    return <PullRequestDetails pullRequest={item as TPullRequest} />
+                    if (userInfo?.is_employee) {
+                        return <PullRequestDetails pullRequest={item as TPullRequest} />
+                    } else {
+                        return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
+                    }
                 }
                 return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
             }

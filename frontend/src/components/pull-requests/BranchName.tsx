@@ -23,7 +23,7 @@ const BranchName = ({ name }: BranchNameProps) => {
         )
     }
     return (
-        <TooltipWrapper dataTip={name} tooltipId="tooltip">
+        <TooltipWrapper dataTip={name} tooltipId="tooltip" inline>
             <BranchNameContainer onClick={handleClick}>
                 <BranchNameText>{name}</BranchNameText>
                 <Icon icon={icons.copy} color="purple" />
