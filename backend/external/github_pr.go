@@ -168,6 +168,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
 		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+			logger.Error().Err(err).Msg("failed to fetch Github PRs")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
 		}
