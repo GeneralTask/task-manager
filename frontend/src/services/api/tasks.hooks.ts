@@ -487,9 +487,53 @@ export const reorderTask = async (data: TReorderTaskData) => {
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TPostCommentData) => postComment(data), {
-        onMutate: async (/* data: TPostCommentData */) => {
+        onMutate: async (data: TPostCommentData) => {
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
-            // TODO: Optimistic updates for the comments
+            if (sections) {
+                const newSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, data.taskId)
+                    if (task) {
+                        task.comments?.unshift({
+                            body: data.body,
+                            created_at: '0',
+                            user: {
+                                DisplayName: 'You',
+                                Email: '',
+                                ExternalID: '0',
+                                Name: 'You',
+                            },
+                        })
+                    }
+                })
+
+                queryClient.setQueryData('tasks', newSections)
+            }
+            if (views) {
+                const newViews = produce(views, (draft) => {
+                    const sections = views.map((view) => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items,
+                    }))
+                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId)
+                    if (sectionIndex !== undefined && taskIndex !== undefined) {
+                        const task = draft[sectionIndex].view_items[taskIndex]
+                        task.comments?.unshift({
+                            body: data.body,
+                            created_at: '0',
+                            user: {
+                                DisplayName: 'You',
+                                Email: '',
+                                ExternalID: '0',
+                                Name: 'You',
+                            },
+                        })
+                    }
+                })
+
+                queryClient.setQueryData('overview', newViews)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
