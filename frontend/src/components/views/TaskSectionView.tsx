@@ -79,7 +79,7 @@ const TaskSectionView = () => {
         // Find the index of the currently selected task. If the task is not found, return 0
         const index = sortedTasks.findIndex(({ id }) => id === task?.id)
         return index === -1 ? 0 : index
-    }, [sortedTasks, params.task])
+    }, [params.task, params.section])
 
     const selectTask = useCallback(
         (task: TTask) => {
