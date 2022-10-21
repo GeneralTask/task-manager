@@ -23,16 +23,6 @@ const DropIndicatorStyles = css<{ isVisible: boolean }>`
     position: absolute;
     height: ${INDICATOR_HEIGHT}px;
     z-index: 1;
-    ::before {
-        content: '';
-        position: absolute;
-        width: ${INDICATOR_HEIGHT * 3}px;
-        height: ${INDICATOR_HEIGHT * 3}px;
-        border-radius: 50%;
-        background-color: ${Colors.border.purple};
-        top: -${INDICATOR_HEIGHT}px;
-        left: 0;
-    }
 `
 const DropIndicatorAbove = styled.div`
     ${DropIndicatorStyles}
