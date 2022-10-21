@@ -1,9 +1,15 @@
 import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
-import { TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL } from '../../constants'
+import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import apiClient from '../../utils/api'
 import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection } from '../../utils/types'
-import { arrayMoveInPlace, getTaskFromSections, getTaskIndexFromSections, resetOrderingIds } from '../../utils/utils'
+import {
+    arrayMoveInPlace,
+    getTaskFromSections,
+    getTaskIndexFromSections,
+    resetOrderingIds,
+    sleep,
+} from '../../utils/utils'
 import { useGTQueryClient } from '../queryUtils'
 
 export interface TCreateTaskData {
@@ -46,6 +52,7 @@ export interface TMarkTaskDoneOrDeletedData {
     sectionId?: string
     isDone?: boolean
     isDeleted?: boolean
+    waitForAnimation?: boolean
 }
 
 interface TMarkTaskDoneOrDeletedRequestBody {
@@ -293,90 +300,60 @@ export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
-            if (sections) {
-                const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.taskId, data.sectionId)
-                    if (task) {
+            const updateSections = async () => {
+                if (sections) {
+                    const newSections = produce(sections, (draft) => {
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
+                        if (taskIndex === undefined || sectionIndex === undefined) return
+
+                        const task = draft[sectionIndex].tasks[taskIndex]
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                        task.isOptimistic = true
+                        if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
+                        if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
+                        draft[sectionIndex].tasks.splice(taskIndex, 1)
+                    })
+                    if (data.waitForAnimation) {
+                        await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
                     }
-                })
-
-                queryClient.setQueryData('tasks', newSections)
-
-                setTimeout(() => {
-                    if (data.isDone || data.isDeleted) {
-                        const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-                        if (!sections) return
-
-                        const newSections = produce(sections, (draft) => {
-                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
-                            if (taskIndex === undefined || sectionIndex === undefined) return
-                            if (draft[sectionIndex].tasks[taskIndex].is_done) {
-                                const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
-                                draft.find((s) => s.is_done)?.tasks.unshift(...task)
-                            }
-                            if (draft[sectionIndex].tasks[taskIndex].is_deleted) {
-                                const task = draft[sectionIndex].tasks.splice(taskIndex, 1)
-                                draft.find((s) => s.is_trash)?.tasks.unshift(...task)
-                            }
-                        })
-
-                        queryClient.setQueryData('tasks', newSections)
-                    }
-                    queryClient.invalidateQueries('overview')
-                    queryClient.invalidateQueries('tasks')
-                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                    queryClient.setQueryData('tasks', newSections)
+                }
             }
-            if (views) {
-                const newViews = produce(views, (draft) => {
-                    const sections = views.map((view) => ({
-                        id: view.task_section_id,
-                        tasks: view.view_items,
-                    }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId, data.sectionId)
-                    if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
-                    if (data.isDone !== undefined) task.is_done = data.isDone
-                    if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                })
-
-                queryClient.setQueryData('overview', newViews)
-                setTimeout(() => {
-                    if (data.isDone || data.isDeleted) {
-                        const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-                        if (!views) return
-
-                        const newViews = produce(views, (draft) => {
-                            const sections = views.map((view) => ({
-                                id: view.task_section_id,
-                                tasks: view.view_items,
-                            }))
-                            const { taskIndex, sectionIndex } = getTaskIndexFromSections(
-                                sections,
-                                data.taskId,
-                                data.sectionId
-                            )
-                            if (sectionIndex === undefined || taskIndex === undefined) return
-                            if (
-                                draft[sectionIndex].view_items[taskIndex].is_done ||
-                                draft[sectionIndex].view_items[taskIndex].is_deleted
-                            ) {
-                                draft[sectionIndex].view_items.splice(taskIndex, 1)
-                            }
-                        })
-
-                        queryClient.setQueryData('overview', newViews)
+            const updateOverviewPage = async () => {
+                if (lists) {
+                    const newLists = produce(lists, (draft) => {
+                        const sections = lists.map((view) => ({
+                            id: view.task_section_id,
+                            tasks: view.view_items,
+                        }))
+                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(
+                            sections,
+                            data.taskId,
+                            data.sectionId
+                        )
+                        if (sectionIndex === undefined || taskIndex === undefined) return
+                        const task = draft[sectionIndex].view_items[taskIndex]
+                        if (data.isDone !== undefined) task.is_done = data.isDone
+                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                        draft[sectionIndex].view_items.splice(taskIndex, 1)
+                    })
+                    if (data.waitForAnimation) {
+                        await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
                     }
-                    queryClient.invalidateQueries('overview')
-                    queryClient.invalidateQueries('tasks')
-                }, TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                    queryClient.setQueryData('overview', newLists)
+                }
             }
+            // execute in parallel if waiting for animation delay
+            updateSections()
+            updateOverviewPage()
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
         },
     })
 }
@@ -430,6 +407,10 @@ export const useReorderTask = () => {
                         if (dragTaskIndex === -1) return
                         const dragTask = dragSection.tasks[dragTaskIndex]
                         dragSection.tasks.splice(dragTaskIndex, 1)
+
+                        // change done/trash status if needed
+                        dragTask.is_done = data.dropSectionId === DONE_SECTION_ID
+                        dragTask.is_deleted = data.dropSectionId === TRASH_SECTION_ID
 
                         // add task to new location
                         const dropSection = draft.find((section) => section.id === data.dropSectionId)
@@ -494,6 +475,8 @@ export const reorderTask = async (data: TReorderTaskData) => {
         const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
+            is_completed: data.dropSectionId === DONE_SECTION_ID,
+            is_deleted: data.dropSectionId === TRASH_SECTION_ID,
         })
         return castImmutable(res.data)
     } catch {
@@ -504,9 +487,53 @@ export const reorderTask = async (data: TReorderTaskData) => {
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useMutation((data: TPostCommentData) => postComment(data), {
-        onMutate: async (/* data: TPostCommentData */) => {
+        onMutate: async (data: TPostCommentData) => {
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
-            // TODO: Optimistic updates for the comments
+            if (sections) {
+                const newSections = produce(sections, (draft) => {
+                    const task = getTaskFromSections(draft, data.taskId)
+                    if (task) {
+                        task.comments?.unshift({
+                            body: data.body,
+                            created_at: '0',
+                            user: {
+                                DisplayName: 'You',
+                                Email: '',
+                                ExternalID: '0',
+                                Name: 'You',
+                            },
+                        })
+                    }
+                })
+
+                queryClient.setQueryData('tasks', newSections)
+            }
+            if (views) {
+                const newViews = produce(views, (draft) => {
+                    const sections = views.map((view) => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items,
+                    }))
+                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId)
+                    if (sectionIndex !== undefined && taskIndex !== undefined) {
+                        const task = draft[sectionIndex].view_items[taskIndex]
+                        task.comments?.unshift({
+                            body: data.body,
+                            created_at: '0',
+                            user: {
+                                DisplayName: 'You',
+                                Email: '',
+                                ExternalID: '0',
+                                Name: 'You',
+                            },
+                        })
+                    }
+                })
+
+                queryClient.setQueryData('overview', newViews)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')

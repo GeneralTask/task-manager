@@ -27,6 +27,7 @@ const MarkTaskDoneButton = ({
             taskId: taskId,
             sectionId: sectionId,
             isDone: !isDone,
+            waitForAnimation: true,
         })
         Log({
             taskId: taskId,

@@ -54,7 +54,7 @@ const DueDate = styled.span<{ color: TTextColor }>`
 
 interface TaskProps {
     task: TTask
-    dragDisabled: boolean
+    dragDisabled?: boolean
     index?: number
     sectionId?: string
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>

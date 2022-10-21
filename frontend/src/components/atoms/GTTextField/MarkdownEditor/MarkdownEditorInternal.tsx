@@ -94,7 +94,7 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
             <EditorContainer>
                 <EditorComponent />
             </EditorContainer>
-            {!props.readOnly && <RichTextToolbar />}
+            {!props.readOnly && <RichTextToolbar actions={props.actions} />}
         </EditorAndToolbarContainer>
     )
 }

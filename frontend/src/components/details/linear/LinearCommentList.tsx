@@ -7,9 +7,6 @@ const CommentListContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${Spacing._8};
-    flex-basis: 400px;
-    flex-grow: 0;
-    flex-shrink: 1;
     min-height: 0;
 `
 const CommentHeader = styled.div`

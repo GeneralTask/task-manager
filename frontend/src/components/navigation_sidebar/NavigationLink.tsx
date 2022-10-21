@@ -1,15 +1,18 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
+import ReactTooltip from 'react-tooltip'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import Log from '../../services/api/log'
-import { useReorderTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
@@ -57,6 +60,7 @@ interface NavigationLinkProps {
     icon?: IconProp | string
     taskSection?: TTaskSection
     count?: number
+    needsRelinking?: boolean
     draggable?: boolean
     droppable?: boolean
 }
@@ -67,16 +71,27 @@ const NavigationLink = ({
     icon,
     taskSection,
     count,
+    needsRelinking = false,
     draggable = false,
     droppable,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { setCalendarType } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
         (item: DropItem) => {
-            if (taskSection && droppable) {
+            if (!taskSection || !droppable) return
+            if (taskSection.id === item.sectionId) return
+            if (taskSection?.is_done || taskSection?.is_trash) {
+                markTaskDoneOrDeleted({
+                    taskId: item.id,
+                    isDone: taskSection?.is_done,
+                    isDeleted: taskSection?.is_trash,
+                    sectionId: taskSection.id,
+                })
+            } else {
                 reorderTask({
                     taskId: item.id,
                     orderingId: 1,
@@ -85,7 +100,7 @@ const NavigationLink = ({
                 })
             }
         },
-        [taskSection?.id]
+        [taskSection]
     )
 
     const [, drag] = useDrag(
@@ -115,11 +130,22 @@ const NavigationLink = ({
         navigate(link)
     }
 
+    useEffect(() => {
+        if (needsRelinking) {
+            ReactTooltip.rebuild()
+        }
+    }, [needsRelinking])
+
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
                 {icon && <Icon icon={icon} color="black" />}
                 <SectionTitle>{title}</SectionTitle>
+                {needsRelinking && (
+                    <TooltipWrapper dataTip="Account needs to be re-linked in settings" tooltipId="tooltip">
+                        <Icon icon={icons.warning} color="red" />
+                    </TooltipWrapper>
+                )}
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>
         </NavigationLinkTemplate>

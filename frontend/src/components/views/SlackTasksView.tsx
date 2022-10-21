@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
@@ -76,13 +76,6 @@ const SlackTasksView = () => {
         Log(`slack_task_select__/slack/${id}`)
     }
 
-    const [isVisible, setIsVisible] = useState(true)
-
-    const taskFadeOut = () => {
-        if (!task) return
-        setIsVisible(task.is_done)
-    }
-
     const selectTask = useCallback((task: TTask) => {
         navigate(`/slack/${task.id}`)
         Log(`slack_task_select__/slack/${task.id}`)
@@ -97,7 +90,7 @@ const SlackTasksView = () => {
                     <>
                         <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
                         {slackTasks?.map((task) => (
-                            <SlackTemplateContainer key={task.id} isVisible={isVisible}>
+                            <SlackTemplateContainer key={task.id}>
                                 <SlackSelectableContainer
                                     isSelected={task.id === slackTaskId}
                                     key={task.id}
@@ -109,7 +102,6 @@ const SlackTasksView = () => {
                                         taskId={task.id}
                                         isSelected={true}
                                         isDisabled={task.isOptimistic}
-                                        onMarkComplete={taskFadeOut}
                                     />
                                     <LinearTitle>{task.title}</LinearTitle>
                                     <ExternalLinkContainer>

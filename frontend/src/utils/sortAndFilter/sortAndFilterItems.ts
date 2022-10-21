@@ -7,13 +7,15 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
             const sortDirectionMultiplier =
                 (sort.forceAndHideDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
             let result = 0
-            if (sort.customComparator) {
-                result = sort.customComparator(a, b)
-            } else if (sort.field && a[sort.field] === b[sort.field]) {
+            if (a[sort.field] === b[sort.field]) {
                 result = a[tieBreakerField] < b[tieBreakerField] ? -1 : 1
-            } else if (sort.field) {
+            } else {
                 if (a[sort.field] && b[sort.field]) {
-                    result = a[sort.field] > b[sort.field] ? 1 : -1
+                    if (sort.customComparator) {
+                        result = sort.customComparator(a, b)
+                    } else {
+                        result = a[sort.field] > b[sort.field] ? 1 : -1
+                    }
                 }
                 // ensure that empty fields are always sorted to the bottom regardless of order
                 else if (!a[sort.field]) {
