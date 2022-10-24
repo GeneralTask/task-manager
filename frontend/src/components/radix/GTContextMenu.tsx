@@ -3,6 +3,7 @@ import * as ContextMenu from '@radix-ui/react-context-menu'
 import styled from 'styled-components'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
+import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import {
     FixedSizeIcon,
@@ -36,7 +37,7 @@ interface GTContextMenuProps {
 }
 const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => {
     return (
-        <div onKeyDown={(e) => e.stopPropagation()} style={{ width: '100%' }}>
+        <div onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)} style={{ width: '100%' }}>
             <ContextMenu.Root onOpenChange={onOpenChange}>
                 <ContextMenuTrigger>{trigger}</ContextMenuTrigger>
                 <ContextMenu.Portal>
