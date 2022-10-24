@@ -28,58 +28,8 @@ const SlackTasksView = () => {
     const navigate = useNavigate()
 
     const slackTasks = useMemo(() => {
-        return [
-            {
-                id: '1',
-                id_ordering: 1,
-                title: 'slack 1',
-                body: 'hi',
-                deeplink: '',
-                sent_at: '',
-                priority_normalized: 0,
-                time_allocated: 0,
-                due_date: '',
-                source: {
-                    name: 'General Task',
-                    logo: '',
-                    logo_v2: 'slack',
-                    is_completable: false,
-                    is_replyable: false,
-                },
-                sender: '',
-                is_done: false,
-                is_deleted: false,
-                isOptimistic: true,
-                is_meeting_preparation_task: false,
-                nux_number_id: 0,
-            },
-            {
-                id: '2',
-                id_ordering: 2,
-                title: 'slack 2',
-                body: 'hi',
-                deeplink: '',
-                sent_at: '',
-                priority_normalized: 0,
-                time_allocated: 0,
-                due_date: '',
-                source: {
-                    name: 'General Task',
-                    logo: '',
-                    logo_v2: 'slack',
-                    is_completable: false,
-                    is_replyable: false,
-                },
-                sender: '',
-                is_done: false,
-                is_deleted: false,
-                isOptimistic: true,
-                is_meeting_preparation_task: false,
-                nux_number_id: 0,
-            },
-        ] as TTask[]
-        // const tasks = taskSections?.flatMap((section) => section.tasks) ?? []
-        // return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic))
+        const tasks = taskSections?.flatMap((section) => section.tasks) ?? []
+        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic))
     }, [taskSections])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
@@ -113,7 +63,7 @@ const SlackTasksView = () => {
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Slack Messages" />
-                {true || isSlackIntegrationLinked ? (
+                {isSlackIntegrationLinked ? (
                     <>
                         <BodyHeader>All messages you&apos;ve created tasks for</BodyHeader>
                         {slackTasks?.map((task) => (
