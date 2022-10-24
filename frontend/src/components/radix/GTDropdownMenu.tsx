@@ -1,19 +1,22 @@
 import { Fragment } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
-import { Border, Colors } from '../../styles'
+import { Colors } from '../../styles'
 import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { FixedSizeIcon, GTMenuItem, MenuContentShared, MenuItemLabel, MenuItemShared } from './RadixUIConstants'
+import {
+    FixedSizeIcon,
+    GTMenuItem,
+    MenuContentShared,
+    MenuItemLabel,
+    MenuItemShared,
+    MenuTriggerShared,
+} from './RadixUIConstants'
 
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
-    all: unset;
-    border-radius: ${Border.radius.small};
-    &:focus {
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
-    }
+    ${MenuTriggerShared};
 `
 const DropdownMenuContent = styled(DropdownMenu.Content)`
     ${MenuContentShared};

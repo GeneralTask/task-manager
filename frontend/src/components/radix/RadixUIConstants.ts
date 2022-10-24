@@ -5,6 +5,13 @@ import { TIconType } from '../atoms/Icon'
 
 const MENU_WIDTH = '192px'
 
+export const MenuTriggerShared = css`
+    all: unset;
+    border-radius: ${Border.radius.small};
+    &:focus {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+    }
+`
 export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor }>`
     display: flex;
     align-items: center;
