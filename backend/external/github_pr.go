@@ -134,6 +134,9 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 
+	////// parallelize starting here
+	// none of these are used in each other's calls
+	// thus, we can safely parallelize these (keeping intact any errors we receive)
 	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
 	if err != nil || githubUser == nil {
 		logger.Error().Err(err).Msg("failed to fetch Github user")
@@ -154,10 +157,13 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
 		return
 	}
+	////// ending here
 
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
+		////// create new method and parallelize starting here
+		// this can be quite costly if there are many repos
 		err := updateOrCreateRepository(db, repository, userID)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create repository")
@@ -186,6 +192,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
 			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
 		}
+		////// ending here
 	}
 
 	var pullRequests []*database.PullRequest
@@ -205,6 +212,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		isCompleted := false
 		pullRequest.IsCompleted = &isCompleted
 		pullRequest.LastFetched = requestTimes[index]
+		// Database calls can be quick, but so many might be costly. Is it safe to parallelize the DB calls?
 		dbPR, err := database.UpdateOrCreatePullRequest(
 			db,
 			userID,
