@@ -71,7 +71,6 @@ const SortAndFilterDropdowns = <T,>({
     if (!selectedSort.forceDirection) {
         sortSelectorItems.push(sortDirectionGroups)
     }
-    console.log(selectedSort.icon)
     const sortIcon = selectedSort.icon
         ? icons[selectedSort.icon]
         : selectedSortDirection === SORT_DIRECTION.ASC
