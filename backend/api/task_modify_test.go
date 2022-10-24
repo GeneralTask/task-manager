@@ -213,6 +213,19 @@ func TestMarkAsComplete(t *testing.T) {
 	calendarTaskID := insertResult.InsertedID.(primitive.ObjectID)
 	calendarTaskIDHex := calendarTaskID.Hex()
 
+	completed = false
+	deleted := true
+	insertResult, err = taskCollection.InsertOne(context.Background(), database.Task{
+		UserID:      userID,
+		IDExternal:  "deleted_task_id",
+		SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+		IsCompleted: &completed,
+		IsDeleted:   &deleted,
+	})
+	assert.NoError(t, err)
+	deletedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+	deletedTaskIDHex := deletedTaskID.Hex()
+
 	externalAPITokenCollection := database.GetExternalTokenCollection(db)
 
 	_, err = externalAPITokenCollection.UpdateOne(
@@ -391,6 +404,52 @@ func TestMarkAsComplete(t *testing.T) {
 		err = taskCollection.FindOne(context.Background(), bson.M{"_id": linearTaskID}).Decode(&task)
 		assert.NoError(t, err)
 		assert.Equal(t, true, *task.IsCompleted)
+	})
+	t.Run("MarkDeletedTaskAsDoneSuccess", func(t *testing.T) {
+		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": deletedTaskID}, bson.M{"$set": bson.M{"is_completed": false, "is_deleted": true}})
+		assert.NoError(t, err)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+deletedTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true, "is_deleted": false}`)))
+		var task database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, false, *task.IsCompleted)
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, true, *task.IsCompleted)
+		assert.Equal(t, false, *task.IsDeleted)
+		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
+	})
+	t.Run("MarkDeletedTaskAsDoneMissingField", func(t *testing.T) {
+		_, err = taskCollection.UpdateOne(context.Background(), bson.M{"_id": deletedTaskID}, bson.M{"$set": bson.M{"is_completed": false, "is_deleted": true}})
+		assert.NoError(t, err)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+deletedTaskIDHex+"/",
+			bytes.NewBuffer([]byte(`{"is_completed": true}`))) // missing is_deleted: false field
+		var task database.Task
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, false, *task.IsCompleted)
+
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		err = taskCollection.FindOne(context.Background(), bson.M{"_id": deletedTaskID}).Decode(&task)
+		assert.NoError(t, err)
+		assert.Equal(t, false, *task.IsCompleted)
+		assert.Equal(t, true, *task.IsDeleted)
+		assert.NotEqual(t, primitive.DateTime(0), task.CompletedAt)
 	})
 }
 

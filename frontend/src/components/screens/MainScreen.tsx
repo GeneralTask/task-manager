@@ -3,6 +3,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
 import { useEventBanners } from '../../hooks'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground } from '../../styles/images'
@@ -20,6 +21,7 @@ const MainScreen = () => {
     const location = useLocation()
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
+    const { isLoading: isPullRequestsLoading } = useGetPullRequests()
     useEventBanners(DateTime.now())
 
     const currentPage = (() => {
@@ -41,7 +43,7 @@ const MainScreen = () => {
         }
     })()
 
-    if (isTaskSectionsLoading || isUserInfoLoading) return <Loading />
+    if (isTaskSectionsLoading || isUserInfoLoading || isPullRequestsLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (

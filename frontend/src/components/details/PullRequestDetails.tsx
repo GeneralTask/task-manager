@@ -1,20 +1,24 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
+import { Divider } from '../atoms/SectionDivider'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import { Eyebrow, Label } from '../atoms/typography/Typography'
 import BranchName from '../pull-requests/BranchName'
 import { Status } from '../pull-requests/styles'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import PullRequestComment from './pr/PullRequestComment'
 
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    height: 50px;
+    gap: ${Spacing._8};
 `
 const TitleContainer = styled.div`
     background-color: inherit;
@@ -29,12 +33,6 @@ const MarginLeftAuto = styled.div`
     align-items: center;
     margin-left: auto;
 `
-const MarginHorizontal8 = styled.div`
-    margin: 0 ${Spacing._8};
-`
-const MaxWidth200 = styled.div`
-    max-width: 200px;
-`
 const InfoContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -45,38 +43,89 @@ const InfoContainer = styled.div`
     margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
-const Subtext = styled.span`
-    margin-left: ${Spacing._16};
-    color: ${Colors.text.light};
-    ${Typography.mini};
+const BranchInfoContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: ${Spacing._8};
+`
+const LinesModified = styled.span<{ color: 'green' | 'red' }>`
+    color: ${(props) => Colors.text[props.color]};
+    ${Typography.bodySmall};
+    ${Typography.bold};
+`
+const Gap4 = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: ${Spacing._4};
 `
 
 interface PullRequestDetailsProps {
     pullRequest: TPullRequest
 }
 const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
-    const { title, status, deeplink, branch } = pullRequest
-    const { number, last_updated_at, author } = pullRequest
-    const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
+    const { data: repositories } = useGetPullRequests()
+    const repository = repositories?.find((repo) => repo.pull_requests.includes(pullRequest))
 
+    const {
+        title,
+        status,
+        deeplink,
+        branch,
+        number,
+        last_updated_at,
+        author,
+        base_branch,
+        body,
+        num_comments,
+        comments,
+        additions,
+        deletions,
+    } = pullRequest
+    const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
     return (
         <DetailsViewTemplate>
-            <MarginHorizontal8>
-                <DetailsTopContainer>
-                    <Icon icon={logos.github} color="black" />
-                    <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
-                    <MarginLeftAuto>
-                        <ExternalLinkButton link={deeplink} />
-                    </MarginLeftAuto>
-                </DetailsTopContainer>
-                <TitleContainer>{title}</TitleContainer>
-                <InfoContainer>
-                    <Status type={status.color}>{status.text}</Status>
-                    <MaxWidth200>
-                        <BranchName name={branch} />
-                    </MaxWidth200>
-                </InfoContainer>
-            </MarginHorizontal8>
+            <DetailsTopContainer>
+                <Icon icon={logos.github} color="black" />
+                <Label color="light">{repository?.name}</Label>
+                <MarginLeftAuto>
+                    <ExternalLinkButton link={deeplink} />
+                </MarginLeftAuto>
+            </DetailsTopContainer>
+            <TitleContainer>{title}</TitleContainer>
+            <InfoContainer>
+                <Status type={status.color}>{status.text}</Status>
+                <Gap4>
+                    <LinesModified color="green">{`+${additions}`}</LinesModified>
+                    <LinesModified color="red">{`-${deletions}`}</LinesModified>
+                </Gap4>
+            </InfoContainer>
+            <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author}`}</Label>
+            <BranchInfoContainer>
+                <BranchName name={branch} />
+                <Icon icon={icons.arrow_right} />
+                <BranchName name={base_branch} />
+            </BranchInfoContainer>
+            <Divider color={Colors.border.extra_light} />
+            <Eyebrow color="light">Description</Eyebrow>
+            <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
+            {num_comments > 0 && (
+                <>
+                    <Divider color={Colors.border.extra_light} />
+                    <Eyebrow color="light">{`Comments (${num_comments})`}</Eyebrow>
+                    {comments
+                        .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
+                        .map((c) => (
+                            <PullRequestComment
+                                key={c.last_updated_at}
+                                author={c.author}
+                                body={c.body}
+                                lastUpdatedAt={c.last_updated_at}
+                                isAuthorOfPR={c.author === author}
+                            />
+                        ))}
+                </>
+            )}
         </DetailsViewTemplate>
     )
 }

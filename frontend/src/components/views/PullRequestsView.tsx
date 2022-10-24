@@ -5,16 +5,18 @@ import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { logos } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
-import { isGithubLinkedAccount } from '../../utils/utils'
+import { isGithubLinked } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
+import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
 import PullRequest from '../pull-requests/PullRequest'
@@ -33,6 +35,7 @@ const PullRequestsView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
+    const { data: userInfo } = useGetUserInfo()
     useFetchPullRequests()
 
     // Repos in the same order they are passed in as, with pull requests sorted and filtered
@@ -73,7 +76,7 @@ const PullRequestsView = () => {
         )
     }, [params.pullRequest, sortedAndFilteredRepositories])
 
-    const isGithubLinked = isGithubLinkedAccount(linkedAccounts ?? [])
+    const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
     useEffect(() => {
         if (selectedPullRequest) {
             navigate(`/pull-requests/${selectedPullRequest.id}`)
@@ -90,7 +93,7 @@ const PullRequestsView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="GitHub PRs" />
                     <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                    {!isGithubLinked && !isLinkedAccountsLoading ? (
+                    {!isGithubIntegrationLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
                         sortedAndFilteredRepositories.map((repository) => (
@@ -117,7 +120,11 @@ const PullRequestsView = () => {
                 </ScrollableListTemplate>
             </PullRequestsContainer>
             {selectedPullRequest ? (
-                <PullRequestDetails pullRequest={selectedPullRequest} />
+                userInfo?.is_employee ? (
+                    <PullRequestDetails pullRequest={selectedPullRequest} />
+                ) : (
+                    <PullRequestDetailsOLD pullRequest={selectedPullRequest} />
+                )
             ) : (
                 <EmptyDetails icon={logos.github} text="You have no pull requests" />
             )}

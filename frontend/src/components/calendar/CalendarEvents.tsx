@@ -107,7 +107,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                     ))}
-                {(isWeekCalendar || isToday) && <TimeIndicator />}
+                {isToday && <TimeIndicator hideDot={!isWeekCalendar} />}
                 <CalendarDayTable hasBorder={isWeekCalendar} />
             </DayContainer>
         </DayAndHeaderContainer>

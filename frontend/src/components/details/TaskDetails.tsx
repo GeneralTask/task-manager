@@ -25,6 +25,7 @@ import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
+import CreateLinearComment from '../molecules/CreateLinearComment'
 import GTDatePicker from '../molecules/GTDatePicker'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import FolderDropdown from '../radix/FolderDropdown'
@@ -34,6 +35,8 @@ import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import TaskBody from './TaskBody'
 import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
+
+const TITLE_MAX_HEIGHT = 208
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -78,19 +81,17 @@ const SYNC_MESSAGES = {
     COMPLETE: '',
 }
 
-const TITLE_MAX_HEIGHT = 208
-
 interface TaskDetailsProps {
     task: TTask
     link: string
 }
 const TaskDetails = ({ task, link }: TaskDetailsProps) => {
-    const { data: userInfo } = useGetUserInfo()
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const { data: userInfo } = useGetUserInfo()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -200,6 +201,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
+                    hideUnfocusedOutline
                     blurOnEnter
                 />
             </div>
@@ -239,6 +241,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
+            {userInfo?.is_employee && task.external_status && <CreateLinearComment taskId={task.id} />}
         </DetailsViewTemplate>
     )
 }

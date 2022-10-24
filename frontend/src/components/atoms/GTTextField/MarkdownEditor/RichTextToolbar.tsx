@@ -21,8 +21,15 @@ const Divider = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.border.light};
     height: ${Spacing._16};
 `
+const MarginLeftGap = styled.div`
+    margin-left: auto !important;
+    gap: ${Spacing._8};
+`
 
-const RichTextToolbar = () => {
+interface RichTextToolbarProps {
+    actions?: React.ReactNode | React.ReactNode[]
+}
+const RichTextToolbar = ({ actions }: RichTextToolbarProps) => {
     const commands = useCommands()
     const active = useActive()
 
@@ -77,6 +84,7 @@ const RichTextToolbar = () => {
                 isActive={active.codeBlock()}
                 title="Code block"
             />
+            <MarginLeftGap>{actions}</MarginLeftGap>
         </MenuContainer>
     )
 }
