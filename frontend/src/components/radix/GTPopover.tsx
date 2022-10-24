@@ -1,9 +1,14 @@
 import * as Popover from '@radix-ui/react-popover'
 import styled from 'styled-components'
+import { Border, Colors } from '../../styles'
 import { MenuContentShared } from './RadixUIConstants'
 
 const PopoverTrigger = styled(Popover.Trigger)`
     all: unset;
+    border-radius: ${Border.radius.small};
+    &:focus {
+        outline: ${Border.stroke.small} solid ${Colors.border.light};
+    }
 `
 const PopoverContent = styled(Popover.Content)`
     ${MenuContentShared};
