@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
-import { TIconType } from '../../components/atoms/Icon'
 import GTButton from '../../components/atoms/buttons/GTButton'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
@@ -69,13 +68,15 @@ const SortAndFilterDropdowns = <T,>({
         [filterOptions, selectedFilter, setSelectedFilter]
     )
     const sortSelectorItems = [sortItems]
-    if (!selectedSort.forceAndHideDirection) {
+    if (!selectedSort.forceDirection) {
         sortSelectorItems.push(sortDirectionGroups)
     }
-    let sortIcon: TIconType | undefined
-    if (!selectedSort.forceAndHideDirection) {
-        sortIcon = selectedSortDirection === SORT_DIRECTION.ASC ? icons.arrow_up : icons.arrow_down
-    }
+    console.log(selectedSort.icon)
+    const sortIcon = selectedSort.icon
+        ? icons[selectedSort.icon]
+        : selectedSortDirection === SORT_DIRECTION.ASC
+        ? icons.arrow_up
+        : icons.arrow_down
 
     return (
         <SortAndFilterContainer>
