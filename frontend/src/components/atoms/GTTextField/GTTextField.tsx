@@ -6,8 +6,9 @@ import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-const PlainTextContainer = styled.div`
-    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean }>`
+    border: ${Border.stroke.medium} solid
+        ${({ hideUnfocusedOutline }) => (hideUnfocusedOutline ? 'transparent' : Colors.border.extra_light)};
     border-radius: ${Border.radius.small};
     flex: 1;
     :focus-within {
@@ -21,10 +22,11 @@ const PlainTextContainer = styled.div`
     }
 `
 
-const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
+const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number; hideUnfocusedOutline?: boolean }>`
     background-color: inherit;
     box-sizing: border-box;
-    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+    border: ${Border.stroke.medium} solid
+        ${({ hideUnfocusedOutline }) => (hideUnfocusedOutline ? 'transparent' : Colors.border.extra_light)};
     border-radius: ${Border.radius.small};
     width: 100%;
     :hover,
@@ -54,7 +56,11 @@ const GTTextField = (props: GTTextFieldProps) => {
     }
 
     if (props.type === 'plaintext') {
-        return <PlainTextContainer onKeyDown={stopKeydownPropogation}>{getEditor()}</PlainTextContainer>
+        return (
+            <PlainTextContainer onKeyDown={stopKeydownPropogation} hideUnfocusedOutline={props.hideUnfocusedOutline}>
+                {getEditor()}
+            </PlainTextContainer>
+        )
     }
 
     if (props.readOnly) {
@@ -67,6 +73,7 @@ const GTTextField = (props: GTTextFieldProps) => {
             onKeyDown={stopKeydownPropogation}
             isFullHeight={props.isFullHeight}
             minHeight={props.minHeight}
+            hideUnfocusedOutline={props.hideUnfocusedOutline}
         >
             {getEditor()}
         </Container>

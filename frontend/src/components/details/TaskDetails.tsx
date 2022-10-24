@@ -201,6 +201,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     onChange={(val) => onEdit({ id: task.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
+                    hideUnfocusedOutline
                     blurOnEnter
                 />
             </div>
