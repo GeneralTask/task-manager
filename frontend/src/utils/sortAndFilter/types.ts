@@ -6,6 +6,7 @@ import {
     TaskSortDirection,
     TaskSortPreference,
 } from '../../services/api/settings.hooks'
+import { TIconImage } from '../../styles/images'
 
 export enum SORT_DIRECTION {
     ASC = 'ascending',
@@ -25,8 +26,9 @@ export interface Sort<T> {
     label: string
     field: keyof T
     customComparator?: (a: T, b: T) => number
+    icon?: TIconImage
     // if this is set, the direction will be forced to this value and the direction selector will be hidden
-    forceAndHideDirection?: SORT_DIRECTION
+    forceDirection?: SORT_DIRECTION
 }
 
 export interface Filter<T> {

@@ -7,7 +7,8 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
         id: 'manual',
         label: 'Manual',
         field: 'id_ordering',
-        forceAndHideDirection: SORT_DIRECTION.ASC,
+        icon: 'sort',
+        forceDirection: SORT_DIRECTION.ASC,
     },
     due_date: {
         id: 'due_date',
