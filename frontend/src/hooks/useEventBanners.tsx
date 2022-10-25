@@ -3,7 +3,7 @@ import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import { useInterval } from '.'
 import ToastTemplate from '../components/atoms/toast/ToastTemplate'
-import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
+import { NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
 import { icons } from '../styles/images'
 import { TEvent } from '../utils/types'
@@ -25,7 +25,6 @@ export default function useEventBanners(date: DateTime) {
         },
         'banner'
     )
-    useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
     useInterval(
         () => {
