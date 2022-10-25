@@ -2,9 +2,10 @@ import { useCallback, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import Log from '../../services/api/log'
-import { PULL_REQUEST_ACTIONS } from '../../utils/sortAndFilter/pull-requests.config'
+import { PULL_REQUEST_ACTIONS, colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
+import { Icon } from '../atoms/Icon'
 import { PurpleEdge } from '../atoms/SelectableContainer'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
@@ -39,7 +40,10 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
             <Column>
                 {statusDescription ? (
                     <TooltipWrapper dataTip={statusDescription} tooltipId="tooltip">
-                        <Status type={status.color}>{status.text}</Status>
+                        <Status type={status.color}>
+                            <Icon icon={colorToIcon[status.color]} color={status.color} />
+                            {status.text}
+                        </Status>
                     </TooltipWrapper>
                 ) : (
                     <Status type={status.color}>{status.text}</Status>

@@ -11,6 +11,8 @@ export const Column = styled.div`
     gap: ${Spacing._16};
 `
 export const Status = styled.div<{ type: TStatusColors }>`
+    display: flex;
+    gap: ${Spacing._4};
     color: ${Colors.text.black};
     background: ${(props) => Colors.status[props.type].light};
     border: ${Border.stroke.medium} solid ${(props) => Colors.status[props.type].default};

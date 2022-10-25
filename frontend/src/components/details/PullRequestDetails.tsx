@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -94,7 +95,10 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             </DetailsTopContainer>
             <TitleContainer>{title}</TitleContainer>
             <InfoContainer>
-                <Status type={status.color}>{status.text}</Status>
+                <Status type={status.color}>
+                    <Icon icon={colorToIcon[status.color]} color={status.color} />
+                    {status.text}
+                </Status>
                 <Gap4>
                     <LinesModified color="green">{`+${additions}`}</LinesModified>
                     <LinesModified color="red">{`-${deletions}`}</LinesModified>
