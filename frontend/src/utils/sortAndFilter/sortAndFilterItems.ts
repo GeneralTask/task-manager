@@ -7,7 +7,7 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
             const sortDirectionMultiplier = (sort.forceDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
             let result = 0
             if (a[sort.field] === b[sort.field]) {
-                result = a[tieBreakerField] < b[tieBreakerField] ? -1 : 1
+                result = a[tieBreakerField] > b[tieBreakerField] ? -1 : 1
             } else {
                 if (a[sort.field] && b[sort.field]) {
                     if (sort.customComparator) {
