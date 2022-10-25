@@ -26,6 +26,7 @@ const TaskBody = ({ task, onChange, disabled }: TaskBodyProps) => {
                     placeholder="Add details"
                     onChange={onChange}
                     minHeight={BODY_MIN_HEIGHT}
+                    readOnly={disabled}
                     disabled={disabled}
                     fontSize="small"
                 />
