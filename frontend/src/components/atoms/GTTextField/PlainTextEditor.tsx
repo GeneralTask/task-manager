@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { useWindowSize } from '../../../hooks'
-import { Border, Spacing, Typography } from '../../../styles'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { useCalendarContext } from '../../calendar/CalendarContext'
 import { FontSize, PlainTextEditorProps } from './types'
 
@@ -16,6 +16,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     height: 100%;
     padding: ${Spacing._8};
     white-space: pre-wrap;
+    color: ${Colors.text.black};
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
