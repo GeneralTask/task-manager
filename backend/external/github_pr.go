@@ -167,7 +167,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
-		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+		if err != nil && !strings.Contains(err.Error(), "404 Not Found") && !strings.Contains(err.Error(), "451 Repository access blocked") {
 			logger.Error().Err(err).Msg("failed to fetch Github PRs")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
