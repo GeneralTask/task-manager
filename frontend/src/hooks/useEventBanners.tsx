@@ -18,7 +18,7 @@ const isEventWithinTenMinutes = (event: TEvent) => {
 
 export default function useEventBanners(date: DateTime) {
     const [eventsWithinTenMinutes, setEventsWithinTenMinutes] = useState<TEvent[]>([])
-    const { data: events, refetch } = useGetEvents(
+    const { data: events } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
             endISO: date.endOf('day').plus({ minutes: 15 }).toISO(),
