@@ -1,9 +1,9 @@
 import * as Popover from '@radix-ui/react-popover'
 import styled from 'styled-components'
-import { MenuContentShared } from './RadixUIConstants'
+import { MenuContentShared, MenuTriggerShared } from './RadixUIConstants'
 
 const PopoverTrigger = styled(Popover.Trigger)`
-    all: unset;
+    ${MenuTriggerShared};
 `
 const PopoverContent = styled(Popover.Content)`
     ${MenuContentShared};
