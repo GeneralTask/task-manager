@@ -266,6 +266,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 
 	additions, deletions, err := getAdditionsDeletions(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.CompareURL)
 	// if the comparison isn't found, still show the PR but with blank additions / deletions
+	// TODO: have frontend hide the additions / deletions when zeroed out
 	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 		logger.Error().Err(err).Msg("failed to fetch Github PR additions / deletions")
 		result <- nil
