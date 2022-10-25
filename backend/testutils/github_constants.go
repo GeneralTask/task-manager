@@ -2,7 +2,7 @@ package testutils
 
 const (
 	ClientResponsePayload              string = `{"id": 1, "plan": {}}`
-	CompareResponsePayload             string = `{"files": [{"additions": 69, "deletions": 420}, {"additions": 24, "deletions": 42}]}`
+	CompareResponsePayload             string = `{"total_commits":777, "files": [{"additions": 69, "deletions": 420}, {"additions": 24, "deletions": 42}]}`
 	UserResponsePayload                string = `{"id": 1, "login": "chad1616"}`
 	UserRepositoriesPayload            string = `[{"id": 1234, "name": "ExampleRepository", "full_name": "dankmemes/ExampleRepository", "owner": {"login": "gigaChad123"}}]`
 	UserPullRequestsPayload            string = `[{"id": 1, "number": 420, "commits": 777, "title": "Fix big oopsie", "body": "the oopsie must be fixed", "created_at": "2011-01-26T19:01:12Z", "updated_at": "2011-01-26T19:01:12Z", "html_url": "github.com", "user": {"login": "chad1616", "id": 1}, "requested_reviewers": [], "head": {"sha": "abc123", "ref": "ExampleBranch"}, "base": {"sha": "def456", "ref": "BaseExampleBranch"}}]`
