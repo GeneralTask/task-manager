@@ -12,7 +12,7 @@ export const MESSAGE_TYPE_DM = 'directmessage'
 
 // Time constants (in seconds)
 export const TASK_REFETCH_INTERVAL = 60
-export const PR_REFETCH_INTERVAL = 60
+export const PR_REFETCH_INTERVAL = 120
 export const EVENTS_REFETCH_INTERVAL = 60
 export const TIME_INDICATOR_INTERVAL = 6
 export const TASK_MARK_AS_DONE_TIMEOUT = 0.25
