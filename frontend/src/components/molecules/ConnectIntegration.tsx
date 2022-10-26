@@ -4,7 +4,7 @@ import { FIVE_SECOND_TIMEOUT, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import { TSupportedType } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
@@ -36,9 +36,10 @@ const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: string) => 
 
 interface ConnectIntegrationProps {
     type: 'github' | 'google_calendar' | 'slack' | 'linear'
+    reconnect?: boolean
 }
 
-const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
+const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps) => {
     const [userIsConnecting, setUserIsConnecting] = useState(false)
     const refetchStaleQueries = useRefetchStaleQueries()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -72,30 +73,11 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
                 return { icon: null, name: null, authUrl: null }
         }
     })()
-    let title: string | undefined = undefined
-    if (userIsConnecting) {
-        if (type === 'github') {
-            title = 'Connecting to GitHub...'
-        } else if (type === 'google_calendar') {
-            title = 'Connecting to Google Calendar...'
-        } else if (type === 'slack') {
-            title = 'Connecting to Slack...'
-        } else if (type === 'linear') {
-            title = 'Connecting to Linear...'
-        }
-    } else {
-        if (type === 'github') {
-            title = 'Connect to GitHub'
-        } else if (type === 'google_calendar') {
-            title = 'Google Calendar'
-        } else if (type === 'slack') {
-            title = 'Connect to Slack'
-        } else if (type === 'linear') {
-            title = 'Connect to Linear'
-        }
-    }
 
-    const hideConnectButton = userIsConnecting && type === 'google_calendar'
+    const title = userIsConnecting ? `Connecting to ${name}...` : `Connect to ${name}`
+
+    const isGCal = type === 'google_calendar'
+    const hideConnectButton = isGCal && userIsConnecting
 
     const onClick = () => {
         if (!authUrl) return
@@ -113,13 +95,13 @@ const ConnectIntegration = ({ type }: ConnectIntegrationProps) => {
     return (
         <Container>
             <IconAndText>
-                <Icon icon={icon} color="black" />
-                <Text>{title}</Text>
+                <Icon icon={reconnect ? icons.warning : icon} color={reconnect ? 'red' : 'black'} />
+                <Text>{reconnect ? 'This account needs to be re-linked.' : isGCal ? name : title}</Text>
             </IconAndText>
             {!hideConnectButton && (
                 <GTButton
                     disabled={userIsConnecting}
-                    value="Connect"
+                    value={reconnect ? 'Re-link account' : 'Connect'}
                     color={Colors.gtColor.primary}
                     size="small"
                     onClick={onClick}
