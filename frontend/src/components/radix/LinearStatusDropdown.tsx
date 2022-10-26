@@ -35,6 +35,7 @@ const LinearStatusDropdown = ({ task, disabled }: LinearStatusDropdownProps) => 
                     isDropdown
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}
+                    disabled={disabled}
                     asDiv
                 />
             }
