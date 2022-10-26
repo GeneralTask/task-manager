@@ -32,7 +32,8 @@ func TestEmptyTaskResultWithSource(t *testing.T) {
 
 func TestPullRequestResult(t *testing.T) {
 	err := errors.New("example error")
-	result := emptyPullRequestResult(err)
+	result := emptyPullRequestResult(err, true)
 	assert.Equal(t, result.PullRequests, []*database.PullRequest{})
 	assert.Equal(t, result.Error, err)
+	assert.True(t, result.SuppressSentry)
 }

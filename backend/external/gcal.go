@@ -118,7 +118,7 @@ func (googleCalendar GoogleCalendarSource) GetTasks(db *mongo.Database, userID p
 }
 
 func (googleCalendar GoogleCalendarSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	result <- emptyPullRequestResult(nil)
+	result <- emptyPullRequestResult(nil, false)
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {

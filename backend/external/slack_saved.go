@@ -71,7 +71,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(db *mongo.Database, userID primit
 }
 
 func (slackTask SlackSavedTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	result <- emptyPullRequestResult(nil)
+	result <- emptyPullRequestResult(nil, false)
 }
 
 func (slackTask SlackSavedTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {

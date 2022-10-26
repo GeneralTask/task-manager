@@ -165,7 +165,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 }
 
 func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	result <- emptyPullRequestResult(nil)
+	result <- emptyPullRequestResult(nil, false)
 }
 
 func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
