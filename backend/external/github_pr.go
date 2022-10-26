@@ -103,6 +103,7 @@ func (gitPR GithubPRSource) GetTasks(db *mongo.Database, userID primitive.Object
 }
 
 func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
+	database.InsertLogEvent(db, userID, "get_pull_requests")
 	parentCtx := context.Background()
 	logger := logging.GetSentryLogger()
 
@@ -167,6 +168,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
+		database.InsertLogEvent(db, userID, "list_pull_requests")
 		if err != nil && shouldLogError(err) {
 			shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github PRs")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"), !shouldLog)
@@ -230,6 +232,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 }
 
 func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
+	database.InsertLogEvent(db, userID, "get_pull_request_info")
 	githubClient := requestData.Client
 	githubUser := requestData.User
 	repository := requestData.Repository
