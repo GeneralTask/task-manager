@@ -118,6 +118,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                     <Divider color={Colors.border.extra_light} />
                     <Eyebrow color="light">{`Comments (${num_comments})`}</Eyebrow>
                     {comments
+                        .slice()
                         .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
                         .map((c) => (
                             <PullRequestComment
