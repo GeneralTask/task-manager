@@ -118,11 +118,11 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		token, err = GetGithubToken(externalAPITokenCollection, userID, accountID)
 		if token == nil {
 			logger.Error().Msg("failed to fetch Github API token")
-			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"))
+			result <- emptyPullRequestResult(errors.New("failed to fetch Github API token"), false)
 			return
 		}
 		if err != nil {
-			result <- emptyPullRequestResult(err)
+			result <- emptyPullRequestResult(err, false)
 			return
 		}
 
@@ -136,22 +136,22 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 
 	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
 	if err != nil || githubUser == nil {
-		logger.Error().Err(err).Msg("failed to fetch Github user")
-		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"))
+		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github user")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"), !shouldLog)
 		return
 	}
 
 	userTeams, err := getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github user teams")
-		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"))
+		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github user teams")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"), !shouldLog)
 		return
 	}
 
 	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github repos for user")
-		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"))
+		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github repos for user")
+		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"), !shouldLog)
 		return
 	}
 
@@ -161,15 +161,15 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		err := updateOrCreateRepository(db, repository, userID)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create repository")
-			result <- emptyPullRequestResult(err)
+			result <- emptyPullRequestResult(err, false)
 			return
 		}
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
-		if err != nil && !strings.Contains(err.Error(), "404 Not Found") && !strings.Contains(err.Error(), "451 Repository access blocked") {
-			logger.Error().Err(err).Msg("failed to fetch Github PRs")
-			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
+		if err != nil && shouldLogError(err) {
+			shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github PRs")
+			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"), !shouldLog)
 			return
 		}
 		for _, pullRequest := range fetchedPullRequests {
@@ -214,7 +214,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 			nil)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create pull request")
-			result <- emptyPullRequestResult(err)
+			result <- emptyPullRequestResult(err, false)
 			return
 		}
 		pullRequest.ID = dbPR.ID
@@ -230,8 +230,6 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 }
 
 func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
-	logger := logging.GetSentryLogger()
-
 	githubClient := requestData.Client
 	githubUser := requestData.User
 	repository := requestData.Repository
@@ -246,20 +244,20 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 
 	err := setOverrideURL(githubClient, gitPR.Github.Config.ConfigValues.ListPullRequestReviewURL)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to set override url for Github PR reviews")
+		handleErrorLogging(err, db, userID, "failed to set override url for Github PR reviews")
 		result <- nil
 		return
 	}
 	reviews, _, err := githubClient.PullRequests.ListReviews(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number, nil)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR reviews")
+		handleErrorLogging(err, db, userID, "failed to fetch Github PR reviews")
 		result <- nil
 		return
 	}
 
 	comments, err := getComments(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch Github PR comments")
+		handleErrorLogging(err, db, userID, "failed to fetch Github PR comments")
 		result <- nil
 		return
 	}
@@ -268,7 +266,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 	// if the comparison isn't found, still show the PR but with blank additions / deletions
 	// TODO: have frontend hide the additions / deletions when zeroed out
 	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
-		logger.Error().Err(err).Msg("failed to fetch Github PR additions / deletions")
+		handleErrorLogging(err, db, userID, "failed to fetch Github PR additions / deletions")
 		result <- nil
 		return
 	}
@@ -278,26 +276,26 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 	if isOwner || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
 		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 		if err != nil {
-			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+			handleErrorLogging(err, db, userID, "failed to fetch Github PR reviewers")
 			result <- nil
 			return
 		}
 		requestedReviewers, err := getReviewerCount(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 		if err != nil {
-			logger.Error().Err(err).Msg("failed to fetch Github PR reviewers")
+			handleErrorLogging(err, db, userID, "failed to fetch Github PR reviewers")
 			result <- nil
 			return
 		}
 		pullRequestFetch, _, err := githubClient.PullRequests.Get(extCtx, *repository.Owner.Login, *repository.Name, *pullRequest.Number)
 		if err != nil {
-			logger.Error().Err(err).Msg("failed to fetch Github PR")
+			handleErrorLogging(err, db, userID, "failed to fetch Github PR")
 			result <- nil
 			return
 		}
 		// check runs are individual tests that make up a check suite associated with a commit
 		checkRunsForCommit, err := listCheckRunsForCommit(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListCheckRunsForRefURL)
 		if err != nil {
-			logger.Error().Err(err).Msg("failed to fetch Github PR check runs")
+			handleErrorLogging(err, db, userID, "failed to fetch Github PR check runs")
 			result <- nil
 			return
 		}
@@ -341,6 +339,27 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		Deletions:         deletions,
 		LastUpdatedAt:     primitive.NewDateTimeFromTime(pullRequest.GetUpdatedAt()),
 	}
+}
+
+func handleErrorLogging(err error, db *mongo.Database, userID primitive.ObjectID, msg string) bool {
+	shouldLog := shouldLogError(err)
+	if shouldLog {
+		logging.GetSentryLogger().Error().Err(err).Msg(msg)
+	}
+	if strings.Contains(err.Error(), "403 API rate limit") {
+		database.InsertLogEvent(db, userID, "github_pr_rate_limited")
+	}
+	return shouldLog
+}
+
+func shouldLogError(err error) bool {
+	errorString := err.Error()
+	for _, errorSubstring := range []string{"404 Not Found", "451 Repository access blocked", "403 API rate limit"} {
+		if strings.Contains(errorString, errorSubstring) {
+			return false
+		}
+	}
+	return true
 }
 
 func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
