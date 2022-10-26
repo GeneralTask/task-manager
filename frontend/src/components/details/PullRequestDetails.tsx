@@ -1,13 +1,16 @@
+import { useEffect } from 'react'
+import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
+import { PULL_REQUEST_ACTIONS, colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import { Eyebrow, Label } from '../atoms/typography/Typography'
 import BranchName from '../pull-requests/BranchName'
@@ -84,6 +87,12 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         deletions,
     } = pullRequest
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
+    const statusDescription = PULL_REQUEST_ACTIONS.find((action) => action.text === status.text)?.description
+
+    useEffect(() => {
+        ReactTooltip.rebuild()
+    }, [])
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -95,10 +104,12 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             </DetailsTopContainer>
             <TitleContainer>{title}</TitleContainer>
             <InfoContainer>
-                <Status type={status.color}>
-                    <Icon icon={colorToIcon[status.color]} color={status.color} />
-                    {status.text}
-                </Status>
+                <TooltipWrapper dataTip={statusDescription ?? ''} tooltipId="tooltip">
+                    <Status type={status.color}>
+                        <Icon icon={colorToIcon[status.color]} color={status.color} />
+                        {status.text}
+                    </Status>
+                </TooltipWrapper>
                 <Gap4>
                     <LinesModified color="green">{`+${additions}`}</LinesModified>
                     <LinesModified color="red">{`-${deletions}`}</LinesModified>

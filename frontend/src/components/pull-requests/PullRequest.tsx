@@ -38,16 +38,12 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
             {isSelected && <PurpleEdge />}
             <TitleContainer>{title}</TitleContainer>
             <Column>
-                {statusDescription ? (
-                    <TooltipWrapper dataTip={statusDescription} tooltipId="tooltip">
-                        <Status type={status.color}>
-                            <Icon icon={colorToIcon[status.color]} color={status.color} />
-                            {status.text}
-                        </Status>
-                    </TooltipWrapper>
-                ) : (
-                    <Status type={status.color}>{status.text}</Status>
-                )}
+                <TooltipWrapper dataTip={statusDescription ?? ''} tooltipId="tooltip">
+                    <Status type={status.color}>
+                        <Icon icon={colorToIcon[status.color]} color={status.color} />
+                        {status.text}
+                    </Status>
+                </TooltipWrapper>
                 {num_comments > 0 && <CommentCount count={num_comments} />}
                 <LinkButtonContainer>
                     <ExternalLinkButton link={deeplink} />
