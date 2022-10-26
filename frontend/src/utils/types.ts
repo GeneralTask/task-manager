@@ -41,6 +41,7 @@ export interface TTask {
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
     isOptimistic?: boolean
+    isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
     nux_number_id: number

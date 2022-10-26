@@ -35,7 +35,9 @@ const AuthenticatedRoutes = () => {
                         <Route path="tasks" element={<Outlet />}>
                             <Route index element={<MainScreen />} />
                             <Route path=":section" element={<MainScreen />}>
-                                <Route path=":task" element={<MainScreen />} />
+                                <Route path=":task" element={<MainScreen />}>
+                                    <Route path=":subtaskId" element={<MainScreen />} />
+                                </Route>
                             </Route>
                         </Route>
                         <Route path="pull-requests" element={<Outlet />}>

@@ -1,5 +1,7 @@
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { TTask } from '../../../utils/types'
 
 export const SubtaskContainer = styled.div`
     border: ${Border.stroke.small} solid ${Colors.border.light};
@@ -13,10 +15,17 @@ export const SubtaskContainer = styled.div`
 `
 
 interface SubtaskProps {
-    title: string
+    sectionId: string
+    parentTaskId: string
+    subtask: TTask
 }
-const Subtask = ({ title }: SubtaskProps) => {
-    return <SubtaskContainer>{title}</SubtaskContainer>
+const Subtask = ({ sectionId, parentTaskId, subtask }: SubtaskProps) => {
+    const navigate = useNavigate()
+    const onClickHandler = () => {
+        navigate(`/tasks/${sectionId}/${parentTaskId}/${subtask.id}`)
+    }
+
+    return <SubtaskContainer onClick={onClickHandler}>{subtask.title}</SubtaskContainer>
 }
 
 export default Subtask
