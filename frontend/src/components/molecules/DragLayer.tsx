@@ -58,7 +58,7 @@ const DragLayer = () => {
                 </DragItem>
             </DragOverlay>
         )
-    } else if (itemType === DropType.TASK && item.task) {
+    } else if ((itemType === DropType.TASK || itemType === DropType.NON_REORDERABLE_TASK) && item.task) {
         return (
             <DragOverlay>
                 <DragItem ref={dragItemRef}>

@@ -55,6 +55,7 @@ const DueDate = styled.span<{ color: TTextColor }>`
 interface TaskProps {
     task: TTask
     dragDisabled?: boolean
+    dropType?: DropType
     index?: number
     sectionId?: string
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
@@ -68,6 +69,7 @@ interface TaskProps {
 const Task = ({
     task,
     dragDisabled,
+    dropType = DropType.TASK,
     index,
     sectionId,
     sectionScrollingRef,
@@ -148,13 +150,9 @@ const Task = ({
 
     const [, drag, dragPreview] = useDrag(
         () => ({
-            type: DropType.TASK,
+            type: dropType,
             item: { id: task.id, sectionId, task },
             canDrag: !dragDisabled,
-            collect: (monitor) => {
-                const isDragging = !!monitor.isDragging()
-                return { opacity: isDragging ? 0.5 : 1 }
-            },
         }),
         [task, index, sectionId, dragDisabled]
     )
