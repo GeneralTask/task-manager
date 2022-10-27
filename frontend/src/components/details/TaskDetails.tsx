@@ -150,7 +150,6 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     so we can then navigate to the correct link */
     useEffect(() => {
         if (!currentTask.isOptimistic && location.pathname !== link) {
-            console.log(location.pathname, link)
             navigate(link)
         }
     }, [currentTask.isOptimistic, location, link])

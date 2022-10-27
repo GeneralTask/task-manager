@@ -25,7 +25,7 @@ const Subtask = ({ sectionId, parentTaskId, subtask }: SubtaskProps) => {
     const location = useLocation()
     const { lists: views } = useOverviewLists()
 
-    const { overviewViewId, overviewItemId, overviewItemSubId } = useParams()
+    const { overviewViewId, overviewItemId } = useParams()
 
     const onClickHandler = () => {
         if (location.pathname.includes('tasks')) {
