@@ -43,7 +43,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		Do()
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		isBadToken := checkAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+		isBadToken := CheckAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
 		if !isBadToken {
 			logger.Error().Err(err).Msg("unable to load calendar events")
 		}
@@ -189,8 +189,9 @@ func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userI
 }
 
 // returns true if the error was because of a bad token
-func checkAndHandleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
-	if !strings.Contains(err.Error(), "oauth2: token expired and refresh token is not set") {
+func CheckAndHandleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
+	if !strings.Contains(err.Error(), "oauth2: token expired and refresh token is not set") &&
+		!strings.Contains(err.Error(), "Request had insufficient authentication scopes") {
 		return false
 	}
 	token, err := getExternalToken(db, userID, accountID, serviceID)

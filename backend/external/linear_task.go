@@ -161,7 +161,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		tasks = append(tasks, task)
 	}
 
-	result <- TaskResult{Tasks: tasks}
+	result <- TaskResult{Tasks: tasks, ServiceID: TASK_SERVICE_ID_LINEAR, AccountID: accountID}
 }
 
 func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
