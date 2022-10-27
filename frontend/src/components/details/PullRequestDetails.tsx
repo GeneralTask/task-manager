@@ -79,6 +79,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         base_branch,
         body,
         num_comments,
+        num_commits,
         comments,
         additions,
         deletions,
@@ -104,7 +105,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                     <LinesModified color="red">{`-${deletions}`}</LinesModified>
                 </Gap4>
             </InfoContainer>
-            <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author}`}</Label>
+            <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author} (${num_commits} commits)`}</Label>
             <BranchInfoContainer>
                 <BranchName name={branch} />
                 <Icon icon={icons.arrow_right} />
