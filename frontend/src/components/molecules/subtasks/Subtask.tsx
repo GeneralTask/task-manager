@@ -38,7 +38,6 @@ const Subtask = ({ sectionId, parentTaskId, subtask }: SubtaskProps) => {
                     if (view.type === 'github') {
                         continue
                     }
-                    console.log(overviewItemSubId)
                     const detailsLink = subtask
                         ? `/overview/${view.id}/${item.id}/${subtask.id}`
                         : `/overview/${view.id}/${item.id}/`

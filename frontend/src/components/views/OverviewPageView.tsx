@@ -65,7 +65,6 @@ const OverviewView = () => {
                         return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
                     }
                 }
-                console.log(overviewItemSubId)
                 const subtask = (item as TTask).sub_tasks?.find((subtask) => subtask.id === overviewItemSubId)
                 const detailsLink = subtask
                     ? `/overview/${view.id}/${item.id}/${subtask.id}`
