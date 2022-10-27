@@ -22,10 +22,6 @@ const GREEN = {
     _1: '#41802E',
     _2: '#CFDFCB',
 }
-const CYAN = {
-    _1: '#00D8BE',
-    _2: '#B3F3EC',
-}
 const BLUE = {
     _1: '#25BEFF',
     _2: '#BEEBFF',
@@ -92,11 +88,8 @@ export const button = {
 
 export const status = {
     red: { default: RED._1, light: RED._2 },
-    orange: { default: ORANGE._1, light: ORANGE._2 },
     yellow: { default: YELLOW._1, light: YELLOW._2 },
     green: { default: GREEN._1, light: GREEN._2 },
-    cyan: { default: CYAN._1, light: CYAN._2 },
-    blue: { default: BLUE._1, light: BLUE._2 },
     gray: { default: GRAY._500, light: GRAY._200 },
 }
 export type TStatusColors = keyof typeof status

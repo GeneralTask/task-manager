@@ -6,10 +6,17 @@ import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
-import { FixedSizeIcon, GTMenuItem, MenuContentShared, MenuItemLabel, MenuItemShared } from './RadixUIConstants'
+import {
+    FixedSizeIcon,
+    GTMenuItem,
+    MenuContentShared,
+    MenuItemLabel,
+    MenuItemShared,
+    MenuTriggerShared,
+} from './RadixUIConstants'
 
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
-    all: unset;
+    ${MenuTriggerShared};
 `
 const DropdownMenuContent = styled(DropdownMenu.Content)`
     ${MenuContentShared};

@@ -34,6 +34,7 @@ const PriorityDropdown = ({ task, disabled }: PriorityDropdownProps) => {
                     iconColor={TASK_PRIORITIES[task.priority_normalized].color}
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}
+                    disabled={disabled}
                     asDiv
                 />
             }

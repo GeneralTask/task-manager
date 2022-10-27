@@ -227,7 +227,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             ) : (
                 <>
                     <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
-                    {task.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && (
+                    {task.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
                         <SubtaskList taskId={task.id} subtasks={task.sub_tasks ?? []} />
                     )}
                     {task.comments && (
@@ -241,7 +241,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                     )}
                 </>
             )}
-            {userInfo?.is_employee && task.external_status && <CreateLinearComment taskId={task.id} />}
+            {userInfo?.is_employee && task.external_status && !isInTrash && <CreateLinearComment taskId={task.id} />}
         </DetailsViewTemplate>
     )
 }

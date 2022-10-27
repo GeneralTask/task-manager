@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
+import { colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -78,6 +79,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         base_branch,
         body,
         num_comments,
+        num_commits,
         comments,
         additions,
         deletions,
@@ -94,13 +96,16 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             </DetailsTopContainer>
             <TitleContainer>{title}</TitleContainer>
             <InfoContainer>
-                <Status type={status.color}>{status.text}</Status>
+                <Status type={status.color}>
+                    <Icon icon={colorToIcon[status.color]} color={status.color} />
+                    {status.text}
+                </Status>
                 <Gap4>
                     <LinesModified color="green">{`+${additions}`}</LinesModified>
                     <LinesModified color="red">{`-${deletions}`}</LinesModified>
                 </Gap4>
             </InfoContainer>
-            <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author}`}</Label>
+            <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author} (${num_commits} commits)`}</Label>
             <BranchInfoContainer>
                 <BranchName name={branch} />
                 <Icon icon={icons.arrow_right} />
@@ -114,6 +119,7 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                     <Divider color={Colors.border.extra_light} />
                     <Eyebrow color="light">{`Comments (${num_comments})`}</Eyebrow>
                     {comments
+                        .slice()
                         .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
                         .map((c) => (
                             <PullRequestComment

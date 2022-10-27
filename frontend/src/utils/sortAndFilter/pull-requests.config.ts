@@ -1,6 +1,14 @@
+import { icons } from '../../styles/images'
 import { TPullRequest } from '../types'
 import { emptyFunction } from '../utils'
 import { FilterOptions, SORT_DIRECTION, SortAndFilterSettingsConfig, SortOptions } from './types'
+
+export const colorToIcon = {
+    gray: icons.github_paused,
+    green: icons.github_low,
+    yellow: icons.github_med,
+    red: icons.github_high,
+}
 
 const ACTION_REVIEW_PR = { text: 'Review PR', description: 'You have been added as a requested reviewer for the PR' }
 const ACTION_ADD_REVIEWERS = {
