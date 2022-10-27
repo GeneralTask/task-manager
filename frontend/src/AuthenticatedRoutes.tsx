@@ -29,7 +29,9 @@ const AuthenticatedRoutes = () => {
                         <Route path="overview" element={<Outlet />}>
                             <Route index element={<MainScreen />} />
                             <Route path=":overviewViewId" element={<MainScreen />}>
-                                <Route path=":overviewItemId" element={<MainScreen />} />
+                                <Route path=":overviewItemId" element={<MainScreen />}>
+                                    <Route path=":overviewItemSubId" element={<MainScreen />} />
+                                </Route>
                             </Route>
                         </Route>
                         <Route path="tasks" element={<Outlet />}>

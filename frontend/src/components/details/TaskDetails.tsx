@@ -122,7 +122,6 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     const isInTrash = params.section === TRASH_SECTION_ID
-    const taskId = params.task
 
     useInterval(() => {
         if (!currentTask.meeting_preparation_params) return
@@ -151,6 +150,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     so we can then navigate to the correct link */
     useEffect(() => {
         if (!currentTask.isOptimistic && location.pathname !== link) {
+            console.log(location.pathname, link)
             navigate(link)
         }
     }, [currentTask.isOptimistic, location, link])
@@ -190,7 +190,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
             <DetailsTopContainer>
                 <MarginLeft8>
                     {subtask ? (
-                        <BackButtonContainer to={`${taskId}`}>
+                        <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
                             <BackButtonText>{task.title}</BackButtonText>
                         </BackButtonContainer>
