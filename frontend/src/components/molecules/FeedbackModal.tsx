@@ -42,22 +42,30 @@ const FeedbackModal = () => {
                 fitContent={false}
                 onClick={() => setModalIsOpen(true)}
             />
-            <GTModal open={modalIsOpen} setOpen={setModalIsOpen}>
-                <Subtitle>Got feedback for us?</Subtitle>
-                <BodySmall>
-                    Feedback is a gift — thank you. Let us know what things you’d like to see us do more and what things
-                    we can do better.
-                </BodySmall>
-                <FeedbackTextField
-                    type="plaintext"
-                    value={feedback}
-                    onChange={(val) => setFeedback(val)}
-                    fontSize="small"
-                    placeholder="Let us know your thoughts"
-                    autoFocus
-                />
-                <GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" size="small" />
-            </GTModal>
+            <GTModal
+                open={modalIsOpen}
+                setOpen={setModalIsOpen}
+                tabs={{
+                    page: (
+                        <>
+                            <Subtitle>Got feedback for us?</Subtitle>
+                            <BodySmall>
+                                Feedback is a gift — thank you. Let us know what things you’d like to see us do more and
+                                what things we can do better.
+                            </BodySmall>
+                            <FeedbackTextField
+                                type="plaintext"
+                                value={feedback}
+                                onChange={(val) => setFeedback(val)}
+                                fontSize="small"
+                                placeholder="Let us know your thoughts"
+                                autoFocus
+                            />
+                            <GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" size="small" />
+                        </>
+                    ),
+                }}
+            />
         </>
     )
 }

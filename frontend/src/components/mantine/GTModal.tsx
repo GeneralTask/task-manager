@@ -2,6 +2,7 @@ import { Modal, ModalProps } from '@mantine/core'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { stopKeydownPropogation } from '../../utils/utils'
+import { TIconType } from '../atoms/Icon'
 
 const MODAL_WIDTH = '550px'
 
@@ -30,15 +31,26 @@ const modalProps: Partial<ModalProps> = {
     },
 }
 
+interface GTModalTab {
+    title?: string
+    icon?: TIconType
+    page: React.ReactNode
+}
 interface GTModalProps {
     open: boolean
     setOpen: (open: boolean) => void
-    children: React.ReactNode | React.ReactNode[]
+    tabs: GTModalTab | GTModalTab[]
 }
-const GTModal = ({ open, setOpen, children }: GTModalProps) => {
+const GTModal = ({ open, setOpen, tabs }: GTModalProps) => {
+    if (!Array.isArray(tabs))
+        return (
+            <Modal opened={open} onClose={() => setOpen(false)} {...modalProps}>
+                <ModalOuterContainer>{tabs.page}</ModalOuterContainer>
+            </Modal>
+        )
     return (
         <Modal opened={open} onClose={() => setOpen(false)} {...modalProps}>
-            <ModalOuterContainer>{children}</ModalOuterContainer>
+            <ModalOuterContainer>{tabs[0].page}</ModalOuterContainer>
         </Modal>
     )
 }
