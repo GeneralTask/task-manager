@@ -2,12 +2,14 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
+import { colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import { getHumanTimeSinceDateTime } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
+import { Eyebrow, Label } from '../atoms/typography/Typography'
 import BranchName from '../pull-requests/BranchName'
 import { Status } from '../pull-requests/styles'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
@@ -42,14 +44,11 @@ const InfoContainer = styled.div`
     margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
-const Subtext = styled.span`
-    color: ${Colors.text.light};
-    ${Typography.label};
-`
 const BranchInfoContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    gap: ${Spacing._8};
 `
 const LinesModified = styled.span<{ color: 'green' | 'red' }>`
     color: ${(props) => Colors.text[props.color]};
@@ -77,10 +76,10 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         number,
         last_updated_at,
         author,
-        num_commits,
         base_branch,
         body,
         num_comments,
+        num_commits,
         comments,
         additions,
         deletions,
@@ -90,37 +89,37 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
         <DetailsViewTemplate>
             <DetailsTopContainer>
                 <Icon icon={logos.github} color="black" />
-                <Subtext>{repository?.name}</Subtext>
+                <Label color="light">{repository?.name}</Label>
                 <MarginLeftAuto>
                     <ExternalLinkButton link={deeplink} />
                 </MarginLeftAuto>
             </DetailsTopContainer>
             <TitleContainer>{title}</TitleContainer>
             <InfoContainer>
-                <Status type={status.color}>{status.text}</Status>
+                <Status type={status.color}>
+                    <Icon icon={colorToIcon[status.color]} color={status.color} />
+                    {status.text}
+                </Status>
                 <Gap4>
                     <LinesModified color="green">{`+${additions}`}</LinesModified>
                     <LinesModified color="red">{`-${deletions}`}</LinesModified>
                 </Gap4>
             </InfoContainer>
-            <div>
-                <Subtext>{`#${number} updated ${formattedTimeSince} by ${author}`}</Subtext>
-                <Subtext>
-                    <BranchInfoContainer>
-                        {`${author} wants to merge ${num_commits} commits into\u00A0`}
-                        <BranchName name={base_branch} />
-                        {`\u00A0from\u00A0`}
-                        <BranchName name={branch} />
-                    </BranchInfoContainer>
-                </Subtext>
-            </div>
-            <Subtext>Description</Subtext>
+            <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author} (${num_commits} commits)`}</Label>
+            <BranchInfoContainer>
+                <BranchName name={branch} />
+                <Icon icon={icons.arrow_right} />
+                <BranchName name={base_branch} />
+            </BranchInfoContainer>
+            <Divider color={Colors.border.extra_light} />
+            <Eyebrow color="light">Description</Eyebrow>
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
             {num_comments > 0 && (
                 <>
                     <Divider color={Colors.border.extra_light} />
-                    <Subtext>{`Comments (${num_comments})`}</Subtext>
+                    <Eyebrow color="light">{`Comments (${num_comments})`}</Eyebrow>
                     {comments
+                        .slice()
                         .sort((a, b) => +DateTime.fromISO(a.last_updated_at) - +DateTime.fromISO(b.last_updated_at))
                         .map((c) => (
                             <PullRequestComment

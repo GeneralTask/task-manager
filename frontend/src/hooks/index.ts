@@ -8,6 +8,7 @@ import useNavigateToTask from './useNavigateToTask'
 import useSetting from './useSetting'
 import useTimeout from './useTimeout'
 import useToast from './useToast'
+import useWindowSize from './useWindowSize'
 
 export {
     useClickOutside,
@@ -20,4 +21,5 @@ export {
     useSetting,
     useTimeout,
     useToast,
+    useWindowSize,
 }

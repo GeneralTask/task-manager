@@ -4,11 +4,11 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
     const sortedAndFiltered = filter ? items.filter(filter.lambda) : [...items]
     if (sort && sortDirection) {
         sortedAndFiltered.sort((a, b) => {
-            const sortDirectionMultiplier =
-                (sort.forceAndHideDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
+            const sortDirectionMultiplier = (sort.forceDirection ?? sortDirection) === SORT_DIRECTION.ASC ? 1 : -1
             let result = 0
             if (a[sort.field] === b[sort.field]) {
                 result = a[tieBreakerField] < b[tieBreakerField] ? -1 : 1
+                result *= sortDirectionMultiplier
             } else {
                 if (a[sort.field] && b[sort.field]) {
                     if (sort.customComparator) {

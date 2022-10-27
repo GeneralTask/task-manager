@@ -89,6 +89,7 @@ export const useFetchExternalTasks = () => {
     return useQuery('tasksExternal', fetchExternalTasks, {
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
+            queryClient.invalidateQueries('overview')
         },
         refetchInterval: TASK_REFETCH_INTERVAL * 1000,
         refetchIntervalInBackground: true,
@@ -120,10 +121,9 @@ export const useCreateTask = () => {
                 const updatedSections = produce(sections, (draft) => {
                     const section = draft.find((section) => section.id === data.taskSectionId)
                     if (!section) return
-                    const orderingId = section.tasks.length > 0 ? section.tasks[0].id_ordering - 1 : 1
                     const newTask: TTask = {
                         id: data.optimisticId,
-                        id_ordering: orderingId,
+                        id_ordering: 0.5,
                         title: data.title,
                         body: data.body ?? '',
                         deeplink: '',
@@ -153,10 +153,9 @@ export const useCreateTask = () => {
                 const updatedViews = produce(views, (draft) => {
                     const section = draft.find((view) => view.task_section_id === data.taskSectionId)
                     if (!section) return
-                    const orderingId = section.view_items.length > 0 ? section.view_items[0].id_ordering - 1 : 1
                     const newTask = {
                         id: data.optimisticId,
-                        id_ordering: orderingId,
+                        id_ordering: 0.5,
                         title: data.title,
                         body: data.body ?? '',
                         deeplink: '',

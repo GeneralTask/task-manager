@@ -8,7 +8,7 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import { isSlackLinked } from '../../utils/utils'
+import { doesAccountNeedRelinking, isSlackLinked } from '../../utils/utils'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -35,6 +35,7 @@ const SlackTasksView = () => {
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
     const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
+    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Slack')
 
     const { task } = useMemo(() => {
         if (slackTasks.length === 0) return { task: null }
@@ -63,6 +64,7 @@ const SlackTasksView = () => {
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Slack Messages" />
+                {doesNeedRelinking && <ConnectIntegration type="slack" reconnect />}
                 {isSlackIntegrationLinked ? (
                     <>
                         <BodyHeader>All messages you&apos;ve created tasks for</BodyHeader>

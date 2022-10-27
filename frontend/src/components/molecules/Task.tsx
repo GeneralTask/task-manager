@@ -214,7 +214,7 @@ const Task = ({
                             onMarkComplete={taskFadeOut}
                         />
                     )}
-                    <Title>{task.title}</Title>
+                    <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {isValidDueDate(dueDate) && (
                             <DueDate color={formattedDate.textColor}>{formattedDate.dateString}</DueDate>

@@ -3,7 +3,7 @@ import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import { useInterval } from '.'
 import ToastTemplate from '../components/atoms/toast/ToastTemplate'
-import { EVENTS_REFETCH_INTERVAL, NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
+import { NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
 import { icons } from '../styles/images'
 import { TEvent } from '../utils/types'
@@ -18,14 +18,13 @@ const isEventWithinTenMinutes = (event: TEvent) => {
 
 export default function useEventBanners(date: DateTime) {
     const [eventsWithinTenMinutes, setEventsWithinTenMinutes] = useState<TEvent[]>([])
-    const { data: events, refetch } = useGetEvents(
+    const { data: events } = useGetEvents(
         {
             startISO: date.startOf('day').toISO(),
             endISO: date.endOf('day').plus({ minutes: 15 }).toISO(),
         },
         'banner'
     )
-    useInterval(refetch, EVENTS_REFETCH_INTERVAL)
 
     useInterval(
         () => {

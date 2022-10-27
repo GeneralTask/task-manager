@@ -2,6 +2,8 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons'
 import {
     faArrowDown,
     faArrowDownLeftAndArrowUpRightToCenter,
+    faArrowLeft,
+    faArrowRight,
     faArrowRotateRight,
     faArrowUp,
     faArrowUpRightAndArrowDownLeftFromCenter,
@@ -74,6 +76,8 @@ export const logos = Object.freeze({
 
 export const icons = Object.freeze({
     arrow_down: faArrowDown,
+    arrow_left: faArrowLeft,
+    arrow_right: faArrowRight,
     arrow_up: faArrowUp,
     arrows_in: faArrowDownLeftAndArrowUpRightToCenter,
     arrows_out: faArrowUpRightAndArrowDownLeftFromCenter,
@@ -102,6 +106,10 @@ export const icons = Object.freeze({
     folder: faFolder,
     gear: faGear,
     github: logos.github,
+    github_paused: '/images/github_paused.svg',
+    github_low: '/images/github_low.svg',
+    github_med: '/images/github_med.svg',
+    github_high: '/images/github_high.svg',
     hamburger: faBars,
     headphones: faHeadphones,
     inbox: faInbox,
