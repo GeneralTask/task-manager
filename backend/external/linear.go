@@ -411,11 +411,13 @@ const linearCommentCreateQueryStr = `
 	mutation CommentCreate (
 		$body: String
 		, $issueId: String!
+		, $id: String
 	) {
 		commentCreate(
 		input: {
 			body: $body
 			, issueId: $issueId
+			, id: $id
 		}
 		) {
 		success
@@ -425,7 +427,7 @@ const linearCommentCreateQueryStr = `
 type linearCommentCreateQuery struct {
 	CommentCreate struct {
 		Success graphql.Boolean
-	} `graphql:"commentCreate(input: {body: $body, issueId: $issueId})"`
+	} `graphql:"commentCreate(input: {body: $body, issueId: $issueId, id: $id})"`
 }
 
 func handleMutateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields *database.Task, task *database.Task) (bool, error) {
@@ -486,6 +488,7 @@ func updateLinearIssue(client *graphqlBasic.Client, issueID string, updateFields
 func addLinearComment(client *graphqlBasic.Client, issueID string, comment database.Comment) error {
 	request := graphqlBasic.NewRequest(linearCommentCreateQueryStr)
 	request.Var("body", comment.Body)
+	request.Var("id", comment.ExternalID)
 	request.Var("issueId", issueID)
 
 	log.Debug().Msgf("sending request to Linear: %+v", request)
