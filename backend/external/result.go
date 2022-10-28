@@ -12,6 +12,8 @@ type TaskResult struct {
 	PriorityMapping *map[string]int
 	Error           error
 	SourceID        string
+	ServiceID       string
+	AccountID       string
 }
 
 type PullRequestResult struct {

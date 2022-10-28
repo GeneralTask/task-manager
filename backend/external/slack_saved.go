@@ -67,7 +67,7 @@ func (slackTask SlackSavedTaskSource) GetTasks(db *mongo.Database, userID primit
 		result <- emptyTaskResult(err)
 		return
 	}
-	result <- TaskResult{Tasks: tasks, Error: nil}
+	result <- TaskResult{Tasks: tasks, ServiceID: TASK_SERVICE_ID_SLACK, AccountID: accountID}
 }
 
 func (slackTask SlackSavedTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
