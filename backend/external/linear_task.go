@@ -42,7 +42,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		context.Background(),
 		bson.M{"_id": userID},
 		bson.M{"$set": userChangeable},
-		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
 	)
 
 	client, err = GetLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)

@@ -298,6 +298,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
 		assert.Equal(t, "Test User", userObject.LinearName)
 		assert.Equal(t, "Test Display Name", userObject.LinearDisplayName)
+		assert.Equal(t, "Test Display Name", userObject.GoogleID)
 		assert.NoError(t, err)
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
