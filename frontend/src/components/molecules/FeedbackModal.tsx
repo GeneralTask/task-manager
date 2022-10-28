@@ -46,7 +46,7 @@ const FeedbackModal = () => {
                 open={modalIsOpen}
                 setOpen={setModalIsOpen}
                 tabs={{
-                    page: (
+                    body: (
                         <>
                             <Subtitle>Got feedback for us?</Subtitle>
                             <BodySmall>
