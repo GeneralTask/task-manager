@@ -15,6 +15,8 @@ type UserInfo struct {
 	Name               string `json:"name"`
 	IsEmployee         bool   `json:"is_employee"`
 	Email              string `json:"email"`
+	LinearName         string `json:"linear_name,omitempty"`
+	LinearDisplayName  string `json:"linear_display_name,omitempty"`
 }
 
 type UserInfoParams struct {
@@ -39,6 +41,8 @@ func (api *API) UserInfoGet(c *gin.Context) {
 		Name:               userObject.Name,
 		IsEmployee:         strings.HasSuffix(strings.ToLower(userObject.Email), "@generaltask.com"),
 		Email:              userObject.Email,
+		LinearName:         userObject.LinearName,
+		LinearDisplayName:  userObject.LinearDisplayName,
 	})
 }
 

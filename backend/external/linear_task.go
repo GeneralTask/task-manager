@@ -1,7 +1,10 @@
 package external
 
 import (
+	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,6 +37,13 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
+	userChangeable := &database.UserChangeable{LinearName: string(meQuery.Viewer.Name), LinearDisplayName: string(meQuery.Viewer.DisplayName)}
+	database.GetUserCollection(db).FindOneAndUpdate(
+		context.Background(),
+		bson.M{"_id": userID},
+		bson.M{"$set": userChangeable},
+		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
+	)
 
 	client, err = GetLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
 	if err != nil {

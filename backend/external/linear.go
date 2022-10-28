@@ -199,9 +199,10 @@ func getLinearOauthConfig() *OauthConfig {
 
 type linearUserInfoQuery struct {
 	Viewer struct {
-		Id    graphql.String
-		Name  graphql.String
-		Email graphql.String
+		Id          graphql.String
+		Name        graphql.String
+		DisplayName graphql.String
+		Email       graphql.String
 	}
 }
 
