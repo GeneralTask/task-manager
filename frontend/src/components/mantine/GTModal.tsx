@@ -97,7 +97,7 @@ const GTModal = ({ open, setOpen, title, tabs }: GTModalProps) => {
                 <ModalSidebar>
                     <Eyebrow color="light">{title}</Eyebrow>
                     {tabs.map((tab, index) => (
-                        <Link isSelected={selectedTab === index} onClick={() => setSelectedTab(index)}>
+                        <Link key={tab.title} isSelected={selectedTab === index} onClick={() => setSelectedTab(index)}>
                             <Icon icon={tab.icon || icons.arrow_right} color="black" />
                             <Label>{tab.title}</Label>
                         </Link>
