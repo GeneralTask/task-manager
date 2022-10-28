@@ -69,6 +69,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			"viewer": {
 				"id": "6942069420",
 				"name": "Test User",
+				"displayName": "Test Display Name",
 				"email": "test@generaltask.com"
 			}
 		}}`)
@@ -292,6 +293,12 @@ func TestLoadLinearTasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 		assert.Equal(t, "Triage", taskFromDB.AllStatuses[2].State)
+
+		var userObject database.User
+		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+		assert.Equal(t, "Test User", userObject.LinearName)
+		assert.Equal(t, "Test Display Name", userObject.LinearDisplayName)
+		assert.NoError(t, err)
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
