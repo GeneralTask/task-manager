@@ -309,6 +309,26 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, "Test Display Name", userObject.LinearDisplayName)
 		assert.Equal(t, "email@gmail.com", userObject.Email)
 	})
+	t.Run("SuccessUserNotCreated", func(t *testing.T) {
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
+				},
+			},
+		}}
+
+		newUserID := primitive.NewObjectID()
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(db, newUserID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NoError(t, result.Error)
+		var userObject database.User
+		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+		assert.Error(t, err)
+	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
