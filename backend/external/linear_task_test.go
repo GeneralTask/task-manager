@@ -326,7 +326,7 @@ func TestLoadLinearTasks(t *testing.T) {
 		result := <-taskResult
 		assert.NoError(t, result.Error)
 		var userObject database.User
-		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": newUserID}).Decode(&userObject)
 		assert.Error(t, err)
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
