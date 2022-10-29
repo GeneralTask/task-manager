@@ -212,6 +212,14 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("Success", func(t *testing.T) {
+		user := database.User{
+			ID:                userID,
+			Email:             "email@gmail.com",
+			LinearName:        "linearName",
+			LinearDisplayName: "linearDisplayName",
+		}
+		database.GetUserCollection(db).InsertOne(context.Background(), user)
+
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
@@ -296,10 +304,10 @@ func TestLoadLinearTasks(t *testing.T) {
 
 		var userObject database.User
 		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+		assert.NoError(t, err)
 		assert.Equal(t, "Test User", userObject.LinearName)
 		assert.Equal(t, "Test Display Name", userObject.LinearDisplayName)
-		assert.Equal(t, "Test Display Name", userObject.GoogleID)
-		assert.NoError(t, err)
+		assert.Equal(t, "email@gmail.com", userObject.Email)
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
