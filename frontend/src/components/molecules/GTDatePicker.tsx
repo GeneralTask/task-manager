@@ -104,6 +104,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                         justifyContent: 'center',
                     },
                 }}
+                renderDay={(date) => <div onMouseUp={() => handleOnChange(date)}>{date.getDate()}</div>}
             />
             {isValidDueDate(value) && (
                 <DateViewContainer>
@@ -123,6 +124,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
             setIsOpen={setIsOpen}
             content={calendar}
             disabled={disabled}
+            align="start"
             trigger={
                 <GTButton
                     styleType="simple"
@@ -133,6 +135,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     iconColor={getFormattedDate(value).iconColor}
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}
+                    disabled={disabled}
                     asDiv
                 />
             }

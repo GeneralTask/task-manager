@@ -4,6 +4,7 @@ import useDetailsViewDrop from '../../hooks/useDetailsViewDrop'
 import { Colors, Spacing } from '../../styles'
 
 const DetailsViewContainer = styled.div`
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;

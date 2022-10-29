@@ -11,6 +11,8 @@ export const Column = styled.div`
     gap: ${Spacing._16};
 `
 export const Status = styled.div<{ type: TStatusColors }>`
+    display: flex;
+    gap: ${Spacing._4};
     color: ${Colors.text.black};
     background: ${(props) => Colors.status[props.type].light};
     border: ${Border.stroke.medium} solid ${(props) => Colors.status[props.type].default};
@@ -19,7 +21,8 @@ export const Status = styled.div<{ type: TStatusColors }>`
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: fit-content;
-    ${Typography.bodySmall};
+    ${Typography.label};
+    ${Typography.bold};
 `
 
 export const Repository = styled.div`
@@ -65,9 +68,12 @@ export const BranchNameContainer = styled.div`
     align-items: center;
     color: ${Colors.gtColor.primary};
     border: ${Border.stroke.medium} solid ${Colors.border.purple};
+    background-color: ${Colors.background.white};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._4} ${Spacing._8};
     gap: ${Spacing._8};
+    ${Typography.label};
+    ${Typography.bold};
     cursor: pointer;
 `
 export const LinkButtonContainer = styled.div`

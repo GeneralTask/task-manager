@@ -128,7 +128,10 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
-			api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
+			isBadToken := external.CheckAndHandleBadToken(err, db, userID.(primitive.ObjectID), taskResult.AccountID, taskResult.SourceID)
+			if !isBadToken {
+				api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
+			}
 			failedFetchSources[taskResult.SourceID] = true
 			continue
 		}
@@ -384,7 +387,9 @@ func (api *API) getActiveLinearTasksFromDBForToken(userID primitive.ObjectID, ac
 	}
 
 	result <- external.TaskResult{
-		Tasks: taskResults,
+		Tasks:     taskResults,
+		ServiceID: external.TASK_SERVICE_ID_LINEAR,
+		AccountID: accountID,
 	}
 }
 

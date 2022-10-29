@@ -39,7 +39,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(db *mongo.Database, userID pri
 		result <- emptyTaskResult(err)
 		return
 	}
-	result <- TaskResult{Tasks: tasks, Error: nil}
+	result <- TaskResult{Tasks: tasks, ServiceID: TASK_SERVICE_ID_GT, AccountID: accountID}
 }
 
 func (generalTask GeneralTaskTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {

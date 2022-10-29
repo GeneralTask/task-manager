@@ -8,7 +8,7 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import { isLinearLinked } from '../../utils/utils'
+import { doesAccountNeedRelinking, isLinearLinked } from '../../utils/utils'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -19,7 +19,7 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const LinearBodyHeader = styled.div`
     ${Typography.body};
     color: ${Colors.text.light};
-    margin-bottom: ${Spacing._16};
+    margin: ${Spacing._16} 0;
 `
 
 const LinearView = () => {
@@ -51,11 +51,13 @@ const LinearView = () => {
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
+    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Linear')
 
     return (
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Linear Issues" />
+                {doesNeedRelinking && <ConnectIntegration type="linear" reconnect />}
                 {isLinearIntegrationLinked ? (
                     <>
                         <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>

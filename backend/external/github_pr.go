@@ -167,7 +167,8 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 		defer cancel()
 		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
-		if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+		if err != nil && !strings.Contains(err.Error(), "404 Not Found") && !strings.Contains(err.Error(), "451 Repository access blocked") {
+			logger.Error().Err(err).Msg("failed to fetch Github PRs")
 			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"))
 			return
 		}
@@ -263,8 +264,10 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		return
 	}
 
-	additions, deletions, err := getAdditionsDeletions(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.CompareURL)
-	if err != nil {
+	additions, deletions, numCommits, err := getAdditionsDeletions(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.CompareURL)
+	// if the comparison isn't found, still show the PR but with blank additions / deletions
+	// TODO: have frontend hide the additions / deletions when zeroed out
+	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
 		logger.Error().Err(err).Msg("failed to fetch Github PR additions / deletions")
 		result <- nil
 		return
@@ -333,7 +336,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx contex
 		RequiredAction:    requiredAction,
 		Comments:          comments,
 		CommentCount:      len(comments),
-		CommitCount:       pullRequest.GetCommits(),
+		CommitCount:       numCommits,
 		Additions:         additions,
 		Deletions:         deletions,
 		LastUpdatedAt:     primitive.NewDateTimeFromTime(pullRequest.GetUpdatedAt()),
@@ -600,14 +603,14 @@ func getComments(context context.Context, githubClient *github.Client, repositor
 	return result, nil
 }
 
-func getAdditionsDeletions(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURLCompare *string) (int, int, error) {
+func getAdditionsDeletions(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, overrideURLCompare *string) (int, int, int, error) {
 	err := setOverrideURL(githubClient, overrideURLCompare)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	comparison, _, err := githubClient.Repositories.CompareCommits(context, repository.Owner.GetLogin(), repository.GetName(), pullRequest.Base.GetRef(), pullRequest.Head.GetRef(), nil)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 	additions := 0
 	deletions := 0
@@ -615,7 +618,7 @@ func getAdditionsDeletions(context context.Context, githubClient *github.Client,
 		additions += file.GetAdditions()
 		deletions += file.GetDeletions()
 	}
-	return additions, deletions, nil
+	return additions, deletions, comparison.GetTotalCommits(), nil
 }
 
 func getReviewerCount(context context.Context, githubClient *github.Client, repository *github.Repository, pullRequest *github.PullRequest, reviews []*github.PullRequestReview, overrideURL *string) (int, error) {

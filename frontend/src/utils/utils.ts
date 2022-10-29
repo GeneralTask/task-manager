@@ -18,8 +18,8 @@ export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex:
 }
 
 export function resetOrderingIds(tasks: { id_ordering: number }[]) {
-    for (let i = 1; i < tasks.length; i++) {
-        tasks[i].id_ordering = i
+    for (let i = 0; i < tasks.length; i++) {
+        tasks[i].id_ordering = i + 1
     }
 }
 
@@ -46,16 +46,23 @@ export const getHumanTimeSinceDateTime = (date: DateTime) => {
     }
     return `just now`
 }
-
+export const isGithubLinked = (linkedAccounts: TLinkedAccount[]) => {
+    return linkedAccounts.some((account) => account.name === 'Github')
+}
 export const isGoogleCalendarLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
 }
 export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Slack')
 }
-
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
+}
+
+export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: string) => {
+    return linkedAccounts
+        .filter((linkedAccount) => linkedAccount.name === accountName)
+        .some((account) => account.has_bad_token)
 }
 
 export const getHumanDateTime = (date: DateTime) => {
@@ -140,15 +147,18 @@ export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
 }
 
 // calls e.stopPropogation() unless the key is a listed extension or ⌘K
-export const stopKeydownPropogation = (e: KeyboardEvent | React.KeyboardEvent, exceptions: string[] = []) => {
+export const stopKeydownPropogation = (
+    e: KeyboardEvent | React.KeyboardEvent,
+    exceptions: string[] = [],
+    disableCommandPalette?: boolean
+) => {
     const key = getKeyCode(e)
-    exceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
+    if (!disableCommandPalette) {
+        exceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
+    }
     if (!exceptions.includes(key)) {
         e.stopPropagation()
     }
-}
-export const isGithubLinkedAccount = (linkedAccounts: TLinkedAccount[]) => {
-    return linkedAccounts.some((account) => account.name === 'Github')
 }
 
 export const getFormattedDate = (
@@ -180,3 +190,5 @@ export const getFormattedDate = (
 export const isValidDueDate = (date: Date | null) => {
     return !(!date || isNaN(+date) || +date === 0)
 }
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))

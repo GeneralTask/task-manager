@@ -60,6 +60,12 @@ const EditorAndToolbarContainer = styled.div<{
     .remirror-list-item-marker-container {
         display: none;
     }
+    .remirror-is-empty:first-of-type::before {
+        position: absolute;
+        color: ${Colors.text.placeholder};
+        pointer-events: none;
+        content: attr(data-placeholder);
+    }
     a {
         cursor: pointer;
         color: ${Colors.gtColor.primary};
@@ -94,7 +100,7 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
             <EditorContainer>
                 <EditorComponent />
             </EditorContainer>
-            <RichTextToolbar />
+            {!props.readOnly && <RichTextToolbar actions={props.actions} />}
         </EditorAndToolbarContainer>
     )
 }

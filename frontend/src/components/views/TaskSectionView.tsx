@@ -75,11 +75,14 @@ const TaskSectionView = () => {
         })
     }, [section, selectedSort, selectedSortDirection, selectedFilter])
 
-    const taskIndex = useMemo(() => {
-        // Find the index of the currently selected task. If the task is not found, return 0
-        const index = sortedTasks.findIndex(({ id }) => id === task?.id)
-        return index === -1 ? 0 : index
-    }, [sortedTasks, params.task])
+    const [taskIndex, setTaskIndex] = useState(0)
+
+    useEffect(() => {
+        if (task) {
+            const index = sortedTasks.findIndex(({ id }) => id === task.id)
+            setTaskIndex(index === -1 ? 0 : index)
+        }
+    }, [params.task, params.section, sortedTasks, task])
 
     const selectTask = useCallback(
         (task: TTask) => {
@@ -141,11 +144,14 @@ const TaskSectionView = () => {
                                             index={index}
                                             acceptDropType={DropType.TASK}
                                             onReorder={handleReorderTask}
-                                            disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
+                                            disabled={
+                                                sortAndFilterSettings.selectedSort.id !== 'manual' ||
+                                                section.is_done ||
+                                                section.is_trash
+                                            }
                                         >
                                             <Task
                                                 task={task}
-                                                dragDisabled={section.is_done}
                                                 index={index}
                                                 sectionId={section.id}
                                                 sectionScrollingRef={sectionScrollingRef}
@@ -162,7 +168,11 @@ const TaskSectionView = () => {
                                     acceptDropType={DropType.TASK}
                                     onReorder={handleReorderTask}
                                     indicatorType="TOP_ONLY"
-                                    disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
+                                    disabled={
+                                        sortAndFilterSettings.selectedSort.id !== 'manual' ||
+                                        section.is_done ||
+                                        section.is_trash
+                                    }
                                 >
                                     <BottomDropArea />
                                 </ReorderDropContainer>

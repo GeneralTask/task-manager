@@ -54,7 +54,7 @@ const DueDate = styled.span<{ color: TTextColor }>`
 
 interface TaskProps {
     task: TTask
-    dragDisabled: boolean
+    dragDisabled?: boolean
     index?: number
     sectionId?: string
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
@@ -216,7 +216,7 @@ const Task = ({
                             onMarkComplete={taskFadeOut}
                         />
                     )}
-                    <Title>{task.title}</Title>
+                    <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {isValidDueDate(dueDate) && (
                             <DueDate color={formattedDate.textColor}>{formattedDate.dateString}</DueDate>

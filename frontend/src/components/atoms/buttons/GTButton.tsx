@@ -33,11 +33,11 @@ const SecondaryButtonStyles = css`
         color: ${Colors.button.secondary.active_text};
     }
 `
-const SimpleButtonStyles = css<{ active?: boolean }>`
+const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
     background-color: inherit;
     color: ${Colors.text.light};
     &:hover {
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
+        ${({ disabled }) => !disabled && `outline: ${Border.stroke.small} solid ${Colors.border.light};`}
     }
     &:active {
         background-color: ${Colors.background.light};
@@ -90,7 +90,10 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.size === 'small' && SmallButtonStyle};
     opacity: ${(props) => (props.disabled ? '0.2' : '1')};
     &:hover {
-        ${(props) => props.disabled && `box-shadow: ${Shadows.button.default}`};
+        ${(props) =>
+            props.disabled &&
+            (props.styleType === 'primary' || props.styleType === 'secondary') &&
+            `box-shadow: ${Shadows.button.default}`};
         ${(props) =>
             props.disabled &&
             `background-color: ${
@@ -98,6 +101,7 @@ const Button = styled(NoStyleButton)<{
             }`};
     }
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
+    ${(props) => props.disabled && `cursor: default;`}
 `
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

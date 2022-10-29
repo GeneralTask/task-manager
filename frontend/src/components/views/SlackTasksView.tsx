@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
@@ -8,7 +8,7 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
-import { isSlackLinked } from '../../utils/utils'
+import { doesAccountNeedRelinking, isSlackLinked } from '../../utils/utils'
 import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
@@ -58,6 +58,7 @@ const SlackTasksView = () => {
     const { data: linkedAccounts } = useGetLinkedAccounts()
 
     const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
+    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Slack')
 
     const { task } = useMemo(() => {
         if (slackTasks.length === 0) return { task: null }
@@ -76,13 +77,6 @@ const SlackTasksView = () => {
         Log(`slack_task_select__/slack/${id}`)
     }
 
-    const [isVisible, setIsVisible] = useState(true)
-
-    const taskFadeOut = () => {
-        if (!task) return
-        setIsVisible(task.is_done)
-    }
-
     const selectTask = useCallback((task: TTask) => {
         navigate(`/slack/${task.id}`)
         Log(`slack_task_select__/slack/${task.id}`)
@@ -93,11 +87,12 @@ const SlackTasksView = () => {
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Slack Messages" />
+                {doesNeedRelinking && <ConnectIntegration type="slack" reconnect />}
                 {isSlackIntegrationLinked ? (
                     <>
                         <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
                         {slackTasks?.map((task) => (
-                            <SlackTemplateContainer key={task.id} isVisible={isVisible}>
+                            <SlackTemplateContainer key={task.id}>
                                 <SlackSelectableContainer
                                     isSelected={task.id === slackTaskId}
                                     key={task.id}
@@ -109,7 +104,6 @@ const SlackTasksView = () => {
                                         taskId={task.id}
                                         isSelected={true}
                                         isDisabled={task.isOptimistic}
-                                        onMarkComplete={taskFadeOut}
                                     />
                                     <LinearTitle>{task.title}</LinearTitle>
                                     <ExternalLinkContainer>

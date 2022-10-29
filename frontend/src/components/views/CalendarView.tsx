@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
+import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useInterval } from '../../hooks'
@@ -48,6 +49,9 @@ const CalendarView = ({
     }, [date])
     useGetEvents(monthBlocks[1], 'calendar')
 
+    const { pathname } = useLocation()
+    const isFocusMode = pathname.startsWith('/focus-mode')
+
     const { calendarType, isCollapsed, setCalendarType, setIsCollapsed } = useCalendarContext()
     useEffect(() => {
         setCalendarType(initialType)
@@ -74,7 +78,8 @@ const CalendarView = ({
 
     useKeyboardShortcut(
         'calendar',
-        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed])
+        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed]),
+        isFocusMode
     )
 
     return isCollapsed ? (

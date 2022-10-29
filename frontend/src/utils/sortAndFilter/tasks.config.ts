@@ -6,10 +6,9 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
     manual: {
         id: 'manual',
         label: 'Manual',
-        customComparator: (a: TTask, b: TTask) => {
-            return b.id_ordering - a.id_ordering
-        },
-        forceAndHideDirection: SORT_DIRECTION.DESC,
+        field: 'id_ordering',
+        icon: 'sort',
+        forceDirection: SORT_DIRECTION.ASC,
     },
     due_date: {
         id: 'due_date',
@@ -20,6 +19,7 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
         id: 'priority',
         label: 'Priority',
         field: 'priority_normalized',
+        customComparator: (a, b) => b.priority_normalized - a.priority_normalized,
     },
 }
 

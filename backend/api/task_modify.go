@@ -147,8 +147,10 @@ func (api *API) TaskModify(c *gin.Context) {
 }
 
 func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, taskSourceResult *external.TaskSourceResult, task *database.Task) bool {
-	taskIsDeleted := task.IsDeleted != nil && *task.IsDeleted
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && (!taskSourceResult.Details.IsCompletable || taskIsDeleted) {
+	isTaskDeletedInRequest := updateFields.IsDeleted == nil || *updateFields.IsDeleted
+	isTaskDeletedInDb := task.IsDeleted != nil && *task.IsDeleted
+	isTaskDeleted := isTaskDeletedInRequest && isTaskDeletedInDb
+	if updateFields.IsCompleted != nil && *updateFields.IsCompleted && (!taskSourceResult.Details.IsCompletable || isTaskDeleted) {
 		c.JSON(400, gin.H{"detail": "cannot be marked done"})
 		return false
 	}

@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import styled from 'styled-components'
-import { Border, Spacing, Typography } from '../../../styles'
+import { useWindowSize } from '../../../hooks'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { useCalendarContext } from '../../calendar/CalendarContext'
 import { FontSize, PlainTextEditorProps } from './types'
 
 const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
@@ -14,6 +16,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     height: 100%;
     padding: ${Spacing._8};
     white-space: pre-wrap;
+    color: ${Colors.text.black};
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
@@ -22,6 +25,8 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
 const PlainTextEditor = (props: PlainTextEditorProps) => {
     const { isFullHeight, maxHeight, value, onChange, ...rest } = props
     const ref = useRef<HTMLTextAreaElement>(null)
+    const windowSize = useWindowSize()
+    const { isCollapsed } = useCalendarContext()
     const resizeEditor = () => {
         if (!isFullHeight && ref.current) {
             ref.current.style.height = '0px'
@@ -36,7 +41,7 @@ const PlainTextEditor = (props: PlainTextEditorProps) => {
         }
     }, [value])
 
-    useEffect(resizeEditor, [value, maxHeight])
+    useEffect(resizeEditor, [value, maxHeight, windowSize, isCollapsed])
 
     useEffect(() => {
         if (props.autoSelect && ref.current) {
