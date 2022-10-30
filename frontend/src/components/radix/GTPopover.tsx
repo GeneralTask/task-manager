@@ -1,5 +1,6 @@
 import * as Popover from '@radix-ui/react-popover'
 import styled from 'styled-components'
+import { stopKeydownPropogation } from '../../utils/utils'
 import { MenuContentShared, MenuTriggerShared } from './RadixUIConstants'
 
 const PopoverTrigger = styled(Popover.Trigger)`
@@ -23,7 +24,9 @@ const GTPopover = ({ trigger, content, isOpen, setIsOpen, disabled, align = 'cen
         <Popover.Root modal open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger disabled={disabled}>{trigger}</PopoverTrigger>
             <Popover.Portal>
-                <PopoverContent align={align}>{content}</PopoverContent>
+                <PopoverContent onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)} align={align}>
+                    {content}
+                </PopoverContent>
             </Popover.Portal>
         </Popover.Root>
     )
