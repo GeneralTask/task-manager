@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
-import { Colors } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
@@ -41,6 +41,9 @@ const TasksContainer = styled.div`
 `
 const BottomDropArea = styled.div`
     height: 100px;
+`
+const MarginBottom4 = styled.div`
+    margin-bottom: ${Spacing._4};
 `
 
 const TaskSectionView = () => {
@@ -134,7 +137,9 @@ const TaskSectionView = () => {
                             <>
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && !section.is_trash && (
-                                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                                    <MarginBottom4>
+                                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                                    </MarginBottom4>
                                 )}
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>
