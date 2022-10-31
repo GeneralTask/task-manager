@@ -10,7 +10,6 @@ import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
-import Loading from '../atoms/Loading'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
@@ -71,8 +70,6 @@ const SettingsModal = () => {
         Github: 'See pull requests from the repos that matter to you.',
     }
 
-    if (!supportedTypes || !linkedAccounts) return <Loading />
-
     return (
         <>
             <GTButton
@@ -96,7 +93,7 @@ const SettingsModal = () => {
                                 <Body>Add a new service</Body>
                                 <ServicesContainer>
                                     {supportedTypes
-                                        .sort((a, b) => b.name.localeCompare(a.name))
+                                        ?.sort((a, b) => b.name.localeCompare(a.name))
                                         .map((supportedType) => (
                                             <Service key={supportedType.name}>
                                                 <Icon icon={logos[supportedType.logo_v2]} />
@@ -147,7 +144,7 @@ const SettingsModal = () => {
                                 </ServicesContainer>
                                 <Divider color={Colors.border.light} />
                                 <Body>My services</Body>
-                                {linkedAccounts.length > 0 ? (
+                                {linkedAccounts && linkedAccounts.length > 0 ? (
                                     linkedAccounts?.map((account) => (
                                         <Flex justifyContent="space-between" alignItems="center" key={account.id}>
                                             <Flex alignItems="center" gap={Spacing._16}>
