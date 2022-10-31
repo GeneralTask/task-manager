@@ -173,7 +173,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                         </FlexAnchor>
                     </Flex>
                     {event.conference_call.logo && (
-                        <Flex alignItemsCenter>
+                        <Flex alignItems="center">
                             <FlexAnchor href={event.conference_call.url}>
                                 <GTButton
                                     styleType="secondary"

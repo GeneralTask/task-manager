@@ -162,7 +162,7 @@ const CommandPalette = () => {
                                                 action()
                                             }}
                                         >
-                                            <Flex alignItemsCenter>
+                                            <Flex alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
                                                 {label}
                                             </Flex>

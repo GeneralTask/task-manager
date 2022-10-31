@@ -8,9 +8,11 @@ import styled from 'styled-components'
 interface FlexProps {
     gap?: string
     column?: boolean
-    justifyContentCenter?: boolean
-    justifyContentSpaceBetween?: boolean
-    alignItemsCenter?: boolean
+    // justifyContentCenter?: boolean
+    // justifyContentSpaceBetween?: boolean
+    justifyContent?: 'baseline' | 'center' | 'space-between'
+    alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
+    // alignItemsCenter?: boolean
 }
 
 export const Flex = styled.div<FlexProps>`
@@ -18,15 +20,13 @@ export const Flex = styled.div<FlexProps>`
     flex: 1;
     ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
-    ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
-    ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}
-    ${({ alignItemsCenter }) => alignItemsCenter && 'align-items: center;'}
+    ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
+    ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
 `
 export const FlexBox = styled.div<FlexProps>`
     display: flex;
     ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
-    ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
-    ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}
-    ${({ alignItemsCenter }) => alignItemsCenter && 'align-items: center;'}
+    ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
+    ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
 `

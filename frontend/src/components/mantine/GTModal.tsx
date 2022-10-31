@@ -104,7 +104,7 @@ const GTModal = ({ open, setOpen, title, tabs }: GTModalProps) => {
                     ))}
                 </ModalSidebar>
                 <ModalContent>
-                    <FlexBox justifyContentSpaceBetween alignItemsCenter>
+                    <FlexBox justifyContent="space-between" alignItems="center">
                         <Subtitle>{tabs[selectedTab].title}</Subtitle>
                         <GTIconButton icon={icons.x} onClick={() => setOpen(false)} />
                     </FlexBox>

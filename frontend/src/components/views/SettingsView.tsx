@@ -137,8 +137,8 @@ const SettingsView = () => {
                 <Body>My services</Body>
                 {linkedAccounts.length > 0 ? (
                     linkedAccounts?.map((account) => (
-                        <FlexBox justifyContentSpaceBetween alignItemsCenter key={account.id}>
-                            <FlexBox alignItemsCenter gap={Spacing._16}>
+                        <FlexBox justifyContent="space-between" alignItems="center" key={account.id}>
+                            <FlexBox alignItems="center" gap={Spacing._16}>
                                 <Icon icon={logos[account.logo_v2]} />
                                 <FlexBox column>
                                     <Label>{account.name}</Label>
