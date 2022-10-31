@@ -53,7 +53,7 @@ const MarginLeftAuto = styled.div`
     align-items: center;
     margin-left: auto;
 `
-const MarginLeft8 = styled.div`
+const DetailItem = styled.div`
     display: flex;
     align-items: center;
     margin-left: ${Spacing._8};
@@ -187,7 +187,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
-                <MarginLeft8>
+                <DetailItem>
                     {subtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
@@ -196,12 +196,12 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     ) : (
                         <Icon icon={logos[currentTask.source.logo_v2]} />
                     )}
-                </MarginLeft8>
+                </DetailItem>
                 {!currentTask.isOptimistic && (
                     <>
-                        <MarginLeft8>
+                        <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
-                        </MarginLeft8>
+                        </DetailItem>
                         {!subtask && (
                             <MarginLeftAuto>
                                 {isInTrash && (
