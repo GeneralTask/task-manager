@@ -9,40 +9,17 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { doesAccountNeedRelinking, isSlackLinked } from '../../utils/utils'
-import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
-import TaskTemplate from '../atoms/TaskTemplate'
-import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
-import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
 import { SectionHeader } from '../molecules/Header'
+import SlackTask from '../molecules/SlackTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
-const SlackTemplateContainer = styled(TaskTemplate)`
-    height: fit-content;
-`
-
-const SlackSelectableContainer = styled(SelectableContainer)`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-    padding: ${Spacing._16} ${Spacing._24};
-    margin-bottom: ${Spacing._4};
-    ${Typography.bodySmall};
-`
-const LinearBodyHeader = styled.div`
+const BodyHeader = styled.div`
     ${Typography.body};
     color: ${Colors.text.light};
     margin-bottom: ${Spacing._16};
-`
-const LinearTitle = styled.span`
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-`
-const ExternalLinkContainer = styled.div`
-    margin-left: auto;
 `
 
 const SlackTasksView = () => {
@@ -90,27 +67,14 @@ const SlackTasksView = () => {
                 {doesNeedRelinking && <ConnectIntegration type="slack" reconnect />}
                 {isSlackIntegrationLinked ? (
                     <>
-                        <LinearBodyHeader>All messages you&apos;ve created tasks for</LinearBodyHeader>
+                        <BodyHeader>All messages you&apos;ve created tasks for</BodyHeader>
                         {slackTasks?.map((task) => (
-                            <SlackTemplateContainer key={task.id}>
-                                <SlackSelectableContainer
-                                    isSelected={task.id === slackTaskId}
-                                    key={task.id}
-                                    onClick={() => onClick(task.id)}
-                                >
-                                    {slackTaskId === task.id && <PurpleEdge />}
-                                    <MarkTaskDoneButton
-                                        isDone={task.is_done}
-                                        taskId={task.id}
-                                        isSelected={true}
-                                        isDisabled={task.isOptimistic}
-                                    />
-                                    <LinearTitle>{task.title}</LinearTitle>
-                                    <ExternalLinkContainer>
-                                        <ExternalLinkButton link={task.deeplink} />
-                                    </ExternalLinkContainer>
-                                </SlackSelectableContainer>
-                            </SlackTemplateContainer>
+                            <SlackTask
+                                key={task.id}
+                                task={task}
+                                isSelected={task.id === slackTaskId}
+                                onClick={onClick}
+                            />
                         ))}
                     </>
                 ) : (

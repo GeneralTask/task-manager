@@ -213,7 +213,7 @@ export interface TUserInfo {
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
-    LINEAR_TASK = 'linear-task',
+    NON_REORDERABLE_TASK = 'non-reorderable-task',
     DUE_TASK = 'due-task',
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',

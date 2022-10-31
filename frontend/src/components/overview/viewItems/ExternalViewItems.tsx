@@ -1,6 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
-import { TTask } from '../../../utils/types'
+import { DropType, TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
@@ -37,8 +37,8 @@ const ExternalViewItems = forwardRef(
                 {view.view_items.slice(0, visibleItemsCount).map((item) => (
                     <Task
                         key={item.id}
+                        dropType={DropType.NON_REORDERABLE_TASK}
                         task={item as TTask}
-                        dragDisabled={true}
                         sectionScrollingRef={scrollRef}
                         isSelected={overviewViewId === view.id && overviewItemId === item.id}
                         link={`/overview/${view.id}/${item.id}`}
