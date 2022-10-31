@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 interface FlexProps {
     gap?: string
-    dir?: 'row' | 'column'
+    column?: boolean
     justifyContentCenter?: boolean
     justifyContentSpaceBetween?: boolean
     alignItemsCenter?: boolean
@@ -16,7 +16,7 @@ interface FlexProps {
 export const Flex = styled.div<FlexProps>`
     display: flex;
     flex: 1;
-    ${({ dir }) => dir === 'column' && 'flex-direction: column;'}
+    ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
     ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
     ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}
@@ -24,7 +24,7 @@ export const Flex = styled.div<FlexProps>`
 `
 export const FlexBox = styled.div<FlexProps>`
     display: flex;
-    ${({ dir }) => dir === 'column' && 'flex-direction: column;'}
+    ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
     ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
     ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}

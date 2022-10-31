@@ -151,7 +151,7 @@ const SettingsModal = () => {
                                         <FlexBox justifyContentSpaceBetween alignItemsCenter key={account.id}>
                                             <FlexBox alignItemsCenter gap={Spacing._16}>
                                                 <Icon icon={logos[account.logo_v2]} />
-                                                <FlexBox dir="column">
+                                                <FlexBox column>
                                                     <Label>{account.name}</Label>
                                                     <Label color="light">{account.display_id}</Label>
                                                 </FlexBox>
