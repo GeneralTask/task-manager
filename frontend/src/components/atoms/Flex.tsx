@@ -13,7 +13,7 @@ interface FlexProps {
     alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
 }
 
-export const Flex = styled.div<FlexProps>`
+const Flex = styled.div<FlexProps>`
     display: flex;
     ${({ flex }) => flex && `flex: ${flex};`}
     ${({ column }) => column && 'flex-direction: column;'}
@@ -21,3 +21,5 @@ export const Flex = styled.div<FlexProps>`
     ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
     ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
 `
+
+export default Flex
