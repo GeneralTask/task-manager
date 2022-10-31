@@ -149,7 +149,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                         </EventDate>
                     </EventDateContainer>
                     <Description dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.body) }} />
-                    <Flex gap={Spacing._8}>
+                    <Flex flex="1" gap={Spacing._8}>
                         {event.linked_task_id && (
                             <GTButton
                                 styleType="secondary"
@@ -173,7 +173,7 @@ const EventDetailPopup = forwardRef<HTMLDivElement, EventDetailProps>(
                         </FlexAnchor>
                     </Flex>
                     {event.conference_call.logo && (
-                        <Flex alignItems="center">
+                        <Flex flex="1" alignItems="center">
                             <FlexAnchor href={event.conference_call.url}>
                                 <GTButton
                                     styleType="secondary"

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
-import { FlexBox } from '../atoms/Flex'
+import { Flex } from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -104,10 +104,10 @@ const GTModal = ({ open, setOpen, title, tabs }: GTModalProps) => {
                     ))}
                 </ModalSidebar>
                 <ModalContent>
-                    <FlexBox justifyContent="space-between" alignItems="center">
+                    <Flex justifyContent="space-between" alignItems="center">
                         <Subtitle>{tabs[selectedTab].title}</Subtitle>
                         <GTIconButton icon={icons.x} onClick={() => setOpen(false)} />
-                    </FlexBox>
+                    </Flex>
                     <Divider color={Colors.border.light} />
                     {tabs[selectedTab].body}
                 </ModalContent>

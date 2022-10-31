@@ -6,25 +6,16 @@ import styled from 'styled-components'
 */
 
 interface FlexProps {
+    flex?: '0' | '1'
     gap?: string
     column?: boolean
-    // justifyContentCenter?: boolean
-    // justifyContentSpaceBetween?: boolean
     justifyContent?: 'baseline' | 'center' | 'space-between'
     alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
-    // alignItemsCenter?: boolean
 }
 
 export const Flex = styled.div<FlexProps>`
     display: flex;
-    flex: 1;
-    ${({ column }) => column && 'flex-direction: column;'}
-    ${({ gap }) => gap && `gap: ${gap};`}
-    ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
-    ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
-`
-export const FlexBox = styled.div<FlexProps>`
-    display: flex;
+    ${({ flex }) => flex && `flex: ${flex};`}
     ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
     ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}

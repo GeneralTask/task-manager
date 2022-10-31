@@ -9,7 +9,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
-import { FlexBox } from '../atoms/Flex'
+import { Flex } from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import { Divider } from '../atoms/SectionDivider'
@@ -137,15 +137,15 @@ const SettingsView = () => {
                 <Body>My services</Body>
                 {linkedAccounts.length > 0 ? (
                     linkedAccounts?.map((account) => (
-                        <FlexBox justifyContent="space-between" alignItems="center" key={account.id}>
-                            <FlexBox alignItems="center" gap={Spacing._16}>
+                        <Flex justifyContent="space-between" alignItems="center" key={account.id}>
+                            <Flex alignItems="center" gap={Spacing._16}>
                                 <Icon icon={logos[account.logo_v2]} />
-                                <FlexBox column>
+                                <Flex column>
                                     <Label>{account.name}</Label>
                                     <Label color="light">{account.display_id}</Label>
-                                </FlexBox>
-                            </FlexBox>
-                            <FlexBox gap={Spacing._8}>
+                                </Flex>
+                            </Flex>
+                            <Flex gap={Spacing._8}>
                                 {account.has_bad_token && (
                                     <GTButton
                                         onClick={() => onRelink(account.name)}
@@ -163,8 +163,8 @@ const SettingsView = () => {
                                         size="small"
                                     />
                                 )}
-                            </FlexBox>
-                        </FlexBox>
+                            </Flex>
+                        </Flex>
                     ))
                 ) : (
                     <ServiceDetails>
