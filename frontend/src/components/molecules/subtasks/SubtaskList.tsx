@@ -58,7 +58,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                     />
                 )}
                 {subtasks.map((subtask) => {
-                    return <Subtask key={subtask.id} sectionId={sectionId} parentTaskId={taskId} subtask={subtask} />
+                    return <Subtask key={subtask.id} parentTaskId={taskId} subtask={subtask} />
                 })}
             </TaskListContainer>
         </div>
