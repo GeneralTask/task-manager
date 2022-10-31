@@ -30,7 +30,7 @@ const AuthenticatedRoutes = () => {
                             <Route index element={<MainScreen />} />
                             <Route path=":overviewViewId" element={<MainScreen />}>
                                 <Route path=":overviewItemId" element={<MainScreen />}>
-                                    <Route path=":overviewItemSubId" element={<MainScreen />} />
+                                    <Route path=":subtaskId" element={<MainScreen />} />
                                 </Route>
                             </Route>
                         </Route>
