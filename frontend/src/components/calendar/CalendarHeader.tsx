@@ -75,6 +75,9 @@ export default function CalendarHeader({
         }
     }
     const selectToday = useCallback(() => {
+        if (calendarType === 'day') {
+            setDayViewDate(DateTime.now())
+        }
         setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
     }, [setDate, isCalendarExpanded])
 
