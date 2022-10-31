@@ -6,6 +6,7 @@ import Log from '../../services/api/log'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
+import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
@@ -26,6 +27,9 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const PullRequestsContainer = styled.div`
     display: flex;
     flex-direction: column;
+`
+const MarginBottom4 = styled.div`
+    margin-bottom: ${Spacing._4};
 `
 
 const PullRequestsView = () => {
@@ -94,7 +98,9 @@ const PullRequestsView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="GitHub PRs" />
                     {doesNeedRelinking && <ConnectIntegration type="github" reconnect />}
-                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                    <MarginBottom4>
+                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                    </MarginBottom4>
                     {!isGithubIntegrationLinked && !isLinkedAccountsLoading ? (
                         <ConnectIntegration type="github" />
                     ) : (
