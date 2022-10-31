@@ -75,7 +75,9 @@ func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken)
 	for _, pullRequestChannel := range pullRequestChannels {
 		pullRequestResult := <-pullRequestChannel
 		if pullRequestResult.Error != nil {
-			api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
+			if !pullRequestResult.SuppressSentry {
+				api.Logger.Error().Err(pullRequestResult.Error).Msg("failed to load PR source")
+			}
 			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
