@@ -86,6 +86,7 @@ const SettingsModal = () => {
                 open={modalIsOpen}
                 setOpen={setModalIsOpen}
                 title="Settings"
+                size="lg"
                 tabs={[
                     {
                         title: 'Services',
