@@ -36,7 +36,7 @@ const OverviewView = () => {
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
     useFetchPullRequests()
-    const { overviewViewId, overviewItemId } = useParams()
+    const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -65,11 +65,15 @@ const OverviewView = () => {
                         return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
                     }
                 }
-                return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
+                const subtask = (item as TTask).sub_tasks?.find((subtask) => subtask.id === subtaskId)
+                const detailsLink = subtask
+                    ? `/overview/${view.id}/${item.id}/${subtask.id}`
+                    : `/overview/${view.id}/${item.id}/`
+                return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
             }
         }
         return null
-    }, [overviewViewId, overviewItemId, views])
+    }, [overviewViewId, overviewItemId, subtaskId, views])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
