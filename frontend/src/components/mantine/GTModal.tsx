@@ -10,9 +10,13 @@ import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Eyebrow, Label, Subtitle } from '../atoms/typography/Typography'
 
-const MODAL_WIDTH = '1004px'
 const MODAL_HEIGHT = '642px'
 const SIDEBAR_WIDTH = '185px'
+const MODAL_WIDTH = {
+    sm: '502px',
+    lg: '1004px',
+}
+type TModalSize = keyof typeof MODAL_WIDTH
 
 const ModalOuter = styled.div`
     display: flex;
@@ -52,7 +56,6 @@ const Link = styled.button<{ isSelected: boolean }>`
 const modalProps: Partial<ModalProps> = {
     withCloseButton: false,
     centered: true,
-    size: MODAL_WIDTH,
     overlayColor: Colors.background.white,
     overlayOpacity: 0.55,
     overlayBlur: 3,
@@ -77,14 +80,22 @@ interface GTModalTab {
 interface GTModalProps {
     open: boolean
     setOpen: (open: boolean) => void
+    size: TModalSize
     title?: string
     tabs: GTModalTab | GTModalTab[]
 }
-const GTModal = ({ open, setOpen, title, tabs }: GTModalProps) => {
+const GTModal = ({ open, setOpen, size, title, tabs }: GTModalProps) => {
     if (!Array.isArray(tabs)) {
         return (
-            <Modal opened={open} onClose={() => setOpen(false)} {...modalProps}>
-                <ModalContent>{tabs.body}</ModalContent>
+            <Modal opened={open} onClose={() => setOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
+                <ModalContent>
+                    <Flex justifyContent="space-between" alignItems="center">
+                        <Subtitle>{tabs.title}</Subtitle>
+                        <GTIconButton icon={icons.x} onClick={() => setOpen(false)} />
+                    </Flex>
+                    <Divider color={Colors.border.light} />
+                    {tabs.body}
+                </ModalContent>
             </Modal>
         )
     }
@@ -92,7 +103,7 @@ const GTModal = ({ open, setOpen, title, tabs }: GTModalProps) => {
     const [selectedTab, setSelectedTab] = useState(0)
 
     return (
-        <Modal opened={open} onClose={() => setOpen(false)} {...modalProps}>
+        <Modal opened={open} onClose={() => setOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
             <ModalOuter>
                 <ModalSidebar>
                     <Eyebrow color="light">{title}</Eyebrow>
