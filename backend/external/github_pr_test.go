@@ -343,10 +343,12 @@ func TestGetGithubUser(t *testing.T) {
 		defer githubUserServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
+		githubUserResultChan := make(chan GithubUserResult)
+		go getGithubUser(ctx, githubClient, "", userURL, githubUserResultChan)
+		result := <-githubUserResultChan
 
-		assert.NoError(t, err)
-		assert.Equal(t, *githubUser.Login, "chad1616")
+		assert.NoError(t, result.Error)
+		assert.Equal(t, *result.User.Login, "chad1616")
 	})
 	t.Run("BadStatusCode", func(t *testing.T) {
 		githubUserServer := testutils.GetMockAPIServer(t, 401, "")
@@ -354,11 +356,13 @@ func TestGetGithubUser(t *testing.T) {
 		defer githubUserServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
+		githubUserResultChan := make(chan GithubUserResult)
+		go getGithubUser(ctx, githubClient, "", userURL, githubUserResultChan)
+		result := <-githubUserResultChan
 
-		assert.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("GET %s/user: 401  []", *userURL), err.Error())
-		assert.Nil(t, githubUser)
+		assert.Error(t, result.Error)
+		assert.Equal(t, fmt.Sprintf("GET %s/user: 401  []", *userURL), result.Error.Error())
+		assert.Nil(t, result.User)
 	})
 	t.Run("BadResponse", func(t *testing.T) {
 		githubUserServer := testutils.GetMockAPIServer(t, 200, "oopsie")
@@ -366,11 +370,13 @@ func TestGetGithubUser(t *testing.T) {
 		defer githubUserServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubUser, err := getGithubUser(ctx, githubClient, "", userURL)
+		githubUserResultChan := make(chan GithubUserResult)
+		go getGithubUser(ctx, githubClient, "", userURL, githubUserResultChan)
+		result := <-githubUserResultChan
 
-		assert.Error(t, err)
-		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
-		assert.Nil(t, githubUser)
+		assert.Error(t, result.Error)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", result.Error.Error())
+		assert.Nil(t, result.User)
 	})
 }
 
@@ -381,11 +387,13 @@ func TestGithubRepositories(t *testing.T) {
 		defer githubUserRepositoriesServer.Close()
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
+		githubRepositoriesResultChan := make(chan GithubRepositoriesResult)
+		go getGithubRepositories(ctx, githubClient, "", userRepositoriesURL, githubRepositoriesResultChan)
+		result := <-githubRepositoriesResultChan
 
-		assert.NoError(t, err)
-		assert.Equal(t, len(githubRepositories), 1)
-		assert.Equal(t, *githubRepositories[0].Name, "ExampleRepository")
+		assert.NoError(t, result.Error)
+		assert.Equal(t, len(result.Repositories), 1)
+		assert.Equal(t, *result.Repositories[0].Name, "ExampleRepository")
 	})
 	t.Run("BadStatusCode", func(t *testing.T) {
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 401, "")
@@ -394,11 +402,13 @@ func TestGithubRepositories(t *testing.T) {
 
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
+		githubRepositoriesResultChan := make(chan GithubRepositoriesResult)
+		go getGithubRepositories(ctx, githubClient, "", userRepositoriesURL, githubRepositoriesResultChan)
+		result := <-githubRepositoriesResultChan
 
-		assert.Error(t, err)
-		assert.Equal(t, fmt.Sprintf("GET %s/user/repos?sort=pushed: 401  []", *userRepositoriesURL), err.Error())
-		assert.Nil(t, githubRepositories)
+		assert.Error(t, result.Error)
+		assert.Equal(t, fmt.Sprintf("GET %s/user/repos?sort=pushed: 401  []", *userRepositoriesURL), result.Error.Error())
+		assert.Nil(t, result.Repositories)
 	})
 	t.Run("BadResponse", func(t *testing.T) {
 		githubUserRepositoriesServer := testutils.GetMockAPIServer(t, 200, "oopsie")
@@ -407,11 +417,13 @@ func TestGithubRepositories(t *testing.T) {
 
 		ctx := context.Background()
 		githubClient := github.NewClient(nil)
-		githubRepositories, err := getGithubRepositories(ctx, githubClient, "", userRepositoriesURL)
+		githubRepositoriesResultChan := make(chan GithubRepositoriesResult)
+		go getGithubRepositories(ctx, githubClient, "", userRepositoriesURL, githubRepositoriesResultChan)
+		result := <-githubRepositoriesResultChan
 
-		assert.Error(t, err)
-		assert.Equal(t, "invalid character 'o' looking for beginning of value", err.Error())
-		assert.Nil(t, githubRepositories)
+		assert.Error(t, result.Error)
+		assert.Equal(t, "invalid character 'o' looking for beginning of value", result.Error.Error())
+		assert.Nil(t, result.Repositories)
 	})
 }
 
