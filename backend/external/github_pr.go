@@ -94,6 +94,21 @@ type GithubPRRequestData struct {
 	UserTeams   []*github.Team
 }
 
+type GithubUserResult struct {
+	User  *github.User
+	Error error
+}
+
+type GithubUserTeamsResult struct {
+	UserTeams []*github.Team
+	Error     error
+}
+
+type GithubRepositoriesResult struct {
+	Repositories []*github.Repository
+	Error        error
+}
+
 func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(errors.New("github PR cannot fetch events"))
 }
@@ -135,21 +150,24 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 
-	githubUser, err := getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL)
+	userResult := make(chan GithubUserResult)
+	go getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL, userResult)
 	if err != nil || githubUser == nil {
 		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"), !shouldLog)
 		return
 	}
 
-	userTeams, err := getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL)
+	userTeamsResult := make(chan GithubUserTeamsResult)
+	go getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL, userTeamsResult)
 	if err != nil {
 		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github user teams")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"), !shouldLog)
 		return
 	}
 
-	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL)
+	repositoriesResult := make(chan GithubRepositoriesResult)
+	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResult)
 	if err != nil {
 		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"), !shouldLog)
@@ -159,6 +177,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
 	for _, repository := range repositories {
+		// parallel below also
 		err := updateOrCreateRepository(db, repository, userID)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to update or create repository")
