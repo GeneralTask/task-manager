@@ -853,7 +853,7 @@ func (api *API) OverviewSupportedViewsList(c *gin.Context) {
 		},
 		{
 			Type:     constants.ViewTaskSection,
-			Name:     "Task Sections",
+			Name:     "Task Lists",
 			Logo:     external.TaskServiceGeneralTask.LogoV2,
 			IsNested: true,
 			IsLinked: true,
