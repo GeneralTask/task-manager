@@ -1,7 +1,10 @@
 package external
 
 import (
+	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,6 +37,13 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_LINEAR)
 		return
 	}
+	userChangeable := &database.UserChangeable{LinearName: string(meQuery.Viewer.Name), LinearDisplayName: string(meQuery.Viewer.DisplayName)}
+	database.GetUserCollection(db).FindOneAndUpdate(
+		context.Background(),
+		bson.M{"_id": userID},
+		bson.M{"$set": userChangeable},
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	)
 
 	client, err = GetLinearClient(linearTask.Linear.Config.ConfigValues.TaskFetchURL, db, userID, accountID)
 	if err != nil {
@@ -161,11 +171,11 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		tasks = append(tasks, task)
 	}
 
-	result <- TaskResult{Tasks: tasks}
+	result <- TaskResult{Tasks: tasks, ServiceID: TASK_SERVICE_ID_LINEAR, AccountID: accountID}
 }
 
 func (linearTask LinearTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	result <- emptyPullRequestResult(nil)
+	result <- emptyPullRequestResult(nil, false)
 }
 
 func (linearTask LinearTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {

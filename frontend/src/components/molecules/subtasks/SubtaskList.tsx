@@ -42,6 +42,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
 
+    if (!sectionId) return null
     return (
         <div>
             <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
@@ -57,7 +58,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                     />
                 )}
                 {subtasks.map((subtask) => {
-                    return <Subtask key={subtask.id} title={subtask.title} />
+                    return <Subtask key={subtask.id} parentTaskId={taskId} subtask={subtask} />
                 })}
             </TaskListContainer>
         </div>

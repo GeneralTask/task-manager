@@ -29,6 +29,9 @@ const ContextMenuItem = styled(ContextMenu.Item)<{ $isSelected?: boolean; $textC
 const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ $isSelected?: boolean; $textColor?: TTextColor }>`
     ${MenuItemShared};
 `
+const FullWidth = styled.div`
+    width: 100%;
+`
 
 interface GTContextMenuProps {
     items: GTMenuItem[]
@@ -37,11 +40,11 @@ interface GTContextMenuProps {
 }
 const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => {
     return (
-        <div onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)} style={{ width: '100%' }}>
+        <FullWidth>
             <ContextMenu.Root onOpenChange={onOpenChange}>
                 <ContextMenuTrigger>{trigger}</ContextMenuTrigger>
                 <ContextMenu.Portal>
-                    <ContextMenuContent>
+                    <ContextMenuContent onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}>
                         {items.map((item) => (
                             <Fragment key={item.label}>
                                 {item.subItems ? (
@@ -105,7 +108,7 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                     </ContextMenuContent>
                 </ContextMenu.Portal>
             </ContextMenu.Root>
-        </div>
+        </FullWidth>
     )
 }
 
