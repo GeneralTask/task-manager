@@ -86,6 +86,7 @@ const OverviewListsModal = () => {
                 open={modalIsOpen}
                 setOpen={setModalIsOpen}
                 title="Overview"
+                size="lg"
                 tabs={[
                     {
                         title: 'Add lists',
