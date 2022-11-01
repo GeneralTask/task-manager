@@ -11,14 +11,14 @@ import (
 )
 
 type RecurringTaskTemplateCreateParams struct {
-	Title               string   `json:"title,omitempty"`
-	Body                string   `json:"body,omitempty"`
+	Title               *string  `json:"title,omitempty"`
+	Body                *string  `json:"body,omitempty"`
 	IDTaskSection       *string  `json:"id_task_section,omitempty"`
 	PriorityNormalized  *float64 `json:"priority_normalized,omitempty"`
-	RecurrenceRate      int      `json:"recurrence_rate,omitempty"`
-	CreationTimeSeconds int      `json:"creation_time_seconds,omitempty"`
-	CreationDay         int      `json:"creation_day,omitempty"`
-	CreationMonth       int      `json:"creation_month,omitempty"`
+	RecurrenceRate      *int     `json:"recurrence_rate,omitempty"`
+	CreationTimeSeconds *int     `json:"creation_time_seconds,omitempty"`
+	CreationDay         *int     `json:"creation_day,omitempty"`
+	CreationMonth       *int     `json:"creation_month,omitempty"`
 }
 
 func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
@@ -45,8 +45,8 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 	deleted := false
 	newTemplate := database.RecurringTaskTemplate{
 		UserID:              userID,
-		Title:               &templateCreateParams.Title,
-		Body:                &templateCreateParams.Body,
+		Title:               templateCreateParams.Title,
+		Body:                templateCreateParams.Body,
 		IDTaskSection:       taskSection,
 		PriorityNormalized:  templateCreateParams.PriorityNormalized,
 		IsEnabled:           &enabled,

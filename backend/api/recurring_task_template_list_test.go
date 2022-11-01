@@ -27,6 +27,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 	priority := 3.0
 	_true := true
 	_false := false
+	rate := 0
 	triggerTime := time.Now()
 
 	// enabled and not deleted
@@ -36,7 +37,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		PriorityNormalized: &priority,
 		IsEnabled:          &_true,
 		IsDeleted:          &_false,
-		RecurrenceRate:     0,
+		RecurrenceRate:     &rate,
 		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
@@ -48,7 +49,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		PriorityNormalized: &priority,
 		IsEnabled:          &_false,
 		IsDeleted:          &_false,
-		RecurrenceRate:     0,
+		RecurrenceRate:     &rate,
 		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
@@ -60,7 +61,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		PriorityNormalized: &priority,
 		IsEnabled:          &_true,
 		IsDeleted:          &_true,
-		RecurrenceRate:     0,
+		RecurrenceRate:     &rate,
 		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
@@ -72,7 +73,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		PriorityNormalized: &priority,
 		IsEnabled:          &_true,
 		IsDeleted:          &_false,
-		RecurrenceRate:     0,
+		RecurrenceRate:     &rate,
 		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
@@ -95,7 +96,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`[{"ID":"%s","UserID":"%s","Title":"recurring task!","Body":null,"IDTaskSection":"000000000000000000000000","PriorityNormalized":3,"IsEnabled":true,"IsDeleted":false,"RecurrenceRate":0,"CreationTimeSeconds":0,"CreationDay":0,"CreationMonth":0,"LastTriggered":"%s"},{"ID":"%s","UserID":"%s","Title":"recurring task!","Body":null,"IDTaskSection":"000000000000000000000000","PriorityNormalized":3,"IsEnabled":false,"IsDeleted":false,"RecurrenceRate":0,"CreationTimeSeconds":0,"CreationDay":0,"CreationMonth":0,"LastTriggered":"%s"}]`, template1Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), template2Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00")),
+			fmt.Sprintf(`[{"ID":"%s","UserID":"%s","Title":"recurring task!","Body":null,"IDTaskSection":"000000000000000000000000","PriorityNormalized":3,"IsEnabled":true,"IsDeleted":false,"RecurrenceRate":0,"CreationTimeSeconds":null,"CreationDay":null,"CreationMonth":null,"LastTriggered":"%s"},{"ID":"%s","UserID":"%s","Title":"recurring task!","Body":null,"IDTaskSection":"000000000000000000000000","PriorityNormalized":3,"IsEnabled":false,"IsDeleted":false,"RecurrenceRate":0,"CreationTimeSeconds":null,"CreationDay":null,"CreationMonth":null,"LastTriggered":"%s"}]`, template1Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), template2Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00")),
 			string(body))
 	})
 }

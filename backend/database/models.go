@@ -112,10 +112,10 @@ type RecurringTaskTemplate struct {
 	// recurrence fields
 	IsEnabled           *bool              `bson:"is_enabled,omitempty"`
 	IsDeleted           *bool              `bson:"is_deleted,omitempty"`
-	RecurrenceRate      int                `bson:"recurrence_rate,omitempty"`
-	CreationTimeSeconds int                `bson:"creation_time_seconds,omitempty"`
-	CreationDay         int                `bson:"creation_day,omitempty"`
-	CreationMonth       int                `bson:"creation_month,omitempty"`
+	RecurrenceRate      *int               `bson:"recurrence_rate,omitempty"`
+	CreationTimeSeconds *int               `bson:"creation_time_seconds,omitempty"`
+	CreationDay         *int               `bson:"creation_day,omitempty"`
+	CreationMonth       *int               `bson:"creation_month,omitempty"`
 	LastTriggered       primitive.DateTime `bson:"last_triggered,omitempty"`
 }
 
