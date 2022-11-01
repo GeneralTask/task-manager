@@ -63,6 +63,8 @@ type Task struct {
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 	// required for sub-task experience
 	ParentTaskID primitive.ObjectID `bson:"parent_task_id,omitempty"`
+	// required for recurring tasks
+	RecurringTaskTemplateID primitive.ObjectID `bson:"recurring_task_template_id,omitempty"`
 	// generic task values (for all sources)
 	IDExternal         string              `bson:"id_external,omitempty"`
 	IDOrdering         int                 `bson:"id_ordering,omitempty"`
@@ -97,6 +99,24 @@ type Task struct {
 	// meeting prep fields
 	MeetingPreparationParams *MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 	IsMeetingPreparationTask bool                      `bson:"is_meeting_preparation_task,omitempty"`
+}
+
+type RecurringTaskTemplate struct {
+	// task fields
+	ID                 primitive.ObjectID `bson:"_id,omitempty"`
+	UserID             primitive.ObjectID `bson:"user_id,omitempty"`
+	Title              *string            `bson:"title,omitempty"`
+	Body               *string            `bson:"body,omitempty"`
+	IDTaskSection      primitive.ObjectID `bson:"id_task_section,omitempty"`
+	PriorityNormalized *float64           `bson:"priority_normalized,omitempty"`
+	// recurrence fields
+	IsEnabled           *bool              `bson:"is_enabled,omitempty"`
+	IsDeleted           *bool              `bson:"is_deleted,omitempty"`
+	RecurrenceRate      int                `bson:"recurrence_rate,omitempty"`
+	CreationTimeSeconds int                `bson:"creation_time_seconds,omitempty"`
+	CreationDay         int                `bson:"creation_day,omitempty"`
+	CreationMonth       int                `bson:"creation_month,omitempty"`
+	LastTriggered       primitive.DateTime `bson:"last_triggered,omitempty"`
 }
 
 type PullRequest struct {
