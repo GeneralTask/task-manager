@@ -117,7 +117,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
             const dropPosition = getDropPosition(monitor)
             const dropTime = getTimeFromDropPosition(dropPosition)
             switch (itemType) {
-                case DropType.LINEAR_TASK:
+                case DropType.NON_REORDERABLE_TASK:
                 case DropType.DUE_TASK:
                 case DropType.TASK: {
                     if (!item.task) return
@@ -211,7 +211,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
         () => ({
             accept: [
                 DropType.TASK,
-                DropType.LINEAR_TASK,
+                DropType.NON_REORDERABLE_TASK,
                 DropType.DUE_TASK,
                 DropType.EVENT,
                 DropType.EVENT_RESIZE_HANDLE,
@@ -223,7 +223,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 const dropPosition = getDropPosition(monitor)
                 const itemType = monitor.getItemType()
                 switch (itemType) {
-                    case DropType.LINEAR_TASK:
+                    case DropType.NON_REORDERABLE_TASK:
                     case DropType.TASK: {
                         setEventPreview(undefined)
                         setDropPreviewPosition(dropPosition)

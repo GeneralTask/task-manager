@@ -43,7 +43,7 @@ func (generalTask GeneralTaskTaskSource) GetTasks(db *mongo.Database, userID pri
 }
 
 func (generalTask GeneralTaskTaskSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	result <- emptyPullRequestResult(nil)
+	result <- emptyPullRequestResult(nil, false)
 }
 
 func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {

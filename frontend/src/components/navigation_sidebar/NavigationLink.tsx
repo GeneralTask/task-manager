@@ -115,7 +115,7 @@ const NavigationLink = ({
 
     const [isOver, drop] = useDrop(
         () => ({
-            accept: DropType.TASK,
+            accept: [DropType.TASK],
             collect: (monitor) => Boolean(taskSection && droppable && monitor.isOver()),
             drop: onDrop,
             canDrop: () => !!(taskSection && droppable),

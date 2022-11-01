@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
-import { Colors } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
 import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
@@ -42,6 +42,9 @@ const TasksContainer = styled.div`
 const BottomDropArea = styled.div`
     height: 100px;
 `
+const MarginBottom4 = styled.div`
+    margin-bottom: ${Spacing._4};
+`
 
 const TaskSectionView = () => {
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
@@ -54,11 +57,16 @@ const TaskSectionView = () => {
     const navigate = useNavigate()
     const params = useParams()
 
-    const { section, task } = useMemo(() => {
+    const { section, task, subtask } = useMemo(() => {
         const section = taskSections?.find(({ id }) => id === params.section)
         const task = section?.tasks.find(({ id }) => id === params.task)
-        return { section, task }
-    }, [taskSections, params.task, params.section])
+        const subtask = task?.sub_tasks?.find(({ id }) => id === params.subtaskId)
+        return { section, task, subtask }
+    }, [taskSections, params.task, params.section, params.subtaskId])
+
+    const detailsLink = subtask
+        ? `/tasks/${params.section}/${task?.id}/${subtask.id}`
+        : `/tasks/${params.section}/${task?.id}`
 
     const [shouldScrollToTask, setShouldScrollToTask] = useState(false)
 
@@ -134,7 +142,9 @@ const TaskSectionView = () => {
                             <>
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && !section.is_trash && (
-                                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                                    <MarginBottom4>
+                                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                                    </MarginBottom4>
                                 )}
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>
@@ -182,7 +192,7 @@ const TaskSectionView = () => {
                 </ScrollableListTemplate>
             </TaskSectionContainer>
             {task && section ? (
-                <TaskDetails task={task} link={`/tasks/${params.section}/${task.id}`} />
+                <TaskDetails task={task} subtask={subtask} link={detailsLink} />
             ) : (
                 <EmptyDetails icon={icons.check} text="You have no tasks" />
             )}

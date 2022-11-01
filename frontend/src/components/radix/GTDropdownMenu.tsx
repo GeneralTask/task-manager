@@ -38,11 +38,11 @@ const GTDropdownMenu = ({ items, trigger, align = 'start', isOpen, setIsOpen, di
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
     return (
-        <div onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}>
+        <div>
             <DropdownMenu.Root modal open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger disabled={disabled}>{trigger}</DropdownMenuTrigger>
                 <DropdownMenu.Portal>
-                    <DropdownMenuContent align={align}>
+                    <DropdownMenuContent onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)} align={align}>
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>
                                 <DropdownMenu.Group>
