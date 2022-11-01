@@ -313,26 +313,22 @@ export const useMarkTaskDoneOrDeleted = () => {
                             undefined,
                             data.subtaskId
                         )
-                        console.log(taskIndex, sectionIndex, subtaskIndex)
                         if (taskIndex === undefined || sectionIndex === undefined) return
 
                         const task = draft[sectionIndex].tasks[taskIndex]
                         if (data.subtaskId !== undefined) {
-                            console.log('subtaskIndex', subtaskIndex)
                             if (subtaskIndex === undefined) return
                             const subtask = task.sub_tasks?.[subtaskIndex]
                             if (!subtask) return
                             if (data.isDone !== undefined) subtask.is_done = data.isDone
                             draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
                         } else {
-                            alert('bad')
                             if (data.isDone !== undefined) task.is_done = data.isDone
                             if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                             if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
                             if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
                             draft[sectionIndex].tasks.splice(taskIndex, 1)
                         }
-                        console.log(task.is_done)
                     })
                     if (data.waitForAnimation) {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
@@ -340,34 +336,41 @@ export const useMarkTaskDoneOrDeleted = () => {
                     queryClient.setQueryData('tasks', newSections)
                 }
             }
-            // const updateOverviewPage = async () => {
-            //     if (!lists) return
-            //     if (data.subtaskId !== undefined) return
-            //     alert('bad')
-            //     const newLists = produce(lists, (draft) => {
-            //         const sections = lists.map((view) => ({
-            //             id: view.task_section_id,
-            //             tasks: view.view_items,
-            //         }))
-            //         const { taskIndex, sectionIndex } = getTaskIndexFromSections(
-            //             sections,
-            //             data.taskId,
-            //             data.sectionId
-            //         )
-            //         if (sectionIndex === undefined || taskIndex === undefined) return
-            //         const task = draft[sectionIndex].view_items[taskIndex]
-            //         if (data.isDone !== undefined) task.is_done = data.isDone
-            //         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-            //         draft[sectionIndex].view_items.splice(taskIndex, 1)
-            //     })
-            //     if (data.waitForAnimation) {
-            //         await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
-            //     }
-            //     queryClient.setQueryData('overview', newLists)
-            // }
+            const updateOverviewPage = async () => {
+                if (!lists) return
+                const newLists = produce(lists, (draft) => {
+                    const sections = lists.map((view) => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items,
+                    }))
+                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                        sections,
+                        data.taskId,
+                        data.sectionId,
+                        data.subtaskId
+                    )
+                    if (sectionIndex === undefined || taskIndex === undefined) return
+                    const task = draft[sectionIndex].view_items[taskIndex]
+                    if (data.subtaskId) {
+                        if (subtaskIndex === undefined) return
+                        if (!task.sub_tasks) return
+                        if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
+                        if (data.isDeleted !== undefined) task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                        task.sub_tasks.splice(subtaskIndex, 1)
+                    } else {
+                        if (data.isDone !== undefined) task.is_done = data.isDone
+                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                        draft[sectionIndex].view_items.splice(taskIndex, 1)
+                    }
+                })
+                if (data.waitForAnimation) {
+                    await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                }
+                queryClient.setQueryData('overview', newLists)
+            }
             // execute in parallel if waiting for animation delay
             updateSections()
-            // updateOverviewPage()
+            updateOverviewPage()
         },
         onSettled: () => {
             queryClient.invalidateQueries('tasks')
