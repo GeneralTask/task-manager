@@ -1,19 +1,27 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
-import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
+import {
+    useAddView,
+    useGetOverviewViews,
+    useGetSupportedViews,
+    useRemoveView,
+    useReorderViews,
+} from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TSupportedView, TSupportedViewItem } from '../../utils/types'
+import { DropItem, DropType, TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { isGithubLinked } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
+import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTModal from '../mantine/GTModal'
 import AuthBanner from './AuthBanner'
+import EditListsSelectedList from './EditListsSelectedList'
 import MissingRepositoryMessage from './MissingRepositoryMessage'
 
 const SupportedView = styled(Flex)<{ isIndented?: boolean }>`
@@ -39,6 +47,14 @@ const OverviewListsModal = () => {
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
+    const { data: views } = useGetOverviewViews()
+    const { mutate: reorderViews } = useReorderViews()
+
+    const handleReorder = useCallback(
+        (item: DropItem, dropIndex: number) => reorderViews({ viewId: item.id, idOrdering: dropIndex }),
+        [reorderViews]
+    )
+
     const onChangeSupportedView = (
         supportedView: TSupportedView,
         viewIndex: number,
@@ -60,10 +76,10 @@ const OverviewListsModal = () => {
     return (
         <>
             <GTButton
-                value="Add/Edit lists"
+                value="Edit"
                 styleType="secondary"
                 size="large"
-                icon={icons.sort}
+                icon={icons.pencil}
                 onClick={() => setModalIsOpen(true)}
             />
             <GTModal
@@ -150,7 +166,24 @@ const OverviewListsModal = () => {
                     {
                         title: 'Edit lists',
                         icon: icons.domino,
-                        body: <></>,
+                        body: (
+                            <Flex column flex="1">
+                                {views?.map((view, index) => (
+                                    <EditListsSelectedList
+                                        key={view.id}
+                                        view={view}
+                                        viewIndex={index}
+                                        onReorder={handleReorder}
+                                    />
+                                ))}
+                                <ReorderDropContainer
+                                    index={views?.length ?? 0}
+                                    acceptDropType={DropType.OVERVIEW_VIEW}
+                                    onReorder={handleReorder}
+                                    indicatorType="TOP_ONLY"
+                                />
+                            </Flex>
+                        ),
                     },
                 ]}
             />
