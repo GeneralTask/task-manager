@@ -1,7 +1,7 @@
 import { useDrag } from 'react-dnd'
 import styled from 'styled-components'
 import { useNavigateToTask } from '../../hooks'
-import { Spacing } from '../../styles'
+import { Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -13,6 +13,7 @@ const TaskTitle = styled.span`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    ${Typography.bodySmall};
 `
 const TaskDue = styled.div`
     padding: ${Spacing._8} 0;
