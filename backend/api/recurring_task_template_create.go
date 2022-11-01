@@ -54,11 +54,8 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 		RecurrenceRate:      templateCreateParams.RecurrenceRate,
 		CreationTimeSeconds: templateCreateParams.CreationTimeSeconds,
 		CreationDay:         templateCreateParams.CreationDay,
+		LastTriggered:       primitive.NewDateTimeFromTime(time.Now()),
 	}
-
-	// TODO: create task from template
-
-	newTemplate.LastTriggered = primitive.NewDateTimeFromTime(time.Now())
 
 	templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 	insertID, err := templateCollection.InsertOne(context.Background(), newTemplate)

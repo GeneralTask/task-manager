@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -33,6 +35,23 @@ func (api *API) RecurringTaskTemplateBackfill(c *gin.Context) {
 
 	for _, template := range templates {
 		api.backfillTemplate(c, template)
+		template.LastTriggered = primitive.NewDateTimeFromTime(time.Now())
+		mongoResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(
+			context.Background(),
+			bson.M{
+				"$and": []bson.M{
+					{"_id": template.ID},
+					{"user_id": userID},
+				},
+			},
+			bson.M{"$set": template},
+			options.FindOneAndUpdate().SetReturnDocument(options.After),
+		)
+		if mongoResult.Err() != nil {
+			api.Logger.Error().Err(err).Msg("failed to modify recurring task template trigger time")
+			Handle500(c)
+			return
+		}
 	}
 
 	c.JSON(200, templates)
