@@ -164,7 +164,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	go getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL, userTeamsResultChan)
 
 	repositoriesResultChan := make(chan GithubRepositoriesResult)
-	getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResultChan)
+	go getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResultChan)
 
 	userResult := <-userResultChan
 	if userResult.Error != nil || userResult.User == nil {
@@ -190,7 +190,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	processRepositoryResultChannels := []chan ProcessRepositoryResult{}
 	for _, repository := range repositoriesResult.Repositories {
 		processRepositoryResultChan := make(chan ProcessRepositoryResult)
-		gitPR.processRepository(db, userID, accountID, repository, githubClient, token, userResult.User, userTeamsResult.UserTeams, processRepositoryResultChan)
+		go gitPR.processRepository(db, userID, accountID, repository, githubClient, token, userResult.User, userTeamsResult.UserTeams, processRepositoryResultChan)
 		processRepositoryResultChannels = append(processRepositoryResultChannels, processRepositoryResultChan)
 	}
 
@@ -275,13 +275,15 @@ func (gitPR GithubPRSource) processRepository(db *mongo.Database, userID primiti
 			UserTeams:   userTeams,
 		}
 		requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
-		go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
+		go gitPR.getPullRequestInfo(db, userID, accountID, requestData, pullRequestChan)
 		pullRequestChannels = append(pullRequestChannels, pullRequestChan)
 	}
 	result <- ProcessRepositoryResult{PullRequestChannels: pullRequestChannels, RequestTimes: requestTimes}
 }
 
-func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
+func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
+	extCtx, cancel := context.WithTimeout(context.Background(), constants.ExternalTimeout)
+	defer cancel()
 	database.InsertLogEvent(db, userID, "get_pull_request_info")
 	githubClient := requestData.Client
 	githubUser := requestData.User
