@@ -109,6 +109,13 @@ type GithubRepositoriesResult struct {
 	Error        error
 }
 
+type ProcessRepositoryResult struct {
+	PullRequestChannels []chan *database.PullRequest
+	RequestTimes        []primitive.DateTime
+	Error               error
+	ShouldLog           bool
+}
+
 func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(errors.New("github PR cannot fetch events"))
 }
@@ -150,63 +157,52 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 
-	userResult := make(chan GithubUserResult)
-	go getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL, userResult)
-	if err != nil || githubUser == nil {
-		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github user")
+	userResultChan := make(chan GithubUserResult)
+	go getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL, userResultChan)
+
+	userTeamsResultChan := make(chan GithubUserTeamsResult)
+	go getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL, userTeamsResultChan)
+
+	repositoriesResultChan := make(chan GithubRepositoriesResult)
+	getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResultChan)
+
+	userResult := <-userResultChan
+	if userResult.Error != nil || userResult.User == nil {
+		shouldLog := handleErrorLogging(userResult.Error, db, userID, "failed to fetch Github user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user"), !shouldLog)
 		return
 	}
 
-	userTeamsResult := make(chan GithubUserTeamsResult)
-	go getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL, userTeamsResult)
-	if err != nil {
-		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github user teams")
+	userTeamsResult := <-userTeamsResultChan
+	if userTeamsResult.Error != nil {
+		shouldLog := handleErrorLogging(userTeamsResult.Error, db, userID, "failed to fetch Github user teams")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github user teams"), !shouldLog)
 		return
 	}
 
-	repositoriesResult := make(chan GithubRepositoriesResult)
-	repositories, err := getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResult)
-	if err != nil {
-		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github repos for user")
+	repositoriesResult := <-repositoriesResultChan
+	if repositoriesResult.Error != nil {
+		shouldLog := handleErrorLogging(repositoriesResult.Error, db, userID, "failed to fetch Github repos for user")
 		result <- emptyPullRequestResult(errors.New("failed to fetch Github repos for user"), !shouldLog)
 		return
 	}
 
+	processRepositoryResultChannels := []chan ProcessRepositoryResult{}
+	for _, repository := range repositoriesResult.Repositories {
+		processRepositoryResultChan := make(chan ProcessRepositoryResult)
+		gitPR.processRepository(db, userID, accountID, repository, githubClient, token, userResult.User, userTeamsResult.UserTeams, processRepositoryResultChan)
+		processRepositoryResultChannels = append(processRepositoryResultChannels, processRepositoryResultChan)
+	}
+
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
-	for _, repository := range repositories {
-		// parallel below also
-		err := updateOrCreateRepository(db, repository, userID)
-		if err != nil {
-			logger.Error().Err(err).Msg("failed to update or create repository")
-			result <- emptyPullRequestResult(err, false)
-			return
+	for _, processRepositoryResultChan := range processRepositoryResultChannels {
+		processRepositoryResult := <-processRepositoryResultChan
+		if processRepositoryResult.Error != nil {
+			result <- emptyPullRequestResult(errors.New("failed to process Github repo"), !processRepositoryResult.ShouldLog)
 		}
-		extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
-		defer cancel()
-		fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
-		database.InsertLogEvent(db, userID, "list_pull_requests")
-		if err != nil && shouldLogError(err) {
-			shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github PRs")
-			result <- emptyPullRequestResult(errors.New("failed to fetch Github PRs"), !shouldLog)
-			return
-		}
-		for _, pullRequest := range fetchedPullRequests {
-			pullRequestChan := make(chan *database.PullRequest)
-			requestData := GithubPRRequestData{
-				Client:      githubClient,
-				User:        githubUser,
-				Repository:  repository,
-				PullRequest: pullRequest,
-				Token:       token,
-				UserTeams:   userTeams,
-			}
-			requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
-			go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
-			pullRequestChannels = append(pullRequestChannels, pullRequestChan)
-		}
+		pullRequestChannels = append(pullRequestChannels, processRepositoryResult.PullRequestChannels...)
+		requestTimes = append(requestTimes, processRepositoryResult.RequestTimes...)
 	}
 
 	var pullRequests []*database.PullRequest
@@ -248,6 +244,41 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		PullRequests: pullRequests,
 		Error:        nil,
 	}
+}
+
+func (gitPR GithubPRSource) processRepository(db *mongo.Database, userID primitive.ObjectID, accountID string, repository *github.Repository, githubClient *github.Client, token *oauth2.Token, githubUser *github.User, userTeams []*github.Team, result chan<- ProcessRepositoryResult) {
+	err := updateOrCreateRepository(db, repository, userID)
+	if err != nil {
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to update or create repository")
+		result <- ProcessRepositoryResult{Error: err}
+		return
+	}
+	extCtx, cancel := context.WithTimeout(context.Background(), constants.ExternalTimeout)
+	defer cancel()
+	fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
+	database.InsertLogEvent(db, userID, "list_pull_requests")
+	if err != nil && shouldLogError(err) {
+		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github PRs")
+		result <- ProcessRepositoryResult{Error: err, ShouldLog: shouldLog}
+		return
+	}
+	var pullRequestChannels []chan *database.PullRequest
+	var requestTimes []primitive.DateTime
+	for _, pullRequest := range fetchedPullRequests {
+		pullRequestChan := make(chan *database.PullRequest)
+		requestData := GithubPRRequestData{
+			Client:      githubClient,
+			User:        githubUser,
+			Repository:  repository,
+			PullRequest: pullRequest,
+			Token:       token,
+			UserTeams:   userTeams,
+		}
+		requestTimes = append(requestTimes, primitive.NewDateTimeFromTime(time.Now()))
+		go gitPR.getPullRequestInfo(db, extCtx, userID, accountID, requestData, pullRequestChan)
+		pullRequestChannels = append(pullRequestChannels, pullRequestChan)
+	}
+	result <- ProcessRepositoryResult{PullRequestChannels: pullRequestChannels, RequestTimes: requestTimes}
 }
 
 func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, extCtx context.Context, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
@@ -434,34 +465,36 @@ func pullRequestHasBeenModified(db *mongo.Database, ctx context.Context, userID 
 	return (resp.StatusCode != http.StatusNotModified), dbPR
 }
 
-func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) (*github.User, error) {
+func getGithubUser(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string, result chan<- GithubUserResult) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
-		return nil, err
+		result <- GithubUserResult{Error: err}
+		return
 	}
 	githubUser, _, err := githubClient.Users.Get(ctx, currentlyAuthedUserFilter)
-	return githubUser, err
+	result <- GithubUserResult{User: githubUser, Error: err}
 }
 
-func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string) ([]*github.Team, error) {
+func getUserTeams(context context.Context, githubClient *github.Client, overrideURL *string, result chan<- GithubUserTeamsResult) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
-		return nil, err
+		result <- GithubUserTeamsResult{Error: err}
+		return
 	}
 	userTeams, _, err := githubClient.Teams.ListUserTeams(context, nil)
-	return userTeams, err
+	result <- GithubUserTeamsResult{UserTeams: userTeams, Error: err}
 }
 
-func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string) ([]*github.Repository, error) {
+func getGithubRepositories(ctx context.Context, githubClient *github.Client, currentlyAuthedUserFilter string, overrideURL *string, result chan<- GithubRepositoriesResult) {
 	err := setOverrideURL(githubClient, overrideURL)
 	if err != nil {
-		return nil, err
+		result <- GithubRepositoriesResult{Error: err}
 	}
 	// we sort by "pushed" to put the more active repos near the front of the results
 	// 30 results are returned by default, which should be enough, but we can increase to 100 if needed
 	repositoryListOptions := github.RepositoryListOptions{Sort: "pushed"}
 	repositories, _, err := githubClient.Repositories.List(ctx, currentlyAuthedUserFilter, &repositoryListOptions)
-	return repositories, err
+	result <- GithubRepositoriesResult{Repositories: repositories, Error: err}
 }
 
 func updateOrCreateRepository(db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
