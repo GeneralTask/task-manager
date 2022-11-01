@@ -436,6 +436,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
+		deleted := true
 		taskResult, err := taskCollection.InsertOne(context.Background(), database.Task{
 			UserID:        userID,
 			IsCompleted:   &notCompleted,
@@ -467,6 +468,14 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = taskCollection.InsertOne(context.Background(), database.Task{
 			UserID:        primitive.NewObjectID(),
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsDeleted:     &deleted,
 			IsCompleted:   &notCompleted,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
@@ -891,6 +900,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
+		deleted := true
 
 		before, err := time.Parse("2006-01-02", "2000-01-01")
 		assert.NoError(t, err)
@@ -988,10 +998,19 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				DueDate:     &primitiveZeroDateTime,
 				IDOrdering:  9,
 			},
+			// deleted
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				IsDeleted:   &deleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     &primitiveBefore,
+				IDOrdering:  10,
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(context.Background(), items)
 		assert.NoError(t, err)
-		assert.Equal(t, 10, len(taskResult.InsertedIDs))
+		assert.Equal(t, 11, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
