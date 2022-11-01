@@ -106,8 +106,7 @@ const OverviewView = () => {
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
-                        <EditListsButtons />
-                        <OverviewListsModal />
+                        {userInfo?.is_employee ? <OverviewListsModal /> : <EditListsButtons />}
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />

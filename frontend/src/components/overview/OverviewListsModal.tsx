@@ -78,7 +78,7 @@ const OverviewListsModal = () => {
             <GTButton
                 value="Edit"
                 styleType="secondary"
-                size="large"
+                size="small"
                 icon={icons.pencil}
                 onClick={() => setModalIsOpen(true)}
             />
