@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -75,6 +75,9 @@ export default function CalendarHeader({
         }
     }
     const selectToday = useCallback(() => {
+        if (calendarType === 'day') {
+            setDayViewDate(DateTime.now())
+        }
         setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
     }, [setDate, isCalendarExpanded])
 
@@ -102,13 +105,21 @@ export default function CalendarHeader({
     const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
 
     if (!showMainHeader && !showDateHeader) return null
+
+    const showFocusModeButton = useMemo(() => {
+        const startOfToday = DateTime.now().startOf('day')
+        const isToday = date.startOf('day').equals(startOfToday)
+        const isThisWeek = date.startOf('day').equals(startOfToday.minus({ days: startOfToday.weekday % 7 }))
+        return isToday || (calendarType === 'week' && isThisWeek)
+    }, [date, calendarType])
+
     return (
         <RelativeDiv>
             {showMainHeader && (
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
-                            {date.startOf('day').equals(DateTime.now().startOf('day')) ? (
+                            {showFocusModeButton ? (
                                 <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
                                     <GTButton
                                         icon={icons.headphones}
