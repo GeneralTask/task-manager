@@ -36,6 +36,7 @@ const ModalSidebar = styled.div`
     gap: ${Spacing._4};
     padding: ${Spacing._32} ${Spacing._12} ${Spacing._12} ${Spacing._12};
     background-color: ${Colors.background.light};
+    border-radius: ${Border.radius.small} 0 0 ${Border.radius.small};
     width: ${SIDEBAR_WIDTH};
 `
 
