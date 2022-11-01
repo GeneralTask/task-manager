@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -60,11 +59,11 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 	case WeekDaily:
 		count = api.countToCreateWeekDaily(currentLocalTime, lastTriggeredLocal, template, localZone)
 	case Weekly:
-		fmt.Println("OS X.")
+		count = api.countToCreateWeekly(currentLocalTime, lastTriggeredLocal, template, localZone)
 	case Monthly:
-		fmt.Println("OS X.")
+		count = api.countToCreateMonthly(currentLocalTime, lastTriggeredLocal, template, localZone)
 	case Annually:
-		fmt.Println("OS X.")
+		count = api.countToCreateYearly(currentLocalTime, lastTriggeredLocal, template, localZone)
 	default:
 		api.Logger.Error().Msg("unrecognized recurrence rate for template backfill")
 		return errors.New("unrecognized recurrence rate for template backfill")
@@ -80,34 +79,85 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 }
 
 func (api *API) countToCreateDaily(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	// get the next trigger time
 	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), int(template.CreationTimeSeconds/3600), int(template.CreationTimeSeconds/60), int(template.CreationTimeSeconds%60), 0, localZone)
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
-		upcomingTrigger = upcomingTrigger.Add(time.Hour * 24)
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 	}
 
-	timeFromTrigger := currentLocalTime.Sub(upcomingTrigger)
-	if timeFromTrigger > 0 {
-		return int(timeFromTrigger.Hours() / 24)
+	// return number if upcoming trigger before current local time
+	count := 0
+	for currentLocalTime.Sub(upcomingTrigger) > 0 {
+		count += 1
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 	}
 
 	return 0
 }
 
 func (api *API) countToCreateWeekDaily(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	// get the next trigger time
 	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), int(template.CreationTimeSeconds/3600), int(template.CreationTimeSeconds/60), int(template.CreationTimeSeconds%60), 0, localZone)
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
-		upcomingTrigger = upcomingTrigger.Add(time.Hour * 24)
-		for upcomingTrigger.Weekday() == 0 || upcomingTrigger.Weekday() == 6 {
-			upcomingTrigger = upcomingTrigger.Add(time.Hour * 24)
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
+		for int(upcomingTrigger.Weekday()) == 0 || int(upcomingTrigger.Weekday()) == 6 {
+			upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 		}
 	}
 
+	// count if upcoming trigger before current local time
 	count := 0
 	for currentLocalTime.Sub(upcomingTrigger) > 0 {
 		if upcomingTrigger.Weekday() != 0 && upcomingTrigger.Weekday() != 6 {
 			count += 1
 		}
-		upcomingTrigger = upcomingTrigger.Add(time.Hour * 24)
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
+	}
+	return count
+}
+
+func (api *API) countToCreateWeekly(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), int(template.CreationTimeSeconds/3600), int(template.CreationTimeSeconds/60), int(template.CreationTimeSeconds%60), 0, localZone)
+	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
+	}
+
+	for int(upcomingTrigger.Weekday()) != template.CreationDay {
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
+	}
+
+	count := 0
+	for currentLocalTime.Sub(upcomingTrigger) > 0 {
+		count += 1
+		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 7)
+	}
+	return count
+}
+
+func (api *API) countToCreateMonthly(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), template.CreationDay, int(template.CreationTimeSeconds/3600), int(template.CreationTimeSeconds/60), int(template.CreationTimeSeconds%60), 0, localZone)
+	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
+		upcomingTrigger = upcomingTrigger.AddDate(0, 1, 0)
+	}
+
+	count := 0
+	for currentLocalTime.Sub(upcomingTrigger) > 0 {
+		count += 1
+		upcomingTrigger = upcomingTrigger.AddDate(0, 1, 0)
+	}
+	return count
+}
+
+func (api *API) countToCreateYearly(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), time.Month(template.CreationMonth), template.CreationDay, int(template.CreationTimeSeconds/3600), int(template.CreationTimeSeconds/60), int(template.CreationTimeSeconds%60), 0, localZone)
+	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
+		upcomingTrigger = upcomingTrigger.AddDate(1, 0, 0)
+	}
+
+	count := 0
+	for currentLocalTime.Sub(upcomingTrigger) > 0 {
+		count += 1
+		upcomingTrigger = upcomingTrigger.AddDate(1, 0, 0)
 	}
 	return count
 }
