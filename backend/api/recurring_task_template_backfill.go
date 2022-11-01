@@ -34,7 +34,13 @@ func (api *API) RecurringTaskTemplateBackfill(c *gin.Context) {
 	}
 
 	for _, template := range templates {
-		api.backfillTemplate(c, template)
+		err := api.backfillTemplate(c, template)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to backfill recurring task template")
+			Handle500(c)
+			return
+		}
+
 		template.LastTriggered = primitive.NewDateTimeFromTime(time.Now())
 		mongoResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(
 			context.Background(),
