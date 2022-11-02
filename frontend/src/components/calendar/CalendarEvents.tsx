@@ -76,10 +76,11 @@ interface WeekCalendarEventsProps {
     date: DateTime
     groups: TEvent[][]
     primaryAccountID: string | undefined
+    ignoreCalendarContext?: boolean
 }
-const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
+const WeekCalendarEvents = ({ date, groups, primaryAccountID, ignoreCalendarContext }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
-    const { calendarType } = useCalendarContext()
+    const { calendarType } = useCalendarContext(ignoreCalendarContext)
     const isWeekCalendar = calendarType === 'week'
     const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
         primaryAccountID,
@@ -126,14 +127,15 @@ const removeDuplicateEvents = (events: TEvent[]) => {
 interface CalendarEventsProps {
     date: DateTime
     primaryAccountID: string | undefined
+    ignoreCalendarContext?: boolean
 }
 
-const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
+const CalendarEvents = ({ date, primaryAccountID, ignoreCalendarContext }: CalendarEventsProps) => {
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const scrollRef = useRef<HTMLDivElement>(null)
     const timeIndicatorRef = useRef<HTMLDivElement>(null)
 
-    const { calendarType } = useCalendarContext()
+    const { calendarType } = useCalendarContext(ignoreCalendarContext)
     const numberOfDays = calendarType === 'week' ? 7 : 1
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
@@ -193,6 +195,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
                     date={date.plus({ days: dayOffset })}
                     groups={groups}
                     primaryAccountID={primaryAccountID}
+                    ignoreCalendarContext={ignoreCalendarContext}
                 />
             ))}
         </AllDaysContainer>

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -51,6 +51,7 @@ interface CalendarHeaderProps {
     setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     showMainHeader?: boolean
     showDateHeader?: boolean
+    ignoreCalendarContext?: boolean
 }
 export default function CalendarHeader({
     date,
@@ -59,8 +60,9 @@ export default function CalendarHeader({
     showDateHeader = true,
     dayViewDate,
     setDayViewDate,
+    ignoreCalendarContext,
 }: CalendarHeaderProps) {
-    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
+    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext(ignoreCalendarContext)
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
@@ -80,6 +82,10 @@ export default function CalendarHeader({
         }
         setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
     }, [setDate, isCalendarExpanded])
+
+    useEffect(() => {
+        selectToday()
+    }, [])
 
     const selectNext = useCallback(() => {
         if (calendarType === 'day') {

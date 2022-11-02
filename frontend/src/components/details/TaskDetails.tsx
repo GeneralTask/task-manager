@@ -24,7 +24,9 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Label } from '../atoms/typography/Typography'
+import WeekTaskToCalendar from '../calendar/WeekTaskToCalendar'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import GTDatePicker from '../molecules/GTDatePicker'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
@@ -184,6 +186,8 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
         }
     }
 
+    const [showTaskToCalendarModal, setShowTaskToCalendarModal] = useState(false)
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -197,6 +201,11 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         <Icon icon={logos[currentTask.source.logo_v2]} />
                     )}
                 </DetailItem>
+                <WeekTaskToCalendar
+                    open={showTaskToCalendarModal}
+                    setIsModalOpen={setShowTaskToCalendarModal}
+                    size="lg"
+                />
                 {!currentTask.isOptimistic && (
                     <>
                         <DetailItem>
@@ -214,6 +223,10 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                         size="small"
                                     />
                                 )}
+                                <GTIconButton
+                                    onClick={() => setShowTaskToCalendarModal(true)}
+                                    icon={icons.calendar_blank}
+                                />
                                 {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 <TaskActionsDropdown task={currentTask} />

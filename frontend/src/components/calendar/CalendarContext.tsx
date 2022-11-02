@@ -40,7 +40,26 @@ const CalendarContext = createContext<ContextValues>({
     setIsTasksDueViewCollapsed: emptyFunction,
 })
 
-export const useCalendarContext = () => {
+const TaskToCalendarViewContext = {
+    calendarType: 'week',
+    showMainHeader: false,
+    showDateHeader: false,
+    isCollapsed: false,
+    isTaskDraggingOverDetailsView: false,
+    selectedEvent: null,
+    isPopoverDisabled: false,
+    isTasksDueViewCollapsed: false,
+    setCalendarType: emptyFunction,
+    setShowMainHeader: emptyFunction,
+    setShowDateHeader: emptyFunction,
+    setIsCollapsed: emptyFunction,
+    setIsTaskDraggingOverDetailsView: emptyFunction,
+    setSelectedEvent: emptyFunction,
+    setIsPopoverDisabled: emptyFunction,
+    setIsTasksDueViewCollapsed: emptyFunction,
+}
+export const useCalendarContext = (isTaskToCalendarView = false) => {
+    if (isTaskToCalendarView) return TaskToCalendarViewContext
     return useContext(CalendarContext)
 }
 

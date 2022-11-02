@@ -27,9 +27,11 @@ interface CalendarViewProps {
     initialType: TCalendarType
     initialShowMainHeader?: boolean
     initialShowDateHeader?: boolean
+    initialCalendarType?: TCalendarType
     isInitiallyCollapsed?: boolean
     hideContainerShadow?: boolean
     hasLeftBorder?: boolean
+    ignoreCalendarContext?: boolean
 }
 const CalendarView = ({
     initialType,
@@ -38,6 +40,7 @@ const CalendarView = ({
     isInitiallyCollapsed,
     hideContainerShadow = false,
     hasLeftBorder = false,
+    ignoreCalendarContext = false,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
@@ -53,7 +56,7 @@ const CalendarView = ({
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
 
-    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed } = useCalendarContext()
+    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed } = useCalendarContext(ignoreCalendarContext)
     useEffect(() => {
         setCalendarType(initialType)
         if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
@@ -98,6 +101,7 @@ const CalendarView = ({
                 setDayViewDate={setDayViewDate}
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
+                ignoreCalendarContext={ignoreCalendarContext}
             />
             {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>
@@ -112,7 +116,11 @@ const CalendarView = ({
             </CalendarWeekDateHeaderContainer>
             {calendarType === 'week' && <TasksDueWeek date={date} />}
 
-            <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
+            <CalendarEvents
+                date={date}
+                primaryAccountID={primaryAccountID}
+                ignoreCalendarContext={ignoreCalendarContext}
+            />
         </CalendarContainer>
     )
 }

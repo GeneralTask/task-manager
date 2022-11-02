@@ -44,7 +44,7 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const DominoContainer = styled.div<{ isVisible: boolean }>`
+export const DominoContainer = styled.div<{ isVisible: boolean }>`
     opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
 `
 const DueDate = styled.span<{ color: TTextColor }>`

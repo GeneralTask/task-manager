@@ -9,8 +9,9 @@ const DividerView = styled.div<{ color: string }>`
 `
 interface DividerProps {
     color?: string
+    className?: string
 }
-export const Divider = ({ color }: DividerProps) => {
+export const Divider = ({ color, className }: DividerProps) => {
     const backgroundColor = color ?? Colors.border.gray
-    return <DividerView color={backgroundColor} />
+    return <DividerView color={backgroundColor} className={className} />
 }
