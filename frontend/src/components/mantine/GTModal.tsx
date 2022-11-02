@@ -21,7 +21,8 @@ const ModalContent = styled.div`
     flex-direction: column;
     flex: 1 0;
     gap: ${Spacing._24};
-    padding: ${Spacing._24} ${Spacing._16};
+    padding: ${Spacing._24} ${Spacing._12};
+    margin: 0 ${Spacing._32};
     overflow-y: auto;
 `
 const ModalSidebar = styled.div`
@@ -36,7 +37,7 @@ const Link = styled.button<{ isSelected: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing._8};
+    padding: ${Spacing._12};
     width: 100%;
     border-radius: ${Border.radius.small};
     border: none;
@@ -44,6 +45,9 @@ const Link = styled.button<{ isSelected: boolean }>`
     color: ${Colors.text.black};
     gap: ${Spacing._12};
     cursor: pointer;
+`
+const MarginBottom8 = styled.div`
+    margin-bottom: ${Spacing._8};
 `
 
 interface GTModalTab {
@@ -64,7 +68,9 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
             <ModalOuter fixedHeight={Array.isArray(tabs)}>
                 {Array.isArray(tabs) && (
                     <ModalSidebar>
-                        <Eyebrow color="light">{title}</Eyebrow>
+                        <MarginBottom8>
+                            <Eyebrow color="light">{title}</Eyebrow>
+                        </MarginBottom8>
                         {tabs.map((tab, index) => (
                             <Link
                                 key={tab.title}

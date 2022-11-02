@@ -18,9 +18,8 @@ const modalProps: Partial<ModalProps> = {
     overlayColor: Colors.background.white,
     overlayOpacity: 0.55,
     overlayBlur: 3,
-    transition: 'pop',
-    transitionDuration: 100,
-    transitionTimingFunction: 'ease',
+    transition: 'fade',
+    transitionDuration: 150,
     padding: 0,
     onKeyDown: (e) => stopKeydownPropogation(e, [], true),
     styles: {
