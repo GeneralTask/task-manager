@@ -70,42 +70,54 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 		return err
 	}
 	localZone := time.FixedZone("", int(-1*offset.Seconds()))
-	currentLocalTime := api.GetCurrentLocalizedTime(offset)
+	currentTime := time.Now()
 	lastTriggered := template.LastTriggered.Time()
-	lastTriggeredLocal := lastTriggered.In(localZone)
-
-	/// users local time
-	/// if local time > creation time && last triggered < this creation time (in local timezone)
 
 	var count int
 	switch rate := *template.RecurrenceRate; rate {
 	case Daily:
-		count = api.countToCreateDaily(currentLocalTime, lastTriggeredLocal, template, localZone)
+		count = api.countToCreateDaily(currentTime, lastTriggered, template, localZone)
 	case WeekDaily:
-		count = api.countToCreateWeekDaily(currentLocalTime, lastTriggeredLocal, template, localZone)
+		count = api.countToCreateWeekDaily(currentTime, lastTriggered, template, localZone)
 	case Weekly:
-		count = api.countToCreateWeekly(currentLocalTime, lastTriggeredLocal, template, localZone)
+		count = api.countToCreateWeekly(currentTime, lastTriggered, template, localZone)
 	case Monthly:
-		count = api.countToCreateMonthly(currentLocalTime, lastTriggeredLocal, template, localZone)
+		count = api.countToCreateMonthly(currentTime, lastTriggered, template, localZone)
 	case Annually:
-		count = api.countToCreateYearly(currentLocalTime, lastTriggeredLocal, template, localZone)
+		count = api.countToCreateYearly(currentTime, lastTriggered, template, localZone)
 	default:
 		api.Logger.Error().Msg("unrecognized recurrence rate for template backfill")
 		return errors.New("unrecognized recurrence rate for template backfill")
 	}
 
-	tasks := []database.Task{}
+	var tasks []interface{}
 	for i := 0; i < count; i++ {
-		tasks = append(tasks, api.createTaskFromTemplate(template))
+		taskCopy := api.createTaskFromTemplate(template)
+		tasks = append(tasks, taskCopy)
 	}
 
-	// insert many of tasks
+	if len(tasks) > 0 {
+		_, err = database.GetTaskCollection(api.DB).InsertMany(context.Background(), tasks)
+		if err != nil {
+			api.Logger.Error().Msg("unable to insert tasks from template")
+			return err
+		}
+	}
+
 	return nil
 }
 
 func (api *API) countToCreateDaily(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	if template.CreationTimeSeconds == nil {
+		api.Logger.Error().Msg("invalid template variables")
+		return 0
+	}
+
 	// get the next trigger time
-	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), int(*template.CreationTimeSeconds/3600), int(*template.CreationTimeSeconds/60), int(*template.CreationTimeSeconds%60), 0, localZone)
+	upcomingHour := int(*template.CreationTimeSeconds / 3600)
+	upcomingMinutes := int((*template.CreationTimeSeconds - upcomingHour*3600) / 60)
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), upcomingHour, upcomingMinutes, int(*template.CreationTimeSeconds%60), 0, localZone)
+
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 	}
@@ -116,13 +128,19 @@ func (api *API) countToCreateDaily(currentLocalTime time.Time, lastTriggeredLoca
 		count += 1
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 	}
-
-	return 0
+	return count
 }
 
 func (api *API) countToCreateWeekDaily(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
-	// get the next trigger time
-	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), int(*template.CreationTimeSeconds/3600), int(*template.CreationTimeSeconds/60), int(*template.CreationTimeSeconds%60), 0, localZone)
+	if template.CreationTimeSeconds == nil {
+		api.Logger.Error().Msg("invalid template variables")
+		return 0
+	}
+
+	upcomingHour := int(*template.CreationTimeSeconds / 3600)
+	upcomingMinutes := int((*template.CreationTimeSeconds - upcomingHour*3600) / 60)
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), upcomingHour, upcomingMinutes, int(*template.CreationTimeSeconds%60), 0, localZone)
+
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 		for int(upcomingTrigger.Weekday()) == 0 || int(upcomingTrigger.Weekday()) == 6 {
@@ -130,7 +148,6 @@ func (api *API) countToCreateWeekDaily(currentLocalTime time.Time, lastTriggered
 		}
 	}
 
-	// count if upcoming trigger before current local time
 	count := 0
 	for currentLocalTime.Sub(upcomingTrigger) > 0 {
 		if upcomingTrigger.Weekday() != 0 && upcomingTrigger.Weekday() != 6 {
@@ -142,7 +159,15 @@ func (api *API) countToCreateWeekDaily(currentLocalTime time.Time, lastTriggered
 }
 
 func (api *API) countToCreateWeekly(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
-	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), int(*template.CreationTimeSeconds/3600), int(*template.CreationTimeSeconds/60), int(*template.CreationTimeSeconds%60), 0, localZone)
+	if template.CreationTimeSeconds == nil || template.CreationDay == nil {
+		api.Logger.Error().Msg("invalid template variables")
+		return 0
+	}
+
+	upcomingHour := int(*template.CreationTimeSeconds / 3600)
+	upcomingMinutes := int((*template.CreationTimeSeconds - upcomingHour*3600) / 60)
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), lastTriggeredLocal.Day(), upcomingHour, upcomingMinutes, int(*template.CreationTimeSeconds%60), 0, localZone)
+
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 	}
@@ -160,7 +185,15 @@ func (api *API) countToCreateWeekly(currentLocalTime time.Time, lastTriggeredLoc
 }
 
 func (api *API) countToCreateMonthly(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
-	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), *template.CreationDay, int(*template.CreationTimeSeconds/3600), int(*template.CreationTimeSeconds/60), int(*template.CreationTimeSeconds%60), 0, localZone)
+	if template.CreationTimeSeconds == nil || template.CreationDay == nil {
+		api.Logger.Error().Msg("invalid template variables")
+		return 0
+	}
+
+	upcomingHour := int(*template.CreationTimeSeconds / 3600)
+	upcomingMinutes := int((*template.CreationTimeSeconds - upcomingHour*3600) / 60)
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), lastTriggeredLocal.Month(), *template.CreationDay, upcomingHour, upcomingMinutes, int(*template.CreationTimeSeconds%60), 0, localZone)
+
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
 		upcomingTrigger = upcomingTrigger.AddDate(0, 1, 0)
 	}
@@ -174,7 +207,15 @@ func (api *API) countToCreateMonthly(currentLocalTime time.Time, lastTriggeredLo
 }
 
 func (api *API) countToCreateYearly(currentLocalTime time.Time, lastTriggeredLocal time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
-	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), time.Month(*template.CreationMonth), *template.CreationDay, int(*template.CreationTimeSeconds/3600), int(*template.CreationTimeSeconds/60), int(*template.CreationTimeSeconds%60), 0, localZone)
+	if template.CreationTimeSeconds == nil || template.CreationDay == nil || template.CreationMonth == nil {
+		api.Logger.Error().Msg("invalid template variables")
+		return 0
+	}
+
+	upcomingHour := int(*template.CreationTimeSeconds / 3600)
+	upcomingMinutes := int((*template.CreationTimeSeconds - upcomingHour*3600) / 60)
+	upcomingTrigger := time.Date(lastTriggeredLocal.Year(), time.Month(*template.CreationMonth), *template.CreationDay, upcomingHour, upcomingMinutes, int(*template.CreationTimeSeconds%60), 0, localZone)
+
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
 		upcomingTrigger = upcomingTrigger.AddDate(1, 0, 0)
 	}
