@@ -25,7 +25,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Daily
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 30
+		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 120
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
@@ -35,7 +35,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			IsDeleted:           &deleted,
 			RecurrenceRate:      &recurrenceRate,
 			CreationTimeSeconds: &creationTimeSeconds,
-			LastTriggered:       primitive.NewDateTimeFromTime(time.Now().Add(-14 * time.Hour)),
+			LastTriggered:       primitive.NewDateTimeFromTime(time.Now().Add(-24 * time.Hour)),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
