@@ -93,7 +93,6 @@ const GTModal = ({ open, setOpen, size, title, tabs }: GTModalProps) => {
                         <Subtitle>{tabs.title}</Subtitle>
                         <GTIconButton icon={icons.x} onClick={() => setOpen(false)} />
                     </Flex>
-                    <Divider color={Colors.border.light} />
                     {tabs.body}
                 </ModalContent>
             </Modal>
