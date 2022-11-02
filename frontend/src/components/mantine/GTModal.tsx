@@ -27,7 +27,8 @@ const ModalContent = styled.div`
     flex-direction: column;
     flex: 1 0;
     gap: ${Spacing._24};
-    padding: ${Spacing._24} ${Spacing._16};
+    padding: ${Spacing._24} ${Spacing._12};
+    margin: 0 ${Spacing._32};
     overflow-y: auto;
 `
 const ModalSidebar = styled.div`
@@ -61,9 +62,8 @@ const modalProps: Partial<ModalProps> = {
     overlayColor: Colors.background.white,
     overlayOpacity: 0.55,
     overlayBlur: 3,
-    transition: 'pop',
-    transitionDuration: 100,
-    transitionTimingFunction: 'ease',
+    transition: 'fade',
+    transitionDuration: 150,
     padding: 0,
     onKeyDown: (e) => stopKeydownPropogation(e, [], true),
     styles: {
