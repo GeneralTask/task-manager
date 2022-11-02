@@ -12,7 +12,7 @@ const CommentListContainer = styled.div`
 const CommentHeader = styled.div`
     color: ${Colors.text.light};
     ${Typography.eyebrow};
-    margin-bottom: ${Spacing._24};
+    margin-bottom: ${Spacing._16};
 `
 
 interface LinearCommentListProps {
