@@ -268,11 +268,14 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
                         <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
                     )}
-                    {currentTask.comments && (
+                    {currentTask.external_status && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
-                            <LinearCommentList comments={currentTask.comments} />
+                            <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
+                    )}
+                    {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
+                        <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && (
                         <SlackMessage
@@ -281,9 +284,6 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         />
                     )}
                 </>
-            )}
-            {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
-                <CreateLinearComment taskId={currentTask.id} />
             )}
         </DetailsViewTemplate>
     )
