@@ -84,7 +84,7 @@ const OverviewListsModal = () => {
             />
             <GTModal
                 open={modalIsOpen}
-                setOpen={setModalIsOpen}
+                setIsModalOpen={setModalIsOpen}
                 title="Overview lists"
                 size="lg"
                 tabs={[
