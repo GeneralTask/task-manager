@@ -114,9 +114,9 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
             </InfoContainer>
             <Label color="light">{`#${number} updated ${formattedTimeSince} by ${author} (${num_commits} commits)`}</Label>
             <BranchInfoContainer>
-                <BranchName name={branch} />
-                <Icon icon={icons.arrow_right} />
                 <BranchName name={base_branch} />
+                <Label color="light">from</Label>
+                <BranchName name={branch} />
             </BranchInfoContainer>
             <PaddingVertical24>
                 <Divider color={Colors.border.extra_light} />
