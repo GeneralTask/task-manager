@@ -130,6 +130,10 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 	logger := logging.GetSentryLogger()
 
 	var githubClient *github.Client
+	// need to copy github client for each async call so that override url setting is threadsafe
+	var githubClientUser *github.Client
+	var githubClientTeams *github.Client
+	var githubClientRepos *github.Client
 	extCtx, cancel := context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 
@@ -150,21 +154,27 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 		}
 
 		githubClient = getGithubClientFromToken(extCtx, token)
+		githubClientUser = getGithubClientFromToken(extCtx, token)
+		githubClientTeams = getGithubClientFromToken(extCtx, token)
+		githubClientRepos = getGithubClientFromToken(extCtx, token)
 	} else {
 		githubClient = github.NewClient(nil)
+		githubClientUser = github.NewClient(nil)
+		githubClientTeams = github.NewClient(nil)
+		githubClientRepos = github.NewClient(nil)
 	}
 
 	extCtx, cancel = context.WithTimeout(parentCtx, constants.ExternalTimeout)
 	defer cancel()
 
 	userResultChan := make(chan GithubUserResult)
-	go getGithubUser(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL, userResultChan)
+	go getGithubUser(extCtx, githubClientUser, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.GetUserURL, userResultChan)
 
 	userTeamsResultChan := make(chan GithubUserTeamsResult)
-	go getUserTeams(extCtx, githubClient, gitPR.Github.Config.ConfigValues.ListUserTeamsURL, userTeamsResultChan)
+	go getUserTeams(extCtx, githubClientTeams, gitPR.Github.Config.ConfigValues.ListUserTeamsURL, userTeamsResultChan)
 
 	repositoriesResultChan := make(chan GithubRepositoriesResult)
-	go getGithubRepositories(extCtx, githubClient, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResultChan)
+	go getGithubRepositories(extCtx, githubClientRepos, CurrentlyAuthedUserFilter, gitPR.Github.Config.ConfigValues.ListRepositoriesURL, repositoriesResultChan)
 
 	userResult := <-userResultChan
 	if userResult.Error != nil || userResult.User == nil {
@@ -422,7 +432,7 @@ func setOverrideURL(githubClient *github.Client, overrideURL *string) error {
 	var baseURL *url.URL
 	if overrideURL != nil {
 		baseURL, err = url.Parse(fmt.Sprintf("%s/", *overrideURL))
-		githubClient.BaseURL = baseURL
+		*githubClient.BaseURL = *baseURL
 	}
 	return err
 }
