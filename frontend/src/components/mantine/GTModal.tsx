@@ -1,26 +1,20 @@
 import { useState } from 'react'
-import { Modal, ModalProps } from '@mantine/core'
 import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import { stopKeydownPropogation } from '../../utils/utils'
+import BaseModal, { BaseModalProps } from '../atoms/BaseModal'
 import Flex from '../atoms/Flex'
 import { Icon, TIconType } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Eyebrow, Label, Subtitle } from '../atoms/typography/Typography'
 
-const MODAL_HEIGHT = '642px'
 const SIDEBAR_WIDTH = '185px'
-const MODAL_WIDTH = {
-    sm: '502px',
-    lg: '1004px',
-}
-type TModalSize = keyof typeof MODAL_WIDTH
+const MODAL_HEIGHT = '642px'
 
-const ModalOuter = styled.div`
+const ModalOuter = styled.div<{ fixedHeight: boolean }>`
     display: flex;
-    height: ${MODAL_HEIGHT};
+    height: ${({ fixedHeight }) => (fixedHeight ? MODAL_HEIGHT : '100%')};
 `
 const ModalContent = styled.div`
     display: flex;
@@ -35,7 +29,7 @@ const ModalSidebar = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${Spacing._4};
-    padding: ${Spacing._32} ${Spacing._12} ${Spacing._12} ${Spacing._12};
+    padding: ${Spacing._32} ${Spacing._12} ${Spacing._12};
     background-color: ${Colors.background.light};
     width: ${SIDEBAR_WIDTH};
 `
@@ -56,78 +50,49 @@ const MarginBottom8 = styled.div`
     margin-bottom: ${Spacing._8};
 `
 
-const modalProps: Partial<ModalProps> = {
-    withCloseButton: false,
-    centered: true,
-    overlayColor: Colors.background.white,
-    overlayOpacity: 0.55,
-    overlayBlur: 3,
-    transition: 'fade',
-    transitionDuration: 150,
-    padding: 0,
-    onKeyDown: (e) => stopKeydownPropogation(e, [], true),
-    styles: {
-        modal: {
-            borderRadius: Border.radius.small,
-            boxShadow: Shadows.medium,
-        },
-    },
-}
-
 interface GTModalTab {
     title?: string
     icon?: TIconType
     body: React.ReactNode
 }
-interface GTModalProps {
-    open: boolean
-    setOpen: (open: boolean) => void
-    size: TModalSize
+interface GTModalProps extends BaseModalProps {
     title?: string
     tabs: GTModalTab | GTModalTab[]
 }
-const GTModal = ({ open, setOpen, size, title, tabs }: GTModalProps) => {
-    if (!Array.isArray(tabs)) {
-        return (
-            <Modal opened={open} onClose={() => setOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
-                <ModalContent>
-                    <Flex justifyContent="space-between" alignItems="center">
-                        <Subtitle>{tabs.title}</Subtitle>
-                        <GTIconButton icon={icons.x} onClick={() => setOpen(false)} />
-                    </Flex>
-                    <Divider color={Colors.border.light} />
-                    {tabs.body}
-                </ModalContent>
-            </Modal>
-        )
-    }
-
+const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
     const [selectedTab, setSelectedTab] = useState(0)
+    const tab = Array.isArray(tabs) ? tabs[selectedTab] : tabs
 
     return (
-        <Modal opened={open} onClose={() => setOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
-            <ModalOuter>
-                <ModalSidebar>
-                    <MarginBottom8>
-                        <Eyebrow color="light">{title}</Eyebrow>
-                    </MarginBottom8>
-                    {tabs.map((tab, index) => (
-                        <Link key={tab.title} isSelected={selectedTab === index} onClick={() => setSelectedTab(index)}>
-                            <Icon icon={tab.icon || icons.arrow_right} color="black" />
-                            <Label>{tab.title}</Label>
-                        </Link>
-                    ))}
-                </ModalSidebar>
+        <BaseModal open={baseModalProps.open} setIsModalOpen={baseModalProps.setIsModalOpen} size={baseModalProps.size}>
+            <ModalOuter fixedHeight={Array.isArray(tabs)}>
+                {Array.isArray(tabs) && (
+                    <ModalSidebar>
+                        <MarginBottom8>
+                            <Eyebrow color="light">{title}</Eyebrow>
+                        </MarginBottom8>
+                        {tabs.map((tab, index) => (
+                            <Link
+                                key={tab.title}
+                                isSelected={selectedTab === index}
+                                onClick={() => setSelectedTab(index)}
+                            >
+                                <Icon icon={tab.icon || icons.arrow_right} color="black" />
+                                <Label>{tab.title}</Label>
+                            </Link>
+                        ))}
+                    </ModalSidebar>
+                )}
                 <ModalContent>
                     <Flex justifyContent="space-between" alignItems="center">
-                        <Subtitle>{tabs[selectedTab].title}</Subtitle>
-                        <GTIconButton icon={icons.x} onClick={() => setOpen(false)} />
+                        <Subtitle>{tab.title}</Subtitle>
+                        <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
                     </Flex>
                     <Divider color={Colors.border.light} />
-                    {tabs[selectedTab].body}
+                    {tab.body}
                 </ModalContent>
             </ModalOuter>
-        </Modal>
+        </BaseModal>
     )
 }
 
