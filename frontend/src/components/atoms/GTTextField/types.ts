@@ -17,6 +17,7 @@ export interface MarkdownEditorProps {
     maxHeight?: number
     minHeight?: number
     hideUnfocusedOutline?: boolean
+    keyDownExceptions?: string[]
     actions?: React.ReactNode | React.ReactNode[]
 }
 
