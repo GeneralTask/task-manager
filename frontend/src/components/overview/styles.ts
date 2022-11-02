@@ -35,7 +35,7 @@ export const SelectedList = styled.div`
     padding: ${Spacing._12};
     margin: ${Spacing._4} 0;
     gap: ${Spacing._12};
-    color: ${Colors.text.light};
+    color: ${Colors.text.black};
     ${Typography.body};
     cursor: pointer;
 `
