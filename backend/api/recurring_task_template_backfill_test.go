@@ -64,11 +64,11 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := WeekDaily
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 30
+		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 120
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 
-		lastTriggered := time.Now().Add(-12 * time.Hour)
+		lastTriggered := time.Now().Add(-24 * time.Hour)
 		if int(time.Now().Weekday()) == 6 {
 			lastTriggered = lastTriggered.Add(-24 & time.Hour)
 		}
