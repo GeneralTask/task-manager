@@ -11,7 +11,7 @@ export const SubtaskContainer = styled.div`
     border: ${Border.stroke.small} solid ${Colors.border.light};
     border-radius: ${Border.radius.small};
     padding: ${Spacing._16};
-    typography: ${Typography.body};
+    ${Typography.body};
     cursor: pointer;
     :hover {
         background-color: ${Colors.background.medium};
