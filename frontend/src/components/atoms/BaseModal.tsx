@@ -3,10 +3,8 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../styles'
 import { stopKeydownPropogation } from '../../utils/utils'
 
-const MODAL_HEIGHT = '642px'
-
 const ModalContentContainer = styled.div`
-    height: ${MODAL_HEIGHT};
+    height: 100%;
 `
 const MODAL_WIDTH = {
     sm: '502px',

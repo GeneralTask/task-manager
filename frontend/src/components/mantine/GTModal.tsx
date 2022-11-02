@@ -10,10 +10,11 @@ import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Eyebrow, Label, Subtitle } from '../atoms/typography/Typography'
 
 const SIDEBAR_WIDTH = '185px'
+const MODAL_HEIGHT = '642px'
 
-const ModalOuter = styled.div`
+const ModalOuter = styled.div<{ fixedHeight: boolean }>`
     display: flex;
-    height: 100%;
+    height: ${({ fixedHeight }) => (fixedHeight ? MODAL_HEIGHT : '100%')};
 `
 const ModalContent = styled.div`
     display: flex;
@@ -60,7 +61,7 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
 
     return (
         <BaseModal open={baseModalProps.open} setIsModalOpen={baseModalProps.setIsModalOpen} size={baseModalProps.size}>
-            <ModalOuter>
+            <ModalOuter fixedHeight={Array.isArray(tabs)}>
                 {Array.isArray(tabs) && (
                     <ModalSidebar>
                         <Eyebrow color="light">{title}</Eyebrow>
