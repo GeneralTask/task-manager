@@ -35,7 +35,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			IsDeleted:           &deleted,
 			RecurrenceRate:      &recurrenceRate,
 			CreationTimeSeconds: &creationTimeSeconds,
-			LastTriggered:       primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
+			LastTriggered:       primitive.NewDateTimeFromTime(time.Now().Add(-14 * time.Hour)),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
