@@ -51,7 +51,6 @@ export const border = {
 export const text = {
     black: BLACK,
     light: GRAY._500,
-    placeholder: GRAY._200,
     white: WHITE,
     orange: ORANGE._1,
     green: GREEN._1,

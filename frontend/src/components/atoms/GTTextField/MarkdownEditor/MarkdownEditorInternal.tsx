@@ -65,7 +65,7 @@ const Editor = styled.div<{
     }
     .remirror-is-empty:first-of-type::before {
         position: absolute;
-        color: ${Colors.text.placeholder};
+        color: ${Colors.text.light};
         pointer-events: none;
         content: attr(data-placeholder);
     }

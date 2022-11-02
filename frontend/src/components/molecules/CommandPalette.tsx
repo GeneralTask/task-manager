@@ -41,7 +41,7 @@ const CommandInput = styled(Command.Input)`
     border: none;
     ${Typography.subtitle};
     &::placeholder {
-        color: ${Colors.text.placeholder};
+        color: ${Colors.text.light};
     }
 `
 const CommandList = styled(Command.List)`
