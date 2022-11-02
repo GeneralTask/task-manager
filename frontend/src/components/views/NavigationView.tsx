@@ -56,7 +56,7 @@ const GapView = styled.div`
 const CopyrightText = styled.span`
     margin-top: ${Spacing._4};
     text-align: center;
-    color: ${Colors.text.placeholder};
+    color: ${Colors.text.light};
     user-select: none;
     ${Typography.eyebrow};
     padding: ${Spacing._16};
