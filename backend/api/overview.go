@@ -295,6 +295,7 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 
 	linearTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
 		{"is_completed": false},
+		{"is_deleted": bson.M{"$ne": true}},
 		{"source_id": external.TASK_SOURCE_ID_LINEAR},
 	}, nil)
 	if err != nil {
@@ -334,6 +335,7 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 
 	slackTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
 		{"is_completed": false},
+		{"is_deleted": bson.M{"$ne": true}},
 		{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED},
 	}, nil)
 	if err != nil {
@@ -467,6 +469,7 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 	timeEndOfDay := time.Date(timeNow.Year(), timeNow.Month(), timeNow.Day(), 23, 59, 59, 0, time.FixedZone("", 0))
 	dueTasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
 		{"is_completed": false},
+		{"is_deleted": bson.M{"$ne": true}},
 		{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
 		{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},

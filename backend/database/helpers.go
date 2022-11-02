@@ -460,6 +460,7 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
+			{"is_deleted": bson.M{"$ne": true}},
 			{"is_meeting_preparation_task": true},
 		},
 		nil,
