@@ -274,6 +274,9 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                             <LinearCommentList comments={currentTask.comments} />
                         </CommentContainer>
                     )}
+                    {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
+                        <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
+                    )}
                     {currentTask.slack_message_params && (
                         <SlackMessage
                             sender={currentTask.sender}
@@ -281,9 +284,6 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         />
                     )}
                 </>
-            )}
-            {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
-                <CreateLinearComment taskId={currentTask.id} />
             )}
         </DetailsViewTemplate>
     )
