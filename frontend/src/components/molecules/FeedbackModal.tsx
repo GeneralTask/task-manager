@@ -44,7 +44,7 @@ const FeedbackModal = () => {
             />
             <GTModal
                 open={modalIsOpen}
-                setOpen={setModalIsOpen}
+                setIsModalOpen={setModalIsOpen}
                 size="sm"
                 tabs={{
                     title: 'Got feedback for us?',
@@ -62,7 +62,13 @@ const FeedbackModal = () => {
                                 placeholder="Let us know your thoughts"
                                 autoFocus
                             />
-                            <GTButton onClick={submitFeedback} value="Send feedback" styleType="primary" size="small" />
+                            <GTButton
+                                onClick={submitFeedback}
+                                value="Send feedback"
+                                styleType="primary"
+                                size="small"
+                                fitContent
+                            />
                         </>
                     ),
                 }}

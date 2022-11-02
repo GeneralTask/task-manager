@@ -81,7 +81,7 @@ const SettingsModal = () => {
             />
             <GTModal
                 open={modalIsOpen}
-                setOpen={setModalIsOpen}
+                setIsModalOpen={setModalIsOpen}
                 title="Settings"
                 size="lg"
                 tabs={[
