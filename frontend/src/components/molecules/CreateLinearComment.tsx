@@ -32,15 +32,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
             fontSize="small"
             minHeight={LINEAR_ADD_COMMENT_HEIGHT}
             onChange={setComment}
-            actions={
-                <GTButton
-                    value="Comment"
-                    styleType="secondary"
-                    size="small"
-                    onClick={() => submitComment()}
-                    onMouseDown={(e) => e.preventDefault()}
-                />
-            }
+            actions={<GTButton value="Comment" styleType="secondary" size="small" onClick={() => submitComment()} />}
         />
     )
 }
