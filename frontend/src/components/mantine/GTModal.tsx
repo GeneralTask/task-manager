@@ -38,12 +38,11 @@ const ModalSidebar = styled.div`
     background-color: ${Colors.background.light};
     width: ${SIDEBAR_WIDTH};
 `
-
 const Link = styled.button<{ isSelected: boolean }>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: ${Spacing._8};
+    padding: ${Spacing._12};
     width: 100%;
     border-radius: ${Border.radius.small};
     border: none;
@@ -51,6 +50,9 @@ const Link = styled.button<{ isSelected: boolean }>`
     color: ${Colors.text.black};
     gap: ${Spacing._12};
     cursor: pointer;
+`
+const MarginBottom8 = styled.div`
+    margin-bottom: ${Spacing._8};
 `
 
 const modalProps: Partial<ModalProps> = {
@@ -106,7 +108,9 @@ const GTModal = ({ open, setOpen, size, title, tabs }: GTModalProps) => {
         <Modal opened={open} onClose={() => setOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
             <ModalOuter>
                 <ModalSidebar>
-                    <Eyebrow color="light">{title}</Eyebrow>
+                    <MarginBottom8>
+                        <Eyebrow color="light">{title}</Eyebrow>
+                    </MarginBottom8>
                     {tabs.map((tab, index) => (
                         <Link key={tab.title} isSelected={selectedTab === index} onClick={() => setSelectedTab(index)}>
                             <Icon icon={tab.icon || icons.arrow_right} color="black" />
