@@ -43,7 +43,6 @@ const InfoContainer = styled.div`
     gap: ${Spacing._8};
     align-items: center;
     color: ${Colors.text.light};
-    margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
 `
 const BranchInfoContainer = styled.div`
@@ -61,6 +60,9 @@ const Gap4 = styled.div`
     display: flex;
     flex-direction: row;
     gap: ${Spacing._4};
+`
+const PaddingVertical24 = styled.div`
+    padding: ${Spacing._24} 0;
 `
 
 interface PullRequestDetailsProps {
@@ -116,12 +118,16 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
                 <Icon icon={icons.arrow_right} />
                 <BranchName name={base_branch} />
             </BranchInfoContainer>
-            <Divider color={Colors.border.extra_light} />
+            <PaddingVertical24>
+                <Divider color={Colors.border.extra_light} />
+            </PaddingVertical24>
             <Eyebrow color="light">Description</Eyebrow>
             <PullRequestComment author={author} body={body} lastUpdatedAt={last_updated_at} isAuthorOfPR />
             {num_comments > 0 && (
                 <>
-                    <Divider color={Colors.border.extra_light} />
+                    <PaddingVertical24>
+                        <Divider color={Colors.border.extra_light} />
+                    </PaddingVertical24>
                     <Eyebrow color="light">{`Comments (${num_comments})`}</Eyebrow>
                     {comments
                         .slice()
