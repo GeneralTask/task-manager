@@ -209,6 +209,7 @@ func TestTaskAddComment(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, "Hello there!", (*task.Comments)[0].Body)
+		assert.NotNil(t, (*task.Comments)[0].ExternalID)
 	})
 	t.Run("AddCommentSuccessWithExisting", func(t *testing.T) {
 		authToken := login("success_multiple@generaltask.com", "")
