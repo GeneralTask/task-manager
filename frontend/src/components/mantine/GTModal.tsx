@@ -12,11 +12,11 @@ import { Eyebrow, Label, Subtitle } from '../atoms/typography/Typography'
 
 const MODAL_HEIGHT = '642px'
 const SIDEBAR_WIDTH = '185px'
-const MODAL_WIDTH = {
+export const MODAL_WIDTH = {
     sm: '502px',
     lg: '1004px',
 }
-type TModalSize = keyof typeof MODAL_WIDTH
+export type TModalSize = keyof typeof MODAL_WIDTH
 
 const ModalOuter = styled.div`
     display: flex;
@@ -53,7 +53,7 @@ const Link = styled.button<{ isSelected: boolean }>`
     cursor: pointer;
 `
 
-const modalProps: Partial<ModalProps> = {
+export const modalProps: Partial<ModalProps> = {
     withCloseButton: false,
     centered: true,
     overlayColor: Colors.background.white,
@@ -77,7 +77,7 @@ interface GTModalTab {
     icon?: TIconType
     body: React.ReactNode
 }
-interface GTModalProps {
+export interface GTModalProps {
     open: boolean
     setOpen: (open: boolean) => void
     size: TModalSize
