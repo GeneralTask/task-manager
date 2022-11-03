@@ -86,7 +86,7 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
             refetchStaleQueries()
             setTimeout(() => {
                 setUserIsConnecting(false)
-            }, FIVE_SECOND_TIMEOUT * 1000)
+            }, FIVE_SECOND_TIMEOUT)
         }
         openPopupWindow(authUrl, onClose)
     }

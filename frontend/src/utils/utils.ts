@@ -202,4 +202,4 @@ export const isValidDueDate = (date: Date | null) => {
     return !(!date || isNaN(+date) || +date === 0)
 }
 
-export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+export const sleep = (seconds: number) => new Promise((r) => setTimeout(r, seconds * 1000))
