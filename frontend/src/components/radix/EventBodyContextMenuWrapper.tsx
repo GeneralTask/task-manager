@@ -48,7 +48,7 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                 },
             },
             {
-                autoClose: EVENT_UNDO_TIMEOUT,
+                autoClose: EVENT_UNDO_TIMEOUT * 1000,
                 pauseOnFocusLoss: false,
                 theme: 'dark',
             }
