@@ -10,6 +10,7 @@ import {
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
+import useLocalStorageContext from '../../context/LocalStorageContext'
 import { useInterval } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -106,6 +107,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     const currentTask = subtask || task
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const { employeeMode } = useLocalStorageContext()
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
@@ -265,16 +267,17 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         onChange={(val) => onEdit({ id: currentTask.id, body: val })}
                         disabled={isInTrash}
                     />
-                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
-                        <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
-                    )}
+                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME &&
+                        userInfo?.is_employee &&
+                        employeeMode &&
+                        !isInTrash && <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />}
                     {currentTask.external_status && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
                             <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
                     )}
-                    {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
+                    {userInfo?.is_employee && employeeMode && currentTask.external_status && !isInTrash && (
                         <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && (

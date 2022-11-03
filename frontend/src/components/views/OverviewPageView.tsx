@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import useLocalStorageContext from '../../context/LocalStorageContext'
 import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
@@ -32,6 +33,7 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
+    const { employeeMode } = useLocalStorageContext()
     const { data: userInfo } = useGetUserInfo()
     const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
@@ -60,7 +62,7 @@ const OverviewView = () => {
             for (const item of view.view_items) {
                 if (item.id !== overviewItemId) continue
                 if (view.type === 'github') {
-                    if (userInfo?.is_employee) {
+                    if (userInfo?.is_employee && employeeMode) {
                         return <PullRequestDetails pullRequest={item as TPullRequest} />
                     } else {
                         return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
@@ -74,7 +76,7 @@ const OverviewView = () => {
             }
         }
         return null
-    }, [overviewViewId, overviewItemId, subtaskId, views])
+    }, [overviewViewId, overviewItemId, subtaskId, views, employeeMode])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
@@ -106,7 +108,7 @@ const OverviewView = () => {
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
-                        {userInfo?.is_employee ? <OverviewListsModal /> : <EditListsButtons />}
+                        {userInfo?.is_employee && employeeMode ? <OverviewListsModal /> : <EditListsButtons />}
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />

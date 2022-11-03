@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import useLocalStorageContext from '../../context/LocalStorageContext'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
@@ -33,6 +34,7 @@ const MarginBottom4 = styled.div`
 `
 
 const PullRequestsView = () => {
+    const { employeeMode } = useLocalStorageContext()
     const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
     const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
@@ -128,7 +130,7 @@ const PullRequestsView = () => {
                 </ScrollableListTemplate>
             </PullRequestsContainer>
             {selectedPullRequest ? (
-                userInfo?.is_employee ? (
+                userInfo?.is_employee && employeeMode ? (
                     <PullRequestDetails pullRequest={selectedPullRequest} />
                 ) : (
                     <PullRequestDetailsOLD pullRequest={selectedPullRequest} />

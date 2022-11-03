@@ -1,5 +1,6 @@
 import React from 'react'
 import { CalendarContextProvider } from '../components/calendar/CalendarContext'
+import { LocalStorageContextProvider } from './LocalStorageContext'
 import { ShortcutContextProvider } from './ShortcutContext'
 
 interface AppContextProviderProps {
@@ -8,7 +9,9 @@ interface AppContextProviderProps {
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
     return (
         <CalendarContextProvider>
-            <ShortcutContextProvider>{children}</ShortcutContextProvider>
+            <ShortcutContextProvider>
+                <LocalStorageContextProvider>{children}</LocalStorageContextProvider>
+            </ShortcutContextProvider>
         </CalendarContextProvider>
     )
 }

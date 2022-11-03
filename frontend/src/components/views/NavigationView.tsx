@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import useLocalStorageContext from '../../context/LocalStorageContext'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -61,6 +62,12 @@ const CopyrightText = styled.span`
     ${Typography.eyebrow};
     padding: ${Spacing._16};
 `
+const EmployeeMode = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: ${Spacing._8};
+`
 const GTBetaLogo = styled.img`
     pointer-events: none;
     width: ${GT_BETA_LOGO_WIDTH};
@@ -70,6 +77,7 @@ const NavigationView = () => {
     const navigate = useNavigate()
     const { setCalendarType } = useCalendarContext()
     const { data: userInfo } = useGetUserInfo()
+    const { employeeMode, setEmployeeMode } = useLocalStorageContext()
 
     const [isOver, drop] = useDrop(
         () => ({
@@ -78,7 +86,7 @@ const NavigationView = () => {
         }),
         []
     )
-    const copyrightText = userInfo?.is_employee ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
+    const copyrightText = employeeMode && userInfo?.is_employee ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
 
     useKeyboardShortcut(
         'goToOverviewPage',
@@ -111,8 +119,8 @@ const NavigationView = () => {
                 <NavigationSectionLinks />
             </OverflowContainer>
             <GapView>
-                {userInfo?.is_employee ? <FeedbackModal /> : <FeedbackButton />}
-                {userInfo?.is_employee ? (
+                {userInfo?.is_employee && employeeMode ? <FeedbackModal /> : <FeedbackButton />}
+                {userInfo?.is_employee && employeeMode ? (
                     <SettingsModal />
                 ) : (
                     <GTButton
@@ -128,6 +136,16 @@ const NavigationView = () => {
                 )}
             </GapView>
             <CopyrightText>{copyrightText}</CopyrightText>
+            {userInfo?.is_employee && (
+                <EmployeeMode>
+                    <GTButton
+                        value={`Employee Mode ${employeeMode ? 'On' : 'Off'}`}
+                        styleType={employeeMode ? 'primary' : 'secondary'}
+                        size="small"
+                        onClick={() => setEmployeeMode(!employeeMode)}
+                    />
+                </EmployeeMode>
+            )}
         </NavigationViewContainer>
     )
 }

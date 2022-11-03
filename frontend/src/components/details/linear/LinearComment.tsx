@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import useLocalStorageContext from '../../../context/LocalStorageContext'
 import { useGetUserInfo } from '../../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { TLinearComment } from '../../../utils/types'
@@ -31,6 +32,7 @@ interface LinearCommentProps {
 }
 
 const LinearComment = ({ comment }: LinearCommentProps) => {
+    const { employeeMode } = useLocalStorageContext()
     const dateSent = DateTime.fromISO(comment.created_at)
     const { data: userInfo } = useGetUserInfo()
     return (
@@ -40,7 +42,7 @@ const LinearComment = ({ comment }: LinearCommentProps) => {
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
-                {userInfo?.is_employee ? (
+                {userInfo?.is_employee && employeeMode ? (
                     <GTTextField
                         type="markdown"
                         value={comment.body}
