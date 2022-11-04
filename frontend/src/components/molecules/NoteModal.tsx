@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useLocalStorage } from 'usehooks-ts'
 import { v4 as uuidv4 } from 'uuid'
