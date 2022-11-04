@@ -46,6 +46,7 @@ export interface TTask {
     meeting_preparation_params?: TMeetingPreparationParams
     nux_number_id: number
     sub_tasks?: TTask[]
+    is_note?: boolean
 }
 
 export interface TMeetingPreparationParams {

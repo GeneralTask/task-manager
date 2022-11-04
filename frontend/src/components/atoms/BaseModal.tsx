@@ -1,5 +1,6 @@
 import { Modal, ModalProps } from '@mantine/core'
 import styled from 'styled-components'
+import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { Border, Colors, Shadows } from '../../styles'
 import { stopKeydownPropogation } from '../../utils/utils'
 
@@ -21,7 +22,7 @@ const modalProps: Partial<ModalProps> = {
     transition: 'fade',
     transitionDuration: 150,
     padding: 0,
-    onKeyDown: (e) => stopKeydownPropogation(e, [], true),
+    onKeyDown: (e) => stopKeydownPropogation(e, [KEYBOARD_SHORTCUTS.submitText.key], true),
     styles: {
         modal: {
             borderRadius: Border.radius.small,

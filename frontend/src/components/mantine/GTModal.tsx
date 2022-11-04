@@ -52,7 +52,7 @@ const MarginBottom8 = styled.div`
 `
 
 interface GTModalTab {
-    title?: string
+    title?: string | React.ReactNode
     icon?: TIconType
     body: React.ReactNode
 }
@@ -73,11 +73,7 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                             <Eyebrow color="light">{title}</Eyebrow>
                         </MarginBottom8>
                         {tabs.map((tab, index) => (
-                            <Link
-                                key={tab.title}
-                                isSelected={selectedTab === index}
-                                onClick={() => setSelectedTab(index)}
-                            >
+                            <Link key={index} isSelected={selectedTab === index} onClick={() => setSelectedTab(index)}>
                                 <Icon icon={tab.icon || icons.arrow_right} color="black" />
                                 <Label>{tab.title}</Label>
                             </Link>

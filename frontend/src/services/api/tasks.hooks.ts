@@ -18,6 +18,7 @@ export interface TCreateTaskData {
     taskSectionId: string
     parent_task_id?: string
     optimisticId: string
+    is_note?: boolean
 }
 
 export interface TCreateTaskResponse {

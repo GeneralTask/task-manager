@@ -5,16 +5,17 @@ import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
+import { logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
+import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import FeedbackModal from '../molecules/FeedbackModal'
+import NoteModal from '../molecules/NoteModal'
 import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
-
-const GT_BETA_LOGO_WIDTH = '111px'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
@@ -67,10 +68,6 @@ const PreviewMode = styled.div`
     justify-content: center;
     margin-bottom: ${Spacing._8};
 `
-const GTBetaLogo = styled.img`
-    pointer-events: none;
-    width: ${GT_BETA_LOGO_WIDTH};
-`
 
 const NavigationView = () => {
     const navigate = useNavigate()
@@ -111,7 +108,8 @@ const NavigationView = () => {
     return (
         <NavigationViewContainer showDropShadow={isOver} ref={drop}>
             <NavigationViewHeader>
-                <GTBetaLogo src="/images/GT-beta-logo.png" />
+                <Icon icon={logos.generaltask_new} size="gtLogo" />
+                <NoteModal />
                 <CommandPalette />
             </NavigationViewHeader>
             <OverflowContainer>

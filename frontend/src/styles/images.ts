@@ -41,6 +41,7 @@ import {
     faMessage,
     faPencil,
     faPlus,
+    faShare,
     faSidebarFlip,
     faSquare,
     faSquareCode,
@@ -68,6 +69,7 @@ import {
 export const logos = Object.freeze({
     generaltask: '/images/generaltask.svg',
     generaltask_beta: '/images/GT-beta-logo.png',
+    generaltask_new: '/images/GT-Logo-(Square).svg',
     github: faGithub,
     gmail: '/images/google.svg',
     gcal: '/images/gcal.png',
@@ -134,6 +136,7 @@ export const icons = Object.freeze({
     priority: faCircleUpLight,
     quote_right: faQuoteRight,
     repository: faCubes,
+    share: faShare,
     sidebar: faSidebarFlip,
     slack: logos.slack,
     sort: faBarsSort,

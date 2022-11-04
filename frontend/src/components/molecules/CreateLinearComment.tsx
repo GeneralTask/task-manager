@@ -22,7 +22,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
         }
     }, [comment, postComment, taskId])
 
-    useKeyboardShortcut('submitComment', submitComment)
+    useKeyboardShortcut('submitText', submitComment)
 
     return (
         <GTTextField
@@ -33,7 +33,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
             fontSize="small"
             minHeight={LINEAR_ADD_COMMENT_HEIGHT}
             onChange={setComment}
-            keyDownExceptions={[KEYBOARD_SHORTCUTS.submitComment.key]}
+            keyDownExceptions={[KEYBOARD_SHORTCUTS.submitText.key]}
             actions={<GTButton value="Comment" styleType="secondary" size="small" onClick={() => submitComment()} />}
         />
     )
