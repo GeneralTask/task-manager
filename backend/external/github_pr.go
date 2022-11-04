@@ -292,8 +292,6 @@ func (gitPR GithubPRSource) processRepository(db *mongo.Database, userID primiti
 }
 
 func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
-	extCtx, cancel := context.WithTimeout(context.Background(), constants.ExternalTimeout)
-	defer cancel()
 	database.InsertLogEvent(db, userID, "get_pull_request_info")
 	githubClient := requestData.Client
 	githubUser := requestData.User
@@ -301,6 +299,8 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primit
 	pullRequest := requestData.PullRequest
 
 	// do the check
+	extCtx, cancel := context.WithTimeout(context.Background(), constants.ExternalTimeout)
+	defer cancel()
 	hasBeenModified, cachedPR := pullRequestHasBeenModified(db, extCtx, userID, requestData, gitPR.Github.Config.ConfigValues.PullRequestModifiedURL)
 	if !hasBeenModified {
 		result <- cachedPR
@@ -320,6 +320,9 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primit
 		return
 	}
 
+	// refresh context to prevent timeout
+	extCtx, cancel = context.WithTimeout(context.Background(), constants.ExternalTimeout)
+	defer cancel()
 	comments, err := getComments(extCtx, githubClient, repository, pullRequest, reviews, gitPR.Github.Config.ConfigValues.ListPullRequestCommentsURL, gitPR.Github.Config.ConfigValues.ListIssueCommentsURL)
 	if err != nil {
 		handleErrorLogging(err, db, userID, "failed to fetch Github PR comments")
@@ -339,6 +342,9 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primit
 	requiredAction := ActionNoneNeeded
 	isOwner := userIsOwner(githubUser, pullRequest)
 	if isOwner || userIsReviewer(githubUser, pullRequest, reviews, requestData.UserTeams) {
+		extCtx, cancel = context.WithTimeout(context.Background(), constants.ExternalTimeout)
+		defer cancel()
+
 		reviewers, err := listReviewers(extCtx, githubClient, repository, pullRequest, gitPR.Github.Config.ConfigValues.ListPullRequestReviewersURL)
 		if err != nil {
 			handleErrorLogging(err, db, userID, "failed to fetch Github PR reviewers")
