@@ -167,6 +167,7 @@ export const linearStatus = Object.freeze({
 })
 
 export const focusModeBackground = '/images/focus_mode_background.jpg'
+export const noteBackground = '/images/note_background.jpg'
 
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons

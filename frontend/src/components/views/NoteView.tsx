@@ -1,14 +1,14 @@
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
-import { focusModeBackground, logos } from '../../styles/images'
+import { logos, noteBackground } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
-import { BodySmall, Subtitle, Title } from '../atoms/typography/Typography'
+import { BodySmall, Header, Subtitle } from '../atoms/typography/Typography'
 
 const MainContainer = styled.div`
     width: 100vw;
     height: 100vh;
-    background: url(${focusModeBackground}) no-repeat center/100% fixed;
+    background: url(${noteBackground}) no-repeat center/100% fixed;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -19,7 +19,7 @@ const Body = styled.div`
     background: ${Colors.background.white};
     display: flex;
     flex-direction: column;
-    padding: ${Spacing._32} ${Spacing._64};
+    padding: ${Spacing._64};
     gap: ${Spacing._32};
     overflow-y: auto;
 `
@@ -52,7 +52,7 @@ const CompanyPolicyView = () => {
                 <GoogleSignInButton />
             </SignInButton>
             <Body>
-                <Title>{note.title}</Title>
+                <Header>{note.title}</Header>
                 <Subtitle>{`From ${note.author}`}</Subtitle>
                 <BodySmall>{note.body}</BodySmall>
             </Body>
