@@ -89,7 +89,7 @@ const SettingsModal = () => {
                         title: 'Services',
                         icon: icons.globe,
                         body: (
-                            <>
+                            <Flex column gap={Spacing._24}>
                                 <Body>Add a new service</Body>
                                 <ServicesContainer>
                                     {supportedTypes
@@ -180,7 +180,7 @@ const SettingsModal = () => {
                                         You have no connected services. Click from the options above to get started.
                                     </ServiceDetails>
                                 )}
-                            </>
+                            </Flex>
                         ),
                     },
                     {

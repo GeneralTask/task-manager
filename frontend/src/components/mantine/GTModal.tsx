@@ -90,7 +90,7 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                         <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
                     </Flex>
                     {Array.isArray(tabs) && <Divider color={Colors.border.light} />}
-                    {tab.body}
+                    <div>{tab.body}</div>
                 </ModalContent>
             </ModalOuter>
         </BaseModal>
