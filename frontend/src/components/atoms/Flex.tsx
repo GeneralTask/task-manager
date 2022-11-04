@@ -9,7 +9,7 @@ interface FlexProps {
     flex?: '0' | '1'
     gap?: string
     column?: boolean
-    justifyContent?: 'baseline' | 'center' | 'space-between'
+    justifyContent?: 'baseline' | 'center' | 'space-between' | 'end'
     alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
 }
 

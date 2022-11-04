@@ -7,7 +7,9 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { isGithubLinked } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
+import GTInput from '../atoms/GTInput'
 import GTModal from '../atoms/GTModal'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
@@ -72,8 +74,9 @@ export const AddListsModalContent = () => {
     }
     return (
         <>
-            {/* <GTInput value={searchTerm} onChange={setSearchTerm} /> */}
-            {/* <SearchInput onKeyDown={e => stopKeydownPropogation(e, ['Enter'])} placeholder="Search" /> */}
+            <Flex justifyContent="end">
+                <GTInput value={searchTerm} onChange={setSearchTerm} placeholder="Search lists" />
+            </Flex>
             {supportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
                     {supportedView.is_linked ? (
