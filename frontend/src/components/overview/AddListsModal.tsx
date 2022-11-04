@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
@@ -16,6 +16,11 @@ import GTButton from '../atoms/buttons/GTButton'
 import AuthBanner from './AuthBanner'
 import MissingRepositoryMessage from './MissingRepositoryMessage'
 
+const SearchInput = styled.input`
+    all: unset;
+    margin-left: auto;
+    ${Typography.subtitle};
+`
 const SupportedView = styled.div<{ isIndented?: boolean }>`
     display: flex;
     justify-content: space-between;
@@ -35,11 +40,13 @@ interface AddListsModalProps {
     onClose: () => void
 }
 
-const AddListsModalContent = () => {
+export const AddListsModalContent = () => {
     const { data: supportedViews } = useGetSupportedViews()
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const [searchTerm, setSearchTerm] = useState('')
+
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
     if (!supportedViews) {
@@ -65,6 +72,8 @@ const AddListsModalContent = () => {
     }
     return (
         <>
+            {/* <GTInput value={searchTerm} onChange={setSearchTerm} /> */}
+            {/* <SearchInput onKeyDown={e => stopKeydownPropogation(e, ['Enter'])} placeholder="Search" /> */}
             {supportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
                     {supportedView.is_linked ? (
