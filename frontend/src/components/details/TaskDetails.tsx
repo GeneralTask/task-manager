@@ -179,7 +179,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
         const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
+            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT),
             callback: () => syncDetails({ id, title, body }),
         }
     }

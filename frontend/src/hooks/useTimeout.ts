@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 
-// duration in seconds
-export default function useTimeout(func: () => void, seconds: number): void {
+// duration in ms
+export default function useTimeout(func: () => void, ms: number): void {
     useEffect(() => {
-        const interval = setTimeout(func, seconds * 1000)
+        const interval = setTimeout(func, ms)
         return () => clearTimeout(interval)
-    }, [func, seconds])
+    }, [func, ms])
 }

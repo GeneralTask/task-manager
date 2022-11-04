@@ -34,7 +34,7 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
                     return
                 if (
                     monitor.isOver() &&
-                    DateTime.now().diff(hoverStarted.current, 'seconds').seconds < DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT
+                    DateTime.now().diff(hoverStarted.current).milliseconds < DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT
                 )
                     return
                 setIsCollapsed(false)

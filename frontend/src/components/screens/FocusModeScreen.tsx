@@ -240,7 +240,7 @@ const FocusModeScreen = () => {
 
     useInterval(
         () => {
-            const currentTime = DateTime.local().plus({ seconds: SINGLE_SECOND_INTERVAL })
+            const currentTime = DateTime.local().plus({ milliseconds: SINGLE_SECOND_INTERVAL })
             setTime(currentTime)
             if (!shouldAutoAdvanceEvent) return
             const isCurrentEventOver = DateTime.fromISO(selectedEvent?.datetime_end || '') < currentTime
@@ -292,7 +292,7 @@ const FocusModeScreen = () => {
                 },
             },
             {
-                autoClose: EVENT_UNDO_TIMEOUT * 1000,
+                autoClose: EVENT_UNDO_TIMEOUT,
                 pauseOnFocusLoss: false,
                 theme: 'dark',
             }

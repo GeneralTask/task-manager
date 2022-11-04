@@ -1,12 +1,12 @@
+import { useEffect, useRef } from 'react'
 import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
+import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
 import { TEvent, TOverviewView, TTask } from '../../utils/types'
 import { useGTQueryClient } from '../queryUtils'
-import { useCalendarContext } from '../../components/calendar/CalendarContext'
-import { useRef, useEffect } from 'react'
 
 interface TEventAttendee {
     name: string
@@ -81,7 +81,7 @@ export const useGetEvents = (params: { startISO: string; endISO: string }, calen
         ['events', calendarType, params.startISO],
         (queryFunctionContext) => getEvents(params, queryFunctionContext),
         {
-            refetchInterval: EVENTS_REFETCH_INTERVAL * 1000,
+            refetchInterval: EVENTS_REFETCH_INTERVAL,
             refetchIntervalInBackground: true,
         }
     )
@@ -110,7 +110,11 @@ export const useCreateEvent = () => {
 
     return useMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
         onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
-            const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
+            const { events, blockStartTime } = queryClient.getCurrentEvents(
+                date,
+                createEventPayload.datetime_start,
+                createEventPayload.datetime_end
+            )
             if (!events) return
 
             const newEvent: TEvent = {
@@ -138,7 +142,11 @@ export const useCreateEvent = () => {
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
         },
         onSuccess: ({ id }: TCreateEventResponse, { createEventPayload, date, optimisticId }: TCreateEventParams) => {
-            const { events, blockStartTime } = queryClient.getCurrentEvents(date, createEventPayload.datetime_start, createEventPayload.datetime_end)
+            const { events, blockStartTime } = queryClient.getCurrentEvents(
+                date,
+                createEventPayload.datetime_start,
+                createEventPayload.datetime_end
+            )
             if (!events) return
 
             const eventIndex = events.findIndex((event) => event.id === optimisticId)
@@ -172,7 +180,11 @@ export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
     const useMutationResult = useMutation((data: TDeleteEventData) => deleteEvent(data.id), {
         onMutate: (data: TDeleteEventData) => {
-            const { events, blockStartTime } = queryClient.getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
+            const { events, blockStartTime } = queryClient.getCurrentEvents(
+                data.date,
+                data.datetime_start,
+                data.datetime_end
+            )
             if (!events) return
 
             const newEvents = produce(events, (draft) => {
@@ -187,7 +199,11 @@ export const useDeleteEvent = () => {
         },
     })
     const deleteEventInCache = (data: TDeleteEventData) => {
-        const { events, blockStartTime } = queryClient.getCurrentEvents(data.date, data.datetime_start, data.datetime_end)
+        const { events, blockStartTime } = queryClient.getCurrentEvents(
+            data.date,
+            data.datetime_start,
+            data.datetime_end
+        )
         if (!events) return
         const newEvents = produce(events, (draft) => {
             const eventIdx = draft.findIndex((event) => event.id === data.id)
@@ -221,7 +237,11 @@ export const useModifyEvent = () => {
 
     return useMutation((data: TModifyEventData) => modifyEvent(data), {
         onMutate: ({ event, payload, date }: TModifyEventData) => {
-            const { events, blockStartTime } = queryClient.getCurrentEvents(date, event.datetime_start, event.datetime_end)
+            const { events, blockStartTime } = queryClient.getCurrentEvents(
+                date,
+                event.datetime_start,
+                event.datetime_end
+            )
             if (!events) return
 
             const eventIdx = events.findIndex((e) => e.id === event.id)

@@ -92,7 +92,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks')
             queryClient.invalidateQueries('overview')
         },
-        refetchInterval: TASK_REFETCH_INTERVAL * 1000,
+        refetchInterval: TASK_REFETCH_INTERVAL,
         refetchIntervalInBackground: true,
     })
 }
@@ -331,7 +331,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                         }
                     })
                     if (data.waitForAnimation) {
-                        await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                        await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
                     queryClient.setQueryData('tasks', newSections)
                 }
@@ -364,7 +364,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                     }
                 })
                 if (data.waitForAnimation) {
-                    await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                    await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
                 queryClient.setQueryData('overview', newLists)
             }
