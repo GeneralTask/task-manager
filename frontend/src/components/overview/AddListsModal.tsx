@@ -1,8 +1,9 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
@@ -18,11 +19,6 @@ import GTButton from '../atoms/buttons/GTButton'
 import AuthBanner from './AuthBanner'
 import MissingRepositoryMessage from './MissingRepositoryMessage'
 
-const SearchInput = styled.input`
-    all: unset;
-    margin-left: auto;
-    ${Typography.subtitle};
-`
 const SupportedView = styled.div<{ isIndented?: boolean }>`
     display: flex;
     justify-content: space-between;
@@ -47,6 +43,7 @@ export const AddListsModalContent = () => {
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { data: userInfo } = useGetUserInfo()
     const [searchTerm, setSearchTerm] = useState('')
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
@@ -54,6 +51,28 @@ export const AddListsModalContent = () => {
     if (!supportedViews) {
         return <Spinner />
     }
+    console.log({ supportedViews })
+
+    const lowercaseSearchTerm = searchTerm.toLowerCase()
+    const filteredSupportedViews = useMemo(() => {
+        if (!searchTerm || !userInfo?.is_employee) {
+            return supportedViews
+        }
+        const out: TSupportedView[] = []
+        for (const view of supportedViews) {
+            if (view.is_nested) {
+                const filteredNestedViews = view.views.filter((nestedView) =>
+                    nestedView.name.toLowerCase().includes(lowercaseSearchTerm)
+                )
+                out.push({ ...view, views: filteredNestedViews })
+            } else {
+                if (view.name.toLowerCase().includes(lowercaseSearchTerm)) {
+                    out.push(view)
+                }
+            }
+        }
+        return out
+    }, [supportedViews, searchTerm])
 
     const onChange = (
         supportedView: TSupportedView,
@@ -77,7 +96,7 @@ export const AddListsModalContent = () => {
             <Flex justifyContent="end">
                 <GTInput value={searchTerm} onChange={setSearchTerm} placeholder="Search lists" />
             </Flex>
-            {supportedViews.map((supportedView, viewIndex) => (
+            {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
                     {supportedView.is_linked ? (
                         <SupportedView>
@@ -105,7 +124,7 @@ export const AddListsModalContent = () => {
                         />
                     )}
                     {/* Do not show divider if this is the last item in the list */}
-                    {((!supportedView.is_nested && viewIndex !== supportedViews.length - 1) ||
+                    {((!supportedView.is_nested && viewIndex !== filteredSupportedViews.length - 1) ||
                         (supportedView.is_nested && supportedView.views.length > 0)) && (
                         <Divider color={Colors.border.light} />
                     )}
@@ -125,7 +144,7 @@ export const AddListsModalContent = () => {
                                         }
                                     />
                                 </SupportedView>
-                                {(viewIndex !== supportedViews.length - 1 ||
+                                {(viewIndex !== filteredSupportedViews.length - 1 ||
                                     viewItemIndex !== supportedView.views.length - 1) && (
                                     <Divider color={Colors.border.light} />
                                 )}
