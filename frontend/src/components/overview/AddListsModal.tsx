@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState, useTransition } from 'react'
+import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
@@ -51,21 +51,14 @@ export const AddListsModalContent = () => {
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { data: userInfo } = useGetUserInfo()
 
-    const [searchInputTerm, setSearchInputTerm] = useState('')
-    const [filterTerm, setFilterTerm] = useState('')
-    const [isPending, startTransition] = useTransition()
-    const handleSearchTermChange = (value: string) => {
-        setSearchInputTerm(value)
-        startTransition(() => {
-            setFilterTerm(value)
-        })
-    }
-
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
-    const lowercaseSearchTerm = filterTerm.toLowerCase()
+    const [searchTerm, setSearchTerm] = useState('')
+    const deferredSearchTerm = useDeferredValue(searchTerm)
+
     const filteredSupportedViews = useMemo(() => {
-        if (!filterTerm || !userInfo?.is_employee || !supportedViews) {
+        const lowercaseSearchTerm = deferredSearchTerm.toLowerCase()
+        if (!lowercaseSearchTerm || !userInfo?.is_employee || !supportedViews) {
             return supportedViews
         }
         const out: TSupportedView[] = []
@@ -84,7 +77,7 @@ export const AddListsModalContent = () => {
             }
         }
         return out
-    }, [supportedViews, filterTerm])
+    }, [supportedViews, deferredSearchTerm])
 
     const onChange = (
         supportedView: TSupportedView,
@@ -103,16 +96,18 @@ export const AddListsModalContent = () => {
             })
         }
     }
-    if (isPending) {
-        console.log('hi')
-    }
+
     if (!filteredSupportedViews) {
         return <Spinner />
     }
     return (
         <>
             <Flex justifyContent="end">
-                <GTInput value={searchInputTerm} onChange={handleSearchTermChange} placeholder="Search lists" />
+                <GTInput
+                    value={searchTerm}
+                    onChange={(value: string) => setSearchTerm(value)}
+                    placeholder="Search lists"
+                />
             </Flex>
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
