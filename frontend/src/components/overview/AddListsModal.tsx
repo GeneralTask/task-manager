@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState, useTransition } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
@@ -33,6 +33,12 @@ const SupportedViewContent = styled.div`
     gap: ${Spacing._8};
     ${Typography.bodySmall};
 `
+const NoListsDialog = styled.div`
+    display: flex;
+    justify-content: center;
+    ${Typography.body};
+    margin-top: ${Spacing._8};
+`
 interface AddListsModalProps {
     isOpen: boolean
     onClose: () => void
@@ -44,18 +50,22 @@ export const AddListsModalContent = () => {
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const { data: userInfo } = useGetUserInfo()
-    const [searchTerm, setSearchTerm] = useState('')
+
+    const [searchInputTerm, setSearchInputTerm] = useState('')
+    const [filterTerm, setFilterTerm] = useState('')
+    const [isPending, startTransition] = useTransition()
+    const handleSearchTermChange = (value: string) => {
+        setSearchInputTerm(value)
+        startTransition(() => {
+            setFilterTerm(value)
+        })
+    }
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
-    if (!supportedViews) {
-        return <Spinner />
-    }
-    console.log({ supportedViews })
-
-    const lowercaseSearchTerm = searchTerm.toLowerCase()
+    const lowercaseSearchTerm = filterTerm.toLowerCase()
     const filteredSupportedViews = useMemo(() => {
-        if (!searchTerm || !userInfo?.is_employee) {
+        if (!filterTerm || !userInfo?.is_employee || !supportedViews) {
             return supportedViews
         }
         const out: TSupportedView[] = []
@@ -64,7 +74,9 @@ export const AddListsModalContent = () => {
                 const filteredNestedViews = view.views.filter((nestedView) =>
                     nestedView.name.toLowerCase().includes(lowercaseSearchTerm)
                 )
-                out.push({ ...view, views: filteredNestedViews })
+                if (filteredNestedViews.length > 0) {
+                    out.push({ ...view, views: filteredNestedViews })
+                }
             } else {
                 if (view.name.toLowerCase().includes(lowercaseSearchTerm)) {
                     out.push(view)
@@ -72,7 +84,7 @@ export const AddListsModalContent = () => {
             }
         }
         return out
-    }, [supportedViews, searchTerm])
+    }, [supportedViews, filterTerm])
 
     const onChange = (
         supportedView: TSupportedView,
@@ -91,11 +103,18 @@ export const AddListsModalContent = () => {
             })
         }
     }
+    if (isPending) {
+        console.log('hi')
+    }
+    if (!filteredSupportedViews) {
+        return <Spinner />
+    }
     return (
         <>
             <Flex justifyContent="end">
-                <GTInput value={searchTerm} onChange={setSearchTerm} placeholder="Search lists" />
+                <GTInput value={searchInputTerm} onChange={handleSearchTermChange} placeholder="Search lists" />
             </Flex>
+            {filteredSupportedViews.length === 0 && <NoListsDialog>No lists</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
                     {supportedView.is_linked ? (

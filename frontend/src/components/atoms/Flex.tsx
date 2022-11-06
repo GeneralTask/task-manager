@@ -19,7 +19,7 @@ const Flex = styled.div<FlexProps>`
     ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
     ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
-    ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
+    ${({ alignItems }) => alignItems && `align-items: ${alignItems};`}
 `
 
 export default Flex
