@@ -67,7 +67,6 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
                 delayUpdate={500}
                 className="tooltip"
                 backgroundColor={Colors.background.white}
-                isCapture={true}
                 textColor={Colors.text.black}
             />
             <NavigationView />
