@@ -220,6 +220,7 @@ export enum DropType {
     OVERVIEW_VIEW = 'overview-view',
     FOLDER = 'folder',
     OVERVIEW_VIEW_HEADER = 'overview-view-header',
+    NEW_EVENT = 'new-event',
 }
 
 export interface DropItem {

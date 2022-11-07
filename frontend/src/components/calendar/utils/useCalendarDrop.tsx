@@ -15,6 +15,7 @@ import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
+import { useCalendarContext } from '../CalendarContext'
 import {
     CALENDAR_DAY_HEADER_HEIGHT,
     CELL_HEIGHT_VALUE,
@@ -33,11 +34,15 @@ interface CalendarDropArgs {
 const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekView }: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
+    const [initialDragPosition, setInitialDragPosition] = useState(0)
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
+    const [dragPreviewPosition, setDragPreviewPosition] = useState(0)
     const [eventPreview, setEventPreview] = useState<TEvent>()
     const toast = useToast()
     const { data: supportedTypes } = useGetSupportedTypes()
     const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
+    // const [ranges, setRanges] = useState<{ start: number; end: number }[]>([])
+    const { mode, selectedTimes, setSelectedTimes } = useCalendarContext()
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -66,6 +71,35 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
     const getDropPosition = useCallback(
         (monitor: DropTargetMonitor) => {
             const clientOffset = monitor.getClientOffset()
+            const itemType = monitor.getItemType()
+            // if dragging an event, the distance from the mouse to the top of the event
+            let mouseFromEventTopOffset = 0
+            if (itemType === DropType.EVENT) {
+                const initialClientOffset = monitor.getInitialClientOffset()
+                const initialSourceClientOffset = monitor.getInitialSourceClientOffset()
+                const { event } = monitor.getItem<DropItem>()
+                if (initialClientOffset && initialSourceClientOffset && event) {
+                    const startTime = DateTime.fromISO(event.datetime_start)
+                    const eventBodyTop = CELL_HEIGHT_VALUE * startTime.diff(startTime.startOf('day'), 'hours').hours
+                    mouseFromEventTopOffset = initialClientOffset.y - initialSourceClientOffset.y - eventBodyTop
+                }
+            }
+            // snap drop position to mouse position
+            if (itemType === DropType.EVENT || itemType === DropType.EVENT_RESIZE_HANDLE) {
+                mouseFromEventTopOffset -= EVENT_CREATION_INTERVAL_HEIGHT / 2
+            }
+            if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
+            const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
+            const scrollOffset = eventsContainerRef.current.scrollTop - (isWeekView ? CALENDAR_DAY_HEADER_HEIGHT : 0)
+            const yPosInEventsContainer =
+                clientOffset.y - eventsContainerOffset + scrollOffset - mouseFromEventTopOffset
+            return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
+        },
+        [primaryAccountID, isWeekView]
+    )
+    const getDragPosition = useCallback(
+        (monitor: DropTargetMonitor) => {
+            const clientOffset = monitor.getInitialClientOffset()
             const itemType = monitor.getItemType()
             // if dragging an event, the distance from the mouse to the top of the event
             let mouseFromEventTopOffset = 0
@@ -202,9 +236,20 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                     })
                     break
                 }
+                case DropType.NEW_EVENT: {
+                    if (mode === 'normal') return
+                    const dateString = date.toString()
+                    const times = selectedTimes?.get(dateString) ?? []
+                    // selectedTimes.set([])
+                    const newTimes = [...times, { start: dropPreviewPosition, end: dragPreviewPosition }]
+                    const updatedMap = new Map(selectedTimes)
+                    updatedMap.set(dateString, newTimes)
+                    setSelectedTimes(updatedMap)
+                    break
+                }
             }
         },
-        [date, primaryAccountID]
+        [date, primaryAccountID, dropPreviewPosition, dragPreviewPosition, selectedTimes]
     )
 
     const [isOver, drop] = useDrop(
@@ -216,6 +261,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 DropType.EVENT,
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
+                DropType.NEW_EVENT,
             ],
             collect: (monitor) => primaryAccountID && monitor.isOver(),
             drop: onDrop,
@@ -263,17 +309,31 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                         setEventPreview(item.event)
                         break
                     }
+                    case DropType.NEW_EVENT: {
+                        if (mode === 'normal') return
+                        setInitialDragPosition(monitor.getInitialClientOffset()?.y ?? 0)
+                        setDropPreviewPosition(dropPosition)
+                        setDragPreviewPosition(getDragPosition(monitor))
+                        setEventPreview(undefined)
+                    }
                 }
             },
         }),
-        [primaryAccountID, onDrop, date]
+        [primaryAccountID, onDrop, date, selectedTimes]
     )
 
     useEffect(() => {
         drop(eventsContainerRef)
     }, [eventsContainerRef])
 
-    return { isOver, dropPreviewPosition, eventPreview: eventPreviewAtHoverTime }
+    return {
+        isOver,
+        dropPreviewPosition,
+        dragPreviewPosition,
+        eventPreview: eventPreviewAtHoverTime,
+        initialDragPosition,
+        selectedTimes,
+    }
 }
 
 export default useCalendarDrop

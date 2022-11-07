@@ -212,3 +212,13 @@ export const DropPreview = styled.div<{ isVisible: boolean; offset: number }>`
     z-index: 1;
     background-color: ${Colors.background.dropIndicator};
 `
+export const NewEventPreview = styled.div<{ dragOffset: number; dropOffset: number }>`
+    position: absolute;
+    width: 100%;
+    top: ${(props) => props.dragOffset + 50}px;
+    height: ${(props) => props.dropOffset - props.dragOffset}px;
+    border: 2px dashed ${Colors.gtColor.primary};
+    z-index: 1;
+    background-color: ${Colors.background.dropIndicator};
+    box-sizing: border-box;
+`

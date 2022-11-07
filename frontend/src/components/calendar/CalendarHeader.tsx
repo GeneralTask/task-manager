@@ -60,7 +60,8 @@ export default function CalendarHeader({
     dayViewDate,
     setDayViewDate,
 }: CalendarHeaderProps) {
-    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
+    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed, mode, setMode, setSelectedTimes } =
+        useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
@@ -133,6 +134,18 @@ export default function CalendarHeader({
                                 <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
                             )}
                             <HeaderIconsContainer>
+                                <div>{mode}</div>
+                                <GTIconButton
+                                    icon={icons.calendar_blank}
+                                    onClick={() => {
+                                        if (mode === 'normal') setMode('select')
+                                        else {
+                                            setMode('normal')
+                                            const newMap = new Map<string, { start: number; end: number }[]>()
+                                            setSelectedTimes(newMap)
+                                        }
+                                    }}
+                                />
                                 <GTIconButton
                                     onClick={toggleCalendar}
                                     icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}

@@ -1,9 +1,11 @@
-import { useLayoutEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { DateTime } from 'luxon'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { getMonthsAroundDate, isDateToday } from '../../utils/time'
-import { TEvent } from '../../utils/types'
+import { DropType, TEvent } from '../../utils/types'
 import { isGoogleCalendarLinked } from '../../utils/utils'
 import { useCalendarContext } from './CalendarContext'
 import {
@@ -19,6 +21,7 @@ import {
     DayContainer,
     DropPreview,
     EVENT_CREATION_INTERVAL_HEIGHT,
+    NewEventPreview,
     TimeAndHeaderContainer,
     TimeContainer,
 } from './CalendarEvents-styles'
@@ -79,19 +82,49 @@ interface WeekCalendarEventsProps {
 }
 const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
-    const { calendarType } = useCalendarContext()
+    const { calendarType, mode } = useCalendarContext()
     const isWeekCalendar = calendarType === 'week'
-    const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
-        primaryAccountID,
-        date,
-        eventsContainerRef,
-        isWeekView: isWeekCalendar,
-    })
+    const { isOver, dropPreviewPosition, dragPreviewPosition, eventPreview, initialDragPosition, selectedTimes } =
+        useCalendarDrop({
+            primaryAccountID,
+            date,
+            eventsContainerRef,
+            isWeekView: isWeekCalendar,
+        })
+    const daySelectedTImes = selectedTimes?.get(date.toString())
+
+    useEffect(() => {
+        console.log(selectedTimes)
+    }, [selectedTimes])
     const isToday = isDateToday(date)
+
+    const [stateDragPreviewPosition, setStateDragPreviewPosition] = useState(0)
+
+    const [, drag, dragPreview] = useDrag(
+        () => ({
+            type: DropType.NEW_EVENT,
+            item: {},
+            canDrag: mode === 'select',
+            collect: (monitor) => monitor.isDragging(),
+        }),
+        [mode]
+    )
+
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
+
+    useLayoutEffect(() => {
+        setStateDragPreviewPosition(dragPreviewPosition)
+    }, [initialDragPosition])
+
+    useEffect(() => {
+        // alert('hit')
+    }, [dropPreviewPosition])
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>
-            <DayContainer>
+            <DayContainer ref={drag}>
                 {groups.map((group, index) => (
                     <CollisionGroupColumns key={index} events={group} date={date} />
                 ))}
@@ -104,10 +137,24 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                             date={date}
                             isBeingDragged
                         />
+                    ) : initialDragPosition ? (
+                        <NewEventPreview
+                            dragOffset={EVENT_CREATION_INTERVAL_HEIGHT * stateDragPreviewPosition}
+                            dropOffset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition}
+                        />
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
                     ))}
                 {isToday && <TimeIndicator hideDot={!isWeekCalendar} />}
+                {daySelectedTImes?.map((time, index) => {
+                    return (
+                        <NewEventPreview
+                            key={index}
+                            dragOffset={EVENT_CREATION_INTERVAL_HEIGHT * time.end}
+                            dropOffset={EVENT_CREATION_INTERVAL_HEIGHT * time.start}
+                        />
+                    )
+                })}
                 <CalendarDayTable hasBorder={isWeekCalendar} />
             </DayContainer>
         </DayAndHeaderContainer>
