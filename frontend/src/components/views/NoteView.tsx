@@ -35,7 +35,7 @@ const GTLogo = styled.div`
     left: ${Spacing._16};
 `
 
-const CompanyPolicyView = () => {
+const NoteView = () => {
     const note = {
         id: '1',
         title: 'Real note (not a placeholder)',
@@ -60,4 +60,4 @@ const CompanyPolicyView = () => {
     )
 }
 
-export default CompanyPolicyView
+export default NoteView
