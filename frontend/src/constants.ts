@@ -3,7 +3,7 @@ import getEnvVars from './environment'
 import { TIconColor } from './styles/colors'
 import { icons } from './styles/images'
 
-export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
+export const { REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 
 // API Constants
 export const TASK_SECTION_DEFAULT_ID = '-1'

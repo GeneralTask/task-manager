@@ -7,10 +7,11 @@ import styled from 'styled-components'
 import {
     DETAILS_SYNC_TIMEOUT,
     GENERAL_TASK_SOURCE_NAME,
+    REACT_APP_FRONTEND_BASE_URL,
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval, usePreviewMode } from '../../hooks'
+import { useInterval, usePreviewMode, useToast } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -183,6 +184,8 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
         }
     }
 
+    const toast = useToast()
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -213,6 +216,24 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                         size="small"
                                     />
                                 )}
+                                <GTButton
+                                    value="Copy Note Link"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${task.id}`)
+                                        toast.show(
+                                            {
+                                                message: `Note URL copied to clipboard`,
+                                            },
+                                            {
+                                                autoClose: 2000,
+                                                pauseOnFocusLoss: false,
+                                                theme: 'dark',
+                                            }
+                                        )
+                                    }}
+                                    styleType="secondary"
+                                    size="small"
+                                />
                                 {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                             </MarginLeftAuto>

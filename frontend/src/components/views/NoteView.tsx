@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { logos, noteBackground } from '../../styles/images'
+import { emptyFunction } from '../../utils/utils'
+import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
@@ -67,7 +69,14 @@ const NoteView = () => {
             <Body>
                 <Header>{note.title}</Header>
                 <Subtitle>From jack@generaltask.com</Subtitle>
-                <BodySmall>{note.body}</BodySmall>
+                <GTTextField
+                    type="markdown"
+                    value={note.body}
+                    onChange={emptyFunction}
+                    fontSize="small"
+                    disabled
+                    readOnly
+                />
             </Body>
         </MainContainer>
     )
