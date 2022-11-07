@@ -8,7 +8,8 @@ import { enableMapSet } from 'immer'
 import StyledToastContainer from './components/atoms/toast/StyledToastContainer'
 import FocusModeScreen from './components/screens/FocusModeScreen'
 import MainScreen from './components/screens/MainScreen'
-import { FOCUS_MODE_ROUTE } from './constants'
+import NoteView from './components/views/NoteView'
+import { FOCUS_MODE_ROUTE, NOTE_ROUTE } from './constants'
 import AppContextProvider from './context/AppContextProvider'
 import { isDevelopmentMode } from './environment'
 
@@ -59,6 +60,9 @@ const AuthenticatedRoutes = () => {
                         </Route>
                         <Route path="settings" element={<Outlet />}>
                             <Route index element={<MainScreen />} />
+                        </Route>
+                        <Route path={NOTE_ROUTE} element={<Outlet />}>
+                            <Route path=":note" element={<NoteView />} />
                         </Route>
                     </Routes>
                 </AppContextProvider>
