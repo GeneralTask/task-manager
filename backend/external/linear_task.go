@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"errors"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -24,6 +25,7 @@ func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitiv
 }
 
 func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
+	log.Error().Msg("jerdjerd linear get")
 	client, err := GetLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -69,7 +71,9 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
+		log.Error().Msgf("jerd %+v", linearIssue)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
+		updatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.UpdatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
 		isCompleted := false
@@ -85,6 +89,7 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			Body:               &stringBody,
 			SourceAccountID:    accountID,
 			CreatedAtExternal:  primitive.NewDateTimeFromTime(createdAt),
+			UpdatedAt:          primitive.NewDateTimeFromTime(updatedAt),
 			IsCompleted:        &isCompleted,
 			IsDeleted:          &isDeleted,
 			PriorityNormalized: (*float64)(&linearIssue.Priority),

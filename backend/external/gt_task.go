@@ -55,16 +55,17 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 	completed := false
 	deleted := false
 	newTask := database.Task{
-		UserID:          userID,
-		IDExternal:      primitive.NewObjectID().Hex(),
-		IDTaskSection:   taskSection,
-		SourceID:        TASK_SOURCE_ID_GT_TASK,
-		Title:           &task.Title,
-		Body:            &task.Body,
-		TimeAllocation:  &timeAllocation,
-		SourceAccountID: accountID,
-		IsCompleted:     &completed,
-		IsDeleted:       &deleted,
+		UserID:            userID,
+		IDExternal:        primitive.NewObjectID().Hex(),
+		IDTaskSection:     taskSection,
+		SourceID:          TASK_SOURCE_ID_GT_TASK,
+		Title:             &task.Title,
+		Body:              &task.Body,
+		TimeAllocation:    &timeAllocation,
+		SourceAccountID:   accountID,
+		IsCompleted:       &completed,
+		IsDeleted:         &deleted,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
 	}
 	if task.DueDate != nil {
 		dueDate := primitive.NewDateTimeFromTime(*task.DueDate)
