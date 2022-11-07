@@ -10,9 +10,8 @@ import {
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval } from '../../hooks'
+import { useInterval, usePreviewMode } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -109,7 +108,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode } = usePreviewMode()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -265,7 +264,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         onChange={(val) => onEdit({ id: currentTask.id, body: val })}
                         disabled={isInTrash}
                     />
-                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
+                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
                         <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
                     )}
                     {currentTask.external_status && (
@@ -274,7 +273,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                             <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
                     )}
-                    {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
+                    {isPreviewMode && currentTask.external_status && !isInTrash && (
                         <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && (

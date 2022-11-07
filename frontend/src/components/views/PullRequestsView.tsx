@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useItemSelectionController } from '../../hooks'
+import { useItemSelectionController, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { logos } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
@@ -39,7 +38,7 @@ const PullRequestsView = () => {
     const navigate = useNavigate()
     const params = useParams()
     const { data: repositories, isLoading } = useGetPullRequests()
-    const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode } = usePreviewMode()
     useFetchPullRequests()
 
     // Repos in the same order they are passed in as, with pull requests sorted and filtered
@@ -128,7 +127,7 @@ const PullRequestsView = () => {
                 </ScrollableListTemplate>
             </PullRequestsContainer>
             {selectedPullRequest ? (
-                userInfo?.is_employee ? (
+                isPreviewMode ? (
                     <PullRequestDetails pullRequest={selectedPullRequest} />
                 ) : (
                     <PullRequestDetailsOLD pullRequest={selectedPullRequest} />
