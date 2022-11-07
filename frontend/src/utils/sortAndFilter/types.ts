@@ -27,6 +27,8 @@ export interface Sort<T> {
     field: keyof T
     customComparator?: (a: T, b: T) => number
     icon?: TIconImage
+    // when this sort is selected, the direction will initially be set to this value
+    defaultDirection?: SORT_DIRECTION
     // if this is set, the direction will be forced to this value and the direction selector will be hidden
     forceDirection?: SORT_DIRECTION
 }
