@@ -1,9 +1,15 @@
-import { useEffect, useRef } from 'react'
+import { ReactElement, useEffect, useRef } from 'react'
+import ReactDOMServer from 'react-dom/server'
 import ReactTooltip from 'react-tooltip'
+import styled from 'styled-components'
+
+const Wrapper = styled.div<{ inline?: boolean }>`
+    display: ${({ inline }) => (inline ? 'inline-block' : 'block')};
+`
 
 interface TooltipWrapperProps {
-    children: JSX.Element
-    dataTip: string
+    children: ReactElement
+    dataTip: string | ReactElement // using ReactElement because it is required by ReactDOMServer.renderToString
     tooltipId: string
     inline?: boolean
     // for manual control - if true, tooltip will be shown, if false, it will never be shown
@@ -24,16 +30,13 @@ const TooltipWrapper = ({ children, dataTip, tooltipId, inline, forceShow }: Too
     if (forceShow === false) {
         return children
     }
-    if (inline)
-        return (
-            <span ref={ref} data-tip={dataTip} data-for={tooltipId} data-html={true}>
-                {children}
-            </span>
-        )
+
+    const tipContent = typeof dataTip === 'string' ? dataTip : ReactDOMServer.renderToString(dataTip)
+
     return (
-        <div ref={ref} data-tip={dataTip} data-for={tooltipId} data-html={true}>
+        <Wrapper ref={ref} inline={inline} data-tip={tipContent} data-for={tooltipId} data-html={true}>
             {children}
-        </div>
+        </Wrapper>
     )
 }
 

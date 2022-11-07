@@ -11,13 +11,20 @@ interface AddLinkButonProps {
 const AddLinkButton = ({ isLinkSelected }: AddLinkButonProps) => {
     const [showLinkInput, setShowLinkInput] = useState(false)
     useEffect(() => {
-        // ReactTooltip.rebuild()
+        ReactTooltip.rebuild()
         return () => {
             ReactTooltip.hide()
         }
     }, [])
+
+    const tooltipContent = (
+        <div>
+            <input />
+        </div>
+    )
+
     return (
-        <TooltipWrapper tooltipId="tooltip" dataTip={'hi'} forceShow={showLinkInput}>
+        <TooltipWrapper tooltipId="no-delay-tooltip" dataTip={tooltipContent} forceShow={showLinkInput}>
             <ToolbarButton
                 icon={icons.link}
                 isActive={isLinkSelected}

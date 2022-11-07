@@ -1,5 +1,4 @@
-import { forwardRef, useEffect } from 'react'
-import ReactDOMServer from 'react-dom/server'
+import { ReactElement, forwardRef, useEffect } from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS, { TShortcutName } from '../../../constants/shortcuts'
@@ -38,45 +37,42 @@ const GTIconButton = forwardRef(
         { icon, iconColor, forceShowHoverEffect, shortcutName, asDiv = false, onClick, ...props }: GTIconButtonProps,
         ref: React.Ref<HTMLButtonElement>
     ) => {
-        const tooltipData =
-            shortcutName &&
-            ReactDOMServer.renderToString(
-                <TooltipContainer>
-                    {KEYBOARD_SHORTCUTS[shortcutName].label}
-                    {KEYBOARD_SHORTCUTS[shortcutName].keyLabel.split('+').map((keyLabel) => (
-                        <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
-                    ))}
-                </TooltipContainer>
-            )
-
         useEffect(() => {
-            if (tooltipData) ReactTooltip.rebuild()
-        }, [tooltipData])
+            if (shortcutName) ReactTooltip.rebuild()
+        }, [shortcutName])
 
-        if (tooltipData)
-            return (
-                <TooltipWrapper inline dataTip={tooltipData} tooltipId="tooltip">
-                    <Button
-                        ref={ref}
-                        onClick={onClick}
-                        forceShowHoverEffect={forceShowHoverEffect}
-                        as={asDiv ? 'div' : 'button'}
-                        {...props}
-                    >
-                        <Icon icon={icon} color={iconColor} />
-                    </Button>
+        const Wrapper = ({ children }: { children: ReactElement }) =>
+            shortcutName ? (
+                <TooltipWrapper
+                    inline
+                    dataTip={
+                        <TooltipContainer>
+                            {KEYBOARD_SHORTCUTS[shortcutName].label}
+                            {KEYBOARD_SHORTCUTS[shortcutName].keyLabel.split('+').map((keyLabel) => (
+                                <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
+                            ))}
+                        </TooltipContainer>
+                    }
+                    tooltipId="tooltip"
+                >
+                    {children}
                 </TooltipWrapper>
+            ) : (
+                <>{children}</>
             )
+
         return (
-            <Button
-                ref={ref}
-                onClick={onClick}
-                forceShowHoverEffect={forceShowHoverEffect}
-                as={asDiv ? 'div' : 'button'}
-                {...props}
-            >
-                <Icon icon={icon} color={iconColor} />
-            </Button>
+            <Wrapper>
+                <Button
+                    ref={ref}
+                    onClick={onClick}
+                    forceShowHoverEffect={forceShowHoverEffect}
+                    as={asDiv ? 'div' : 'button'}
+                    {...props}
+                >
+                    <Icon icon={icon} color={iconColor} />
+                </Button>
+            </Wrapper>
         )
     }
 )
