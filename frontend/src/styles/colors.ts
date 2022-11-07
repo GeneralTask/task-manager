@@ -11,8 +11,9 @@ const RED = {
     _2: '#F6C8CD',
 }
 const ORANGE = {
-    _1: '#ee7600',
-    _2: '#ff6700',
+    _1: '#EE7600',
+    _2: '#FF6700',
+    _3: '#EEEBFA',
 }
 const YELLOW = {
     _1: '#FFBA0D',
@@ -95,5 +96,5 @@ export type TStatusColors = keyof typeof status
 
 export const gtColor = {
     primary: ORANGE._1,
-    secondary: ORANGE._2,
+    secondary: ORANGE._3,
 }
