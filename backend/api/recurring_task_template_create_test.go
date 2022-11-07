@@ -28,7 +28,6 @@ func TestRecurringTaskTemplateCreate(t *testing.T) {
 			"POST",
 			"/recurring_task_templates/create/",
 			nil)
-		request.Header.Add("Authorization", "Bearer "+"invalidToken")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)

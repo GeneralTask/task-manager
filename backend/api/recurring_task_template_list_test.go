@@ -32,49 +32,49 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 
 	// enabled and not deleted
 	template1Result, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-		UserID:             userID,
-		Title:              &title,
-		PriorityNormalized: &priority,
-		IsEnabled:          &_true,
-		IsDeleted:          &_false,
-		RecurrenceRate:     &rate,
-		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
+		UserID:               userID,
+		Title:                &title,
+		PriorityNormalized:   &priority,
+		IsEnabled:            &_true,
+		IsDeleted:            &_false,
+		RecurrenceRate:       &rate,
+		LastBackfillDatetime: primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
 
 	// not deleted, not enabled
 	template2Result, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-		UserID:             userID,
-		Title:              &title,
-		PriorityNormalized: &priority,
-		IsEnabled:          &_false,
-		IsDeleted:          &_false,
-		RecurrenceRate:     &rate,
-		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
+		UserID:               userID,
+		Title:                &title,
+		PriorityNormalized:   &priority,
+		IsEnabled:            &_false,
+		IsDeleted:            &_false,
+		RecurrenceRate:       &rate,
+		LastBackfillDatetime: primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
 
 	// enabled and deleted
 	_, err = templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-		UserID:             userID,
-		Title:              &title,
-		PriorityNormalized: &priority,
-		IsEnabled:          &_true,
-		IsDeleted:          &_true,
-		RecurrenceRate:     &rate,
-		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
+		UserID:               userID,
+		Title:                &title,
+		PriorityNormalized:   &priority,
+		IsEnabled:            &_true,
+		IsDeleted:            &_true,
+		RecurrenceRate:       &rate,
+		LastBackfillDatetime: primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
 
 	// wrong user ID
 	_, err = templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-		UserID:             primitive.NewObjectID(),
-		Title:              &title,
-		PriorityNormalized: &priority,
-		IsEnabled:          &_true,
-		IsDeleted:          &_false,
-		RecurrenceRate:     &rate,
-		LastTriggered:      primitive.NewDateTimeFromTime(triggerTime),
+		UserID:               primitive.NewObjectID(),
+		Title:                &title,
+		PriorityNormalized:   &priority,
+		IsEnabled:            &_true,
+		IsDeleted:            &_false,
+		RecurrenceRate:       &rate,
+		LastBackfillDatetime: primitive.NewDateTimeFromTime(triggerTime),
 	})
 	assert.NoError(t, err)
 
@@ -82,6 +82,15 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 	defer dbCleanup()
 	router := GetRouter(api)
 
+	t.Run("NoUser", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"GET",
+			"/recurring_task_templates/",
+			nil)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+	})
 	t.Run("Success", func(t *testing.T) {
 		request, _ := http.NewRequest(
 			"GET",

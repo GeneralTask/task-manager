@@ -44,17 +44,17 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 	enabled := true
 	deleted := false
 	newTemplate := database.RecurringTaskTemplate{
-		UserID:              userID,
-		Title:               templateCreateParams.Title,
-		Body:                templateCreateParams.Body,
-		IDTaskSection:       taskSection,
-		PriorityNormalized:  templateCreateParams.PriorityNormalized,
-		IsEnabled:           &enabled,
-		IsDeleted:           &deleted,
-		RecurrenceRate:      templateCreateParams.RecurrenceRate,
-		CreationTimeSeconds: templateCreateParams.CreationTimeSeconds,
-		CreationDay:         templateCreateParams.CreationDay,
-		LastTriggered:       primitive.NewDateTimeFromTime(time.Now()),
+		UserID:               userID,
+		Title:                templateCreateParams.Title,
+		Body:                 templateCreateParams.Body,
+		IDTaskSection:        taskSection,
+		PriorityNormalized:   templateCreateParams.PriorityNormalized,
+		IsEnabled:            &enabled,
+		IsDeleted:            &deleted,
+		RecurrenceRate:       templateCreateParams.RecurrenceRate,
+		CreationTimeSeconds:  templateCreateParams.CreationTimeSeconds,
+		CreationDay:          templateCreateParams.CreationDay,
+		LastBackfillDatetime: primitive.NewDateTimeFromTime(time.Now()),
 	}
 
 	templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)

@@ -21,7 +21,7 @@ const (
 	Annually      = 4
 )
 
-func (api *API) RecurringTaskTemplateBackfill(c *gin.Context) {
+func (api *API) RecurringTaskTemplateBackfillTasks(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
@@ -41,8 +41,8 @@ func (api *API) RecurringTaskTemplateBackfill(c *gin.Context) {
 			return
 		}
 
-		template.LastTriggered = primitive.NewDateTimeFromTime(time.Now())
-		mongoResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(
+		currentBackfillDatetime := primitive.NewDateTimeFromTime(time.Now())
+		updateResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(
 			context.Background(),
 			bson.M{
 				"$and": []bson.M{
@@ -50,10 +50,10 @@ func (api *API) RecurringTaskTemplateBackfill(c *gin.Context) {
 					{"user_id": userID},
 				},
 			},
-			bson.M{"$set": template},
+			bson.M{"$set": bson.M{"last_backfill_datetime": currentBackfillDatetime}},
 			options.FindOneAndUpdate().SetReturnDocument(options.After),
 		)
-		if mongoResult.Err() != nil {
+		if updateResult.Err() != nil {
 			api.Logger.Error().Err(err).Msg("failed to modify recurring task template trigger time")
 			Handle500(c)
 			return
@@ -71,7 +71,7 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 	}
 	localZone := time.FixedZone("", int(-1*offset.Seconds()))
 	currentTime := time.Now()
-	lastTriggered := template.LastTriggered.Time()
+	lastTriggered := template.LastBackfillDatetime.Time()
 
 	var count int
 	switch rate := *template.RecurrenceRate; rate {
@@ -122,7 +122,7 @@ func (api *API) countToCreateDaily(currentLocalTime time.Time, lastTriggeredLoca
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 	}
 
-	// return number if upcoming trigger before current local time
+	// return number of upcoming triggers before current local time
 	count := 0
 	for currentLocalTime.Sub(upcomingTrigger) > 0 {
 		count += 1
@@ -143,14 +143,14 @@ func (api *API) countToCreateWeekDaily(currentLocalTime time.Time, lastTriggered
 
 	if lastTriggeredLocal.Sub(upcomingTrigger) > 0 {
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
-		for int(upcomingTrigger.Weekday()) == 0 || int(upcomingTrigger.Weekday()) == 6 {
+		for int(upcomingTrigger.Weekday()) == int(time.Sunday) || int(upcomingTrigger.Weekday()) == int(time.Saturday) {
 			upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
 		}
 	}
 
 	count := 0
 	for currentLocalTime.Sub(upcomingTrigger) > 0 {
-		if upcomingTrigger.Weekday() != 0 && upcomingTrigger.Weekday() != 6 {
+		if int(upcomingTrigger.Weekday()) != int(time.Sunday) && int(upcomingTrigger.Weekday()) != int(time.Saturday) {
 			count += 1
 		}
 		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)

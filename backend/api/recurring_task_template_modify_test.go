@@ -44,7 +44,6 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
 			bytes.NewBuffer([]byte(`{"title": "new title!"}`)),
 		)
-		request.Header.Add("Authorization", "Bearer "+"invalidToken")
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)

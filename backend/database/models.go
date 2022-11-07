@@ -114,13 +114,13 @@ type RecurringTaskTemplate struct {
 	IDTaskSection      primitive.ObjectID `bson:"id_task_section,omitempty"`
 	PriorityNormalized *float64           `bson:"priority_normalized,omitempty"`
 	// recurrence fields
-	IsEnabled           *bool              `bson:"is_enabled,omitempty"`
-	IsDeleted           *bool              `bson:"is_deleted,omitempty"`
-	RecurrenceRate      *int               `bson:"recurrence_rate,omitempty"`
-	CreationTimeSeconds *int               `bson:"creation_time_seconds,omitempty"`
-	CreationDay         *int               `bson:"creation_day,omitempty"`
-	CreationMonth       *int               `bson:"creation_month,omitempty"`
-	LastTriggered       primitive.DateTime `bson:"last_triggered,omitempty"`
+	IsEnabled            *bool              `bson:"is_enabled,omitempty"`
+	IsDeleted            *bool              `bson:"is_deleted,omitempty"`
+	RecurrenceRate       *int               `bson:"recurrence_rate,omitempty"` // i.e. 0 = Daily, 1 = WeekDaily, 2 = Weekly, etc.
+	CreationTimeSeconds  *int               `bson:"creation_time_seconds,omitempty"`
+	CreationDay          *int               `bson:"creation_day,omitempty"`
+	CreationMonth        *int               `bson:"creation_month,omitempty"`
+	LastBackfillDatetime primitive.DateTime `bson:"last_backfill_datetime,omitempty"`
 }
 
 type PullRequest struct {

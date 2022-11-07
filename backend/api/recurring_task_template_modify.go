@@ -55,13 +55,13 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 	result := database.FindOneWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, templateID)
 	err = result.Decode(&template)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "could not fetch template from database"})
+		c.JSON(404, gin.H{"detail": "template not found.", "templateID": templateID})
 		return
 	}
 
 	// check if all fields are empty
 	if modifyParams == (RecurringTaskTemplateModifyParams{}) {
-		c.JSON(400, gin.H{"detail": "parameter missing"})
+		c.JSON(400, gin.H{"detail": "template changes missing"})
 		return
 	}
 
