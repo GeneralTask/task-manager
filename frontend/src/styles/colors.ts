@@ -11,8 +11,8 @@ const RED = {
     _2: '#F6C8CD',
 }
 const ORANGE = {
-    _1: '#FF7A00',
-    _2: '#FFD7B3',
+    _1: '#ee7600',
+    _2: '#ff6700',
 }
 const YELLOW = {
     _1: '#FFBA0D',
@@ -74,8 +74,8 @@ export type TIconColor = keyof typeof icon
 
 export const button = {
     primary: {
-        default: PURPLE._1,
-        hover: `linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), ${PURPLE._1}`,
+        default: ORANGE._1,
+        hover: `linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), ${ORANGE._1}`,
         active_text: GRAY._200,
     },
     secondary: {
@@ -94,6 +94,6 @@ export const status = {
 export type TStatusColors = keyof typeof status
 
 export const gtColor = {
-    primary: PURPLE._1,
-    secondary: PURPLE._2,
+    primary: ORANGE._1,
+    secondary: ORANGE._2,
 }

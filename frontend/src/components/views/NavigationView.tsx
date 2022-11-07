@@ -14,7 +14,7 @@ import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
-const GT_BETA_LOGO_WIDTH = '111px'
+const GT_BETA_LOGO_WIDTH = '100px'
 
 const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     display: flex;
