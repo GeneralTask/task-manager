@@ -89,11 +89,13 @@ export const countWithOverflow = (count: number, max = 99) => {
 interface TGetTaskIndexFromSectionsReturnType {
     taskIndex?: number
     sectionIndex?: number
+    subtaskIndex?: number
 }
 export const getTaskIndexFromSections = (
     sections: Immutable<{ id?: string; tasks: TTask[] }[]>,
     taskId: string,
-    sectionId?: string
+    sectionId?: string,
+    subtaskId?: string
 ): TGetTaskIndexFromSectionsReturnType => {
     const invalidResult = { taskIndex: undefined, sectionIndex: undefined }
     if (sectionId) {
@@ -101,13 +103,22 @@ export const getTaskIndexFromSections = (
         if (sectionIndex === -1) return invalidResult
         const taskIndex = sections[sectionIndex].tasks.findIndex((task) => task.id === taskId)
         if (taskIndex === -1) return invalidResult
-        return { taskIndex, sectionIndex }
+        const subtaskIndex = sections[sectionIndex].tasks[taskIndex]?.sub_tasks?.findIndex(
+            (subtask) => subtask.id === subtaskId
+        )
+        return { taskIndex, sectionIndex, subtaskIndex }
     } else {
         for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
             const section = sections[sectionIndex]
             for (let taskIndex = 0; taskIndex < section.tasks.length; taskIndex++) {
                 const task = section.tasks[taskIndex]
                 if (task.id === taskId) {
+                    if (subtaskId) {
+                        const subtaskIndex = sections[sectionIndex].tasks[taskIndex]?.sub_tasks?.findIndex(
+                            (subtask) => subtask.id === subtaskId
+                        )
+                        return { taskIndex, sectionIndex, subtaskIndex }
+                    }
                     return { taskIndex, sectionIndex }
                 }
             }

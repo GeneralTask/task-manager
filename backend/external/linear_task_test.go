@@ -69,6 +69,7 @@ func TestLoadLinearTasks(t *testing.T) {
 			"viewer": {
 				"id": "6942069420",
 				"name": "Test User",
+				"displayName": "Test Display Name",
 				"email": "test@generaltask.com"
 			}
 		}}`)
@@ -211,6 +212,14 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, 0, len(result.Tasks))
 	})
 	t.Run("Success", func(t *testing.T) {
+		user := database.User{
+			ID:                userID,
+			Email:             "email@gmail.com",
+			LinearName:        "linearName",
+			LinearDisplayName: "linearDisplayName",
+		}
+		database.GetUserCollection(db).InsertOne(context.Background(), user)
+
 		linearTask := LinearTaskSource{Linear: LinearService{
 			Config: LinearConfig{
 				ConfigValues: LinearConfigValues{
@@ -292,6 +301,33 @@ func TestLoadLinearTasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.Equal(t, "sample_account@email.com", taskFromDB.SourceAccountID) // doesn't get updated
 		assert.Equal(t, "Triage", taskFromDB.AllStatuses[2].State)
+
+		var userObject database.User
+		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
+		assert.NoError(t, err)
+		assert.Equal(t, "Test User", userObject.LinearName)
+		assert.Equal(t, "Test Display Name", userObject.LinearDisplayName)
+		assert.Equal(t, "email@gmail.com", userObject.Email)
+	})
+	t.Run("SuccessUserNotCreated", func(t *testing.T) {
+		linearTask := LinearTaskSource{Linear: LinearService{
+			Config: LinearConfig{
+				ConfigValues: LinearConfigValues{
+					UserInfoURL:    &userInfoServerSuccess.URL,
+					TaskFetchURL:   &taskServerSuccess.URL,
+					StatusFetchURL: &linearStatusServerSuccess.URL,
+				},
+			},
+		}}
+
+		newUserID := primitive.NewObjectID()
+		var taskResult = make(chan TaskResult)
+		go linearTask.GetTasks(db, newUserID, "sample_account@email.com", taskResult)
+		result := <-taskResult
+		assert.NoError(t, result.Error)
+		var userObject database.User
+		err = database.GetUserCollection(db).FindOne(context.Background(), bson.M{"_id": newUserID}).Decode(&userObject)
+		assert.Error(t, err)
 	})
 	t.Run("SuccessExistingTask", func(t *testing.T) {
 		linearTask := LinearTaskSource{Linear: LinearService{
@@ -769,7 +805,8 @@ func TestAddComment(t *testing.T) {
 			},
 		}}
 		comment := database.Comment{
-			Body: "example comment",
+			Body:       "example comment",
+			ExternalID: "externalID",
 		}
 
 		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{

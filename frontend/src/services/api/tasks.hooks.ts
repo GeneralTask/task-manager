@@ -50,6 +50,7 @@ interface TTaskModifyRequestBody {
 export interface TMarkTaskDoneOrDeletedData {
     taskId: string
     sectionId?: string
+    subtaskId?: string
     isDone?: boolean
     isDeleted?: boolean
     waitForAnimation?: boolean
@@ -91,7 +92,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks')
             queryClient.invalidateQueries('overview')
         },
-        refetchInterval: TASK_REFETCH_INTERVAL * 1000,
+        refetchInterval: TASK_REFETCH_INTERVAL,
         refetchIntervalInBackground: true,
     })
 }
@@ -306,45 +307,66 @@ export const useMarkTaskDoneOrDeleted = () => {
             const updateSections = async () => {
                 if (sections) {
                     const newSections = produce(sections, (draft) => {
-                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(draft, data.taskId)
+                        const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                            draft,
+                            data.taskId,
+                            undefined,
+                            data.subtaskId
+                        )
                         if (taskIndex === undefined || sectionIndex === undefined) return
 
                         const task = draft[sectionIndex].tasks[taskIndex]
-                        if (data.isDone !== undefined) task.is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
-                        if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
-                        if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
-                        draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        if (data.subtaskId !== undefined) {
+                            if (subtaskIndex === undefined) return
+                            const subtask = task.sub_tasks?.[subtaskIndex]
+                            if (!subtask) return
+                            if (data.isDone !== undefined) subtask.is_done = data.isDone
+                            draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                        } else {
+                            if (data.isDone !== undefined) task.is_done = data.isDone
+                            if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                            if (data.isDeleted) draft.find((s) => s.is_trash)?.tasks.unshift(task)
+                            if (data.isDone) draft.find((s) => s.is_done)?.tasks.unshift(task)
+                            draft[sectionIndex].tasks.splice(taskIndex, 1)
+                        }
                     })
                     if (data.waitForAnimation) {
-                        await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
+                        await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
                     queryClient.setQueryData('tasks', newSections)
                 }
             }
             const updateOverviewPage = async () => {
-                if (lists) {
-                    const newLists = produce(lists, (draft) => {
-                        const sections = lists.map((view) => ({
-                            id: view.task_section_id,
-                            tasks: view.view_items,
-                        }))
-                        const { taskIndex, sectionIndex } = getTaskIndexFromSections(
-                            sections,
-                            data.taskId,
-                            data.sectionId
-                        )
-                        if (sectionIndex === undefined || taskIndex === undefined) return
-                        const task = draft[sectionIndex].view_items[taskIndex]
+                if (!lists) return
+                const newLists = produce(lists, (draft) => {
+                    const sections = lists.map((view) => ({
+                        id: view.task_section_id,
+                        tasks: view.view_items,
+                    }))
+                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                        sections,
+                        data.taskId,
+                        data.sectionId,
+                        data.subtaskId
+                    )
+                    if (sectionIndex === undefined || taskIndex === undefined) return
+                    const task = draft[sectionIndex].view_items[taskIndex]
+                    if (data.subtaskId) {
+                        if (subtaskIndex === undefined) return
+                        if (!task.sub_tasks) return
+                        if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
+                        if (data.isDeleted !== undefined) task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                        task.sub_tasks.splice(subtaskIndex, 1)
+                    } else {
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                         draft[sectionIndex].view_items.splice(taskIndex, 1)
-                    })
-                    if (data.waitForAnimation) {
-                        await sleep(TASK_MARK_AS_DONE_TIMEOUT * 1000)
                     }
-                    queryClient.setQueryData('overview', newLists)
+                })
+                if (data.waitForAnimation) {
+                    await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                 }
+                queryClient.setQueryData('overview', newLists)
             }
             // execute in parallel if waiting for animation delay
             updateSections()
@@ -361,7 +383,8 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
     if (data.isDone !== undefined) requestBody.is_completed = data.isDone
     if (data.isDeleted !== undefined) requestBody.is_deleted = data.isDeleted
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, requestBody)
+        const updateTaskId = data.subtaskId ?? data.taskId
+        const res = await apiClient.patch(`/tasks/modify/${updateTaskId}/`, requestBody)
         return castImmutable(res.data)
     } catch {
         throw new Error('markTaskDone failed')

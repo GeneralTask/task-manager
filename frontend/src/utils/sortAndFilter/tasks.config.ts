@@ -14,12 +14,14 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
         id: 'due_date',
         label: 'Due date',
         field: 'due_date',
+        defaultDirection: SORT_DIRECTION.ASC,
     },
     priority: {
         id: 'priority',
         label: 'Priority',
         field: 'priority_normalized',
         customComparator: (a, b) => b.priority_normalized - a.priority_normalized,
+        defaultDirection: SORT_DIRECTION.DESC,
     },
 }
 

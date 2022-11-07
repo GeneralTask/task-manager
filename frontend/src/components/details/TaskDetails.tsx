@@ -14,11 +14,12 @@ import { useInterval } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
+import NoStyleLink from '../atoms/NoStyleLink'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
@@ -37,6 +38,7 @@ import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
+const TASK_TITLE_MAX_WIDTH = 125
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -51,15 +53,18 @@ const MarginLeftAuto = styled.div`
     align-items: center;
     margin-left: auto;
 `
-const MarginLeft8 = styled.div`
+const DetailItem = styled.div`
+    display: flex;
+    align-items: center;
     margin-left: ${Spacing._8};
+    max-width: ${TASK_TITLE_MAX_WIDTH}px;
+    display: block;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
     gap: ${Spacing._8};
     align-items: center;
 `
-
 const MeetingPreparationTimeContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -74,6 +79,17 @@ const CommentContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._24};
 `
+const BackButtonContainer = styled(NoStyleLink)`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    ${Typography.mini};
+`
+const BackButtonText = styled.span`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`
 
 const SYNC_MESSAGES = {
     SYNCING: 'Syncing...',
@@ -83,9 +99,11 @@ const SYNC_MESSAGES = {
 
 interface TaskDetailsProps {
     task: TTask
+    subtask?: TTask
     link: string
 }
-const TaskDetails = ({ task, link }: TaskDetailsProps) => {
+const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
+    const currentTask = subtask || task
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
@@ -99,14 +117,14 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const { is_meeting_preparation_task, meeting_preparation_params } = task
+    const { is_meeting_preparation_task, meeting_preparation_params } = currentTask
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     const isInTrash = params.section === TRASH_SECTION_ID
 
     useInterval(() => {
-        if (!task.meeting_preparation_params) return
+        if (!currentTask.meeting_preparation_params) return
         const minutes = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
         if (minutes < 0) {
             setMeetingStartText('Meeting is now')
@@ -131,10 +149,10 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
     so we can then navigate to the correct link */
     useEffect(() => {
-        if (!task.isOptimistic && location.pathname !== link) {
+        if (!currentTask.isOptimistic && location.pathname !== link) {
             navigate(link)
         }
-    }, [task.isOptimistic, location, link])
+    }, [currentTask.isOptimistic, location, link])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -153,7 +171,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             modifyTask({ id, title, body })
         },
-        [task.id, modifyTask]
+        [currentTask.id, modifyTask]
     )
 
     const onEdit = ({ id, title, body }: TModifyTaskData) => {
@@ -161,7 +179,7 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
         const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
+            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT),
             callback: () => syncDetails({ id, title, body }),
         }
     }
@@ -169,36 +187,52 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
-                <MarginLeft8>
-                    <Icon icon={logos[task.source.logo_v2]} />
-                </MarginLeft8>
-                {!task.isOptimistic && (
+                <DetailItem>
+                    {subtask ? (
+                        <BackButtonContainer to=".." relative="path">
+                            <Icon icon={icons.caret_left} color="purple" />
+                            <BackButtonText>{task.title}</BackButtonText>
+                        </BackButtonContainer>
+                    ) : (
+                        <Icon icon={logos[currentTask.source.logo_v2]} />
+                    )}
+                </DetailItem>
+                {!currentTask.isOptimistic && (
                     <>
-                        <MarginLeft8>
+                        <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
-                        </MarginLeft8>
-                        <MarginLeftAuto>
-                            {isInTrash && (
-                                <GTButton
-                                    value="Restore Task"
-                                    onClick={() => markTaskDoneOrDeleted({ taskId: task.id, isDeleted: false })}
-                                    styleType="secondary"
-                                    size="small"
-                                />
-                            )}
-                            {!is_meeting_preparation_task && <FolderDropdown task={task} />}
-                            {task.deeplink && <ExternalLinkButton link={task.deeplink} />}
-                        </MarginLeftAuto>
+                        </DetailItem>
+                        {!subtask && (
+                            <MarginLeftAuto>
+                                {isInTrash && (
+                                    <GTButton
+                                        value="Restore Task"
+                                        onClick={() =>
+                                            markTaskDoneOrDeleted({ taskId: currentTask.id, isDeleted: false })
+                                        }
+                                        styleType="secondary"
+                                        size="small"
+                                    />
+                                )}
+                                {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
+                                {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
+                            </MarginLeftAuto>
+                        )}
                     </>
                 )}
             </DetailsTopContainer>
             <div>
                 <GTTextField
                     type="plaintext"
-                    itemId={task.id}
-                    value={isInTrash ? `${task.title} (deleted)` : task.title}
-                    disabled={task.isOptimistic || is_meeting_preparation_task || task.nux_number_id > 0 || isInTrash}
-                    onChange={(val) => onEdit({ id: task.id, title: val })}
+                    itemId={currentTask.id}
+                    value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
+                    disabled={
+                        currentTask.isOptimistic ||
+                        is_meeting_preparation_task ||
+                        currentTask.nux_number_id > 0 ||
+                        isInTrash
+                    }
+                    onChange={(val) => onEdit({ id: currentTask.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
@@ -212,36 +246,45 @@ const TaskDetails = ({ task, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                <PriorityDropdown task={task} disabled={isInTrash} />
+                <PriorityDropdown task={currentTask} disabled={isInTrash} />
                 <GTDatePicker
-                    initialDate={DateTime.fromISO(task.due_date).toJSDate()}
-                    setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                    initialDate={DateTime.fromISO(currentTask.due_date).toJSDate()}
+                    setDate={(date) => modifyTask({ id: currentTask.id, dueDate: date })}
                     disabled={isInTrash}
                 />
                 <MarginLeftAuto>
-                    <LinearStatusDropdown task={task} disabled={isInTrash} />
+                    <LinearStatusDropdown task={currentTask} disabled={isInTrash} />
                 </MarginLeftAuto>
             </TaskStatusContainer>
-            {task.isOptimistic ? (
+            {currentTask.isOptimistic ? (
                 <Spinner />
             ) : (
                 <>
-                    <TaskBody task={task} onChange={(val) => onEdit({ id: task.id, body: val })} disabled={isInTrash} />
-                    {task.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
-                        <SubtaskList taskId={task.id} subtasks={task.sub_tasks ?? []} />
+                    <TaskBody
+                        task={currentTask}
+                        onChange={(val) => onEdit({ id: currentTask.id, body: val })}
+                        disabled={isInTrash}
+                    />
+                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
+                        <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
                     )}
-                    {task.comments && (
+                    {currentTask.external_status && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
-                            <LinearCommentList comments={task.comments} />
+                            <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
                     )}
-                    {task.slack_message_params && (
-                        <SlackMessage sender={task.sender} slack_message_params={task.slack_message_params} />
+                    {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
+                        <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
+                    )}
+                    {currentTask.slack_message_params && (
+                        <SlackMessage
+                            sender={currentTask.sender}
+                            slack_message_params={currentTask.slack_message_params}
+                        />
                     )}
                 </>
             )}
-            {userInfo?.is_employee && task.external_status && !isInTrash && <CreateLinearComment taskId={task.id} />}
         </DetailsViewTemplate>
     )
 }

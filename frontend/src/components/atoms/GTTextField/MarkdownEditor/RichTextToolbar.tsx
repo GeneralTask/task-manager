@@ -34,7 +34,7 @@ const RichTextToolbar = ({ actions }: RichTextToolbarProps) => {
     const active = useActive()
 
     return (
-        <MenuContainer>
+        <MenuContainer onMouseDown={(e) => e.preventDefault()}>
             <ToolbarButton icon={icons.bold} action={commands.toggleBold} isActive={active.bold()} title="Bold" />
             <ToolbarButton
                 icon={icons.italic}

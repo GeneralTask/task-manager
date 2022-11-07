@@ -11,6 +11,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import FeedbackModal from '../molecules/FeedbackModal'
+import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
 const GT_BETA_LOGO_WIDTH = '111px'
@@ -55,7 +56,7 @@ const GapView = styled.div`
 const CopyrightText = styled.span`
     margin-top: ${Spacing._4};
     text-align: center;
-    color: ${Colors.text.placeholder};
+    color: ${Colors.text.light};
     user-select: none;
     ${Typography.eyebrow};
     padding: ${Spacing._16};
@@ -111,16 +112,20 @@ const NavigationView = () => {
             </OverflowContainer>
             <GapView>
                 {userInfo?.is_employee ? <FeedbackModal /> : <FeedbackButton />}
-                <GTButton
-                    value="Settings"
-                    styleType="secondary"
-                    size="small"
-                    fitContent={false}
-                    onClick={() => {
-                        setCalendarType('day')
-                        navigate('/settings')
-                    }}
-                />
+                {userInfo?.is_employee ? (
+                    <SettingsModal />
+                ) : (
+                    <GTButton
+                        value="Settings"
+                        styleType="secondary"
+                        size="small"
+                        fitContent={false}
+                        onClick={() => {
+                            setCalendarType('day')
+                            navigate('/settings')
+                        }}
+                    />
+                )}
             </GapView>
             <CopyrightText>{copyrightText}</CopyrightText>
         </NavigationViewContainer>

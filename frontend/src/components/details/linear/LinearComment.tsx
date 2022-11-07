@@ -9,14 +9,12 @@ import GTTextField from '../../atoms/GTTextField'
 const TopContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing._8};
-    padding: ${Spacing._4};
+    gap: ${Spacing._12};
     color: ${Colors.text.black};
-    margin-bottom: ${Spacing._16};
 `
 const BodyContainer = styled.div`
     padding: ${Spacing._4};
-    margin-bottom: ${Spacing._32};
+    margin-bottom: ${Spacing._16};
     ${Typography.bodySmall};
 `
 const UsernameText = styled.div`

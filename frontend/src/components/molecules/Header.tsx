@@ -20,7 +20,6 @@ const SectionHeaderContainer = styled.div`
     flex-direction: row;
     align-items: center;
     margin-bottom: ${Spacing._16};
-    min-height: 50px;
     gap: ${Spacing._4};
 `
 const MarginLeftAutoFlex = styled.div`

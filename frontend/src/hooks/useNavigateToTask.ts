@@ -14,15 +14,20 @@ const useNavigateToTask = () => {
     const { setCalendarType } = useCalendarContext()
 
     const getTaskURL = useCallback(
-        (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string) => {
+        (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string, subtaskId?: string) => {
             const isUserOnOverviewPage = pathname.startsWith('/overview')
             if (isUserOnOverviewPage) {
                 for (const view of views) {
                     for (const item of view.view_items) {
                         if (item.id === taskID) {
                             setCalendarType('day')
-                            navigate(`/overview/${view.id}/${item.id}`)
-                            Log(`task_navigate__/overview/${view.id}/${item.id}`)
+                            if (subtaskId) {
+                                navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
+                                Log(`task_navigate__/overview/${view.id}/${item.id}/${subtaskId}`)
+                            } else {
+                                navigate(`/overview/${view.id}/${item.id}`)
+                                Log(`task_navigate__/overview/${view.id}/${item.id}`)
+                            }
                             return
                         }
                     }
@@ -39,8 +44,13 @@ const useNavigateToTask = () => {
                             navigate(`/linear/${task.id}`)
                             Log(`task_navigate__/linear/${task.id}`)
                         } else {
-                            navigate(`/tasks/${section.id}/${task.id}`)
-                            Log(`task_navigate__/tasks/${section.id}/${task.id}`)
+                            if (subtaskId) {
+                                navigate(`/tasks/${section.id}/${task.id}/${subtaskId}`)
+                                Log(`task_navigate__/task/${section.id}/${task.id}/${subtaskId}`)
+                            } else {
+                                navigate(`/tasks/${section.id}/${task.id}`)
+                                Log(`task_navigate__/tasks/${section.id}/${task.id}`)
+                            }
                         }
                         return
                     }
@@ -51,7 +61,8 @@ const useNavigateToTask = () => {
         []
     )
 
-    return (taskID: string) => getTaskURL(taskID, viewsData ?? [], sectionsData ?? [], pathname)
+    return (taskID: string, subtaskId?: string) =>
+        getTaskURL(taskID, viewsData ?? [], sectionsData ?? [], pathname, subtaskId)
 }
 
 export default useNavigateToTask

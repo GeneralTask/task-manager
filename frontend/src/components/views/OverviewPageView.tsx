@@ -16,6 +16,7 @@ import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import EditListsButtons from '../overview/EditListsButtons'
+import OverviewListsModal from '../overview/OverviewListsModal'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -36,7 +37,7 @@ const OverviewView = () => {
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
     useFetchPullRequests()
-    const { overviewViewId, overviewItemId } = useParams()
+    const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -65,11 +66,15 @@ const OverviewView = () => {
                         return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
                     }
                 }
-                return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
+                const subtask = (item as TTask).sub_tasks?.find((subtask) => subtask.id === subtaskId)
+                const detailsLink = subtask
+                    ? `/overview/${view.id}/${item.id}/${subtask.id}`
+                    : `/overview/${view.id}/${item.id}/`
+                return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
             }
         }
         return null
-    }, [overviewViewId, overviewItemId, views])
+    }, [overviewViewId, overviewItemId, subtaskId, views])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
@@ -101,7 +106,7 @@ const OverviewView = () => {
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
-                        <EditListsButtons />
+                        {userInfo?.is_employee ? <OverviewListsModal /> : <EditListsButtons />}
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />

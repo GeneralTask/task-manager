@@ -182,7 +182,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
         <AllDaysContainer ref={scrollRef}>
             <TimeAndHeaderContainer>
                 <TimeContainer>
-                    {isDateToday(date) && <TimeIndicator ref={timeIndicatorRef} />}
+                    {isDateToday(date) && calendarType === 'day' && <TimeIndicator ref={timeIndicatorRef} />}
                     <CalendarTimeTable />
                 </TimeContainer>
             </TimeAndHeaderContainer>
