@@ -128,10 +128,8 @@ const CalendarView = ({
 
                 <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
             </CalendarContainer>
-            {primaryAccountID && (
-                <div>
-                    <SelectedCalendarRanges primaryAccountID={primaryAccountID} date={date} />
-                </div>
+            {primaryAccountID && selectedTimes?.size !== 0 && (
+                <SelectedCalendarRanges primaryAccountID={primaryAccountID} date={date} />
             )}
         </>
     )

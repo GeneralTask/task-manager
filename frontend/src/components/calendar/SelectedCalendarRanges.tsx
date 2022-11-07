@@ -25,32 +25,46 @@ const SelectedCalendarRanges = ({ primaryAccountID, date }: SelectedCalendarRang
         .map((key) => {
             return DateTime.fromISO(key)
         })
+
+    const divTextRef = useRef<HTMLDivElement>(null)
     return (
         <div style={{ padding: Spacing._12 }}>
-            {dates.map((key, index) => {
-                return (
-                    <div key={index}>
-                        {key.toLocaleString(DateTime.DATE_FULL)}
-                        {selectedTimes?.get(key.toString())?.map((time, index) => {
-                            console.log(time.end + 3)
-                            console.log(time.start + 3)
+            <div ref={divTextRef}>
+                {dates.map((key, index) => {
+                    return (
+                        <div key={index}>
+                            {key.toLocaleString(DateTime.DATE_FULL) + '\n'}
+                            {selectedTimes?.get(key.toString())?.map((time, index) => {
+                                //zero out hour and minutes and seconds
+                                const zeroTime = key.set({ hour: 0, minute: 0, second: 0 })
 
-                            //zero out hour and minutes and seconds
-                            const zeroTime = key.set({ hour: 0, minute: 0, second: 0 })
-
-                            const startTime = zeroTime.plus({ minutes: 15 * (time.end + 3) })
-                            const endTime = zeroTime.plus({ minutes: 15 * (time.start + 3) })
-                            return (
-                                <div key={index}>
-                                    {startTime.toLocaleString(DateTime.TIME_SIMPLE)} -{' '}
-                                    {endTime.toLocaleString(DateTime.TIME_SIMPLE)}
-                                </div>
-                            )
-                        })}
-                        <br />
-                    </div>
-                )
-            })}
+                                const startTime = zeroTime.plus({ minutes: 15 * (time.end + 3) })
+                                const endTime = zeroTime.plus({ minutes: 15 * (time.start + 3) })
+                                return (
+                                    <div key={index}>
+                                        {startTime.toLocaleString(DateTime.TIME_SIMPLE)} -{' '}
+                                        {endTime.toLocaleString(DateTime.TIME_SIMPLE)}
+                                    </div>
+                                )
+                            })}
+                            <br />
+                            {'\n'}
+                        </div>
+                    )
+                })}
+            </div>
+            <button
+                onClick={() => {
+                    if (!divTextRef.current) return
+                    let textToCopy = ''
+                    divTextRef.current.childNodes.forEach((node) => {
+                        textToCopy += node.textContent + '\n'
+                    })
+                    navigator.clipboard.writeText(textToCopy)
+                }}
+            >
+                Copy Text
+            </button>
         </div>
     )
 }
