@@ -28,7 +28,7 @@ const SelectedCalendarRanges = ({ primaryAccountID, date }: SelectedCalendarRang
 
     const divTextRef = useRef<HTMLDivElement>(null)
     return (
-        <div style={{ padding: Spacing._12 }}>
+        <div style={{ padding: Spacing._12, marginTop: Spacing._24 }}>
             <div ref={divTextRef}>
                 {dates.map((key, index) => {
                     return (
@@ -42,13 +42,14 @@ const SelectedCalendarRanges = ({ primaryAccountID, date }: SelectedCalendarRang
                                 const endTime = zeroTime.plus({ minutes: 15 * (time.start + 3) })
                                 return (
                                     <div key={index}>
+                                        {'\t'}
                                         {startTime.toLocaleString(DateTime.TIME_SIMPLE)} -{' '}
                                         {endTime.toLocaleString(DateTime.TIME_SIMPLE)}
+                                        {'\n'}
                                     </div>
                                 )
                             })}
                             <br />
-                            {'\n'}
                         </div>
                     )
                 })}
