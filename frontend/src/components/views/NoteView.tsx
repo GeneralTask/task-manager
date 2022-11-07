@@ -9,7 +9,7 @@ import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { BodySmall, Header, Subtitle } from '../atoms/typography/Typography'
+import { Header, Subtitle } from '../atoms/typography/Typography'
 
 const MainContainer = styled.div`
     width: 100vw;
