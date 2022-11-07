@@ -61,22 +61,22 @@ export const AddListsModalContent = () => {
         if (!lowercaseSearchTerm || !userInfo?.is_employee || !supportedViews) {
             return supportedViews
         }
-        const out: TSupportedView[] = []
+        const filtered: TSupportedView[] = []
         for (const view of supportedViews) {
             if (view.is_nested) {
                 const filteredNestedViews = view.views.filter((nestedView) =>
                     nestedView.name.toLowerCase().includes(lowercaseSearchTerm)
                 )
                 if (filteredNestedViews.length > 0) {
-                    out.push({ ...view, views: filteredNestedViews })
+                    filtered.push({ ...view, views: filteredNestedViews })
                 }
             } else {
                 if (view.name.toLowerCase().includes(lowercaseSearchTerm)) {
-                    out.push(view)
+                    filtered.push(view)
                 }
             }
         }
-        return out
+        return filtered
     }, [supportedViews, deferredSearchTerm])
 
     const onChange = (
