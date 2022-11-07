@@ -93,9 +93,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         })
     const daySelectedTImes = selectedTimes?.get(date.toString())
 
-    useEffect(() => {
-        console.log(selectedTimes)
-    }, [selectedTimes])
     const isToday = isDateToday(date)
 
     const [stateDragPreviewPosition, setStateDragPreviewPosition] = useState(0)
@@ -117,10 +114,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
     useLayoutEffect(() => {
         setStateDragPreviewPosition(dragPreviewPosition)
     }, [initialDragPosition])
-
-    useEffect(() => {
-        // alert('hit')
-    }, [dropPreviewPosition])
 
     return (
         <DayAndHeaderContainer ref={eventsContainerRef}>

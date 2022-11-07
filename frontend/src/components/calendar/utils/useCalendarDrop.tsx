@@ -242,8 +242,8 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                     const times = selectedTimes?.get(dateString) ?? []
                     // selectedTimes.set([])
                     const newTimes = [...times, { start: dropPreviewPosition, end: dragPreviewPosition }]
-                    const updatedMap = new Map(selectedTimes)
-                    updatedMap.set(dateString, newTimes)
+                    const updatedMap = new Map(selectedTimes!)
+                    updatedMap?.set(dateString, newTimes)
                     setSelectedTimes(updatedMap)
                     break
                 }

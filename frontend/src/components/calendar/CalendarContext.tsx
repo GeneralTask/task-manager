@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState } from 'react'
-import { DateTime } from 'luxon'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
 
 type CALENDAR_MODES = 'normal' | 'select'
-type CALENDAR_MAP = Map<string, { start: number; end: number }[]>
+export type CALENDAR_MAP = Map<string, { start: number; end: number }[]>
 
 export interface ContextValues {
     calendarType: TCalendarType
