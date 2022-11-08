@@ -12,9 +12,11 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { getMonthsAroundDate } from '../../utils/time'
 import { TEvent, TTask } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import GTHeader from '../atoms/GTHeader'
 import GTTitle from '../atoms/GTTitle'
 import { Icon } from '../atoms/Icon'
+import { Body, Eyebrow, Subtitle } from '../atoms/typography/Typography'
 import ItemContainer from '../molecules/ItemContainer'
 
 const FlexTimeContainer = styled.div`
@@ -22,16 +24,10 @@ const FlexTimeContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._32};
 `
-const Subtitle = styled.div`
-    ${Typography.subtitle};
-`
 const TaskSelectionContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: ${Spacing._24};
-`
-const EyebrowHeader = styled.span`
-    ${Typography.eyebrow};
 `
 const RecommendedTasks = styled.div`
     display: flex;
@@ -191,15 +187,19 @@ const FlexTime = ({ nextEvent }: FlexTimeProps) => {
         <FlexTimeContainer>
             <GTHeader>Flex Time</GTHeader>
             <GTTitle>{flexTimeText}</GTTitle>
-            <Subtitle>
-                If you need something to work on, we&apos;ve picked a couple tasks that you may be interested in doing
-                now. You can click either one to get started, or have us pick a couple other options for you.
-                <br />
-                <br />
-                Remember, you can always schedule tasks by dragging them onto the calendar before entering Focus Mode.
-            </Subtitle>
+            <Flex column gap={Spacing._16}>
+                <Subtitle>Need something to work on?</Subtitle>
+                <Body>
+                    We&apos;ve picked a couple tasks that you may be interested in doing now. Click a task below to add
+                    it to your calendar and get started, or have us show you a couple other options to choose from.
+                    <br />
+                    <br />
+                    Remember, you can always schedule tasks by dragging them onto the calendar before entering Focus
+                    Mode.
+                </Body>
+            </Flex>
             <TaskSelectionContainer>
-                <EyebrowHeader>Chosen for you — Click to get started</EyebrowHeader>
+                <Eyebrow>Chosen for you — Click to get started</Eyebrow>
                 <RecommendedTasks>
                     {recommendedTasks.map(
                         (task) =>
