@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../hooks'
 import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
@@ -12,7 +11,6 @@ import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
-import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import OverviewListsModal from '../overview/OverviewListsModal'
@@ -31,7 +29,6 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { isPreviewMode } = usePreviewMode()
     const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
@@ -59,11 +56,7 @@ const OverviewView = () => {
             for (const item of view.view_items) {
                 if (item.id !== overviewItemId) continue
                 if (view.type === 'github') {
-                    if (isPreviewMode) {
-                        return <PullRequestDetails pullRequest={item as TPullRequest} />
-                    } else {
-                        return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
-                    }
+                    return <PullRequestDetails pullRequest={item as TPullRequest} />
                 }
                 const subtask = (item as TTask).sub_tasks?.find((subtask) => subtask.id === subtaskId)
                 const detailsLink = subtask
@@ -73,7 +66,7 @@ const OverviewView = () => {
             }
         }
         return null
-    }, [overviewViewId, overviewItemId, subtaskId, views, isPreviewMode])
+    }, [overviewViewId, overviewItemId, subtaskId, views])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
