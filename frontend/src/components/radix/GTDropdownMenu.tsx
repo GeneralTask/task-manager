@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
+import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -21,7 +22,11 @@ const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
 const DropdownMenuContent = styled(DropdownMenu.Content)`
     ${MenuContentShared};
 `
-const DropdownMenuItem = styled(DropdownMenu.Item)<{ $isSelected?: boolean; disabled?: boolean }>`
+const DropdownMenuItem = styled(DropdownMenu.Item)<{
+    $isSelected?: boolean
+    $textColor?: TTextColor
+    disabled?: boolean
+}>`
     ${MenuItemShared};
 `
 
@@ -61,6 +66,7 @@ const GTDropdownMenu = ({
                                             textValue={item.label}
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             disabled={item.disabled}
+                                            $textColor={item.textColor}
                                             $isSelected={item.selected && !item.renderer && !item.disabled}
                                         >
                                             {item.renderer ? (
