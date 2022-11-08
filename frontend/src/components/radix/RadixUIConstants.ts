@@ -12,7 +12,7 @@ export const MenuTriggerShared = css`
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
 `
-export const MenuItemShared = css<{ $isSelected?: boolean; disabled?: boolean; $textColor?: TTextColor }>`
+export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor; disabled?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing._12};
