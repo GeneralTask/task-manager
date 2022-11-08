@@ -5,7 +5,7 @@ const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
 const SHIFT_KEY = 'Shift'
 
 // command palette categories will be sorted in the order they appear in this array
-export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'Navigation']
+export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'General', 'Navigation']
 
 /* 
     * NOTE: This allows KEYBOARD_SHORTCUTS to be type-checked while also allowing the editor to autocomplete the keys.
@@ -56,14 +56,6 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: 'F',
         category: 'Tasks',
     },
-    submitComment: {
-        label: 'Submit comment',
-        key: CMD_CTRL_KEY + '+Enter',
-        keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
-        category: 'Tasks',
-        icon: 'comment',
-        hideFromCommandPalette: true,
-    },
     // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',
@@ -100,7 +92,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    // General navigation shortcuts
+    // Navigation shortcuts
     arrowUp: {
         label: 'Previous item',
         key: 'ArrowUp',
@@ -157,6 +149,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Navigation',
         icon: 'x',
     },
+    enterFocusMode: {
+        label: 'Enter Focus Mode',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+f`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+F`,
+        category: 'Navigation',
+        icon: 'headphones',
+    },
     goToOverviewPage: {
         label: 'Go to overview page',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+o`,
@@ -191,6 +190,15 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+I`,
         category: 'Navigation',
         icon: 'inbox',
+    },
+    // General shortcuts
+    submitComment: {
+        label: 'Submit comment',
+        key: CMD_CTRL_KEY + '+Enter',
+        keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
+        category: 'Tasks',
+        icon: 'comment',
+        hideFromCommandPalette: true,
     },
 })
 

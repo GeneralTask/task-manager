@@ -282,7 +282,7 @@ export interface TSupportedView {
     authorization_url: string
 }
 
-export type TShortcutCategory = 'Tasks' | 'Calendar' | 'Navigation'
+export type TShortcutCategory = 'Tasks' | 'Calendar' | 'General' | 'Navigation'
 
 export interface TShortcut {
     label: string

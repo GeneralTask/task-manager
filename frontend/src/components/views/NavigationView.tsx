@@ -88,6 +88,10 @@ const NavigationView = () => {
     const copyrightText = isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
 
     useKeyboardShortcut(
+        'enterFocusMode',
+        useCallback(() => navigate('/focus-mode'), [])
+    )
+    useKeyboardShortcut(
         'goToOverviewPage',
         useCallback(() => navigate('/overview'), [])
     )
