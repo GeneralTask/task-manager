@@ -11,16 +11,16 @@ import (
 )
 
 type RecurringTaskTemplateModifyParams struct {
-	Title               *string  `json:"title,omitempty"`
-	Body                *string  `json:"body,omitempty"`
-	IDTaskSection       *string  `json:"id_task_section,omitempty"`
-	PriorityNormalized  *float64 `json:"priority_normalized,omitempty"`
-	RecurrenceRate      *int     `json:"recurrence_rate,omitempty"`
-	CreationTimeSeconds *int     `json:"creation_time_seconds,omitempty"`
-	CreationDay         *int     `json:"creation_day,omitempty"`
-	CreationMonth       *int     `json:"creation_month,omitempty"`
-	IsEnabled           *bool    `json:"is_enabled,omitempty"`
-	IsDeleted           *bool    `json:"is_deleted,omitempty"`
+	Title                        *string  `json:"title,omitempty"`
+	Body                         *string  `json:"body,omitempty"`
+	IDTaskSection                *string  `json:"id_task_section,omitempty"`
+	PriorityNormalized           *float64 `json:"priority_normalized,omitempty"`
+	RecurrenceRate               *int     `json:"recurrence_rate,omitempty"`
+	TimeOfDaySecondsToCreateTask *int     `bson:"time_of_day_seconds_to_create_task,omitempty"`
+	DayToCreateTask              *int     `bson:"day_to_create_task,omitempty"`
+	MonthToCreateTask            *int     `bson:"month_to_create_task,omitempty"`
+	IsEnabled                    *bool    `json:"is_enabled,omitempty"`
+	IsDeleted                    *bool    `json:"is_deleted,omitempty"`
 }
 
 func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
@@ -66,15 +66,15 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 	}
 
 	updateTemplate := database.RecurringTaskTemplate{
-		Title:               modifyParams.Title,
-		Body:                modifyParams.Body,
-		PriorityNormalized:  modifyParams.PriorityNormalized,
-		IsEnabled:           modifyParams.IsEnabled,
-		IsDeleted:           modifyParams.IsDeleted,
-		RecurrenceRate:      modifyParams.RecurrenceRate,
-		CreationTimeSeconds: modifyParams.CreationTimeSeconds,
-		CreationDay:         modifyParams.CreationDay,
-		CreationMonth:       modifyParams.CreationMonth,
+		Title:                        modifyParams.Title,
+		Body:                         modifyParams.Body,
+		PriorityNormalized:           modifyParams.PriorityNormalized,
+		IsEnabled:                    modifyParams.IsEnabled,
+		IsDeleted:                    modifyParams.IsDeleted,
+		RecurrenceRate:               modifyParams.RecurrenceRate,
+		TimeOfDaySecondsToCreateTask: modifyParams.TimeOfDaySecondsToCreateTask,
+		DayToCreateTask:              modifyParams.DayToCreateTask,
+		MonthToCreateTask:            modifyParams.MonthToCreateTask,
 	}
 	if modifyParams.IDTaskSection != nil {
 		updateTemplate.IDTaskSection = taskSection

@@ -29,13 +29,13 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-			UserID:               userID,
-			Title:                &title,
-			IsEnabled:            &enabled,
-			IsDeleted:            &deleted,
-			RecurrenceRate:       &recurrenceRate,
-			CreationTimeSeconds:  &creationTimeSeconds,
-			LastBackfillDatetime: primitive.NewDateTimeFromTime(time.Now().Add(-24 * time.Hour)),
+			UserID:                       userID,
+			Title:                        &title,
+			IsEnabled:                    &enabled,
+			IsDeleted:                    &deleted,
+			RecurrenceRate:               &recurrenceRate,
+			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-24 * time.Hour)),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -77,13 +77,13 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		}
 
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-			UserID:               userID,
-			Title:                &title,
-			IsEnabled:            &enabled,
-			IsDeleted:            &deleted,
-			RecurrenceRate:       &recurrenceRate,
-			CreationTimeSeconds:  &creationTimeSeconds,
-			LastBackfillDatetime: primitive.NewDateTimeFromTime(lastTriggered),
+			UserID:                       userID,
+			Title:                        &title,
+			IsEnabled:                    &enabled,
+			IsDeleted:                    &deleted,
+			RecurrenceRate:               &recurrenceRate,
+			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastTriggered),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -117,14 +117,14 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-			UserID:               userID,
-			Title:                &title,
-			IsEnabled:            &enabled,
-			IsDeleted:            &deleted,
-			RecurrenceRate:       &recurrenceRate,
-			CreationTimeSeconds:  &creationTimeSeconds,
-			CreationDay:          &creationDay,
-			LastBackfillDatetime: primitive.NewDateTimeFromTime(time.Now().Add(-180 * time.Hour)),
+			UserID:                       userID,
+			Title:                        &title,
+			IsEnabled:                    &enabled,
+			IsDeleted:                    &deleted,
+			RecurrenceRate:               &recurrenceRate,
+			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
+			DayToCreateTask:              &creationDay,
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-180 * time.Hour)),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -158,14 +158,14 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-			UserID:               userID,
-			Title:                &title,
-			IsEnabled:            &enabled,
-			IsDeleted:            &deleted,
-			RecurrenceRate:       &recurrenceRate,
-			CreationTimeSeconds:  &creationTimeSeconds,
-			CreationDay:          &creationDay,
-			LastBackfillDatetime: primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
+			UserID:                       userID,
+			Title:                        &title,
+			IsEnabled:                    &enabled,
+			IsDeleted:                    &deleted,
+			RecurrenceRate:               &recurrenceRate,
+			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
+			DayToCreateTask:              &creationDay,
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -200,15 +200,15 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
-			UserID:               userID,
-			Title:                &title,
-			IsEnabled:            &enabled,
-			IsDeleted:            &deleted,
-			RecurrenceRate:       &recurrenceRate,
-			CreationTimeSeconds:  &creationTimeSeconds,
-			CreationDay:          &creationDay,
-			CreationMonth:        &creationMonth,
-			LastBackfillDatetime: primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
+			UserID:                       userID,
+			Title:                        &title,
+			IsEnabled:                    &enabled,
+			IsDeleted:                    &deleted,
+			RecurrenceRate:               &recurrenceRate,
+			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
+			DayToCreateTask:              &creationDay,
+			MonthToCreateTask:            &creationMonth,
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
