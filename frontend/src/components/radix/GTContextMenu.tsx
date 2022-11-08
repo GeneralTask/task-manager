@@ -23,10 +23,10 @@ const ContextMenuContent = styled(ContextMenu.Content)`
 const ContextMenuSubContent = styled(ContextMenu.SubContent)`
     ${MenuContentShared};
 `
-const ContextMenuItem = styled(ContextMenu.Item)<{ $isSelected?: boolean; $textColor?: TTextColor }>`
+const ContextMenuItem = styled(ContextMenu.Item)<{ isSelected?: boolean; textColor?: TTextColor }>`
     ${MenuItemShared};
 `
-const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ $isSelected?: boolean; $textColor?: TTextColor }>`
+const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ isSelected?: boolean; textColor?: TTextColor }>`
     ${MenuItemShared};
 `
 const FullWidth = styled.div`
@@ -52,8 +52,8 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                         <ContextMenuSubTrigger
                                             key={item.label}
                                             onClick={item.onClick}
-                                            $isSelected={item.selected}
-                                            $textColor={item.textColor}
+                                            isSelected={item.selected}
+                                            textColor={item.textColor}
                                         >
                                             {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                             <MenuItemLabel>{item.label}</MenuItemLabel>
@@ -71,7 +71,7 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                                             key={subItem.label}
                                                             textValue={subItem.label}
                                                             onClick={subItem.onClick}
-                                                            $isSelected={subItem.selected}
+                                                            isSelected={subItem.selected}
                                                         >
                                                             <FixedSizeIcon visible={subItem.selected}>
                                                                 <Icon icon={icons.check} />
@@ -91,8 +91,8 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                         key={item.label}
                                         textValue={item.label}
                                         onClick={item.onClick}
-                                        $isSelected={item.selected}
-                                        $textColor={item.textColor}
+                                        isSelected={item.selected}
+                                        textColor={item.textColor}
                                     >
                                         {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                         {item.label}
