@@ -9,7 +9,6 @@ import { DropType } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
-import FeedbackButton from '../molecules/FeedbackButton'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
@@ -118,7 +117,7 @@ const NavigationView = () => {
                 <NavigationSectionLinks />
             </OverflowContainer>
             <GapView>
-                {isPreviewMode ? <FeedbackModal /> : <FeedbackButton />}
+                <FeedbackModal />
                 {isPreviewMode ? (
                     <SettingsModal />
                 ) : (
