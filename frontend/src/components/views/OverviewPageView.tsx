@@ -15,7 +15,6 @@ import PullRequestDetails from '../details/PullRequestDetails'
 import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import EditListsButtons from '../overview/EditListsButtons'
 import OverviewListsModal from '../overview/OverviewListsModal'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import useOverviewLists from '../overview/useOverviewLists'
@@ -105,7 +104,9 @@ const OverviewView = () => {
             <OverviewPageContainer>
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
-                    <ActionsContainer>{isPreviewMode ? <OverviewListsModal /> : <EditListsButtons />}</ActionsContainer>
+                    <ActionsContainer>
+                        <OverviewListsModal />
+                    </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />
                     ))}
