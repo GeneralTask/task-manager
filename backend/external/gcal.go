@@ -118,7 +118,7 @@ func (googleCalendar GoogleCalendarSource) GetTasks(db *mongo.Database, userID p
 }
 
 func (googleCalendar GoogleCalendarSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	result <- emptyPullRequestResult(nil)
+	result <- emptyPullRequestResult(nil, false)
 }
 
 func (googleCalendar GoogleCalendarSource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
@@ -191,6 +191,7 @@ func (googleCalendar GoogleCalendarSource) DeleteEvent(db *mongo.Database, userI
 // returns true if the error was because of a bad token
 func CheckAndHandleBadToken(err error, db *mongo.Database, userID primitive.ObjectID, accountID string, serviceID string) bool {
 	if !strings.Contains(err.Error(), "oauth2: token expired and refresh token is not set") &&
+		!strings.Contains(err.Error(), "Token has been expired or revoked") &&
 		!strings.Contains(err.Error(), "Request had insufficient authentication scopes") {
 		return false
 	}

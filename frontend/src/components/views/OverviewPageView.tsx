@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { usePreviewMode } from '../../hooks'
 import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
@@ -16,6 +16,7 @@ import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import EditListsButtons from '../overview/EditListsButtons'
+import OverviewListsModal from '../overview/OverviewListsModal'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -31,12 +32,12 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode } = usePreviewMode()
     const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
     useFetchPullRequests()
-    const { overviewViewId, overviewItemId } = useParams()
+    const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -59,17 +60,21 @@ const OverviewView = () => {
             for (const item of view.view_items) {
                 if (item.id !== overviewItemId) continue
                 if (view.type === 'github') {
-                    if (userInfo?.is_employee) {
+                    if (isPreviewMode) {
                         return <PullRequestDetails pullRequest={item as TPullRequest} />
                     } else {
                         return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
                     }
                 }
-                return <TaskDetails task={item as TTask} link={`/overview/${view.id}/${item.id}`} />
+                const subtask = (item as TTask).sub_tasks?.find((subtask) => subtask.id === subtaskId)
+                const detailsLink = subtask
+                    ? `/overview/${view.id}/${item.id}/${subtask.id}`
+                    : `/overview/${view.id}/${item.id}/`
+                return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
             }
         }
         return null
-    }, [overviewViewId, overviewItemId, views])
+    }, [overviewViewId, overviewItemId, subtaskId, views, isPreviewMode])
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
@@ -100,9 +105,7 @@ const OverviewView = () => {
             <OverviewPageContainer>
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
-                    <ActionsContainer>
-                        <EditListsButtons />
-                    </ActionsContainer>
+                    <ActionsContainer>{isPreviewMode ? <OverviewListsModal /> : <EditListsButtons />}</ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />
                     ))}

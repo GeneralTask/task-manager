@@ -12,7 +12,7 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
 
     const [, drop] = useDrop(
         () => ({
-            accept: [DropType.TASK],
+            accept: [DropType.TASK, DropType.NON_REORDERABLE_TASK],
             collect: (monitor) => {
                 if (isCollapsed) {
                     if (!isTaskDraggingOverDetailsView && monitor.isOver()) {
@@ -25,11 +25,16 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
                 setIsTaskDraggingOverDetailsView(monitor.isOver())
             },
             hover: (_, monitor) => {
-                if (!isCollapsed || !hoverStarted.current) return
+                const dropType = monitor.getItemType()
                 if (
-                    monitor.getItemType() === DropType.TASK &&
+                    !isCollapsed ||
+                    !hoverStarted.current ||
+                    (dropType !== DropType.TASK && dropType !== DropType.NON_REORDERABLE_TASK)
+                )
+                    return
+                if (
                     monitor.isOver() &&
-                    DateTime.now().diff(hoverStarted.current, 'seconds').seconds < DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT
+                    DateTime.now().diff(hoverStarted.current).milliseconds < DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT
                 )
                     return
                 setIsCollapsed(false)

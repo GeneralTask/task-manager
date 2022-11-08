@@ -27,8 +27,10 @@ import {
     faCode,
     faCopy,
     faCubes,
+    faEllipsisVertical,
     faFolder,
     faGear,
+    faGlobe,
     faGripDotsVertical,
     faInbox,
     faItalic,
@@ -48,6 +50,7 @@ import {
     faTimer,
     faTrash,
     faUnderline,
+    faUser,
     faXmark,
 } from '@fortawesome/pro-light-svg-icons'
 import {
@@ -101,6 +104,7 @@ export const icons = Object.freeze({
     copy: faCopy,
     domino: faGripDotsVertical,
     dot: faCircleSmall,
+    ellipsisVertical: faEllipsisVertical,
     external_link: faArrowUpRightFromSquare,
     filter: faBarsFilter,
     folder: faFolder,
@@ -110,6 +114,7 @@ export const icons = Object.freeze({
     github_low: '/images/github_low.svg',
     github_med: '/images/github_med.svg',
     github_high: '/images/github_high.svg',
+    globe: faGlobe,
     hamburger: faBars,
     headphones: faHeadphones,
     inbox: faInbox,
@@ -139,6 +144,7 @@ export const icons = Object.freeze({
     timer: faTimer,
     trash: faTrash,
     underline: faUnderline,
+    user: faUser,
     warning: faCircleExclamation,
     x: faXmark,
 })

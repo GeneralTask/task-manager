@@ -57,9 +57,9 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     const [isHovered, setIsHovered] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
-    const [, drag, dragPreview] = useDrag(
+    const [, drag] = useDrag(
         () => ({
-            type: DropType.LINEAR_TASK,
+            type: DropType.NON_REORDERABLE_TASK,
             item: { id: task.id, task },
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
@@ -79,7 +79,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             key={task.id}
             onClick={() => onClick(task.id)}
             isSelected={linearIssueId === task.id}
-            ref={(node) => drag(dragPreview(node))}
+            ref={drag}
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >

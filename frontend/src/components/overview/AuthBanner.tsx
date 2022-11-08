@@ -3,7 +3,7 @@ import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/ov
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { TLogoImage, logos } from '../../styles/images'
+import { TLogoImage, icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
@@ -54,11 +54,16 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
                 <Icon icon={logos[logo]} />
                 <Title>{`Connect ${name} to General Task`}</Title>
             </IconContainer>
-            <GTButton
-                value="Connect"
-                color={Colors.gtColor.primary}
-                onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
-            />
+            <div>
+                <GTButton
+                    value="Connect"
+                    color={Colors.gtColor.primary}
+                    icon={icons.external_link}
+                    size="small"
+                    styleType="secondary"
+                    onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
+                />
+            </div>
         </BannerContainer>
     )
 }

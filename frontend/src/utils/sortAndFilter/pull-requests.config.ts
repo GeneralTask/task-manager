@@ -93,21 +93,25 @@ export const PR_SORT_SELECTOR_ITEMS: SortOptions<TPullRequest> = {
             if (aPriority === undefined || bPriority === undefined) return 0
             return bPriority - aPriority
         },
+        defaultDirection: SORT_DIRECTION.DESC,
     },
     pr_number: {
         id: 'pr_number',
         label: 'PR number',
         field: 'number',
+        defaultDirection: SORT_DIRECTION.DESC,
     },
     updated_at: {
         id: 'updated_at',
         label: 'Last updated',
         field: 'last_updated_at',
+        defaultDirection: SORT_DIRECTION.DESC,
     },
     created_at: {
         id: 'created_at',
         label: 'Created at',
         field: 'number',
+        defaultDirection: SORT_DIRECTION.DESC,
     },
 }
 

@@ -54,6 +54,8 @@ type TaskResult struct {
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
 	SubTasks                 []*TaskResult                `json:"sub_tasks,omitempty"`
 	NUXNumber                int                          `json:"nux_number_id,omitempty"`
+	CreatedAt                string                       `json:"created_at,omitempty"`
+	UpdatedAt                string                       `json:"updated_at,omitempty"`
 }
 
 type TaskSection struct {
@@ -109,7 +111,8 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
+			//if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
+			if false {
 				go api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID, tasks)
 			} else {
 				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
@@ -306,6 +309,8 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 		Comments:                 t.Comments,
 		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
 		NUXNumber:                t.NUXNumber,
+		CreatedAt:                t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		UpdatedAt:                t.UpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {

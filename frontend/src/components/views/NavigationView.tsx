@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useKeyboardShortcut } from '../../hooks'
+import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import { DropType } from '../../utils/types'
@@ -11,6 +11,7 @@ import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackButton from '../molecules/FeedbackButton'
 import FeedbackModal from '../molecules/FeedbackModal'
+import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 
 const GT_BETA_LOGO_WIDTH = '111px'
@@ -55,10 +56,16 @@ const GapView = styled.div`
 const CopyrightText = styled.span`
     margin-top: ${Spacing._4};
     text-align: center;
-    color: ${Colors.text.placeholder};
+    color: ${Colors.text.light};
     user-select: none;
     ${Typography.eyebrow};
     padding: ${Spacing._16};
+`
+const PreviewMode = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: ${Spacing._8};
 `
 const GTBetaLogo = styled.img`
     pointer-events: none;
@@ -69,6 +76,7 @@ const NavigationView = () => {
     const navigate = useNavigate()
     const { setCalendarType } = useCalendarContext()
     const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
 
     const [isOver, drop] = useDrop(
         () => ({
@@ -77,7 +85,7 @@ const NavigationView = () => {
         }),
         []
     )
-    const copyrightText = userInfo?.is_employee ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
+    const copyrightText = isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
 
     useKeyboardShortcut(
         'goToOverviewPage',
@@ -110,19 +118,33 @@ const NavigationView = () => {
                 <NavigationSectionLinks />
             </OverflowContainer>
             <GapView>
-                {userInfo?.is_employee ? <FeedbackModal /> : <FeedbackButton />}
-                <GTButton
-                    value="Settings"
-                    styleType="secondary"
-                    size="small"
-                    fitContent={false}
-                    onClick={() => {
-                        setCalendarType('day')
-                        navigate('/settings')
-                    }}
-                />
+                {isPreviewMode ? <FeedbackModal /> : <FeedbackButton />}
+                {isPreviewMode ? (
+                    <SettingsModal />
+                ) : (
+                    <GTButton
+                        value="Settings"
+                        styleType="secondary"
+                        size="small"
+                        fitContent={false}
+                        onClick={() => {
+                            setCalendarType('day')
+                            navigate('/settings')
+                        }}
+                    />
+                )}
             </GapView>
             <CopyrightText>{copyrightText}</CopyrightText>
+            {userInfo?.is_employee && (
+                <PreviewMode>
+                    <GTButton
+                        value={`Preview Mode ${isPreviewMode ? 'On' : 'Off'}`}
+                        styleType={isPreviewMode ? 'primary' : 'secondary'}
+                        size="small"
+                        onClick={() => togglePreviewMode()}
+                    />
+                </PreviewMode>
+            )}
         </NavigationViewContainer>
     )
 }

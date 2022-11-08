@@ -240,22 +240,6 @@ func (api *API) processLinearCommentWebhook(c *gin.Context, webhookPayload Linea
 }
 
 func (api *API) createCommentFromPayload(userID primitive.ObjectID, externalUserID string, accountID string, commentPayload LinearCommentPayload, task *database.Task) error {
-	// if comment already present, most likely comment was created by GT modify endpoint
-	// if so, we don't add to DB because would be duplicate
-	shouldAddComment := true
-	comments := task.Comments
-	if comments != nil {
-		for _, comment := range *comments {
-			if comment.ExternalID == commentPayload.ID {
-				shouldAddComment = false
-			}
-		}
-	}
-
-	if !shouldAddComment {
-		return nil
-	}
-
 	userStruct, err := api.getLinearUserInfo(userID, accountID, externalUserID)
 	if err != nil {
 		logger := logging.GetSentryLogger()
@@ -278,8 +262,22 @@ func (api *API) createCommentFromPayload(userID primitive.ObjectID, externalUser
 		CreatedAt: primitive.NewDateTimeFromTime(commentCreatedAt),
 	}
 
+	comments := task.Comments
 	if comments != nil {
-		commentsNew = append(*comments, commentToAdd)
+		matched := false
+		for _, comment := range *comments {
+			// only accept body changes for modification
+			if comment.ExternalID == commentPayload.ID {
+				comment.Body = commentToAdd.Body
+				comment.User = commentToAdd.User
+				comment.CreatedAt = commentToAdd.CreatedAt
+				matched = true
+			}
+			commentsNew = append(commentsNew, comment)
+		}
+		if !matched {
+			commentsNew = append(commentsNew, commentToAdd)
+		}
 	} else {
 		commentsNew = []database.Comment{commentToAdd}
 	}

@@ -9,10 +9,12 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
+import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
+import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import { SectionHeader } from '../molecules/Header'
 import SignOutButton from '../molecules/SignOutButton'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -26,40 +28,6 @@ const SettingsViewContainer = styled.div`
     gap: ${Spacing._24};
     padding: ${Spacing._24} ${Spacing._16};
 `
-const Account = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-`
-const AccountInfo = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: ${Spacing._16};
-`
-const AccountButtons = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: ${Spacing._8};
-`
-const AccountNameContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-`
-const AccountName = styled.span`
-    ${Typography.label};
-    color: ${Colors.text.black};
-`
-const AccountID = styled.span`
-    ${Typography.label};
-    color: ${Colors.text.light};
-`
-const SectionDescriptor = styled.span`
-    ${Typography.body};
-    color: ${Colors.text.black};
-`
 const ServicesContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -71,10 +39,6 @@ const Service = styled.div`
     flex-direction: column;
     gap: ${Spacing._12};
     width: ${SERVICE_WIDTH};
-`
-const ServiceName = styled.div`
-    ${Typography.bodySmall};
-    color: ${Colors.text.black};
 `
 const ServiceDetails = styled.div`
     ${Typography.label};
@@ -121,14 +85,14 @@ const SettingsView = () => {
         <ScrollableListTemplate>
             <SectionHeader sectionName="Settings" />
             <SettingsViewContainer>
-                <SectionDescriptor>Add a new service</SectionDescriptor>
+                <Body>Add a new service</Body>
                 <ServicesContainer>
                     {supportedTypes
                         .sort((a, b) => b.name.localeCompare(a.name))
                         .map((supportedType) => (
                             <Service key={supportedType.name}>
                                 <Icon icon={logos[supportedType.logo_v2]} />
-                                <ServiceName>{supportedType.name}</ServiceName>
+                                <BodySmall>{supportedType.name}</BodySmall>
                                 <ServiceDetails>
                                     {serviceDetails[supportedType.name as keyof typeof serviceDetails]}
                                 </ServiceDetails>
@@ -170,18 +134,18 @@ const SettingsView = () => {
                     </Service>
                 </ServicesContainer>
                 <Divider color={Colors.border.light} />
-                <SectionDescriptor>My services</SectionDescriptor>
+                <Body>My services</Body>
                 {linkedAccounts.length > 0 ? (
                     linkedAccounts?.map((account) => (
-                        <Account key={account.id}>
-                            <AccountInfo>
+                        <Flex justifyContent="space-between" alignItems="center" key={account.id}>
+                            <Flex alignItems="center" gap={Spacing._16}>
                                 <Icon icon={logos[account.logo_v2]} />
-                                <AccountNameContainer>
-                                    <AccountName>{account.name}</AccountName>
-                                    <AccountID>{account.display_id}</AccountID>
-                                </AccountNameContainer>
-                            </AccountInfo>
-                            <AccountButtons>
+                                <Flex column>
+                                    <Label>{account.name}</Label>
+                                    <Label color="light">{account.display_id}</Label>
+                                </Flex>
+                            </Flex>
+                            <Flex gap={Spacing._8}>
                                 {account.has_bad_token && (
                                     <GTButton
                                         onClick={() => onRelink(account.name)}
@@ -199,8 +163,8 @@ const SettingsView = () => {
                                         size="small"
                                     />
                                 )}
-                            </AccountButtons>
-                        </Account>
+                            </Flex>
+                        </Flex>
                     ))
                 ) : (
                     <ServiceDetails>
@@ -208,10 +172,10 @@ const SettingsView = () => {
                     </ServiceDetails>
                 )}
                 <Divider color={Colors.border.light} />
-                <SectionDescriptor>Account details</SectionDescriptor>
+                <Body>Account details</Body>
                 <Service>
-                    <AccountID>Email</AccountID>
-                    <AccountName>{userInfo?.email}</AccountName>
+                    <Label color="light">Email</Label>
+                    <Label>{userInfo?.email}</Label>
                 </Service>
                 <Divider color={Colors.border.light} />
                 <SignOutButton />

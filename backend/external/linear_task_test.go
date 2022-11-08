@@ -805,7 +805,8 @@ func TestAddComment(t *testing.T) {
 			},
 		}}
 		comment := database.Comment{
-			Body: "example comment",
+			Body:       "example comment",
+			ExternalID: "externalID",
 		}
 
 		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{

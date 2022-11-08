@@ -35,7 +35,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Put tasks on your calendar with click-and-drag","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":1},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":2},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Connect other services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":3},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01\-01T00:00:00Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":4}]},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Put tasks on your calendar with click-and-drag","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Connect other services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}]},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -436,6 +436,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
+		deleted := true
 		taskResult, err := taskCollection.InsertOne(context.Background(), database.Task{
 			UserID:        userID,
 			IsCompleted:   &notCompleted,
@@ -467,6 +468,14 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = taskCollection.InsertOne(context.Background(), database.Task{
 			UserID:        primitive.NewObjectID(),
+			IsCompleted:   &notCompleted,
+			IDTaskSection: primitive.NilObjectID,
+			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+		})
+		assert.NoError(t, err)
+		_, err = taskCollection.InsertOne(context.Background(), database.Task{
+			UserID:        userID,
+			IsDeleted:     &deleted,
 			IsCompleted:   &notCompleted,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
@@ -891,6 +900,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 		taskCollection := database.GetTaskCollection(api.DB)
 		notCompleted := false
 		completed := true
+		deleted := true
 
 		before, err := time.Parse("2006-01-02", "2000-01-01")
 		assert.NoError(t, err)
@@ -988,10 +998,19 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				DueDate:     &primitiveZeroDateTime,
 				IDOrdering:  9,
 			},
+			// deleted
+			database.Task{
+				UserID:      userID,
+				IsCompleted: &notCompleted,
+				IsDeleted:   &deleted,
+				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
+				DueDate:     &primitiveBefore,
+				IDOrdering:  10,
+			},
 		}
 		taskResult, err := taskCollection.InsertMany(context.Background(), items)
 		assert.NoError(t, err)
-		assert.Equal(t, 10, len(taskResult.InsertedIDs))
+		assert.Equal(t, 11, len(taskResult.InsertedIDs))
 		firstTaskID := taskResult.InsertedIDs[0].(primitive.ObjectID)
 		secondTaskID := taskResult.InsertedIDs[1].(primitive.ObjectID)
 		thirdTaskID := taskResult.InsertedIDs[2].(primitive.ObjectID)
