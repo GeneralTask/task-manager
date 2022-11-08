@@ -7,7 +7,6 @@ import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing, Typography } from '../../styles'
 import { DropType } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
-import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModal from '../molecules/SettingsModal'
@@ -73,7 +72,6 @@ const GTBetaLogo = styled.img`
 
 const NavigationView = () => {
     const navigate = useNavigate()
-    const { setCalendarType } = useCalendarContext()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
 
@@ -118,20 +116,7 @@ const NavigationView = () => {
             </OverflowContainer>
             <GapView>
                 <FeedbackModal />
-                {isPreviewMode ? (
-                    <SettingsModal />
-                ) : (
-                    <GTButton
-                        value="Settings"
-                        styleType="secondary"
-                        size="small"
-                        fitContent={false}
-                        onClick={() => {
-                            setCalendarType('day')
-                            navigate('/settings')
-                        }}
-                    />
-                )}
+                <SettingsModal />
             </GapView>
             <CopyrightText>{copyrightText}</CopyrightText>
             {userInfo?.is_employee && (
