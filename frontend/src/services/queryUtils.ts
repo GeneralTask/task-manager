@@ -65,7 +65,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
     const { mutate, ...rest } = useMutation(mutationFn, {
         ...mutationOptions,
         onMutate: emptyFunction,
-        onSettled: async (data, error, variables, context) => {
+        onSettled: (data, error, variables, context) => {
             const queue = getQueryQueue(mutationOptions.tag)
             queue.shift()
             if (queue.length > 0) {
