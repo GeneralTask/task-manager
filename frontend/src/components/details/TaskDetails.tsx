@@ -31,6 +31,7 @@ import SubtaskList from '../molecules/subtasks/SubtaskList'
 import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
+import TaskActionsDropdown from '../radix/TaskActionsDropdown'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import TaskBody from './TaskBody'
 import LinearCommentList from './linear/LinearCommentList'
@@ -215,6 +216,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                 )}
                                 {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
+                                <TaskActionsDropdown task={currentTask} />
                             </MarginLeftAuto>
                         )}
                     </>
