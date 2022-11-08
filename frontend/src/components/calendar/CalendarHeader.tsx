@@ -134,9 +134,8 @@ export default function CalendarHeader({
                                 <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
                             )}
                             <HeaderIconsContainer>
-                                <div>{mode}</div>
                                 <GTIconButton
-                                    icon={icons.calendar_blank}
+                                    icon={mode === 'normal' ? icons.calendar_blank : icons.calendar_days}
                                     onClick={() => {
                                         if (mode === 'normal') setMode('select')
                                         else {

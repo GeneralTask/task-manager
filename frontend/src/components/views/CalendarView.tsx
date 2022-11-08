@@ -87,7 +87,7 @@ const CalendarView = ({
     })
 
     useEffect(() => {
-        console.log('oooweee', selectedTimes)
+        console.log(selectedTimes)
     }, [selectedTimes])
 
     useKeyboardShortcut(
