@@ -18,7 +18,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
 
-    const sectionId = taskSections && getSectionFromTask(taskSections, task.id)?.id
+    const sectionId = getSectionFromTask(taskSections ?? [], task.id)?.id
 
     const updatedAt = DateTime.fromISO(task.updated_at).toFormat(`MMM d 'at' h:mm a`)
     const createdAt = DateTime.fromISO(task.created_at).toFormat(`MMM d 'at' h:mm a`)
