@@ -4,7 +4,7 @@ import apiClient from '../../utils/api'
 import { TUserInfo } from '../../utils/types'
 
 export const useGetUserInfo = () => {
-    return useQuery<TUserInfo>('user_info', getUserInfo)
+    return useQuery<TUserInfo>('user_info', getUserInfo, { refetchOnMount: false })
 }
 const getUserInfo = async ({ signal }: QueryFunctionContext) => {
     try {

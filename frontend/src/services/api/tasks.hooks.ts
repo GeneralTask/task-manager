@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import apiClient from '../../utils/api'
@@ -10,7 +10,7 @@ import {
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
-import { useGTQueryClient } from '../queryUtils'
+import { useGTQueryClient, useMutationQ } from '../queryUtils'
 
 export interface TCreateTaskData {
     title: string
@@ -74,7 +74,7 @@ export interface TPostCommentData {
 }
 
 export const useGetTasks = (isEnabled = true) => {
-    return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled })
+    return useQuery<TTaskSection[], void>('tasks', getTasks, { enabled: isEnabled, refetchOnMount: false })
 }
 const getTasks = async ({ signal }: QueryFunctionContext) => {
     try {
@@ -107,7 +107,9 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
 
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TCreateTaskData) => createTask(data), {
+    return useMutationQ((data: TCreateTaskData) => createTask(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
             if (data.parent_task_id) return
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -206,10 +208,6 @@ export const useCreateTask = () => {
                 queryClient.setQueryData('overview', updatedViews)
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('overview')
-        },
     })
 }
 export const createTask = async (data: TCreateTaskData) => {
@@ -228,7 +226,9 @@ export const createTask = async (data: TCreateTaskData) => {
 
 export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TModifyTaskData) => modifyTask(data), {
+    return useMutationQ((data: TModifyTaskData) => modifyTask(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TModifyTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
@@ -274,10 +274,6 @@ export const useModifyTask = () => {
                 queryClient.setQueryData('overview', newViews)
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('overview')
-        },
     })
 }
 const modifyTask = async (data: TModifyTaskData) => {
@@ -298,7 +294,9 @@ const modifyTask = async (data: TModifyTaskData) => {
 
 export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
+    return useMutationQ((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -372,10 +370,6 @@ export const useMarkTaskDoneOrDeleted = () => {
             updateSections()
             updateOverviewPage()
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('overview')
-        },
     })
 }
 export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) => {
@@ -393,7 +387,9 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TReorderTaskData) => reorderTask(data), {
+    return useMutationQ((data: TReorderTaskData) => reorderTask(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
@@ -486,10 +482,6 @@ export const useReorderTask = () => {
                 queryClient.setQueryData('overview', newViews)
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('overview')
-        },
     })
 }
 export const reorderTask = async (data: TReorderTaskData) => {
@@ -508,7 +500,9 @@ export const reorderTask = async (data: TReorderTaskData) => {
 
 export const usePostComment = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TPostCommentData) => postComment(data), {
+    return useMutationQ((data: TPostCommentData) => postComment(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TPostCommentData) => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
@@ -556,10 +550,6 @@ export const usePostComment = () => {
 
                 queryClient.setQueryData('overview', newViews)
             }
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-            queryClient.invalidateQueries('overview')
         },
     })
 }
