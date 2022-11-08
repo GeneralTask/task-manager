@@ -23,8 +23,8 @@ const DropdownMenuContent = styled(DropdownMenu.Content)`
     ${MenuContentShared};
 `
 const DropdownMenuItem = styled(DropdownMenu.Item)<{
-    $isSelected?: boolean
-    $textColor?: TTextColor
+    isSelected?: boolean
+    textColor?: TTextColor
     disabled?: boolean
 }>`
     ${MenuItemShared};
@@ -66,8 +66,8 @@ const GTDropdownMenu = ({
                                             textValue={item.label}
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             disabled={item.disabled}
-                                            $textColor={item.textColor}
-                                            $isSelected={item.selected && !item.renderer && !item.disabled}
+                                            textColor={item.textColor}
+                                            isSelected={item.selected && !item.renderer && !item.disabled}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()
