@@ -13,9 +13,6 @@ import { emptyFunction } from '../utils/utils'
  */
 interface GTQueryClient extends QueryClient {
     getImmutableQueryData: <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters) => Immutable<TData> | undefined
-    // copied from react query types
-    // useMutation: <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(mutationFn: MutationFunction<TData, TVariables>, options?: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'>) => UseMutationResult<TData, TError, TVariables, TContext>;
-
     getCurrentEvents: (
         date: DateTime,
         datetime_start: string,
@@ -46,13 +43,19 @@ export const useGTQueryClient = (): GTQueryClient => {
     return queryClient
 }
 
+/**
+ * Provides a wrapper around react-query's useMutation that allows mutations to be queued
+ * Optimistic updates will be applied immediately via the onMutation callback
+ * Mutations will only be sent once all queued mutations have been completed
+ * Queues are separated by the tag param - i.e. 'tasks' and 'overview' will get separate queues
+ * Once a queue is cleared, the invalidateTagsOnSettled will be invalidated to trigger a refetch
+ **/
 interface MutationOptions<TData, TError, TVariables, TContext>
     extends Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'> {
     tag: QueryKey
     invalidateTagsOnSettled?: QueryKey[]
 }
-
-export const useMutationQ = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
+export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
     mutationFn: MutationFunction<TData, TVariables>,
     mutationOptions: MutationOptions<TData, TError, TVariables, TContext>
 ) => {
