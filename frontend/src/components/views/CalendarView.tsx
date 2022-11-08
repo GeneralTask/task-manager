@@ -86,10 +86,6 @@ const CalendarView = ({
         isWeekView: true,
     })
 
-    useEffect(() => {
-        console.log(selectedTimes)
-    }, [selectedTimes])
-
     useKeyboardShortcut(
         'calendar',
         useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed]),
@@ -128,7 +124,7 @@ const CalendarView = ({
 
                 <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
             </CalendarContainer>
-            {primaryAccountID && selectedTimes?.size !== 0 && (
+            {primaryAccountID && selectedTimes !== undefined && selectedTimes?.size !== 0 && (
                 <SelectedCalendarRanges primaryAccountID={primaryAccountID} date={date} />
             )}
         </>
