@@ -34,21 +34,26 @@ const SelectedCalendarRanges = ({ primaryAccountID, date }: SelectedCalendarRang
                     return (
                         <div key={index}>
                             {key.toLocaleString(DateTime.DATE_FULL) + '\n'}
-                            {selectedTimes?.get(key.toString())?.map((time, index) => {
-                                //zero out hour and minutes and seconds
-                                const zeroTime = key.set({ hour: 0, minute: 0, second: 0 })
+                            {selectedTimes
+                                ?.get(key.toString())
+                                ?.sort((a, b) => {
+                                    return a.end - b.end
+                                })
+                                .map((time, index) => {
+                                    //zero out hour and minutes and seconds
+                                    const zeroTime = key.set({ hour: 0, minute: 0, second: 0 })
 
-                                const startTime = zeroTime.plus({ minutes: 15 * (time.end + 3) })
-                                const endTime = zeroTime.plus({ minutes: 15 * (time.start + 3) })
-                                return (
-                                    <div key={index}>
-                                        {'\t'}
-                                        {startTime.toLocaleString(DateTime.TIME_SIMPLE)} -{' '}
-                                        {endTime.toLocaleString(DateTime.TIME_SIMPLE)}
-                                        {'\n'}
-                                    </div>
-                                )
-                            })}
+                                    const startTime = zeroTime.plus({ minutes: 15 * (time.end + 3) })
+                                    const endTime = zeroTime.plus({ minutes: 15 * (time.start + 3) })
+                                    return (
+                                        <div key={index}>
+                                            {'\t'}
+                                            {startTime.toLocaleString(DateTime.TIME_SIMPLE)} -{' '}
+                                            {endTime.toLocaleString(DateTime.TIME_SIMPLE)}
+                                            {'\n'}
+                                        </div>
+                                    )
+                                })}
                             <br />
                         </div>
                     )
