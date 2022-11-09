@@ -13,7 +13,6 @@ import DefaultTemplate from '../templates/DefaultTemplate'
 import LinearView from '../views/LinearView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
-import Settings from '../views/SettingsView'
 import SlackTasksView from '../views/SlackTasksView'
 import TaskSection from '../views/TaskSectionView'
 
@@ -38,8 +37,6 @@ const MainScreen = () => {
                 return <LinearView />
             case 'slack':
                 return <SlackTasksView />
-            case 'settings':
-                return <Settings />
             default:
                 return <OverviewPageView />
         }

@@ -89,6 +89,28 @@ const OverviewListsModal = () => {
                 size="lg"
                 tabs={[
                     {
+                        title: 'Edit lists',
+                        icon: icons.domino,
+                        body: (
+                            <Flex column flex="1">
+                                {views?.map((view, index) => (
+                                    <EditListsSelectedList
+                                        key={view.id}
+                                        view={view}
+                                        viewIndex={index}
+                                        onReorder={handleReorder}
+                                    />
+                                ))}
+                                <ReorderDropContainer
+                                    index={views?.length ?? 0}
+                                    acceptDropType={DropType.OVERVIEW_VIEW}
+                                    onReorder={handleReorder}
+                                    indicatorType="TOP_ONLY"
+                                />
+                            </Flex>
+                        ),
+                    },
+                    {
                         title: 'Add lists',
                         icon: icons.plus,
                         body: (
@@ -162,28 +184,6 @@ const OverviewListsModal = () => {
                                     </Fragment>
                                 ))}
                             </div>
-                        ),
-                    },
-                    {
-                        title: 'Edit lists',
-                        icon: icons.domino,
-                        body: (
-                            <Flex column flex="1">
-                                {views?.map((view, index) => (
-                                    <EditListsSelectedList
-                                        key={view.id}
-                                        view={view}
-                                        viewIndex={index}
-                                        onReorder={handleReorder}
-                                    />
-                                ))}
-                                <ReorderDropContainer
-                                    index={views?.length ?? 0}
-                                    acceptDropType={DropType.OVERVIEW_VIEW}
-                                    onReorder={handleReorder}
-                                    indicatorType="TOP_ONLY"
-                                />
-                            </Flex>
                         ),
                     },
                 ]}

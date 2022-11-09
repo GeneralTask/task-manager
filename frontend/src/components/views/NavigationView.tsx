@@ -6,12 +6,9 @@ import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { DropType } from '../../utils/types'
-import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Eyebrow } from '../atoms/typography/Typography'
-import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
-import FeedbackButton from '../molecules/FeedbackButton'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
@@ -68,7 +65,6 @@ const GTBetaLogo = styled.img`
 
 const NavigationView = () => {
     const navigate = useNavigate()
-    const { setCalendarType } = useCalendarContext()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
 
@@ -111,21 +107,8 @@ const NavigationView = () => {
                 <NavigationSectionLinks />
             </OverflowContainer>
             <GapView>
-                {isPreviewMode ? <FeedbackModal /> : <FeedbackButton />}
-                {isPreviewMode ? (
-                    <SettingsModal />
-                ) : (
-                    <GTButton
-                        value="Settings"
-                        styleType="secondary"
-                        size="small"
-                        fitContent={false}
-                        onClick={() => {
-                            setCalendarType('day')
-                            navigate('/settings')
-                        }}
-                    />
-                )}
+                <FeedbackModal />
+                <SettingsModal />
             </GapView>
             <CopyrightText>
                 {userInfo?.is_employee ? (
