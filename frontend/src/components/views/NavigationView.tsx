@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Colors, Shadows, Spacing } from '../../styles'
 import { DropType } from '../../utils/types'
-import GTButton from '../atoms/buttons/GTButton'
+import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import { Eyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModal from '../molecules/SettingsModal'
@@ -54,16 +55,8 @@ const GapView = styled.div`
 const CopyrightText = styled.span`
     margin-top: ${Spacing._4};
     text-align: center;
-    color: ${Colors.text.light};
     user-select: none;
-    ${Typography.eyebrow};
     padding: ${Spacing._16};
-`
-const PreviewMode = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: ${Spacing._8};
 `
 const GTBetaLogo = styled.img`
     pointer-events: none;
@@ -82,7 +75,6 @@ const NavigationView = () => {
         }),
         []
     )
-    const copyrightText = isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
 
     useKeyboardShortcut(
         'goToOverviewPage',
@@ -118,17 +110,17 @@ const NavigationView = () => {
                 <FeedbackModal />
                 <SettingsModal />
             </GapView>
-            <CopyrightText>{copyrightText}</CopyrightText>
-            {userInfo?.is_employee && (
-                <PreviewMode>
-                    <GTButton
-                        value={`Preview Mode ${isPreviewMode ? 'On' : 'Off'}`}
-                        styleType={isPreviewMode ? 'primary' : 'secondary'}
-                        size="small"
-                        onClick={() => togglePreviewMode()}
-                    />
-                </PreviewMode>
-            )}
+            <CopyrightText>
+                {userInfo?.is_employee ? (
+                    <NoStyleButton onClick={() => togglePreviewMode()}>
+                        <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>
+                            {isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'}
+                        </Eyebrow>
+                    </NoStyleButton>
+                ) : (
+                    <Eyebrow color="light">© 2022 GENERAL TASK</Eyebrow>
+                )}
+            </CopyrightText>
         </NavigationViewContainer>
     )
 }

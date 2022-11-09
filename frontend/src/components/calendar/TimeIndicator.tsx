@@ -27,6 +27,7 @@ const TimeIndicatorContainer = styled.div<{ topOffset: number; hideDot: boolean 
         top: -${(DOT_SIZE - INDICATOR_HEIGHT) / 2}px;
         left: 0;
     }`}
+    pointer-events: none;
 `
 interface TimeIndicatorProps {
     hideDot?: boolean
