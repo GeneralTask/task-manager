@@ -223,10 +223,12 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                         size="small"
                                     />
                                 )}
-                                <GTIconButton
-                                    onClick={() => setShowTaskToCalendarModal(true)}
-                                    icon={icons.calendar_blank}
-                                />
+                                {isPreviewMode && (
+                                    <GTIconButton
+                                        onClick={() => setShowTaskToCalendarModal(true)}
+                                        icon={icons.calendar_blank}
+                                    />
+                                )}
                                 {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 <TaskActionsDropdown task={currentTask} />
