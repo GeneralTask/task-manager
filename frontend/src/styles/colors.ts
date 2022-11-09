@@ -27,7 +27,7 @@ const BLUE = {
     _2: '#BEEBFF',
 }
 const PURPLE = {
-    _1: '#5634CF',
+    _1: '#523178',
     _2: '#EEEBFA',
     _3: '#E1D7FD33', // NOT IN DESIGN DOC (only used for drop indicator)
 }
@@ -94,7 +94,7 @@ export const status = {
 export type TStatusColors = keyof typeof status
 
 export const gtColor = {
-    primary: border.gray,
+    primary: PURPLE._1,
     secondary: PURPLE._2,
     orange: ORANGE._1,
 }
