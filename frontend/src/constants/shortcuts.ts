@@ -188,6 +188,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'General',
         icon: 'x',
     },
+    joinCurrentMeeting: {
+        label: 'Join current meeting',
+        key: 'm',
+        keyLabel: 'M',
+        category: 'General',
+        icon: 'video',
+    },
 })
 
 export type TShortcutName = keyof typeof KEYBOARD_SHORTCUTS
