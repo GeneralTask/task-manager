@@ -37,6 +37,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'folder',
     },
+    submitComment: {
+        label: 'Submit comment',
+        key: CMD_CTRL_KEY + '+Enter',
+        keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
+        category: 'Tasks',
+        icon: 'comment',
+        hideFromCommandPalette: true,
+    },
     // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',
@@ -173,14 +181,6 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'inbox',
     },
     // General shortcuts
-    submitComment: {
-        label: 'Submit comment',
-        key: CMD_CTRL_KEY + '+Enter',
-        keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
-        category: 'General',
-        icon: 'comment',
-        hideFromCommandPalette: true,
-    },
     dismissNotifications: {
         label: 'Dismiss notifications',
         key: 'x',
