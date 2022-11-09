@@ -94,7 +94,12 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID, ignoreCalendarCont
         <DayAndHeaderContainer ref={eventsContainerRef}>
             <DayContainer>
                 {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={date} />
+                    <CollisionGroupColumns
+                        key={index}
+                        events={group}
+                        date={date}
+                        ignoreCalendarContext={ignoreCalendarContext}
+                    />
                 ))}
                 {isOver &&
                     (eventPreview ? (
@@ -104,6 +109,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID, ignoreCalendarCont
                             collisionGroupSize={1}
                             date={date}
                             isBeingDragged
+                            ignoreCalendarContext={ignoreCalendarContext}
                         />
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />

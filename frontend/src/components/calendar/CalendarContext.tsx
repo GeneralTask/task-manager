@@ -12,6 +12,7 @@ export interface ContextValues {
     selectedEvent: TEvent | null
     isPopoverDisabled: boolean
     isTasksDueViewCollapsed: boolean
+    disableSelectEvent: boolean
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
@@ -30,6 +31,7 @@ const CalendarContext = createContext<ContextValues>({
     selectedEvent: null,
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
+    disableSelectEvent: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -49,6 +51,7 @@ const TaskToCalendarViewContext = {
     selectedEvent: null,
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
+    disableSelectEvent: true,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -89,6 +92,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         selectedEvent,
         isPopoverDisabled,
         isTasksDueViewCollapsed,
+        disableSelectEvent: false,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
