@@ -4,7 +4,7 @@ import Log from '../../services/api/log'
 import { PULL_REQUEST_ACTIONS } from '../../utils/sortAndFilter/pull-requests.config'
 import { TPullRequest } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
-import { PurpleEdge } from '../atoms/SelectableContainer'
+import { OrangeEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import Status from './Status'
 import { Column, LinkButtonContainer, PullRequestRow, TitleContainer } from './styles'
@@ -29,7 +29,7 @@ const PullRequest = ({ pullRequest, link, isSelected }: PullRequestProps) => {
 
     return (
         <PullRequestRow onClick={onClickHandler} isSelected={isSelected}>
-            {isSelected && <PurpleEdge />}
+            {isSelected && <OrangeEdge />}
             <TitleContainer>{title}</TitleContainer>
             <Column>
                 <Status description={statusDescription} status={status.text} color={status.color} />

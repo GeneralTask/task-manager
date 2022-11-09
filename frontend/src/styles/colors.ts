@@ -2,7 +2,7 @@ const WHITE = '#FFFFFF'
 const BLACK = '#000000'
 const GRAY = {
     _50: '#FAFAFA',
-    _100: '#F4F4F4',
+    _100: '#F0F3F7',
     _200: '#DADADA',
     _500: '#717179',
 }
@@ -11,7 +11,7 @@ const RED = {
     _2: '#F6C8CD',
 }
 const ORANGE = {
-    _1: '#FF7A00',
+    _1: '#FF8200',
     _2: '#FFD7B3',
 }
 const YELLOW = {
@@ -96,4 +96,5 @@ export type TStatusColors = keyof typeof status
 export const gtColor = {
     primary: PURPLE._1,
     secondary: PURPLE._2,
+    orange: ORANGE._1,
 }

@@ -11,7 +11,7 @@ const DOT_SIZE = 6
 
 const TimeIndicatorContainer = styled.div<{ topOffset: number; hideDot: boolean }>`
     width: 100%;
-    background-color: ${Colors.gtColor.primary};
+    background-color: ${Colors.gtColor.orange};
     height: ${INDICATOR_HEIGHT}px;
     position: absolute;
     top: ${(props) => props.topOffset}px;
@@ -23,7 +23,7 @@ const TimeIndicatorContainer = styled.div<{ topOffset: number; hideDot: boolean 
         width: ${DOT_SIZE}px;
         height: ${DOT_SIZE}px;
         border-radius: 50%;
-        background-color: ${Colors.gtColor.primary};
+        background-color: ${Colors.gtColor.orange};
         top: -${(DOT_SIZE - INDICATOR_HEIGHT) / 2}px;
         left: 0;
     }`}
