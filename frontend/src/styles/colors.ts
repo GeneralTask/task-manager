@@ -94,7 +94,7 @@ export const status = {
 export type TStatusColors = keyof typeof status
 
 export const gtColor = {
-    primary: PURPLE._1,
+    primary: border.gray,
     secondary: PURPLE._2,
     orange: ORANGE._1,
 }
