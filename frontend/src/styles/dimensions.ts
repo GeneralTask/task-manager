@@ -1,6 +1,6 @@
 export const iconSize = {
     default: '16px',
-    gtLogo: '40px',
+    gtLogo: '64px',
     large: '50px',
 }
 

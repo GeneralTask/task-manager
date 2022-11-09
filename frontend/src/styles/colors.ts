@@ -1,7 +1,7 @@
 const WHITE = '#FFFFFF'
 const BLACK = '#000000'
 const GRAY = {
-    _50: '#FAFAFA',
+    _50: '#FBFBFB',
     _100: '#F0F3F7',
     _200: '#DADADA',
     _500: '#717179',
