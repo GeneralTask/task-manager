@@ -19,13 +19,13 @@ import {
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
-const DropdownMenuContent = styled(DropdownMenu.Content) <{ menuInModal?: boolean; width?: number }>`
+const DropdownMenuContent = styled(DropdownMenu.Content)<{ menuInModal?: boolean; width?: number }>`
     ${MenuContentShared};
     ${({ menuInModal }) => menuInModal && `z-index: 1000;`}
     ${({ width }) => width && `width: ${width}px;`}
     box-sizing: border-box;
 `
-const DropdownMenuItem = styled(DropdownMenu.Item) <{
+const DropdownMenuItem = styled(DropdownMenu.Item)<{
     isSelected?: boolean
     textColor?: TTextColor
     disabled?: boolean
@@ -44,6 +44,7 @@ interface GTDropdownMenuProps {
     disabled?: boolean
     hideCheckmark?: boolean
     menuInModal?: boolean
+    useTriggerWidth?: boolean
 }
 
 const GTDropdownMenu = ({
@@ -55,6 +56,7 @@ const GTDropdownMenu = ({
     disabled,
     hideCheckmark = false,
     menuInModal = false,
+    useTriggerWidth = false,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
@@ -70,7 +72,7 @@ const GTDropdownMenu = ({
                         onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}
                         align={align}
                         menuInModal={menuInModal}
-                        width={triggerRef.current?.getBoundingClientRect().width}
+                        width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
                     >
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>
