@@ -1,9 +1,11 @@
-import { QueryClient, QueryKey, useQueryClient } from 'react-query'
+import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutation, useQueryClient } from 'react-query'
 import { QueryFilters } from 'react-query/types/core/utils'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
+import useQueryContext from '../context/QueryContext'
 import { getMonthsAroundDate } from '../utils/time'
 import { TEvent } from '../utils/types'
+import { emptyFunction } from '../utils/utils'
 
 /**
  * Wrapper for useQueryClient that adds getImmutableQueryData method
@@ -11,7 +13,11 @@ import { TEvent } from '../utils/types'
  */
 interface GTQueryClient extends QueryClient {
     getImmutableQueryData: <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters) => Immutable<TData> | undefined
-    getCurrentEvents: (date: DateTime, datetime_start: string, datetime_end: string) => { events?: Immutable<TEvent[]>, blockStartTime: string }
+    getCurrentEvents: (
+        date: DateTime,
+        datetime_start: string,
+        datetime_end: string
+    ) => { events?: Immutable<TEvent[]>; blockStartTime: string }
 }
 export const useGTQueryClient = (): GTQueryClient => {
     const queryClient = useQueryClient() as GTQueryClient
@@ -35,4 +41,51 @@ export const useGTQueryClient = (): GTQueryClient => {
     }
 
     return queryClient
+}
+
+/**
+ * Provides a wrapper around react-query's useMutation that allows mutations to be queued
+ * Optimistic updates will be applied immediately via the onMutation callback
+ * Mutations will only be sent once all queued mutations have been completed
+ * Queues are separated by the tag param - i.e. 'tasks' and 'overview' will get separate queues
+ * Once a queue is cleared, the invalidateTagsOnSettled will be invalidated to trigger a refetch
+ **/
+interface MutationOptions<TData, TError, TVariables, TContext>
+    extends Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'> {
+    tag: QueryKey
+    invalidateTagsOnSettled?: QueryKey[]
+}
+export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
+    mutationFn: MutationFunction<TData, TVariables>,
+    mutationOptions: MutationOptions<TData, TError, TVariables, TContext>
+) => {
+    const queryClient = useGTQueryClient()
+    const { getQueryQueue } = useQueryContext()
+
+    const { mutate, ...rest } = useMutation(mutationFn, {
+        ...mutationOptions,
+        onMutate: emptyFunction,
+        onSettled: (data, error, variables, context) => {
+            const queue = getQueryQueue(mutationOptions.tag)
+            queue.shift()
+            if (queue.length > 0) {
+                queue[0]()
+            } else {
+                mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
+            }
+            mutationOptions.onSettled?.(data, error, variables, context)
+        },
+    })
+    const newMutate = (variables: TVariables) => {
+        mutationOptions.onMutate?.(variables)
+        const queue = getQueryQueue(mutationOptions.tag)
+        queue.push(() => mutate(variables))
+        if (queue.length === 1) {
+            mutate(variables)
+        }
+    }
+    return {
+        ...rest,
+        mutate: newMutate,
+    }
 }
