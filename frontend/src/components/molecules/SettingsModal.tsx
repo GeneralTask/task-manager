@@ -16,7 +16,7 @@ import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from '../molecules/SignOutButton'
 
-const SERVICE_WIDTH = '160px'
+const SERVICE_WIDTH = '150px'
 
 const ServicesContainer = styled.div`
     display: flex;
@@ -121,8 +121,6 @@ const SettingsModal = () => {
                                                 </div>
                                             </Service>
                                         ))}
-                                </ServicesContainer>
-                                <ServicesContainer>
                                     <Service>
                                         <ServiceDetails>
                                             Add General Task to your Slack workspace. This is only required once per
