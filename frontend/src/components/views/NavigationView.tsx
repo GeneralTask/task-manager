@@ -79,7 +79,6 @@ const NavigationView = () => {
         }),
         []
     )
-    const copyrightText = isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'
 
     useKeyboardShortcut(
         'goToOverviewPage',
@@ -131,10 +130,12 @@ const NavigationView = () => {
             <CopyrightText>
                 {userInfo?.is_employee ? (
                     <NoStyleButton onClick={() => togglePreviewMode()}>
-                        <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>{copyrightText}</Eyebrow>
+                        <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>
+                            {isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'}
+                        </Eyebrow>
                     </NoStyleButton>
                 ) : (
-                    <Eyebrow color="light">{copyrightText}</Eyebrow>
+                    <Eyebrow color="light">© 2022 GENERAL TASK</Eyebrow>
                 )}
             </CopyrightText>
         </NavigationViewContainer>
