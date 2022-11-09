@@ -55,8 +55,6 @@ const (
 	ChoiceKeyManual                   = "manual"
 	ChoiceKeyDueDate                  = "due_date"
 	ChoiceKeyPriority                 = "priority"
-	ChoiceKeyCreatedAt                = "created_at"
-	ChoiceKeyUpdatedAt                = "updated_at"
 	// Calendar choice
 	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
 )
