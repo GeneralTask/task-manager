@@ -23,38 +23,19 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'plus',
     },
-    markComplete: {
+    markAsDone: {
         label: 'Mark as done',
         key: 'd',
         keyLabel: 'D',
         category: 'Tasks',
         icon: 'check',
     },
-    select: {
-        label: 'Select',
-        key: 'Enter',
-        keyLabel: 'Enter',
-        category: 'Tasks',
-    },
-    showDatePicker: {
-        label: 'Show date picker',
-        key: 's',
-        keyLabel: 'S',
-        category: 'Tasks',
-        icon: 'calendar_days',
-    },
-    showSectionEditor: {
-        label: 'Change folder',
-        key: 'l',
-        keyLabel: 'L',
+    moveTaskToFolder: {
+        label: 'Move task to folder',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+m`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+M`,
         category: 'Tasks',
         icon: 'folder',
-    },
-    showTimeEstimationPicker: {
-        label: 'Show time estimate picker',
-        key: 'f',
-        keyLabel: 'F',
-        category: 'Tasks',
     },
     // Calendar shortcuts
     calendar: {
