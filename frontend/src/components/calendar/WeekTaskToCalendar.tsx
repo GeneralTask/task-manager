@@ -57,8 +57,7 @@ const ModifiedCalendarHeader = styled(Body)`
     border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
 `
 
-interface WeekTaskToCalendarProps extends BaseModalProps {}
-const WeekTaskToCalendar = (props: WeekTaskToCalendarProps) => {
+const WeekTaskToCalendar = (props: BaseModalProps) => {
     const { data: sections } = useGetTasks()
     const [isOpen, setIsOpen] = useState(false)
     const [sectionIndex, setSectionIndex] = useState(0)
