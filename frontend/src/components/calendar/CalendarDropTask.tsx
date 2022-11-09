@@ -28,11 +28,9 @@ const CalendarDropTask = ({ task }: CalendarDropTaskProps) => {
     return (
         <TaskTemplate onMouseEnter={() => setIsHoverTask(true)} onMouseLeave={() => setIsHoverTask(false)} ref={drag}>
             <ItemContainer isSelected={false} onClick={emptyFunction}>
-                {
-                    <DominoContainer isVisible={isHoverTask}>
-                        <Domino />
-                    </DominoContainer>
-                }
+                <DominoContainer isVisible={isHoverTask}>
+                    <Domino />
+                </DominoContainer>
                 <TaskInformation key={task.id}>{task.title}</TaskInformation>
             </ItemContainer>
         </TaskTemplate>
