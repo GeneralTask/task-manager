@@ -218,6 +218,8 @@ export const createTask = async (data: TCreateTaskData) => {
             id_task_section: data.taskSectionId,
             parent_task_id: data.parent_task_id,
         })
+        // temporary fix to ensure that tasks are ordered correctly when created
+        await apiClient.get('/tasks/v3/')
         return castImmutable(res.data)
     } catch {
         throw new Error('createTask failed')
