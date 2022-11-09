@@ -23,6 +23,18 @@ export const TASK_SORT_SELECTOR_ITEMS: SortOptions<TTask> = {
         customComparator: (a, b) => b.priority_normalized - a.priority_normalized,
         defaultDirection: SORT_DIRECTION.DESC,
     },
+    created_at: {
+        id: 'created_at',
+        label: 'Created At',
+        field: 'created_at',
+        defaultDirection: SORT_DIRECTION.DESC,
+    },
+    updated_at: {
+        id: 'updated_at',
+        label: 'Updated At',
+        field: 'updated_at',
+        defaultDirection: SORT_DIRECTION.DESC,
+    },
 }
 
 export const TASK_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TTask> = {
