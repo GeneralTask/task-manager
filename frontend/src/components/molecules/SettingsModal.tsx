@@ -18,7 +18,6 @@ import GTButton from '../atoms/buttons/GTButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from '../molecules/SignOutButton'
-import FeedbackModal from './FeedbackModal'
 
 const SERVICE_WIDTH = '160px'
 
