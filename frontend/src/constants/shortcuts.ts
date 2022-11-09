@@ -196,9 +196,16 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         label: 'Submit comment',
         key: CMD_CTRL_KEY + '+Enter',
         keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
-        category: 'Tasks',
+        category: 'General',
         icon: 'comment',
         hideFromCommandPalette: true,
+    },
+    dismissNotifications: {
+        label: 'Dismiss notifications',
+        key: 'x',
+        keyLabel: 'X',
+        category: 'General',
+        icon: 'x',
     },
 })
 
