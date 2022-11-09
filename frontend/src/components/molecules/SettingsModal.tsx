@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { useLocalStorage, useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import { usePreviewMode } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -9,12 +11,14 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import Flex from '../atoms/Flex'
+import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from '../molecules/SignOutButton'
+import FeedbackModal from './FeedbackModal'
 
 const SERVICE_WIDTH = '160px'
 
@@ -37,6 +41,7 @@ const ServiceDetails = styled.div`
 `
 
 const SettingsModal = () => {
+    const { isPreviewMode } = usePreviewMode()
     const [modalIsOpen, setModalIsOpen] = useState(false)
     const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -69,6 +74,9 @@ const SettingsModal = () => {
         Linear: 'See, update, and schedule the issues assigned to you.',
         Github: 'See pull requests from the repos that matter to you.',
     }
+
+    const { isDarkMode, toggleTernaryDarkMode } = useTernaryDarkMode()
+    const [resizableDetails, setResizableDetails] = useLocalStorage('resizableDetails', false)
 
     return (
         <>
@@ -198,6 +206,36 @@ const SettingsModal = () => {
                             </>
                         ),
                     },
+                    ...(isPreviewMode
+                        ? [
+                              {
+                                  title: 'Lab',
+                                  subtitle:
+                                      'Preview early versions of new features while they’re still in beta. Feel free to leave us feedback!',
+                                  icon: icons.flask,
+                                  body: (
+                                      <>
+                                          <Flex gap={Spacing._16} alignItems="center">
+                                              <GTCheckbox isChecked={isDarkMode} onChange={toggleTernaryDarkMode} />
+                                              <Flex column gap={Spacing._4}>
+                                                  <Body>Dark mode</Body>
+                                                  <Label color="light">Activate dark mode</Label>
+                                              </Flex>
+                                          </Flex>
+                                          <Flex gap={Spacing._16} alignItems="center">
+                                              <GTCheckbox isChecked={resizableDetails} onChange={setResizableDetails} />
+                                              <Flex column gap={Spacing._4}>
+                                                  <Body>Resizable task details</Body>
+                                                  <Label color="light">
+                                                      Some supporting secondary copy to describe this feature
+                                                  </Label>
+                                              </Flex>
+                                          </Flex>
+                                      </>
+                                  ),
+                              },
+                          ]
+                        : []),
                 ]}
             />
         </>

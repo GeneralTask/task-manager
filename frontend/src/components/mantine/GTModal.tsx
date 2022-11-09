@@ -53,6 +53,7 @@ const MarginBottom8 = styled.div`
 
 interface GTModalTab {
     title?: string
+    subtitle?: string
     icon?: TIconType
     body: React.ReactNode
 }
@@ -89,6 +90,7 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                         <Subtitle>{tab.title}</Subtitle>
                         <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
                     </Flex>
+                    {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
                     {Array.isArray(tabs) && <Divider color={Colors.border.light} />}
                     {tab.body}
                 </ModalContent>
