@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -82,10 +82,6 @@ export default function CalendarHeader({
         }
         setDate(isCalendarExpanded ? DateTime.now().minus({ days: DateTime.now().weekday % 7 }) : DateTime.now())
     }, [setDate, isCalendarExpanded])
-
-    useEffect(() => {
-        selectToday()
-    }, [])
 
     const selectNext = useCallback(() => {
         if (calendarType === 'day') {
