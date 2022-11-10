@@ -3,7 +3,6 @@ interface TooltipWrapperProps {
     dataTip: string
     tooltipId: string
     inline?: boolean
-    place?: string
 }
 const TooltipWrapper = ({ children, dataTip, tooltipId, inline }: TooltipWrapperProps) => {
     if (inline)
