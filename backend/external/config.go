@@ -177,7 +177,7 @@ var TaskServiceGeneralTask = TaskServiceDetails{
 }
 var TaskServiceGithub = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_GITHUB,
-	Name:         "Github",
+	Name:         "GitHub",
 	Logo:         "/images/github.svg",
 	LogoV2:       "github",
 	AuthType:     AuthTypeOauth2,

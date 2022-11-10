@@ -67,7 +67,7 @@ const SettingsModal = () => {
         Slack: 'Turn any Slack message into an actionable task.',
         'Google Calendar': 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
         Linear: 'See, update, and schedule the issues assigned to you.',
-        Github: 'See pull requests from the repos that matter to you.',
+        GitHub: 'See pull requests from the repos that matter to you.',
     }
 
     return (
