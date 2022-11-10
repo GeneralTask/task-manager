@@ -1,7 +1,7 @@
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { MEDIA_MAX_WIDTH, NAVIGATION_BAR_WIDTH, TOOLTIP_MAX_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
+import { MEDIA_MAX_WIDTH, TOOLTIP_MAX_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CalendarView from '../views/CalendarView'
 import NavigationView from '../views/NavigationView'
