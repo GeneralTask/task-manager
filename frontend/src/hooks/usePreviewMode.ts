@@ -1,5 +1,5 @@
-import { useLocalStorage } from 'usehooks-ts'
 import { useGetUserInfo } from '../services/api/user-info.hooks'
+import useGTLocalStorage from './useGTLocalStorage'
 
 interface UsePreviewModeOutput {
     isPreviewMode: boolean
@@ -10,7 +10,7 @@ interface UsePreviewModeOutput {
 
 function usePreviewMode(defaultValue?: boolean): UsePreviewModeOutput {
     const { data: userInfo } = useGetUserInfo()
-    const [isPreviewMode, setPreviewMode] = useLocalStorage<boolean>('previewMode', defaultValue ?? false)
+    const [isPreviewMode, setPreviewMode] = useGTLocalStorage<boolean>('previewMode', defaultValue ?? false)
 
     return {
         isPreviewMode: isPreviewMode && (userInfo?.is_employee ?? false),
