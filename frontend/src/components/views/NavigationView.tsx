@@ -1,21 +1,25 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
+import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
+import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Eyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModal from '../molecules/SettingsModal'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import NavigationViewCollapsed from './NavigationViewCollapsed'
 
 const GT_BETA_LOGO_WIDTH = '95px'
 
-const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
+const NavigationViewContainer = styled.div<{ showDropShadow: boolean; isCollapsed: boolean }>`
     display: flex;
     flex-direction: column;
     min-width: 0px;
@@ -24,6 +28,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean }>`
     box-sizing: border-box;
     z-index: 1;
     ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover}`}
+    width: ${({ isCollapsed }) => (isCollapsed ? 'fit-content' : NAVIGATION_BAR_WIDTH)};
 `
 const NavigationViewHeader = styled.div`
     display: flex;
@@ -67,6 +72,7 @@ const NavigationView = () => {
     const navigate = useNavigate()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
     const [isOver, drop] = useDrop(
         () => ({
@@ -102,29 +108,40 @@ const NavigationView = () => {
     )
 
     return (
-        <NavigationViewContainer showDropShadow={isOver} ref={drop}>
-            <NavigationViewHeader>
-                <GTBetaLogo src="/images/GT-beta-logo.png" />
-                <CommandPalette />
-            </NavigationViewHeader>
-            <OverflowContainer>
-                <NavigationSectionLinks />
-            </OverflowContainer>
-            <GapView>
-                <FeedbackModal />
-                <SettingsModal />
-            </GapView>
-            <CopyrightText>
-                {userInfo?.is_employee ? (
-                    <NoStyleButton onClick={() => togglePreviewMode()}>
-                        <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>
-                            {isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'}
-                        </Eyebrow>
-                    </NoStyleButton>
-                ) : (
-                    <Eyebrow color="light">© 2022 GENERAL TASK</Eyebrow>
-                )}
-            </CopyrightText>
+        <NavigationViewContainer showDropShadow={isOver} ref={drop} isCollapsed={isCollapsed}>
+            {isCollapsed ? (
+                <NavigationViewCollapsed setIsCollapsed={setIsCollapsed} />
+            ) : (
+                <>
+                    <NavigationViewHeader>
+                        <GTBetaLogo src="/images/GT-beta-logo.png" />
+                        <div>
+                            {isPreviewMode && (
+                                <GTIconButton icon={icons.collapse} onClick={() => setIsCollapsed(!isCollapsed)} />
+                            )}
+                            <CommandPalette />
+                        </div>
+                    </NavigationViewHeader>
+                    <OverflowContainer>
+                        <NavigationSectionLinks />
+                    </OverflowContainer>
+                    <GapView>
+                        <FeedbackModal />
+                        <SettingsModal />
+                    </GapView>
+                    <CopyrightText>
+                        {userInfo?.is_employee ? (
+                            <NoStyleButton onClick={() => togglePreviewMode()}>
+                                <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>
+                                    {isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'}
+                                </Eyebrow>
+                            </NoStyleButton>
+                        ) : (
+                            <Eyebrow color="light">© 2022 GENERAL TASK</Eyebrow>
+                        )}
+                    </CopyrightText>
+                </>
+            )}
         </NavigationViewContainer>
     )
 }
