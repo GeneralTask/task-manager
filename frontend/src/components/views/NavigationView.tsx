@@ -116,7 +116,9 @@ const NavigationView = () => {
                     <NavigationViewHeader>
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
                         <div>
-                            <GTIconButton icon={icons.collapse} onClick={() => setIsCollapsed(!isCollapsed)} />
+                            {isPreviewMode && (
+                                <GTIconButton icon={icons.collapse} onClick={() => setIsCollapsed(!isCollapsed)} />
+                            )}
                             <CommandPalette />
                         </div>
                     </NavigationViewHeader>
