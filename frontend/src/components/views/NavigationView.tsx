@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import useGTLocalStorage from '../../hooks/useGTLocalStorage'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
@@ -72,7 +73,7 @@ const NavigationView = () => {
     const navigate = useNavigate()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
-    const [isCollapsed, setIsCollapsed] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)
 
     const [isOver, drop] = useDrop(
         () => ({
