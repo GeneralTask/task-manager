@@ -109,7 +109,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
 	})
-	t.Run("UnlinkableAccount", func(t *testing.T) {
+	t.Run("NotUnlinkableAccount", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		googleAccountID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID
 		router := GetRouter(api)
@@ -149,6 +149,53 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		).Decode(&token)
 		// assert token is not found in db anymore
 		assert.Error(t, err)
+	})
+	t.Run("SuccessGithub", func(t *testing.T) {
+		authToken := login("deletelinkedaccount_github@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, api.DB, authToken)
+		// should delete cached repos upon github unlink
+		repositoryCollection := database.GetRepositoryCollection(api.DB)
+		res, err := repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: userID})
+		assert.NoError(t, err)
+		repoToDeleteID := res.InsertedID.(primitive.ObjectID)
+		// wrong user id; shouldn't get deleted
+		res, err = repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: primitive.NewObjectID()})
+		assert.NoError(t, err)
+		repoToKeepID := res.InsertedID.(primitive.ObjectID)
+		res, err = database.GetExternalTokenCollection(api.DB).InsertOne(
+			context.Background(),
+			&database.ExternalAPIToken{
+				ServiceID:    external.TASK_SERVICE_ID_GITHUB,
+				UserID:       userID,
+				DisplayID:    "Github",
+				IsUnlinkable: true,
+			},
+		)
+		assert.NoError(t, err)
+		externalTokenID := res.InsertedID.(primitive.ObjectID)
+
+		router := GetRouter(api)
+		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+externalTokenID.Hex()+"/", nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		var token database.ExternalAPIToken
+		err = database.GetExternalTokenCollection(api.DB).FindOne(
+			context.Background(),
+			bson.M{"_id": externalTokenID},
+		).Decode(&token)
+		// assert token is not found in db anymore
+		assert.Error(t, err)
+
+		var repository database.Repository
+		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": repoToDeleteID}).Decode(&repository)
+		// assert repo is not found in db anymore
+		assert.Error(t, err)
+
+		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": repoToKeepID}).Decode(&repository)
+		// assert repo is found
+		assert.NoError(t, err)
 	})
 	UnauthorizedTest(t, "DELETE", "/linked_accounts/123/", nil)
 }

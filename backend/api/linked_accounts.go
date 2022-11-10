@@ -118,6 +118,14 @@ func (api *API) DeleteLinkedAccount(c *gin.Context) {
 		c.JSON(400, gin.H{"detail": "account is not unlinkable"})
 		return
 	}
+	if accountToDelete.ServiceID == external.TASK_SERVICE_ID_GITHUB {
+		_, err := database.GetRepositoryCollection(api.DB).DeleteMany(context.Background(), bson.M{"user_id": userID})
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to clean up repositories")
+			Handle500(c)
+			return
+		}
+	}
 
 	res, err := externalAPITokenCollection.DeleteOne(
 		context.Background(),
