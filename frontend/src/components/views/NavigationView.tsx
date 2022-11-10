@@ -77,6 +77,10 @@ const NavigationView = () => {
     )
 
     useKeyboardShortcut(
+        'enterFocusMode',
+        useCallback(() => navigate('/focus-mode'), [])
+    )
+    useKeyboardShortcut(
         'goToOverviewPage',
         useCallback(() => navigate('/overview'), [])
     )
