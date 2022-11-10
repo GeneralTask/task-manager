@@ -16,6 +16,7 @@ const CollapsedContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._16};
     height: 100%;
+    overflow-y: auto;
 `
 const FoldersContainer = styled.div`
     margin-top: ${Spacing._32};
@@ -25,6 +26,7 @@ const FoldersContainer = styled.div`
 `
 const LowerContainer = styled.div`
     margin-top: auto;
+    padding-top: ${Spacing._32};
     margin-bottom: ${Spacing._64};
     display: flex;
     flex-direction: column;
