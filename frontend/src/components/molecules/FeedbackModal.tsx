@@ -2,8 +2,10 @@ import { useState } from 'react'
 import styled from 'styled-components'
 import { useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
+import { icons } from '../../styles/images'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { BodySmall } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 
@@ -13,7 +15,10 @@ const FeedbackTextField = styled(GTTextField)`
     min-height: ${FEEDBACK_MIN_HEIGHT}px;
 `
 
-const FeedbackModal = () => {
+interface FeedbackModalProps {
+    isCollapsed?: boolean
+}
+const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
     const [modalIsOpen, setModalIsOpen] = useState(false)
     const [feedback, setFeedback] = useState('')
     const { mutate: postFeedback } = usePostFeedback()
@@ -35,13 +40,17 @@ const FeedbackModal = () => {
 
     return (
         <>
-            <GTButton
-                value="Share feedback"
-                styleType="secondary"
-                size="small"
-                fitContent={false}
-                onClick={() => setModalIsOpen(true)}
-            />
+            {isCollapsed ? (
+                <GTIconButton icon={icons.megaphone} onClick={() => setModalIsOpen(true)} />
+            ) : (
+                <GTButton
+                    value="Share feedback"
+                    styleType="secondary"
+                    size="small"
+                    fitContent={false}
+                    onClick={() => setModalIsOpen(true)}
+                />
+            )}
             <GTModal
                 open={modalIsOpen}
                 setIsModalOpen={setModalIsOpen}

@@ -8,7 +8,7 @@ import NavigationView from '../views/NavigationView'
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
-    grid-template-columns: ${NAVIGATION_BAR_WIDTH} minmax(300px, auto) max-content;
+    grid-template-columns: auto minmax(300px, auto) max-content;
     grid-auto-flow: column;
     grid-template-rows: 100%;
     height: 100vh;

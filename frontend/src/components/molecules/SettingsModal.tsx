@@ -12,6 +12,7 @@ import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from '../molecules/SignOutButton'
@@ -36,7 +37,10 @@ const ServiceDetails = styled.div`
     margin-bottom: auto;
 `
 
-const SettingsModal = () => {
+interface SettingsModalProps {
+    isCollapsed?: boolean
+}
+const SettingsModal = ({ isCollapsed = false }: SettingsModalProps) => {
     const [modalIsOpen, setModalIsOpen] = useState(false)
     const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
@@ -72,13 +76,17 @@ const SettingsModal = () => {
 
     return (
         <>
-            <GTButton
-                value="Settings"
-                styleType="secondary"
-                size="small"
-                fitContent={false}
-                onClick={() => setModalIsOpen(true)}
-            />
+            {isCollapsed ? (
+                <GTIconButton icon={icons.gear} onClick={() => setModalIsOpen(true)} />
+            ) : (
+                <GTButton
+                    value="Settings"
+                    styleType="secondary"
+                    size="small"
+                    fitContent={false}
+                    onClick={() => setModalIsOpen(true)}
+                />
+            )}
             <GTModal
                 open={modalIsOpen}
                 setIsModalOpen={setModalIsOpen}
