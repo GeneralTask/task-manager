@@ -11,6 +11,7 @@ import { openPopupWindow } from '../../utils/auth'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
@@ -77,7 +78,9 @@ const SettingsModal = ({ isCollapsed = false }: SettingsModalProps) => {
     return (
         <>
             {isCollapsed ? (
-                <GTIconButton icon={icons.gear} onClick={() => setModalIsOpen(true)} />
+                <TooltipWrapper dataTip="Settings" tooltipId="navigation-tooltip">
+                    <GTIconButton icon={icons.gear} onClick={() => setModalIsOpen(true)} />
+                </TooltipWrapper>
             ) : (
                 <GTButton
                     value="Settings"

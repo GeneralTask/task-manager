@@ -140,7 +140,12 @@ const NavigationLink = ({
     }, [needsRelinking])
 
     if (isCollapsed && icon) {
-        return <GTIconButton icon={icon} onClick={onClickHandler} />
+        const dataTip = taskSection ? `${title} (${count ?? 0})` : title
+        return (
+            <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
+                <GTIconButton icon={icon} onClick={onClickHandler} />
+            </TooltipWrapper>
+        )
     }
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
