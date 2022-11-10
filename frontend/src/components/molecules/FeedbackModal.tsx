@@ -4,6 +4,7 @@ import { useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import { icons } from '../../styles/images'
 import GTTextField from '../atoms/GTTextField'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { BodySmall } from '../atoms/typography/Typography'
@@ -41,7 +42,9 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
     return (
         <>
             {isCollapsed ? (
-                <GTIconButton icon={icons.megaphone} onClick={() => setModalIsOpen(true)} />
+                <TooltipWrapper dataTip="Share Feedback" tooltipId="navigation-tooltip">
+                    <GTIconButton icon={icons.megaphone} onClick={() => setModalIsOpen(true)} />
+                </TooltipWrapper>
             ) : (
                 <GTButton
                     value="Share feedback"
