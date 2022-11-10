@@ -215,14 +215,22 @@ const SettingsModal = () => {
                                   body: (
                                       <>
                                           <Flex gap={Spacing._16} alignItems="center">
-                                              <GTCheckbox isChecked={isDarkMode} onChange={toggleTernaryDarkMode} />
+                                              <GTCheckbox
+                                                  isChecked={isDarkMode}
+                                                  onChange={toggleTernaryDarkMode}
+                                                  disabled
+                                              />
                                               <Flex column gap={Spacing._4}>
                                                   <Body>Dark mode</Body>
                                                   <Label color="light">Activate dark mode</Label>
                                               </Flex>
                                           </Flex>
                                           <Flex gap={Spacing._16} alignItems="center">
-                                              <GTCheckbox isChecked={resizableDetails} onChange={setResizableDetails} />
+                                              <GTCheckbox
+                                                  isChecked={resizableDetails}
+                                                  onChange={setResizableDetails}
+                                                  disabled
+                                              />
                                               <Flex column gap={Spacing._4}>
                                                   <Body>Resizable task details</Body>
                                                   <Label color="light">
