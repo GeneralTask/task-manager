@@ -1,6 +1,7 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
+import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection } from '../../utils/types'
 import {
@@ -107,6 +108,7 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
 
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
+    const { setOptimisticId } = useQueryContext()
     return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'overview'],
@@ -187,6 +189,8 @@ export const useCreateTask = () => {
             }
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
+            setOptimisticId(createData.optimisticId, response.task_id)
+
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 

@@ -69,7 +69,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
             const queue = getQueryQueue(mutationOptions.tag)
             queue.shift()
             if (queue.length > 0) {
-                queue[0]()
+                queue[0].send()
             } else {
                 mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
             }
@@ -79,7 +79,9 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
     const newMutate = (variables: TVariables) => {
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
-        queue.push(() => mutate(variables))
+        queue.push({
+            send: () => mutate(variables),
+        })
         if (queue.length === 1) {
             mutate(variables)
         }
