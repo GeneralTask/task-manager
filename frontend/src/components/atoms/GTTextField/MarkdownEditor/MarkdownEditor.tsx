@@ -52,7 +52,10 @@ const MarkdownEditor = (props: MarkdownEditorProps) => {
 
     const onEdit = useCallback(
         ({ helpers }: RemirrorEventListenerProps<Remirror.Extensions>) => {
-            props.onChange(helpers.getMarkdown())
+            const md = helpers.getMarkdown()
+            if (md !== props.value) {
+                props.onChange(md)
+            }
         },
         [props.onChange]
     )

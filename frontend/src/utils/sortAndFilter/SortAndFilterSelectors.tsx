@@ -36,7 +36,13 @@ const SortAndFilterDropdowns = <T,>({
                 ...value,
                 selected: selectedSort.id === value.id,
                 icon: icons.sort,
-                onClick: () => setSelectedSort(value),
+                onClick: () => {
+                    if (selectedSort.id === value.id) return
+                    setSelectedSort(value)
+                    if (value.defaultDirection) {
+                        setSelectedSortDirection(value.defaultDirection)
+                    }
+                },
             })),
         [sortOptions, selectedSort, setSelectedSort]
     )

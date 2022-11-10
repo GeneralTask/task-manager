@@ -35,11 +35,6 @@ const OverviewListsModal = () => {
                 size="lg"
                 tabs={[
                     {
-                        title: 'Add lists',
-                        icon: icons.plus,
-                        body: <AddListsModalContent />,
-                    },
-                    {
                         title: 'Edit lists',
                         icon: icons.domino,
                         body: (
@@ -60,6 +55,11 @@ const OverviewListsModal = () => {
                                 />
                             </Flex>
                         ),
+                    },
+                    {
+                        title: 'Add lists',
+                        icon: icons.plus,
+                        body: <AddListsModalContent />,
                     },
                 ]}
             />

@@ -83,6 +83,7 @@ type Task struct {
 	DueDate            *primitive.DateTime `bson:"due_date,omitempty"`
 	TimeAllocation     *int64              `bson:"time_allocated,omitempty"` // time in nanoseconds
 	CreatedAtExternal  primitive.DateTime  `bson:"created_at_external,omitempty"`
+	UpdatedAt          primitive.DateTime  `bson:"updated_at,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
 	DeletedAt          primitive.DateTime  `bson:"deleted_at,omitempty"`
 	PriorityID         *string             `bson:"priority_id,omitempty"`

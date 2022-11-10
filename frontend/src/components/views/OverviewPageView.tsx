@@ -5,17 +5,14 @@ import { useGetSupportedViews } from '../../services/api/overview.hooks'
 import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
-import PullRequestDetailsOLD from '../details/PullRequestDetailsOLD'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import EditListsButtons from '../overview/EditListsButtons'
 import OverviewListsModal from '../overview/OverviewListsModal'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import useOverviewLists from '../overview/useOverviewLists'
@@ -32,7 +29,6 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
-    const { data: userInfo } = useGetUserInfo()
     const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
@@ -60,11 +56,7 @@ const OverviewView = () => {
             for (const item of view.view_items) {
                 if (item.id !== overviewItemId) continue
                 if (view.type === 'github') {
-                    if (userInfo?.is_employee) {
-                        return <PullRequestDetails pullRequest={item as TPullRequest} />
-                    } else {
-                        return <PullRequestDetailsOLD pullRequest={item as TPullRequest} />
-                    }
+                    return <PullRequestDetails pullRequest={item as TPullRequest} />
                 }
                 const subtask = (item as TTask).sub_tasks?.find((subtask) => subtask.id === subtaskId)
                 const detailsLink = subtask
@@ -106,7 +98,7 @@ const OverviewView = () => {
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
-                        {userInfo?.is_employee ? <OverviewListsModal /> : <EditListsButtons />}
+                        <OverviewListsModal />
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />
