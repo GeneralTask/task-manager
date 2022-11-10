@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 
-type TLocalStorageKeys = 'previewMode' | 'navigationCollapsed'
+type TLocalStorageKeys = 'previewMode' | 'navigationCollapsed' | 'calendarCollapsed'
 
 declare type SetValue<T> = Dispatch<SetStateAction<T>>
 const useGTLocalStorage = <T>(key: TLocalStorageKeys, initialValue: T): [T, SetValue<T>] => {
