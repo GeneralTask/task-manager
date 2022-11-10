@@ -1,9 +1,9 @@
 import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
+import { usePreviewMode } from '../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
@@ -49,7 +49,7 @@ export const AddListsModalContent = () => {
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode } = usePreviewMode()
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
@@ -58,7 +58,7 @@ export const AddListsModalContent = () => {
 
     const filteredSupportedViews = useMemo(() => {
         const lowercaseSearchTerm = deferredSearchTerm.toLowerCase()
-        if (!lowercaseSearchTerm || !userInfo?.is_employee || !supportedViews) {
+        if (!lowercaseSearchTerm || !isPreviewMode || !supportedViews) {
             return supportedViews
         }
         const filtered: TSupportedView[] = []
@@ -102,13 +102,15 @@ export const AddListsModalContent = () => {
     }
     return (
         <>
-            <Flex justifyContent="end">
-                <GTInput
-                    value={searchTerm}
-                    onChange={(value: string) => setSearchTerm(value)}
-                    placeholder="Search lists"
-                />
-            </Flex>
+            {isPreviewMode && (
+                <Flex justifyContent="end">
+                    <GTInput
+                        value={searchTerm}
+                        onChange={(value: string) => setSearchTerm(value)}
+                        placeholder="Search lists"
+                    />
+                </Flex>
+            )}
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
