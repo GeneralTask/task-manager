@@ -21,8 +21,7 @@ const ModalContent = styled.div`
     flex-direction: column;
     flex: 1 0;
     gap: ${Spacing._24};
-    padding: ${Spacing._24} ${Spacing._12};
-    margin: 0 ${Spacing._32};
+    padding: ${Spacing._24} ${Spacing._32};
     overflow-y: auto;
 `
 const ModalSidebar = styled.div`

@@ -14,12 +14,14 @@ import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from '../molecules/SignOutButton'
 
-const SERVICE_WIDTH = '160px'
+const SERVICE_WIDTH = '150px'
 
 const ServicesContainer = styled.div`
     display: flex;
@@ -39,7 +41,10 @@ const ServiceDetails = styled.div`
     margin-bottom: auto;
 `
 
-const SettingsModal = () => {
+interface SettingsModalProps {
+    isCollapsed?: boolean
+}
+const SettingsModal = ({ isCollapsed = false }: SettingsModalProps) => {
     const { isPreviewMode } = usePreviewMode()
     const [modalIsOpen, setModalIsOpen] = useState(false)
     const { data: userInfo } = useGetUserInfo()
@@ -71,7 +76,7 @@ const SettingsModal = () => {
         Slack: 'Turn any Slack message into an actionable task.',
         'Google Calendar': 'See your upcoming events and schedule tasks by dragging them onto your calendar.',
         Linear: 'See, update, and schedule the issues assigned to you.',
-        Github: 'See pull requests from the repos that matter to you.',
+        GitHub: 'See pull requests from the repos that matter to you.',
     }
 
     const { isDarkMode, toggleTernaryDarkMode } = useTernaryDarkMode()
@@ -79,13 +84,19 @@ const SettingsModal = () => {
 
     return (
         <>
-            <GTButton
-                value="Settings"
-                styleType="secondary"
-                size="small"
-                fitContent={false}
-                onClick={() => setModalIsOpen(true)}
-            />
+            {isCollapsed ? (
+                <TooltipWrapper dataTip="Settings" tooltipId="navigation-tooltip">
+                    <GTIconButton icon={icons.gear} onClick={() => setModalIsOpen(true)} />
+                </TooltipWrapper>
+            ) : (
+                <GTButton
+                    value="Settings"
+                    styleType="secondary"
+                    size="small"
+                    fitContent={false}
+                    onClick={() => setModalIsOpen(true)}
+                />
+            )}
             <GTModal
                 open={modalIsOpen}
                 setIsModalOpen={setModalIsOpen}
@@ -128,8 +139,6 @@ const SettingsModal = () => {
                                                 </div>
                                             </Service>
                                         ))}
-                                </ServicesContainer>
-                                <ServicesContainer>
                                     <Service>
                                         <ServiceDetails>
                                             Add General Task to your Slack workspace. This is only required once per

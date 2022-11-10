@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
+import useGTLocalStorage from '../../hooks/useGTLocalStorage'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
@@ -51,7 +52,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [calendarType, setCalendarType] = useState<TCalendarType>('day')
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
-    const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
+    const [isCollapsed, setIsCollapsed] = useGTLocalStorage('calendarCollapsed', false)
     const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
     const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
