@@ -91,9 +91,7 @@ const IntegrationsStaticContent = ({
             getting started — if there are integrations you want to see, use the Share feedback button in the lower
             right to let us know what you’d like to see next.)
         </p>
-        <a href="/settings">
-            <img src="/images/nux-integrations.png" width="100%" />
-        </a>
+        <img src="/images/nux-integrations.png" width="100%" />
     </>
 )
 
