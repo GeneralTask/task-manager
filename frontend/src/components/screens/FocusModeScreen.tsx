@@ -267,7 +267,7 @@ const FocusModeScreen = () => {
         'dismissNotifications',
         useCallback(() => {
             toast.dismiss()
-        }, [])
+        }, [toast])
     )
 
     const onDelete = useCallback(() => {
