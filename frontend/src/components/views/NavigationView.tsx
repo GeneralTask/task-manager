@@ -14,7 +14,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Eyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
-import SettingsModal from '../molecules/SettingsModal'
+import SettingsModalButton from '../molecules/SettingsModalButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import NavigationViewCollapsed from './NavigationViewCollapsed'
 
@@ -128,7 +128,7 @@ const NavigationView = () => {
                     </OverflowContainer>
                     <GapView>
                         <FeedbackModal />
-                        <SettingsModal />
+                        <SettingsModalButton />
                     </GapView>
                     <CopyrightText>
                         {userInfo?.is_employee ? (

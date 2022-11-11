@@ -6,7 +6,7 @@ import { icons } from '../../styles/images'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
-import SettingsModal from '../molecules/SettingsModal'
+import SettingsModalButton from '../molecules/SettingsModalButton'
 import IntegrationLinks from '../navigation_sidebar/IntegrationLinks'
 import NavigationLink from '../navigation_sidebar/NavigationLink'
 
@@ -66,7 +66,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
             </FoldersContainer>
             <LowerContainer>
                 <FeedbackModal isCollapsed />
-                <SettingsModal isCollapsed />
+                <SettingsModalButton isCollapsed />
             </LowerContainer>
         </CollapsedContainer>
     )
