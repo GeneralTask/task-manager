@@ -10,12 +10,12 @@ import (
 )
 
 type RecurringTaskTemplateCreateParams struct {
-	Title                        *string  `json:"title,omitempty"`
+	Title                        *string  `json:"title,omitempty" binding:"required"`
 	Body                         *string  `json:"body,omitempty"`
 	IDTaskSection                *string  `json:"id_task_section,omitempty"`
 	PriorityNormalized           *float64 `json:"priority_normalized,omitempty"`
-	RecurrenceRate               *int     `json:"recurrence_rate,omitempty"`
-	TimeOfDaySecondsToCreateTask *int     `json:"time_of_day_seconds_to_create_task,omitempty"`
+	RecurrenceRate               *int     `json:"recurrence_rate,omitempty" binding:"required"`
+	TimeOfDaySecondsToCreateTask *int     `json:"time_of_day_seconds_to_create_task,omitempty" binding:"required"`
 	DayToCreateTask              *int     `json:"day_to_create_task,omitempty"`
 	MonthToCreateTask            *int     `json:"month_to_create_task,omitempty"`
 }
@@ -28,8 +28,7 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 		return
 	}
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	var taskSection primitive.ObjectID
 	if templateCreateParams.IDTaskSection != nil {
@@ -38,11 +37,6 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
-	}
-
-	if templateCreateParams.Title == nil || templateCreateParams.RecurrenceRate == nil || templateCreateParams.TimeOfDaySecondsToCreateTask == nil {
-		c.JSON(400, gin.H{"detail": "required params not submitted"})
-		return
 	}
 
 	enabled := true

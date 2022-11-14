@@ -152,7 +152,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Monthly
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 30
+		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() - 30
 		creationDay := time.Now().Day()
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
@@ -193,7 +193,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Annually
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 30
+		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() - 30
 		creationDay := time.Now().Day()
 		creationMonth := int(time.Now().Month())
 

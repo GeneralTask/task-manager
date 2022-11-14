@@ -22,8 +22,7 @@ const (
 )
 
 func (api *API) RecurringTaskTemplateBackfillTasks(c *gin.Context) {
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	var templates []database.RecurringTaskTemplate
 	err := database.FindWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, &[]bson.M{{"is_deleted": false}, {"is_enabled": true}}, &templates, nil)
@@ -34,14 +33,13 @@ func (api *API) RecurringTaskTemplateBackfillTasks(c *gin.Context) {
 	}
 
 	for _, template := range templates {
-		err := api.backfillTemplate(c, template)
+		currentTime, err := api.backfillTemplate(c, template)
 		if err != nil {
 			api.Logger.Error().Err(err).Msg("failed to backfill recurring task template")
 			Handle500(c)
 			return
 		}
 
-		currentBackfillDatetime := primitive.NewDateTimeFromTime(time.Now())
 		updateResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(
 			context.Background(),
 			bson.M{
@@ -50,7 +48,7 @@ func (api *API) RecurringTaskTemplateBackfillTasks(c *gin.Context) {
 					{"user_id": userID},
 				},
 			},
-			bson.M{"$set": bson.M{"last_backfill_datetime": currentBackfillDatetime}},
+			bson.M{"$set": bson.M{"last_backfill_datetime": currentTime}},
 			options.FindOneAndUpdate().SetReturnDocument(options.After),
 		)
 		if updateResult.Err() != nil {
@@ -63,37 +61,37 @@ func (api *API) RecurringTaskTemplateBackfillTasks(c *gin.Context) {
 	c.JSON(200, templates)
 }
 
-func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTaskTemplate) error {
+func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTaskTemplate) (time.Time, error) {
 	offset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		api.Logger.Error().Msg("unable to get localized time")
-		return err
+		return time.Now(), err
 	}
 	localZone := time.FixedZone("", int(-1*offset.Seconds()))
 	currentTime := time.Now()
 	lastAttemptTime := template.LastBackfillDatetime.Time()
 
-	validBackfillTime, err := api.getValidCreationTimeNearLastBackfillAttempt(template, lastAttemptTime, localZone)
+	validCreationTime, err := api.getValidCreationTimeNearLastBackfillAttempt(template, lastAttemptTime, localZone)
 	if err != nil {
 		api.Logger.Error().Err(err).Send()
-		return err
+		return currentTime, err
 	}
 
 	var count int
 	switch rate := *template.RecurrenceRate; rate {
 	case Daily:
-		count = api.countTasksToCreateForDailyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForDailyTemplate(currentTime, lastAttemptTime, validCreationTime, template, localZone)
 	case WeekDaily:
-		count = api.countTasksToCreateForWeekDailyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForWeekDailyTemplate(currentTime, lastAttemptTime, validCreationTime, template, localZone)
 	case Weekly:
-		count = api.countTasksToCreateForWeeklyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForWeeklyTemplate(currentTime, lastAttemptTime, validCreationTime, template, localZone)
 	case Monthly:
-		count = api.countTasksToCreateForMonthlyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForMonthlyTemplate(currentTime, lastAttemptTime, validCreationTime, template, localZone)
 	case Annually:
-		count = api.countTasksToCreateForAnnualTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForAnnualTemplate(currentTime, lastAttemptTime, validCreationTime, template, localZone)
 	default:
 		api.Logger.Error().Msg("unrecognized recurrence rate for template backfill")
-		return errors.New("unrecognized recurrence rate for template backfill")
+		return currentTime, errors.New("unrecognized recurrence rate for template backfill")
 	}
 
 	var tasks []interface{}
@@ -106,11 +104,11 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 		_, err = database.GetTaskCollection(api.DB).InsertMany(context.Background(), tasks)
 		if err != nil {
 			api.Logger.Error().Msg("unable to insert tasks from template")
-			return err
+			return currentTime, err
 		}
 	}
 
-	return nil
+	return currentTime, nil
 }
 
 func (api *API) getValidCreationTimeNearLastBackfillAttempt(template database.RecurringTaskTemplate, lastAttemptTime time.Time, localZone *time.Location) (time.Time, error) {
@@ -143,8 +141,8 @@ func (api *API) getValidCreationTimeNearLastBackfillAttempt(template database.Re
 	nextBackfillMinutes := int((*template.TimeOfDaySecondsToCreateTask - nextBackfillHour*3600) / 60)
 	nextBackfillSeconds := int(*template.TimeOfDaySecondsToCreateTask % 60)
 
-	validBackfillTime := time.Date(lastBackfillYear, lastBackfillMonth, lastBackfillDay, nextBackfillHour, nextBackfillMinutes, nextBackfillSeconds, 0, localZone)
-	return validBackfillTime, nil
+	validCreationTime := time.Date(lastBackfillYear, lastBackfillMonth, lastBackfillDay, nextBackfillHour, nextBackfillMinutes, nextBackfillSeconds, 0, localZone)
+	return validCreationTime, nil
 }
 
 func (api *API) countNumberOfTasksToCreate(incrementYears int, incrementMonths int, incrementDays int, skipWeekends bool, currentTime time.Time, backfillAttemptTime time.Time) int {
@@ -159,57 +157,61 @@ func (api *API) countNumberOfTasksToCreate(incrementYears int, incrementMonths i
 	return count
 }
 
-func (api *API) countTasksToCreateForDailyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validBackfillTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
-	// check if backfill time is before or after last backfill attempt
-	// if after, add a day so it will be the next trigger time from the last attempt
-	if lastBackfillAttemptTime.Sub(validBackfillTime) > 0 {
-		validBackfillTime = validBackfillTime.AddDate(0, 0, 1)
+func (api *API) countTasksToCreateForDailyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validCreationTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+	// check if proposed backfill time is before or after last attempt
+	// backfill time is based upon last attempt time (it should be same day as the last attempt)
+	// if proposed backfill is before the last attempt, add a day to proposed backfill so it will be after the last attempt
+	if lastBackfillAttemptTime.Sub(validCreationTime) > 0 {
+		validCreationTime = validCreationTime.AddDate(0, 0, 1)
 	}
 
-	return api.countNumberOfTasksToCreate(0, 0, 1, false, currentTime, validBackfillTime)
+	return api.countNumberOfTasksToCreate(0, 0, 1, false, currentTime, validCreationTime)
 }
 
-func (api *API) countTasksToCreateForWeekDailyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validBackfillTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+func (api *API) countTasksToCreateForWeekDailyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validCreationTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
 	// check if backfill time is before or after last backfill attempt
-	// if after, add a day so it will be the next trigger time from the last attempt
-	if lastBackfillAttemptTime.Sub(validBackfillTime) > 0 {
-		validBackfillTime = validBackfillTime.AddDate(0, 0, 1)
+	// backfill time is based upon last attempt time (it should be same day as the last attempt)
+	// if proposed backfill is before the last attempt, add a day to proposed backfill so it will be after the last attempt
+	if lastBackfillAttemptTime.Sub(validCreationTime) > 0 {
+		validCreationTime = validCreationTime.AddDate(0, 0, 1)
 	}
 
-	return api.countNumberOfTasksToCreate(0, 0, 1, true, currentTime, validBackfillTime)
+	return api.countNumberOfTasksToCreate(0, 0, 1, true, currentTime, validCreationTime)
 }
 
-func (api *API) countTasksToCreateForWeeklyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validBackfillTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+func (api *API) countTasksToCreateForWeeklyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validCreationTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
 	// check if backfill time is before or after last backfill attempt
-	if lastBackfillAttemptTime.Sub(validBackfillTime) > 0 {
-		validBackfillTime = validBackfillTime.AddDate(0, 0, 1)
+	if lastBackfillAttemptTime.Sub(validCreationTime) > 0 {
+		validCreationTime = validCreationTime.AddDate(0, 0, 1)
 	}
 	// continue adding days until the weekday matches the day of the week which the trigger is
-	for int(validBackfillTime.Weekday()) != *template.DayToCreateTask {
-		validBackfillTime = validBackfillTime.AddDate(0, 0, 1)
+	for int(validCreationTime.Weekday()) != *template.DayToCreateTask {
+		validCreationTime = validCreationTime.AddDate(0, 0, 1)
 	}
 
-	return api.countNumberOfTasksToCreate(0, 0, 7, false, currentTime, validBackfillTime)
+	return api.countNumberOfTasksToCreate(0, 0, 7, false, currentTime, validCreationTime)
 }
 
-func (api *API) countTasksToCreateForMonthlyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validBackfillTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+func (api *API) countTasksToCreateForMonthlyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validCreationTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
 	// check if backfill time is before or after last backfill attempt
-	// if after, add a month so it will be the next trigger time from the last attempt
-	if lastBackfillAttemptTime.Sub(validBackfillTime) > 0 {
-		validBackfillTime = validBackfillTime.AddDate(0, 1, 0)
+	// backfill time is based upon last attempt time (it should be same day as the last attempt)
+	// if proposed backfill is before the last attempt, add a month to proposed backfill so it will be after the last attempt
+	if lastBackfillAttemptTime.Sub(validCreationTime) > 0 {
+		validCreationTime = validCreationTime.AddDate(0, 1, 0)
 	}
 
-	return api.countNumberOfTasksToCreate(0, 1, 0, false, currentTime, validBackfillTime)
+	return api.countNumberOfTasksToCreate(0, 1, 0, false, currentTime, validCreationTime)
 }
 
-func (api *API) countTasksToCreateForAnnualTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validBackfillTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
+func (api *API) countTasksToCreateForAnnualTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validCreationTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
 	// check if backfill time is before or after last backfill attempt
-	// if after, add a year so it will be the next trigger time from the last attempt
-	if lastBackfillAttemptTime.Sub(validBackfillTime) > 0 {
-		validBackfillTime = validBackfillTime.AddDate(1, 0, 0)
+	// backfill time is based upon last attempt time (it should be same day as the last attempt)
+	// if proposed backfill is before the last attempt, add a year to proposed backfill so it will be after the last attempt
+	if lastBackfillAttemptTime.Sub(validCreationTime) > 0 {
+		validCreationTime = validCreationTime.AddDate(1, 0, 0)
 	}
 
-	return api.countNumberOfTasksToCreate(1, 0, 0, false, currentTime, validBackfillTime)
+	return api.countNumberOfTasksToCreate(1, 0, 0, false, currentTime, validCreationTime)
 }
 
 func (api *API) createTaskFromTemplate(template database.RecurringTaskTemplate) database.Task {

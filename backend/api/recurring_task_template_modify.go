@@ -39,8 +39,7 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 		return
 	}
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	var taskSection primitive.ObjectID
 	if modifyParams.IDTaskSection != nil {
@@ -55,7 +54,7 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 	result := database.FindOneWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, templateID)
 	err = result.Decode(&template)
 	if err != nil {
-		c.JSON(404, gin.H{"detail": "template not found.", "templateID": templateID})
+		c.JSON(404, gin.H{"detail": "template not found", "templateID": templateID})
 		return
 	}
 
@@ -75,9 +74,7 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 		TimeOfDaySecondsToCreateTask: modifyParams.TimeOfDaySecondsToCreateTask,
 		DayToCreateTask:              modifyParams.DayToCreateTask,
 		MonthToCreateTask:            modifyParams.MonthToCreateTask,
-	}
-	if modifyParams.IDTaskSection != nil {
-		updateTemplate.IDTaskSection = taskSection
+		IDTaskSection:                taskSection,
 	}
 
 	mongoResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(
