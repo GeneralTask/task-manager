@@ -69,10 +69,9 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 
 		lastTriggered := time.Now().Add(-24 * time.Hour)
-		if int(time.Now().Weekday()) == 6 {
+		if int(lastTriggered.Weekday()) == 6 {
 			lastTriggered = lastTriggered.Add(-24 & time.Hour)
-		}
-		if int(time.Now().Weekday()) == 0 {
+		} else if int(lastTriggered.Weekday()) == 0 {
 			lastTriggered = lastTriggered.Add(-48 & time.Hour)
 		}
 
