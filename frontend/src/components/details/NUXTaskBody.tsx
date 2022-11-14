@@ -186,6 +186,7 @@ const JohnsLetter = () => {
 
 interface NUXTaskBodyProps {
     task: TTask
+    renderSettingsModal?: boolean
 }
 const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
     switch (task.nux_number_id) {
@@ -202,7 +203,7 @@ const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
     }
 }
 
-export const NuxTaskBodyStatic = ({ task }: NUXTaskBodyProps) => {
+export const NuxTaskBodyStatic = ({ task, renderSettingsModal }: NUXTaskBodyProps) => {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
     switch (task.nux_number_id) {
         case 1:
@@ -212,7 +213,9 @@ export const NuxTaskBodyStatic = ({ task }: NUXTaskBodyProps) => {
         case 3:
             return (
                 <>
-                    <SettingsModal isOpen={isSettingsModalOpen} setIsOpen={setIsSettingsModalOpen} />
+                    {renderSettingsModal && (
+                        <SettingsModal isOpen={isSettingsModalOpen} setIsOpen={setIsSettingsModalOpen} />
+                    )}
                     <IntegrationsStaticContent
                         githubUrl="https://api.generaltask.com/link/github/"
                         slackUrl="https://api.generaltask.com/link/slack/"

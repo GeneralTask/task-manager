@@ -126,7 +126,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                     let description
                     if (item.task.nux_number_id) {
                         // if this is a nux task, override body
-                        description = renderToString(<NuxTaskBodyStatic task={item.task} />)
+                        description = renderToString(<NuxTaskBodyStatic task={item.task} renderSettingsModal={false} />)
                     } else {
                         description = converter.makeHtml(item.task.body)
                         if (description !== '') {
