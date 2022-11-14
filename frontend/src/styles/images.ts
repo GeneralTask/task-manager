@@ -25,8 +25,11 @@ import {
     faCircleUp as faCircleUpLight,
     faClock,
     faCode,
+    faCompress,
     faCopy,
     faCubes,
+    faEllipsisVertical,
+    faExpand,
     faFolder,
     faGear,
     faGlobe,
@@ -38,6 +41,7 @@ import {
     faListOl,
     faListUl,
     faMagnifyingGlass,
+    faMegaphone,
     faMessage,
     faPencil,
     faPlus,
@@ -50,6 +54,7 @@ import {
     faTrash,
     faUnderline,
     faUser,
+    faVideo,
     faXmark,
 } from '@fortawesome/pro-light-svg-icons'
 import {
@@ -66,6 +71,7 @@ import {
 } from '@fortawesome/pro-solid-svg-icons'
 
 export const logos = Object.freeze({
+    generaltask_single_color: 'images/gt-logo-single-color.svg',
     generaltask: '/images/generaltask.svg',
     generaltask_beta: '/images/GT-beta-logo.png',
     github: faGithub,
@@ -99,10 +105,13 @@ export const icons = Object.freeze({
     clock: faClock,
     code_block: faSquareCode,
     code: faCode,
+    collapse: faCompress,
     comment: faMessage,
     copy: faCopy,
     domino: faGripDotsVertical,
     dot: faCircleSmall,
+    ellipsisVertical: faEllipsisVertical,
+    expand: faExpand,
     external_link: faArrowUpRightFromSquare,
     filter: faBarsFilter,
     folder: faFolder,
@@ -124,6 +133,7 @@ export const icons = Object.freeze({
     list_ul: faListUl,
     list: faList,
     magnifying_glass: faMagnifyingGlass,
+    megaphone: faMegaphone,
     pencil: faPencil,
     plus: faPlus,
     priority_high: faCircleChevronUp,
@@ -143,6 +153,7 @@ export const icons = Object.freeze({
     trash: faTrash,
     underline: faUnderline,
     user: faUser,
+    video: faVideo,
     warning: faCircleExclamation,
     x: faXmark,
 })

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
@@ -24,12 +25,16 @@ func TestTaskDetail(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 	notUserID := primitive.NewObjectID()
 
+	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	updatedAt, _ := time.Parse("2006-01-02", "2019-04-29")
 	completed := true
 	linearTaskIDHex := insertTestTask(t, userID, database.Task{
-		UserID:      userID,
-		IDExternal:  "sample_linear_id_details",
-		SourceID:    external.TASK_SOURCE_ID_LINEAR,
-		IsCompleted: &completed,
+		UserID:            userID,
+		IDExternal:        "sample_linear_id_details",
+		SourceID:          external.TASK_SOURCE_ID_LINEAR,
+		IsCompleted:       &completed,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		UpdatedAt:         primitive.NewDateTimeFromTime(updatedAt),
 	})
 	linearTaskIDHex2 := insertTestTask(t, userID, database.Task{
 		UserID:      userID,
@@ -92,7 +97,7 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_deleted":false,"is_meeting_preparation_task":false}`, linearTaskIDHex),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"2019-04-20T00:00:00Z","is_done":true,"is_deleted":false,"is_meeting_preparation_task":false,"created_at":"2019-04-20T00:00:00Z","updated_at":"2019-04-29T00:00:00Z"}`, linearTaskIDHex),
 			string(body))
 	})
 	t.Run("SuccessLinear", func(t *testing.T) {
@@ -108,7 +113,7 @@ func TestTaskDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_deleted":false,"is_meeting_preparation_task":false,"external_status":{"state":"Done","type":"completed"}}`, linearTaskIDHex2),
+			fmt.Sprintf(`{"id":"%s","id_ordering":0,"source":{"name":"Linear","logo":"/images/linear.png","logo_v2":"linear","is_completable":true,"is_replyable":false},"deeplink":"","title":"","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"1970-01-01T00:00:00Z","is_done":true,"is_deleted":false,"is_meeting_preparation_task":false,"external_status":{"state":"Done","type":"completed"},"created_at":"1970-01-01T00:00:00Z","updated_at":"1970-01-01T00:00:00Z"}`, linearTaskIDHex2),
 			string(body))
 	})
 }

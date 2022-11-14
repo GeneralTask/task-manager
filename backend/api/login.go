@@ -11,6 +11,7 @@ import (
 	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 )
 
 // GoogleRedirectParams ...
@@ -164,17 +165,18 @@ func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 		completed := false
 		deleted := false
 		newTask := database.Task{
-			UserID:          userID,
-			IDExternal:      primitive.NewObjectID().Hex(),
-			IDOrdering:      index + 1,
-			IDTaskSection:   constants.IDTaskSectionDefault,
-			SourceID:        external.TASK_SOURCE_ID_GT_TASK,
-			Title:           &title,
-			Body:            &body,
-			SourceAccountID: external.GeneralTaskDefaultAccountID,
-			IsCompleted:     &completed,
-			IsDeleted:       &deleted,
-			NUXNumber:       index + 1,
+			UserID:            userID,
+			IDExternal:        primitive.NewObjectID().Hex(),
+			IDOrdering:        index + 1,
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			SourceID:          external.TASK_SOURCE_ID_GT_TASK,
+			Title:             &title,
+			Body:              &body,
+			SourceAccountID:   external.GeneralTaskDefaultAccountID,
+			IsCompleted:       &completed,
+			IsDeleted:         &deleted,
+			NUXNumber:         index + 1,
+			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
 		}
 		_, err := taskCollection.InsertOne(context.Background(), newTask)
 		if err != nil {

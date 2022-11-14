@@ -1,7 +1,7 @@
 import { forwardRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { PurpleEdge } from '../atoms/SelectableContainer'
+import { OrangeEdge } from '../atoms/SelectableContainer'
 
 const ItemContainerDiv = styled.div<{ isSelected: boolean; forceHoverStyle?: boolean }>`
     position: relative;
@@ -37,7 +37,7 @@ interface ItemContainerProps {
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
     ({ isSelected, onClick, children, forceHoverStyle }, ref) => (
         <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref} forceHoverStyle={forceHoverStyle}>
-            {isSelected && <PurpleEdge />}
+            {isSelected && <OrangeEdge />}
             {children}
         </ItemContainerDiv>
     )

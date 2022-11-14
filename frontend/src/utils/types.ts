@@ -46,6 +46,8 @@ export interface TTask {
     meeting_preparation_params?: TMeetingPreparationParams
     nux_number_id: number
     sub_tasks?: TTask[]
+    created_at: string
+    updated_at: string
 }
 
 export interface TMeetingPreparationParams {
@@ -280,7 +282,7 @@ export interface TSupportedView {
     authorization_url: string
 }
 
-export type TShortcutCategory = 'Tasks' | 'Calendar' | 'Navigation'
+export type TShortcutCategory = 'Tasks' | 'Calendar' | 'General' | 'Navigation'
 
 export interface TShortcut {
     label: string
