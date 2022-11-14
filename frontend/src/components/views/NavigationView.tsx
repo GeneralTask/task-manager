@@ -28,7 +28,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean; isCollapse
     background-color: ${Colors.background.medium};
     box-sizing: border-box;
     z-index: 1;
-    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover}`}
+    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover};`}
     width: ${({ isCollapsed }) => (isCollapsed ? 'fit-content' : NAVIGATION_BAR_WIDTH)};
 `
 const NavigationViewHeader = styled.div`
