@@ -86,9 +86,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             {linearIssueId === task.id && <OrangeEdge />}
             <LeftContainer>
                 <DominoIconContainer>
-                    <DominoContainer isHovered={isHovered}>
-                        <Domino />
-                    </DominoContainer>
+                    <Domino isVisible={isHovered} />
                     {task.external_status && task.all_statuses && (
                         <GTDropdownMenu
                             items={task.all_statuses.map((status) => ({
