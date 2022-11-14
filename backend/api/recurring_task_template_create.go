@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -32,13 +31,18 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	taskSection := constants.IDTaskSectionDefault
+	var taskSection primitive.ObjectID
 	if templateCreateParams.IDTaskSection != nil {
 		taskSection, err = getValidTaskSection(*templateCreateParams.IDTaskSection, userID, api.DB)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
+	}
+
+	if templateCreateParams.Title == nil || templateCreateParams.RecurrenceRate == nil || templateCreateParams.TimeOfDaySecondsToCreateTask == nil {
+		c.JSON(400, gin.H{"detail": "required params not submitted"})
+		return
 	}
 
 	enabled := true

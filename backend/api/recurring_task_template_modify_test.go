@@ -56,6 +56,27 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusNotFound, recorder.Code)
+	})
+	t.Run("TaskSectionInvalid", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"id_task_section": "invalid!"}`)),
+		)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+	})
+	t.Run("MalformattedParam", func(t *testing.T) {
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_enabled": "malformatted!"}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 	})
 	t.Run("Success", func(t *testing.T) {

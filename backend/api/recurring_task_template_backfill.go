@@ -82,15 +82,15 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 	var count int
 	switch rate := *template.RecurrenceRate; rate {
 	case Daily:
-		count = api.countTasksToCreateForDailyTemplate(currentTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForDailyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
 	case WeekDaily:
-		count = api.countTasksToCreateForWeekDailyTemplate(currentTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForWeekDailyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
 	case Weekly:
-		count = api.countTasksToCreateForWeeklyTemplate(currentTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForWeeklyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
 	case Monthly:
-		count = api.countTasksToCreateForMonthlyTemplate(currentTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForMonthlyTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
 	case Annually:
-		count = api.countTasksToCreateForAnnualTemplate(currentTime, validBackfillTime, template, localZone)
+		count = api.countTasksToCreateForAnnualTemplate(currentTime, lastAttemptTime, validBackfillTime, template, localZone)
 	default:
 		api.Logger.Error().Msg("unrecognized recurrence rate for template backfill")
 		return errors.New("unrecognized recurrence rate for template backfill")
@@ -177,7 +177,7 @@ func (api *API) countTasksToCreateForWeekDailyTemplate(currentTime time.Time, la
 	}
 
 	return api.countNumberOfTasksToCreate(0, 0, 1, true, currentTime, validBackfillTime)
-
+}
 
 func (api *API) countTasksToCreateForWeeklyTemplate(currentTime time.Time, lastBackfillAttemptTime time.Time, validBackfillTime time.Time, template database.RecurringTaskTemplate, localZone *time.Location) int {
 	// check if backfill time is before or after last backfill attempt
@@ -185,8 +185,8 @@ func (api *API) countTasksToCreateForWeeklyTemplate(currentTime time.Time, lastB
 		validBackfillTime = validBackfillTime.AddDate(0, 0, 1)
 	}
 	// continue adding days until the weekday matches the day of the week which the trigger is
-	for int(upcomingTrigger.Weekday()) != *template.DayToCreateTask {
-		upcomingTrigger = upcomingTrigger.AddDate(0, 0, 1)
+	for int(validBackfillTime.Weekday()) != *template.DayToCreateTask {
+		validBackfillTime = validBackfillTime.AddDate(0, 0, 1)
 	}
 
 	return api.countNumberOfTasksToCreate(0, 0, 7, false, currentTime, validBackfillTime)
@@ -214,6 +214,8 @@ func (api *API) countTasksToCreateForAnnualTemplate(currentTime time.Time, lastB
 
 func (api *API) createTaskFromTemplate(template database.RecurringTaskTemplate) database.Task {
 	completed := false
+
+	// TODO calculate time when this task should have been created for CreatedAt and UpdatedAt
 	return database.Task{
 		UserID:                  template.UserID,
 		RecurringTaskTemplateID: template.ID,
@@ -223,5 +225,7 @@ func (api *API) createTaskFromTemplate(template database.RecurringTaskTemplate) 
 		IDTaskSection:           template.IDTaskSection,
 		PriorityNormalized:      template.PriorityNormalized,
 		IsCompleted:             &completed,
+		CreatedAtExternal:       primitive.NewDateTimeFromTime(time.Now()),
+		UpdatedAt:               primitive.NewDateTimeFromTime(time.Now()),
 	}
 }

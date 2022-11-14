@@ -42,7 +42,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates/backfill/",
+			"/recurring_task_templates/backfill_tasks/",
 			nil,
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -90,7 +90,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates/backfill/",
+			"/recurring_task_templates/backfill_tasks/",
 			nil,
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -131,7 +131,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates/backfill/",
+			"/recurring_task_templates/backfill_tasks/",
 			nil,
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -172,7 +172,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates/backfill/",
+			"/recurring_task_templates/backfill_tasks/",
 			nil,
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
@@ -215,7 +215,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		request, _ := http.NewRequest(
 			"GET",
-			"/recurring_task_templates/backfill/",
+			"/recurring_task_templates/backfill_tasks/",
 			nil,
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)

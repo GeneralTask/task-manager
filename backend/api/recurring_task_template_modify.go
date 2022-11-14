@@ -39,17 +39,17 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 		return
 	}
 
+	userIDRaw, _ := c.Get("user")
+	userID := userIDRaw.(primitive.ObjectID)
+
 	var taskSection primitive.ObjectID
 	if modifyParams.IDTaskSection != nil {
-		taskSection, err = primitive.ObjectIDFromHex(*modifyParams.IDTaskSection)
+		taskSection, err = getValidTaskSection(*modifyParams.IDTaskSection, userID, api.DB)
 		if err != nil {
 			c.JSON(400, gin.H{"detail": "'id_task_section' is not a valid ID"})
 			return
 		}
 	}
-
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
 
 	var template database.RecurringTaskTemplate
 	result := database.FindOneWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, templateID)
