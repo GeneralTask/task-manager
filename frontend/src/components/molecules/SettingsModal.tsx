@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useLocalStorage, useTernaryDarkMode } from 'usehooks-ts'
+import { useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { usePreviewMode } from '../../hooks'
+import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -80,7 +80,7 @@ const SettingsModal = ({ isCollapsed = false }: SettingsModalProps) => {
     }
 
     const { isDarkMode, toggleTernaryDarkMode } = useTernaryDarkMode()
-    const [resizableDetails, setResizableDetails] = useLocalStorage('resizableDetails', false)
+    const [resizableDetails, setResizableDetails] = useGTLocalStorage('resizableDetails', false)
 
     return (
         <>
