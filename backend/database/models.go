@@ -50,6 +50,20 @@ type ExternalAPIToken struct {
 	LastFullRefreshTime primitive.DateTime `bson:"last_full_refresh_time"`
 }
 
+type AtlassianSiteConfiguration struct {
+	ID      primitive.ObjectID `bson:"_id,omitempty"`
+	UserID  primitive.ObjectID `bson:"user_id"`
+	CloudID string             `bson:"cloud_id"`
+	SiteURL string             `bson:"site_url"`
+}
+
+type JIRAPriority struct {
+	ID              primitive.ObjectID `bson:"_id,omitempty"`
+	UserID          primitive.ObjectID `bson:"user_id"`
+	JIRAID          string             `bson:"jira_id"`
+	IntegerPriority int                `bson:"integer_priority"`
+}
+
 type StateToken struct {
 	Token       primitive.ObjectID `bson:"_id,omitempty"`
 	UserID      primitive.ObjectID `bson:"user_id"`
