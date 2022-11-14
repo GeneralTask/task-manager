@@ -207,9 +207,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                 {isInTrash && (
                                     <GTButton
                                         value="Restore Task"
-                                        onClick={() =>
-                                            markTaskDoneOrDeleted({ taskId: currentTask.id, isDeleted: false })
-                                        }
+                                        onClick={() => markTaskDoneOrDeleted({ id: currentTask.id, isDeleted: false })}
                                         styleType="secondary"
                                         size="small"
                                     />

@@ -49,7 +49,7 @@ interface TTaskModifyRequestBody {
 }
 
 export interface TMarkTaskDoneOrDeletedData {
-    taskId: string
+    id: string
     sectionId?: string
     subtaskId?: string
     isDone?: boolean
@@ -315,7 +315,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                     const newSections = produce(sections, (draft) => {
                         const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
                             draft,
-                            data.taskId,
+                            data.id,
                             undefined,
                             data.subtaskId
                         )
@@ -351,7 +351,7 @@ export const useMarkTaskDoneOrDeleted = () => {
                     }))
                     const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
                         sections,
-                        data.taskId,
+                        data.id,
                         data.sectionId,
                         data.subtaskId
                     )
@@ -385,7 +385,7 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
     if (data.isDone !== undefined) requestBody.is_completed = data.isDone
     if (data.isDeleted !== undefined) requestBody.is_deleted = data.isDeleted
     try {
-        const updateTaskId = data.subtaskId ?? data.taskId
+        const updateTaskId = data.subtaskId ?? data.id
         const res = await apiClient.patch(`/tasks/modify/${updateTaskId}/`, requestBody)
         return castImmutable(res.data)
     } catch {

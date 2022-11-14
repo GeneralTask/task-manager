@@ -36,7 +36,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                         iconColor: 'red',
                         textColor: 'red',
                         onClick: () =>
-                            markTaskDoneOrDeleted({ taskId: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
+                            markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
                     },
                 ],
                 [

@@ -1,10 +1,11 @@
 import { ReactNode, createContext, useContext, useRef } from 'react'
 import { QueryKey } from 'react-query'
+import * as Sentry from '@sentry/browser'
 import { emptyFunction } from '../utils/utils'
 
 interface TRequest {
     // if optimistic ID is provided, the actual id must be passed into the send function
-    send: (id?: string) => void
+    send: (id: string) => void
     optimisticId?: string
 }
 
@@ -41,7 +42,8 @@ export const QueryContextProvider = ({ children }: QueryContextProps) => {
     const getIdFromOptimisticId = (optimisticId: string) => {
         const realId = optimisticIdToRealIdMap.current.get(optimisticId)
         if (!realId) {
-            throw new Error('Could not find real id for optimistic id')
+            Sentry.captureMessage(`Could not find real id for optimistic id`)
+            return ''
         }
         return realId
     }

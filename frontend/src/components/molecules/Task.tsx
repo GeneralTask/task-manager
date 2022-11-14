@@ -212,6 +212,7 @@ const Task = ({
                             isSelected={isSelected}
                             isDisabled={task.isOptimistic || sectionId === TRASH_SECTION_ID}
                             onMarkComplete={taskFadeOut}
+                            optimsticId={task.isOptimistic ? task.id : undefined}
                         />
                     )}
                     <Title title={task.title}>{task.title}</Title>

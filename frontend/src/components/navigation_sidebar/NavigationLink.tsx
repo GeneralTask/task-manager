@@ -86,7 +86,7 @@ const NavigationLink = ({
             if (taskSection.id === item.sectionId) return
             if (taskSection?.is_done || taskSection?.is_trash) {
                 markTaskDoneOrDeleted({
-                    taskId: item.id,
+                    id: item.id,
                     isDone: taskSection?.is_done,
                     isDeleted: taskSection?.is_trash,
                     sectionId: taskSection.id,
