@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../../hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { TLinearComment } from '../../../utils/types'
 import { emptyFunction, getHumanTimeSinceDateTime } from '../../../utils/utils'
@@ -32,7 +31,6 @@ interface LinearCommentProps {
 
 const LinearComment = ({ comment }: LinearCommentProps) => {
     const dateSent = DateTime.fromISO(comment.created_at)
-    const { isPreviewMode } = usePreviewMode()
     return (
         <div>
             <TopContainer>
@@ -40,18 +38,14 @@ const LinearComment = ({ comment }: LinearCommentProps) => {
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
-                {isPreviewMode ? (
-                    <GTTextField
-                        type="markdown"
-                        value={comment.body}
-                        onChange={emptyFunction}
-                        fontSize="small"
-                        readOnly
-                        disabled
-                    />
-                ) : (
-                    <span>{comment.body}</span>
-                )}
+                <GTTextField
+                    type="markdown"
+                    value={comment.body}
+                    onChange={emptyFunction}
+                    fontSize="small"
+                    readOnly
+                    disabled
+                />
             </BodyContainer>
         </div>
     )
