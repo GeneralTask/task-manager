@@ -816,6 +816,14 @@ func GetWaitlistCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("waitlist")
 }
 
+func GetJiraSitesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_sites")
+}
+
+func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_priorities")
+}
+
 func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("oauth1_request_secrets")
 }
