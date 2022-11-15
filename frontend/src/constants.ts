@@ -10,17 +10,17 @@ export const TASK_SECTION_DEFAULT_ID = '-1'
 export const AUTHORIZATION_COOKE = 'authToken'
 export const MESSAGE_TYPE_DM = 'directmessage'
 
-// Time constants (in seconds)
-export const TASK_REFETCH_INTERVAL = 60
-export const PR_REFETCH_INTERVAL = 120
-export const EVENTS_REFETCH_INTERVAL = 60
-export const TIME_INDICATOR_INTERVAL = 6
-export const TASK_MARK_AS_DONE_TIMEOUT = 0.25
-export const DETAILS_SYNC_TIMEOUT = 1
-export const FIVE_SECOND_TIMEOUT = 5
-export const SINGLE_SECOND_INTERVAL = 1
-export const EVENT_UNDO_TIMEOUT = 5
-export const DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT = 0.5
+// Time constants (in milliseconds)
+export const TASK_REFETCH_INTERVAL = 60 * 1000
+export const PR_REFETCH_INTERVAL = 120 * 1000
+export const EVENTS_REFETCH_INTERVAL = 60 * 1000
+export const TIME_INDICATOR_INTERVAL = 6 * 1000
+export const TASK_MARK_AS_DONE_TIMEOUT = 0.25 * 1000
+export const DETAILS_SYNC_TIMEOUT = 1 * 1000
+export const FIVE_SECOND_TIMEOUT = 5 * 1000
+export const SINGLE_SECOND_INTERVAL = 1000
+export const EVENT_UNDO_TIMEOUT = 5 * 1000
+export const DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT = 0.5 * 1000
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
@@ -49,7 +49,7 @@ export const DEFAULT_SECTION_ID = '000000000000000000000001'
 export const DONE_SECTION_ID = '000000000000000000000004'
 export const TRASH_SECTION_ID = '000000000000000000000005'
 
-export const GITHUB_SUPPORTED_TYPE_NAME = 'Github'
+export const GITHUB_SUPPORTED_TYPE_NAME = 'GitHub'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 
 export interface TTaskPriority {

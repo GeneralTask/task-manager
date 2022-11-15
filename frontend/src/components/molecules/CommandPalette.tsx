@@ -41,7 +41,7 @@ const CommandInput = styled(Command.Input)`
     border: none;
     ${Typography.subtitle};
     &::placeholder {
-        color: ${Colors.text.placeholder};
+        color: ${Colors.text.light};
     }
 `
 const CommandList = styled(Command.List)`
@@ -162,7 +162,7 @@ const CommandPalette = () => {
                                                 action()
                                             }}
                                         >
-                                            <Flex alignItemsCenter>
+                                            <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
                                                 {label}
                                             </Flex>

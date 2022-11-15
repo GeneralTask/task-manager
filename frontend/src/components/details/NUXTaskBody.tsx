@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -5,6 +6,7 @@ import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
+import SettingsModal from '../molecules/SettingsModal'
 
 const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
     background-color: inherit;
@@ -19,6 +21,9 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number }>`
         background-color: ${Colors.background.white};
         border-color: ${Colors.border.light};
     }
+`
+const DivCursorPointer = styled.div`
+    cursor: pointer;
 `
 
 const TaskToCal = () => {
@@ -67,10 +72,12 @@ const IntegrationsStaticContent = ({
     githubUrl,
     linearUrl,
     slackUrl,
+    setIsSettingsModalOpen,
 }: {
     githubUrl: string
     linearUrl: string
     slackUrl: string
+    setIsSettingsModalOpen: (isSettingsModalOpen: boolean) => void
 }) => (
     <>
         We want to make it easy for you to get a bird’s-eye view of your day, so we integrate with other services to
@@ -88,12 +95,12 @@ const IntegrationsStaticContent = ({
         </ul>
         <p>
             You can find the full list via the Settings button in the lower left corner of the screen. (We’re just
-            getting started — if there are integrations you want to see, use the Share feedback button in the lower
-            right to let us know what you’d like to see next.)
+            getting started — if there are integrations you want to see, use the Share feedback button in the lower left
+            to let us know what you’d like to see next.)
         </p>
-        <a href="/settings">
+        <DivCursorPointer onClick={() => setIsSettingsModalOpen(true)}>
             <img src="/images/nux-integrations.png" width="100%" />
-        </a>
+        </DivCursorPointer>
     </>
 )
 
@@ -102,10 +109,17 @@ const Integrations = () => {
     const githubUrl = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url || ''
     const linearUrl = supportedTypes?.find((type) => type.name === 'Linear')?.authorization_url || ''
     const slackUrl = supportedTypes?.find((type) => type.name === 'Slack')?.authorization_url || ''
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
     return (
         <Container>
-            <IntegrationsStaticContent githubUrl={githubUrl} linearUrl={linearUrl} slackUrl={slackUrl} />
+            <IntegrationsStaticContent
+                githubUrl={githubUrl}
+                linearUrl={linearUrl}
+                slackUrl={slackUrl}
+                setIsSettingsModalOpen={setIsSettingsModalOpen}
+            />
+            <SettingsModal isOpen={isSettingsModalOpen} setIsOpen={setIsSettingsModalOpen} />
         </Container>
     )
 }
@@ -172,6 +186,7 @@ const JohnsLetter = () => {
 
 interface NUXTaskBodyProps {
     task: TTask
+    renderSettingsModal?: boolean
 }
 const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
     switch (task.nux_number_id) {
@@ -188,7 +203,8 @@ const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
     }
 }
 
-export const NuxTaskBodyStatic = ({ task }: NUXTaskBodyProps) => {
+export const NuxTaskBodyStatic = ({ task, renderSettingsModal }: NUXTaskBodyProps) => {
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
     switch (task.nux_number_id) {
         case 1:
             return <TaskToCal />
@@ -196,11 +212,17 @@ export const NuxTaskBodyStatic = ({ task }: NUXTaskBodyProps) => {
             return <FocusMode />
         case 3:
             return (
-                <IntegrationsStaticContent
-                    githubUrl="https://api.generaltask.com/link/github/"
-                    slackUrl="https://api.generaltask.com/link/slack/"
-                    linearUrl="https://api.generaltask.com/link/linear/"
-                />
+                <>
+                    {renderSettingsModal && (
+                        <SettingsModal isOpen={isSettingsModalOpen} setIsOpen={setIsSettingsModalOpen} />
+                    )}
+                    <IntegrationsStaticContent
+                        githubUrl="https://api.generaltask.com/link/github/"
+                        slackUrl="https://api.generaltask.com/link/slack/"
+                        linearUrl="https://api.generaltask.com/link/linear/"
+                        setIsSettingsModalOpen={setIsSettingsModalOpen}
+                    />
+                </>
             )
         case 4:
             return <JohnsLetterStaticContent />

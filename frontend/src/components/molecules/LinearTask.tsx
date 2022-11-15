@@ -9,7 +9,7 @@ import { linearStatus } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
-import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
+import SelectableContainer, { OrangeEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTButtonHack } from './Task'
@@ -44,9 +44,6 @@ const RightContainer = styled.div`
     gap: ${Spacing._24};
     margin-left: auto;
 `
-const DominoContainer = styled.div<{ isHovered: boolean }>`
-    opacity: ${({ isHovered }) => (isHovered ? 1 : 0)};
-`
 
 interface LinearTaskProps {
     task: TTask
@@ -57,9 +54,9 @@ const LinearTask = ({ task }: LinearTaskProps) => {
     const [isHovered, setIsHovered] = useState(false)
     const { mutate: modifyTask } = useModifyTask()
 
-    const [, drag, dragPreview] = useDrag(
+    const [, drag] = useDrag(
         () => ({
-            type: DropType.LINEAR_TASK,
+            type: DropType.NON_REORDERABLE_TASK,
             item: { id: task.id, task },
             collect: (monitor) => {
                 const isDragging = !!monitor.isDragging()
@@ -79,16 +76,14 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             key={task.id}
             onClick={() => onClick(task.id)}
             isSelected={linearIssueId === task.id}
-            ref={(node) => drag(dragPreview(node))}
+            ref={drag}
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            {linearIssueId === task.id && <PurpleEdge />}
+            {linearIssueId === task.id && <OrangeEdge />}
             <LeftContainer>
                 <DominoIconContainer>
-                    <DominoContainer isHovered={isHovered}>
-                        <Domino />
-                    </DominoContainer>
+                    <Domino isVisible={isHovered} />
                     {task.external_status && task.all_statuses && (
                         <GTDropdownMenu
                             items={task.all_statuses.map((status) => ({

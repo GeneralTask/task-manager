@@ -34,12 +34,13 @@ interface CalendarViewProps {
 const CalendarView = ({
     initialType,
     initialShowMainHeader,
+    initialShowDateHeader,
     isInitiallyCollapsed,
     hideContainerShadow = false,
     hasLeftBorder = false,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
-    const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowMainHeader ?? true)
+    const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
     const [date, setDate] = useState<DateTime>(DateTime.now())

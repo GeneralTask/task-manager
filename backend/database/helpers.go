@@ -460,6 +460,7 @@ func GetMeetingPreparationTasks(db *mongo.Database, userID primitive.ObjectID) (
 	return GetTasks(db, userID,
 		&[]bson.M{
 			{"is_completed": false},
+			{"is_deleted": bson.M{"$ne": true}},
 			{"is_meeting_preparation_task": true},
 		},
 		nil,
@@ -815,6 +816,14 @@ func GetWaitlistCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("waitlist")
 }
 
+func GetJiraSitesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_sites")
+}
+
+func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_priorities")
+}
+
 func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("oauth1_request_secrets")
 }
@@ -829,6 +838,10 @@ func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
 
 func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("task_sections")
+}
+
+func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("recurring_task_templates")
 }
 
 func IsValidPagination(pagination Pagination) bool {

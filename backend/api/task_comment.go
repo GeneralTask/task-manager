@@ -2,7 +2,9 @@ package api
 
 import (
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -40,6 +42,10 @@ func (api *API) TaskAddComment(c *gin.Context) {
 		api.Logger.Error().Err(err).Msg("failed to load external task source")
 		Handle500(c)
 		return
+	}
+
+	if task.SourceID == external.TASK_SOURCE_ID_LINEAR {
+		commentParams.ExternalID = uuid.New().String()
 	}
 
 	err = taskSourceResult.Source.AddComment(api.DB, userID, task.SourceAccountID, commentParams, task)

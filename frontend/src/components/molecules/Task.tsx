@@ -44,8 +44,8 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const DominoContainer = styled.div<{ isVisible: boolean }>`
-    opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+const PositionedDomino = styled(Domino)`
+    margin-right: ${Spacing._8};
 `
 const DueDate = styled.span<{ color: TTextColor }>`
     color: ${(props) => Colors.text[props.color]};
@@ -55,6 +55,7 @@ const DueDate = styled.span<{ color: TTextColor }>`
 interface TaskProps {
     task: TTask
     dragDisabled?: boolean
+    dropType?: DropType
     index?: number
     sectionId?: string
     sectionScrollingRef?: MutableRefObject<HTMLDivElement | null>
@@ -68,6 +69,7 @@ interface TaskProps {
 const Task = ({
     task,
     dragDisabled,
+    dropType = DropType.TASK,
     index,
     sectionId,
     sectionScrollingRef,
@@ -148,13 +150,9 @@ const Task = ({
 
     const [, drag, dragPreview] = useDrag(
         () => ({
-            type: DropType.TASK,
+            type: dropType,
             item: { id: task.id, sectionId, task },
             canDrag: !dragDisabled,
-            collect: (monitor) => {
-                const isDragging = !!monitor.isDragging()
-                return { opacity: isDragging ? 0.5 : 1 }
-            },
         }),
         [task, index, sectionId, dragDisabled]
     )
@@ -183,10 +181,7 @@ const Task = ({
                 onMouseEnter={() => setIsHovered(true)}
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
-                    <DominoContainer isVisible={isHovered && !dragDisabled}>
-                        <Domino />
-                    </DominoContainer>
-
+                    <PositionedDomino isVisible={isHovered && !dragDisabled} />
                     {task.external_status && task.all_statuses ? (
                         <GTDropdownMenu
                             disabled={sectionId === TRASH_SECTION_ID}

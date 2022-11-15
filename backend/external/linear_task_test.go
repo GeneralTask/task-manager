@@ -805,7 +805,8 @@ func TestAddComment(t *testing.T) {
 			},
 		}}
 		comment := database.Comment{
-			Body: "example comment",
+			Body:       "example comment",
+			ExternalID: "externalID",
 		}
 
 		err := linearTask.AddComment(db, userID, "sample_account@email.com", comment, &database.Task{
@@ -820,14 +821,26 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.IDExternal, b.IDExternal)
 	assert.Equal(t, a.IDOrdering, b.IDOrdering)
 	assert.Equal(t, a.IDTaskSection, b.IDTaskSection)
-	assert.Equal(t, a.Title, b.Title)
-	assert.Equal(t, a.Body, b.Body)
 	assert.Equal(t, a.SourceID, b.SourceID)
-	assert.Equal(t, a.DueDate, b.DueDate)
-	assert.Equal(t, a.PriorityNormalized, b.PriorityNormalized)
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
 	assert.Equal(t, a.Status, b.Status)
 	assert.Equal(t, a.CompletedStatus, b.CompletedStatus)
+	assert.True(t, (a.Title == nil) == (b.Title == nil))
+	if (a.Title != nil) && (b.Title != nil) {
+		assert.Equal(t, *a.Title, *b.Title)
+	}
+	assert.True(t, (a.Body == nil) == (b.Body == nil))
+	if (a.Body != nil) && (b.Body != nil) {
+		assert.Equal(t, *a.Body, *b.Body)
+	}
+	assert.True(t, (a.PriorityNormalized == nil) == (b.PriorityNormalized == nil))
+	if (a.PriorityNormalized != nil) && (b.PriorityNormalized != nil) {
+		assert.Equal(t, *a.PriorityNormalized, *b.PriorityNormalized)
+	}
+	assert.True(t, (a.DueDate == nil) == (b.DueDate == nil))
+	if (a.DueDate != nil) && (b.DueDate != nil) {
+		assert.Equal(t, *a.DueDate, *b.DueDate)
+	}
 	assert.True(t, (a.Comments == nil) == (b.Comments == nil))
 	if (a.Comments != nil) && (b.Comments != nil) {
 		expectedComments := *a.Comments

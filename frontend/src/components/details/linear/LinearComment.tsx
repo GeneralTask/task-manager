@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { useGetUserInfo } from '../../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
 import { TLinearComment } from '../../../utils/types'
 import { emptyFunction, getHumanTimeSinceDateTime } from '../../../utils/utils'
@@ -9,14 +8,12 @@ import GTTextField from '../../atoms/GTTextField'
 const TopContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing._8};
-    padding: ${Spacing._4};
+    gap: ${Spacing._12};
     color: ${Colors.text.black};
-    margin-bottom: ${Spacing._16};
 `
 const BodyContainer = styled.div`
     padding: ${Spacing._4};
-    margin-bottom: ${Spacing._32};
+    margin-bottom: ${Spacing._16};
     ${Typography.bodySmall};
 `
 const UsernameText = styled.div`
@@ -34,7 +31,6 @@ interface LinearCommentProps {
 
 const LinearComment = ({ comment }: LinearCommentProps) => {
     const dateSent = DateTime.fromISO(comment.created_at)
-    const { data: userInfo } = useGetUserInfo()
     return (
         <div>
             <TopContainer>
@@ -42,18 +38,14 @@ const LinearComment = ({ comment }: LinearCommentProps) => {
                 <GrayText>{getHumanTimeSinceDateTime(dateSent)}</GrayText>
             </TopContainer>
             <BodyContainer>
-                {userInfo?.is_employee ? (
-                    <GTTextField
-                        type="markdown"
-                        value={comment.body}
-                        onChange={emptyFunction}
-                        fontSize="small"
-                        readOnly
-                        disabled
-                    />
-                ) : (
-                    <span>{comment.body}</span>
-                )}
+                <GTTextField
+                    type="markdown"
+                    value={comment.body}
+                    onChange={emptyFunction}
+                    fontSize="small"
+                    readOnly
+                    disabled
+                />
             </BodyContainer>
         </div>
     )

@@ -58,7 +58,7 @@ const GTTextField = (props: GTTextFieldProps) => {
     if (props.type === 'plaintext') {
         return (
             <PlainTextContainer
-                onKeyDown={stopKeydownPropogation}
+                onKeyDown={(e) => stopKeydownPropogation(e, props.keyDownExceptions)}
                 hideUnfocusedOutline={props.hideUnfocusedOutline}
                 disabled={props.disabled}
             >
@@ -74,7 +74,7 @@ const GTTextField = (props: GTTextFieldProps) => {
     return (
         <Container
             ref={containerRef}
-            onKeyDown={stopKeydownPropogation}
+            onKeyDown={(e) => stopKeydownPropogation(e, props.keyDownExceptions)}
             isFullHeight={props.isFullHeight}
             minHeight={props.minHeight}
             hideUnfocusedOutline={props.hideUnfocusedOutline}

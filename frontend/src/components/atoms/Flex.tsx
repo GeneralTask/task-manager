@@ -6,19 +6,20 @@ import styled from 'styled-components'
 */
 
 interface FlexProps {
+    flex?: '0' | '1'
     gap?: string
-    justifyContentCenter?: boolean
-    justifyContentSpaceBetween?: boolean
-    alignItemsCenter?: boolean
+    column?: boolean
+    justifyContent?: 'baseline' | 'center' | 'space-between'
+    alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
 }
 
 const Flex = styled.div<FlexProps>`
     display: flex;
-    flex: 1;
-    ${(props) => props.gap && 'gap: ' + props.gap};
-    ${({ justifyContentCenter }) => justifyContentCenter && 'justify-content: center;'}
-    ${({ justifyContentSpaceBetween }) => justifyContentSpaceBetween && 'justify-content: space-between;'}
-    ${({ alignItemsCenter }) => alignItemsCenter && 'align-items: center;'}
+    ${({ flex }) => flex && `flex: ${flex};`}
+    ${({ column }) => column && 'flex-direction: column;'}
+    ${({ gap }) => gap && `gap: ${gap};`}
+    ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
+    ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
 `
 
 export default Flex

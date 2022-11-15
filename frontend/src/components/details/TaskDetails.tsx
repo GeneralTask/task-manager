@@ -10,9 +10,8 @@ import {
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval } from '../../hooks'
+import { useInterval, usePreviewMode } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
-import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -32,6 +31,7 @@ import SubtaskList from '../molecules/subtasks/SubtaskList'
 import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
+import TaskActionsDropdown from '../radix/TaskActionsDropdown'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import TaskBody from './TaskBody'
 import LinearCommentList from './linear/LinearCommentList'
@@ -109,7 +109,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode } = usePreviewMode()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -179,7 +179,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
         const timerId = id + (title === undefined ? 'body' : 'title') // we're only modifying the body or title, one at a time
         if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
         timers.current[timerId] = {
-            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT * 1000),
+            timeout: setTimeout(() => syncDetails({ id, title, body }), DETAILS_SYNC_TIMEOUT),
             callback: () => syncDetails({ id, title, body }),
         }
     }
@@ -216,6 +216,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                 )}
                                 {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
+                                <TaskActionsDropdown task={currentTask} />
                             </MarginLeftAuto>
                         )}
                     </>
@@ -265,14 +266,17 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         onChange={(val) => onEdit({ id: currentTask.id, body: val })}
                         disabled={isInTrash}
                     />
-                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && userInfo?.is_employee && !isInTrash && (
+                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
                         <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
                     )}
-                    {currentTask.comments && (
+                    {currentTask.external_status && (
                         <CommentContainer>
                             <Divider color={Colors.border.extra_light} />
-                            <LinearCommentList comments={currentTask.comments} />
+                            <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
+                    )}
+                    {isPreviewMode && currentTask.external_status && !isInTrash && (
+                        <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && (
                         <SlackMessage
@@ -281,9 +285,6 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         />
                     )}
                 </>
-            )}
-            {userInfo?.is_employee && currentTask.external_status && !isInTrash && (
-                <CreateLinearComment taskId={currentTask.id} />
             )}
         </DetailsViewTemplate>
     )
