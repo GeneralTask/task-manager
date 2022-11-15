@@ -38,12 +38,15 @@ const FolderDropdown = ({ task }: FolderDropdownProps) => {
                               icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
                               selected: section.id === sectionId,
                               onClick: () => {
-                                  reorderTask({
-                                      taskId: task.id,
-                                      dropSectionId: section.id,
-                                      dragSectionId: sectionId,
-                                      orderingId: 1,
-                                  })
+                                  reorderTask(
+                                      {
+                                          taskId: task.id,
+                                          dropSectionId: section.id,
+                                          dragSectionId: sectionId,
+                                          orderingId: 1,
+                                      },
+                                      task.optimisticId
+                                  )
                               },
                           }))
                     : []

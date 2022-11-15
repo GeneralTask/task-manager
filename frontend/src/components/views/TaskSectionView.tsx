@@ -105,11 +105,14 @@ const TaskSectionView = () => {
     const handleReorderTask = useCallback(
         (item: DropItem, dropIndex: number) => {
             if (!section) return
-            reorderTask({
-                taskId: item.id,
-                orderingId: dropIndex,
-                dropSectionId: section.id,
-            })
+            reorderTask(
+                {
+                    taskId: item.id,
+                    orderingId: dropIndex,
+                    dropSectionId: section.id,
+                },
+                item.task?.optimisticId
+            )
         },
         [section]
     )
