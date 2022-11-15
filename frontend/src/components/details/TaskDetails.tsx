@@ -169,7 +169,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
             setIsEditing(false)
             const timerId = id + (title === undefined ? 'body' : 'title')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-            modifyTask({ id, title, body })
+            modifyTask({ id, title, body }, currentTask.optimisticId)
         },
         [currentTask.id, modifyTask]
     )

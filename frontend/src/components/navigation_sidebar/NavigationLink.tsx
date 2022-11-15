@@ -98,12 +98,15 @@ const NavigationLink = ({
                     item.task.optimisticId
                 )
             } else {
-                reorderTask({
-                    taskId: item.id,
-                    orderingId: 1,
-                    dropSectionId: taskSection.id,
-                    dragSectionId: item.sectionId,
-                })
+                reorderTask(
+                    {
+                        taskId: item.id,
+                        orderingId: 1,
+                        dropSectionId: taskSection.id,
+                        dragSectionId: item.sectionId,
+                    },
+                    item.task.optimisticId
+                )
             }
         },
         [taskSection]
