@@ -816,6 +816,14 @@ func GetWaitlistCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("waitlist")
 }
 
+func GetJiraSitesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_sites")
+}
+
+func GetJiraPrioritiesCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("jira_priorities")
+}
+
 func GetOauth1RequestsSecretsCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("oauth1_request_secrets")
 }
@@ -830,6 +838,10 @@ func GetFeedbackItemCollection(db *mongo.Database) *mongo.Collection {
 
 func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("task_sections")
+}
+
+func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("recurring_task_templates")
 }
 
 func IsValidPagination(pagination Pagination) bool {

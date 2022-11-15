@@ -44,8 +44,8 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const DominoContainer = styled.div<{ isVisible: boolean }>`
-    opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+const PositionedDomino = styled(Domino)`
+    margin-right: ${Spacing._8};
 `
 const DueDate = styled.span<{ color: TTextColor }>`
     color: ${(props) => Colors.text[props.color]};
@@ -181,10 +181,7 @@ const Task = ({
                 onMouseEnter={() => setIsHovered(true)}
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
-                    <DominoContainer isVisible={isHovered && !dragDisabled}>
-                        <Domino />
-                    </DominoContainer>
-
+                    <PositionedDomino isVisible={isHovered && !dragDisabled} />
                     {task.external_status && task.all_statuses ? (
                         <GTDropdownMenu
                             disabled={sectionId === TRASH_SECTION_ID}

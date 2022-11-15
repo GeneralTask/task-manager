@@ -30,7 +30,7 @@ const MainScreen = () => {
         'dismissNotifications',
         useCallback(() => {
             toast.dismiss()
-        }, [])
+        }, [toast])
     )
 
     const currentPage = (() => {

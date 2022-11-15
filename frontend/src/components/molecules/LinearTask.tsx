@@ -44,9 +44,6 @@ const RightContainer = styled.div`
     gap: ${Spacing._24};
     margin-left: auto;
 `
-const DominoContainer = styled.div<{ isHovered: boolean }>`
-    opacity: ${({ isHovered }) => (isHovered ? 1 : 0)};
-`
 
 interface LinearTaskProps {
     task: TTask
@@ -86,9 +83,7 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             {linearIssueId === task.id && <OrangeEdge />}
             <LeftContainer>
                 <DominoIconContainer>
-                    <DominoContainer isHovered={isHovered}>
-                        <Domino />
-                    </DominoContainer>
+                    <Domino isVisible={isHovered} />
                     {task.external_status && task.all_statuses && (
                         <GTDropdownMenu
                             items={task.all_statuses.map((status) => ({

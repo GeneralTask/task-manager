@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
@@ -261,7 +262,13 @@ const FocusModeScreen = () => {
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
     const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
-    const toast = useToast()
+    const gtToast = useToast()
+    useKeyboardShortcut(
+        'dismissNotifications',
+        useCallback(() => {
+            toast.dismiss()
+        }, [toast])
+    )
 
     const onDelete = useCallback(() => {
         if (!chosenEvent) return
@@ -273,13 +280,13 @@ const FocusModeScreen = () => {
             datetime_start: chosenEvent.datetime_start,
             datetime_end: chosenEvent.datetime_end,
         })
-        toast.show(
+        gtToast.show(
             {
                 message: 'This calendar event has been deleted',
                 rightAction: {
                     label: 'Undo',
                     onClick: () => {
-                        toast.dismiss()
+                        gtToast.dismiss()
                         undoDeleteEventInCache(chosenEvent, date)
                     },
                     undoableAction: () =>
@@ -297,7 +304,7 @@ const FocusModeScreen = () => {
                 theme: 'dark',
             }
         )
-    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, toast, undoDeleteEventInCache])
+    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, gtToast, undoDeleteEventInCache])
 
     const navigate = useNavigate()
     return (

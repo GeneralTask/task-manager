@@ -1192,7 +1192,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"parameter missing\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"task changes missing\"}", string(body))
 	})
 	t.Run("Assign to other General Task user", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()
