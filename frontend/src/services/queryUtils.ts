@@ -1,6 +1,5 @@
 import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutation, useQueryClient } from 'react-query'
 import { QueryFilters } from 'react-query/types/core/utils'
-import * as Sentry from '@sentry/browser'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
 import useQueryContext from '../context/QueryContext'
@@ -92,7 +91,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
 
         if (optimisticId) {
             if (queue.length === 1) {
-                Sentry.captureMessage(`Optimistic mutation queued with no pending requests`)
+                throw new Error(`Optimistic mutation queued with no pending requests with tag: ${mutationOptions.tag}`)
             } else {
                 queue.push({
                     send: (id?: string) => mutate({ ...variables, id }),

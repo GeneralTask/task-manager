@@ -1,6 +1,5 @@
 import { ReactNode, createContext, useContext, useRef } from 'react'
 import { QueryKey } from 'react-query'
-import * as Sentry from '@sentry/browser'
 import { emptyFunction } from '../utils/utils'
 
 interface TRequest {
@@ -42,8 +41,7 @@ export const QueryContextProvider = ({ children }: QueryContextProps) => {
     const getIdFromOptimisticId = (optimisticId: string) => {
         const realId = optimisticIdToRealIdMap.current.get(optimisticId)
         if (!realId) {
-            Sentry.captureMessage(`Could not find real id for optimistic id`)
-            return ''
+            throw new Error('Could not find real id for optimistic id')
         }
         return realId
     }
