@@ -66,6 +66,7 @@ func (generalTask GeneralTaskTaskSource) CreateNewTask(db *mongo.Database, userI
 		IsCompleted:       &completed,
 		IsDeleted:         &deleted,
 		CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
+		UpdatedAt:         primitive.NewDateTimeFromTime(time.Now()),
 	}
 	if task.DueDate != nil {
 		dueDate := primitive.NewDateTimeFromTime(*task.DueDate)

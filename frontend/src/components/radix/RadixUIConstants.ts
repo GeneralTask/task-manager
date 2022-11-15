@@ -12,7 +12,7 @@ export const MenuTriggerShared = css`
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
 `
-export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextColor }>`
+export const MenuItemShared = css<{ isSelected?: boolean; textColor?: TTextColor; disabled?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing._12};
@@ -20,14 +20,17 @@ export const MenuItemShared = css<{ $isSelected?: boolean; $textColor?: TTextCol
     flex: 1;
     margin: ${Spacing._4} 0;
     padding: ${Spacing._4} ${Spacing._12};
-    cursor: pointer;
     outline: none;
     border-radius: ${Border.radius.mini};
-    ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
-    :hover, :focus {
+    ${({ textColor }) => textColor && `color: ${Colors.text[textColor]};`}
+    ${({ disabled }) =>
+        !disabled &&
+        `:hover, :focus {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
+    cursor: pointer;
+    `}
     &[data-state='open'] {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
@@ -61,6 +64,7 @@ export interface GTMenuItem {
     iconColor?: TIconColor
     textColor?: TTextColor
     selected?: boolean
+    disabled?: boolean
     subItems?: GTMenuItem[]
     renderer?: () => JSX.Element // override how the option is rendered
 }

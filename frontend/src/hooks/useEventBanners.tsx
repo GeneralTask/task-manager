@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
-import { useInterval } from '.'
+import { useInterval, useKeyboardShortcut } from '.'
 import ToastTemplate from '../components/atoms/toast/ToastTemplate'
 import { NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
@@ -35,6 +35,16 @@ export default function useEventBanners(date: DateTime) {
         },
         SINGLE_SECOND_INTERVAL,
         false
+    )
+
+    useKeyboardShortcut(
+        'joinCurrentMeeting',
+        useCallback(() => {
+            const currentMeeting = eventsWithinTenMinutes.find((event) => isEventWithinTenMinutes(event))
+            if (currentMeeting?.conference_call.url) {
+                window.open(currentMeeting.conference_call.url, '_blank')
+            }
+        }, [eventsWithinTenMinutes])
     )
 
     eventBannerLastShownAt.forEach((_, id) => {

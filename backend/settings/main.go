@@ -96,6 +96,8 @@ var TaskSortingPreferenceSetting = SettingDefinition{
 		{Key: ChoiceKeyManual},
 		{Key: ChoiceKeyDueDate},
 		{Key: ChoiceKeyPriority},
+		{Key: ChoiceKeyCreatedAt},
+		{Key: ChoiceKeyUpdatedAt},
 	},
 }
 

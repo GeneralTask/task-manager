@@ -1,21 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useClickOutside } from '../../hooks'
-import { useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons, logos } from '../../styles/images'
+import { icons } from '../../styles/images'
 import { DropItem, DropType } from '../../utils/types'
-import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
+import IntegrationLinks from './IntegrationLinks'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
 import NavigationLinkDropdown from './NavigationLinkDropdown'
 
@@ -46,9 +44,7 @@ const NavigationSectionLinks = () => {
     const { mutate: modifyTaskSection } = useModifyTaskSection()
 
     const { data: folders } = useGetTasks()
-    const { data: pullRequestRepositories } = useGetPullRequests()
     const { section: sectionId } = useParams()
-    const { pathname } = useLocation()
 
     const onKeyChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSectionName(e.target.value)
@@ -99,29 +95,6 @@ const NavigationSectionLinks = () => {
     const doneFolder = folders?.find((section) => section.is_done)
     const trashFolder = folders?.find((section) => section.is_trash)
 
-    const linearTasksCount = useMemo(() => {
-        const tasks =
-            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Linear').length
-    }, [folders])
-
-    const slackTasksCount = useMemo(() => {
-        const tasks =
-            folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
-    }, [folders])
-
-    const { data: linkedAccounts } = useGetLinkedAccounts()
-    const isGithubIntegrationLinked = isGithubLinked(linkedAccounts || [])
-    const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
-    const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
-
-    const githubCount = isGithubIntegrationLinked
-        ? pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)
-        : undefined
-    const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
-    const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
-
     // Logic for updating section name from navigation view
     const [sectionBeingEdited, setSectionBeingEdited] = useState<string | null>(null)
     const [updatedSectionName, setUpdatedSectionName] = useState<string>('')
@@ -152,42 +125,7 @@ const NavigationSectionLinks = () => {
 
     return (
         <>
-            <NavigationLink
-                link="/overview"
-                title="Overview"
-                icon={icons.list}
-                isCurrentPage={pathname.split('/')[1] === 'overview'}
-            />
-            <NavigationLink
-                link="/focus-mode"
-                title="Enter Focus Mode"
-                icon={icons.headphones}
-                isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
-            />
-            <NavigationLink
-                link="/pull-requests"
-                title="GitHub PRs"
-                icon={logos.github}
-                count={githubCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Github')}
-                isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
-            />
-            <NavigationLink
-                link="/linear"
-                title="Linear Issues"
-                icon={logos.linear}
-                count={linearCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
-                isCurrentPage={pathname.split('/')[1] === 'linear'}
-            />
-            <NavigationLink
-                link="/slack"
-                title="Slack"
-                icon={logos.slack}
-                count={slackCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
-                isCurrentPage={pathname.split('/')[1] === 'slack'}
-            />
+            <IntegrationLinks />
             <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>
                 {defaultFolder && (
                     <NavigationLink

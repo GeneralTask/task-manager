@@ -1,8 +1,10 @@
+import { useCallback } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
-import { useEventBanners } from '../../hooks'
+import { useEventBanners, useKeyboardShortcut } from '../../hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -13,7 +15,6 @@ import DefaultTemplate from '../templates/DefaultTemplate'
 import LinearView from '../views/LinearView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
-import Settings from '../views/SettingsView'
 import SlackTasksView from '../views/SlackTasksView'
 import TaskSection from '../views/TaskSectionView'
 
@@ -25,6 +26,12 @@ const MainScreen = () => {
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
+    useKeyboardShortcut(
+        'dismissNotifications',
+        useCallback(() => {
+            toast.dismiss()
+        }, [toast])
+    )
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {
@@ -38,8 +45,6 @@ const MainScreen = () => {
                 return <LinearView />
             case 'slack':
                 return <SlackTasksView />
-            case 'settings':
-                return <Settings />
             default:
                 return <OverviewPageView />
         }
