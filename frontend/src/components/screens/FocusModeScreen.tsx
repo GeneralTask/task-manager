@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useInterval, useKeyboardShortcut, useToast } from '../../hooks'
+import { useGlobalShortcuts, useInterval, useKeyboardShortcut, useToast } from '../../hooks'
 import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -25,6 +24,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
+import CommandPalette from '../molecules/CommandPalette'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -48,10 +48,13 @@ const TemplateViewContainer = styled.div`
     background: url(${focusModeBackground});
     background-size: cover;
 `
-const FloatingIcon = styled.div`
+const FloatTopRight = styled.div`
     position: fixed;
     top: ${Spacing._16};
     left: ${Spacing._16};
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
 `
 const FocusModeContainer = styled.div`
     width: ${FOCUS_MODE_WIDTH};
@@ -112,7 +115,7 @@ const EventContainer = styled.div`
 const CalendarContainer = styled.div`
     margin-left: auto;
 `
-const ButtonContainer = styled.div`
+const FloatTopLeft = styled.div`
     position: fixed;
     top: ${Spacing._16};
     right: ${Spacing._16};
@@ -263,12 +266,7 @@ const FocusModeScreen = () => {
     const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const gtToast = useToast()
-    useKeyboardShortcut(
-        'dismissNotifications',
-        useCallback(() => {
-            toast.dismiss()
-        }, [toast])
-    )
+    useGlobalShortcuts()
 
     const onDelete = useCallback(() => {
         if (!chosenEvent) return
@@ -411,12 +409,13 @@ const FocusModeScreen = () => {
                         <span>{time.toFormat('h:mm a')}</span>
                     </ClockContainer>
                 </FocusModeContainer>
-                <FloatingIcon>
+                <FloatTopRight>
                     <Icon icon={logos.generaltask_single_color} size="gtLogo" />
-                </FloatingIcon>
-                <ButtonContainer>
+                    <CommandPalette />
+                </FloatTopRight>
+                <FloatTopLeft>
                     <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />
-                </ButtonContainer>
+                </FloatTopLeft>
             </TemplateViewContainer>
         </SingleViewTemplate>
     )

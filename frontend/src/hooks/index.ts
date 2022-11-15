@@ -1,5 +1,6 @@
 import useClickOutside from './useClickOutside'
 import useEventBanners from './useEventBanners'
+import useGlobalShortcuts from './useGlobalShortcuts'
 import useInterval from './useInterval'
 import useIsDragging from './useIsDragging'
 import useItemSelectionController from './useItemSelectionController'
@@ -24,4 +25,5 @@ export {
     useToast,
     useWindowSize,
     usePreviewMode,
+    useGlobalShortcuts,
 }
