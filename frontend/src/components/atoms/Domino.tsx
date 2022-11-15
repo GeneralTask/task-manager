@@ -2,18 +2,14 @@ import { forwardRef, memo } from 'react'
 import styled from 'styled-components'
 import { Colors, Spacing } from '../../styles'
 
-const DominoOuterContainer = styled.div`
+const DominoContainer = styled.div<{ isVisible: boolean }>`
     height: ${Spacing._16};
-    margin-right: ${Spacing._12};
-    margin-left: -${Spacing._4};
-`
-const DominoContainer = styled.div`
-    height: 100%;
     width: 10px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
+    opacity: ${({ isVisible }) => (isVisible ? '1' : '0')};
 `
 const Dot = styled.div`
     width: 3px;
@@ -23,17 +19,19 @@ const Dot = styled.div`
     margin: 1px;
 `
 
-const Domino = forwardRef<HTMLDivElement>((_, ref) => {
+interface DominoProps {
+    isVisible?: boolean
+    className?: string
+}
+const Domino = forwardRef<HTMLDivElement, DominoProps>(({ isVisible = true, className }, ref) => {
     return (
-        <DominoOuterContainer ref={ref}>
-            <DominoContainer>
-                {Array(6)
-                    .fill(0)
-                    .map((_, i) => (
-                        <Dot key={i} />
-                    ))}
-            </DominoContainer>
-        </DominoOuterContainer>
+        <DominoContainer ref={ref} isVisible={isVisible} className={className}>
+            {Array(6)
+                .fill(0)
+                .map((_, i) => (
+                    <Dot key={i} />
+                ))}
+        </DominoContainer>
     )
 })
 
