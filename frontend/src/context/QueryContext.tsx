@@ -5,7 +5,7 @@ import { emptyFunction } from '../utils/utils'
 
 interface TRequest {
     // if optimistic ID is provided, the actual id must be passed into the send function
-    send: (id: string) => void
+    send: (id?: string) => void
     optimisticId?: string
 }
 

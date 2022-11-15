@@ -82,15 +82,18 @@ const NavigationLink = ({
 
     const onDrop = useCallback(
         (item: DropItem) => {
-            if (!taskSection || !droppable) return
+            if (!taskSection || !droppable || !item.task) return
             if (taskSection.id === item.sectionId) return
             if (taskSection?.is_done || taskSection?.is_trash) {
-                markTaskDoneOrDeleted({
-                    id: item.id,
-                    isDone: taskSection?.is_done,
-                    isDeleted: taskSection?.is_trash,
-                    sectionId: taskSection.id,
-                })
+                markTaskDoneOrDeleted(
+                    {
+                        id: item.id,
+                        isDone: taskSection?.is_done,
+                        isDeleted: taskSection?.is_trash,
+                        sectionId: taskSection.id,
+                    },
+                    item.task.optimisticId
+                )
             } else {
                 reorderTask({
                     taskId: item.id,

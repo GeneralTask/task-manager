@@ -210,9 +210,9 @@ const Task = ({
                             sectionId={sectionId}
                             isDone={task.is_done}
                             isSelected={isSelected}
-                            isDisabled={task.isOptimistic || sectionId === TRASH_SECTION_ID}
+                            isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
                             onMarkComplete={taskFadeOut}
-                            optimsticId={task.isOptimistic ? task.id : undefined}
+                            optimsticId={task.optimisticId}
                         />
                     )}
                     <Title title={task.title}>{task.title}</Title>

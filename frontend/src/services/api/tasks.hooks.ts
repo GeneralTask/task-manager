@@ -128,6 +128,7 @@ export const useCreateTask = () => {
                     if (!section) return
                     const newTask: TTask = {
                         id: data.optimisticId,
+                        optimisticId: data.optimisticId,
                         id_ordering: 0.5,
                         title: data.title,
                         body: data.body ?? '',
@@ -146,7 +147,6 @@ export const useCreateTask = () => {
                         sender: '',
                         is_done: false,
                         is_deleted: false,
-                        isOptimistic: true,
                         is_meeting_preparation_task: false,
                         nux_number_id: 0,
                         created_at: '',
@@ -162,6 +162,7 @@ export const useCreateTask = () => {
                     if (!section) return
                     const newTask = {
                         id: data.optimisticId,
+                        optimisticId: data.optimisticId,
                         id_ordering: 0.5,
                         title: data.title,
                         body: data.body ?? '',
@@ -180,7 +181,6 @@ export const useCreateTask = () => {
                         sender: '',
                         is_done: false,
                         is_deleted: false,
-                        isOptimistic: true,
                         is_meeting_preparation_task: false,
                     } as TOverviewItem
                     section.view_items = [newTask, ...section.view_items]
@@ -199,7 +199,7 @@ export const useCreateTask = () => {
                     const task = getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
                     if (!task?.id) return
                     task.id = response.task_id
-                    task.isOptimistic = false
+                    task.optimisticId = undefined
                 })
                 queryClient.setQueryData('tasks', updatedSections)
             }
@@ -209,7 +209,7 @@ export const useCreateTask = () => {
                     const task = section?.view_items.find((task) => task.id === createData.optimisticId)
                     if (!task) return
                     task.id = response.task_id
-                    task.isOptimistic = false
+                    task.optimisticId = undefined
                 })
                 queryClient.setQueryData('overview', updatedViews)
             }

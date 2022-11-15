@@ -78,7 +78,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
                     const id = getIdFromOptimisticId(queue[0].optimisticId)
                     queue[0].send(id)
                 } else {
-                    queue[0].send('workaround')
+                    queue[0].send()
                 }
             } else {
                 mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
@@ -86,24 +86,25 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
             mutationOptions.onSettled?.(data, error, variables, context)
         },
     })
-    const newMutate = (variables: TVariables, optimisticId?: string) => {
+    const newMutate = (variables: TVariables, optimisticId?: string | false) => {
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
 
         if (optimisticId) {
-            queue.push({
-                send: (id: string) => mutate({ ...variables, id }),
-                optimisticId,
-            })
             if (queue.length === 1) {
                 Sentry.captureMessage(`Optimistic mutation queued with no pending requests`)
+            } else {
+                queue.push({
+                    send: (id?: string) => mutate({ ...variables, id }),
+                    optimisticId,
+                })
             }
         } else {
             queue.push({
                 send: () => mutate(variables),
             })
             if (queue.length === 1) {
-                mutate({ id: 'hi', ...variables })
+                mutate(variables)
             }
         }
     }

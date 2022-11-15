@@ -77,7 +77,8 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
-            onClick: () => markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
+            onClick: () =>
+                markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId),
         },
     ]
 

@@ -108,7 +108,7 @@ const NavigationSectionLinks = () => {
     const slackTasksCount = useMemo(() => {
         const tasks =
             folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
+        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.optimisticId)).length
     }, [folders])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
