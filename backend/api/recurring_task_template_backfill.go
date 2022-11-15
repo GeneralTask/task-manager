@@ -65,10 +65,10 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 	offset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		api.Logger.Error().Msg("unable to get localized time")
-		return time.Now(), err
+		return api.GetCurrentTime(), err
 	}
 	localZone := time.FixedZone("", int(-1*offset.Seconds()))
-	currentTime := time.Now()
+	currentTime := api.GetCurrentLocalizedTime(offset)
 	lastAttemptTime := template.LastBackfillDatetime.Time()
 
 	validCreationTime, err := api.getValidCreationTimeNearLastBackfillAttempt(template, lastAttemptTime, localZone)
@@ -114,13 +114,13 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 func (api *API) getValidCreationTimeNearLastBackfillAttempt(template database.RecurringTaskTemplate, lastAttemptTime time.Time, localZone *time.Location) (time.Time, error) {
 	// there are certain values that must be present depending on the recurrence type
 	if template.RecurrenceRate == nil || template.TimeOfDaySecondsToCreateTask == nil {
-		return time.Now(), errors.New("invalid template value")
+		return api.GetCurrentTime(), errors.New("invalid template value")
 	}
 	if (*template.RecurrenceRate == Weekly || *template.RecurrenceRate == Monthly || *template.RecurrenceRate == Annually) && template.DayToCreateTask == nil {
-		return time.Now(), errors.New("invalid template value")
+		return api.GetCurrentTime(), errors.New("invalid template value")
 	}
 	if *template.RecurrenceRate == Annually && template.MonthToCreateTask == nil {
-		return time.Now(), errors.New("invalid template value")
+		return api.GetCurrentTime(), errors.New("invalid template value")
 	}
 
 	// get next backfill time after last backfill attempt
@@ -227,7 +227,7 @@ func (api *API) createTaskFromTemplate(template database.RecurringTaskTemplate) 
 		IDTaskSection:           template.IDTaskSection,
 		PriorityNormalized:      template.PriorityNormalized,
 		IsCompleted:             &completed,
-		CreatedAtExternal:       primitive.NewDateTimeFromTime(time.Now()),
-		UpdatedAt:               primitive.NewDateTimeFromTime(time.Now()),
+		CreatedAtExternal:       primitive.NewDateTimeFromTime(api.GetCurrentTime()),
+		UpdatedAt:               primitive.NewDateTimeFromTime(api.GetCurrentTime()),
 	}
 }

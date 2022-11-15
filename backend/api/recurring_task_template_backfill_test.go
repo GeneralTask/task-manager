@@ -17,6 +17,11 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 	defer dbCleanup()
 	router := GetRouter(api)
 
+	// 10:10:10 on Tuesday November 15, 2022
+	// will replace current time in tests
+	overrideDate := time.Date(2022, time.November, 15, 10, 10, 10, 0, time.UTC)
+	api.OverrideTime = &overrideDate
+
 	t.Run("DailyTest", func(t *testing.T) {
 		authToken := login("daily_recur@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, api.DB, authToken)
@@ -25,7 +30,13 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Daily
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 120
+
+		// 10:00:10
+		creationTimeSeconds := 60*60*10 + 60*0 + 10
+
+		// last backfill time before creation time
+		// same date as override, just a little earlier
+		lastBackfillTime := time.Date(2022, time.November, 15, 9, 0, 0, 0, time.UTC)
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
@@ -35,7 +46,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			IsDeleted:                    &deleted,
 			RecurrenceRate:               &recurrenceRate,
 			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
-			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-24 * time.Hour)),
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastBackfillTime),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -64,17 +75,15 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := WeekDaily
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 120
+
+		// 11:00:10
+		creationTimeSeconds := 60*60*11 + 60*0 + 10
+
+		// Sunday before creation time
+		// should still only show 1 creation
+		lastBackfillTime := time.Date(2022, time.November, 13, 9, 0, 0, 0, time.UTC)
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
-
-		lastTriggered := time.Now().Add(-24 * time.Hour)
-		if int(lastTriggered.Weekday()) == 6 {
-			lastTriggered = lastTriggered.Add(-24 * time.Hour)
-		} else if int(lastTriggered.Weekday()) == 0 {
-			lastTriggered = lastTriggered.Add(-48 * time.Hour)
-		}
-
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
 			UserID:                       userID,
 			Title:                        &title,
@@ -82,7 +91,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			IsDeleted:                    &deleted,
 			RecurrenceRate:               &recurrenceRate,
 			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
-			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastTriggered),
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastBackfillTime),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -111,8 +120,13 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Weekly
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() + 30
-		creationDay := int(time.Now().Weekday())
+		// 10:00:10
+		creationTimeSeconds := 60*60*10 + 60*0 + 10
+		creationDay := int(time.Monday)
+
+		// last backfill time before creation time
+		// Sunday November 6 (2 periods should pass)
+		lastBackfillTime := time.Date(2022, time.November, 6, 9, 0, 0, 0, time.UTC)
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
@@ -123,7 +137,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			RecurrenceRate:               &recurrenceRate,
 			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
 			DayToCreateTask:              &creationDay,
-			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-180 * time.Hour)),
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastBackfillTime),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -152,8 +166,12 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Monthly
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() - 30
-		creationDay := time.Now().Day()
+		// 10:00:10
+		creationTimeSeconds := 60*60*10 + 60*0 + 10
+		creationDay := 14
+
+		// November 13 (1 should triger)
+		lastBackfillTime := time.Date(2022, time.November, 13, 4, 0, 0, 0, time.UTC)
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
@@ -164,7 +182,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			RecurrenceRate:               &recurrenceRate,
 			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
 			DayToCreateTask:              &creationDay,
-			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastBackfillTime),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -193,9 +211,14 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		enabled := true
 		deleted := false
 		recurrenceRate := Annually
-		creationTimeSeconds := 60*60*time.Now().Hour() + 60*time.Now().Minute() + time.Now().Second() - 30
-		creationDay := time.Now().Day()
-		creationMonth := int(time.Now().Month())
+		// 10:00:10
+		creationTimeSeconds := 60*60*10 + 60*0 + 10
+		creationDay := 14
+		creationMonth := 11
+
+		// September 12, 2021
+		// Should have 2 triggers by this time
+		lastBackfillTime := time.Date(2021, time.September, 12, 9, 0, 0, 0, time.UTC)
 
 		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
 		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
@@ -207,7 +230,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
 			DayToCreateTask:              &creationDay,
 			MonthToCreateTask:            &creationMonth,
-			LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now().Add(-12 * time.Hour)),
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastBackfillTime),
 		})
 		templateID := insertResult.InsertedID.(primitive.ObjectID)
 		assert.NoError(t, err)
@@ -225,7 +248,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
+		assert.Equal(t, 6, len(*tasks))
 		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
 	})
 }

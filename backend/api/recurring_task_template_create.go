@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
@@ -53,7 +52,7 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 		TimeOfDaySecondsToCreateTask: templateCreateParams.TimeOfDaySecondsToCreateTask,
 		DayToCreateTask:              templateCreateParams.DayToCreateTask,
 		MonthToCreateTask:            templateCreateParams.MonthToCreateTask,
-		LastBackfillDatetime:         primitive.NewDateTimeFromTime(time.Now()),
+		LastBackfillDatetime:         primitive.NewDateTimeFromTime(api.GetCurrentTime()),
 	}
 
 	templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
