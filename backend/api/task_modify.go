@@ -79,7 +79,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	// check if all fields are empty
 	if modifyParams == (TaskModifyParams{}) {
-		c.JSON(400, gin.H{"detail": "parameter missing"})
+		c.JSON(400, gin.H{"detail": "task changes missing"})
 		return
 	}
 
