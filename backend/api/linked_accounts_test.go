@@ -153,18 +153,28 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	t.Run("SuccessGithub", func(t *testing.T) {
 		authToken := login("deletelinkedaccount_github@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, api.DB, authToken)
-		// should delete cached repos upon github unlink
+		accountID := "correctAccountID"
+		// should delete cached repos matching the account ID upon github unlink
 		repositoryCollection := database.GetRepositoryCollection(api.DB)
-		res, err := repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: userID})
+		res, err := repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: userID, AccountID: accountID})
 		assert.NoError(t, err)
 		repoToDeleteID := res.InsertedID.(primitive.ObjectID)
+		// should deleted cached repos with no account ID also (only affects accounts who have not recently refreshed PRs)
+		res, err = repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: userID})
+		assert.NoError(t, err)
+		repoToDeleteID2 := res.InsertedID.(primitive.ObjectID)
 		// wrong user id; shouldn't get deleted
 		res, err = repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: primitive.NewObjectID()})
 		assert.NoError(t, err)
-		repoToKeepID := res.InsertedID.(primitive.ObjectID)
+		wrongUserRepoID := res.InsertedID.(primitive.ObjectID)
+		// wrong account id; shouldn't get deleted
+		res, err = repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: userID, AccountID: "notthisone"})
+		assert.NoError(t, err)
+		badAccountIDRepoID := res.InsertedID.(primitive.ObjectID)
 		res, err = database.GetExternalTokenCollection(api.DB).InsertOne(
 			context.Background(),
 			&database.ExternalAPIToken{
+				AccountID:    accountID,
 				ServiceID:    external.TASK_SERVICE_ID_GITHUB,
 				UserID:       userID,
 				DisplayID:    "Github",
@@ -193,7 +203,15 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		// assert repo is not found in db anymore
 		assert.Error(t, err)
 
-		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": repoToKeepID}).Decode(&repository)
+		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": repoToDeleteID2}).Decode(&repository)
+		// assert repo is not found in db anymore
+		assert.Error(t, err)
+
+		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": wrongUserRepoID}).Decode(&repository)
+		// assert repo is found
+		assert.NoError(t, err)
+
+		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": badAccountIDRepoID}).Decode(&repository)
 		// assert repo is found
 		assert.NoError(t, err)
 	})
