@@ -14,7 +14,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Eyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
-import SettingsModal from '../molecules/SettingsModal'
+import SettingsModalButton from '../molecules/SettingsModalButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import NavigationViewCollapsed from './NavigationViewCollapsed'
 
@@ -28,7 +28,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean; isCollapse
     background-color: ${Colors.background.medium};
     box-sizing: border-box;
     z-index: 1;
-    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover}`}
+    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover};`}
     width: ${({ isCollapsed }) => (isCollapsed ? 'fit-content' : NAVIGATION_BAR_WIDTH)};
 `
 const NavigationViewHeader = styled.div`
@@ -128,7 +128,7 @@ const NavigationView = () => {
                     </OverflowContainer>
                     <GapView>
                         <FeedbackModal />
-                        <SettingsModal />
+                        <SettingsModalButton />
                     </GapView>
                     <CopyrightText>
                         {userInfo?.is_employee ? (

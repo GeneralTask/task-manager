@@ -3,10 +3,11 @@ package external
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 
