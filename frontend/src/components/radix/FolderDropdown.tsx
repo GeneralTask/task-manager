@@ -40,7 +40,7 @@ const FolderDropdown = ({ task }: FolderDropdownProps) => {
                               onClick: () => {
                                   reorderTask(
                                       {
-                                          taskId: task.id,
+                                          id: task.id,
                                           dropSectionId: section.id,
                                           dragSectionId: sectionId,
                                           orderingId: 1,

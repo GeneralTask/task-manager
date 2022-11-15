@@ -28,7 +28,7 @@ const TaskSectionViewItems = forwardRef(
                 if (!view.task_section_id) return
                 reorderTask(
                     {
-                        taskId: item.id,
+                        id: item.id,
                         orderingId: dropIndex,
                         dropSectionId: view.task_section_id,
                         dragSectionId: item.sectionId,

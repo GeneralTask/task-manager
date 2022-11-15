@@ -34,7 +34,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
                               onClick: () => {
                                   reorderTask(
                                       {
-                                          taskId: task.id,
+                                          id: task.id,
                                           dropSectionId: section.id,
                                           dragSectionId: sectionId,
                                           orderingId: 1,

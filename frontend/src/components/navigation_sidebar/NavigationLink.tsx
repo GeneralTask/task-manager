@@ -100,7 +100,7 @@ const NavigationLink = ({
             } else {
                 reorderTask(
                     {
-                        taskId: item.id,
+                        id: item.id,
                         orderingId: 1,
                         dropSectionId: taskSection.id,
                         dragSectionId: item.sectionId,

@@ -63,14 +63,14 @@ interface TMarkTaskDoneOrDeletedRequestBody {
 }
 
 export interface TReorderTaskData {
-    taskId: string
+    id: string
     dropSectionId: string
     orderingId: number
     dragSectionId?: string
 }
 
 export interface TPostCommentData {
-    taskId: string
+    id: string
     body: string
 }
 
@@ -413,7 +413,7 @@ export const useReorderTask = () => {
                     if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
                         const section = draft.find((s) => s.id === data.dropSectionId)
                         if (section == null) return
-                        const startIndex = section.tasks.findIndex((t) => t.id === data.taskId)
+                        const startIndex = section.tasks.findIndex((t) => t.id === data.id)
                         if (startIndex === -1) return
                         let endIndex = data.orderingId - 1
                         if (startIndex < endIndex) {
@@ -429,7 +429,7 @@ export const useReorderTask = () => {
                         // remove task from old location
                         const dragSection = draft.find((section) => section.id === data.dragSectionId)
                         if (dragSection == null) return
-                        const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.taskId)
+                        const dragTaskIndex = dragSection.tasks.findIndex((task) => task.id === data.id)
                         if (dragTaskIndex === -1) return
                         const dragTask = dragSection.tasks[dragTaskIndex]
                         dragSection.tasks.splice(dragTaskIndex, 1)
@@ -456,7 +456,7 @@ export const useReorderTask = () => {
                     if (!data.dragSectionId || data.dragSectionId === data.dropSectionId) {
                         const section = draft.find((view) => view.task_section_id === data.dropSectionId)
                         if (section == null) return
-                        const startIndex = section.view_items.findIndex((t) => t.id === data.taskId)
+                        const startIndex = section.view_items.findIndex((t) => t.id === data.id)
                         if (startIndex === -1) return
                         let endIndex = data.orderingId - 1
                         if (startIndex < endIndex) {
@@ -472,7 +472,7 @@ export const useReorderTask = () => {
                         // remove task from old location
                         const dragSection = draft.find((section) => section.task_section_id === data.dragSectionId)
                         if (dragSection == null) return
-                        const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.taskId)
+                        const dragTaskIndex = dragSection.view_items.findIndex((item) => item.id === data.id)
                         if (dragTaskIndex === -1) return
                         const dragTask = dragSection.view_items[dragTaskIndex]
                         dragSection.view_items.splice(dragTaskIndex, 1)
@@ -494,7 +494,7 @@ export const useReorderTask = () => {
 }
 export const reorderTask = async (data: TReorderTaskData) => {
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.taskId}/`, {
+        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
             is_completed: data.dropSectionId === DONE_SECTION_ID,
@@ -517,7 +517,7 @@ export const usePostComment = () => {
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.taskId)
+                    const task = getTaskFromSections(draft, data.id)
                     if (task) {
                         task.comments?.unshift({
                             body: data.body,
@@ -540,7 +540,7 @@ export const usePostComment = () => {
                         id: view.task_section_id,
                         tasks: view.view_items,
                     }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.taskId)
+                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
                     if (sectionIndex !== undefined && taskIndex !== undefined) {
                         const task = draft[sectionIndex].view_items[taskIndex]
                         task.comments?.unshift({
@@ -563,7 +563,7 @@ export const usePostComment = () => {
 }
 const postComment = async (data: TPostCommentData) => {
     try {
-        const res = await apiClient.post(`/tasks/${data.taskId}/comments/add/`, data)
+        const res = await apiClient.post(`/tasks/${data.id}/comments/add/`, data)
         return castImmutable(res.data)
     } catch {
         throw new Error('postComment failed')
