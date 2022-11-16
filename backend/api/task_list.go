@@ -225,7 +225,7 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 				return err
 			}
 			if res.MatchedCount != 1 {
-				api.Logger.Error().Interface("taskResult", task).Msgf("did not find subtask to update ordering ID (ID=%v)", subtask.ID)
+				api.Logger.Error().Interface("taskResult", subtask).Msgf("did not find subtask to update ordering ID (ID=%v)", subtask.ID)
 			}
 		}
 	}
