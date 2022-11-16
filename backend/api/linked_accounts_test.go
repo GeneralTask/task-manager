@@ -93,55 +93,28 @@ func TestDeleteLinkedAccount(t *testing.T) {
 	defer dbCleanup()
 	t.Run("MalformattedAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(api)
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/123/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/linked_accounts/123/", nil, http.StatusNotFound, api)
 	})
 	t.Run("InvalidAccountID", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
-		router := GetRouter(api)
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+primitive.NewObjectID().Hex()+"/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/linked_accounts/"+primitive.NewObjectID().Hex()+"/", nil, http.StatusNotFound, api)
 	})
 	t.Run("NotUnlinkableAccount", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		googleAccountID := getGoogleTokenFromAuthToken(t, api.DB, authToken).ID
-		router := GetRouter(api)
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
-		assert.NoError(t, err)
+		body := ServeRequest(t, authToken, "DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil, http.StatusBadRequest, api)
 		assert.Equal(t, "{\"detail\":\"account is not unlinkable\"}", string(body))
 	})
 	t.Run("AccountDifferentUser", func(t *testing.T) {
 		authToken := login("approved@generaltask.com", "")
 		authTokenOther := login("other@generaltask.com", "")
 		googleAccountID := getGoogleTokenFromAuthToken(t, api.DB, authTokenOther).ID
-		router := GetRouter(api)
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusNotFound, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/linked_accounts/"+googleAccountID.Hex()+"/", nil, http.StatusNotFound, api)
 	})
 	t.Run("Success", func(t *testing.T) {
 		authToken := login("deletelinkedaccount@generaltask.com", "")
 		linearTokenID := insertLinearToken(t, api.DB, authToken, false)
-		router := GetRouter(api)
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+linearTokenID.Hex()+"/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/linked_accounts/"+linearTokenID.Hex()+"/", nil, http.StatusOK, api)
 		var token database.ExternalAPIToken
 		err := database.GetExternalTokenCollection(api.DB).FindOne(
 			context.Background(),
@@ -167,10 +140,10 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		res, err = repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: primitive.NewObjectID()})
 		assert.NoError(t, err)
 		wrongUserRepoID := res.InsertedID.(primitive.ObjectID)
-		// wrong account id; shouldn't get deleted
+		// other account id; shouldn't get deleted
 		res, err = repositoryCollection.InsertOne(context.Background(), &database.Repository{UserID: userID, AccountID: "notthisone"})
 		assert.NoError(t, err)
-		badAccountIDRepoID := res.InsertedID.(primitive.ObjectID)
+		otherAccountIDRepoID := res.InsertedID.(primitive.ObjectID)
 		res, err = database.GetExternalTokenCollection(api.DB).InsertOne(
 			context.Background(),
 			&database.ExternalAPIToken{
@@ -184,12 +157,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		assert.NoError(t, err)
 		externalTokenID := res.InsertedID.(primitive.ObjectID)
 
-		router := GetRouter(api)
-		request, _ := http.NewRequest("DELETE", "/linked_accounts/"+externalTokenID.Hex()+"/", nil)
-		request.Header.Add("Authorization", "Bearer "+authToken)
-		recorder := httptest.NewRecorder()
-		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusOK, recorder.Code)
+		ServeRequest(t, authToken, "DELETE", "/linked_accounts/"+externalTokenID.Hex()+"/", nil, http.StatusOK, api)
 		var token database.ExternalAPIToken
 		err = database.GetExternalTokenCollection(api.DB).FindOne(
 			context.Background(),
@@ -211,7 +179,7 @@ func TestDeleteLinkedAccount(t *testing.T) {
 		// assert repo is found
 		assert.NoError(t, err)
 
-		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": badAccountIDRepoID}).Decode(&repository)
+		err = repositoryCollection.FindOne(context.Background(), bson.M{"_id": otherAccountIDRepoID}).Decode(&repository)
 		// assert repo is found
 		assert.NoError(t, err)
 	})
