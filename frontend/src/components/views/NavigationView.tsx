@@ -1,7 +1,7 @@
 import { useDrop } from 'react-dnd'
 import styled from 'styled-components'
 import { useGlobalKeyboardShortcuts, usePreviewMode } from '../../hooks'
-import useGTLocalStorage from '../../hooks/useGTLocalStorage'
+import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'

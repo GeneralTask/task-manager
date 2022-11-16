@@ -24,6 +24,7 @@ export interface TSourcesResult {
 
 export interface TTask {
     id: string
+    optimisticId?: string
     id_ordering: number
     title: string
     deeplink: string
@@ -40,7 +41,6 @@ export interface TTask {
     is_deleted: boolean
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
-    isOptimistic?: boolean
     isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams

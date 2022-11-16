@@ -1,5 +1,5 @@
+import { useGTLocalStorage } from '.'
 import { useGetUserInfo } from '../services/api/user-info.hooks'
-import useGTLocalStorage from './useGTLocalStorage'
 
 interface UsePreviewModeOutput {
     isPreviewMode: boolean
