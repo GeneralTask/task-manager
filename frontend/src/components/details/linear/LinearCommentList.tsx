@@ -28,7 +28,6 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
             return -1
         }
         return DateTime.fromISO(a.created_at).toMillis() - DateTime.fromISO(b.created_at).toMillis()
-        // return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     })
     return (
         <CommentListContainer>
