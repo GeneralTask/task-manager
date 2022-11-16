@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLayoutEffect } from 'react'
 import { Calendar } from '@mantine/dates'
 import { DateTime } from 'luxon'
@@ -48,8 +48,12 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     const [isOpen, setIsOpen] = useState(false)
 
     useLayoutEffect(() => {
-        onChange(initialDate)
+        if (value !== initialDate) {
+            onChange(initialDate)
+        }
     }, [initialDate])
+
+    const formattedDate = useMemo(() => getFormattedDate(value), [value])
 
     const handleOnChange = (date: Date | null) => {
         onChange(date)
@@ -130,9 +134,9 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                     styleType="simple"
                     size="small"
                     icon={showIcon ? icons.clock : undefined}
-                    value={getFormattedDate(value).dateString}
-                    textColor={getFormattedDate(value).textColor}
-                    iconColor={getFormattedDate(value).iconColor}
+                    value={formattedDate.dateString}
+                    textColor={formattedDate.textColor}
+                    iconColor={formattedDate.iconColor}
                     onClick={() => setIsOpen(!isOpen)}
                     active={isOpen}
                     disabled={disabled}

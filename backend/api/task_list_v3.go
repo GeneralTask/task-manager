@@ -14,7 +14,7 @@ import (
 )
 
 func (api *API) TasksListV3(c *gin.Context) {
-	userID, _ := c.Get("user")
+	userID := getUserIDFromContext(c)
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
 	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
@@ -25,17 +25,17 @@ func (api *API) TasksListV3(c *gin.Context) {
 		return
 	}
 
-	activeTasks, err := database.GetActiveTasks(api.DB, userID.(primitive.ObjectID))
+	activeTasks, err := database.GetActiveTasks(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	completedTasks, err := database.GetCompletedTasks(api.DB, userID.(primitive.ObjectID))
+	completedTasks, err := database.GetCompletedTasks(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
 	}
-	deletedTasks, err := database.GetDeletedTasks(api.DB, userID.(primitive.ObjectID))
+	deletedTasks, err := database.GetDeletedTasks(api.DB, userID)
 	if err != nil {
 		Handle500(c)
 		return
@@ -46,7 +46,7 @@ func (api *API) TasksListV3(c *gin.Context) {
 		activeTasks,
 		completedTasks,
 		deletedTasks,
-		userID.(primitive.ObjectID),
+		userID,
 	)
 	if err != nil {
 		Handle500(c)

@@ -149,10 +149,10 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
     so we can then navigate to the correct link */
     useEffect(() => {
-        if (!currentTask.isOptimistic && location.pathname !== link) {
+        if (!currentTask.optimisticId && location.pathname !== link) {
             navigate(link)
         }
-    }, [currentTask.isOptimistic, location, link])
+    }, [currentTask.optimisticId, location, link])
 
     useEffect(() => {
         ReactTooltip.rebuild()
@@ -169,7 +169,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
             setIsEditing(false)
             const timerId = id + (title === undefined ? 'body' : 'title')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-            modifyTask({ id, title, body })
+            modifyTask({ id, title, body }, currentTask.optimisticId)
         },
         [currentTask.id, modifyTask]
     )
@@ -197,7 +197,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         <Icon icon={logos[currentTask.source.logo_v2]} />
                     )}
                 </DetailItem>
-                {!currentTask.isOptimistic && (
+                {!currentTask.optimisticId && (
                     <>
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
@@ -208,7 +208,10 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                     <GTButton
                                         value="Restore Task"
                                         onClick={() =>
-                                            markTaskDoneOrDeleted({ taskId: currentTask.id, isDeleted: false })
+                                            markTaskDoneOrDeleted(
+                                                { id: currentTask.id, isDeleted: false },
+                                                currentTask.optimisticId && currentTask.id
+                                            )
                                         }
                                         styleType="secondary"
                                         size="small"
@@ -228,7 +231,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     itemId={currentTask.id}
                     value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
                     disabled={
-                        currentTask.isOptimistic ||
+                        !!currentTask.optimisticId ||
                         is_meeting_preparation_task ||
                         currentTask.nux_number_id > 0 ||
                         isInTrash
@@ -257,7 +260,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     <LinearStatusDropdown task={currentTask} disabled={isInTrash} />
                 </MarginLeftAuto>
             </TaskStatusContainer>
-            {currentTask.isOptimistic ? (
+            {currentTask.optimisticId ? (
                 <Spinner />
             ) : (
                 <>
