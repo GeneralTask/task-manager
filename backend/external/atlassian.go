@@ -67,13 +67,13 @@ func getAtlassianOauthConfig() OauthConfigWrapper {
 			AuthURL:  "https://auth.atlassian.com/authorize",
 			TokenURL: "https://auth.atlassian.com/oauth/token",
 		},
-		RedirectURL: config.GetConfigValue("SERVER_URL") + "link/jira/callback/",
+		RedirectURL: config.GetConfigValue("SERVER_URL") + "link/atlassian/callback/",
 		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
 	}
 	return &OauthConfig{Config: atlassianConfig}
 }
 
-func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTokenID primitive.ObjectID) (*string, error) {
+func (atlassian AtlassianService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
 	authURL := atlassian.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	authURL += "&audience=api.atlassian.com"
 	return &authURL, nil
