@@ -40,17 +40,20 @@ const TasksDue = ({ date }: TasksDueProps) => {
         )
     }, [taskSections, date])
 
-    if (tasksDueToday.length === 0) return null
     return (
         <>
-            <TasksDueContainer hasTopBorder={!isOnFocusMode}>
-                <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} />
-                {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueToday} />}
-            </TasksDueContainer>
-            <TasksDueContainer>
-                <TasksDueHeader type="day" dueType="overdue" numTasksDue={tasksOverdue.length} />
-                {!isTasksOverdueViewCollapsed && <TaskDueBody tasksDue={tasksOverdue} showDueDate />}
-            </TasksDueContainer>
+            {tasksDueToday.length > 0 && (
+                <TasksDueContainer hasTopBorder={!isOnFocusMode}>
+                    <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} />
+                    {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueToday} />}
+                </TasksDueContainer>
+            )}
+            {tasksOverdue.length > 0 && (
+                <TasksDueContainer>
+                    <TasksDueHeader type="day" dueType="overdue" numTasksDue={tasksOverdue.length} />
+                    {!isTasksOverdueViewCollapsed && <TaskDueBody tasksDue={tasksOverdue} showDueDate />}
+                </TasksDueContainer>
+            )}
         </>
     )
 }
