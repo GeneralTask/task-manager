@@ -128,7 +128,7 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
-			isBadToken := external.CheckAndHandleBadToken(err, db, userID.(primitive.ObjectID), taskResult.AccountID, taskResult.SourceID)
+			isBadToken := external.CheckAndHandleBadToken(taskResult.Error, db, userID.(primitive.ObjectID), taskResult.AccountID, taskResult.SourceID)
 			if !isBadToken {
 				api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
 			}
