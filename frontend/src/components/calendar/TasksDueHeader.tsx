@@ -28,7 +28,8 @@ const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: Task
         isTasksOverdueViewCollapsed,
         setIsTasksOverdueViewCollapsed,
     } = useCalendarContext()
-    const caretIcon = isTasksDueViewCollapsed ? icons.caret_right : icons.caret_down
+    const isCollapsed = dueType === 'due' ? isTasksDueViewCollapsed : isTasksOverdueViewCollapsed
+    const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
     const dayMessage = dueType === 'due' ? `Due Today (${numTasksDue})` : `Overdue (${numTasksDue})`
     const weekMessage = numTasksDue === 1 ? `1 Task Due` : `${numTasksDue} Tasks Due`
     const message = type === 'day' ? dayMessage : weekMessage
