@@ -1,9 +1,7 @@
-import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import useGTLocalStorage from '../../hooks/useGTLocalStorage'
+import { useGlobalKeyboardShortcuts, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
@@ -70,7 +68,7 @@ const GTBetaLogo = styled.img`
 `
 
 const NavigationView = () => {
-    const navigate = useNavigate()
+    useGlobalKeyboardShortcuts()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)
@@ -81,31 +79,6 @@ const NavigationView = () => {
             collect: (monitor) => monitor.isOver(),
         }),
         []
-    )
-
-    useKeyboardShortcut(
-        'enterFocusMode',
-        useCallback(() => navigate('/focus-mode'), [])
-    )
-    useKeyboardShortcut(
-        'goToOverviewPage',
-        useCallback(() => navigate('/overview'), [])
-    )
-    useKeyboardShortcut(
-        'goToGithubPRsPage',
-        useCallback(() => navigate('/pull-requests'), [])
-    )
-    useKeyboardShortcut(
-        'goToLinearPage',
-        useCallback(() => navigate('/linear'), [])
-    )
-    useKeyboardShortcut(
-        'goToSlackPage',
-        useCallback(() => navigate('/slack'), [])
-    )
-    useKeyboardShortcut(
-        'goToTaskInbox',
-        useCallback(() => navigate('/tasks'), [])
     )
 
     return (

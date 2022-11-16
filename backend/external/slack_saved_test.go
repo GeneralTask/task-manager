@@ -141,6 +141,9 @@ func TestCreateSlackTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
+		// tough to mock creation time in external package, so making sure gets set and remove from comparison
+		assert.NotNil(t, task.CreatedAtExternal)
+		testTask.CreatedAtExternal = task.CreatedAtExternal
 		utils.AssertTasksEqual(t, &task, &testTask)
 	})
 	t.Run("SuccessSlackCustomSpecifySection", func(t *testing.T) {
@@ -175,6 +178,9 @@ func TestCreateSlackTask(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(*tasks))
 		task := (*tasks)[0]
+		// tough to mock creation time in external package, so making sure gets set and remove from comparison
+		assert.NotNil(t, task.CreatedAtExternal)
+		testTask.CreatedAtExternal = task.CreatedAtExternal
 		utils.AssertTasksEqual(t, &task, &testTask)
 	})
 }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import useGTLocalStorage from '../../hooks/useGTLocalStorage'
+import { useGTLocalStorage } from '../../hooks'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'

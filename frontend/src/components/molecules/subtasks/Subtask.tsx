@@ -1,7 +1,11 @@
+import { useEffect, useState } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import styled from 'styled-components'
 import { useNavigateToTask } from '../../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { TTask } from '../../../utils/types'
+import { DropType, TTask } from '../../../utils/types'
+import Domino from '../../atoms/Domino'
 import MarkTaskDoneButton from '../../atoms/buttons/MarkTaskDoneButton'
 
 export const SubtaskContainer = styled.div`
@@ -16,6 +20,7 @@ export const SubtaskContainer = styled.div`
     :hover {
         background-color: ${Colors.background.medium};
     }
+    user-select: none;
 `
 
 interface SubtaskProps {
@@ -24,9 +29,27 @@ interface SubtaskProps {
 }
 const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
     const navigateToTask = useNavigateToTask()
+    const [isVisible, setIsVisible] = useState(false)
+    const visibilityToggle = {
+        onMouseEnter: () => setIsVisible(true),
+        onMouseLeave: () => setIsVisible(false),
+    }
+
+    const [, drag, dragPreview] = useDrag(
+        () => ({
+            type: DropType.SUBTASK,
+            item: { id: parentTaskId, task: subtask },
+            canDrag: true,
+        }),
+        [parentTaskId, subtask]
+    )
+    useEffect(() => {
+        dragPreview(getEmptyImage())
+    }, [])
 
     return (
-        <SubtaskContainer onClick={() => navigateToTask(parentTaskId, subtask.id)}>
+        <SubtaskContainer onClick={() => navigateToTask(parentTaskId, subtask.id)} ref={drag} {...visibilityToggle}>
+            <Domino isVisible={isVisible} />
             <MarkTaskDoneButton
                 isDone={subtask.is_done}
                 taskId={parentTaskId}

@@ -4,12 +4,13 @@ import { Colors, Spacing } from '../../styles'
 
 const DominoContainer = styled.div<{ isVisible: boolean }>`
     height: ${Spacing._16};
-    width: 10px;
+    min-width: 10px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     opacity: ${({ isVisible }) => (isVisible ? '1' : '0')};
+    flex-basis: 10px;
 `
 const Dot = styled.div`
     width: 3px;
