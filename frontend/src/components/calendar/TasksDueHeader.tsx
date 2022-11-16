@@ -1,15 +1,14 @@
 import styled from 'styled-components'
-import { Colors, Spacing, Typography } from '../../styles'
+import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { Eyebrow } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const TasksDueHeaderContainer = styled.div`
-    ${Typography.bodySmall};
     display: flex;
     gap: ${Spacing._12};
     align-items: center;
-    color: ${Colors.text.light};
     cursor: pointer;
     user-select: none;
 `
@@ -18,27 +17,37 @@ const CaretContainer = styled.div`
 `
 interface TasksDueHeaderProps {
     type: 'day' | 'week'
+    dueType: 'due' | 'overdue'
     numTasksDue: number
     hideCollapseButton?: boolean
 }
-const TasksDueHeader = ({ type, numTasksDue, hideCollapseButton }: TasksDueHeaderProps) => {
-    const { isTasksDueViewCollapsed, setIsTasksDueViewCollapsed } = useCalendarContext()
+const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: TasksDueHeaderProps) => {
+    const {
+        isTasksDueViewCollapsed,
+        setIsTasksDueViewCollapsed,
+        isTasksOverdueViewCollapsed,
+        setIsTasksOverdueViewCollapsed,
+    } = useCalendarContext()
     const caretIcon = isTasksDueViewCollapsed ? icons.caret_right : icons.caret_down
-    const dayMessage = `Due Today (${numTasksDue})`
+    const dayMessage = dueType === 'due' ? `Due Today (${numTasksDue})` : `Overdue (${numTasksDue})`
     const weekMessage = numTasksDue === 1 ? `1 Task Due` : `${numTasksDue} Tasks Due`
     const message = type === 'day' ? dayMessage : weekMessage
 
     return (
         <TasksDueHeaderContainer
             onClick={() => {
-                setIsTasksDueViewCollapsed(!isTasksDueViewCollapsed)
+                if (dueType === 'due') {
+                    setIsTasksDueViewCollapsed(!isTasksDueViewCollapsed)
+                } else {
+                    setIsTasksOverdueViewCollapsed(!isTasksOverdueViewCollapsed)
+                }
             }}
         >
-            <Icon icon={icons.clock} color="gray" />
-            <span>{message}</span>
+            <Icon icon={icons.clock} color={dueType === 'due' ? 'gray' : 'red'} />
+            <Eyebrow color={dueType === 'due' ? 'light' : 'red'}>{message}</Eyebrow>
             {!hideCollapseButton && (
                 <CaretContainer>
-                    <Icon icon={caretIcon} color="gray" />
+                    <Icon icon={caretIcon} color={dueType === 'due' ? 'gray' : 'red'} />
                 </CaretContainer>
             )}
         </TasksDueHeaderContainer>
