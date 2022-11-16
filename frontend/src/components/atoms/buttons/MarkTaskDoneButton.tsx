@@ -12,7 +12,7 @@ interface MarkTaskDoneButtonProps {
     sectionId?: string
     isDisabled?: boolean
     onMarkComplete?: () => void
-    optimsticId?: string | false
+    optimsticId?: string
 }
 const MarkTaskDoneButton = ({
     isDone,

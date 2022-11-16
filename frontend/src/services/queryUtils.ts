@@ -85,7 +85,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
             mutationOptions.onSettled?.(data, error, variables, context)
         },
     })
-    const newMutate = (variables: TVariables, optimisticId?: string | false) => {
+    const newMutate = (variables: TVariables, optimisticId?: string) => {
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
 
