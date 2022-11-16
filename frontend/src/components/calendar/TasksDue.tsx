@@ -35,7 +35,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
         const meetingPrepTasks =
             (lists?.find((list) => list.type === 'meeting_preparation')?.view_items as TTask[]) || []
         const allTasks = taskFolders?.flatMap((section) => section.tasks).concat(meetingPrepTasks) ?? []
-        const incompleteTasks = allTasks.filter((task) => !task.is_done)
+        const incompleteTasks = allTasks.filter((task) => !task.is_done && !task.is_deleted)
         return incompleteTasks.filter(
             (task) =>
                 DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
