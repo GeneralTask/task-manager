@@ -26,12 +26,21 @@ type JIRASource struct {
 	Atlassian AtlassianService
 }
 
+type JIRAStatus struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	IconURL string `json:"iconUrl"`
+}
+
 // JIRATaskFields ...
 type JIRATaskFields struct {
 	DueDate     string     `json:"duedate"`
 	Summary     string     `json:"summary"`
 	Description string     `json:"description"`
+	CreatedAt   string     `json:"created"`
+	UpdatedAt   string     `json:"updated"`
 	Priority    PriorityID `json:"priority"`
+	Status      JIRAStatus `json:"status"`
 }
 
 // JIRATask represents the API detail result for issues - only fields we need
@@ -128,7 +137,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	if jira.Atlassian.Config.ConfigValues.APIBaseURL != nil {
 		apiBaseURL = *jira.Atlassian.Config.ConfigValues.APIBaseURL
 	}
-	JQL := "assignee=currentuser() AND status != Done"
+	JQL := "assignee=currentuser() AND statusCategory != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -190,6 +199,11 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Body:            &bodyString,
 			SourceAccountID: accountID,
 			PriorityID:      &jiraTask.Fields.Priority.ID,
+			Status: &database.ExternalTaskStatus{
+				ExternalID: jiraTask.Fields.Status.ID,
+				IconURL:    jiraTask.Fields.Status.IconURL,
+				State:      jiraTask.Fields.Status.Name,
+			},
 		}
 
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
@@ -197,6 +211,17 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			primDueDate := primitive.NewDateTimeFromTime(dueDate)
 			task.DueDate = &primDueDate
 		}
+		createdAt, err := time.Parse("2006-01-02T15:04:05.999-0700", jiraTask.Fields.CreatedAt)
+		if err == nil {
+			primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
+			task.CreatedAtExternal = primCreatedAt
+		}
+		updatedAt, err := time.Parse("2006-01-02T15:04:05.999-0700", jiraTask.Fields.UpdatedAt)
+		if err == nil {
+			primUpdatedAt := primitive.NewDateTimeFromTime(updatedAt)
+			task.UpdatedAt = primUpdatedAt
+		}
+
 		tasks = append(tasks, task)
 	}
 
@@ -235,6 +260,8 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Title:       task.Title,
 			DueDate:     task.DueDate,
 			PriorityID:  task.PriorityID,
+			Status:      task.Status,
+			UpdatedAt:   task.UpdatedAt,
 			IsCompleted: &isCompleted,
 		}
 

@@ -68,7 +68,7 @@ func getAtlassianOauthConfig() OauthConfigWrapper {
 			TokenURL: "https://auth.atlassian.com/oauth/token",
 		},
 		RedirectURL: config.GetConfigValue("SERVER_URL") + "link/atlassian/callback/",
-		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
+		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work", "offline_access"},
 	}
 	return &OauthConfig{Config: atlassianConfig}
 }
