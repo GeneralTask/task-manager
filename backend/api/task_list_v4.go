@@ -46,7 +46,6 @@ func (api *API) TasksListV4(c *gin.Context) {
 	var userObject database.User
 	userCollection := database.GetUserCollection(api.DB)
 	err := userCollection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&userObject)
-
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to find user")
 		Handle500(c)
