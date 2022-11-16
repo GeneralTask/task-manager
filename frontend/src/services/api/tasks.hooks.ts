@@ -115,6 +115,7 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
         const parentTask = section.tasks.find((task) => task.id === data.parent_task_id)
         const newSubtask: TTask = {
             id: data.optimisticId,
+            optimisticId: data.optimisticId,
             id_ordering: 0.5,
             title: data.title,
             body: data.body ?? '',
@@ -133,7 +134,6 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
             sender: '',
             is_done: false,
             is_deleted: false,
-            isOptimistic: true,
             is_meeting_preparation_task: false,
             nux_number_id: 0,
             created_at: '',
