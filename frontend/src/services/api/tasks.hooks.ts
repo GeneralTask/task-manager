@@ -141,7 +141,7 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
         }
         if (!parentTask) return
         if (!parentTask.sub_tasks) parentTask.sub_tasks = []
-        parentTask.sub_tasks.push(newSubtask)
+        parentTask.sub_tasks = [newSubtask, ...parentTask.sub_tasks]
     })
     queryClient.setQueryData('tasks', updatedSections)
 }
