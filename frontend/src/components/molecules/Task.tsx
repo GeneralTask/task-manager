@@ -189,7 +189,7 @@ const Task = ({
                             disabled={sectionId === TRASH_SECTION_ID}
                             items={task.all_statuses.map((status) => ({
                                 label: status.state,
-                                onClick: () => modifyTask({ id: task.id, status: status }),
+                                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
                                 icon: linearStatus[status.type],
                                 selected: status.state === task.external_status?.state,
                             }))}
@@ -209,8 +209,9 @@ const Task = ({
                             sectionId={sectionId}
                             isDone={task.is_done}
                             isSelected={isSelected}
-                            isDisabled={task.isOptimistic || sectionId === TRASH_SECTION_ID}
+                            isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
                             onMarkComplete={taskFadeOut}
+                            optimsticId={task.optimisticId}
                         />
                     )}
                     <Title title={task.title}>{task.title}</Title>
