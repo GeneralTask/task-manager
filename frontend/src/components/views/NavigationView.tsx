@@ -1,6 +1,6 @@
 import { useDrop } from 'react-dnd'
 import styled from 'styled-components'
-import { useGlobalShortcuts, usePreviewMode } from '../../hooks'
+import { useGlobalKeyboardShortcuts, usePreviewMode } from '../../hooks'
 import useGTLocalStorage from '../../hooks/useGTLocalStorage'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
@@ -68,7 +68,7 @@ const GTBetaLogo = styled.img`
 `
 
 const NavigationView = () => {
-    useGlobalShortcuts()
+    useGlobalKeyboardShortcuts()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)

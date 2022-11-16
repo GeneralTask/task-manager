@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useGlobalShortcuts, useInterval, useKeyboardShortcut, useToast } from '../../hooks'
+import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, useToast } from '../../hooks'
 import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -266,7 +266,7 @@ const FocusModeScreen = () => {
     const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const gtToast = useToast()
-    useGlobalShortcuts()
+    useGlobalKeyboardShortcuts()
 
     const onDelete = useCallback(() => {
         if (!chosenEvent) return

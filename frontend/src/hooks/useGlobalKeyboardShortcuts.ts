@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useKeyboardShortcut } from '.'
 
-const useGlobalShortcuts = () => {
+const useGlobalKeyboardShortcuts = () => {
     const navigate = useNavigate()
     useKeyboardShortcut(
         'enterFocusMode',
@@ -37,4 +37,4 @@ const useGlobalShortcuts = () => {
     )
 }
 
-export default useGlobalShortcuts
+export default useGlobalKeyboardShortcuts
