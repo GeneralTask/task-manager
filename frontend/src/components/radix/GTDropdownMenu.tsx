@@ -66,7 +66,6 @@ const GTDropdownMenu = ({
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             disabled={item.disabled}
                                             textcolor={item.textColor}
-                                            // isselected={item.selected && !item.renderer && !item.disabled}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()

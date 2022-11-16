@@ -52,7 +52,6 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                         <ContextMenuSubTrigger
                                             key={item.label}
                                             onClick={item.onClick}
-                                            // isSelected={item.selected}
                                             textcolor={item.textColor}
                                         >
                                             {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
@@ -71,7 +70,6 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                                             key={subItem.label}
                                                             textValue={subItem.label}
                                                             onClick={subItem.onClick}
-                                                            // isSelected={subItem.selected}
                                                         >
                                                             <FixedSizeIcon visible={subItem.selected}>
                                                                 <Icon icon={icons.check} />
@@ -91,7 +89,6 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                         key={item.label}
                                         textValue={item.label}
                                         onClick={item.onClick}
-                                        // isSelected={item.selected}
                                         textcolor={item.textColor}
                                     >
                                         {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
