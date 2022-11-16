@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import styled from 'styled-components'
+import { useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -9,6 +11,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import Flex from '../atoms/Flex'
+import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
@@ -41,6 +44,7 @@ interface SettingsModalProps {
     setIsOpen: (isOpen: boolean) => void
 }
 const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: userInfo } = useGetUserInfo()
     const { data: supportedTypes } = useGetSupportedTypes()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
@@ -73,6 +77,10 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
         Linear: 'See, update, and schedule the issues assigned to you.',
         GitHub: 'See pull requests from the repos that matter to you.',
     }
+
+    const { isDarkMode, toggleTernaryDarkMode } = useTernaryDarkMode()
+    const [resizableDetails, setResizableDetails] = useGTLocalStorage('resizableDetails', false)
+
     return (
         <GTModal
             open={isOpen}
@@ -191,6 +199,44 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                         </>
                     ),
                 },
+                ...(isPreviewMode
+                    ? [
+                          {
+                              title: 'Lab',
+                              subtitle:
+                                  'Preview early versions of new features while they’re still in beta. Feel free to leave us feedback!',
+                              icon: icons.flask,
+                              body: (
+                                  <>
+                                      <Flex gap={Spacing._16} alignItems="center">
+                                          <GTCheckbox
+                                              isChecked={isDarkMode}
+                                              onChange={toggleTernaryDarkMode}
+                                              disabled
+                                          />
+                                          <Flex column gap={Spacing._4}>
+                                              <Body>Dark mode</Body>
+                                              <Label color="light">Activate dark mode</Label>
+                                          </Flex>
+                                      </Flex>
+                                      <Flex gap={Spacing._16} alignItems="center">
+                                          <GTCheckbox
+                                              isChecked={resizableDetails}
+                                              onChange={setResizableDetails}
+                                              disabled
+                                          />
+                                          <Flex column gap={Spacing._4}>
+                                              <Body>Resizable task details</Body>
+                                              <Label color="light">
+                                                  Some supporting secondary copy to describe this feature
+                                              </Label>
+                                          </Flex>
+                                      </Flex>
+                                  </>
+                              ),
+                          },
+                      ]
+                    : []),
             ]}
         />
     )

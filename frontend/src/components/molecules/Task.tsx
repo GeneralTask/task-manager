@@ -10,15 +10,17 @@ import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
-import { linearStatus, logos } from '../../styles/images'
+import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
+import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
@@ -222,6 +224,12 @@ const Task = ({
                                 icon={TASK_PRIORITIES[task.priority_normalized].icon}
                                 color={TASK_PRIORITIES[task.priority_normalized].color}
                             />
+                        )}
+                        {task.sub_tasks && task.sub_tasks.length > 0 && (
+                            <Flex gap={Spacing._4}>
+                                <Icon icon={icons.subtask} />
+                                <Mini>{task.sub_tasks.length}</Mini>
+                            </Flex>
                         )}
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>

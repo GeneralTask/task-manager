@@ -11,7 +11,7 @@ import { emptyFunction } from '../utils/utils'
  * Wrapper for useQueryClient that adds getImmutableQueryData method
  * getImmutableQueryData simply casts the result as Immutable so the editor disallows direct assignment
  */
-interface GTQueryClient extends QueryClient {
+export interface GTQueryClient extends QueryClient {
     getImmutableQueryData: <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters) => Immutable<TData> | undefined
     getCurrentEvents: (
         date: DateTime,
