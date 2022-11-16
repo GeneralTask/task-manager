@@ -94,7 +94,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "",
+				IconURL:           "https://example.com",
 			},
 		}
 
@@ -150,7 +150,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "",
+				IconURL:           "https://example.com",
 			},
 		}
 		database.GetOrCreateTask(
@@ -215,7 +215,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "",
+				IconURL:           "https://example.com",
 			},
 		}
 		database.GetOrCreateTask(
@@ -285,7 +285,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				IsCompletedStatus: false,
 				Position:          0,
 				Color:             "",
-				IconURL:           "",
+				IconURL:           "https://example.com",
 			},
 		}
 		database.GetOrCreateTask(
@@ -434,7 +434,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo"}},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo", IconURL: "https://example.com"}},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
