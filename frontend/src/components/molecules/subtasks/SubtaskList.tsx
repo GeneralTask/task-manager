@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import { useGetTasks } from '../../../services/api/tasks.hooks'
+import { useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
-import { TTask } from '../../../utils/types'
+import { DropItem, DropType, TTask } from '../../../utils/types'
 import { getSectionFromTask } from '../../../utils/utils'
 import { Icon } from '../../atoms/Icon'
+import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewSubtask from './CreateNewSubtask'
 import Subtask from './Subtask'
 
@@ -29,7 +30,6 @@ const AddTaskbutton = styled.div`
 const TaskListContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._4};
 `
 
 interface SubtasksProps {
@@ -41,6 +41,21 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const { data: taskSections } = useGetTasks()
     const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
+    const { mutate: reorderMutate } = useReorderTask()
+
+    const handleReorder = useCallback(
+        (item: DropItem, dropIndex: number) => {
+            if (!sectionId) return
+            reorderMutate({
+                id: item.id,
+                parentId: taskId,
+                isSubtask: true,
+                orderingId: dropIndex,
+                dropSectionId: sectionId,
+            })
+        },
+        [sectionId, taskId]
+    )
 
     if (!sectionId) return null
     return (
@@ -57,8 +72,18 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                         hideCreateNewSubtask={() => setShowCreateNewSubtask(false)}
                     />
                 )}
-                {subtasks.map((subtask) => {
-                    return <Subtask key={subtask.id} parentTaskId={taskId} subtask={subtask} />
+                {subtasks.map((subtask, index) => {
+                    return (
+                        <ReorderDropContainer
+                            key={subtask.id}
+                            index={index}
+                            acceptDropType={DropType.SUBTASK}
+                            onReorder={handleReorder}
+                            disabled={false}
+                        >
+                            <Subtask key={subtask.id} parentTaskId={taskId} subtask={subtask} />
+                        </ReorderDropContainer>
+                    )
                 })}
             </TaskListContainer>
         </div>
