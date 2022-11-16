@@ -56,6 +56,22 @@ const useNavigateToTask = () => {
                     }
                 }
             }
+            // If the task doesn't exist in task sections (ex. Meeting Prep Tasks), force going to the overview page
+            for (const view of views) {
+                for (const item of view.view_items) {
+                    if (item.id === taskID) {
+                        setCalendarType('day')
+                        if (subtaskId) {
+                            navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
+                            Log(`task_navigate__/overview/${view.id}/${item.id}/${subtaskId}`)
+                        } else {
+                            navigate(`/overview/${view.id}/${item.id}`)
+                            Log(`task_navigate__/overview/${view.id}/${item.id}`)
+                        }
+                        return
+                    }
+                }
+            }
             return isUserOnOverviewPage
         },
         []
