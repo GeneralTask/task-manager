@@ -4,6 +4,9 @@ import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { icons, logos } from '../../styles/images'
+import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
+import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import NavigationLink from './NavigationLink'
 
@@ -33,8 +36,12 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
     const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
 
+    const { selectedFilter: pullRequestFilter } = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
     const githubCount = isGithubIntegrationLinked
-        ? pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)
+        ? pullRequestRepositories?.reduce<number>(
+              (total, repo) => total + repo.pull_requests.filter(pullRequestFilter.lambda).length,
+              0
+          )
         : undefined
     const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
     const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
