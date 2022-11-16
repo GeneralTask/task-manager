@@ -210,6 +210,24 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 		if res.MatchedCount != 1 {
 			api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
 		}
+
+		subtaskOrderingID := 1
+		for _, subtask := range task.SubTasks {
+			subtask.IDOrdering = subtaskOrderingID
+			subtaskOrderingID += 1
+			res, err := tasksCollection.UpdateOne(
+				context.Background(),
+				bson.M{"_id": subtask.ID},
+				bson.M{"$set": bson.M{"id_ordering": subtask.IDOrdering}},
+			)
+			if err != nil {
+				api.Logger.Error().Err(err).Msg("failed to update subtask ordering ID")
+				return err
+			}
+			if res.MatchedCount != 1 {
+				api.Logger.Error().Interface("taskResult", task).Msgf("did not find subtask to update ordering ID (ID=%v)", subtask.ID)
+			}
+		}
 	}
 	return nil
 }
