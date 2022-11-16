@@ -1,8 +1,9 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
+import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import apiClient from '../../utils/api'
-import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection } from '../../utils/types'
+import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection, TUserInfo } from '../../utils/types'
 import {
     arrayMoveInPlace,
     getTaskFromSections,
@@ -71,6 +72,7 @@ export interface TReorderTaskData {
 export interface TPostCommentData {
     taskId: string
     body: string
+    optimisticId: string
 }
 
 export const useGetTasks = (isEnabled = true) => {
@@ -551,6 +553,7 @@ export const usePostComment = () => {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TPostCommentData) => {
+            const userInfo = queryClient.getImmutableQueryData<TUserInfo>('user_info')
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
@@ -560,12 +563,12 @@ export const usePostComment = () => {
                     if (task) {
                         task.comments?.unshift({
                             body: data.body,
-                            created_at: '0',
+                            created_at: DateTime.local().toISO(),
                             user: {
-                                DisplayName: 'You',
+                                DisplayName: userInfo?.linear_display_name ?? 'You',
                                 Email: '',
-                                ExternalID: '0',
-                                Name: 'You',
+                                ExternalID: data.optimisticId,
+                                Name: userInfo?.linear_name ?? 'You',
                             },
                         })
                     }
@@ -584,12 +587,12 @@ export const usePostComment = () => {
                         const task = draft[sectionIndex].view_items[taskIndex]
                         task.comments?.unshift({
                             body: data.body,
-                            created_at: '0',
+                            created_at: DateTime.local().toISO(),
                             user: {
-                                DisplayName: 'You',
+                                DisplayName: userInfo?.linear_display_name ?? 'You',
                                 Email: '',
-                                ExternalID: '0',
-                                Name: 'You',
+                                ExternalID: data.optimisticId,
+                                Name: userInfo?.linear_name ?? 'You',
                             },
                         })
                     }
