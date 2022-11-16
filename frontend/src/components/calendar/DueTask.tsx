@@ -1,7 +1,8 @@
 import { useDrag } from 'react-dnd'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useNavigateToTask } from '../../hooks'
-import { Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -15,6 +16,11 @@ const TaskTitle = styled.span`
     white-space: nowrap;
     ${Typography.bodySmall};
 `
+const TaskDueDate = styled.span`
+    margin-left: auto;
+    color: ${Colors.text.red};
+    ${Typography.label};
+`
 const TaskDue = styled.div`
     padding: ${Spacing._8} 0;
     display: flex;
@@ -24,8 +30,9 @@ const TaskDue = styled.div`
 
 interface DueTaskProps {
     task: TTask
+    showDueDate: boolean
 }
-const DueTask = ({ task }: DueTaskProps) => {
+const DueTask = ({ task, showDueDate }: DueTaskProps) => {
     const navigateToTask = useNavigateToTask()
     const [, drag] = useDrag(() => ({
         type: DropType.DUE_TASK,
@@ -45,6 +52,7 @@ const DueTask = ({ task }: DueTaskProps) => {
                 <Icon icon={logos[task.source.logo_v2]} />
                 <TaskTitle>{task.title}</TaskTitle>
             </TaskDue>
+            {showDueDate && <TaskDueDate>{DateTime.fromISO(task.due_date).toFormat('MMM dd')}</TaskDueDate>}
         </ItemContainer>
     )
 }
