@@ -72,18 +72,30 @@ func TestLoadJIRATasks(t *testing.T) {
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		primDueDate := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		title := "Sample Taskeroni"
 		body := ""
 		expectedTask := database.Task{
-			IDOrdering:    0,
-			IDExternal:    "42069",
-			IDTaskSection: constants.IDTaskSectionDefault,
-			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-			Title:         &title,
-			Body:          &body,
-			SourceID:      TASK_SOURCE_ID_JIRA,
-			UserID:        *userID,
-			DueDate:       &primDueDate,
+			IDOrdering:        0,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			DueDate:           &primDueDate,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "",
+			},
 		}
 
 		var JIRATasks = make(chan TaskResult)
@@ -118,16 +130,28 @@ func TestLoadJIRATasks(t *testing.T) {
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		expectedTask := database.Task{
-			IDExternal:      "42069",
-			IDTaskSection:   constants.IDTaskSectionDefault,
-			Deeplink:        "https://dankmemes.com/browse/MOON-1969",
-			Title:           &title,
-			Body:            &body,
-			SourceID:        TASK_SOURCE_ID_JIRA,
-			UserID:          *userID,
-			SourceAccountID: "someAccountID",
-			DueDate:         &dueDatePrim,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			SourceAccountID:   "someAccountID",
+			DueDate:           &dueDatePrim,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -169,18 +193,30 @@ func TestLoadJIRATasks(t *testing.T) {
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		priorityID := "something_that_will_change"
 		expectedTask := database.Task{
-			IDOrdering:    2,
-			IDExternal:    "42069",
-			IDTaskSection: constants.IDTaskSectionDefault,
-			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-			Title:         &title,
-			Body:          &body,
-			SourceID:      TASK_SOURCE_ID_JIRA,
-			UserID:        *userID,
-			DueDate:       &dueDatePrim,
-			PriorityID:    &priorityID,
+			IDOrdering:        2,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			DueDate:           &dueDatePrim,
+			PriorityID:        &priorityID,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -226,19 +262,31 @@ func TestLoadJIRATasks(t *testing.T) {
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		priorityID := "something_that_will_change"
 		expectedTask := database.Task{
-			IDOrdering:       2,
-			IDExternal:       "42069",
-			IDTaskSection:    constants.IDTaskSectionDefault,
-			HasBeenReordered: true,
-			Deeplink:         "https://dankmemes.com/browse/MOON-1969",
-			Title:            &title,
-			Body:             &body,
-			SourceID:         TASK_SOURCE_ID_JIRA,
-			UserID:           *userID,
-			DueDate:          &dueDatePrim,
-			PriorityID:       &priorityID,
+			IDOrdering:        2,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			HasBeenReordered:  true,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			DueDate:           &dueDatePrim,
+			PriorityID:        &priorityID,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -386,7 +434,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo"}},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
