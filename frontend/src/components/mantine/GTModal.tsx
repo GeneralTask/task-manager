@@ -91,7 +91,7 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                     </Flex>
                     {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
                     {Array.isArray(tabs) && <Divider color={Colors.border.light} />}
-                    {tab.body}
+                    <div>{tab.body}</div>
                 </ModalContent>
             </ModalOuter>
         </BaseModal>

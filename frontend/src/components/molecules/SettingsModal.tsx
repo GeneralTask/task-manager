@@ -92,7 +92,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                     title: 'Services',
                     icon: icons.globe,
                     body: (
-                        <>
+                        <Flex column gap={Spacing._24}>
                             <Body>Add a new service</Body>
                             <ServicesContainer>
                                 {supportedTypes
@@ -124,6 +124,8 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                             </div>
                                         </Service>
                                     ))}
+                            </ServicesContainer>
+                            <ServicesContainer>
                                 <Service>
                                     <ServiceDetails>
                                         Add General Task to your Slack workspace. This is only required once per
@@ -181,14 +183,14 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                     You have no connected services. Click from the options above to get started.
                                 </ServiceDetails>
                             )}
-                        </>
+                        </Flex>
                     ),
                 },
                 {
                     title: 'Account details',
                     icon: icons.user,
                     body: (
-                        <>
+                        <Flex column gap={Spacing._24}>
                             <Service>
                                 <Label color="light">Email</Label>
                                 <Label>{userInfo?.email}</Label>
@@ -196,7 +198,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                             <div>
                                 <SignOutButton />
                             </div>
-                        </>
+                        </Flex>
                     ),
                 },
                 ...(isPreviewMode
@@ -207,7 +209,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                   'Preview early versions of new features while they’re still in beta. Feel free to leave us feedback!',
                               icon: icons.flask,
                               body: (
-                                  <>
+                                  <Flex column gap={Spacing._24}>
                                       <Flex gap={Spacing._16} alignItems="center">
                                           <GTCheckbox
                                               isChecked={isDarkMode}
@@ -232,7 +234,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                               </Label>
                                           </Flex>
                                       </Flex>
-                                  </>
+                                  </Flex>
                               ),
                           },
                       ]
