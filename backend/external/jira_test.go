@@ -331,6 +331,11 @@ func TestGetStatuses(t *testing.T) {
 
 	userID, _ := setupJIRA(t, database.GetExternalTokenCollection(db), database.GetJiraSitesCollection(db))
 
+	t.Run("NoResponse", func(t *testing.T) {
+		JIRA := JIRASource{Atlassian: AtlassianService{}}
+		_, err := JIRA.GetListOfStatuses(*userID, "sample")
+		assert.Error(t, err)
+	})
 	t.Run("ServerError", func(t *testing.T) {
 		server := getStatusServerForJIRA(t, 400, true)
 		defer server.Close()
@@ -338,7 +343,6 @@ func TestGetStatuses(t *testing.T) {
 		_, err := JIRA.GetListOfStatuses(*userID, "sample")
 		assert.Error(t, err)
 	})
-
 	t.Run("Success", func(t *testing.T) {
 		server := getStatusServerForJIRA(t, 200, false)
 		defer server.Close()

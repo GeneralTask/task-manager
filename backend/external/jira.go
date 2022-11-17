@@ -22,19 +22,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	JIRADone = "done"
+)
+
 type JIRASource struct {
 	Atlassian AtlassianService
 }
 
 type JIRAStatus struct {
-	ID       string         `json:"id"`
-	Name     string         `json:"name"`
-	IconURL  string         `json:"iconUrl"`
-	Scope    JIRAScope      `json:"scope"`
-	Category StatusCategory `json:"statusCategory"`
+	ID       string             `json:"id"`
+	Name     string             `json:"name"`
+	IconURL  string             `json:"iconUrl"`
+	Scope    JIRAScope          `json:"scope"`
+	Category JIRAStatusCategory `json:"statusCategory"`
 }
 
-type StatusCategory struct {
+type JIRAStatusCategory struct {
 	Key string `json:"key"`
 }
 
@@ -103,14 +107,15 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
-	req.Header.Add("Authorization", "Bearer "+authToken.AccessToken)
-	req.Header.Add("Content-Type", "application/json")
+
+	req = addJIRARequestHeaders(req, authToken.AccessToken)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load search results")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
+
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read search response")
@@ -168,7 +173,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 				ExternalID:        jiraTask.Fields.Status.ID,
 				IconURL:           jiraTask.Fields.Status.IconURL,
 				State:             jiraTask.Fields.Status.Name,
-				IsCompletedStatus: jiraTask.Fields.Status.Category.Key == "done",
+				IsCompletedStatus: jiraTask.Fields.Status.Category.Key == JIRADone,
 			},
 		}
 
@@ -287,8 +292,7 @@ func (jira JIRASource) GetListOfStatuses(userID primitive.ObjectID, authToken st
 
 	url := baseURL + "/rest/api/3/status/"
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Authorization", "Bearer "+authToken)
-	req.Header.Add("Content-Type", "application/json")
+	req = addJIRARequestHeaders(req, authToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -311,7 +315,7 @@ func (jira JIRASource) GetListOfStatuses(userID primitive.ObjectID, authToken st
 			ExternalID:        status.ID,
 			IconURL:           status.IconURL,
 			State:             status.Name,
-			IsCompletedStatus: status.Category.Key == "done",
+			IsCompletedStatus: status.Category.Key == JIRADone,
 		}
 
 		if exists {
@@ -338,8 +342,7 @@ func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 
 	url := baseURL + "/rest/api/3/priority/"
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Authorization", "Bearer "+authToken)
-	req.Header.Add("Content-Type", "application/json")
+	req = addJIRARequestHeaders(req, authToken)
 
 	resp, err := http.DefaultClient.Do(req)
 
@@ -414,7 +417,7 @@ func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
 
 	req, _ := http.NewRequest("GET", transitionsURL, nil)
-	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	logger := logging.GetSentryLogger()
@@ -458,8 +461,7 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
-	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
-	req.Header.Add("Content-Type", "application/json")
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
 	_, err := http.DefaultClient.Do(req)
 	return err
@@ -511,4 +513,10 @@ func (jira JIRASource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID
 
 func (jira JIRASource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
 	return errors.New("has not been implemented yet")
+}
+
+func addJIRARequestHeaders(req *http.Request, authToken string) *http.Request {
+	req.Header.Add("Authorization", "Bearer "+authToken)
+	req.Header.Add("Content-Type", "application/json")
+	return req
 }
