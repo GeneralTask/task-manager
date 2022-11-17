@@ -17,7 +17,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
 
     const submitComment = useCallback(() => {
         if (comment) {
-            postComment({ taskId: taskId, body: comment })
+            postComment({ id: taskId, body: comment })
             setComment('')
         }
     }, [comment, postComment, taskId])

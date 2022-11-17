@@ -9,7 +9,7 @@ import { linearStatus } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import CommentCount from '../atoms/CommentCount'
 import Domino from '../atoms/Domino'
-import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
+import SelectableContainer, { OrangeEdge } from '../atoms/SelectableContainer'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTButtonHack } from './Task'
@@ -43,9 +43,6 @@ const RightContainer = styled.div`
     align-items: center;
     gap: ${Spacing._24};
     margin-left: auto;
-`
-const DominoContainer = styled.div<{ isHovered: boolean }>`
-    opacity: ${({ isHovered }) => (isHovered ? 1 : 0)};
 `
 
 interface LinearTaskProps {
@@ -83,17 +80,15 @@ const LinearTask = ({ task }: LinearTaskProps) => {
             onMouseLeave={() => setIsHovered(false)}
             onMouseEnter={() => setIsHovered(true)}
         >
-            {linearIssueId === task.id && <PurpleEdge />}
+            {linearIssueId === task.id && <OrangeEdge />}
             <LeftContainer>
                 <DominoIconContainer>
-                    <DominoContainer isHovered={isHovered}>
-                        <Domino />
-                    </DominoContainer>
+                    <Domino isVisible={isHovered} />
                     {task.external_status && task.all_statuses && (
                         <GTDropdownMenu
                             items={task.all_statuses.map((status) => ({
                                 label: status.state,
-                                onClick: () => modifyTask({ id: task.id, status: status }),
+                                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
                                 icon: linearStatus[status.type],
                                 selected: status.state === task.external_status?.state,
                             }))}

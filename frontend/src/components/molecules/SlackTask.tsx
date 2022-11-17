@@ -2,7 +2,7 @@ import { useDrag } from 'react-dnd'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../styles'
 import { DropType, TTask } from '../../utils/types'
-import SelectableContainer, { PurpleEdge } from '../atoms/SelectableContainer'
+import SelectableContainer, { OrangeEdge } from '../atoms/SelectableContainer'
 import TaskTemplate from '../atoms/TaskTemplate'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
@@ -43,12 +43,12 @@ const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
     return (
         <Container key={task.id}>
             <SlackSelectableContainer ref={drag} isSelected={isSelected} onClick={() => onClick(task.id)}>
-                {isSelected && <PurpleEdge />}
+                {isSelected && <OrangeEdge />}
                 <MarkTaskDoneButton
                     isDone={task.is_done}
                     taskId={task.id}
                     isSelected={true}
-                    isDisabled={task.isOptimistic}
+                    isDisabled={!!task.optimisticId}
                 />
                 <Title>{task.title}</Title>
                 <ExternalLinkContainer>
