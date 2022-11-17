@@ -4,8 +4,10 @@ import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut } from '../../hooks'
+import useNavigateToTask from '../../hooks/useNavigateToTask'
+import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TShortcut, TShortcutCategory } from '../../utils/types'
 import { stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
@@ -50,7 +52,7 @@ const CommandList = styled(Command.List)`
 `
 const CommandGroup = styled(Command.Group)`
     [cmdk-group-heading] {
-        ${Typography.eyebrow}
+        ${Typography.label}
         padding: ${Spacing._8} ${Spacing._16};
         color: ${Colors.text.light};
     }
@@ -87,7 +89,14 @@ const IconContainer = styled.div`
 const CommandPalette = () => {
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
+    const [searchValue, setSearchValue] = useState<string>()
     const buttonRef = useRef<HTMLButtonElement>(null)
+
+    const { data: taskFolders } = useGetTasks()
+    const navigateToTask = useNavigateToTask()
+    const tasks = useMemo(() => {
+        return taskFolders?.flatMap((folder) => folder.tasks) ?? []
+    }, [taskFolders])
 
     /*
         When the command palette is closed, the page seems to lose focus
@@ -145,7 +154,11 @@ const CommandPalette = () => {
                     <IconContainer>
                         <Icon icon={icons.magnifying_glass} />
                     </IconContainer>
-                    <CommandInput placeholder="Type a command" />
+                    <CommandInput
+                        placeholder="Type a command or search..."
+                        value={searchValue}
+                        onValueChange={setSearchValue}
+                    />
                 </Searchbar>
                 <Divider color={Colors.background.dark} />
                 <CommandEmpty>No commands found</CommandEmpty>
@@ -172,6 +185,24 @@ const CommandPalette = () => {
                                 </CommandGroup>
                             )
                     )}
+                    <CommandGroup heading={`Search for "${searchValue}"`}>
+                        {tasks.map(({ title, source, id }) => (
+                            <CommandItem
+                                key={id}
+                                onSelect={() => {
+                                    setShowCommandPalette(false)
+                                    navigateToTask(id)
+                                }}
+                            >
+                                <Flex flex="1" alignItems="center">
+                                    <IconContainer>
+                                        <Icon icon={logos[source.logo_v2]} />
+                                    </IconContainer>
+                                    {title}
+                                </Flex>
+                            </CommandItem>
+                        ))}
+                    </CommandGroup>
                 </CommandList>
             </CommandDialog>
         </>
