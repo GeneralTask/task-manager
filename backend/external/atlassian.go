@@ -34,6 +34,7 @@ type AtlassianConfigValues struct {
 	TokenURL        *string
 	TransitionURL   *string
 	PriorityListURL *string
+	StatusListURL   *string
 }
 
 // AtlassianConfig ...
@@ -49,10 +50,6 @@ type AtlassianSite struct {
 	URL       string   `json:"url"`
 	Scopes    []string `json:"scopes"`
 	AvatarURL string   `json:"avatarUrl"`
-}
-
-type PriorityID struct {
-	ID string `json:"id"`
 }
 
 type AtlassianService struct {
