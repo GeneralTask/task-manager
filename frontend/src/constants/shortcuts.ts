@@ -45,6 +45,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'comment',
         hideFromCommandPalette: true,
     },
+    navigationView: {
+        label: 'Show/hide navigation view',
+        key: '[',
+        keyLabel: '[',
+        category: 'Navigation',
+        icon: 'collapse',
+    },
     // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',

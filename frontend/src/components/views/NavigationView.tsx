@@ -1,6 +1,7 @@
+import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import styled from 'styled-components'
-import { useGlobalKeyboardShortcuts, usePreviewMode } from '../../hooks'
+import { useGlobalKeyboardShortcuts, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
@@ -79,6 +80,10 @@ const NavigationView = () => {
             collect: (monitor) => monitor.isOver(),
         }),
         []
+    )
+    useKeyboardShortcut(
+        'navigationView',
+        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed])
     )
 
     return (
