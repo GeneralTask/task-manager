@@ -202,6 +202,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'General',
         icon: 'video',
     },
+    sendFeedback: {
+        label: 'Send us feedback',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+u`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+U`,
+        category: 'General',
+        icon: 'megaphone',
+    },
 })
 
 export type TShortcutName = keyof typeof KEYBOARD_SHORTCUTS

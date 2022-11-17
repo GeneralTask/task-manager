@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import { useToast } from '../../hooks'
+import { useKeyboardShortcut, useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
 import { icons } from '../../styles/images'
 import GTTextField from '../atoms/GTTextField'
@@ -38,6 +38,11 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
             }
         )
     }
+
+    useKeyboardShortcut(
+        'sendFeedback',
+        useCallback(() => setModalIsOpen(true), [])
+    )
 
     return (
         <>
