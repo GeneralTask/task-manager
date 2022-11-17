@@ -50,7 +50,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: '[',
         keyLabel: '[',
         category: 'Navigation',
-        icon: 'collapse',
+        icon: 'sidebar',
     },
     // Calendar shortcuts
     calendar: {
