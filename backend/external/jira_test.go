@@ -69,6 +69,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		primDueDate := primitive.NewDateTimeFromTime(dueDate)
@@ -99,7 +100,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -125,6 +126,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		title := "Sample Taskeroni"
@@ -162,7 +164,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -188,6 +190,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		title := "Sample Taskeroni"
@@ -227,7 +230,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -257,6 +260,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		title := "Sample Taskeroni"
@@ -297,7 +301,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -317,6 +321,36 @@ func TestLoadJIRATasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+	})
+}
+
+func TestGetStatuses(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID, _ := setupJIRA(t, database.GetExternalTokenCollection(db), database.GetJiraSitesCollection(db))
+
+	t.Run("ServerError", func(t *testing.T) {
+		server := getStatusServerForJIRA(t, 400, true)
+		defer server.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{StatusListURL: &server.URL}}}}
+		_, err := JIRA.GetListOfStatuses(*userID, "sample")
+		assert.Error(t, err)
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		server := getStatusServerForJIRA(t, 200, false)
+		defer server.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{StatusListURL: &server.URL}}}}
+		statusMap, err := JIRA.GetListOfStatuses(*userID, "sample")
+		assert.NoError(t, err)
+
+		statusList, exists := statusMap["10000"]
+		assert.True(t, exists)
+		assert.Equal(t, 1, len(statusList))
+		assert.Equal(t, "Todo", statusList[0].State)
+		assert.Equal(t, "https://example.com", statusList[0].IconURL)
 	})
 }
 
@@ -434,7 +468,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo", IconURL: "https://example.com"}},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo", IconURL: "https://example.com"}, Project: JIRAProject{ID: "10000"}},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -459,5 +493,33 @@ func getJIRAPriorityServer(t *testing.T, statusCode int, response []byte) *httpt
 		assert.Equal(t, "GET", r.Method)
 		w.WriteHeader(statusCode)
 		w.Write(response)
+	}))
+}
+
+func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/rest/api/3/status/", r.RequestURI)
+		assert.Equal(t, "GET", r.Method)
+		w.WriteHeader(statusCode)
+		var result []byte
+		if empty {
+			result = []byte(``)
+		} else {
+			resultTemp, err := json.Marshal([]JIRAStatus{
+				{
+					ID:      "10000",
+					Name:    "Todo",
+					IconURL: "https://example.com",
+					Scope: JIRAScope{
+						Project: JIRAProject{
+							ID: "10000",
+						},
+					},
+				},
+			})
+			assert.NoError(t, err)
+			result = resultTemp
+		}
+		w.Write(result)
 	}))
 }
