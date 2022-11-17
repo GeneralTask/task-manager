@@ -39,6 +39,7 @@ const NoListsDialog = styled.div`
     ${Typography.body};
     margin-top: ${Spacing._8};
 `
+
 interface AddListsModalProps {
     isOpen: boolean
     onClose: () => void
@@ -103,15 +104,16 @@ export const AddListsModalContent = () => {
     return (
         <>
             {isPreviewMode && (
-                <Flex justifyContent="end">
+                <Flex alignItems="center">
+                    {/* TODO: use our actual magnifiying glass icon - not implemented because our input component doesnt support jsx/icons in the placeholder prop */}
                     <GTInput
                         value={searchTerm}
                         onChange={(value: string) => setSearchTerm(value)}
-                        placeholder="Search lists"
+                        placeholder=" 🔍 Search lists"
                     />
                 </Flex>
             )}
-            {filteredSupportedViews.length === 0 && <NoListsDialog>No lists</NoListsDialog>}
+            {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
                     {supportedView.is_linked ? (
