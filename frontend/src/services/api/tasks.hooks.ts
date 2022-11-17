@@ -64,6 +64,8 @@ interface TMarkTaskDoneOrDeletedRequestBody {
 
 export interface TReorderTaskData {
     id: string
+    isSubtask?: boolean
+    parentId?: string
     dropSectionId: string
     orderingId: number
     dragSectionId?: string
@@ -436,20 +438,44 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
     }
 }
 
+const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => {
+    const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+    if (!sections) return
+    const newSections = produce(sections, (draft) => {
+        const section = draft.find((s) => s.id === data.dropSectionId)
+        if (!section) return
+        const task = section?.tasks.find((t) => t.id === data.parentId)
+        if (!task) return
+        const subtasks = task.sub_tasks
+        if (!subtasks) return
+
+        const startIndex = subtasks.findIndex((s) => s.id === data.id)
+        if (startIndex === -1) return
+        let endIndex = data.orderingId - 1
+        if (startIndex < endIndex) endIndex -= 1
+        arrayMoveInPlace(subtasks, startIndex, endIndex)
+        resetOrderingIds(subtasks)
+    })
+    queryClient.setQueryData('tasks', newSections)
+}
+
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
                 queryClient.cancelQueries('overview'),
                 queryClient.cancelQueries('tasks'),
             ])
-
+            if (data.isSubtask) {
+                reorderSubtasks(data, queryClient)
+                return
+            }
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
                     // move within the existing section
