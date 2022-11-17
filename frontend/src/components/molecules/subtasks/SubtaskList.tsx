@@ -19,6 +19,7 @@ const AddTaskbutton = styled.div`
     cursor: pointer;
     user-select: none;
     padding: ${Spacing._8};
+    height: fit-content;
     width: fit-content;
     border: ${Border.stroke.small} solid transparent;
     :hover {
