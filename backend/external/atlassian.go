@@ -223,7 +223,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	return &siteConfiguration, nil
 }
 
-func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
+func (atlassian AtlassianService) getAndRefreshToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
 	parentCtx := context.Background()
 	var JIRAToken database.ExternalAPIToken
 
@@ -287,5 +287,20 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		logger.Error().Err(err).Msg("failed to parse new JIRA token")
 		return nil, err
 	}
+
+	_, err = externalAPITokenCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
+			{"account_id": accountID},
+		}},
+		bson.M{"$set": bson.M{"token": string(tokenString)}},
+	)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to create external token record")
+		return nil, errors.New("internal server error")
+	}
+
 	return &newToken, nil
 }
