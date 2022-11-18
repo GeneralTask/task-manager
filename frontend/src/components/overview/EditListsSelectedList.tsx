@@ -35,7 +35,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
                 <Domino />
                 <Icon icon={logos[view.logo]} />
                 {view.name}
-                <EditViewsDeleteButton onClick={() => removeView(view.id)}>
+                <EditViewsDeleteButton onClick={() => removeView({ id: view.id })}>
                     <Icon icon={icons.trash} />
                 </EditViewsDeleteButton>
             </SelectedList>

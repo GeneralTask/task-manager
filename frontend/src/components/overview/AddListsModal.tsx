@@ -1,5 +1,6 @@
 import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
 import { usePreviewMode } from '../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
@@ -87,9 +88,10 @@ export const AddListsModalContent = () => {
         viewItemIndex: number
     ) => {
         if (supportedViewItem.is_added && supportedViewItem.view_id) {
-            removeView(supportedViewItem.view_id)
+            removeView({ id: supportedViewItem.view_id })
         } else {
             addView({
+                optimisticId: uuidv4(),
                 supportedView,
                 supportedViewIndex: viewIndex,
                 supportedViewItem,
