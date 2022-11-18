@@ -92,7 +92,7 @@ func (atlassian AtlassianService) HandleLinkCallback(db *mongo.Database, params 
 		return errors.New("internal server error")
 	}
 
-	tokenString, err := json.Marshal(&token)
+	tokenBytes, err := json.Marshal(&token)
 	if err != nil {
 		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
@@ -118,7 +118,7 @@ func (atlassian AtlassianService) HandleLinkCallback(db *mongo.Database, params 
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:       userID,
 			ServiceID:    TASK_SERVICE_ID_ATLASSIAN,
-			Token:        string(tokenString),
+			Token:        string(tokenBytes),
 			AccountID:    accountID,
 			DisplayID:    (*siteConfiguration)[0].Name,
 			IsUnlinkable: true,
@@ -272,17 +272,17 @@ func (atlassian AtlassianService) getAndRefreshToken(userID primitive.ObjectID, 
 		logger.Error().Err(err).Msg("failed to request token")
 		return nil, err
 	}
-	tokenString, err := ioutil.ReadAll(resp.Body)
+	tokenBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read token response")
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		logger.Error().Msgf("JIRA authorization failed: %s", tokenString)
+		logger.Error().Msgf("JIRA authorization failed: %s", string(tokenBytes))
 		return nil, err
 	}
 	var newToken AtlassianAuthToken
-	err = json.Unmarshal(tokenString, &newToken)
+	err = json.Unmarshal(tokenBytes, &newToken)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to parse new JIRA token")
 		return nil, err
@@ -295,7 +295,7 @@ func (atlassian AtlassianService) getAndRefreshToken(userID primitive.ObjectID, 
 			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
 			{"account_id": accountID},
 		}},
-		bson.M{"$set": bson.M{"token": string(tokenString)}},
+		bson.M{"$set": bson.M{"token": string(tokenBytes)}},
 	)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to create external token record")
