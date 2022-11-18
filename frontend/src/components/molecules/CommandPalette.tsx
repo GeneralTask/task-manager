@@ -185,7 +185,7 @@ const CommandPalette = () => {
                                 </CommandGroup>
                             )
                     )}
-                    <CommandGroup heading={`Search for "${searchValue}"`}>
+                    <CommandGroup heading={`Search for "${searchValue ?? ''}"`}>
                         {tasks.map(({ title, source, id }) => (
                             <CommandItem
                                 key={id}
