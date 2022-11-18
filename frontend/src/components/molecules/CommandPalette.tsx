@@ -193,6 +193,7 @@ const CommandPalette = () => {
                                     setShowCommandPalette(false)
                                     navigateToTask(id)
                                 }}
+                                value={`${title} ${id}`}
                             >
                                 <Flex flex="1" alignItems="center">
                                     <IconContainer>
