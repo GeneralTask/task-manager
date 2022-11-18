@@ -154,15 +154,19 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     const end = dropTime.plus(
                         getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end)
                     )
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: item.event.account_id,
-                            datetime_start: dropTime.toISO(),
-                            datetime_end: end.toISO(),
+                    modifyEvent(
+                        {
+                            id: item.event.id,
+                            event: item.event,
+                            payload: {
+                                account_id: item.event.account_id,
+                                datetime_start: dropTime.toISO(),
+                                datetime_end: end.toISO(),
+                            },
+                            date,
                         },
-                        date,
-                    })
+                        item.event.optimisticId
+                    )
                     break
                 }
                 case DropType.EVENT_RESIZE_HANDLE: {
@@ -173,14 +177,18 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                         dropTime.diff(eventStart).milliseconds > 0
                             ? dropTime
                             : eventStart.plus({ minutes: EVENT_CREATION_INTERVAL_IN_MINUTES })
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: item.event.account_id,
-                            datetime_end: end.toISO(),
+                    modifyEvent(
+                        {
+                            id: item.event.id,
+                            event: item.event,
+                            payload: {
+                                account_id: item.event.account_id,
+                                datetime_end: end.toISO(),
+                            },
+                            date,
                         },
-                        date,
-                    })
+                        item.event.optimisticId
+                    )
                     break
                 }
                 case DropType.OVERVIEW_VIEW_HEADER: {

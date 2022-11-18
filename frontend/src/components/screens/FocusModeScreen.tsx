@@ -288,12 +288,15 @@ const FocusModeScreen = () => {
                         undoDeleteEventInCache(chosenEvent, date)
                     },
                     undoableAction: () =>
-                        deleteEvent({
-                            id: chosenEvent.id,
-                            date: date,
-                            datetime_start: chosenEvent.datetime_start,
-                            datetime_end: chosenEvent.datetime_end,
-                        }),
+                        deleteEvent(
+                            {
+                                id: chosenEvent.id,
+                                date: date,
+                                datetime_start: chosenEvent.datetime_start,
+                                datetime_end: chosenEvent.datetime_end,
+                            },
+                            chosenEvent.optimisticId
+                        ),
                 },
             },
             {

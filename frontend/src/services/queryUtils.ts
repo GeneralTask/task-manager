@@ -90,7 +90,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
         const queue = getQueryQueue(mutationOptions.tag)
 
         if (optimisticId) {
-            if (queue.length === 1) {
+            if (queue.length === 0) {
                 throw new Error(`Optimistic mutation queued with no pending requests with tag: ${mutationOptions.tag}`)
             } else {
                 queue.push({

@@ -97,6 +97,7 @@ export interface TExternalStatus {
 
 export interface TEvent {
     id: string
+    optimisticId?: string
     title: string
     body: string
     account_id: string
