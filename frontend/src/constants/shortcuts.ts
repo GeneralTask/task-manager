@@ -30,6 +30,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'check',
     },
+    editTaskName: {
+        label: 'Edit task name',
+        key: 'e',
+        keyLabel: 'E',
+        category: 'Tasks',
+        icon: 'pencil',
+    },
     moveTaskToFolder: {
         label: 'Move task to folder',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+m`,

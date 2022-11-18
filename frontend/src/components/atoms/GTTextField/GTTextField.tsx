@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { forwardRef, useRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
@@ -44,14 +44,14 @@ const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number; hideU
     ${({ minHeight }) => (minHeight ? `min-height: ${minHeight}px;` : '')}
 `
 
-const GTTextField = (props: GTTextFieldProps) => {
+const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
     const containerRef = useRef<HTMLDivElement>(null)
 
     const getEditor = () => {
         if (props.type === 'markdown') {
             return <MarkdownEditor {...props} />
         } else {
-            return <PlainTextEditor {...props} />
+            return <PlainTextEditor ref={ref} {...props} />
         }
     }
 
@@ -82,6 +82,6 @@ const GTTextField = (props: GTTextFieldProps) => {
             {getEditor()}
         </Container>
     )
-}
+})
 
 export default GTTextField
