@@ -22,7 +22,7 @@ const LinearStatusDropdown = ({ task, disabled }: LinearStatusDropdownProps) => 
             disabled={disabled}
             items={task.all_statuses.map((status) => ({
                 label: status.state,
-                onClick: () => modifyTask({ id: task.id, status: status }),
+                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
                 icon: linearStatus[status.type],
                 selected: status.state === task.external_status?.state,
             }))}

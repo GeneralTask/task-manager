@@ -30,24 +30,37 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     icon: TIconType
     iconColor?: TIconColor
     forceShowHoverEffect?: boolean
+    tooltipText?: string // note: shortcutName takes precedence over tooltipText
     shortcutName?: TShortcutName
     asDiv?: boolean
 }
 const GTIconButton = forwardRef(
     (
-        { icon, iconColor, forceShowHoverEffect, shortcutName, asDiv = false, onClick, ...props }: GTIconButtonProps,
+        {
+            icon,
+            iconColor,
+            forceShowHoverEffect,
+            tooltipText,
+            shortcutName,
+            asDiv = false,
+            onClick,
+            ...props
+        }: GTIconButtonProps,
         ref: React.Ref<HTMLButtonElement>
     ) => {
+        const toolTipTextToUse = shortcutName ? (
+            <>
+                {KEYBOARD_SHORTCUTS[shortcutName].label}
+                {KEYBOARD_SHORTCUTS[shortcutName].keyLabel.split('+').map((keyLabel) => (
+                    <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
+                ))}
+            </>
+        ) : (
+            tooltipText
+        )
         const tooltipData =
-            shortcutName &&
-            ReactDOMServer.renderToString(
-                <TooltipContainer>
-                    {KEYBOARD_SHORTCUTS[shortcutName].label}
-                    {KEYBOARD_SHORTCUTS[shortcutName].keyLabel.split('+').map((keyLabel) => (
-                        <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
-                    ))}
-                </TooltipContainer>
-            )
+            (shortcutName || tooltipText) &&
+            ReactDOMServer.renderToString(<TooltipContainer>{toolTipTextToUse}</TooltipContainer>)
 
         useEffect(() => {
             if (tooltipData) ReactTooltip.rebuild()

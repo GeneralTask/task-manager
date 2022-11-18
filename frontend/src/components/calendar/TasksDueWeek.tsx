@@ -64,7 +64,12 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
                 <TaskDueContainer key={index}>
                     {tasksDueWeek[index].length > 0 && (
                         <>
-                            <TasksDueHeader type="week" numTasksDue={tasksDueWeek[index].length} hideCollapseButton />
+                            <TasksDueHeader
+                                type="week"
+                                dueType="due"
+                                numTasksDue={tasksDueWeek[index].length}
+                                hideCollapseButton
+                            />
                             {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueWeek[index]} />}
                         </>
                     )}

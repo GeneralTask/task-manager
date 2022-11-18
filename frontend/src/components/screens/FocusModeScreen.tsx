@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
 import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useInterval, useKeyboardShortcut, useToast } from '../../hooks'
+import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, useToast } from '../../hooks'
 import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -24,6 +24,7 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
+import CommandPalette from '../molecules/CommandPalette'
 import SingleViewTemplate from '../templates/SingleViewTemplate'
 import CalendarView from '../views/CalendarView'
 
@@ -47,10 +48,13 @@ const TemplateViewContainer = styled.div`
     background: url(${focusModeBackground});
     background-size: cover;
 `
-const FloatingIcon = styled.div`
+const FloatTopRight = styled.div`
     position: fixed;
     top: ${Spacing._16};
     left: ${Spacing._16};
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
 `
 const FocusModeContainer = styled.div`
     width: ${FOCUS_MODE_WIDTH};
@@ -111,7 +115,7 @@ const EventContainer = styled.div`
 const CalendarContainer = styled.div`
     margin-left: auto;
 `
-const ButtonContainer = styled.div`
+const FloatTopLeft = styled.div`
     position: fixed;
     top: ${Spacing._16};
     right: ${Spacing._16};
@@ -261,7 +265,8 @@ const FocusModeScreen = () => {
     const conferenceCall = chosenEvent?.conference_call.logo ? chosenEvent.conference_call : null
     const eventHasEnded = DateTime.fromISO(chosenEvent?.datetime_end || '') < DateTime.local()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
-    const toast = useToast()
+    const gtToast = useToast()
+    useGlobalKeyboardShortcuts()
 
     const onDelete = useCallback(() => {
         if (!chosenEvent) return
@@ -273,13 +278,13 @@ const FocusModeScreen = () => {
             datetime_start: chosenEvent.datetime_start,
             datetime_end: chosenEvent.datetime_end,
         })
-        toast.show(
+        gtToast.show(
             {
                 message: 'This calendar event has been deleted',
                 rightAction: {
                     label: 'Undo',
                     onClick: () => {
-                        toast.dismiss()
+                        gtToast.dismiss()
                         undoDeleteEventInCache(chosenEvent, date)
                     },
                     undoableAction: () =>
@@ -297,7 +302,7 @@ const FocusModeScreen = () => {
                 theme: 'dark',
             }
         )
-    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, toast, undoDeleteEventInCache])
+    }, [chosenEvent, deleteEvent, deleteEventInCache, setSelectedEvent, gtToast, undoDeleteEventInCache])
 
     const navigate = useNavigate()
     return (
@@ -404,12 +409,13 @@ const FocusModeScreen = () => {
                         <span>{time.toFormat('h:mm a')}</span>
                     </ClockContainer>
                 </FocusModeContainer>
-                <FloatingIcon>
-                    <Icon icon={logos.generaltask} size="gtLogo" />
-                </FloatingIcon>
-                <ButtonContainer>
+                <FloatTopRight>
+                    <Icon icon={logos.generaltask_single_color} size="gtLogo" />
+                    <CommandPalette hideButton />
+                </FloatTopRight>
+                <FloatTopLeft>
                     <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />
-                </ButtonContainer>
+                </FloatTopLeft>
             </TemplateViewContainer>
         </SingleViewTemplate>
     )

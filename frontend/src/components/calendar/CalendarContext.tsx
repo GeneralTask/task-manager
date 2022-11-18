@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
+import { useGTLocalStorage } from '../../hooks'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
@@ -13,6 +14,7 @@ export interface ContextValues {
     isPopoverDisabled: boolean
     isTasksDueViewCollapsed: boolean
     disableSelectEvent: boolean
+    isTasksOverdueViewCollapsed: boolean
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
@@ -21,6 +23,7 @@ export interface ContextValues {
     setSelectedEvent: (event: TEvent | null) => void
     setIsPopoverDisabled: React.Dispatch<React.SetStateAction<boolean>>
     setIsTasksDueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
+    setIsTasksOverdueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
 const CalendarContext = createContext<ContextValues>({
     calendarType: 'day',
@@ -32,6 +35,7 @@ const CalendarContext = createContext<ContextValues>({
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
     disableSelectEvent: false,
+    isTasksOverdueViewCollapsed: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -40,6 +44,7 @@ const CalendarContext = createContext<ContextValues>({
     setSelectedEvent: emptyFunction,
     setIsPopoverDisabled: emptyFunction,
     setIsTasksDueViewCollapsed: emptyFunction,
+    setIsTasksOverdueViewCollapsed: emptyFunction,
 })
 
 const TaskToCalendarViewContext = {
@@ -52,6 +57,7 @@ const TaskToCalendarViewContext = {
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
     disableSelectEvent: true,
+    isTasksOverdueViewCollapsed: true,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -60,6 +66,7 @@ const TaskToCalendarViewContext = {
     setSelectedEvent: emptyFunction,
     setIsPopoverDisabled: emptyFunction,
     setIsTasksDueViewCollapsed: emptyFunction,
+    setIsTasksOverdueViewCollapsed: emptyFunction,
 }
 export const useCalendarContext = (isTaskToCalendarView = false) => {
     if (isTaskToCalendarView) return TaskToCalendarViewContext
@@ -73,11 +80,12 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [calendarType, setCalendarType] = useState<TCalendarType>('day')
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
-    const [isCollapsed, setIsCollapsed] = useState<boolean>(false)
+    const [isCollapsed, setIsCollapsed] = useGTLocalStorage('calendarCollapsed', false)
     const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
     const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
     const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useState<boolean>(false)
+    const [isTasksOverdueViewCollapsed, setIsTasksOverdueViewCollapsed] = useState<boolean>(false)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
@@ -93,6 +101,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         isPopoverDisabled,
         isTasksDueViewCollapsed,
         disableSelectEvent: false,
+        isTasksOverdueViewCollapsed,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
@@ -101,6 +110,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         setSelectedEvent,
         setIsPopoverDisabled,
         setIsTasksDueViewCollapsed,
+        setIsTasksOverdueViewCollapsed,
     }
 
     return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>

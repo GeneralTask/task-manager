@@ -13,7 +13,7 @@ export const MenuTriggerShared = css`
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
 `
-export const MenuItemShared = css<{ isSelected?: boolean; textColor?: TTextColor; disabled?: boolean }>`
+export const MenuItemShared = css<{ textcolor?: TTextColor; disabled?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing._12};
@@ -23,7 +23,7 @@ export const MenuItemShared = css<{ isSelected?: boolean; textColor?: TTextColor
     padding: ${Spacing._4} ${Spacing._12};
     outline: none;
     border-radius: ${Border.radius.mini};
-    ${({ textColor }) => textColor && `color: ${Colors.text[textColor]};`}
+    ${({ textcolor }) => textcolor && `color: ${Colors.text[textcolor]};`}
     ${({ disabled }) =>
         !disabled &&
         `:hover, :focus {

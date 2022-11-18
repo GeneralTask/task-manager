@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { DEFAULT_SECTION_ID } from '../../constants'
+import { useKeyboardShortcut } from '../../hooks'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
@@ -14,6 +15,13 @@ const FolderDropdown = ({ task }: FolderDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
+
+    useKeyboardShortcut(
+        'moveTaskToFolder',
+        useCallback(() => {
+            setIsOpen(true)
+        }, [])
+    )
 
     const sectionId = taskSections && getSectionFromTask(taskSections, task.id)?.id
 
@@ -30,12 +38,15 @@ const FolderDropdown = ({ task }: FolderDropdownProps) => {
                               icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
                               selected: section.id === sectionId,
                               onClick: () => {
-                                  reorderTask({
-                                      taskId: task.id,
-                                      dropSectionId: section.id,
-                                      dragSectionId: sectionId,
-                                      orderingId: 1,
-                                  })
+                                  reorderTask(
+                                      {
+                                          id: task.id,
+                                          dropSectionId: section.id,
+                                          dragSectionId: sectionId,
+                                          orderingId: 1,
+                                      },
+                                      task.optimisticId
+                                  )
                               },
                           }))
                     : []

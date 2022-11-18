@@ -13,6 +13,7 @@ import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
@@ -63,6 +64,7 @@ interface NavigationLinkProps {
     needsRelinking?: boolean
     draggable?: boolean
     droppable?: boolean
+    isCollapsed?: boolean
 }
 const NavigationLink = ({
     isCurrentPage,
@@ -74,6 +76,7 @@ const NavigationLink = ({
     needsRelinking = false,
     draggable = false,
     droppable,
+    isCollapsed = false,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
@@ -82,22 +85,28 @@ const NavigationLink = ({
 
     const onDrop = useCallback(
         (item: DropItem) => {
-            if (!taskSection || !droppable) return
+            if (!taskSection || !droppable || !item.task) return
             if (taskSection.id === item.sectionId) return
             if (taskSection?.is_done || taskSection?.is_trash) {
-                markTaskDoneOrDeleted({
-                    taskId: item.id,
-                    isDone: taskSection?.is_done,
-                    isDeleted: taskSection?.is_trash,
-                    sectionId: taskSection.id,
-                })
+                markTaskDoneOrDeleted(
+                    {
+                        id: item.id,
+                        isDone: taskSection?.is_done,
+                        isDeleted: taskSection?.is_trash,
+                        sectionId: taskSection.id,
+                    },
+                    item.task.optimisticId
+                )
             } else {
-                reorderTask({
-                    taskId: item.id,
-                    orderingId: 1,
-                    dropSectionId: taskSection.id,
-                    dragSectionId: item.sectionId,
-                })
+                reorderTask(
+                    {
+                        id: item.id,
+                        orderingId: 1,
+                        dropSectionId: taskSection.id,
+                        dragSectionId: item.sectionId,
+                    },
+                    item.task.optimisticId
+                )
             }
         },
         [taskSection]
@@ -123,7 +132,7 @@ const NavigationLink = ({
         [taskSection, onDrop]
     )
 
-    const onClickHandler = (e: React.MouseEvent<HTMLDivElement>) => {
+    const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
         setCalendarType('day')
         Log(`navigate__${link}`)
@@ -136,6 +145,14 @@ const NavigationLink = ({
         }
     }, [needsRelinking])
 
+    if (isCollapsed && icon) {
+        const dataTip = taskSection ? `${title} (${count ?? 0})` : title
+        return (
+            <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
+                <GTIconButton icon={icon} onClick={onClickHandler} />
+            </TooltipWrapper>
+        )
+    }
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>

@@ -16,7 +16,6 @@ import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
 import {
-    CALENDAR_DAY_HEADER_HEIGHT,
     CELL_HEIGHT_VALUE,
     EVENT_CREATION_INTERVAL_HEIGHT,
     EVENT_CREATION_INTERVAL_IN_MINUTES,
@@ -27,10 +26,9 @@ interface CalendarDropArgs {
     primaryAccountID: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
-    isWeekView: boolean
 }
 
-const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekView }: CalendarDropArgs) => {
+const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
@@ -85,12 +83,11 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
             }
             if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-            const scrollOffset = eventsContainerRef.current.scrollTop - (isWeekView ? CALENDAR_DAY_HEADER_HEIGHT : 0)
             const yPosInEventsContainer =
-                clientOffset.y - eventsContainerOffset + scrollOffset - mouseFromEventTopOffset
+                clientOffset.y - eventsContainerOffset + eventsContainerRef.current.scrollTop - mouseFromEventTopOffset
             return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
         },
-        [primaryAccountID, isWeekView]
+        [primaryAccountID]
     )
 
     const onDrop = useCallback(
@@ -118,6 +115,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
             const dropTime = getTimeFromDropPosition(dropPosition)
             switch (itemType) {
                 case DropType.WEEK_TASK_TO_CALENDAR_TASK:
+                case DropType.SUBTASK:
                 case DropType.NON_REORDERABLE_TASK:
                 case DropType.DUE_TASK:
                 case DropType.TASK: {
@@ -127,7 +125,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                     let description
                     if (item.task.nux_number_id) {
                         // if this is a nux task, override body
-                        description = renderToString(<NuxTaskBodyStatic task={item.task} />)
+                        description = renderToString(<NuxTaskBodyStatic task={item.task} renderSettingsModal={false} />)
                     } else {
                         description = converter.makeHtml(item.task.body)
                         if (description !== '') {
@@ -212,6 +210,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
         () => ({
             accept: [
                 DropType.TASK,
+                DropType.SUBTASK,
                 DropType.NON_REORDERABLE_TASK,
                 DropType.DUE_TASK,
                 DropType.EVENT,
@@ -226,6 +225,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 const itemType = monitor.getItemType()
                 switch (itemType) {
                     case DropType.WEEK_TASK_TO_CALENDAR_TASK:
+                    case DropType.SUBTASK:
                     case DropType.NON_REORDERABLE_TASK:
                     case DropType.TASK: {
                         setEventPreview(undefined)

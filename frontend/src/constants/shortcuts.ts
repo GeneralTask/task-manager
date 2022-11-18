@@ -5,7 +5,7 @@ const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
 const SHIFT_KEY = 'Shift'
 
 // command palette categories will be sorted in the order they appear in this array
-export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'Navigation']
+export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'General', 'Navigation']
 
 /* 
     * NOTE: This allows KEYBOARD_SHORTCUTS to be type-checked while also allowing the editor to autocomplete the keys.
@@ -23,38 +23,19 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'plus',
     },
-    markComplete: {
+    markAsDone: {
         label: 'Mark as done',
         key: 'd',
         keyLabel: 'D',
         category: 'Tasks',
         icon: 'check',
     },
-    select: {
-        label: 'Select',
-        key: 'Enter',
-        keyLabel: 'Enter',
-        category: 'Tasks',
-    },
-    showDatePicker: {
-        label: 'Show date picker',
-        key: 's',
-        keyLabel: 'S',
-        category: 'Tasks',
-        icon: 'calendar_days',
-    },
-    showSectionEditor: {
-        label: 'Change folder',
-        key: 'l',
-        keyLabel: 'L',
+    moveTaskToFolder: {
+        label: 'Move task to folder',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+m`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+M`,
         category: 'Tasks',
         icon: 'folder',
-    },
-    showTimeEstimationPicker: {
-        label: 'Show time estimate picker',
-        key: 'f',
-        keyLabel: 'F',
-        category: 'Tasks',
     },
     submitComment: {
         label: 'Submit comment',
@@ -63,6 +44,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'comment',
         hideFromCommandPalette: true,
+    },
+    navigationView: {
+        label: 'Show/hide navigation view',
+        key: '[',
+        keyLabel: '[',
+        category: 'Navigation',
+        icon: 'sidebar',
     },
     // Calendar shortcuts
     calendar: {
@@ -100,7 +88,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    // General navigation shortcuts
+    // Navigation shortcuts
     arrowUp: {
         label: 'Previous item',
         key: 'ArrowUp',
@@ -157,6 +145,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Navigation',
         icon: 'x',
     },
+    enterFocusMode: {
+        label: 'Enter Focus Mode',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+f`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+F`,
+        category: 'Navigation',
+        icon: 'headphones',
+    },
     goToOverviewPage: {
         label: 'Go to overview page',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+o`,
@@ -191,6 +186,21 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+I`,
         category: 'Navigation',
         icon: 'inbox',
+    },
+    // General shortcuts
+    dismissNotifications: {
+        label: 'Dismiss notifications',
+        key: 'x',
+        keyLabel: 'X',
+        category: 'General',
+        icon: 'x',
+    },
+    joinCurrentMeeting: {
+        label: 'Join current meeting',
+        key: 'm',
+        keyLabel: 'M',
+        category: 'General',
+        icon: 'video',
     },
 })
 

@@ -86,7 +86,6 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID, ignoreCalendarCont
         primaryAccountID,
         date,
         eventsContainerRef,
-        isWeekView: isWeekCalendar,
     })
     const isToday = isDateToday(date)
 

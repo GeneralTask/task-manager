@@ -10,15 +10,17 @@ import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
-import { linearStatus, logos } from '../../styles/images'
+import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
+import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
 import TaskTemplate from '../atoms/TaskTemplate'
 import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
+import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
@@ -44,8 +46,8 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-export const DominoContainer = styled.div<{ isVisible: boolean }>`
-    opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+export const PositionedDomino = styled(Domino)`
+    margin-right: ${Spacing._8};
 `
 const DueDate = styled.span<{ color: TTextColor }>`
     color: ${(props) => Colors.text[props.color]};
@@ -87,16 +89,21 @@ const Task = ({
     const [isMeetingTextColored, setIsMeetingTextColor] = useState<boolean>(false)
     const { meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
+    const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
     useInterval(() => {
         if (!meeting_preparation_params) return
-        const minutes = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
-        if (minutes < 0) {
+        const minutesToStart = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
+        const minutesToEnd = Math.ceil(dateTimeEnd.diffNow('minutes').minutes)
+
+        if (minutesToStart < 0 && minutesToEnd > 0) {
             setMeetingStartText('Meeting is now')
             setIsMeetingTextColor(true)
-        } else if (minutes <= 30) {
-            const minutesText = minutes === 1 ? 'minute' : 'minutes'
-            setMeetingStartText(`Starts in ${minutes} ${minutesText}`)
+        } else if (minutesToStart < 0 && minutesToEnd < 0) {
+            setMeetingStartText(null)
+        } else if (minutesToStart <= 30) {
+            const minutesToStartText = minutesToStart === 1 ? 'minute' : 'minutes'
+            setMeetingStartText(`Starts in ${minutesToStart} ${minutesToStartText}`)
             setIsMeetingTextColor(true)
         } else {
             setMeetingStartText(dateTimeStart.toLocaleString(DateTime.TIME_SIMPLE))
@@ -181,16 +188,13 @@ const Task = ({
                 onMouseEnter={() => setIsHovered(true)}
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
-                    <DominoContainer isVisible={isHovered && !dragDisabled}>
-                        <Domino />
-                    </DominoContainer>
-
+                    <PositionedDomino isVisible={isHovered && !dragDisabled} />
                     {task.external_status && task.all_statuses ? (
                         <GTDropdownMenu
                             disabled={sectionId === TRASH_SECTION_ID}
                             items={task.all_statuses.map((status) => ({
                                 label: status.state,
-                                onClick: () => modifyTask({ id: task.id, status: status }),
+                                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
                                 icon: linearStatus[status.type],
                                 selected: status.state === task.external_status?.state,
                             }))}
@@ -210,8 +214,9 @@ const Task = ({
                             sectionId={sectionId}
                             isDone={task.is_done}
                             isSelected={isSelected}
-                            isDisabled={task.isOptimistic || sectionId === TRASH_SECTION_ID}
+                            isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
                             onMarkComplete={taskFadeOut}
+                            optimsticId={task.optimisticId}
                         />
                     )}
                     <Title title={task.title}>{task.title}</Title>
@@ -224,6 +229,12 @@ const Task = ({
                                 icon={TASK_PRIORITIES[task.priority_normalized].icon}
                                 color={TASK_PRIORITIES[task.priority_normalized].color}
                             />
+                        )}
+                        {task.sub_tasks && task.sub_tasks.length > 0 && (
+                            <Flex gap={Spacing._4}>
+                                <Icon icon={icons.subtask} />
+                                <Mini>{task.sub_tasks.length}</Mini>
+                            </Flex>
                         )}
                         {meetingStartText ? (
                             <MeetingStartText isTextColored={isMeetingTextColored}>{meetingStartText}</MeetingStartText>

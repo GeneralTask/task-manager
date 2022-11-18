@@ -9,7 +9,7 @@ interface FlexProps {
     flex?: '0' | '1'
     gap?: string
     column?: boolean
-    justifyContent?: 'baseline' | 'center' | 'space-between'
+    justifyContent?: 'baseline' | 'center' | 'space-between' | 'end'
     alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
 }
 
@@ -19,7 +19,7 @@ const Flex = styled.div<FlexProps>`
     ${({ column }) => column && 'flex-direction: column;'}
     ${({ gap }) => gap && `gap: ${gap};`}
     ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
-    ${({ alignItems }) => alignItems && `align-items: ${alignItems}`}
+    ${({ alignItems }) => alignItems && `align-items: ${alignItems};`}
 `
 
 export default Flex
