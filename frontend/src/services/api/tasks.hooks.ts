@@ -112,42 +112,55 @@ const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
 
 const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreateTaskData) => {
     const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-    if (!sections) return
-    const updatedSections = produce(sections, (draft) => {
-        const section = draft.find((section) => section.id === data.taskSectionId)
-        if (!section) return
-        const parentTask = section.tasks.find((task) => task.id === data.parent_task_id)
-        const newSubtask: TTask = {
-            id: data.optimisticId,
-            optimisticId: data.optimisticId,
-            id_ordering: 0.5,
-            title: data.title,
-            body: data.body ?? '',
-            deeplink: '',
-            sent_at: '',
-            priority_normalized: 0,
-            time_allocated: 0,
-            due_date: '',
-            source: {
-                name: 'General Task',
-                logo: '',
-                logo_v2: 'generaltask',
-                is_completable: false,
-                is_replyable: false,
-            },
-            sender: '',
-            is_done: false,
-            is_deleted: false,
-            is_meeting_preparation_task: false,
-            nux_number_id: 0,
-            created_at: '',
-            updated_at: '',
-        }
-        if (!parentTask) return
-        if (!parentTask.sub_tasks) parentTask.sub_tasks = []
-        parentTask.sub_tasks = [newSubtask, ...parentTask.sub_tasks]
-    })
-    queryClient.setQueryData('tasks', updatedSections)
+    const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+    const newSubtask: TTask = {
+        id: data.optimisticId,
+        optimisticId: data.optimisticId,
+        id_ordering: 0.5,
+        title: data.title,
+        body: data.body ?? '',
+        deeplink: '',
+        sent_at: '',
+        priority_normalized: 0,
+        time_allocated: 0,
+        due_date: '',
+        source: {
+            name: 'General Task',
+            logo: '',
+            logo_v2: 'generaltask',
+            is_completable: false,
+            is_replyable: false,
+        },
+        sender: '',
+        is_done: false,
+        is_deleted: false,
+        is_meeting_preparation_task: false,
+        nux_number_id: 0,
+        created_at: '',
+        updated_at: '',
+    }
+    if (sections) {
+        const updatedSections = produce(sections, (draft) => {
+            const section = draft.find((section) => section.id === data.taskSectionId)
+            if (!section) return
+            const parentTask = section.tasks.find((task) => task.id === data.parent_task_id)
+            if (!parentTask) return
+            if (!parentTask.sub_tasks) parentTask.sub_tasks = []
+            parentTask.sub_tasks = [newSubtask, ...parentTask.sub_tasks]
+        })
+        queryClient.setQueryData('tasks', updatedSections)
+    }
+    if (views) {
+        const updatedViews = produce(views, (draft) => {
+            const section = draft.find((view) => view.task_section_id === data.taskSectionId)
+            if (!section) return
+            const parentTask = section.view_items.find((task) => task.id === data.parent_task_id)
+            if (!parentTask) return
+            if (!parentTask.sub_tasks) parentTask.sub_tasks = []
+            parentTask.sub_tasks = [newSubtask, ...parentTask.sub_tasks]
+        })
+        queryClient.setQueryData('overview', updatedViews)
+    }
 }
 
 export const useCreateTask = () => {
