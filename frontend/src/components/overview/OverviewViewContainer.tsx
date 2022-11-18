@@ -24,7 +24,7 @@ const OverviewView = ({ view, scrollRef }: OverviewViewProps) => {
     const nextPageLength = Math.min(view.view_items.length - visibleItemsCount, PAGE_SIZE)
 
     const ViewItems = useMemo(() => {
-        if (view.isOptimistic) {
+        if (view.optimisticId) {
             return () => (
                 <OptimisticItemsContainer>
                     <Spinner />

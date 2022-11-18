@@ -119,7 +119,8 @@ export const useAddView = () => {
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, (draft) => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].is_added = true
-                        draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = true
+                        draft[supportedViewIndex].views[supportedViewItemIndex].view_id = optimisticId
+                        draft[supportedViewIndex].views[supportedViewItemIndex].optimisticId = optimisticId
                     })
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
@@ -129,7 +130,7 @@ export const useAddView = () => {
                     const newViews = produce(views, (draft) => {
                         const optimisticView: TOverviewView = {
                             id: optimisticId,
-                            isOptimistic: true,
+                            optimisticId,
                             name: supportedViewItem.name,
                             type: supportedView.type,
                             task_section_id: supportedViewItem.task_section_id,
@@ -151,7 +152,6 @@ export const useAddView = () => {
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, (draft) => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].view_id = data.id
-                        draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = false
                     })
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
@@ -191,7 +191,6 @@ export const useRemoveView = () => {
                         for (const viewItem of view.views) {
                             if (viewItem.view_id === id) {
                                 viewItem.is_added = false
-                                viewItem.is_add_disabled = false
                                 viewItem.view_id = ''
                                 found = true
                                 break

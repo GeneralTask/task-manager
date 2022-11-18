@@ -88,7 +88,7 @@ export const AddListsModalContent = () => {
         viewItemIndex: number
     ) => {
         if (supportedViewItem.is_added && supportedViewItem.view_id) {
-            removeView({ id: supportedViewItem.view_id })
+            removeView({ id: supportedViewItem.view_id }, supportedViewItem.optimisticId)
         } else {
             addView({
                 optimisticId: uuidv4(),
@@ -127,7 +127,6 @@ export const AddListsModalContent = () => {
                             {!supportedView.is_nested && supportedView.views.length === 1 && (
                                 <GTCheckbox
                                     isChecked={supportedView.views[0].is_added}
-                                    disabled={supportedView.views[0].is_add_disabled}
                                     onChange={() => {
                                         onChange(supportedView, viewIndex, supportedView.views[0], 0)
                                     }}
@@ -158,7 +157,6 @@ export const AddListsModalContent = () => {
                                     </SupportedViewContent>
                                     <GTCheckbox
                                         isChecked={supportedViewItem.is_added}
-                                        disabled={supportedViewItem.is_add_disabled}
                                         onChange={() =>
                                             onChange(supportedView, viewIndex, supportedViewItem, viewItemIndex)
                                         }
