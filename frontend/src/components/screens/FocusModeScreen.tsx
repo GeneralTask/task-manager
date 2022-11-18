@@ -411,7 +411,7 @@ const FocusModeScreen = () => {
                 </FocusModeContainer>
                 <FloatTopRight>
                     <Icon icon={logos.generaltask_single_color} size="gtLogo" />
-                    <CommandPalette />
+                    <CommandPalette hideButton />
                 </FloatTopRight>
                 <FloatTopLeft>
                     <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />

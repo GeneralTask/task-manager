@@ -83,8 +83,10 @@ const IconContainer = styled.div`
     justify-content: center;
     padding: ${Spacing._16};
 `
-
-const CommandPalette = () => {
+interface CommandPaletteProps {
+    hideButton?: boolean
+}
+const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const buttonRef = useRef<HTMLButtonElement>(null)
@@ -126,12 +128,14 @@ const CommandPalette = () => {
 
     return (
         <>
-            <GTIconButton
-                ref={buttonRef}
-                icon={icons.magnifying_glass}
-                onClick={() => setShowCommandPalette(!showCommandPalette)}
-                shortcutName="toggleCommandPalette"
-            />
+            {!hideButton && (
+                <GTIconButton
+                    ref={buttonRef}
+                    icon={icons.magnifying_glass}
+                    onClick={() => setShowCommandPalette(!showCommandPalette)}
+                    shortcutName="toggleCommandPalette"
+                />
+            )}
             <CommandDialog
                 open={showCommandPalette}
                 onOpenChange={setShowCommandPalette}
