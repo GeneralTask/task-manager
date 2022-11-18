@@ -46,7 +46,7 @@ const Title = styled.span`
     ${Typography.bodySmall};
     padding-right: ${Spacing._8};
 `
-const PositionedDomino = styled(Domino)`
+export const PositionedDomino = styled(Domino)`
     margin-right: ${Spacing._8};
 `
 const DueDate = styled.span<{ color: TTextColor }>`

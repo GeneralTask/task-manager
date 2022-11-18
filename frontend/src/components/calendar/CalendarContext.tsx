@@ -13,6 +13,7 @@ export interface ContextValues {
     selectedEvent: TEvent | null
     isPopoverDisabled: boolean
     isTasksDueViewCollapsed: boolean
+    disableSelectEvent: boolean
     isTasksOverdueViewCollapsed: boolean
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
@@ -33,6 +34,7 @@ const CalendarContext = createContext<ContextValues>({
     selectedEvent: null,
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
+    disableSelectEvent: false,
     isTasksOverdueViewCollapsed: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
@@ -45,7 +47,29 @@ const CalendarContext = createContext<ContextValues>({
     setIsTasksOverdueViewCollapsed: emptyFunction,
 })
 
-export const useCalendarContext = () => {
+const TaskToCalendarViewContext = {
+    calendarType: 'week',
+    showMainHeader: false,
+    showDateHeader: false,
+    isCollapsed: false,
+    isTaskDraggingOverDetailsView: false,
+    selectedEvent: null,
+    isPopoverDisabled: false,
+    isTasksDueViewCollapsed: false,
+    disableSelectEvent: true,
+    isTasksOverdueViewCollapsed: true,
+    setCalendarType: emptyFunction,
+    setShowMainHeader: emptyFunction,
+    setShowDateHeader: emptyFunction,
+    setIsCollapsed: emptyFunction,
+    setIsTaskDraggingOverDetailsView: emptyFunction,
+    setSelectedEvent: emptyFunction,
+    setIsPopoverDisabled: emptyFunction,
+    setIsTasksDueViewCollapsed: emptyFunction,
+    setIsTasksOverdueViewCollapsed: emptyFunction,
+}
+export const useCalendarContext = (isTaskToCalendarView = false) => {
+    if (isTaskToCalendarView) return TaskToCalendarViewContext
     return useContext(CalendarContext)
 }
 
@@ -76,6 +100,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         selectedEvent,
         isPopoverDisabled,
         isTasksDueViewCollapsed,
+        disableSelectEvent: false,
         isTasksOverdueViewCollapsed,
         setCalendarType,
         setShowMainHeader,

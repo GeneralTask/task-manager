@@ -97,6 +97,7 @@ export interface TExternalStatus {
 
 export interface TEvent {
     id: string
+    optimisticId?: string
     title: string
     body: string
     account_id: string
@@ -218,6 +219,7 @@ export enum DropType {
     SUBTASK = 'subtask',
     NON_REORDERABLE_TASK = 'non-reorderable-task',
     DUE_TASK = 'due-task',
+    WEEK_TASK_TO_CALENDAR_TASK = 'week-task-to-calendar-task',
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',

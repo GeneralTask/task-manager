@@ -288,12 +288,15 @@ const FocusModeScreen = () => {
                         undoDeleteEventInCache(chosenEvent, date)
                     },
                     undoableAction: () =>
-                        deleteEvent({
-                            id: chosenEvent.id,
-                            date: date,
-                            datetime_start: chosenEvent.datetime_start,
-                            datetime_end: chosenEvent.datetime_end,
-                        }),
+                        deleteEvent(
+                            {
+                                id: chosenEvent.id,
+                                date: date,
+                                datetime_start: chosenEvent.datetime_start,
+                                datetime_end: chosenEvent.datetime_end,
+                            },
+                            chosenEvent.optimisticId
+                        ),
                 },
             },
             {
@@ -411,7 +414,7 @@ const FocusModeScreen = () => {
                 </FocusModeContainer>
                 <FloatTopRight>
                     <Icon icon={logos.generaltask_single_color} size="gtLogo" />
-                    <CommandPalette />
+                    <CommandPalette hideButton />
                 </FloatTopRight>
                 <FloatTopLeft>
                     <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />

@@ -16,7 +16,6 @@ import { DropItem, DropType, TEvent } from '../../../utils/types'
 import { emptyFunction } from '../../../utils/utils'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
 import {
-    CALENDAR_DAY_HEADER_HEIGHT,
     CELL_HEIGHT_VALUE,
     EVENT_CREATION_INTERVAL_HEIGHT,
     EVENT_CREATION_INTERVAL_IN_MINUTES,
@@ -27,10 +26,9 @@ interface CalendarDropArgs {
     primaryAccountID: string | undefined
     date: DateTime
     eventsContainerRef: React.MutableRefObject<HTMLDivElement | null>
-    isWeekView: boolean
 }
 
-const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekView }: CalendarDropArgs) => {
+const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: CalendarDropArgs) => {
     const { mutate: createEvent } = useCreateEvent()
     const { mutate: modifyEvent } = useModifyEvent()
     const [dropPreviewPosition, setDropPreviewPosition] = useState(0)
@@ -85,12 +83,11 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
             }
             if (!eventsContainerRef?.current || !clientOffset || !primaryAccountID) return 0
             const eventsContainerOffset = eventsContainerRef.current.getBoundingClientRect().y
-            const scrollOffset = eventsContainerRef.current.scrollTop - (isWeekView ? CALENDAR_DAY_HEADER_HEIGHT : 0)
             const yPosInEventsContainer =
-                clientOffset.y - eventsContainerOffset + scrollOffset - mouseFromEventTopOffset
+                clientOffset.y - eventsContainerOffset + eventsContainerRef.current.scrollTop - mouseFromEventTopOffset
             return Math.floor(yPosInEventsContainer / EVENT_CREATION_INTERVAL_HEIGHT)
         },
-        [primaryAccountID, isWeekView]
+        [primaryAccountID]
     )
 
     const onDrop = useCallback(
@@ -117,6 +114,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
             const dropPosition = getDropPosition(monitor)
             const dropTime = getTimeFromDropPosition(dropPosition)
             switch (itemType) {
+                case DropType.WEEK_TASK_TO_CALENDAR_TASK:
                 case DropType.SUBTASK:
                 case DropType.NON_REORDERABLE_TASK:
                 case DropType.DUE_TASK:
@@ -157,15 +155,19 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                     const end = dropTime.plus(
                         getDiffBetweenISOTimes(item.event.datetime_start, item.event.datetime_end)
                     )
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: item.event.account_id,
-                            datetime_start: dropTime.toISO(),
-                            datetime_end: end.toISO(),
+                    modifyEvent(
+                        {
+                            id: item.event.id,
+                            event: item.event,
+                            payload: {
+                                account_id: item.event.account_id,
+                                datetime_start: dropTime.toISO(),
+                                datetime_end: end.toISO(),
+                            },
+                            date,
                         },
-                        date,
-                    })
+                        item.event.optimisticId
+                    )
                     break
                 }
                 case DropType.EVENT_RESIZE_HANDLE: {
@@ -176,14 +178,18 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                         dropTime.diff(eventStart).milliseconds > 0
                             ? dropTime
                             : eventStart.plus({ minutes: EVENT_CREATION_INTERVAL_IN_MINUTES })
-                    modifyEvent({
-                        event: item.event,
-                        payload: {
-                            account_id: item.event.account_id,
-                            datetime_end: end.toISO(),
+                    modifyEvent(
+                        {
+                            id: item.event.id,
+                            event: item.event,
+                            payload: {
+                                account_id: item.event.account_id,
+                                datetime_end: end.toISO(),
+                            },
+                            date,
                         },
-                        date,
-                    })
+                        item.event.optimisticId
+                    )
                     break
                 }
                 case DropType.OVERVIEW_VIEW_HEADER: {
@@ -218,6 +224,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 DropType.EVENT,
                 DropType.EVENT_RESIZE_HANDLE,
                 DropType.OVERVIEW_VIEW_HEADER,
+                DropType.WEEK_TASK_TO_CALENDAR_TASK,
             ],
             collect: (monitor) => primaryAccountID && monitor.isOver(),
             drop: onDrop,
@@ -225,6 +232,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef, isWeekVie
                 const dropPosition = getDropPosition(monitor)
                 const itemType = monitor.getItemType()
                 switch (itemType) {
+                    case DropType.WEEK_TASK_TO_CALENDAR_TASK:
                     case DropType.SUBTASK:
                     case DropType.NON_REORDERABLE_TASK:
                     case DropType.TASK: {

@@ -71,6 +71,26 @@ func TestLoadJIRATasks(t *testing.T) {
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
+		// ensure external API token values updated
+		var externalJIRAToken database.ExternalAPIToken
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = database.GetExternalTokenCollection(db).FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"service_id": TASK_SERVICE_ID_ATLASSIAN},
+				{"user_id": userID},
+			}},
+		).Decode(&externalJIRAToken)
+		assert.NoError(t, err)
+
+		var newToken AtlassianAuthToken
+		err = json.Unmarshal([]byte(externalJIRAToken.Token), &newToken)
+		assert.NoError(t, err)
+
+		assert.NotEqual(t, "sample-access-token", newToken.AccessToken)
+		assert.NotEqual(t, "sample-refresh-token", newToken.RefreshToken)
+
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		primDueDate := primitive.NewDateTimeFromTime(dueDate)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
@@ -108,7 +128,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
 			dbCtx,
@@ -121,6 +141,24 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.Equal(t, accountID, taskFromDB.SourceAccountID)
+
+		// ensure external API token values updated
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = database.GetExternalTokenCollection(db).FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"service_id": TASK_SERVICE_ID_ATLASSIAN},
+				{"user_id": userID},
+			}},
+		).Decode(&externalJIRAToken)
+		assert.NoError(t, err)
+
+		err = json.Unmarshal([]byte(externalJIRAToken.Token), &newToken)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "sample-access-token", newToken.AccessToken)
+		assert.Equal(t, "sample-refresh-token", newToken.RefreshToken)
 	})
 	t.Run("ExistingTask", func(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)

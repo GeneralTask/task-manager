@@ -87,7 +87,7 @@ func (jira JIRASource) GetEvents(db *mongo.Database, userID primitive.ObjectID, 
 }
 
 func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	authToken, _ := jira.Atlassian.getToken(userID, accountID)
+	authToken, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
 	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
@@ -481,7 +481,7 @@ func (jira JIRASource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID
 
 func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
-		token, _ := jira.Atlassian.getToken(userID, accountID)
+		token, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
 		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 		if token == nil || siteConfiguration == nil {
 			return errors.New("missing token or siteConfiguration")
