@@ -211,6 +211,8 @@ export interface TUserInfo {
     name: string
     is_employee: boolean
     email: string
+    linear_name?: string
+    linear_display_name?: string
 }
 
 // React-DND Item Types

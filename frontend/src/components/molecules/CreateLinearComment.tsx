@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useKeyboardShortcut } from '../../hooks'
 import { usePostComment } from '../../services/api/tasks.hooks'
@@ -17,7 +18,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
 
     const submitComment = useCallback(() => {
         if (comment) {
-            postComment({ id: taskId, body: comment })
+            postComment({ id: taskId, body: comment, optimisticId: uuidv4() })
             setComment('')
         }
     }, [comment, postComment, taskId])
