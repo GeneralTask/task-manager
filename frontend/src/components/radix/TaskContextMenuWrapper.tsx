@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { DEFAULT_SECTION_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
-import { icons } from '../../styles/images'
+import { icons, linearStatus } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
 import GTContextMenu from './GTContextMenu'
@@ -65,16 +65,28 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
         {
             label: 'Set Priority',
             icon: icons.priority,
-            subItems: [
-                ...TASK_PRIORITIES.map((priority, val) => ({
-                    label: priority.label,
-                    icon: priority.icon,
-                    selected: val === task.priority_normalized,
-                    iconColor: priority.color,
-                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
-                })),
-            ],
+            subItems: TASK_PRIORITIES.map((priority, val) => ({
+                label: priority.label,
+                icon: priority.icon,
+                selected: val === task.priority_normalized,
+                iconColor: priority.color,
+                onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
+            })),
         },
+        ...(task.all_statuses && task.external_status
+            ? [
+                  {
+                      label: 'Set Status',
+                      icon: linearStatus[task.external_status.type],
+                      subItems: task.all_statuses.map((status) => ({
+                          label: status.state,
+                          onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
+                          icon: linearStatus[status.type],
+                          selected: status.state === task.external_status?.state,
+                      })),
+                  },
+              ]
+            : []),
         {
             label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
             icon: icons.trash,
