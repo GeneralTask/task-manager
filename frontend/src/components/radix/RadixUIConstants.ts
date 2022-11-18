@@ -8,6 +8,7 @@ const MENU_WIDTH = '192px'
 export const MenuTriggerShared = css`
     all: unset;
     border-radius: ${Border.radius.small};
+    width: 100%;
     &:focus {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
     }
