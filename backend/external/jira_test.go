@@ -69,25 +69,58 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
+
+		// ensure external API token values updated
+		var externalJIRAToken database.ExternalAPIToken
+		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = database.GetExternalTokenCollection(db).FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"service_id": TASK_SERVICE_ID_ATLASSIAN},
+				{"user_id": userID},
+			}},
+		).Decode(&externalJIRAToken)
+		assert.NoError(t, err)
+
+		var newToken AtlassianAuthToken
+		err = json.Unmarshal([]byte(externalJIRAToken.Token), &newToken)
+		assert.NoError(t, err)
+
+		assert.NotEqual(t, "sample-access-token", newToken.AccessToken)
+		assert.NotEqual(t, "sample-refresh-token", newToken.RefreshToken)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		primDueDate := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		title := "Sample Taskeroni"
 		body := ""
 		expectedTask := database.Task{
-			IDOrdering:    0,
-			IDExternal:    "42069",
-			IDTaskSection: constants.IDTaskSectionDefault,
-			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-			Title:         &title,
-			Body:          &body,
-			SourceID:      TASK_SOURCE_ID_JIRA,
-			UserID:        *userID,
-			DueDate:       &primDueDate,
+			IDOrdering:        0,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			DueDate:           &primDueDate,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "https://example.com",
+			},
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -95,7 +128,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
 		defer cancel()
 		err := taskCollection.FindOne(
 			dbCtx,
@@ -108,26 +141,57 @@ func TestLoadJIRATasks(t *testing.T) {
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
 		assert.Equal(t, accountID, taskFromDB.SourceAccountID)
+
+		// ensure external API token values updated
+		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+		defer cancel()
+		err = database.GetExternalTokenCollection(db).FindOne(
+			dbCtx,
+			bson.M{"$and": []bson.M{
+				{"service_id": TASK_SERVICE_ID_ATLASSIAN},
+				{"user_id": userID},
+			}},
+		).Decode(&externalJIRAToken)
+		assert.NoError(t, err)
+
+		err = json.Unmarshal([]byte(externalJIRAToken.Token), &newToken)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "sample-access-token", newToken.AccessToken)
+		assert.Equal(t, "sample-refresh-token", newToken.RefreshToken)
 	})
 	t.Run("ExistingTask", func(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		expectedTask := database.Task{
-			IDExternal:      "42069",
-			IDTaskSection:   constants.IDTaskSectionDefault,
-			Deeplink:        "https://dankmemes.com/browse/MOON-1969",
-			Title:           &title,
-			Body:            &body,
-			SourceID:        TASK_SOURCE_ID_JIRA,
-			UserID:          *userID,
-			SourceAccountID: "someAccountID",
-			DueDate:         &dueDatePrim,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			SourceAccountID:   "someAccountID",
+			DueDate:           &dueDatePrim,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "https://example.com",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -138,7 +202,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -164,23 +228,36 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		priorityID := "something_that_will_change"
 		expectedTask := database.Task{
-			IDOrdering:    2,
-			IDExternal:    "42069",
-			IDTaskSection: constants.IDTaskSectionDefault,
-			Deeplink:      "https://dankmemes.com/browse/MOON-1969",
-			Title:         &title,
-			Body:          &body,
-			SourceID:      TASK_SOURCE_ID_JIRA,
-			UserID:        *userID,
-			DueDate:       &dueDatePrim,
-			PriorityID:    &priorityID,
+			IDOrdering:        2,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			DueDate:           &dueDatePrim,
+			PriorityID:        &priorityID,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "https://example.com",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -191,7 +268,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -221,24 +298,37 @@ func TestLoadJIRATasks(t *testing.T) {
 		userID, accountID := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
+		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
 
 		dueDate, _ := time.Parse("2006-01-02", "2021-04-20")
 		title := "Sample Taskeroni"
 		body := ""
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
+		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
+		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
 		priorityID := "something_that_will_change"
 		expectedTask := database.Task{
-			IDOrdering:       2,
-			IDExternal:       "42069",
-			IDTaskSection:    constants.IDTaskSectionDefault,
-			HasBeenReordered: true,
-			Deeplink:         "https://dankmemes.com/browse/MOON-1969",
-			Title:            &title,
-			Body:             &body,
-			SourceID:         TASK_SOURCE_ID_JIRA,
-			UserID:           *userID,
-			DueDate:          &dueDatePrim,
-			PriorityID:       &priorityID,
+			IDOrdering:        2,
+			IDExternal:        "42069",
+			IDTaskSection:     constants.IDTaskSectionDefault,
+			HasBeenReordered:  true,
+			Deeplink:          "https://dankmemes.com/browse/MOON-1969",
+			Title:             &title,
+			Body:              &body,
+			SourceID:          TASK_SOURCE_ID_JIRA,
+			UserID:            *userID,
+			DueDate:           &dueDatePrim,
+			PriorityID:        &priorityID,
+			CreatedAtExternal: primCreatedAt,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        "",
+				State:             "todo",
+				Type:              "",
+				IsCompletedStatus: false,
+				Position:          0,
+				Color:             "",
+				IconURL:           "https://example.com",
+			},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -249,7 +339,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		)
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -269,6 +359,40 @@ func TestLoadJIRATasks(t *testing.T) {
 		).Decode(&taskFromDB)
 		assert.NoError(t, err)
 		assertTasksEqual(t, &expectedTask, &taskFromDB)
+	})
+}
+
+func TestGetStatuses(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID, _ := setupJIRA(t, database.GetExternalTokenCollection(db), database.GetJiraSitesCollection(db))
+
+	t.Run("NoResponse", func(t *testing.T) {
+		JIRA := JIRASource{Atlassian: AtlassianService{}}
+		_, err := JIRA.GetListOfStatuses(*userID, "sample")
+		assert.Error(t, err)
+	})
+	t.Run("ServerError", func(t *testing.T) {
+		server := getStatusServerForJIRA(t, 400, true)
+		defer server.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{StatusListURL: &server.URL}}}}
+		_, err := JIRA.GetListOfStatuses(*userID, "sample")
+		assert.Error(t, err)
+	})
+	t.Run("Success", func(t *testing.T) {
+		server := getStatusServerForJIRA(t, 200, false)
+		defer server.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{StatusListURL: &server.URL}}}}
+		statusMap, err := JIRA.GetListOfStatuses(*userID, "sample")
+		assert.NoError(t, err)
+
+		statusList, exists := statusMap["10000"]
+		assert.True(t, exists)
+		assert.Equal(t, 1, len(statusList))
+		assert.Equal(t, "Todo", statusList[0].State)
+		assert.Equal(t, "https://example.com", statusList[0].IconURL)
 	})
 }
 
@@ -386,7 +510,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 			w.Write(result)
 		} else {
 			result, err := json.Marshal(JIRATaskList{Issues: []JIRATask{{
-				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni"},
+				Fields: JIRATaskFields{DueDate: "2021-04-20", Summary: "Sample Taskeroni", CreatedAt: "2022-04-20T07:05:06.416-0800", Status: JIRAStatus{Name: "todo", IconURL: "https://example.com"}, Project: JIRAProject{ID: "10000"}},
 				ID:     "42069",
 				Key:    "MOON-1969",
 			}}})
@@ -411,5 +535,33 @@ func getJIRAPriorityServer(t *testing.T, statusCode int, response []byte) *httpt
 		assert.Equal(t, "GET", r.Method)
 		w.WriteHeader(statusCode)
 		w.Write(response)
+	}))
+}
+
+func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/rest/api/3/status/", r.RequestURI)
+		assert.Equal(t, "GET", r.Method)
+		w.WriteHeader(statusCode)
+		var result []byte
+		if empty {
+			result = []byte(``)
+		} else {
+			resultTemp, err := json.Marshal([]JIRAStatus{
+				{
+					ID:      "10000",
+					Name:    "Todo",
+					IconURL: "https://example.com",
+					Scope: JIRAScope{
+						Project: JIRAProject{
+							ID: "10000",
+						},
+					},
+				},
+			})
+			assert.NoError(t, err)
+			result = resultTemp
+		}
+		w.Write(result)
 	}))
 }

@@ -39,12 +39,15 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
                         undoDeleteEventInCache(event, date)
                     },
                     undoableAction: () =>
-                        deleteEvent({
-                            id: event.id,
-                            date: date,
-                            datetime_start: event.datetime_start,
-                            datetime_end: event.datetime_end,
-                        }),
+                        deleteEvent(
+                            {
+                                id: event.id,
+                                date: date,
+                                datetime_start: event.datetime_start,
+                                datetime_end: event.datetime_end,
+                            },
+                            event.optimisticId
+                        ),
                 },
             },
             {

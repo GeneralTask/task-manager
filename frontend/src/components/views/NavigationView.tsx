@@ -1,9 +1,8 @@
 import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import useGTLocalStorage from '../../hooks/useGTLocalStorage'
+import { useGlobalKeyboardShortcuts, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
@@ -70,7 +69,7 @@ const GTBetaLogo = styled.img`
 `
 
 const NavigationView = () => {
-    const navigate = useNavigate()
+    useGlobalKeyboardShortcuts()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)
@@ -82,30 +81,9 @@ const NavigationView = () => {
         }),
         []
     )
-
     useKeyboardShortcut(
-        'enterFocusMode',
-        useCallback(() => navigate('/focus-mode'), [])
-    )
-    useKeyboardShortcut(
-        'goToOverviewPage',
-        useCallback(() => navigate('/overview'), [])
-    )
-    useKeyboardShortcut(
-        'goToGithubPRsPage',
-        useCallback(() => navigate('/pull-requests'), [])
-    )
-    useKeyboardShortcut(
-        'goToLinearPage',
-        useCallback(() => navigate('/linear'), [])
-    )
-    useKeyboardShortcut(
-        'goToSlackPage',
-        useCallback(() => navigate('/slack'), [])
-    )
-    useKeyboardShortcut(
-        'goToTaskInbox',
-        useCallback(() => navigate('/tasks'), [])
+        'navigationView',
+        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed])
     )
 
     return (
@@ -118,7 +96,7 @@ const NavigationView = () => {
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
                         <div>
                             {isPreviewMode && (
-                                <GTIconButton icon={icons.collapse} onClick={() => setIsCollapsed(!isCollapsed)} />
+                                <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(!isCollapsed)} />
                             )}
                             <CommandPalette />
                         </div>

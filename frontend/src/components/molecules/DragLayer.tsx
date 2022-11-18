@@ -6,6 +6,7 @@ import { Border, Colors, Spacing, Typography } from '../../styles'
 import { DEFAULT_VIEW_WIDTH } from '../../styles/dimensions'
 import { DropType } from '../../utils/types'
 import Task from './Task'
+import Subtask from './subtasks/Subtask'
 
 const ViewHeaderContainer = styled.div`
     width: 100%;
@@ -58,11 +59,18 @@ const DragLayer = () => {
                 </DragItem>
             </DragOverlay>
         )
-    } else if ((itemType === DropType.TASK || itemType === DropType.NON_REORDERABLE_TASK) && item.task) {
+    } else if (
+        (itemType === DropType.TASK || itemType === DropType.SUBTASK || itemType === DropType.NON_REORDERABLE_TASK) &&
+        item.task
+    ) {
         return (
             <DragOverlay>
                 <DragItem ref={dragItemRef}>
-                    <Task task={item.task} dragDisabled isSelected link="" />
+                    {itemType === DropType.TASK ? (
+                        <Task task={item.task} dragDisabled isSelected link="" />
+                    ) : (
+                        <Subtask parentTaskId={item.id} subtask={item.task} />
+                    )}
                 </DragItem>
             </DragOverlay>
         )

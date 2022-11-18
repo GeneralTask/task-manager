@@ -1,5 +1,7 @@
 import useClickOutside from './useClickOutside'
 import useEventBanners from './useEventBanners'
+import useGTLocalStorage from './useGTLocalStorage'
+import useGlobalKeyboardShortcuts from './useGlobalKeyboardShortcuts'
 import useInterval from './useInterval'
 import useIsDragging from './useIsDragging'
 import useItemSelectionController from './useItemSelectionController'
@@ -24,4 +26,6 @@ export {
     useToast,
     useWindowSize,
     usePreviewMode,
+    useGlobalKeyboardShortcuts,
+    useGTLocalStorage,
 }

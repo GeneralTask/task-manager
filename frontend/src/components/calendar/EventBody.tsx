@@ -27,9 +27,12 @@ interface EventBodyProps {
     leftOffset: number
     date: DateTime
     isBeingDragged?: boolean
+    ignoreCalendarContext?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
-    const { selectedEvent, setSelectedEvent, isPopoverDisabled } = useCalendarContext()
+    const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext(
+        props.ignoreCalendarContext
+    )
     const eventRef = useRef<HTMLDivElement>(null)
     const popupRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
@@ -70,6 +73,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const onClick = (e: MouseEvent) => {
         // Prevent popup from closing when user clicks on the popup component
+        if (disableSelectEvent) return
         if (popupRef.current?.contains(e.target as Node)) return
         if (selectedEvent?.id === props.event.id) {
             setSelectedEvent(null)
@@ -111,6 +115,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     eventHasEnded={eventHasEnded}
                     isBeingDragged={props.isBeingDragged}
                     ref={eventRef}
+                    isDisabled={disableSelectEvent}
                 >
                     <EventInfoContainer onClick={onClick}>
                         {selectedEvent?.id === props.event.id && !isPopoverDisabled && (

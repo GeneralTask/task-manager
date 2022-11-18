@@ -261,6 +261,7 @@ type ExternalTaskStatus struct {
 	IsCompletedStatus bool    `json:"is_completed_status" bson:"is_completed_status"`
 	Position          float64 `json:"position" bson:"position"`
 	Color             string  `json:"color" bson:"color"`
+	IconURL           string  `json:"icon_url" bson:"icon_url"`
 }
 
 type UserSetting struct {
@@ -338,6 +339,7 @@ type View struct {
 
 type Repository struct {
 	ID           primitive.ObjectID `bson:"_id,omitempty"`
+	AccountID    string             `bson:"account_id"`
 	UserID       primitive.ObjectID `bson:"user_id"`
 	FullName     string             `bson:"full_name"`
 	RepositoryID string             `bson:"repository_id"`

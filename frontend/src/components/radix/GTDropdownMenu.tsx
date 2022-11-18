@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Colors } from '../../styles'
@@ -19,15 +19,19 @@ import {
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
-const DropdownMenuContent = styled(DropdownMenu.Content)`
+const DropdownMenuContent = styled(DropdownMenu.Content)<{ menuInModal?: boolean; width?: number }>`
     ${MenuContentShared};
+    ${({ menuInModal }) => menuInModal && `z-index: 1000;`}
+    ${({ width }) => width && `width: ${width}px;`}
+    box-sizing: border-box;
 `
 const DropdownMenuItem = styled(DropdownMenu.Item)<{
-    isSelected?: boolean
-    textColor?: TTextColor
+    textcolor?: TTextColor
     disabled?: boolean
 }>`
     ${MenuItemShared};
+    width: 100%;
+    box-sizing: border-box;
 `
 
 interface GTDropdownMenuProps {
@@ -38,6 +42,8 @@ interface GTDropdownMenuProps {
     setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
     disabled?: boolean
     hideCheckmark?: boolean
+    menuInModal?: boolean
+    useTriggerWidth?: boolean
 }
 
 const GTDropdownMenu = ({
@@ -48,15 +54,25 @@ const GTDropdownMenu = ({
     setIsOpen,
     disabled,
     hideCheckmark = false,
+    menuInModal = false,
+    useTriggerWidth = false,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
+    const triggerRef = useRef<HTMLButtonElement>(null)
     return (
         <div>
-            <DropdownMenu.Root modal open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger disabled={disabled}>{trigger}</DropdownMenuTrigger>
+            <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
+                <DropdownMenuTrigger ref={triggerRef} disabled={disabled}>
+                    {trigger}
+                </DropdownMenuTrigger>
                 <DropdownMenu.Portal>
-                    <DropdownMenuContent onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)} align={align}>
+                    <DropdownMenuContent
+                        onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}
+                        align={align}
+                        menuInModal={menuInModal}
+                        width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
+                    >
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>
                                 <DropdownMenu.Group>
@@ -66,8 +82,7 @@ const GTDropdownMenu = ({
                                             textValue={item.label}
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             disabled={item.disabled}
-                                            textColor={item.textColor}
-                                            isSelected={item.selected && !item.renderer && !item.disabled}
+                                            textcolor={item.textColor}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()

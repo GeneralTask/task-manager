@@ -76,16 +76,16 @@ interface WeekCalendarEventsProps {
     date: DateTime
     groups: TEvent[][]
     primaryAccountID: string | undefined
+    ignoreCalendarContext?: boolean
 }
-const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
+const WeekCalendarEvents = ({ date, groups, primaryAccountID, ignoreCalendarContext }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
-    const { calendarType } = useCalendarContext()
+    const { calendarType } = useCalendarContext(ignoreCalendarContext)
     const isWeekCalendar = calendarType === 'week'
     const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
         primaryAccountID,
         date,
         eventsContainerRef,
-        isWeekView: isWeekCalendar,
     })
     const isToday = isDateToday(date)
 
@@ -93,7 +93,12 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         <DayAndHeaderContainer ref={eventsContainerRef}>
             <DayContainer>
                 {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={date} />
+                    <CollisionGroupColumns
+                        key={index}
+                        events={group}
+                        date={date}
+                        ignoreCalendarContext={ignoreCalendarContext}
+                    />
                 ))}
                 {isOver &&
                     (eventPreview ? (
@@ -103,6 +108,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                             collisionGroupSize={1}
                             date={date}
                             isBeingDragged
+                            ignoreCalendarContext={ignoreCalendarContext}
                         />
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
@@ -126,14 +132,15 @@ const removeDuplicateEvents = (events: TEvent[]) => {
 interface CalendarEventsProps {
     date: DateTime
     primaryAccountID: string | undefined
+    ignoreCalendarContext?: boolean
 }
 
-const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
+const CalendarEvents = ({ date, primaryAccountID, ignoreCalendarContext }: CalendarEventsProps) => {
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const scrollRef = useRef<HTMLDivElement>(null)
     const timeIndicatorRef = useRef<HTMLDivElement>(null)
 
-    const { calendarType } = useCalendarContext()
+    const { calendarType } = useCalendarContext(ignoreCalendarContext)
     const numberOfDays = calendarType === 'week' ? 7 : 1
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
@@ -193,6 +200,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
                     date={date.plus({ days: dayOffset })}
                     groups={groups}
                     primaryAccountID={primaryAccountID}
+                    ignoreCalendarContext={ignoreCalendarContext}
                 />
             ))}
         </AllDaysContainer>

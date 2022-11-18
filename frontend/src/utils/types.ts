@@ -24,6 +24,7 @@ export interface TSourcesResult {
 
 export interface TTask {
     id: string
+    optimisticId?: string
     id_ordering: number
     title: string
     deeplink: string
@@ -40,7 +41,6 @@ export interface TTask {
     is_deleted: boolean
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
-    isOptimistic?: boolean
     isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
@@ -97,6 +97,7 @@ export interface TExternalStatus {
 
 export interface TEvent {
     id: string
+    optimisticId?: string
     title: string
     body: string
     account_id: string
@@ -217,8 +218,10 @@ export interface TUserInfo {
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
+    SUBTASK = 'subtask',
     NON_REORDERABLE_TASK = 'non-reorderable-task',
     DUE_TASK = 'due-task',
+    WEEK_TASK_TO_CALENDAR_TASK = 'week-task-to-calendar-task',
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',

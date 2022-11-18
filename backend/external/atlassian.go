@@ -34,6 +34,7 @@ type AtlassianConfigValues struct {
 	TokenURL        *string
 	TransitionURL   *string
 	PriorityListURL *string
+	StatusListURL   *string
 }
 
 // AtlassianConfig ...
@@ -51,10 +52,6 @@ type AtlassianSite struct {
 	AvatarURL string   `json:"avatarUrl"`
 }
 
-type PriorityID struct {
-	ID string `json:"id"`
-}
-
 type AtlassianService struct {
 	Config AtlassianConfig
 }
@@ -67,13 +64,13 @@ func getAtlassianOauthConfig() OauthConfigWrapper {
 			AuthURL:  "https://auth.atlassian.com/authorize",
 			TokenURL: "https://auth.atlassian.com/oauth/token",
 		},
-		RedirectURL: config.GetConfigValue("SERVER_URL") + "link/jira/callback/",
-		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work"},
+		RedirectURL: config.GetConfigValue("SERVER_URL") + "link/atlassian/callback/",
+		Scopes:      []string{"read:jira-work", "read:jira-user", "write:jira-work", "offline_access"},
 	}
 	return &OauthConfig{Config: atlassianConfig}
 }
 
-func (atlassian AtlassianService) GetLinkURL(userID primitive.ObjectID, stateTokenID primitive.ObjectID) (*string, error) {
+func (atlassian AtlassianService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
 	authURL := atlassian.Config.OauthConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	authURL += "&audience=api.atlassian.com"
 	return &authURL, nil
@@ -95,7 +92,7 @@ func (atlassian AtlassianService) HandleLinkCallback(db *mongo.Database, params 
 		return errors.New("internal server error")
 	}
 
-	tokenString, err := json.Marshal(&token)
+	tokenBytes, err := json.Marshal(&token)
 	if err != nil {
 		logger.Error().Err(err).Msg("error parsing token")
 		return errors.New("internal server error")
@@ -121,7 +118,7 @@ func (atlassian AtlassianService) HandleLinkCallback(db *mongo.Database, params 
 		bson.M{"$set": &database.ExternalAPIToken{
 			UserID:       userID,
 			ServiceID:    TASK_SERVICE_ID_ATLASSIAN,
-			Token:        string(tokenString),
+			Token:        string(tokenBytes),
 			AccountID:    accountID,
 			DisplayID:    (*siteConfiguration)[0].Name,
 			IsUnlinkable: true,
@@ -226,7 +223,7 @@ func (atlassian AtlassianService) getSiteConfiguration(userID primitive.ObjectID
 	return &siteConfiguration, nil
 }
 
-func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
+func (atlassian AtlassianService) getAndRefreshToken(userID primitive.ObjectID, accountID string) (*AtlassianAuthToken, error) {
 	parentCtx := context.Background()
 	var JIRAToken database.ExternalAPIToken
 
@@ -275,20 +272,35 @@ func (atlassian AtlassianService) getToken(userID primitive.ObjectID, accountID 
 		logger.Error().Err(err).Msg("failed to request token")
 		return nil, err
 	}
-	tokenString, err := ioutil.ReadAll(resp.Body)
+	tokenBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read token response")
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		logger.Error().Msgf("JIRA authorization failed: %s", tokenString)
+		logger.Error().Msgf("JIRA authorization failed: %s", string(tokenBytes))
 		return nil, err
 	}
 	var newToken AtlassianAuthToken
-	err = json.Unmarshal(tokenString, &newToken)
+	err = json.Unmarshal(tokenBytes, &newToken)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to parse new JIRA token")
 		return nil, err
 	}
+
+	_, err = externalAPITokenCollection.UpdateOne(
+		dbCtx,
+		bson.M{"$and": []bson.M{
+			{"user_id": userID},
+			{"service_id": TASK_SERVICE_ID_ATLASSIAN},
+			{"account_id": accountID},
+		}},
+		bson.M{"$set": bson.M{"token": string(tokenBytes)}},
+	)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to create external token record")
+		return nil, errors.New("internal server error")
+	}
+
 	return &newToken, nil
 }

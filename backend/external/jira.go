@@ -22,16 +22,48 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	JIRADone = "done"
+)
+
 type JIRASource struct {
 	Atlassian AtlassianService
 }
 
+type JIRAStatus struct {
+	ID       string             `json:"id"`
+	Name     string             `json:"name"`
+	IconURL  string             `json:"iconUrl"`
+	Scope    JIRAScope          `json:"scope"`
+	Category JIRAStatusCategory `json:"statusCategory"`
+}
+
+type JIRAStatusCategory struct {
+	Key string `json:"key"`
+}
+
+type JIRAPriority struct {
+	ID string `json:"id"`
+}
+
+type JIRAScope struct {
+	Project JIRAProject `json:"project"`
+}
+
+type JIRAProject struct {
+	ID string `json:"id"`
+}
+
 // JIRATaskFields ...
 type JIRATaskFields struct {
-	DueDate     string     `json:"duedate"`
-	Summary     string     `json:"summary"`
-	Description string     `json:"description"`
-	Priority    PriorityID `json:"priority"`
+	DueDate     string       `json:"duedate"`
+	Summary     string       `json:"summary"`
+	Description string       `json:"description"`
+	CreatedAt   string       `json:"created"`
+	UpdatedAt   string       `json:"updated"`
+	Project     JIRAProject  `json:"project"`
+	Status      JIRAStatus   `json:"status"`
+	Priority    JIRAPriority `json:"priority"`
 }
 
 // JIRATask represents the API detail result for issues - only fields we need
@@ -46,67 +78,6 @@ type JIRATaskList struct {
 	Issues []JIRATask `json:"issues"`
 }
 
-func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
-	parentCtx := context.Background()
-	var baseURL string
-	if jira.Atlassian.Config.ConfigValues.PriorityListURL != nil {
-		baseURL = *jira.Atlassian.Config.ConfigValues.PriorityListURL
-	} else if siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
-		baseURL = jira.getAPIBaseURL(*siteConfiguration)
-	} else {
-		return errors.New("could not form base url")
-	}
-
-	url := baseURL + "/rest/api/3/priority/"
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Authorization", "Bearer "+authToken)
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		return err
-	}
-	priorityListString, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	var priorityIds []PriorityID
-	err = json.Unmarshal(priorityListString, &priorityIds)
-
-	if err != nil {
-		return err
-	}
-
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	prioritiesCollection := database.GetJiraPrioritiesCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = prioritiesCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
-	if err != nil {
-		return err
-	}
-
-	var jiraPriorities []interface{}
-	for index, object := range priorityIds {
-		jiraPriorities = append(jiraPriorities, database.JIRAPriority{
-			UserID:          userID,
-			JIRAID:          object.ID,
-			IntegerPriority: index + 1,
-		})
-	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = prioritiesCollection.InsertMany(dbCtx, jiraPriorities)
-	return err
-}
-
 func (jira JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteConfiguration) string {
 	return "https://api.atlassian.com/ex/jira/" + siteConfiguration.CloudID
 }
@@ -116,7 +87,7 @@ func (jira JIRASource) GetEvents(db *mongo.Database, userID primitive.ObjectID, 
 }
 
 func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	authToken, _ := jira.Atlassian.getToken(userID, accountID)
+	authToken, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
 	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 
 	if authToken == nil || siteConfiguration == nil {
@@ -128,7 +99,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	if jira.Atlassian.Config.ConfigValues.APIBaseURL != nil {
 		apiBaseURL = *jira.Atlassian.Config.ConfigValues.APIBaseURL
 	}
-	JQL := "assignee=currentuser() AND status != Done"
+	JQL := "assignee=currentuser() AND statusCategory != Done"
 	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -136,14 +107,15 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
-	req.Header.Add("Authorization", "Bearer "+authToken.AccessToken)
-	req.Header.Add("Content-Type", "application/json")
+
+	req = addJIRARequestHeaders(req, authToken.AccessToken)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load search results")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
+
 	taskData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read search response")
@@ -160,6 +132,13 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	err = json.Unmarshal(taskData, &jiraTasks)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to parse JIRA tasks")
+		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
+		return
+	}
+
+	statusMap, err := jira.GetListOfStatuses(userID, authToken.AccessToken)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch statuses")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 		return
 	}
@@ -190,6 +169,12 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Body:            &bodyString,
 			SourceAccountID: accountID,
 			PriorityID:      &jiraTask.Fields.Priority.ID,
+			Status: &database.ExternalTaskStatus{
+				ExternalID:        jiraTask.Fields.Status.ID,
+				IconURL:           jiraTask.Fields.Status.IconURL,
+				State:             jiraTask.Fields.Status.Name,
+				IsCompletedStatus: jiraTask.Fields.Status.Category.Key == JIRADone,
+			},
 		}
 
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
@@ -197,6 +182,21 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			primDueDate := primitive.NewDateTimeFromTime(dueDate)
 			task.DueDate = &primDueDate
 		}
+		createdAt, err := time.Parse("2006-01-02T15:04:05.999-0700", jiraTask.Fields.CreatedAt)
+		if err == nil {
+			primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
+			task.CreatedAtExternal = primCreatedAt
+		}
+		updatedAt, err := time.Parse("2006-01-02T15:04:05.999-0700", jiraTask.Fields.UpdatedAt)
+		if err == nil {
+			primUpdatedAt := primitive.NewDateTimeFromTime(updatedAt)
+			task.UpdatedAt = primUpdatedAt
+		}
+		allStatuses, exists := statusMap[jiraTask.Fields.Project.ID]
+		if exists {
+			task.AllStatuses = allStatuses
+		}
+
 		tasks = append(tasks, task)
 	}
 
@@ -235,6 +235,9 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Title:       task.Title,
 			DueDate:     task.DueDate,
 			PriorityID:  task.PriorityID,
+			Status:      task.Status,
+			UpdatedAt:   task.UpdatedAt,
+			AllStatuses: task.AllStatuses,
 			IsCompleted: &isCompleted,
 		}
 
@@ -276,6 +279,115 @@ func (JIRA JIRASource) GetPullRequests(db *mongo.Database, userID primitive.Obje
 	result <- emptyPullRequestResult(nil, false)
 }
 
+func (jira JIRASource) GetListOfStatuses(userID primitive.ObjectID, authToken string) (map[string][]*database.ExternalTaskStatus, error) {
+	statusMap := make(map[string][]*database.ExternalTaskStatus)
+	var baseURL string
+	if jira.Atlassian.Config.ConfigValues.StatusListURL != nil {
+		baseURL = *jira.Atlassian.Config.ConfigValues.StatusListURL
+	} else if siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
+		baseURL = jira.getAPIBaseURL(*siteConfiguration)
+	} else {
+		return statusMap, errors.New("could not form base url")
+	}
+
+	url := baseURL + "/rest/api/3/status/"
+	req, _ := http.NewRequest("GET", url, nil)
+	req = addJIRARequestHeaders(req, authToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return statusMap, err
+	}
+	statusListString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return statusMap, err
+	}
+
+	var statuses []JIRAStatus
+	err = json.Unmarshal(statusListString, &statuses)
+	if err != nil {
+		return statusMap, err
+	}
+
+	for _, status := range statuses {
+		value, exists := statusMap[status.Scope.Project.ID]
+		newStatus := database.ExternalTaskStatus{
+			ExternalID:        status.ID,
+			IconURL:           status.IconURL,
+			State:             status.Name,
+			IsCompletedStatus: status.Category.Key == JIRADone,
+		}
+
+		if exists {
+			statusMap[status.Scope.Project.ID] = append(value, &newStatus)
+		} else {
+			statusMap[status.Scope.Project.ID] = []*database.ExternalTaskStatus{
+				&newStatus,
+			}
+		}
+	}
+	return statusMap, nil
+}
+
+func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
+	parentCtx := context.Background()
+	var baseURL string
+	if jira.Atlassian.Config.ConfigValues.PriorityListURL != nil {
+		baseURL = *jira.Atlassian.Config.ConfigValues.PriorityListURL
+	} else if siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
+		baseURL = jira.getAPIBaseURL(*siteConfiguration)
+	} else {
+		return errors.New("could not form base url")
+	}
+
+	url := baseURL + "/rest/api/3/priority/"
+	req, _ := http.NewRequest("GET", url, nil)
+	req = addJIRARequestHeaders(req, authToken)
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return err
+	}
+	priorityListString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	var priorityIds []JIRAPriority
+	err = json.Unmarshal(priorityListString, &priorityIds)
+	if err != nil {
+		return err
+	}
+
+	db, dbCleanup, err := database.GetDBConnection()
+	if err != nil {
+		return err
+	}
+	defer dbCleanup()
+
+	prioritiesCollection := database.GetJiraPrioritiesCollection(db)
+	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = prioritiesCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
+	if err != nil {
+		return err
+	}
+
+	var jiraPriorities []interface{}
+	for index, object := range priorityIds {
+		jiraPriorities = append(jiraPriorities, database.JIRAPriority{
+			UserID:          userID,
+			JIRAID:          object.ID,
+			IntegerPriority: index + 1,
+		})
+	}
+	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
+	defer cancel()
+	_, err = prioritiesCollection.InsertMany(dbCtx, jiraPriorities)
+	return err
+}
+
 func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
 	parentCtx := context.Background()
 	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -305,7 +417,7 @@ func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToke
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
 
 	req, _ := http.NewRequest("GET", transitionsURL, nil)
-	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	logger := logging.GetSentryLogger()
@@ -349,8 +461,7 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
-	req.Header.Add("Authorization", "Bearer "+AtlassianAuthToken)
-	req.Header.Add("Content-Type", "application/json")
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
 	_, err := http.DefaultClient.Do(req)
 	return err
@@ -370,7 +481,7 @@ func (jira JIRASource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID
 
 func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
 	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
-		token, _ := jira.Atlassian.getToken(userID, accountID)
+		token, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
 		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
 		if token == nil || siteConfiguration == nil {
 			return errors.New("missing token or siteConfiguration")
@@ -402,4 +513,10 @@ func (jira JIRASource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID
 
 func (jira JIRASource) AddComment(db *mongo.Database, userID primitive.ObjectID, accountID string, comment database.Comment, task *database.Task) error {
 	return errors.New("has not been implemented yet")
+}
+
+func addJIRARequestHeaders(req *http.Request, authToken string) *http.Request {
+	req.Header.Add("Authorization", "Bearer "+authToken)
+	req.Header.Add("Content-Type", "application/json")
+	return req
 }

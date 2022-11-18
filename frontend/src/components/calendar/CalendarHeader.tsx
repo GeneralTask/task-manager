@@ -51,6 +51,7 @@ interface CalendarHeaderProps {
     setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     showMainHeader?: boolean
     showDateHeader?: boolean
+    ignoreCalendarContext?: boolean
 }
 export default function CalendarHeader({
     date,
@@ -59,8 +60,9 @@ export default function CalendarHeader({
     showDateHeader = true,
     dayViewDate,
     setDayViewDate,
+    ignoreCalendarContext,
 }: CalendarHeaderProps) {
-    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext()
+    const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext(ignoreCalendarContext)
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
@@ -137,7 +139,7 @@ export default function CalendarHeader({
                                     onClick={toggleCalendar}
                                     icon={calendarType === 'week' ? icons.arrows_in : icons.arrows_out}
                                 />
-                                <GTIconButton onClick={() => setIsCollapsed(true)} icon={icons.sidebar} />
+                                <GTIconButton onClick={() => setIsCollapsed(true)} icon={icons.sidebarFlipped} />
                             </HeaderIconsContainer>
                         </HeaderBodyContainer>
                     </PaddedContainer>
@@ -147,7 +149,9 @@ export default function CalendarHeader({
             {showDateHeader && (
                 <PaddedContainer>
                     <HeaderBodyContainer>
-                        <CalendarDateText>{`${date.toFormat('ccc, LLL d')}`}</CalendarDateText>
+                        <CalendarDateText>
+                            {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLL d')}
+                        </CalendarDateText>
                         <ButtonContainer>
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} />

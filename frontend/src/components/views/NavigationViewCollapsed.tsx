@@ -41,7 +41,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
 
     return (
         <CollapsedContainer>
-            <GTIconButton icon={icons.expand} onClick={() => setIsCollapsed(false)} />
+            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
             <CommandPalette />
             <IntegrationLinks isCollapsed />
             <FoldersContainer>

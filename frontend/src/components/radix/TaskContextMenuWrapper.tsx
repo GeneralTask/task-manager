@@ -32,12 +32,15 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
                               icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
                               selected: section.id === sectionId,
                               onClick: () => {
-                                  reorderTask({
-                                      taskId: task.id,
-                                      dropSectionId: section.id,
-                                      dragSectionId: sectionId,
-                                      orderingId: 1,
-                                  })
+                                  reorderTask(
+                                      {
+                                          id: task.id,
+                                          dropSectionId: section.id,
+                                          dragSectionId: sectionId,
+                                          orderingId: 1,
+                                      },
+                                      task.optimisticId
+                                  )
                               },
                           })),
                   ]
@@ -52,7 +55,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
                     renderer: () => (
                         <GTDatePicker
                             initialDate={DateTime.fromISO(task.due_date).toJSDate()}
-                            setDate={(date) => modifyTask({ id: task.id, dueDate: date })}
+                            setDate={(date) => modifyTask({ id: task.id, dueDate: date }, task.optimisticId)}
                             onlyCalendar
                         />
                     ),
@@ -68,7 +71,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
                     icon: priority.icon,
                     selected: val === task.priority_normalized,
                     iconColor: priority.color,
-                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }),
+                    onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
                 })),
             ],
         },
@@ -77,7 +80,8 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
-            onClick: () => markTaskDoneOrDeleted({ taskId: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }),
+            onClick: () =>
+                markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId),
         },
     ]
 

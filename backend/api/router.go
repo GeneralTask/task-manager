@@ -74,6 +74,7 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	router.GET("/tasks/fetch/", handlers.TasksFetch)
 	router.GET("/tasks/v3/", handlers.TasksListV3)
+	router.GET("/tasks/v4/", handlers.TasksListV4)
 	router.POST("/tasks/create/:source_id/", handlers.TaskCreate)
 	router.PATCH("/tasks/modify/:task_id/", handlers.TaskModify)
 	router.GET("/tasks/detail/:task_id/", handlers.TaskDetail)
