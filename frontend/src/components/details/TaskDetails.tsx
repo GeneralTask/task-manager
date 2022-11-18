@@ -10,7 +10,7 @@ import {
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -125,6 +125,8 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
 
     const isInTrash = params.section === TRASH_SECTION_ID
 
+    const titleRef = useRef<HTMLTextAreaElement>(null)
+
     useInterval(() => {
         if (!currentTask.meeting_preparation_params) return
         const minutesToStart = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
@@ -189,6 +191,11 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
         }
     }
 
+    useKeyboardShortcut(
+        'editTaskName',
+        useCallback(() => titleRef.current?.select(), [])
+    )
+
     const [showTaskToCalendarModal, setShowTaskToCalendarModal] = useState(false)
 
     return (
@@ -246,6 +253,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
             <div>
                 <GTTextField
                     type="plaintext"
+                    ref={titleRef}
                     itemId={currentTask.id}
                     value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
                     disabled={

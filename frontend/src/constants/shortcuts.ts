@@ -30,6 +30,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'check',
     },
+    editTaskName: {
+        label: 'Edit task name',
+        key: 'e',
+        keyLabel: 'E',
+        category: 'Tasks',
+        icon: 'pencil',
+    },
     moveTaskToFolder: {
         label: 'Move task to folder',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+m`,
@@ -201,6 +208,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: 'M',
         category: 'General',
         icon: 'video',
+    },
+    sendFeedback: {
+        label: 'Send us feedback',
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+u`,
+        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+U`,
+        category: 'General',
+        icon: 'megaphone',
     },
 })
 
