@@ -48,7 +48,7 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     const [isOpen, setIsOpen] = useState(false)
 
     useLayoutEffect(() => {
-        if (value !== initialDate) {
+        if (value?.getTime() !== initialDate.getTime()) {
             onChange(initialDate)
         }
     }, [initialDate])
