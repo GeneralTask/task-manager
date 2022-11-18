@@ -22,7 +22,7 @@ interface LinearCommentListProps {
 
 const LinearCommentList = ({ comments }: LinearCommentListProps) => {
     // This is kinda sus, but it gets the job done until backend is fixed
-    const sortedComments = comments.sort((a, b) => {
+    const sortedComments = comments.slice().sort((a, b) => {
         if (DateTime.fromISO(a.created_at).toMillis() === 0) {
             return 1
         } else if (DateTime.fromISO(b.created_at).toMillis() === 0) {
