@@ -8,6 +8,7 @@ import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
 import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Eyebrow } from '../atoms/typography/Typography'
@@ -96,7 +97,9 @@ const NavigationView = () => {
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
                         <div>
                             {isPreviewMode && (
-                                <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(!isCollapsed)} />
+                                <TooltipWrapper dataTip="Collapse Navigation" tooltipId="navigation-tooltip">
+                                    <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(!isCollapsed)} />
+                                </TooltipWrapper>
                             )}
                             <CommandPalette />
                         </div>
