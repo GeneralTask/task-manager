@@ -195,6 +195,9 @@ export const getFormattedDate = (
             iconColor: 'red',
         }
     }
+    if (!DateTime.fromJSDate(date).hasSame(DateTime.local(), 'year')) {
+        return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd yyyy'), textColor: 'light', iconColor: 'gray' }
+    }
     return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
 }
 
