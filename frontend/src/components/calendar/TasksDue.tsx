@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+import produce from 'immer'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -33,11 +34,12 @@ const TasksDue = ({ date }: TasksDueProps) => {
         const allSubtasks = allTasks
             .filter((task) => task.sub_tasks !== undefined)
             .map((task) => {
-                for (const subtask of task.sub_tasks || []) {
-                    subtask.parentTaskId = task.id
-                    subtask.isSubtask = true
-                }
-                return task
+                return produce(task, (draft) => {
+                    for (const subtask of draft.sub_tasks || []) {
+                        subtask.parentTaskId = draft.id
+                        subtask.isSubtask = true
+                    }
+                })
             })
             .flatMap((task) => task.sub_tasks || [])
         const allTasksAndSubtasks = [...allTasks, ...allSubtasks]
