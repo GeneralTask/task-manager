@@ -27,7 +27,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
     const { mutate: postFeedback } = usePostFeedback()
     const toast = useToast()
     const submitFeedback = () => {
-        if (feedback.length === 0) return
+        if (feedback.trim().length === 0) return
         postFeedback({ feedback: feedback })
         setFeedback('')
         setModalIsOpen(false)
