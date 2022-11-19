@@ -16,7 +16,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.OVERVIEW_VIEW,
-            item: { id: view.id },
+            item: { id: view.id, view },
         }),
         [view.id]
     )

@@ -1,4 +1,4 @@
-import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
@@ -19,19 +19,21 @@ const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
 }
 
 interface TReorderViewData {
-    viewId: string
+    id: string
     idOrdering: number
 }
 export const useReorderViews = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TReorderViewData) => reorderView(data), {
-        onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
+    return useQueuedMutation((data: TReorderViewData) => reorderView(data), {
+        tag: 'overview',
+        invalidateTagsOnSettled: ['overview'],
+        onMutate: async ({ id, idOrdering }: TReorderViewData) => {
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
             await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
 
             const newViews = produce(views, (draft) => {
-                const startIndex = draft.findIndex((view) => view.id === viewId)
+                const startIndex = draft.findIndex((view) => view.id === id)
                 let endIndex = idOrdering - 1
                 if (startIndex < endIndex) {
                     endIndex -= 1
@@ -49,7 +51,7 @@ export const useReorderViews = () => {
 }
 const reorderView = async (data: TReorderViewData) => {
     try {
-        const res = await apiClient.patch(`/overview/views/${data.viewId}/`, {
+        const res = await apiClient.patch(`/overview/views/${data.id}/`, {
             id_ordering: data.idOrdering,
         })
         return castImmutable(res.data)
