@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { TASK_PRIORITIES } from '../../../constants'
 import { useNavigateToTask } from '../../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { DropType, TTask } from '../../../utils/types'
 import Domino from '../../atoms/Domino'
+import DueDate from '../../atoms/DueDate'
+import { Icon } from '../../atoms/Icon'
 import MarkTaskDoneButton from '../../atoms/buttons/MarkTaskDoneButton'
 
 export const SubtaskDropOffset = styled.div`
     width: 100%;
     padding: 2px 0;
+`
+export const RightContainer = styled.div`
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._12};
 `
 export const SubtaskContainer = styled.div`
     display: flex;
@@ -36,6 +46,7 @@ interface SubtaskProps {
 const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
     const navigateToTask = useNavigateToTask()
     const [isVisible, setIsVisible] = useState(false)
+    const dueDate = DateTime.fromISO(subtask.due_date).toJSDate()
 
     const visibilityToggle = {
         onMouseEnter: () => setIsVisible(true),
@@ -65,6 +76,15 @@ const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
                     isSelected={false}
                 />
                 {subtask.title}
+                <RightContainer>
+                    <DueDate date={dueDate} />
+                    {subtask.priority_normalized !== 0 && (
+                        <Icon
+                            icon={TASK_PRIORITIES[subtask.priority_normalized].icon}
+                            color={TASK_PRIORITIES[subtask.priority_normalized].color}
+                        />
+                    )}
+                </RightContainer>
             </SubtaskContainer>
         </SubtaskDropOffset>
     )
