@@ -170,7 +170,6 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 	if t.PriorityNormalized != nil {
 		priority = *t.PriorityNormalized
 	}
-	// TODO: add support for subtasks field
 	taskResult := &TaskResultV4{
 		ID:                 t.ID,
 		IDOrdering:         t.IDOrdering,
