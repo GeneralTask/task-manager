@@ -70,6 +70,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
         ...mutationOptions,
         onMutate: emptyFunction,
         onSettled: (data, error, variables, context) => {
+            console.log('fin')
             const queue = getQueryQueue(mutationOptions.tag)
             queue.shift()
             if (queue.length > 0) {
@@ -88,6 +89,7 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
     const newMutate = (variables: TVariables, optimisticId?: string) => {
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
+        console.log(queue)
 
         if (optimisticId) {
             if (queue.length === 0) {

@@ -171,6 +171,7 @@ export interface TRepository {
 
 export interface TTaskSection {
     id: string
+    optimisticId?: string
     name: string
     tasks: TTask[]
     is_done: boolean
