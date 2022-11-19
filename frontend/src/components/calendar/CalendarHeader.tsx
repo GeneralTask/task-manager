@@ -99,7 +99,7 @@ export default function CalendarHeader({
             return date.minus({ days: isCalendarExpanded ? 7 : 1 })
         })
     }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
-    useKeyboardShortcut('today', selectToday, isFocusMode)
+    useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
     useKeyboardShortcut('nextDate', selectNext, isFocusMode)
     useKeyboardShortcut('previousDate', selectPrevious, isFocusMode)
 
@@ -132,7 +132,12 @@ export default function CalendarHeader({
                                     />
                                 </NoStyleLink>
                             ) : (
-                                <GTButton value="Today" onClick={selectToday} size="small" styleType="secondary" />
+                                <GTButton
+                                    value="Jump to Today"
+                                    onClick={selectToday}
+                                    size="small"
+                                    styleType="secondary"
+                                />
                             )}
                             <HeaderIconsContainer>
                                 <GTIconButton

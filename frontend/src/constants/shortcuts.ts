@@ -88,8 +88,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'caret_left',
     },
-    today: {
-        label: 'Today',
+    jumpToToday: {
+        label: 'Jump to Today',
         key: 't',
         keyLabel: 'T',
         category: 'Calendar',
