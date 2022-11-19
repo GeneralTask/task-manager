@@ -2,7 +2,8 @@ import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
@@ -17,6 +18,7 @@ const CollapsedContainer = styled.div`
     gap: ${Spacing._16};
     height: 100%;
     overflow-y: auto;
+    align-items: center;
 `
 const FoldersContainer = styled.div`
     margin-top: ${Spacing._32};
@@ -41,6 +43,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
 
     return (
         <CollapsedContainer>
+            <Icon icon={logos.generaltask_yellow_circle} size="medium" />
             <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
             <CommandPalette />
             <IntegrationLinks isCollapsed />

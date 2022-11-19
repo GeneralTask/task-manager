@@ -75,6 +75,7 @@ export const logos = Object.freeze({
     generaltask_single_color: 'images/gt-logo-single-color.svg',
     generaltask: '/images/generaltask.svg',
     generaltask_beta: '/images/GT-beta-logo.png',
+    generaltask_yellow_circle: '/images/gt-logo-yellow-circle.png',
     github: faGithub,
     gmail: '/images/google.svg',
     gcal: '/images/gcal.png',

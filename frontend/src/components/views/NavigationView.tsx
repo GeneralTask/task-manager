@@ -63,7 +63,7 @@ const CopyrightText = styled.span`
     user-select: none;
     padding: ${Spacing._16};
 `
-const GTBetaLogo = styled.img`
+export const GTBetaLogo = styled.img`
     pointer-events: none;
     width: ${GT_BETA_LOGO_WIDTH};
 `
