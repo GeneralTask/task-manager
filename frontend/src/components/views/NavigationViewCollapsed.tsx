@@ -5,6 +5,7 @@ import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
@@ -49,9 +50,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     }, [])
     return (
         <CollapsedContainer>
-            <TooltipWrapper dataTip="Expand Navigation" tooltipId="navigation-tooltip">
-                <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
-            </TooltipWrapper>
+            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} shortcutName="navigationView" />
             <CommandPalette />
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
