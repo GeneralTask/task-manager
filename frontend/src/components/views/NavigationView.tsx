@@ -8,6 +8,7 @@ import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
 import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
@@ -95,14 +96,14 @@ const NavigationView = () => {
                 <>
                     <NavigationViewHeader>
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
-                        <div>
+                        <Flex>
                             {isPreviewMode && (
                                 <TooltipWrapper dataTip="Collapse Navigation" tooltipId="navigation-tooltip">
                                     <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(!isCollapsed)} />
                                 </TooltipWrapper>
                             )}
                             <CommandPalette />
-                        </div>
+                        </Flex>
                     </NavigationViewHeader>
                     <OverflowContainer>
                         <NavigationSectionLinks />
