@@ -7,12 +7,13 @@ import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { DropType, TTask } from '../../../utils/types'
 import Domino from '../../atoms/Domino'
 import MarkTaskDoneButton from '../../atoms/buttons/MarkTaskDoneButton'
+import TaskContextMenuWrapper from '../../radix/TaskContextMenuWrapper'
 
 export const SubtaskDropOffset = styled.div`
     width: 100%;
     padding: 2px 0;
 `
-export const SubtaskContainer = styled.div`
+export const SubtaskContainer = styled.div<{ forceHoverStyle?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
@@ -24,6 +25,7 @@ export const SubtaskContainer = styled.div`
     :hover {
         background-color: ${Colors.background.medium};
     }
+    ${({ forceHoverStyle }) => forceHoverStyle && `background-color: ${Colors.background.medium};`}
     user-select: none;
     width: 100%;
     box-sizing: border-box;
@@ -54,18 +56,27 @@ const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
         dragPreview(getEmptyImage())
     }, [])
 
+    const [contextMenuOpen, setContextMenuOpen] = useState(false)
+
     return (
         <SubtaskDropOffset>
-            <SubtaskContainer onClick={() => navigateToTask(parentTaskId, subtask.id)} ref={drag} {...visibilityToggle}>
-                <Domino isVisible={isVisible} />
-                <MarkTaskDoneButton
-                    isDone={subtask.is_done}
-                    taskId={parentTaskId}
-                    subtaskId={subtask.id}
-                    isSelected={false}
-                />
-                {subtask.title}
-            </SubtaskContainer>
+            <TaskContextMenuWrapper task={subtask} onOpenChange={setContextMenuOpen}>
+                <SubtaskContainer
+                    onClick={() => navigateToTask(parentTaskId, subtask.id)}
+                    ref={drag}
+                    {...visibilityToggle}
+                    forceHoverStyle={contextMenuOpen}
+                >
+                    <Domino isVisible={isVisible} />
+                    <MarkTaskDoneButton
+                        isDone={subtask.is_done}
+                        taskId={parentTaskId}
+                        subtaskId={subtask.id}
+                        isSelected={false}
+                    />
+                    {subtask.title}
+                </SubtaskContainer>
+            </TaskContextMenuWrapper>
         </SubtaskDropOffset>
     )
 }
