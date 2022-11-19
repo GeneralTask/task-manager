@@ -98,9 +98,11 @@ const NavigationView = () => {
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
                         <Flex>
                             {isPreviewMode && (
-                                <TooltipWrapper dataTip="Collapse Navigation" tooltipId="navigation-tooltip">
-                                    <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(!isCollapsed)} />
-                                </TooltipWrapper>
+                                <GTIconButton
+                                    icon={icons.sidebar}
+                                    onClick={() => setIsCollapsed(!isCollapsed)}
+                                    shortcutName="navigationView"
+                                />
                             )}
                             <CommandPalette />
                         </Flex>
