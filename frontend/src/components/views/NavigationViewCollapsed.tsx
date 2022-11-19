@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -38,6 +39,7 @@ interface NavigationViewCollapsedProps {
 }
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
+    const { section: sectionId } = useParams()
 
     return (
         <CollapsedContainer>
@@ -56,7 +58,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             link={`/tasks/${folder.id}`}
                             title={folder.name}
                             icon={icon}
-                            isCurrentPage={'' === folder.id}
+                            isCurrentPage={sectionId === folder.id}
                             taskSection={folder}
                             count={folder.tasks.length}
                             isCollapsed
