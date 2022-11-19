@@ -30,7 +30,18 @@ const TasksDue = ({ date }: TasksDueProps) => {
 
     const incompleteTasks = useMemo(() => {
         const allTasks = taskFolders?.flatMap((section) => section.tasks) ?? []
-        return allTasks.filter((task) => !task.is_done && !task.is_deleted)
+        const allSubtasks = allTasks
+            .filter((task) => task.sub_tasks !== undefined)
+            .map((task) => {
+                for (const subtask of task.sub_tasks || []) {
+                    subtask.parentTaskId = task.id
+                    subtask.isSubtask = true
+                }
+                return task
+            })
+            .flatMap((task) => task.sub_tasks || [])
+        const allTasksAndSubtasks = [...allTasks, ...allSubtasks]
+        return allTasksAndSubtasks.filter((task) => !task.is_done && !task.is_deleted)
     }, [taskFolders])
 
     const tasksDueToday = useMemo(
