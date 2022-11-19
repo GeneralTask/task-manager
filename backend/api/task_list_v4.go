@@ -29,13 +29,12 @@ type TaskResultV4 struct {
 	PriorityNormalized       float64                      `json:"priority_normalized"`
 	IsDone                   bool                         `json:"is_done"`
 	IsDeleted                bool                         `json:"is_deleted"`
-	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
 	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
 	Comments                 *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
-	SubTasks                 []primitive.ObjectID         `json:"sub_tasks,omitempty"`
+	SubTaskIDs               []primitive.ObjectID         `json:"subtask_ids,omitempty"`
 	NUXNumber                int                          `json:"id_nux_number,omitempty"`
 	CreatedAt                string                       `json:"created_at,omitempty"`
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
@@ -93,12 +92,38 @@ func (api *API) mergeTasksV4(
 	allTasks = append(allTasks, *activeTasks...)
 	allTasks = append(allTasks, *completedTasks...)
 	allTasks = append(allTasks, *deletedTasks...)
+	return api.taskListToTaskResultListV4(&allTasks, userID), nil
+}
 
-	taskResults := []*TaskResultV4{}
-	for _, task := range allTasks {
-		taskResults = append(taskResults, api.taskToTaskResultV4(&task, userID))
+// shares a lot of duplicate code with taskListToTaskResultList
+// TODO: remove taskListToTaskResultList when frontend switches to new endpoint
+func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResultV4 {
+	parentToChildIDs := make(map[primitive.ObjectID][]primitive.ObjectID)
+	baseNodes := []*TaskResultV4{}
+	for _, task := range *tasks {
+		// result := api.taskToTaskResultV4(&task, userID)
+		if task.ParentTaskID != primitive.NilObjectID {
+			value, exists := parentToChildIDs[task.ParentTaskID]
+			if exists {
+				parentToChildIDs[task.ParentTaskID] = append(value, task.ID)
+			} else {
+				parentToChildIDs[task.ParentTaskID] = []primitive.ObjectID{task.ID}
+			}
+		} else {
+			baseNodes = append(baseNodes, api.taskToTaskResultV4(&task, userID))
+		}
 	}
-	return taskResults, nil
+
+	// nodes with no valid parent will not appear in task results
+	taskResults := []*TaskResultV4{}
+	for _, node := range baseNodes {
+		value, exists := parentToChildIDs[node.ID]
+		if exists {
+			node.SubTaskIDs = value
+		}
+		taskResults = append(taskResults, node)
+	}
+	return taskResults
 }
 
 // shares a lot of duplicate code with taskBaseToTaskResult
@@ -145,25 +170,24 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 	if t.PriorityNormalized != nil {
 		priority = *t.PriorityNormalized
 	}
-	// TODO: add support for sub_tasks field
+	// TODO: add support for subtasks field
 	taskResult := &TaskResultV4{
-		ID:                       t.ID,
-		IDOrdering:               t.IDOrdering,
-		IDFolder:                 t.IDTaskSection,
-		IDParent:                 t.ParentTaskID,
-		Source:                   taskSource,
-		Deeplink:                 t.Deeplink,
-		Title:                    title,
-		Body:                     body,
-		DueDate:                  dueDate,
-		PriorityNormalized:       priority,
-		IsDone:                   completed,
-		IsDeleted:                deleted,
-		Comments:                 t.Comments,
-		IsMeetingPreparationTask: t.IsMeetingPreparationTask,
-		NUXNumber:                t.NUXNumber,
-		CreatedAt:                t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
-		UpdatedAt:                t.UpdatedAt.Time().UTC().Format(time.RFC3339),
+		ID:                 t.ID,
+		IDOrdering:         t.IDOrdering,
+		IDFolder:           t.IDTaskSection,
+		IDParent:           t.ParentTaskID,
+		Source:             taskSource,
+		Deeplink:           t.Deeplink,
+		Title:              title,
+		Body:               body,
+		DueDate:            dueDate,
+		PriorityNormalized: priority,
+		IsDone:             completed,
+		IsDeleted:          deleted,
+		Comments:           t.Comments,
+		NUXNumber:          t.NUXNumber,
+		CreatedAt:          t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
+		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
 	}
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
