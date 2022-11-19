@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
@@ -39,9 +42,16 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
 
+    useEffect(() => {
+        return () => {
+            ReactTooltip.hide()
+        }
+    }, [])
     return (
         <CollapsedContainer>
-            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
+            <TooltipWrapper dataTip="Expand Navigation" tooltipId="navigation-tooltip">
+                <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
+            </TooltipWrapper>
             <CommandPalette />
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
