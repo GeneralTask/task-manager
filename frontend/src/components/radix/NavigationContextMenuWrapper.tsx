@@ -30,7 +30,6 @@ const NavigationContextMenuWrapper = ({
             icon: icons.trash,
             iconColor: 'red',
             onClick: () => {
-                console.log({ delete: section })
                 deleteSection({ id: section.id }, section.optimisticId)
             },
         },

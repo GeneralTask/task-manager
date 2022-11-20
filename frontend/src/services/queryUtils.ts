@@ -70,12 +70,14 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
         ...mutationOptions,
         onMutate: emptyFunction,
         onSettled: (data, error, variables, context) => {
-            console.log('fin')
             const queue = getQueryQueue(mutationOptions.tag)
             queue.shift()
             if (queue.length > 0) {
                 if (queue[0].optimisticId) {
                     const id = getIdFromOptimisticId(queue[0].optimisticId)
+                    if (!id) {
+                        throw new Error('Could not find real id for optimistic id')
+                    }
                     queue[0].send(id)
                 } else {
                     queue[0].send()
@@ -89,7 +91,15 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
     const newMutate = (variables: TVariables, optimisticId?: string) => {
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
-        console.log(queue)
+
+        // if an optimistic ID is passed in, first check if it has already been resolved
+        if (optimisticId) {
+            const realId = getIdFromOptimisticId(optimisticId)
+            if (realId) {
+                optimisticId = undefined
+                variables = { ...variables, id: realId }
+            }
+        }
 
         if (optimisticId) {
             if (queue.length === 0) {
@@ -101,11 +111,10 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
                 })
             }
         } else {
-            queue.push({
-                send: () => mutate(variables),
-            })
+            const send = () => mutate(variables)
+            queue.push({ send })
             if (queue.length === 1) {
-                mutate(variables)
+                send()
             }
         }
     }

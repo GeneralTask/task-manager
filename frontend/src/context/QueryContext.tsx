@@ -10,7 +10,7 @@ interface TRequest {
 
 interface TQueryContext {
     getQueryQueue: (key: QueryKey) => TRequest[]
-    getIdFromOptimisticId: (optimisticId: string) => string
+    getIdFromOptimisticId: (optimisticId: string) => string | undefined
     setOptimisticId: (optimisticId: string, realId: string) => void
 }
 
@@ -39,11 +39,7 @@ export const QueryContextProvider = ({ children }: QueryContextProps) => {
     }
 
     const getIdFromOptimisticId = (optimisticId: string) => {
-        const realId = optimisticIdToRealIdMap.current.get(optimisticId)
-        if (!realId) {
-            throw new Error('Could not find real id for optimistic id')
-        }
-        return realId
+        return optimisticIdToRealIdMap.current.get(optimisticId)
     }
 
     const setOptimisticId = (optimisticId: string, realId: string) => {

@@ -162,7 +162,6 @@ const NavigationSectionLinks = () => {
                                     }}
                                 >
                                     <NavigationLink
-                                        key={section.id}
                                         link={`/tasks/${section.id}`}
                                         title={section.name}
                                         icon={icons.folder}
@@ -175,7 +174,7 @@ const NavigationSectionLinks = () => {
                                 </NavigationContextMenuWrapper>
                             </ReorderDropContainer>
                         ) : (
-                            <NavigationLinkTemplate ref={ref}>
+                            <NavigationLinkTemplate key={section.id} ref={ref}>
                                 <AddSectionContainer>
                                     <div>
                                         <Icon icon={icons.folder} color="black" />
