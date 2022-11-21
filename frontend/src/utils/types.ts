@@ -48,6 +48,7 @@ export interface TTask {
     sub_tasks?: TTask[]
     created_at: string
     updated_at: string
+    parentTaskId?: string
 }
 
 export interface TMeetingPreparationParams {

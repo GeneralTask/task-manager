@@ -23,6 +23,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'plus',
     },
+    createSubtask: {
+        label: 'Create new subtask',
+        key: `${SHIFT_KEY}+C`,
+        keyLabel: `${SHIFT_KEY}+C`,
+        category: 'Tasks',
+        icon: 'plus',
+    },
     markAsDone: {
         label: 'Mark as done',
         key: 'd',
@@ -88,8 +95,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'caret_left',
     },
-    today: {
-        label: 'Today',
+    jumpToToday: {
+        label: 'Jump to Today',
         key: 't',
         keyLabel: 'T',
         category: 'Calendar',

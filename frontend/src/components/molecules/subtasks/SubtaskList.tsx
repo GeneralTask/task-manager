@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
+import { useKeyboardShortcut } from '../../../hooks'
 import { useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
@@ -43,6 +44,11 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
     const { mutate: reorderMutate } = useReorderTask()
+
+    useKeyboardShortcut(
+        'createSubtask',
+        useCallback(() => setShowCreateNewSubtask(true), [])
+    )
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {

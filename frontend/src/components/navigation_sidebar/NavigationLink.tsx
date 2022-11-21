@@ -149,7 +149,12 @@ const NavigationLink = ({
         const dataTip = taskSection ? `${title} (${count ?? 0})` : title
         return (
             <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
-                <GTIconButton icon={icon} onClick={onClickHandler} />
+                <GTIconButton
+                    ref={drop}
+                    icon={icon}
+                    onClick={onClickHandler}
+                    forceShowHoverEffect={isOver || isCurrentPage}
+                />
             </TooltipWrapper>
         )
     }

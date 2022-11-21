@@ -1,8 +1,12 @@
+import { useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
@@ -17,6 +21,7 @@ const CollapsedContainer = styled.div`
     gap: ${Spacing._16};
     height: 100%;
     overflow-y: auto;
+    align-items: center;
 `
 const FoldersContainer = styled.div`
     margin-top: ${Spacing._32};
@@ -38,10 +43,17 @@ interface NavigationViewCollapsedProps {
 }
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
+    const { section: sectionId } = useParams()
 
+    useEffect(() => {
+        return () => {
+            ReactTooltip.hide()
+        }
+    }, [])
     return (
         <CollapsedContainer>
-            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
+            <Icon icon={logos.generaltask_yellow_circle} size="medium" />
+            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} shortcutName="navigationView" />
             <CommandPalette />
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
@@ -56,10 +68,11 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             link={`/tasks/${folder.id}`}
                             title={folder.name}
                             icon={icon}
-                            isCurrentPage={'' === folder.id}
+                            isCurrentPage={sectionId === folder.id}
                             taskSection={folder}
                             count={folder.tasks.length}
                             isCollapsed
+                            droppable
                         />
                     )
                 })}
