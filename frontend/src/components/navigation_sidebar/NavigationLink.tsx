@@ -8,6 +8,7 @@ import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { TIconColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
@@ -59,6 +60,7 @@ interface NavigationLinkProps {
     link: string
     title: string
     icon?: IconProp | string
+    iconColor?: TIconColor
     taskSection?: TTaskSection
     count?: number
     needsRelinking?: boolean
@@ -71,6 +73,7 @@ const NavigationLink = ({
     link,
     title,
     icon,
+    iconColor,
     taskSection,
     count,
     needsRelinking = false,
@@ -152,6 +155,7 @@ const NavigationLink = ({
                 <GTIconButton
                     ref={drop}
                     icon={icon}
+                    iconColor={iconColor}
                     onClick={onClickHandler}
                     forceShowHoverEffect={isOver || isCurrentPage}
                 />
@@ -161,7 +165,7 @@ const NavigationLink = ({
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
-                {icon && <Icon icon={icon} color="black" />}
+                {icon && <Icon icon={icon} color={iconColor} />}
                 <SectionTitle>{title}</SectionTitle>
                 {needsRelinking && (
                     <TooltipWrapper dataTip="Account needs to be re-linked in settings" tooltipId="tooltip">
