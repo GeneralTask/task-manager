@@ -38,6 +38,12 @@ export const SubtaskContainer = styled.div`
     width: 100%;
     box-sizing: border-box;
 `
+const TitleSpan = styled.span`
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+`
 
 interface SubtaskProps {
     parentTaskId: string
@@ -75,7 +81,7 @@ const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
                     subtaskId={subtask.id}
                     isSelected={false}
                 />
-                {subtask.title}
+                <TitleSpan>{subtask.title}</TitleSpan>
                 <RightContainer>
                     <DueDate date={dueDate} />
                     {subtask.priority_normalized !== 0 && (

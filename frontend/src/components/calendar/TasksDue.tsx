@@ -27,23 +27,31 @@ const TasksDue = ({ date }: TasksDueProps) => {
     const location = useLocation()
     const isOnFocusMode = location.pathname.includes('focus-mode')
     const { data: taskFolders } = useGetTasks()
-    const tasksDueToday = useMemo(() => {
+
+    const incompleteTasks = useMemo(() => {
         const allTasks = taskFolders?.flatMap((section) => section.tasks) ?? []
-        const incompleteTasks = allTasks.filter((task) => !task.is_done && !task.is_deleted)
-        return incompleteTasks.filter(
-            (task) =>
-                DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
-                (task.meeting_preparation_params &&
-                    DateTime.fromISO(task.meeting_preparation_params.datetime_start).hasSame(date, 'day'))
-        )
-    }, [taskFolders, date])
-    const tasksOverdue = useMemo(() => {
-        const allTasks = taskFolders?.flatMap((section) => section.tasks) ?? []
-        const incompleteTasks = allTasks.filter((task) => !task.is_done && !task.is_deleted)
-        return incompleteTasks.filter(
-            (task) => !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
-        )
-    }, [taskFolders, date])
+        return allTasks.filter((task) => !task.is_done && !task.is_deleted)
+    }, [taskFolders])
+
+    const tasksDueToday = useMemo(
+        () =>
+            incompleteTasks.filter(
+                (task) =>
+                    DateTime.fromISO(task.due_date).hasSame(date, 'day') ||
+                    (task.meeting_preparation_params &&
+                        DateTime.fromISO(task.meeting_preparation_params.datetime_start).hasSame(date, 'day'))
+            ),
+        [incompleteTasks, date]
+    )
+
+    const tasksOverdue = useMemo(
+        () =>
+            incompleteTasks.filter(
+                (task) =>
+                    !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
+            ),
+        [incompleteTasks, date]
+    )
 
     return (
         <>
