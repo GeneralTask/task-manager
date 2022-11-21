@@ -6,7 +6,7 @@ import getEnvVars, { isDevelopmentMode } from '../../environment'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 
 const LandingScreen = () => {
-    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" />
+    if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" replace />
     useEffect(() => {
         if (!isDevelopmentMode) {
             window.location.replace(getEnvVars().REACT_APP_TRY_BASE_URL)
