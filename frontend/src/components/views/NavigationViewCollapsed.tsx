@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
@@ -40,6 +41,7 @@ interface NavigationViewCollapsedProps {
 }
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
+    const { section: sectionId } = useParams()
 
     useEffect(() => {
         return () => {
@@ -63,7 +65,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             link={`/tasks/${folder.id}`}
                             title={folder.name}
                             icon={icon}
-                            isCurrentPage={'' === folder.id}
+                            isCurrentPage={sectionId === folder.id}
                             taskSection={folder}
                             count={folder.tasks.length}
                             isCollapsed
