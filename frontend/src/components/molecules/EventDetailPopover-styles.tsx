@@ -1,38 +1,15 @@
 import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Colors, Spacing, Typography } from '../../styles'
 import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const MAX_POPUP_LENGTH = 315
 const MAX_POPUP_HEIGHT = 100
 
-interface EventBoxStyleProps {
-    xCoord: number
-    yCoord: number
-    popupHeight: number
-    eventHeight: number
-    eventWidth: number
-    windowHeight: number
-}
-/* Calculates the position of the popup depending on the position of the event
-Handles edge cases for events below max height (window height - popup height) */
-export const EventBoxStyle = styled.div<EventBoxStyleProps>`
-    position: absolute;
+export const EventBoxStyle = styled.div`
     box-sizing: border-box;
     padding: ${Spacing._16} ${Spacing._16};
     width: ${MAX_POPUP_LENGTH}px;
-    left: ${(props) =>
-        props.xCoord <= MAX_POPUP_LENGTH
-            ? `calc(${props.xCoord}px + ${props.eventWidth}px)`
-            : `calc(${props.xCoord}px - ${MAX_POPUP_LENGTH}px)`};
-    top: ${(props) =>
-        props.yCoord >= props.windowHeight - props.popupHeight
-            ? props.yCoord - props.eventHeight - props.popupHeight
-            : props.yCoord}px;
-
-    background-color: ${Colors.background.white};
-    box-shadow: ${Shadows.medium};
-    border-radius: ${Border.radius.small};
     display: flex;
     flex-direction: column;
     gap: ${Spacing._8};

@@ -5,13 +5,18 @@ import { TIconType } from '../atoms/Icon'
 
 const MENU_WIDTH = '192px'
 
-export const MenuTriggerShared = css`
+export const MenuTriggerShared = css<{ unstyled?: boolean }>`
     all: unset;
-    border-radius: ${Border.radius.small};
     width: 100%;
-    &:focus {
-        outline: ${Border.stroke.small} solid ${Colors.border.light};
-    }
+    height: 100%;
+    ${({ unstyled }) =>
+        !unstyled &&
+        `
+        border-radius: ${Border.radius.small};
+        &:focus {
+            outline: ${Border.stroke.small} solid ${Colors.border.light};
+        }
+    `}
 `
 export const MenuItemShared = css<{ textcolor?: TTextColor; disabled?: boolean }>`
     display: flex;
