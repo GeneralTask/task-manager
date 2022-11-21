@@ -96,7 +96,7 @@ const TaskSectionView = () => {
         (task: TTask) => {
             setShouldScrollToTask(true)
             if (section) {
-                navigate(`/tasks/${section.id}/${task.id}`)
+                navigate(`/tasks/${section.id}/${task.id}`, { replace: true })
                 Log(`task_select_${task.id}`)
             }
         },
@@ -122,13 +122,13 @@ const TaskSectionView = () => {
         if (taskSections && taskSections.length > 0 && (!section || !task)) {
             const firstSectionId = taskSections[0].id
             if (!section) {
-                navigate(`/tasks/${firstSectionId}/`)
+                navigate(`/tasks/${firstSectionId}/`, { replace: true })
             } else if (!task && sortedTasks.length > taskIndex) {
-                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex].id}`)
+                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex].id}`, { replace: true })
             } else if (!task && sortedTasks.length === taskIndex && taskIndex > 0) {
-                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex - 1].id}`)
+                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex - 1].id}`, { replace: true })
             } else if (!task && sortedTasks.length > 0) {
-                navigate(`/tasks/${section.id}/${sortedTasks[0].id}`)
+                navigate(`/tasks/${section.id}/${sortedTasks[0].id}`, { replace: true })
             }
         }
     }, [taskSections, params.section, params.task])
