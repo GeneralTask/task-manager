@@ -721,7 +721,7 @@ func TestModifyJIRATask(t *testing.T) {
 	})
 	t.Run("UpdateFieldsSuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, "")
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
@@ -736,7 +736,7 @@ func TestModifyJIRATask(t *testing.T) {
 	})
 	t.Run("UpdateTitleStatusSuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, "")
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
 		transitionServer := getTransitionServerForJIRA(t, 200, false)
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
@@ -751,7 +751,7 @@ func TestModifyJIRATask(t *testing.T) {
 	})
 	t.Run("UpdateEmptyDescriptionSuccess", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, "")
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
@@ -764,7 +764,7 @@ func TestModifyJIRATask(t *testing.T) {
 	})
 	t.Run("UpdateEmptyTitleFails", func(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
-		taskUpdateServer := testutils.GetMockAPIServer(t, 200, "")
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 

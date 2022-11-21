@@ -471,6 +471,27 @@ func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.At
 	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
 }
 
+type JIRAUpdateRequest struct {
+	Fields JIRAUpdateFields `json:"fields"`
+}
+
+type JIRAUpdateFields struct {
+	Summary     string               `json:"summary,omitempty"`
+	Description JIRADescriptionField `json:"description,omitempty"`
+}
+
+type JIRADescriptionField struct {
+	Type    string             `json:"type,omitempty"`
+	Version int                `json:"version,omitempty"`
+	Content []JIRAFieldContent `json:"content"`
+}
+
+type JIRAFieldContent struct {
+	Type    string             `json:"type"`
+	Content []JIRAFieldContent `json:"content,omitempty"`
+	Text    string             `json:"text,omitempty"`
+}
+
 func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
 	var apiBaseURL string
 	if jira.Atlassian.Config.ConfigValues.IssueUpdateURL != nil {
@@ -479,47 +500,46 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
 	}
 
-	updateFieldsString := ""
+	var updateRequest JIRAUpdateRequest
 	if updateFields.Title != nil {
 		if *updateFields.Title == "" {
 			return errors.New("cannot set JIRA issue title to empty string")
 		}
 
-		updateFieldsString = `{
-			"fields": {
-				"summary":"` + *updateFields.Title + `"`
+		updateRequest.Fields.Summary = *updateFields.Title
 	}
 	if updateFields.Body != nil {
-		// if updateFields already populated, add, else, create a new one
-		if updateFieldsString != "" {
-			updateFieldsString = updateFieldsString + `,`
+		if *updateFields.Body == "" {
+			updateRequest.Fields.Description = JIRADescriptionField{
+				Type:    "doc",
+				Version: 1,
+				Content: []JIRAFieldContent{},
+			}
 		} else {
-			updateFieldsString = `{
-				"fields": {`
+			updateRequest.Fields.Description = JIRADescriptionField{
+				Type:    "doc",
+				Version: 1,
+				Content: []JIRAFieldContent{
+					{
+						Type: "paragraph",
+						Content: []JIRAFieldContent{
+							{
+								Text: *updateFields.Body,
+								Type: "text",
+							},
+						},
+					},
+				},
+			}
 		}
-		updateFieldsString = updateFieldsString + `       
-		"description": {
-            "type": "doc",
-            "version": 1,
-            "content": [
-                {
-                "type": "paragraph",
-                "content": [
-                    {
-                    "text": "` + *updateFields.Body + `",
-                    "type": "text"
-                    }
-                ]
-                }
-            ]
-        }`
 	}
 
-	if updateFieldsString != "" {
-		updateFieldsString = updateFieldsString + `}}`
-		return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateFieldsString)
+	updateRequestBytes, err := json.Marshal(&updateRequest)
+	if err != nil {
+		return errors.New("unable to marshal update fields for JIRA request")
 	}
-	return nil
+
+	return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateRequestBytes)
 }
 
 func (jira JIRASource) getTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string, status database.ExternalTaskStatus) *string {
@@ -572,23 +592,22 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 && resp.StatusCode != 204 {
 		return errors.New("unable to successfully make status transition update request")
 	}
 	return nil
 }
 
-func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken string, issueID string, updateString string) error {
+func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken string, issueID string, updateBytes []byte) error {
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID
-	params := []byte(updateString)
-	req, _ := http.NewRequest("PUT", transitionsURL, bytes.NewBuffer(params))
+	req, _ := http.NewRequest("PUT", transitionsURL, bytes.NewBuffer(updateBytes))
 	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 && resp.StatusCode != 204 {
 		return errors.New("unable to successfully make field update request")
 	}
 	return nil
