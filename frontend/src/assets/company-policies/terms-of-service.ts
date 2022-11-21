@@ -6,6 +6,9 @@ const TermsOfServiceHTML = `
 	<style>
 		<!--
 		/* Font Definitions */
+		a {
+			color: black !important;
+		}
 		@font-face {
 			font-family: Wingdings;
 			panose-1: 5 0 0 0 0 0 0 0 0 0;
