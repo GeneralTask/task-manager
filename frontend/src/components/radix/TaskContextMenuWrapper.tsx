@@ -20,32 +20,36 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
 
     const contextMenuItems: GTMenuItem[] = [
-        {
-            label: 'Move to Folder',
-            icon: icons.folder,
-            subItems: taskSections
-                ? [
-                      ...taskSections
-                          .filter((s) => !s.is_done && !s.is_trash)
-                          .map((section) => ({
-                              label: section.name,
-                              icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
-                              selected: section.id === sectionId,
-                              onClick: () => {
-                                  reorderTask(
-                                      {
-                                          id: task.id,
-                                          dropSectionId: section.id,
-                                          dragSectionId: sectionId,
-                                          orderingId: 1,
-                                      },
-                                      task.optimisticId
-                                  )
-                              },
-                          })),
-                  ]
-                : [],
-        },
+        ...(sectionId
+            ? [
+                  {
+                      label: 'Move to Folder',
+                      icon: icons.folder,
+                      subItems: taskSections
+                          ? [
+                                ...taskSections
+                                    .filter((s) => !s.is_done && !s.is_trash)
+                                    .map((section) => ({
+                                        label: section.name,
+                                        icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+                                        selected: section.id === sectionId,
+                                        onClick: () => {
+                                            reorderTask(
+                                                {
+                                                    id: task.id,
+                                                    dropSectionId: section.id,
+                                                    dragSectionId: sectionId,
+                                                    orderingId: 1,
+                                                },
+                                                task.optimisticId
+                                            )
+                                        },
+                                    })),
+                            ]
+                          : [],
+                  },
+              ]
+            : []),
         {
             label: 'Set Due Date',
             icon: icons.clock,
@@ -96,7 +100,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
                 markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId),
         },
     ]
-
     return <GTContextMenu items={contextMenuItems} trigger={children} onOpenChange={onOpenChange} />
 }
 
