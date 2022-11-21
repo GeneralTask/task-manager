@@ -46,16 +46,6 @@ const SidebarHeader = styled(Subtitle)`
 const MarginDivider = styled(Divider)`
     margin: ${Spacing._16} 0;
 `
-const ModifiedCalendarHeader = styled(Body)`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: ${Colors.text.light};
-    background-color: ${Colors.background.medium};
-    padding: ${Spacing._12} ${Spacing._16};
-    border-left: ${Border.stroke.medium} solid ${Colors.border.light};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
-`
 
 const WeekTaskToCalendar = (props: BaseModalProps) => {
     const { data: sections } = useGetTasks()
@@ -93,10 +83,6 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
                     ))}
                 </ScheduleTaskSidebar>
                 <CalendarAndHeaderContainer>
-                    <ModifiedCalendarHeader>
-                        <span>Calendar</span>
-                        <GTIconButton icon={icons.x} onClick={() => props.setIsModalOpen(false)} />
-                    </ModifiedCalendarHeader>
                     <CalendarViewContainer>
                         <CalendarView
                             initialType="week"
