@@ -9,13 +9,15 @@ import { useCalendarContext } from './CalendarContext'
 import TaskDueBody from './TaskDueBody'
 import TasksDueHeader from './TasksDueHeader'
 
-export const CONTAINER_MAX_HEIGHT = '130px'
+const CONTAINER_MAX_HEIGHT = '130px'
 
-export const TasksDueContainer = styled.div<{ hasTopBorder?: boolean }>`
+const TasksDueContainer = styled.div<{ hasTopBorder?: boolean }>`
     background-color: ${Colors.background.white};
-    padding: ${Spacing._8} ${Spacing._12};
     ${({ hasTopBorder }) => hasTopBorder && `border-top: ${Border.stroke.medium} solid ${Colors.border.light};`}
     border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+`
+export const PaddedTasksScroll = styled.div`
+    padding: 0 ${Spacing._12} ${Spacing._8};
     max-height: ${CONTAINER_MAX_HEIGHT};
     overflow-y: auto;
 `
@@ -71,13 +73,21 @@ const TasksDue = ({ date }: TasksDueProps) => {
             {tasksDueToday.length > 0 && (
                 <TasksDueContainer hasTopBorder={!isOnFocusMode}>
                     <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} />
-                    {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueToday} />}
+                    {!isTasksDueViewCollapsed && (
+                        <PaddedTasksScroll>
+                            <TaskDueBody tasksDue={tasksDueToday} />
+                        </PaddedTasksScroll>
+                    )}
                 </TasksDueContainer>
             )}
             {tasksOverdue.length > 0 && (
                 <TasksDueContainer>
                     <TasksDueHeader type="day" dueType="overdue" numTasksDue={tasksOverdue.length} />
-                    {!isTasksOverdueViewCollapsed && <TaskDueBody tasksDue={tasksOverdue} showDueDate />}
+                    {!isTasksOverdueViewCollapsed && (
+                        <PaddedTasksScroll>
+                            <TaskDueBody tasksDue={tasksOverdue} showDueDate />
+                        </PaddedTasksScroll>
+                    )}
                 </TasksDueContainer>
             )}
         </>
