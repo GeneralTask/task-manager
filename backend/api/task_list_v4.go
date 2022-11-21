@@ -90,8 +90,8 @@ func (api *API) mergeTasksV4(
 ) ([]*TaskResultV4, error) {
 	allTasks := []database.Task{}
 	allTasks = append(allTasks, *activeTasks...)
-	allTasks = append(allTasks, *completedTasks...)
-	allTasks = append(allTasks, *deletedTasks...)
+	// allTasks = append(allTasks, *completedTasks...)
+	// allTasks = append(allTasks, *deletedTasks...)
 	return api.taskListToTaskResultListV4(&allTasks, userID), nil
 }
 
@@ -99,9 +99,8 @@ func (api *API) mergeTasksV4(
 // TODO: remove taskListToTaskResultList when frontend switches to new endpoint
 func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primitive.ObjectID) []*TaskResultV4 {
 	parentToChildIDs := make(map[primitive.ObjectID][]primitive.ObjectID)
-	baseNodes := []*TaskResultV4{}
+	taskResults := []*TaskResultV4{}
 	for _, task := range *tasks {
-		// result := api.taskToTaskResultV4(&task, userID)
 		if task.ParentTaskID != primitive.NilObjectID {
 			value, exists := parentToChildIDs[task.ParentTaskID]
 			if exists {
@@ -109,19 +108,16 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 			} else {
 				parentToChildIDs[task.ParentTaskID] = []primitive.ObjectID{task.ID}
 			}
-		} else {
-			baseNodes = append(baseNodes, api.taskToTaskResultV4(&task, userID))
 		}
+		taskResults = append(taskResults, api.taskToTaskResultV4(&task, userID))
 	}
 
 	// nodes with no valid parent will not appear in task results
-	taskResults := []*TaskResultV4{}
-	for _, node := range baseNodes {
+	for _, node := range taskResults {
 		value, exists := parentToChildIDs[node.ID]
 		if exists {
 			node.SubTaskIDs = value
 		}
-		taskResults = append(taskResults, node)
 	}
 	return taskResults
 }
