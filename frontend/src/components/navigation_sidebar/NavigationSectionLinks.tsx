@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useClickOutside } from '../../hooks'
 import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { DropItem, DropType } from '../../utils/types'
+import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
@@ -53,7 +54,7 @@ const NavigationSectionLinks = () => {
         e.stopPropagation()
         if (e.key === 'Enter' && sectionName.trim() !== '') {
             setSectionName('')
-            addTaskSection({ name: sectionName, id_ordering: folders?.length })
+            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
             setIsAddSectionInputVisible(false)
         } else if (e.key === 'Escape' && inputRef.current) {
             setSectionName('')
@@ -85,10 +86,13 @@ const NavigationSectionLinks = () => {
     }, [])
 
     const handleReorder = useCallback((item: DropItem, dropIndex: number) => {
-        modifyTaskSection({
-            sectionId: item.id,
-            id_ordering: dropIndex,
-        })
+        modifyTaskSection(
+            {
+                id: item.id,
+                id_ordering: dropIndex,
+            },
+            item.task?.optimisticId
+        )
     }, [])
 
     const defaultFolder = folders?.find((section) => section.id === DEFAULT_SECTION_ID)
@@ -96,11 +100,10 @@ const NavigationSectionLinks = () => {
     const trashFolder = folders?.find((section) => section.is_trash)
 
     // Logic for updating section name from navigation view
-    const [sectionBeingEdited, setSectionBeingEdited] = useState<string | null>(null)
+    const [sectionBeingEdited, setSectionBeingEdited] = useState<TTaskSection | null>(null)
     const [updatedSectionName, setUpdatedSectionName] = useState<string>('')
     const ref = useRef<HTMLDivElement>(null)
 
-    const setCurrentSectionName = (sectionName: string) => setUpdatedSectionName(sectionName)
     useClickOutside(ref, () => setSectionBeingEdited(null))
 
     const onKeyDownHandlerSectionName = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -109,10 +112,13 @@ const NavigationSectionLinks = () => {
         if (e.key === 'Enter' && updatedSectionName.trim() !== '') {
             setSectionBeingEdited(null)
             setUpdatedSectionName('')
-            modifyTaskSection({
-                sectionId: sectionBeingEdited,
-                name: updatedSectionName,
-            })
+            modifyTaskSection(
+                {
+                    id: sectionBeingEdited.id,
+                    name: updatedSectionName,
+                },
+                sectionBeingEdited.optimisticId
+            )
         } else if (e.key === 'Escape') {
             setUpdatedSectionName('')
             setSectionBeingEdited(null)
@@ -141,7 +147,7 @@ const NavigationSectionLinks = () => {
                 {folders
                     ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
                     .map((section, index) =>
-                        sectionBeingEdited !== section.id ? (
+                        sectionBeingEdited?.id !== section.id ? (
                             <ReorderDropContainer
                                 key={section.id}
                                 index={index} // +1 because we skip the default folder
@@ -149,12 +155,13 @@ const NavigationSectionLinks = () => {
                                 onReorder={handleReorder}
                             >
                                 <NavigationContextMenuWrapper
-                                    sectionId={section.id}
-                                    setSectionName={() => setCurrentSectionName(section.name)}
-                                    setSectionBeingEdited={setSectionBeingEdited}
+                                    section={section}
+                                    setSectionBeingEdited={(section) => {
+                                        setUpdatedSectionName(section.name)
+                                        setSectionBeingEdited(section)
+                                    }}
                                 >
                                     <NavigationLink
-                                        key={section.id}
                                         link={`/tasks/${section.id}`}
                                         title={section.name}
                                         icon={icons.folder}
@@ -167,7 +174,7 @@ const NavigationSectionLinks = () => {
                                 </NavigationContextMenuWrapper>
                             </ReorderDropContainer>
                         ) : (
-                            <NavigationLinkTemplate ref={ref}>
+                            <NavigationLinkTemplate key={section.id} ref={ref}>
                                 <AddSectionContainer>
                                     <div>
                                         <Icon icon={icons.folder} color="black" />
@@ -176,7 +183,7 @@ const NavigationSectionLinks = () => {
                                         <NoStyleInput
                                             ref={(node) => {
                                                 if (!node) return
-                                                if (sectionBeingEdited === section.id) node.focus()
+                                                if (sectionBeingEdited.id === section.id) node.focus()
                                                 else if (sectionBeingEdited === null) node.blur()
                                             }}
                                             value={updatedSectionName}

@@ -68,14 +68,14 @@ export const SectionHeader = (props: SectionHeaderProps) => {
 
     const handleDelete = async (id: string | undefined) => {
         if (id && confirm('Are you sure you want to delete this section?')) {
-            deleteTaskSection({ sectionId: id })
+            deleteTaskSection({ id })
             navigate('/tasks')
         }
     }
     const handleChangeSectionName = (id: string | undefined, name: string) => {
         const trimmedName = name.trim()
         if (id && trimmedName.length > 0) {
-            modifyTaskSection({ sectionId: id, name: trimmedName })
+            modifyTaskSection({ id, name: trimmedName })
             setSectionName(trimmedName)
         } else {
             setSectionName(props.sectionName)

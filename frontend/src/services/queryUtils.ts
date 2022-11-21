@@ -75,6 +75,9 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
             if (queue.length > 0) {
                 if (queue[0].optimisticId) {
                     const id = getIdFromOptimisticId(queue[0].optimisticId)
+                    if (!id) {
+                        throw new Error('Could not find real id for optimistic id')
+                    }
                     queue[0].send(id)
                 } else {
                     queue[0].send()
@@ -89,6 +92,15 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
 
+        // if an optimistic ID is passed in, first check if it has already been resolved
+        if (optimisticId) {
+            const realId = getIdFromOptimisticId(optimisticId)
+            if (realId) {
+                optimisticId = undefined
+                variables = { ...variables, id: realId }
+            }
+        }
+
         if (optimisticId) {
             if (queue.length === 0) {
                 throw new Error(`Optimistic mutation queued with no pending requests with tag: ${mutationOptions.tag}`)
@@ -99,11 +111,10 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
                 })
             }
         } else {
-            queue.push({
-                send: () => mutate(variables),
-            })
+            const send = () => mutate(variables)
+            queue.push({ send })
             if (queue.length === 1) {
-                mutate(variables)
+                send()
             }
         }
     }
