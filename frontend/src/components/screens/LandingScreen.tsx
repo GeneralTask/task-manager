@@ -6,13 +6,16 @@ import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 
 const LandingScreen = () => {
     if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" replace />
-    else if (!isDevelopmentMode) return <Navigate to={getEnvVars().REACT_APP_TRY_BASE_URL} replace />
-    else
+    else if (isDevelopmentMode)
         return (
             <div>
                 <GoogleSignInButton />
             </div>
         )
+    else {
+        window.location.href = getEnvVars().REACT_APP_TRY_BASE_URL
+        return null
+    }
 }
 
 export default LandingScreen
