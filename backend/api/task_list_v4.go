@@ -90,8 +90,8 @@ func (api *API) mergeTasksV4(
 ) ([]*TaskResultV4, error) {
 	allTasks := []database.Task{}
 	allTasks = append(allTasks, *activeTasks...)
-	// allTasks = append(allTasks, *completedTasks...)
-	// allTasks = append(allTasks, *deletedTasks...)
+	allTasks = append(allTasks, *completedTasks...)
+	allTasks = append(allTasks, *deletedTasks...)
 	return api.taskListToTaskResultListV4(&allTasks, userID), nil
 }
 
