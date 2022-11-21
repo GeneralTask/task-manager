@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -41,9 +43,14 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
 
+    useEffect(() => {
+        return () => {
+            ReactTooltip.hide()
+        }
+    }, [])
     return (
         <CollapsedContainer>
-            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
+            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} shortcutName="navigationView" />
             <CommandPalette />
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
