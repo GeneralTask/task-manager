@@ -62,6 +62,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             taskSection={folder}
                             count={folder.tasks.length}
                             isCollapsed
+                            droppable
                         />
                     )
                 })}

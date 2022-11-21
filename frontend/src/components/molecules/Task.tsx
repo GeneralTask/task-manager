@@ -8,12 +8,11 @@ import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION
 import { useInterval } from '../../hooks'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { Colors, Spacing, Typography } from '../../styles'
-import { TTextColor } from '../../styles/colors'
+import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
-import { getFormattedDate, isValidDueDate } from '../../utils/utils'
 import Domino from '../atoms/Domino'
+import DueDate from '../atoms/DueDate'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -48,10 +47,6 @@ const Title = styled.span`
 `
 export const PositionedDomino = styled(Domino)`
     margin-right: ${Spacing._8};
-`
-const DueDate = styled.span<{ color: TTextColor }>`
-    color: ${(props) => Colors.text[props.color]};
-    ${Typography.bodySmall};
 `
 
 interface TaskProps {
@@ -175,8 +170,6 @@ const Task = ({
     }
 
     const dueDate = DateTime.fromISO(task.due_date).toJSDate()
-    const formattedDate = getFormattedDate(dueDate)
-
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
     return (
@@ -221,9 +214,7 @@ const Task = ({
                     )}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
-                        {isValidDueDate(dueDate) && (
-                            <DueDate color={formattedDate.textColor}>{formattedDate.dateString}</DueDate>
-                        )}
+                        <DueDate date={dueDate} />
                         {task.priority_normalized !== 0 && (
                             <Icon
                                 icon={TASK_PRIORITIES[task.priority_normalized].icon}
