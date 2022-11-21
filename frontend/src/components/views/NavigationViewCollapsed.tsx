@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -39,9 +41,14 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
 
+    useEffect(() => {
+        return () => {
+            ReactTooltip.hide()
+        }
+    }, [])
     return (
         <CollapsedContainer>
-            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} />
+            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} shortcutName="navigationView" />
             <CommandPalette />
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
@@ -60,6 +67,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             taskSection={folder}
                             count={folder.tasks.length}
                             isCollapsed
+                            droppable
                         />
                     )
                 })}
