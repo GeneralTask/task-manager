@@ -432,28 +432,96 @@ func (jira JIRASource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID
 }
 
 func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
+	token, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
+	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
+	if token == nil || siteConfiguration == nil {
+		return errors.New("missing token or siteConfiguration")
+	}
+
 	if updateFields.Status != nil {
-		token, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
-		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
-		if token == nil || siteConfiguration == nil {
-			return errors.New("missing token or siteConfiguration")
+		err := jira.handleJIRATransitionUpdate(siteConfiguration, token, issueID, updateFields)
+		if err != nil {
+			return err
+		}
+	}
+
+	if updateFields.Title != nil || updateFields.Body != nil {
+		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+	var apiBaseURL string
+	if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
+	} else {
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+	}
+
+	finalTransitionID := jira.getTransitionID(apiBaseURL, token.AccessToken, issueID, *updateFields.Status)
+	if finalTransitionID == nil {
+		return errors.New("final transition not found")
+	}
+
+	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+}
+
+func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+	var apiBaseURL string
+	if jira.Atlassian.Config.ConfigValues.IssueUpdateURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.IssueUpdateURL
+	} else {
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+	}
+
+	updateFieldsString := ""
+	if updateFields.Title != nil {
+		if *updateFields.Title == "" {
+			return errors.New("cannot set JIRA issue title to empty string")
 		}
 
-		//first get the list of transitions
-		var apiBaseURL string
+		updateFieldsString = `{
+			"fields": {
+				"summary":"` + *updateFields.Title + `"`
+	}
+	if updateFields.Body != nil {
+		if *updateFields.Body == "" {
+			return errors.New("cannot set JIRA issue description to empty string")
+		}
 
-		if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
-			apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
+		// if updateFields already populated, add, else, create a new one
+		if updateFieldsString != "" {
+			updateFieldsString = updateFieldsString + `,`
 		} else {
-			apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+			updateFieldsString = `{
+				"fields": {`
 		}
+		updateFieldsString = updateFieldsString + `       
+		"description": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                "type": "paragraph",
+                "content": [
+                    {
+                    "text": "` + *updateFields.Body + `",
+                    "type": "text"
+                    }
+                ]
+                }
+            ]
+        }`
+	}
 
-		finalTransitionID := jira.getTransitionID(apiBaseURL, token.AccessToken, issueID, *updateFields.Status)
-		if finalTransitionID == nil {
-			return errors.New("final transition not found")
-		}
-
-		return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+	if updateFieldsString != "" {
+		updateFieldsString = updateFieldsString + `}}`
+		return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateFieldsString)
 	}
 	return nil
 }
@@ -502,6 +570,16 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
 	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
+
+	_, err := http.DefaultClient.Do(req)
+	return err
+}
+
+func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken string, issueID string, updateString string) error {
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID
+	params := []byte(updateString)
+	req, _ := http.NewRequest("PUT", transitionsURL, bytes.NewBuffer(params))
 	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
 	_, err := http.DefaultClient.Do(req)
