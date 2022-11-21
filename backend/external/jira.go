@@ -465,7 +465,7 @@ func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.At
 
 	finalTransitionID := jira.getTransitionID(apiBaseURL, token.AccessToken, issueID, *updateFields.Status)
 	if finalTransitionID == nil {
-		return errors.New("final transition not found")
+		return errors.New("transition not found")
 	}
 
 	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
@@ -490,10 +490,6 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 				"summary":"` + *updateFields.Title + `"`
 	}
 	if updateFields.Body != nil {
-		if *updateFields.Body == "" {
-			return errors.New("cannot set JIRA issue description to empty string")
-		}
-
 		// if updateFields already populated, add, else, create a new one
 		if updateFieldsString != "" {
 			updateFieldsString = updateFieldsString + `,`
@@ -572,8 +568,14 @@ func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken s
 	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
 	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
-	_, err := http.DefaultClient.Do(req)
-	return err
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return errors.New("unable to successfully make status transition update request")
+	}
+	return nil
 }
 
 func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken string, issueID string, updateString string) error {
@@ -582,8 +584,14 @@ func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken 
 	req, _ := http.NewRequest("PUT", transitionsURL, bytes.NewBuffer(params))
 	req = addJIRARequestHeaders(req, AtlassianAuthToken)
 
-	_, err := http.DefaultClient.Do(req)
-	return err
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return errors.New("unable to successfully make field update request")
+	}
+	return nil
 }
 
 func (jira JIRASource) ModifyEvent(db *mongo.Database, userID primitive.ObjectID, accountID string, eventID string, updateFields *EventModifyObject) error {
