@@ -9,7 +9,7 @@ const LandingScreen = () => {
     if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" />
     useEffect(() => {
         if (!isDevelopmentMode) {
-            window.location.href = getEnvVars().REACT_APP_TRY_BASE_URL
+            window.location.replace(getEnvVars().REACT_APP_TRY_BASE_URL)
         }
     }, [])
 
