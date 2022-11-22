@@ -178,7 +178,7 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                                 setShowCommandPalette(false)
                                                 action()
                                             }}
-                                            value={label}
+                                            value={`${label} ${category}`}
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
