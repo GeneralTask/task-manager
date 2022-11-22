@@ -237,7 +237,6 @@ func TestLoadJIRATasks(t *testing.T) {
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
 		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
-		priorityID := "something_that_will_change"
 		expectedTask := database.Task{
 			IDOrdering:        2,
 			IDExternal:        "42069",
@@ -248,7 +247,6 @@ func TestLoadJIRATasks(t *testing.T) {
 			SourceID:          TASK_SOURCE_ID_JIRA,
 			UserID:            *userID,
 			DueDate:           &dueDatePrim,
-			PriorityID:        &priorityID,
 			CreatedAtExternal: primCreatedAt,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        "",
@@ -274,8 +272,6 @@ func TestLoadJIRATasks(t *testing.T) {
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
-		// ordering ID should be reset to 0 if priority changes
-		expectedTask.IDOrdering = 0
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 
 		var taskFromDB database.Task
@@ -307,7 +303,6 @@ func TestLoadJIRATasks(t *testing.T) {
 		dueDatePrim := primitive.NewDateTimeFromTime(dueDate)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.999-0700", "2022-04-20T07:05:06.416-0800")
 		primCreatedAt := primitive.NewDateTimeFromTime(createdAt)
-		priorityID := "something_that_will_change"
 		expectedTask := database.Task{
 			IDOrdering:        2,
 			IDExternal:        "42069",
@@ -319,7 +314,6 @@ func TestLoadJIRATasks(t *testing.T) {
 			SourceID:          TASK_SOURCE_ID_JIRA,
 			UserID:            *userID,
 			DueDate:           &dueDatePrim,
-			PriorityID:        &priorityID,
 			CreatedAtExternal: primCreatedAt,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        "",
@@ -399,12 +393,9 @@ func TestGetStatuses(t *testing.T) {
 }
 
 func TestGetPriorities(t *testing.T) {
-	parentCtx := context.Background()
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
-
-	prioritiesCollection := database.GetJiraPrioritiesCollection(db)
 
 	userID, _ := setupJIRA(t, database.GetExternalTokenCollection(db), database.GetJiraSitesCollection(db))
 
@@ -412,7 +403,7 @@ func TestGetPriorities(t *testing.T) {
 		server := getJIRAPriorityServer(t, 400, []byte(``))
 		defer server.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
-		err := JIRA.GetListOfPriorities(*userID, "sample")
+		_, err := JIRA.GetListOfPriorities(*userID, "sample")
 		assert.Error(t, err)
 	})
 
@@ -420,40 +411,12 @@ func TestGetPriorities(t *testing.T) {
 		server := getJIRAPriorityServer(t, 200, []byte(`[{"id": "9"},{"id": "5"}]`))
 		defer server.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
-		err := JIRA.GetListOfPriorities(*userID, "sample")
+		priorities, err := JIRA.GetListOfPriorities(*userID, "sample")
 		assert.NoError(t, err)
 
-		options := options.Find()
-		options.SetSort(bson.M{"integer_priority": 1})
-		dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID}, options)
-		assert.NoError(t, err)
-		var priorities []database.JIRAPriority
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		err = cursor.All(dbCtx, &priorities)
-		assert.NoError(t, err)
 		assert.Equal(t, 2, len(priorities))
-		assert.Equal(t, "9", priorities[0].JIRAID)
-		assert.Equal(t, 1, priorities[0].IntegerPriority)
-		assert.Equal(t, "5", priorities[1].JIRAID)
-		assert.Equal(t, 2, priorities[1].IntegerPriority)
-
-		server = getJIRAPriorityServer(t, http.StatusOK, []byte(`[{"id": "8"}]`))
-		JIRA = JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
-		err = JIRA.GetListOfPriorities(*userID, "sample")
-		assert.NoError(t, err)
-
-		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-		defer cancel()
-		cursor, err = prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID}, options)
-		assert.NoError(t, err)
-		err = cursor.All(parentCtx, &priorities)
-		assert.NoError(t, err)
-		assert.Equal(t, 1, len(priorities))
-		assert.Equal(t, "8", priorities[0].JIRAID)
-		assert.Equal(t, 1, priorities[0].IntegerPriority)
+		assert.Equal(t, "9", priorities[0].ID)
+		assert.Equal(t, "5", priorities[1].ID)
 	})
 }
 

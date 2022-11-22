@@ -150,13 +150,6 @@ func (atlassian AtlassianService) HandleLinkCallback(db *mongo.Database, params 
 		logger.Error().Err(err).Msg("failed to create external site collection record")
 		return errors.New("internal server error")
 	}
-
-	JIRA := JIRASource{Atlassian: atlassian}
-	err = JIRA.GetListOfPriorities(userID, token.AccessToken)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to download priorities")
-		return errors.New("internal server error")
-	}
 	return nil
 }
 

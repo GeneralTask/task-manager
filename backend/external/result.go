@@ -8,12 +8,11 @@ type CalendarResult struct {
 }
 
 type TaskResult struct {
-	Tasks           []*database.Task
-	PriorityMapping *map[string]int
-	Error           error
-	SourceID        string
-	ServiceID       string
-	AccountID       string
+	Tasks     []*database.Task
+	Error     error
+	SourceID  string
+	ServiceID string
+	AccountID string
 }
 
 type PullRequestResult struct {
@@ -31,11 +30,9 @@ func emptyCalendarResult(err error) CalendarResult {
 }
 
 func emptyTaskResult(err error) TaskResult {
-	var priorities map[string]int
 	return TaskResult{
-		Tasks:           []*database.Task{},
-		PriorityMapping: &priorities,
-		Error:           err,
+		Tasks: []*database.Task{},
+		Error: err,
 	}
 }
 

@@ -2,7 +2,6 @@ package external
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -14,7 +13,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/templating"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -49,7 +47,10 @@ type JIRAStatusCategory struct {
 }
 
 type JIRAPriority struct {
-	ID string `json:"id"`
+	ID      string `json:"id"`
+	Color   string `json:"statusColor"`
+	Name    string `json:"name"`
+	IconURL string `json:"iconURL"`
 }
 
 type JIRAScope struct {
@@ -156,6 +157,12 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	}
 	defer dbCleanup()
 
+	priorityList, err := jira.GetListOfPriorities(userID, authToken.AccessToken)
+	if err != nil {
+		// still want to continue if cannot fetch priorities, as it is not a required field
+		logger.Error().Err(err).Msg("failed to fetch priorities")
+	}
+
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
@@ -174,7 +181,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Title:           &jiraTask.Fields.Summary,
 			Body:            &bodyString,
 			SourceAccountID: accountID,
-			PriorityID:      &jiraTask.Fields.Priority.ID,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        jiraTask.Fields.Status.ID,
 				IconURL:           jiraTask.Fields.Status.IconURL,
@@ -202,56 +208,48 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		if exists {
 			task.AllStatuses = allStatuses
 		}
+		if jiraTask.Fields.Priority.ID != "" && len(priorityList) > 0 {
+			priorityLength := len(priorityList)
+
+			var allPriorities []*database.ExternalTaskPriority
+			for idx, priority := range priorityList {
+				priorityNormalized := 1.0
+				if priorityLength > 1 {
+					priorityNormalized = ((float64(idx) / (float64(priorityLength) - 1.0)) * 3.0) + 1.0
+				}
+				priorityObject := database.ExternalTaskPriority{
+					ExternalID:         priority.ID,
+					Name:               priority.Name,
+					IconURL:            priority.IconURL,
+					Color:              priority.Color,
+					PriorityNormalized: priorityNormalized,
+				}
+				if priority.ID == jiraTask.Fields.Priority.ID {
+					task.Priority = &priorityObject
+					task.PriorityNormalized = &priorityNormalized
+				}
+				allPriorities = append(allPriorities, &priorityObject)
+			}
+
+			task.AllPriorities = allPriorities
+		}
 
 		tasks = append(tasks, task)
 	}
 
-	cachedMapping := jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
-
-	//If a priority exists that isn't cached refresh the whole list.
-	var needsRefresh bool
-	for _, t := range tasks {
-		if t.PriorityID != nil && len(*t.PriorityID) == 0 {
-			continue
-		}
-		if t.PriorityID != nil {
-			if _, exists := (*cachedMapping)[*t.PriorityID]; !exists {
-				needsRefresh = true
-				break
-			}
-		}
-	}
-
-	if needsRefresh {
-		err = jira.GetListOfPriorities(userID, authToken.AccessToken)
-		if err != nil {
-			logger.Error().Err(err).Msg("failed to fetch priorities")
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
-			return
-		}
-		cachedMapping = jira.fetchLocalPriorityMapping(database.GetJiraPrioritiesCollection(db), userID)
-	}
-
-	// TODO remove this comment when fix the priority test logic
-	// priorityLength := len(*cachedMapping)
-
 	isCompleted := false
 	for _, task := range tasks {
 		updateTask := database.Task{
-			Title:       task.Title,
-			DueDate:     task.DueDate,
-			PriorityID:  task.PriorityID,
-			Status:      task.Status,
-			UpdatedAt:   task.UpdatedAt,
-			AllStatuses: task.AllStatuses,
-			IsCompleted: &isCompleted,
+			Title:              task.Title,
+			DueDate:            task.DueDate,
+			Status:             task.Status,
+			UpdatedAt:          task.UpdatedAt,
+			PriorityNormalized: task.PriorityNormalized,
+			Priority:           task.Priority,
+			AllPriorities:      task.AllPriorities,
+			AllStatuses:        task.AllStatuses,
+			IsCompleted:        &isCompleted,
 		}
-
-		// TODO get the below logic to play nicely with tests
-		// if task.PriorityID != nil {
-		// priority := float64((*cachedMapping)[*task.PriorityID]) / float64(priorityLength)
-		// updateTask.PriorityNormalized = &priority
-		// }
 
 		dbTask, err := database.UpdateOrCreateTask(
 			db,
@@ -270,14 +268,10 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		task.ID = dbTask.ID
 		task.IDOrdering = dbTask.IDOrdering
 		task.IDTaskSection = dbTask.IDTaskSection
-		if dbTask.PriorityID != task.PriorityID && !dbTask.HasBeenReordered {
-			task.IDOrdering = 0
-		}
 	}
 
 	result <- TaskResult{
-		Tasks:           tasks,
-		PriorityMapping: cachedMapping,
+		Tasks: tasks,
 	}
 }
 
@@ -332,18 +326,19 @@ func (jira JIRASource) GetListOfStatuses(userID primitive.ObjectID, authToken st
 			}
 		}
 	}
+
 	return statusMap, nil
 }
 
-func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) error {
-	parentCtx := context.Background()
+func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken string) ([]JIRAPriority, error) {
+	var priorityIds []JIRAPriority
 	var baseURL string
 	if jira.Atlassian.Config.ConfigValues.PriorityListURL != nil {
 		baseURL = *jira.Atlassian.Config.ConfigValues.PriorityListURL
 	} else if siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID); siteConfiguration != nil {
 		baseURL = jira.getAPIBaseURL(*siteConfiguration)
 	} else {
-		return errors.New("could not form base url")
+		return priorityIds, errors.New("could not form base url")
 	}
 
 	url := baseURL + "/rest/api/3/priority/"
@@ -351,72 +346,20 @@ func (jira JIRASource) GetListOfPriorities(userID primitive.ObjectID, authToken 
 	req = addJIRARequestHeaders(req, authToken)
 
 	resp, err := http.DefaultClient.Do(req)
-
 	if err != nil {
-		return err
+		return priorityIds, err
 	}
+
 	priorityListString, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return priorityIds, err
 	}
 
-	var priorityIds []JIRAPriority
 	err = json.Unmarshal(priorityListString, &priorityIds)
 	if err != nil {
-		return err
+		return priorityIds, err
 	}
-
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
-	prioritiesCollection := database.GetJiraPrioritiesCollection(db)
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = prioritiesCollection.DeleteMany(dbCtx, bson.M{"user_id": userID})
-	if err != nil {
-		return err
-	}
-
-	var jiraPriorities []interface{}
-	for index, object := range priorityIds {
-		jiraPriorities = append(jiraPriorities, database.JIRAPriority{
-			UserID:          userID,
-			JIRAID:          object.ID,
-			IntegerPriority: index + 1,
-		})
-	}
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	_, err = prioritiesCollection.InsertMany(dbCtx, jiraPriorities)
-	return err
-}
-
-func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Collection, userID primitive.ObjectID) *map[string]int {
-	parentCtx := context.Background()
-	dbCtx, cancel := context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	cursor, err := prioritiesCollection.Find(dbCtx, bson.M{"user_id": userID})
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to fetch local priorities")
-		return nil
-	}
-	var priorities []database.JIRAPriority
-	dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
-	defer cancel()
-	err = cursor.All(dbCtx, &priorities)
-	if err != nil {
-		return nil
-	}
-
-	result := make(map[string]int)
-	for _, p := range priorities {
-		result[p.JIRAID] = p.IntegerPriority
-	}
-	return &result
+	return priorityIds, nil
 }
 
 func (jira JIRASource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {

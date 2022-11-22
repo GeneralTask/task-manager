@@ -102,10 +102,12 @@ type Task struct {
 	UpdatedAt          primitive.DateTime  `bson:"updated_at,omitempty"`
 	CompletedAt        primitive.DateTime  `bson:"completed_at,omitempty"`
 	DeletedAt          primitive.DateTime  `bson:"deleted_at,omitempty"`
-	PriorityID         *string             `bson:"priority_id,omitempty"`
 	PriorityNormalized *float64            `bson:"priority_normalized,omitempty"`
 	TaskNumber         *int                `bson:"task_number,omitempty"`
 	Comments           *[]Comment          `bson:"comments,omitempty"`
+	// used for external priority handling
+	Priority      *ExternalTaskPriority   `bson:"priority,omitempty"`
+	AllPriorities []*ExternalTaskPriority `bson:"all_priorities,omitempty"`
 	// for new user experience
 	NUXNumber int `bson:"nux_number_id,omitempty"`
 	// used to cache the current status before marking the task as done
@@ -262,6 +264,14 @@ type ExternalTaskStatus struct {
 	Position          float64 `json:"position" bson:"position"`
 	Color             string  `json:"color" bson:"color"`
 	IconURL           string  `json:"icon_url" bson:"icon_url"`
+}
+
+type ExternalTaskPriority struct {
+	ExternalID         string  `json:"external_id" bson:"external_id"`
+	Name               string  `json:"name" bson:"name"`
+	PriorityNormalized float64 `json:"priority_normalized" bson:"priority_normalized"`
+	Color              string  `json:"color" bson:"color"`
+	IconURL            string  `json:"icon_url" bson:"icon_url"`
 }
 
 type UserSetting struct {

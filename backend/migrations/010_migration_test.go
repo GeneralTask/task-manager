@@ -109,7 +109,6 @@ func TestMigrate010(t *testing.T) {
 		assert.Equal(t, database.Comment{Body: "THERE"}, (*result.Comments)[0])
 		assert.Equal(t, false, *result.IsCompleted)
 		assert.Equal(t, "HELLO", *result.Title)
-		assert.Equal(t, "priority1", *result.PriorityID)
 	})
 	t.Run("MigrateDown", func(t *testing.T) {
 		err = migrate.Steps(-1)
