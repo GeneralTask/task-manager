@@ -300,3 +300,15 @@ export interface TShortcut {
     hideFromCommandPalette?: boolean
     action: () => void
 }
+
+export interface TRecurringTaskTemplate {
+    id: string
+    optimisticId?: string
+    title: string
+    body: string
+    id_task_section: string
+    priority_normalized: string
+    recurrence_rate: number
+    time_of_day_seconds_to_create_task: number
+    day_to_create_task: number
+}
