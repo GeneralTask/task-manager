@@ -167,7 +167,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'headphones',
     },
     goToOverviewPage: {
-        label: 'Go to overview page',
+        label: 'Go to Overview page',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+o`,
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+O`,
         category: 'Navigation',
@@ -195,7 +195,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'slack',
     },
     goToTaskInbox: {
-        label: 'Go to task inbox',
+        label: 'Go to Task Inbox',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+i`,
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+I`,
         category: 'Navigation',
