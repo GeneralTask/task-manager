@@ -33,6 +33,7 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     tooltipText?: string // note: shortcutName takes precedence over tooltipText
     shortcutName?: TShortcutName
     asDiv?: boolean
+    className?: string
 }
 const GTIconButton = forwardRef(
     (
@@ -44,6 +45,7 @@ const GTIconButton = forwardRef(
             shortcutName,
             asDiv = false,
             onClick,
+            className,
             ...props
         }: GTIconButtonProps,
         ref: React.Ref<HTMLButtonElement>
@@ -74,6 +76,7 @@ const GTIconButton = forwardRef(
                         onClick={onClick}
                         forceShowHoverEffect={forceShowHoverEffect}
                         as={asDiv ? 'div' : 'button'}
+                        className={className}
                         {...props}
                     >
                         <Icon icon={icon} color={iconColor} />
@@ -86,6 +89,7 @@ const GTIconButton = forwardRef(
                 onClick={onClick}
                 forceShowHoverEffect={forceShowHoverEffect}
                 as={asDiv ? 'div' : 'button'}
+                className={className}
                 {...props}
             >
                 <Icon icon={icon} color={iconColor} />

@@ -17,6 +17,15 @@ import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
+const NavigationLinkGTIconButton = styled(GTIconButton)<{ isSelected: boolean; isOver: boolean }>`
+    mix-blend-mode: multiply;
+    background-color: ${(props) =>
+        props.isOver ? Colors.background.white : props.isSelected ? Colors.background.medium : 'inherit'};
+    :hover {
+        mix-blend-mode: normal;
+        background-color: ${Colors.background.white};
+    }
+`
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
@@ -32,7 +41,8 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     mix-blend-mode: multiply;
     transform: translate(0, 0); // to hide corners when dragging
     :hover {
-        background-color: ${Colors.background.medium};
+        mix-blend-mode: normal;
+        background-color: ${Colors.background.white};
     }
 `
 const SectionTitle = styled.span`
@@ -153,12 +163,13 @@ const NavigationLink = ({
         const dataTip = taskSection ? `${title} (${count ?? 0})` : title
         return (
             <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
-                <GTIconButton
+                <NavigationLinkGTIconButton
                     ref={drop}
                     icon={icon}
                     iconColor={iconColor}
                     onClick={onClickHandler}
-                    forceShowHoverEffect={isOver || isCurrentPage}
+                    isSelected={isCurrentPage}
+                    isOver={isOver}
                 />
             </TooltipWrapper>
         )
