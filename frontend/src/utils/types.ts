@@ -255,6 +255,7 @@ export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' |
 
 export interface TOverviewView {
     id: string
+    optimisticId?: string
     name: string
     type: TOverviewViewType
     task_section_id?: string
@@ -262,24 +263,24 @@ export interface TOverviewView {
     logo: TLogoImage
     view_items: TOverviewItem[]
     total_view_items?: number // the total number of items in the view without filters applied
-    isOptimistic?: boolean
     sources: TSourcesResult[]
     is_linked: boolean
 }
 
 export interface TSupportedViewItem {
+    view_id: string // id of view if is_linked is true
+    optimisticId?: string
     name: string
     is_linked: boolean
-    view_id: string // id of view if is_linked is true
     github_id: string
     task_section_id: string
     slack_id: string
     logo: TLogoImage
     is_added: boolean
-    is_add_disabled?: boolean
 }
 
 export interface TSupportedView {
+    optimisticId?: string
     type: TOverviewViewType
     name: string
     logo: TLogoImage

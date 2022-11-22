@@ -16,7 +16,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
     const [, drag, dragPreview] = useDrag(
         () => ({
             type: DropType.OVERVIEW_VIEW,
-            item: { id: view.id },
+            item: { id: view.id, view },
         }),
         [view.id]
     )
@@ -35,7 +35,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
                 <Domino />
                 <Icon icon={logos[view.logo]} />
                 {view.name}
-                <EditViewsDeleteButton onClick={() => removeView(view.id)}>
+                <EditViewsDeleteButton onClick={() => removeView({ id: view.id }, view.optimisticId)}>
                     <Icon icon={icons.trash} />
                 </EditViewsDeleteButton>
             </SelectedList>
