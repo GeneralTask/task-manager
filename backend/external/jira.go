@@ -158,12 +158,14 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
+		titleString := jiraTask.Fields.Summary
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
 			logger.Error().Err(err).Msg("unable to parse JIRA template")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
+		priorityID := jiraTask.Fields.Priority.ID
 
 		task := &database.Task{
 			UserID:          userID,
@@ -171,10 +173,10 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			IDTaskSection:   constants.IDTaskSectionDefault,
 			Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
 			SourceID:        TASK_SOURCE_ID_JIRA,
-			Title:           &jiraTask.Fields.Summary,
+			Title:           &titleString,
 			Body:            &bodyString,
 			SourceAccountID: accountID,
-			PriorityID:      &jiraTask.Fields.Priority.ID,
+			PriorityID:      &priorityID,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        jiraTask.Fields.Status.ID,
 				IconURL:           jiraTask.Fields.Status.IconURL,
@@ -438,6 +440,13 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 		return errors.New("missing token or siteConfiguration")
 	}
 
+	if updateFields.IsDeleted != nil {
+		err := jira.handleJIRAIssueDelete(siteConfiguration, token, issueID, updateFields)
+		if err != nil {
+			return err
+		}
+	}
+
 	if updateFields.Status != nil {
 		err := jira.handleJIRATransitionUpdate(siteConfiguration, token, issueID, updateFields)
 		if err != nil {
@@ -452,6 +461,33 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 		}
 	}
 
+	return nil
+}
+
+func (jira JIRASource) handleJIRAIssueDelete(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+	var apiBaseURL string
+	if jira.Atlassian.Config.ConfigValues.IssueDeleteURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.IssueDeleteURL
+	} else {
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+	}
+
+	if *updateFields.IsDeleted {
+		deleteURL := apiBaseURL + "/rest/api/3/issue/" + issueID
+		req, _ := http.NewRequest("DELETE", deleteURL, nil)
+		req = addJIRARequestHeaders(req, token.AccessToken)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode != 200 && resp.StatusCode != 204 {
+			return errors.New("unable to successfully delete JIRA task")
+		}
+	} else {
+		// once JIRA tickets are deleted, they cannot be brought back
+		return errors.New("cannot undelete JIRA tasks")
+	}
 	return nil
 }
 
