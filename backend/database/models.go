@@ -122,20 +122,20 @@ type Task struct {
 
 type RecurringTaskTemplate struct {
 	// task fields
-	ID                 primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	UserID             primitive.ObjectID `bson:"user_id,omitempty" json:"user_id"`
-	Title              *string            `bson:"title,omitempty" json:"title"`
-	Body               *string            `bson:"body,omitempty" json:"body"`
-	IDTaskSection      primitive.ObjectID `bson:"id_task_section,omitempty" json:"id_task_section"`
-	PriorityNormalized *float64           `bson:"priority_normalized,omitempty" json:"priority_normalized"`
+	ID                 primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	UserID             primitive.ObjectID `bson:"user_id,omitempty" json:"user_id,omitempty"`
+	Title              *string            `bson:"title,omitempty" json:"title,omitempty"`
+	Body               *string            `bson:"body,omitempty" json:"body,omitempty"`
+	IDTaskSection      primitive.ObjectID `bson:"id_task_section,omitempty" json:"id_task_section,omitempty"`
+	PriorityNormalized *float64           `bson:"priority_normalized,omitempty" json:"priority_normalized,omitempty"`
 	// recurrence fields
-	IsEnabled                    *bool              `bson:"is_enabled,omitempty" json:"is_enabled"`
-	IsDeleted                    *bool              `bson:"is_deleted,omitempty" json:"is_deleted"`
-	RecurrenceRate               *int               `bson:"recurrence_rate,omitempty" json:"recurrence_rate"` // i.e. 0 = Daily, 1 = WeekDaily, 2 = Weekly, etc.
-	TimeOfDaySecondsToCreateTask *int               `bson:"time_of_day_seconds_to_create_task,omitempty" json:"time_of_day_seconds_to_create_task"`
-	DayToCreateTask              *int               `bson:"day_to_create_task,omitempty" json:"day_to_create_task"`
-	MonthToCreateTask            *int               `bson:"month_to_create_task,omitempty" json:"month_to_create_task"`
-	LastBackfillDatetime         primitive.DateTime `bson:"last_backfill_datetime,omitempty" json:"last_backfill_datetime"`
+	IsEnabled                    *bool              `bson:"is_enabled,omitempty" json:"is_enabled,omitempty"`
+	IsDeleted                    *bool              `bson:"is_deleted,omitempty" json:"is_deleted,omitempty"`
+	RecurrenceRate               *int               `bson:"recurrence_rate,omitempty" json:"recurrence_rate,omitempty"` // i.e. 0 = Daily, 1 = WeekDaily, 2 = Weekly, etc.
+	TimeOfDaySecondsToCreateTask *int               `bson:"time_of_day_seconds_to_create_task,omitempty" json:"time_of_day_seconds_to_create_task,omitempty"`
+	DayToCreateTask              *int               `bson:"day_to_create_task,omitempty" json:"day_to_create_task,omitempty"`
+	MonthToCreateTask            *int               `bson:"month_to_create_task,omitempty" json:"month_to_create_task,omitempty"`
+	LastBackfillDatetime         primitive.DateTime `bson:"last_backfill_datetime,omitempty" json:"last_backfill_datetime,omitempty"`
 }
 
 type PullRequest struct {
