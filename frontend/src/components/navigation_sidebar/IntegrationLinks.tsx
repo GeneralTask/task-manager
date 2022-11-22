@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+import { usePreviewMode } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -17,6 +18,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { pathname } = useLocation()
     const { data: folders } = useGetTasks()
+    const { isPreviewMode } = usePreviewMode()
 
     const linearTasksCount = useMemo(() => {
         const tasks =
@@ -54,6 +56,16 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 isCurrentPage={pathname.split('/')[1] === 'overview'}
                 isCollapsed={isCollapsed}
             />
+            {isPreviewMode && (
+                <NavigationLink
+                    link="/recurring-tasks"
+                    title="Recurring tasks"
+                    icon={icons.arrows_repeat}
+                    iconColor="green"
+                    isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                    isCollapsed={isCollapsed}
+                />
+            )}
             <NavigationLink
                 link="/focus-mode"
                 title="Enter Focus Mode"

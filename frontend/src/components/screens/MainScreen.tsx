@@ -13,6 +13,7 @@ import DefaultTemplate from '../templates/DefaultTemplate'
 import LinearView from '../views/LinearView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
+import RecurringTasksView from '../views/RecurringTasksView'
 import SlackTasksView from '../views/SlackTasksView'
 import TaskSection from '../views/TaskSectionView'
 
@@ -29,6 +30,8 @@ const MainScreen = () => {
         switch (location.pathname.split('/')[1]) {
             case 'overview':
                 return <OverviewPageView />
+            case 'recurring-tasks':
+                return <RecurringTasksView />
             case 'tasks':
                 return <TaskSection />
             case 'pull-requests':
