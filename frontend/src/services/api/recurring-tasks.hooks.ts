@@ -2,18 +2,20 @@ import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
+import { RecurrenceRate } from '../../utils/enums'
 import { TRecurringTaskTemplate } from '../../utils/types'
 import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TCreateRecurringTaskPayload {
-    title: string
-    body: string
-    id_task_section: string
-    priority_normalized: number
-    recurrence_rate: number
-    time_of_day_seconds_to_create_task: number
-    day_to_create_task: number
     optimisticId: string
+    title: string
+    id_task_section: string
+    time_of_day_seconds_to_create_task: number
+    recurrence_rate: RecurrenceRate
+    body?: string
+    priority_normalized?: number
+    day_to_create_task?: number
+    month_to_create_task?: number
 }
 interface TCreateRecurringTaskResponse {
     template_id: string
@@ -24,9 +26,12 @@ interface TModifyRecurringTaskPayload {
     body?: string
     id_task_section?: string
     priority_normalized?: number
-    recurrence_rate?: number
+    recurrence_rate?: RecurrenceRate
     time_of_day_seconds_to_create_task?: number
     day_to_create_task?: number
+    month_to_create_task?: number
+    is_enabled?: boolean
+    is_deleted?: boolean
 }
 
 export const useRecurringTaskTemplates = () => {
@@ -63,6 +68,7 @@ export const useCreateRecurringTask = () => {
                 const newRecurringTask: TRecurringTaskTemplate = {
                     ...payload,
                     id: payload.optimisticId,
+                    last_backfill_datetime: '',
                 }
                 draft.push(newRecurringTask)
             })
