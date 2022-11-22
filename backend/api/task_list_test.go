@@ -66,6 +66,17 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			&externalStatus,
 		}
 
+		externalPriority := database.ExternalTaskPriority{
+			ExternalID:         "example ID",
+			Name:               "example name",
+			PriorityNormalized: 3.0,
+			IconURL:            "https://example.com",
+			Color:              "#ffffff",
+		}
+		allPriorities := []*database.ExternalTaskPriority{
+			&externalPriority,
+		}
+
 		result := api.taskBaseToTaskResult(&database.Task{
 			SourceID:           external.TASK_SOURCE_ID_LINEAR,
 			DueDate:            &primitiveDueDate,
@@ -77,6 +88,8 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 			Status:             &externalStatus,
 			SlackMessageParams: &slackMessageParams,
 			AllStatuses:        allStatuses,
+			Priority:           &externalPriority,
+			AllPriorities:      allPriorities,
 		}, userID)
 		// TODO change to a helper method to compare taskResults
 		assert.Equal(t, primitiveDueDate.Time().UTC().Format("2006-01-02"), result.DueDate)
@@ -90,6 +103,9 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, 1, len(result.AllStatuses))
 		assert.Equal(t, externalStatus.Type, result.AllStatuses[0].Type)
 		assert.Equal(t, externalStatus.Color, result.AllStatuses[0].Color)
+		assert.Equal(t, 1, len(result.AllPriorities))
+		assert.Equal(t, externalPriority.Name, result.AllPriorities[0].Name)
+		assert.Equal(t, externalPriority.PriorityNormalized, result.AllPriorities[0].PriorityNormalized)
 	})
 }
 

@@ -27,6 +27,14 @@ type externalStatus struct {
 	Color      string `json:"color,omitempty"`
 }
 
+type externalPriority struct {
+	IDExternal         string  `json:"external_id,omitempty"`
+	Name               string  `json:"name,omitempty"`
+	PriorityNormalized float64 `json:"priority_normalized,omitempty"`
+	Color              string  `json:"color,omitempty"`
+	IconURL            string  `json:"icon_url,omitempty"`
+}
+
 type MeetingPreparationParams struct {
 	DatetimeStart string `json:"datetime_start"`
 	DatetimeEnd   string `json:"datetime_end"`
@@ -49,6 +57,8 @@ type TaskResult struct {
 	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
 	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
+	Priority                 *externalPriority            `json:"priority,omitempty"`
+	AllPriorities            []*externalPriority          `json:"all_priorities,omitempty"`
 	Comments                 *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
@@ -365,6 +375,30 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
 			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
 		}
+	}
+
+	if t.Priority != nil && *t.Priority != (database.ExternalTaskPriority{}) {
+		taskResult.Priority = &externalPriority{
+			IDExternal:         t.Priority.ExternalID,
+			Name:               t.Priority.Name,
+			PriorityNormalized: t.Priority.PriorityNormalized,
+			Color:              t.Priority.Color,
+			IconURL:            t.Priority.IconURL,
+		}
+	}
+
+	if len(t.AllPriorities) > 0 {
+		allPriorities := []*externalPriority{}
+		for _, priority := range t.AllPriorities {
+			allPriorities = append(allPriorities, &externalPriority{
+				IDExternal:         priority.ExternalID,
+				Name:               priority.Name,
+				PriorityNormalized: priority.PriorityNormalized,
+				Color:              priority.Color,
+				IconURL:            priority.IconURL,
+			})
+		}
+		taskResult.AllPriorities = allPriorities
 	}
 
 	return taskResult
