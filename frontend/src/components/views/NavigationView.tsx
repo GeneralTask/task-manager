@@ -84,7 +84,10 @@ const NavigationView = () => {
     )
     useKeyboardShortcut(
         'navigationView',
-        useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed])
+        useCallback(() => {
+            if (!isPreviewMode) return
+            setIsCollapsed(!isCollapsed)
+        }, [isPreviewMode, isCollapsed])
     )
 
     return (
