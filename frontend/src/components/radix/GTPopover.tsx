@@ -45,6 +45,7 @@ const GTPopover = ({
                         align={align}
                         side={side}
                         sideOffset={side ? 8 : 0}
+                        sticky="always"
                     >
                         {content}
                     </PopoverContent>
