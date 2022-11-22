@@ -9,7 +9,7 @@ interface TCreateRecurringTaskPayload {
     title: string
     body: string
     id_task_section: string
-    priority_normalized: string
+    priority_normalized: number
     recurrence_rate: number
     time_of_day_seconds_to_create_task: number
     day_to_create_task: number
@@ -23,7 +23,7 @@ interface TModifyRecurringTaskPayload {
     title?: string
     body?: string
     id_task_section?: string
-    priority_normalized?: string
+    priority_normalized?: number
     recurrence_rate?: number
     time_of_day_seconds_to_create_task?: number
     day_to_create_task?: number
@@ -50,7 +50,7 @@ export const useCreateRecurringTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
 
-    useQueuedMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
+    return useQueuedMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {

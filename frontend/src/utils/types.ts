@@ -307,7 +307,7 @@ export interface TRecurringTaskTemplate {
     title: string
     body: string
     id_task_section: string
-    priority_normalized: string
+    priority_normalized: number
     recurrence_rate: number
     time_of_day_seconds_to_create_task: number
     day_to_create_task: number
