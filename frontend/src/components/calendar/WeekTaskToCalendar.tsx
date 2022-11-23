@@ -75,6 +75,7 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
                         trigger={<DropdownButton label={triggerText} />}
                         isOpen={isOpen}
                         setIsOpen={setIsOpen}
+                        useTriggerWidth
                     />
                     <MarginDivider color={Colors.border.light} />
                     {selectedSeciton?.tasks.map((task) => (
