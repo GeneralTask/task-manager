@@ -4,15 +4,20 @@ import useKeyboardShortcut from './useKeyboardShortcut'
 
 export default function useItemSelectionController<T extends { id: string }>(
     items: T[],
-    selectItem: (itemId: T) => void
+    selectItem: (item: T) => void
 ) {
     const params = useParams()
-    const selectedItemId =
-        params.task ?? params.pullRequest ?? params.linearIssueId ?? params.slackTaskId ?? params.overviewItemId
 
     // on press DOWN -> select first item
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
+            const selectedItemId =
+                params.task ??
+                params.pullRequest ??
+                params.linearIssueId ??
+                params.slackTaskId ??
+                params.overviewItemId ??
+                params.recurringTaskId
             let newSelectedItem = null
             // if an item is not selected, select the first one
             if (selectedItemId == null && items.length > 0) {
@@ -32,7 +37,7 @@ export default function useItemSelectionController<T extends { id: string }>(
                 selectItem(newSelectedItem)
             }
         },
-        [items, selectedItemId, selectItem]
+        [items, params, selectItem]
     )
 
     useKeyboardShortcut(

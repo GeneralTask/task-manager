@@ -11,12 +11,12 @@ import ItemContainer from '../ItemContainer'
 interface RecurringTaskProps {
     recurringTask: TRecurringTaskTemplate
     isSelected: boolean
-    onSelect: () => void
+    onSelect: (recurringTask: TRecurringTaskTemplate) => void
 }
 const RecurringTask = ({ recurringTask, isSelected, onSelect }: RecurringTaskProps) => {
     return (
         <TaskTemplate>
-            <ItemContainer isSelected={isSelected} onClick={onSelect}>
+            <ItemContainer isSelected={isSelected} onClick={() => onSelect(recurringTask)}>
                 <Truncated>{recurringTask.title}</Truncated>
                 <Flex gap={Spacing._12}>
                     <Icon icon={icons.arrows_repeat} />
