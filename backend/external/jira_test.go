@@ -71,6 +71,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
+		commentsServer := getJIRACommentsServer(t, 200, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
 
 		// ensure external API token values updated
 		var externalJIRAToken database.ExternalAPIToken
@@ -118,10 +119,28 @@ func TestLoadJIRATasks(t *testing.T) {
 				Color:             "",
 				IconURL:           "https://example.com",
 			},
+			Comments: &[]database.Comment{
+				{
+					ExternalID: "10000",
+					User: database.ExternalUser{
+						ExternalID:  "example-id-1",
+						Name:        "test",
+						DisplayName: "test",
+					},
+				},
+				{
+					ExternalID: "10001",
+					User: database.ExternalUser{
+						ExternalID:  "example-id-2",
+						Name:        "test2",
+						DisplayName: "test2",
+					},
+				},
+			},
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
@@ -193,6 +212,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				Color:             "",
 				IconURL:           "https://example.com",
 			},
+			Comments: &[]database.Comment{},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -266,6 +286,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				ExternalID: "9",
 				Name:       "todo",
 			},
+			Comments: &[]database.Comment{},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -333,6 +354,7 @@ func TestLoadJIRATasks(t *testing.T) {
 				Color:             "",
 				IconURL:           "https://example.com",
 			},
+			Comments: &[]database.Comment{},
 		}
 		database.GetOrCreateTask(
 			db,
@@ -375,21 +397,33 @@ func TestGetStatuses(t *testing.T) {
 
 	t.Run("NoResponse", func(t *testing.T) {
 		JIRA := JIRASource{Atlassian: AtlassianService{}}
-		_, err := JIRA.GetListOfStatuses(*userID, "sample")
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		_, err = JIRA.GetListOfStatuses(siteConfiguration, *userID, "sample")
 		assert.Error(t, err)
 	})
 	t.Run("ServerError", func(t *testing.T) {
 		server := getStatusServerForJIRA(t, 400, true)
 		defer server.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{StatusListURL: &server.URL}}}}
-		_, err := JIRA.GetListOfStatuses(*userID, "sample")
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		_, err = JIRA.GetListOfStatuses(siteConfiguration, *userID, "sample")
 		assert.Error(t, err)
 	})
 	t.Run("Success", func(t *testing.T) {
 		server := getStatusServerForJIRA(t, 200, false)
 		defer server.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{StatusListURL: &server.URL}}}}
-		statusMap, err := JIRA.GetListOfStatuses(*userID, "sample")
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		statusMap, err := JIRA.GetListOfStatuses(siteConfiguration, *userID, "sample")
 		assert.NoError(t, err)
 
 		statusList, exists := statusMap["10000"]
@@ -412,7 +446,11 @@ func TestGetPriorities(t *testing.T) {
 		server := getJIRAPriorityServer(t, 400, []byte(``))
 		defer server.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
-		_, err := JIRA.GetListOfPriorities(*userID, "sample")
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		_, err = JIRA.GetListOfPriorities(siteConfiguration, *userID, "sample")
 		assert.Error(t, err)
 	})
 
@@ -420,7 +458,11 @@ func TestGetPriorities(t *testing.T) {
 		server := getJIRAPriorityServer(t, 200, []byte(`[{"id": "9","iconUrl":"https://example.com"},{"id": "5","iconUrl":"https://example2.com"}]`))
 		defer server.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{PriorityListURL: &server.URL}}}}
-		priorities, err := JIRA.GetListOfPriorities(*userID, "sample")
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		priorities, err := JIRA.GetListOfPriorities(siteConfiguration, *userID, "sample")
 		assert.NoError(t, err)
 
 		assert.Equal(t, 2, len(priorities))
@@ -428,6 +470,53 @@ func TestGetPriorities(t *testing.T) {
 		assert.Equal(t, "https://example.com", priorities[0].IconURL)
 		assert.Equal(t, "5", priorities[1].ID)
 		assert.Equal(t, "https://example2.com", priorities[1].IconURL)
+	})
+}
+
+func TestGetJIRAComments(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	userID, _ := setupJIRA(t, database.GetExternalTokenCollection(db), database.GetJiraSitesCollection(db))
+
+	t.Run("ServerError", func(t *testing.T) {
+		server := getJIRACommentsServer(t, 400, []byte(``))
+		defer server.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{CommentsListURL: &server.URL}}}}
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		resultChan := make(chan JIRACommentResult)
+		go JIRA.GetListOfComments(siteConfiguration, *userID, "issueID", "sample", resultChan)
+		result := <-resultChan
+
+		err = result.Error
+		assert.Error(t, err)
+	})
+
+	t.Run("Success", func(t *testing.T) {
+		server := getJIRACommentsServer(t, 200, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
+		defer server.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{CommentsListURL: &server.URL}}}}
+
+		siteConfiguration, err := JIRA.Atlassian.getSiteConfiguration(*userID)
+		assert.NoError(t, err)
+
+		resultChan := make(chan JIRACommentResult)
+		go JIRA.GetListOfComments(siteConfiguration, *userID, "issueID", "sample", resultChan)
+		result := <-resultChan
+
+		err = result.Error
+		assert.NoError(t, err)
+
+		comments := *result.CommentList
+		assert.Equal(t, 2, len(comments))
+		assert.Equal(t, "10000", comments[0].ExternalID)
+		assert.Equal(t, "example-id-1", comments[0].User.ExternalID)
+		assert.Equal(t, "test2", comments[1].User.DisplayName)
+		assert.Equal(t, "test2", comments[1].User.Name)
 	})
 }
 
@@ -508,6 +597,14 @@ func getTokenServerForJIRA(t *testing.T, statusCode int) *httptest.Server {
 func getJIRAPriorityServer(t *testing.T, statusCode int, response []byte) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/rest/api/3/priority/", r.RequestURI)
+		assert.Equal(t, "GET", r.Method)
+		w.WriteHeader(statusCode)
+		w.Write(response)
+	}))
+}
+
+func getJIRACommentsServer(t *testing.T, statusCode int, response []byte) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "GET", r.Method)
 		w.WriteHeader(statusCode)
 		w.Write(response)
