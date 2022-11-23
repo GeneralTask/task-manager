@@ -8,10 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"reflect"
 	"time"
-
-	"github.com/rs/zerolog/log"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -28,6 +25,15 @@ const (
 
 type JIRASource struct {
 	Atlassian AtlassianService
+}
+
+type JIRATransition struct {
+	ID       string     `json:"id"`
+	ToStatus JIRAStatus `json:"to"`
+}
+
+type JIRATransitionList struct {
+	Transitions []JIRATransition `json:"transitions"`
 }
 
 type JIRAStatus struct {
@@ -152,12 +158,14 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 
 	var tasks []*database.Task
 	for _, jiraTask := range jiraTasks.Issues {
+		titleString := jiraTask.Fields.Summary
 		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
 		if err != nil {
 			logger.Error().Err(err).Msg("unable to parse JIRA template")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
 			return
 		}
+		priorityID := jiraTask.Fields.Priority.ID
 
 		task := &database.Task{
 			UserID:          userID,
@@ -165,10 +173,10 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			IDTaskSection:   constants.IDTaskSectionDefault,
 			Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
 			SourceID:        TASK_SOURCE_ID_JIRA,
-			Title:           &jiraTask.Fields.Summary,
+			Title:           &titleString,
 			Body:            &bodyString,
 			SourceAccountID: accountID,
-			PriorityID:      &jiraTask.Fields.Priority.ID,
+			PriorityID:      &priorityID,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        jiraTask.Fields.Status.ID,
 				IconURL:           jiraTask.Fields.Status.IconURL,
@@ -413,60 +421,6 @@ func (JIRA JIRASource) fetchLocalPriorityMapping(prioritiesCollection *mongo.Col
 	return &result
 }
 
-func (jira JIRASource) getFinalTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string) *string {
-	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
-
-	req, _ := http.NewRequest("GET", transitionsURL, nil)
-	req = addJIRARequestHeaders(req, AtlassianAuthToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	logger := logging.GetSentryLogger()
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to request transitions")
-		return nil
-	}
-
-	responseString, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to read http response body")
-		return nil
-	}
-
-	var data map[string]interface{}
-	err = json.Unmarshal(responseString, &data)
-	if err != nil {
-		logger.Error().Err(err).Msg("failed to parse json data")
-		return nil
-	}
-
-	typeOfArray := reflect.TypeOf(data["transitions"]).String()
-	log.Info().Str("typeOfArray", typeOfArray).Send()
-	transitionsArray, castResult := data["transitions"].([]interface{})
-	if !castResult || len(transitionsArray) < 1 {
-		return nil
-	}
-	lastTransition, castResult := transitionsArray[len(transitionsArray)-1].(map[string]interface{})
-	if !castResult {
-		return nil
-	}
-	transitionID := lastTransition["id"]
-	typedTransitionID, castResult := transitionID.(string)
-	if !castResult {
-		return nil
-	}
-	return &typedTransitionID
-}
-
-func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken string, issueID string, newTransitionID string) error {
-	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
-	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
-	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
-	req = addJIRARequestHeaders(req, AtlassianAuthToken)
-
-	_, err := http.DefaultClient.Do(req)
-	return err
-}
-
 func (jira JIRASource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
@@ -480,29 +434,214 @@ func (jira JIRASource) DeleteEvent(db *mongo.Database, userID primitive.ObjectID
 }
 
 func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
-	if updateFields.IsCompleted != nil && *updateFields.IsCompleted {
-		token, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
-		siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
-		if token == nil || siteConfiguration == nil {
-			return errors.New("missing token or siteConfiguration")
+	token, _ := jira.Atlassian.getAndRefreshToken(userID, accountID)
+	siteConfiguration, _ := jira.Atlassian.getSiteConfiguration(userID)
+	if token == nil || siteConfiguration == nil {
+		return errors.New("missing token or siteConfiguration")
+	}
+
+	if updateFields.IsDeleted != nil {
+		return jira.handleJIRAIssueDelete(siteConfiguration, token, issueID, updateFields)
+	}
+
+	if updateFields.Status != nil {
+		err := jira.handleJIRATransitionUpdate(siteConfiguration, token, issueID, updateFields)
+		if err != nil {
+			return err
+		}
+	}
+
+	if updateFields.Title != nil || updateFields.Body != nil {
+		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (jira JIRASource) handleJIRAIssueDelete(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+	var apiBaseURL string
+	if jira.Atlassian.Config.ConfigValues.IssueDeleteURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.IssueDeleteURL
+	} else {
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+	}
+
+	if *updateFields.IsDeleted {
+		deleteURL := apiBaseURL + "/rest/api/3/issue/" + issueID
+		req, _ := http.NewRequest("DELETE", deleteURL, nil)
+		req = addJIRARequestHeaders(req, token.AccessToken)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return err
+		}
+		if resp.StatusCode != 200 && resp.StatusCode != 204 {
+			return errors.New("unable to successfully delete JIRA task")
+		}
+	} else {
+		// once JIRA tickets are deleted, they cannot be brought back
+		return errors.New("cannot undelete JIRA tasks")
+	}
+	return nil
+}
+
+func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+	var apiBaseURL string
+	if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
+	} else {
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+	}
+
+	finalTransitionID := jira.getTransitionID(apiBaseURL, token.AccessToken, issueID, *updateFields.Status)
+	if finalTransitionID == nil {
+		return errors.New("transition not found")
+	}
+
+	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+}
+
+type JIRAUpdateRequest struct {
+	Fields JIRAUpdateFields `json:"fields"`
+}
+
+type JIRAUpdateFields struct {
+	Summary     string               `json:"summary,omitempty"`
+	Description JIRADescriptionField `json:"description,omitempty"`
+}
+
+type JIRADescriptionField struct {
+	Type    string             `json:"type,omitempty"`
+	Version int                `json:"version,omitempty"`
+	Content []JIRAFieldContent `json:"content"`
+}
+
+type JIRAFieldContent struct {
+	Type    string             `json:"type"`
+	Content []JIRAFieldContent `json:"content,omitempty"`
+	Text    string             `json:"text,omitempty"`
+}
+
+func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+	var apiBaseURL string
+	if jira.Atlassian.Config.ConfigValues.IssueUpdateURL != nil {
+		apiBaseURL = *jira.Atlassian.Config.ConfigValues.IssueUpdateURL
+	} else {
+		apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+	}
+
+	var updateRequest JIRAUpdateRequest
+	if updateFields.Title != nil {
+		if *updateFields.Title == "" {
+			return errors.New("cannot set JIRA issue title to empty string")
 		}
 
-		//first get the list of transitions
-		var apiBaseURL string
-
-		if jira.Atlassian.Config.ConfigValues.TransitionURL != nil {
-			apiBaseURL = *jira.Atlassian.Config.ConfigValues.TransitionURL
+		updateRequest.Fields.Summary = *updateFields.Title
+	}
+	if updateFields.Body != nil {
+		if *updateFields.Body == "" {
+			updateRequest.Fields.Description = JIRADescriptionField{
+				Type:    "doc",
+				Version: 1,
+				Content: []JIRAFieldContent{},
+			}
 		} else {
-			apiBaseURL = jira.getAPIBaseURL(*siteConfiguration)
+			updateRequest.Fields.Description = JIRADescriptionField{
+				Type:    "doc",
+				Version: 1,
+				Content: []JIRAFieldContent{
+					{
+						Type: "paragraph",
+						Content: []JIRAFieldContent{
+							{
+								Text: *updateFields.Body,
+								Type: "text",
+							},
+						},
+					},
+				},
+			}
 		}
+	}
 
-		finalTransitionID := jira.getFinalTransitionID(apiBaseURL, token.AccessToken, issueID)
+	updateRequestBytes, err := json.Marshal(&updateRequest)
+	if err != nil {
+		return errors.New("unable to marshal update fields for JIRA request")
+	}
 
-		if finalTransitionID == nil {
-			return errors.New("final transition not found")
+	return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateRequestBytes)
+}
+
+func (jira JIRASource) getTransitionID(apiBaseURL string, AtlassianAuthToken string, jiraCloudID string, status database.ExternalTaskStatus) *string {
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + jiraCloudID + "/transitions"
+
+	req, _ := http.NewRequest("GET", transitionsURL, nil)
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	logger := logging.GetSentryLogger()
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to request transitions")
+		return nil
+	}
+
+	responseBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to read http response body")
+		return nil
+	}
+
+	var transitionList JIRATransitionList
+	err = json.Unmarshal(responseBytes, &transitionList)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to parse JIRA transition list")
+		return nil
+	}
+	if len(transitionList.Transitions) == 0 {
+		logger.Error().Err(err).Msg("no JIRA transitions found in list")
+		return nil
+	}
+
+	for _, transition := range transitionList.Transitions {
+		if transition.ToStatus.ID == status.ExternalID {
+			return &transition.ID
 		}
+	}
 
-		return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
+	logger.Error().Err(err).Msg("no matching JIRA transitions found")
+	return nil
+}
+
+func (jira JIRASource) executeTransition(apiBaseURL string, AtlassianAuthToken string, issueID string, newTransitionID string) error {
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID + "/transitions"
+	params := []byte(`{"transition": {"id": "` + newTransitionID + `"}}`)
+	req, _ := http.NewRequest("POST", transitionsURL, bytes.NewBuffer(params))
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 && resp.StatusCode != 204 {
+		return errors.New("unable to successfully make status transition update request")
+	}
+	return nil
+}
+
+func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken string, issueID string, updateBytes []byte) error {
+	transitionsURL := apiBaseURL + "/rest/api/3/issue/" + issueID
+	req, _ := http.NewRequest("PUT", transitionsURL, bytes.NewBuffer(updateBytes))
+	req = addJIRARequestHeaders(req, AtlassianAuthToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 && resp.StatusCode != 204 {
+		return errors.New("unable to successfully make field update request")
 	}
 	return nil
 }

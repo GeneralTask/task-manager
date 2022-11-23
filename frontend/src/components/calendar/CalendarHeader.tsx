@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -76,6 +76,12 @@ export default function CalendarHeader({
             setDate(date.minus({ days: date.weekday % 7 }))
         }
     }
+    useEffect(() => {
+        if (!ignoreCalendarContext) return
+        setCalendarType('week')
+        setDate(date.minus({ days: date.weekday % 7 }))
+    }, [ignoreCalendarContext, setCalendarType, setDate, date])
+
     const selectToday = useCallback(() => {
         if (calendarType === 'day') {
             setDayViewDate(DateTime.now())

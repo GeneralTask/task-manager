@@ -6,6 +6,7 @@ import { Eyebrow } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const TasksDueHeaderContainer = styled.div`
+    padding: ${Spacing._8} ${Spacing._12};
     display: flex;
     gap: ${Spacing._12};
     align-items: center;

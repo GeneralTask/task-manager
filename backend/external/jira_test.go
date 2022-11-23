@@ -11,6 +11,7 @@ import (
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -390,9 +391,10 @@ func TestGetStatuses(t *testing.T) {
 
 		statusList, exists := statusMap["10000"]
 		assert.True(t, exists)
-		assert.Equal(t, 1, len(statusList))
+		assert.Equal(t, 2, len(statusList))
 		assert.Equal(t, "Todo", statusList[0].State)
 		assert.Equal(t, "https://example.com", statusList[0].IconURL)
+		assert.True(t, statusList[1].IsCompletedStatus)
 	})
 }
 
@@ -552,6 +554,22 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 					ID:      "10000",
 					Name:    "Todo",
 					IconURL: "https://example.com",
+					Category: JIRAStatusCategory{
+						Key: "new",
+					},
+					Scope: JIRAScope{
+						Project: JIRAProject{
+							ID: "10000",
+						},
+					},
+				},
+				{
+					ID:      "10003",
+					Name:    "Done",
+					IconURL: "https://example.com",
+					Category: JIRAStatusCategory{
+						Key: "done",
+					},
 					Scope: JIRAScope{
 						Project: JIRAProject{
 							ID: "10000",
@@ -564,4 +582,243 @@ func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 		}
 		w.Write(result)
 	}))
+}
+
+func getTransitionServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(statusCode)
+		var result []byte
+		if empty {
+			result = []byte(``)
+		} else {
+			resultTemp, err := json.Marshal(JIRATransitionList{
+				Transitions: []JIRATransition{
+					{
+						ID: "100",
+						ToStatus: JIRAStatus{
+							ID:      "10000",
+							Name:    "Todo",
+							IconURL: "https://example.com",
+							Category: JIRAStatusCategory{
+								Key: "new",
+							},
+							Scope: JIRAScope{
+								Project: JIRAProject{
+									ID: "10000",
+								},
+							},
+						},
+					},
+					{
+						ID: "101",
+						ToStatus: JIRAStatus{
+							ID:      "10003",
+							Name:    "Done",
+							IconURL: "https://example.com",
+							Category: JIRAStatusCategory{
+								Key: "done",
+							},
+							Scope: JIRAScope{
+								Project: JIRAProject{
+									ID: "10000",
+								},
+							},
+						},
+					},
+				},
+			})
+			assert.NoError(t, err)
+			result = resultTemp
+		}
+		w.Write(result)
+	}))
+}
+func TestModifyJIRATask(t *testing.T) {
+	db, dbCleanup, err := database.GetDBConnection()
+	assert.NoError(t, err)
+	defer dbCleanup()
+
+	externalAPITokenCollection := database.GetExternalTokenCollection(db)
+	AtlassianSiteCollection := database.GetJiraSitesCollection(db)
+
+	userID, account_id := setupJIRA(t, externalAPITokenCollection, AtlassianSiteCollection)
+	createdAt, _ := time.Parse("2006-01-02", "2019-04-20")
+	completed := false
+	testTitle := "test title"
+	testDescription := "test description"
+	dueDate := primitive.NewDateTimeFromTime(time.Time{})
+	expectedTask := database.Task{
+		IDOrdering:        0,
+		IDExternal:        "6942069420",
+		IDTaskSection:     constants.IDTaskSectionDefault,
+		IsCompleted:       &completed,
+		Deeplink:          "https://example.com/",
+		Title:             &testTitle,
+		Body:              &testDescription,
+		SourceID:          TASK_SOURCE_ID_JIRA,
+		SourceAccountID:   account_id,
+		UserID:            *userID,
+		DueDate:           &dueDate,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(createdAt),
+		Status: &database.ExternalTaskStatus{
+			ExternalID: "10000",
+			State:      "Todo",
+			Type:       "new",
+		},
+		AllStatuses: []*database.ExternalTaskStatus{
+			{
+				ExternalID: "10000",
+				State:      "Todo",
+				Type:       "new",
+			},
+			{
+				ExternalID:        "10003",
+				State:             "Done",
+				Type:              "done",
+				IsCompletedStatus: true,
+			},
+		},
+		Comments: nil,
+	}
+	database.GetOrCreateTask(
+		db,
+		*userID,
+		"test-issue-id-1",
+		TASK_SOURCE_ID_JIRA,
+		&expectedTask,
+	)
+
+	t.Run("ChangeStatusBadResponse", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		transitionServer := testutils.GetMockAPIServer(t, 400, "")
+		defer transitionServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{Status: &database.ExternalTaskStatus{ExternalID: "10003"}}, &database.Task{})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `transition not found`, err.Error())
+	})
+	t.Run("UpdateStatusOnlySuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		defer transitionServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{Status: &database.ExternalTaskStatus{ExternalID: "10003"}}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateFieldsBadResponse", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 400, "")
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newTitle := "title!"
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{Title: &newTitle}, &database.Task{})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `unable to successfully make field update request`, err.Error())
+	})
+	t.Run("UpdateFieldsSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newName := "New Title"
+		newBody := "New Body"
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
+			Title: &newName,
+			Body:  &newBody,
+		}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateTitleStatusSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
+		transitionServer := getTransitionServerForJIRA(t, 200, false)
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{TransitionURL: &transitionServer.URL, IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newName := "New Title"
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
+			Title:  &newName,
+			Status: &database.ExternalTaskStatus{ExternalID: "10003"},
+		}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateEmptyDescriptionSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newBody := ""
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
+			Body: &newBody,
+		}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateEmptyTitleFails", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newName := ""
+		newBody := "New Body"
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
+			Title: &newName,
+			Body:  &newBody,
+		}, &database.Task{})
+
+		assert.EqualErrorf(t, err, err.Error(), "cannot set JIRA issue title to empty string")
+	})
+	t.Run("DeleteBadResponse", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		deleteServer := testutils.GetMockAPIServer(t, 400, "")
+		defer deleteServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueDeleteURL: &deleteServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		deleted := true
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{IsDeleted: &deleted}, &database.Task{})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `unable to successfully delete JIRA task`, err.Error())
+	})
+	t.Run("DeleteSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		deleteServer := testutils.GetMockAPIServer(t, 200, "")
+		defer deleteServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueDeleteURL: &deleteServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		deleted := true
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{IsDeleted: &deleted}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UndeleteFailure", func(t *testing.T) {
+		database.GetOrCreateTask(
+			db,
+			*userID,
+			"test-issue-id-1",
+			TASK_SOURCE_ID_JIRA,
+			&expectedTask,
+		)
+
+		_, err := database.UpdateOrCreateTask(db, *userID, "test-issue-id-1", TASK_SOURCE_ID_JIRA, nil, bson.M{"is_deleted": true}, nil)
+		assert.NoError(t, err)
+
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		deleteServer := testutils.GetMockAPIServer(t, 200, "")
+		defer deleteServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueDeleteURL: &deleteServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		deleted := false
+		err = JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{IsDeleted: &deleted}, &database.Task{})
+		assert.Error(t, err)
+		assert.Equal(t, `cannot undelete JIRA tasks`, err.Error())
+	})
 }

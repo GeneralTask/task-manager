@@ -15,7 +15,8 @@ const OverviewListsModal = () => {
     const { mutate: reorderViews } = useReorderViews()
 
     const handleReorder = useCallback(
-        (item: DropItem, dropIndex: number) => reorderViews({ viewId: item.id, idOrdering: dropIndex }),
+        (item: DropItem, dropIndex: number) =>
+            reorderViews({ id: item.id, idOrdering: dropIndex }, item.view?.optimisticId),
         [reorderViews]
     )
 

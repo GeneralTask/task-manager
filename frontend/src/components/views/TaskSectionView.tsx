@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
+import { usePreviewMode } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
@@ -13,6 +14,8 @@ import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilter
 import { DropItem, DropType, TTask } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
+import GTButton from '../atoms/buttons/GTButton'
+import WeekTaskToCalendar from '../calendar/WeekTaskToCalendar'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import CreateNewTask from '../molecules/CreateNewTask'
@@ -42,7 +45,10 @@ const TasksContainer = styled.div`
 const BottomDropArea = styled.div`
     height: 100px;
 `
-const MarginBottom4 = styled.div`
+const ActionsContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: ${Spacing._4};
 `
 
@@ -56,6 +62,7 @@ const TaskSectionView = () => {
 
     const navigate = useNavigate()
     const params = useParams()
+    const { isPreviewMode } = usePreviewMode()
 
     const { section, task, subtask } = useMemo(() => {
         const section = taskSections?.find(({ id }) => id === params.section)
@@ -96,7 +103,7 @@ const TaskSectionView = () => {
         (task: TTask) => {
             setShouldScrollToTask(true)
             if (section) {
-                navigate(`/tasks/${section.id}/${task.id}`)
+                navigate(`/tasks/${section.id}/${task.id}`, { replace: true })
                 Log(`task_select_${task.id}`)
             }
         },
@@ -122,18 +129,20 @@ const TaskSectionView = () => {
         if (taskSections && taskSections.length > 0 && (!section || !task)) {
             const firstSectionId = taskSections[0].id
             if (!section) {
-                navigate(`/tasks/${firstSectionId}/`)
+                navigate(`/tasks/${firstSectionId}/`, { replace: true })
             } else if (!task && sortedTasks.length > taskIndex) {
-                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex].id}`)
+                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex].id}`, { replace: true })
             } else if (!task && sortedTasks.length === taskIndex && taskIndex > 0) {
-                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex - 1].id}`)
+                navigate(`/tasks/${section.id}/${sortedTasks[taskIndex - 1].id}`, { replace: true })
             } else if (!task && sortedTasks.length > 0) {
-                navigate(`/tasks/${section.id}/${sortedTasks[0].id}`)
+                navigate(`/tasks/${section.id}/${sortedTasks[0].id}`, { replace: true })
             }
         }
     }, [taskSections, params.section, params.task])
 
     useItemSelectionController(sortedTasks, selectTask)
+    const [showTaskToCalendarModal, setShowTaskToCalendarModal] = useState(false)
+
     return (
         <>
             <TaskSectionContainer>
@@ -143,11 +152,25 @@ const TaskSectionView = () => {
                             <Spinner />
                         ) : (
                             <>
+                                <WeekTaskToCalendar
+                                    open={showTaskToCalendarModal}
+                                    setIsModalOpen={setShowTaskToCalendarModal}
+                                    size="lg"
+                                />
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && !section.is_trash && (
-                                    <MarginBottom4>
+                                    <ActionsContainer>
                                         <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                                    </MarginBottom4>
+                                        {isPreviewMode && (
+                                            <GTButton
+                                                styleType="secondary"
+                                                value="Schedule tasks"
+                                                icon={icons.calendar_blank}
+                                                size="small"
+                                                onClick={() => setShowTaskToCalendarModal(true)}
+                                            />
+                                        )}
+                                    </ActionsContainer>
                                 )}
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
                                 <TasksContainer ref={sectionViewRef}>

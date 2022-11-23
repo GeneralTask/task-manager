@@ -17,17 +17,40 @@ interface GTPopoverProps {
     isOpen: boolean
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
     align?: 'start' | 'center' | 'end'
+    side?: 'top' | 'right' | 'bottom' | 'left'
+    unstyledTrigger?: boolean
+    modal?: boolean
     disabled?: boolean
 }
-const GTPopover = ({ trigger, content, isOpen, setIsOpen, disabled, align = 'center' }: GTPopoverProps) => {
+const GTPopover = ({
+    trigger,
+    content,
+    isOpen,
+    setIsOpen,
+    disabled,
+    align = 'center',
+    side,
+    unstyledTrigger,
+    modal = true,
+}: GTPopoverProps) => {
     return (
-        <Popover.Root modal open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger disabled={disabled}>{trigger}</PopoverTrigger>
-            <Popover.Portal>
-                <PopoverContent onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)} align={align}>
-                    {content}
-                </PopoverContent>
-            </Popover.Portal>
+        <Popover.Root modal={modal} open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger disabled={disabled} unstyled={unstyledTrigger}>
+                {trigger}
+            </PopoverTrigger>
+            {content && (
+                <Popover.Portal>
+                    <PopoverContent
+                        onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}
+                        align={align}
+                        side={side}
+                        sideOffset={side ? 8 : 0}
+                        sticky="always"
+                    >
+                        {content}
+                    </PopoverContent>
+                </Popover.Portal>
+            )}
         </Popover.Root>
     )
 }
