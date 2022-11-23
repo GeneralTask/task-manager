@@ -60,6 +60,7 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
             onClick: () => setSectionIndex(index),
             icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
             selected: index === sectionIndex,
+            count: section.tasks.length,
         })) ?? []
 
     const triggerText = `${selectedSeciton?.name || ''} (${selectedSeciton?.tasks.length || 0})`
