@@ -1,3 +1,4 @@
+import { useNavigate, useParams } from 'react-router-dom'
 import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { icons } from '../../styles/images'
 import Spinner from '../atoms/Spinner'
@@ -8,6 +9,8 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const RecurringTasksView = () => {
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
+    const { recurringTaskId } = useParams()
+    const navigate = useNavigate()
 
     return (
         <>
@@ -17,7 +20,12 @@ const RecurringTasksView = () => {
                     <Spinner />
                 ) : (
                     recurringTaskTemplates.map((recurringTask) => (
-                        <RecurringTask key={recurringTask.id} recurringTask={recurringTask} />
+                        <RecurringTask
+                            key={recurringTask.id}
+                            recurringTask={recurringTask}
+                            isSelected={recurringTask.id === recurringTaskId}
+                            onSelect={() => navigate(`/recurring-tasks/${recurringTask.id}`)}
+                        />
                     ))
                 )}
             </ScrollableListTemplate>
