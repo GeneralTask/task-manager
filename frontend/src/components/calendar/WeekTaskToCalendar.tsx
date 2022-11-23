@@ -2,12 +2,11 @@ import { useState } from 'react'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
-import { Border, Colors, Spacing } from '../../styles'
+import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import BaseModal, { BaseModalProps } from '../atoms/BaseModal'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Body, Subtitle } from '../atoms/typography/Typography'
+import { Subtitle } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import CalendarView from '../views/CalendarView'
 import CalendarDropTask from './CalendarDropTask'
@@ -46,16 +45,6 @@ const SidebarHeader = styled(Subtitle)`
 const MarginDivider = styled(Divider)`
     margin: ${Spacing._16} 0;
 `
-const ModifiedCalendarHeader = styled(Body)`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: ${Colors.text.light};
-    background-color: ${Colors.background.medium};
-    padding: ${Spacing._12} ${Spacing._16};
-    border-left: ${Border.stroke.medium} solid ${Colors.border.light};
-    border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
-`
 
 const WeekTaskToCalendar = (props: BaseModalProps) => {
     const { data: sections } = useGetTasks()
@@ -93,10 +82,6 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
                     ))}
                 </ScheduleTaskSidebar>
                 <CalendarAndHeaderContainer>
-                    <ModifiedCalendarHeader>
-                        <span>Calendar</span>
-                        <GTIconButton icon={icons.x} onClick={() => props.setIsModalOpen(false)} />
-                    </ModifiedCalendarHeader>
                     <CalendarViewContainer>
                         <CalendarView
                             initialType="week"

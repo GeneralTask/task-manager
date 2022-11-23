@@ -752,4 +752,47 @@ func TestModifyJIRATask(t *testing.T) {
 
 		assert.EqualErrorf(t, err, err.Error(), "cannot set JIRA issue title to empty string")
 	})
+	t.Run("DeleteBadResponse", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		deleteServer := testutils.GetMockAPIServer(t, 400, "")
+		defer deleteServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueDeleteURL: &deleteServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		deleted := true
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{IsDeleted: &deleted}, &database.Task{})
+		assert.NotEqual(t, nil, err)
+		assert.Equal(t, `unable to successfully delete JIRA task`, err.Error())
+	})
+	t.Run("DeleteSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		deleteServer := testutils.GetMockAPIServer(t, 200, "")
+		defer deleteServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueDeleteURL: &deleteServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		deleted := true
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{IsDeleted: &deleted}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UndeleteFailure", func(t *testing.T) {
+		database.GetOrCreateTask(
+			db,
+			*userID,
+			"test-issue-id-1",
+			TASK_SOURCE_ID_JIRA,
+			&expectedTask,
+		)
+
+		_, err := database.UpdateOrCreateTask(db, *userID, "test-issue-id-1", TASK_SOURCE_ID_JIRA, nil, bson.M{"is_deleted": true}, nil)
+		assert.NoError(t, err)
+
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		deleteServer := testutils.GetMockAPIServer(t, 200, "")
+		defer deleteServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueDeleteURL: &deleteServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		deleted := false
+		err = JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{IsDeleted: &deleted}, &database.Task{})
+		assert.Error(t, err)
+		assert.Equal(t, `cannot undelete JIRA tasks`, err.Error())
+	})
 }

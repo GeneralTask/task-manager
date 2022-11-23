@@ -1,10 +1,9 @@
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
-import EventDetailPopup from '../molecules/EventDetailPopup'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
+import EventDetailPopover from '../radix/EventDetailPopover'
 import { useCalendarContext } from './CalendarContext'
 import {
     CELL_HEIGHT_VALUE,
@@ -33,8 +32,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext(
         props.ignoreCalendarContext
     )
-    const eventRef = useRef<HTMLDivElement>(null)
-    const popupRef = useRef<HTMLDivElement>(null)
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
@@ -53,55 +50,13 @@ function EventBody(props: EventBodyProps): JSX.Element {
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight)
-    const [eventWidth, setEventWidth] = useState(0)
-    useLayoutEffect(() => {
-        if (!eventRef.current) return
-        setEventWidth(eventRef.current.getBoundingClientRect().width)
-    }, [])
-    const [coords, setCoords] = useState({
-        xCoord: 0,
-        yCoord: 0,
-    })
-    const xCoordEvent = useRef<number>()
-    const yCoordEvent = useRef<number>()
-
-    useEffect(() => {
-        window.addEventListener('resize', handleWindowResize)
-        return () => window.removeEventListener('resize', handleWindowResize)
-    }, [])
-
-    const onClick = (e: MouseEvent) => {
-        // Prevent popup from closing when user clicks on the popup component
+    const onClick = () => {
         if (disableSelectEvent) return
-        if (popupRef.current?.contains(e.target as Node)) return
         if (selectedEvent?.id === props.event.id) {
             setSelectedEvent(null)
         } else {
             setSelectedEvent(props.event)
         }
-
-        if (!eventRef.current) return
-        // Define the x-coord and y-coord of the event to be the bottom left corner
-        xCoordEvent.current = eventRef.current.getBoundingClientRect().left
-        yCoordEvent.current = eventRef.current.getBoundingClientRect().bottom
-
-        if (xCoordEvent.current && yCoordEvent.current) {
-            setCoords({
-                xCoord: xCoordEvent.current,
-                yCoord: yCoordEvent.current,
-            })
-        }
-    }
-    const handleWindowResize = () => {
-        if (eventRef.current) {
-            setCoords({
-                xCoord: eventRef.current.getBoundingClientRect().left,
-                yCoord: eventRef.current.getBoundingClientRect().bottom,
-            })
-            setEventWidth(eventRef.current.getBoundingClientRect().width)
-        }
-        setWindowHeight(window.innerHeight)
     }
     return (
         <div>
@@ -114,29 +69,18 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     eventBodyHeight={eventBodyHeight}
                     eventHasEnded={eventHasEnded}
                     isBeingDragged={props.isBeingDragged}
-                    ref={eventRef}
                     isDisabled={disableSelectEvent}
                 >
                     <EventInfoContainer onClick={onClick}>
-                        {selectedEvent?.id === props.event.id && !isPopoverDisabled && (
-                            <EventDetailPopup
-                                event={props.event}
-                                date={props.date}
-                                xCoord={coords.xCoord}
-                                yCoord={coords.yCoord}
-                                eventHeight={eventBodyHeight}
-                                eventWidth={eventWidth}
-                                windowHeight={windowHeight}
-                                ref={popupRef}
-                            />
-                        )}
-                        <EventInfo isLongEvent={isLongEvent}>
-                            <EventIconAndTitle>
-                                {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
-                                <EventTitle>{props.event.title || '(no title)'}</EventTitle>
-                            </EventIconAndTitle>
-                            <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
-                        </EventInfo>
+                        <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
+                            <EventInfo isLongEvent={isLongEvent}>
+                                <EventIconAndTitle>
+                                    {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
+                                    <EventTitle>{props.event.title || '(no title)'}</EventTitle>
+                                </EventIconAndTitle>
+                                <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
+                            </EventInfo>
+                        </EventDetailPopover>
                     </EventInfoContainer>
                     <EventFill
                         squareStart={startedBeforeToday}

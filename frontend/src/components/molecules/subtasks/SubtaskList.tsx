@@ -6,6 +6,7 @@ import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import { getSectionFromTask } from '../../../utils/utils'
+import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewSubtask from './CreateNewSubtask'
@@ -66,7 +67,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
 
     if (!sectionId) return null
     return (
-        <div>
+        <Flex flex="1" column>
             <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
                 <Icon icon={icons.plus} color="gray" />
                 Add new subtask
@@ -93,7 +94,14 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                     )
                 })}
             </TaskListContainer>
-        </div>
+            <ReorderDropContainer
+                index={subtasks.length + 1}
+                acceptDropType={DropType.SUBTASK}
+                onReorder={handleReorder}
+                indicatorType="TOP_ONLY"
+                disabled={false}
+            />
+        </Flex>
     )
 }
 

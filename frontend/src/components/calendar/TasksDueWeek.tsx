@@ -8,14 +8,13 @@ import { Icon } from '../atoms/Icon'
 import { useCalendarContext } from './CalendarContext'
 import { CELL_TIME_WIDTH } from './CalendarEvents-styles'
 import TaskDueBody from './TaskDueBody'
-import { CONTAINER_MAX_HEIGHT } from './TasksDue'
+import { PaddedTasksScroll } from './TasksDue'
 import TasksDueHeader from './TasksDueHeader'
 
 const TasksDueWeekContainer = styled.div`
     display: flex;
     min-width: 0;
     height: fit-content;
-    max-height: ${CONTAINER_MAX_HEIGHT};
     width: 100%;
     border-top: ${Border.stroke.medium} solid ${Colors.border.light};
     border-bottom: ${Border.stroke.large} solid ${Colors.border.light};
@@ -27,8 +26,6 @@ const TasksDueWeekContainer = styled.div`
 const TaskDueContainer = styled.div`
     flex: 1 1 0;
     min-width: 0;
-    padding: ${Spacing._16} ${Spacing._24};
-    overflow-y: auto;
     margin: 0 auto;
 `
 const AbsoluteCaretIcon = styled.div`
@@ -70,7 +67,11 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
                                 numTasksDue={tasksDueWeek[index].length}
                                 hideCollapseButton
                             />
-                            {!isTasksDueViewCollapsed && <TaskDueBody tasksDue={tasksDueWeek[index]} />}
+                            {!isTasksDueViewCollapsed && (
+                                <PaddedTasksScroll>
+                                    <TaskDueBody tasksDue={tasksDueWeek[index]} />
+                                </PaddedTasksScroll>
+                            )}
                         </>
                     )}
                 </TaskDueContainer>

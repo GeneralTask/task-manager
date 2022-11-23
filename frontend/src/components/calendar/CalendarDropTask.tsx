@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useDrag } from 'react-dnd'
 import styled from 'styled-components'
+import { logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
+import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { BodySmall } from '../atoms/typography/Typography'
 import ItemContainer from '../molecules/ItemContainer'
@@ -12,6 +14,7 @@ const TaskInformation = styled(BodySmall)`
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-right: auto;
 `
 interface CalendarDropTaskProps {
     task: TTask
@@ -29,6 +32,7 @@ const CalendarDropTask = ({ task }: CalendarDropTaskProps) => {
             <ItemContainer isSelected={false} onClick={emptyFunction}>
                 <PositionedDomino isVisible={isHoverTask} />
                 <TaskInformation key={task.id}>{task.title}</TaskInformation>
+                <Icon icon={logos[task.source.logo_v2]} />
             </ItemContainer>
         </TaskTemplate>
     )
