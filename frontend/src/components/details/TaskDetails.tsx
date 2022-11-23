@@ -289,7 +289,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                             <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
                     )}
-                    {isPreviewMode && currentTask.external_status && !isInTrash && (
+                    {currentTask.external_status && !isInTrash && (
                         <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && (
