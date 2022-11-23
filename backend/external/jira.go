@@ -213,10 +213,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 
 			var allPriorities []*database.ExternalTaskPriority
 			for idx, priority := range priorityList {
-				priorityNormalized := 1.0
-				if priorityLength > 1 {
-					priorityNormalized = ((float64(idx) / (float64(priorityLength) - 1.0)) * 3.0) + 1.0
-				}
+				priorityNormalized := getNormalizedPriority(idx, priorityLength)
 				priorityObject := database.ExternalTaskPriority{
 					ExternalID:         priority.ID,
 					Name:               priority.Name,
@@ -225,13 +222,13 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 					PriorityNormalized: priorityNormalized,
 				}
 				if priority.ID == jiraTask.Fields.Priority.ID {
-					task.Priority = &priorityObject
+					task.ExternalPriority = &priorityObject
 					task.PriorityNormalized = &priorityNormalized
 				}
 				allPriorities = append(allPriorities, &priorityObject)
 			}
 
-			task.AllPriorities = allPriorities
+			task.AllExternalPriorities = allPriorities
 		}
 
 		tasks = append(tasks, task)
@@ -240,15 +237,15 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	isCompleted := false
 	for _, task := range tasks {
 		updateTask := database.Task{
-			Title:              task.Title,
-			DueDate:            task.DueDate,
-			Status:             task.Status,
-			UpdatedAt:          task.UpdatedAt,
-			PriorityNormalized: task.PriorityNormalized,
-			Priority:           task.Priority,
-			AllPriorities:      task.AllPriorities,
-			AllStatuses:        task.AllStatuses,
-			IsCompleted:        &isCompleted,
+			Title:                 task.Title,
+			DueDate:               task.DueDate,
+			Status:                task.Status,
+			UpdatedAt:             task.UpdatedAt,
+			PriorityNormalized:    task.PriorityNormalized,
+			ExternalPriority:      task.ExternalPriority,
+			AllExternalPriorities: task.AllExternalPriorities,
+			AllStatuses:           task.AllStatuses,
+			IsCompleted:           &isCompleted,
 		}
 
 		dbTask, err := database.UpdateOrCreateTask(
@@ -568,4 +565,12 @@ func addJIRARequestHeaders(req *http.Request, authToken string) *http.Request {
 	req.Header.Add("Authorization", "Bearer "+authToken)
 	req.Header.Add("Content-Type", "application/json")
 	return req
+}
+
+func getNormalizedPriority(idx int, length int) float64 {
+	priorityNormalized := 1.0
+	if length > 1 {
+		priorityNormalized = ((float64(idx) / (float64(length) - 1.0)) * 3.0) + 1.0
+	}
+	return priorityNormalized
 }
