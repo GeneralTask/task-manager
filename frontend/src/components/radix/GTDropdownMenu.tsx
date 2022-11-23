@@ -33,7 +33,9 @@ const DropdownMenuItem = styled(DropdownMenu.Item)<{
     width: 100%;
     box-sizing: border-box;
 `
-
+const LeftMarginAutoContainer = styled.span`
+    margin-left: auto;
+`
 interface GTDropdownMenuProps {
     items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
@@ -95,6 +97,11 @@ const GTDropdownMenu = ({
                                                     )}
                                                     {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                                     <MenuItemLabel>{item.label}</MenuItemLabel>
+                                                    {item.count && (
+                                                        <LeftMarginAutoContainer>
+                                                            ({item.count})
+                                                        </LeftMarginAutoContainer>
+                                                    )}
                                                 </>
                                             )}
                                         </DropdownMenuItem>
