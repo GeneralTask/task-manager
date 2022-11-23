@@ -2,10 +2,11 @@ import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutatio
 import { QueryFilters } from 'react-query/types/core/utils'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
+import { QUEUED_MUTATION_DEBOUNCE } from '../constants'
 import useQueryContext from '../context/QueryContext'
 import { getMonthsAroundDate } from '../utils/time'
 import { TEvent } from '../utils/types'
-import { emptyFunction } from '../utils/utils'
+import { emptyFunction, sleep } from '../utils/utils'
 
 /**
  * Wrapper for useQueryClient that adds getImmutableQueryData method
@@ -64,14 +65,15 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
     mutationOptions: MutationOptions<TData, TError, TVariables, TContext>
 ) => {
     const queryClient = useGTQueryClient()
-    const { getQueryQueue, getIdFromOptimisticId } = useQueryContext()
+    const { getQueryQueue, getLastSentQuery, setLastSentQuery, getIdFromOptimisticId } = useQueryContext()
 
     const { mutate, ...rest } = useMutation(mutationFn, {
         ...mutationOptions,
         onMutate: emptyFunction,
-        onSettled: (data, error, variables, context) => {
+        onSettled: async (data, error, variables, context) => {
+            mutationOptions.onSettled?.(data, error, variables, context)
             const queue = getQueryQueue(mutationOptions.tag)
-            queue.shift()
+            const thisRequest = queue.shift()
             if (queue.length > 0) {
                 if (queue[0].optimisticId) {
                     const id = getIdFromOptimisticId(queue[0].optimisticId)
@@ -83,9 +85,11 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
                     queue[0].send()
                 }
             } else {
+                await sleep(QUEUED_MUTATION_DEBOUNCE)
+                // check if another request was sent during the debounce period
+                if (getLastSentQuery(mutationOptions.tag) != thisRequest) return
                 mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
             }
-            mutationOptions.onSettled?.(data, error, variables, context)
         },
     })
     const newMutate = (variables: TVariables, optimisticId?: string) => {
@@ -111,10 +115,11 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
                 })
             }
         } else {
-            const send = () => mutate(variables)
-            queue.push({ send })
+            const queuedRequest = { send: () => mutate(variables) }
+            queue.push(queuedRequest)
             if (queue.length === 1) {
-                send()
+                queuedRequest.send()
+                setLastSentQuery(mutationOptions.tag, queuedRequest)
             }
         }
     }
