@@ -1,5 +1,6 @@
 import { TStatusColors } from '../styles/colors'
 import { TIconImage, TLogoImage } from '../styles/images'
+import { RecurrenceRate } from './enums'
 
 export type EmptyString = ''
 
@@ -300,4 +301,18 @@ export interface TShortcut {
     icon?: TIconImage
     hideFromCommandPalette?: boolean
     action: () => void
+}
+
+export interface TRecurringTaskTemplate {
+    id: string
+    optimisticId?: string
+    title: string
+    body?: string
+    id_task_section: string
+    priority_normalized?: number
+    recurrence_rate: RecurrenceRate
+    time_of_day_seconds_to_create_task: number
+    day_to_create_task?: number
+    month_to_create_task?: number
+    last_backfill_datetime: string
 }
