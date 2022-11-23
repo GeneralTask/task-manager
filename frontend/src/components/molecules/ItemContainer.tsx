@@ -8,6 +8,7 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; forceHoverStyle?: boo
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     height: 100%;
     background-color: ${Colors.background.white};
     box-shadow: ${Shadows.button.default};
