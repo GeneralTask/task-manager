@@ -837,6 +837,10 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	if (a.PriorityNormalized != nil) && (b.PriorityNormalized != nil) {
 		assert.Equal(t, *a.PriorityNormalized, *b.PriorityNormalized)
 	}
+	assert.True(t, (a.ExternalPriority == nil) == (b.ExternalPriority == nil))
+	if (a.ExternalPriority != nil) && (b.ExternalPriority != nil) {
+		assert.Equal(t, *&a.ExternalPriority.ExternalID, *&b.ExternalPriority.ExternalID)
+	}
 	assert.True(t, (a.DueDate == nil) == (b.DueDate == nil))
 	if (a.DueDate != nil) && (b.DueDate != nil) {
 		assert.Equal(t, *a.DueDate, *b.DueDate)
