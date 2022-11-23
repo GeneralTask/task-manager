@@ -3,7 +3,7 @@ import { Command } from 'cmdk'
 import styled from 'styled-components'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
-import { useKeyboardShortcut } from '../../hooks'
+import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -90,6 +90,7 @@ interface CommandPaletteProps {
 }
 const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
+    const { isPreviewMode } = usePreviewMode()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
     const buttonRef = useRef<HTMLButtonElement>(null)
@@ -190,25 +191,27 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                 </CommandGroup>
                             )
                     )}
-                    <CommandGroup heading={`Search for "${searchValue ?? ''}"`}>
-                        {tasks.map(({ title, source, id }) => (
-                            <CommandItem
-                                key={id}
-                                onSelect={() => {
-                                    setShowCommandPalette(false)
-                                    navigateToTask(id)
-                                }}
-                                value={`${title} ${id}`}
-                            >
-                                <Flex flex="1" alignItems="center">
-                                    <IconContainer>
-                                        <Icon icon={logos[source.logo_v2]} />
-                                    </IconContainer>
-                                    {title}
-                                </Flex>
-                            </CommandItem>
-                        ))}
-                    </CommandGroup>
+                    {isPreviewMode && (
+                        <CommandGroup heading={`Search for "${searchValue ?? ''}"`}>
+                            {tasks.map(({ title, source, id }) => (
+                                <CommandItem
+                                    key={id}
+                                    onSelect={() => {
+                                        setShowCommandPalette(false)
+                                        navigateToTask(id)
+                                    }}
+                                    value={`${title} ${id}`}
+                                >
+                                    <Flex flex="1" alignItems="center">
+                                        <IconContainer>
+                                            <Icon icon={logos[source.logo_v2]} />
+                                        </IconContainer>
+                                        {title}
+                                    </Flex>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    )}
                 </CommandList>
             </CommandDialog>
         </>
