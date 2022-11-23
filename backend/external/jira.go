@@ -441,10 +441,7 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 	}
 
 	if updateFields.IsDeleted != nil {
-		err := jira.handleJIRAIssueDelete(siteConfiguration, token, issueID, updateFields)
-		if err != nil {
-			return err
-		}
+		return jira.handleJIRAIssueDelete(siteConfiguration, token, issueID, updateFields)
 	}
 
 	if updateFields.Status != nil {
