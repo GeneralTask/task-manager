@@ -149,7 +149,8 @@ const NavigationLink = ({
     }, [needsRelinking])
 
     if (isCollapsed && icon) {
-        const dataTip = taskSection ? `${title} (${count ?? 0})` : title
+        const countOverflow = countWithOverflow(count ?? 0)
+        const dataTip = taskSection ? `${title} (${countOverflow})` : title
         return (
             <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
                 <GTIconButton
