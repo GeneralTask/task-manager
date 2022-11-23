@@ -75,6 +75,13 @@ func (api *API) mergeTasksV3(
 		deletedTaskResults = append(deletedTaskResults, taskResult)
 	}
 
+	// add completed subtasks to active tasks list
+	for _, task := range *completedTasks {
+		if task.ParentTaskID != primitive.NilObjectID {
+			*activeTasks = append(*activeTasks, task)
+		}
+	}
+
 	sort.SliceStable(*activeTasks, func(i, j int) bool {
 		a := (*activeTasks)[i]
 		b := (*activeTasks)[j]
