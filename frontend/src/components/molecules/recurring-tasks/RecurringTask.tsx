@@ -16,10 +16,7 @@ const RecurringTask = ({ recurringTask }: RecurringTaskProps) => {
     return (
         <TaskTemplate>
             <ItemContainer isSelected={false} onClick={emptyFunction}>
-                <Truncated>
-                    {recurringTask.title +
-                        'kdlfjadslkfjdslk fkldsjf dlsjfsdkl flksjfklsdfj lfjdsfjldsjfdlskfdlskfjd fdljdslkfj dsklfsd fjslkdfj lksd flkdsjfskd fjkdlsfjkdslfjkdsfj dsfjsdlk dsfklj'}
-                </Truncated>
+                <Truncated>{recurringTask.title}</Truncated>
                 <Flex gap={Spacing._12}>
                     <Icon icon={icons.arrows_repeat} />
                     {recurringTask.priority_normalized ? (
