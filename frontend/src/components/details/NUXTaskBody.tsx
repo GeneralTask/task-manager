@@ -4,7 +4,6 @@ import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
-import { TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import SettingsModal from '../molecules/SettingsModal'
 
@@ -185,11 +184,11 @@ const JohnsLetter = () => {
 }
 
 interface NUXTaskBodyProps {
-    task: TTask
+    nux_number_id: number
     renderSettingsModal?: boolean
 }
-const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
-    switch (task.nux_number_id) {
+const NUXTaskBody = ({ nux_number_id }: NUXTaskBodyProps) => {
+    switch (nux_number_id) {
         case 1:
             return <TaskToCal />
         case 2:
@@ -203,9 +202,9 @@ const NUXTaskBody = ({ task }: NUXTaskBodyProps) => {
     }
 }
 
-export const NuxTaskBodyStatic = ({ task, renderSettingsModal }: NUXTaskBodyProps) => {
+export const NuxTaskBodyStatic = ({ nux_number_id, renderSettingsModal }: NUXTaskBodyProps) => {
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
-    switch (task.nux_number_id) {
+    switch (nux_number_id) {
         case 1:
             return <TaskToCal />
         case 2:

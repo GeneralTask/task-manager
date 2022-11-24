@@ -92,7 +92,7 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
 export const useModifyRecurringTask = () => {
     const queryClient = useGTQueryClient()
 
-    useQueuedMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
+    return useQueuedMutation((payload: TModifyRecurringTaskPayload) => modifyRecurringTask(payload), {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
@@ -120,7 +120,7 @@ export const useModifyRecurringTask = () => {
 
 const modifyRecurringTask = async (payload: TModifyRecurringTaskPayload) => {
     try {
-        const res = await apiClient.post(`/recurring_task_templates/modify/${payload.id}/`, payload)
+        const res = await apiClient.patch(`/recurring_task_templates/modify/${payload.id}/`, payload)
         return castImmutable(res.data)
     } catch {
         throw new Error('modifyRecurringTask failed')
