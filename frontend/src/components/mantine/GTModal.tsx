@@ -16,11 +16,11 @@ const ModalOuter = styled.div<{ fixedHeight: boolean }>`
     display: flex;
     height: ${({ fixedHeight }) => (fixedHeight ? MODAL_HEIGHT : '100%')};
 `
-const ModalContent = styled.div`
+const ModalContent = styled.div<{ smallGap: boolean }>`
     display: flex;
     flex-direction: column;
     flex: 1 0;
-    gap: ${Spacing._24};
+    gap: ${({ smallGap }) => (smallGap ? Spacing._16 : Spacing._24)};
     padding: ${Spacing._24} ${Spacing._32};
     overflow-y: auto;
 `
@@ -62,12 +62,13 @@ interface GTModalProps extends BaseModalProps {
 }
 const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
     const [selectedTab, setSelectedTab] = useState(0)
-    const tab = Array.isArray(tabs) ? tabs[selectedTab] : tabs
+    const isTabbed = Array.isArray(tabs)
+    const tab = isTabbed ? tabs[selectedTab] : tabs
 
     return (
         <BaseModal open={baseModalProps.open} setIsModalOpen={baseModalProps.setIsModalOpen} size={baseModalProps.size}>
-            <ModalOuter fixedHeight={Array.isArray(tabs)}>
-                {Array.isArray(tabs) && (
+            <ModalOuter fixedHeight={isTabbed}>
+                {isTabbed && (
                     <ModalSidebar>
                         <MarginBottom8>
                             <Eyebrow color="light">{title}</Eyebrow>
@@ -84,13 +85,13 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                         ))}
                     </ModalSidebar>
                 )}
-                <ModalContent>
+                <ModalContent smallGap={!isTabbed}>
                     <Flex justifyContent="space-between" alignItems="center">
                         <Subtitle>{tab.title}</Subtitle>
                         <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
                     </Flex>
                     {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
-                    {Array.isArray(tabs) && <Divider color={Colors.border.light} />}
+                    {isTabbed && <Divider color={Colors.border.light} />}
                     <div>{tab.body}</div>
                 </ModalContent>
             </ModalOuter>
