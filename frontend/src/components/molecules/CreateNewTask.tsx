@@ -35,7 +35,7 @@ export const TaskInput = styled.input`
     flex: 1;
     ${Typography.bodySmall};
 `
-export const Tooltip = styled.div`
+const Tooltip = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._8};
