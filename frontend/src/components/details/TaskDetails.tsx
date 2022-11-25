@@ -33,6 +33,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import GTDatePicker from '../molecules/GTDatePicker'
+import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
@@ -248,27 +249,19 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && (
+                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && (
                                     <FolderDropdown
                                         value={(isRecurringTaskTemplate ? task.id_task_section : params.section) ?? ''}
-                                        onChange={(sectionId) =>
-                                            isRecurringTaskTemplate
-                                                ? modifyRecurringTask(
-                                                      {
-                                                          id: currentTask.id,
-                                                          id_task_section: sectionId,
-                                                      },
-                                                      currentTask.optimisticId
-                                                  )
-                                                : reorderTask(
-                                                      {
-                                                          id: currentTask.id,
-                                                          dropSectionId: sectionId,
-                                                          dragSectionId: params.section,
-                                                          orderingId: 1,
-                                                      },
-                                                      currentTask.optimisticId
-                                                  )
+                                        onChange={(newFolderId) =>
+                                            reorderTask(
+                                                {
+                                                    id: currentTask.id,
+                                                    dropSectionId: newFolderId,
+                                                    dragSectionId: params.section,
+                                                    orderingId: 1,
+                                                },
+                                                currentTask.optimisticId
+                                            )
                                         }
                                     />
                                 )}
@@ -334,6 +327,9 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <Spinner />
             ) : (
                 <>
+                    {isRecurringTaskTemplate && (
+                        <RecurringTaskTemplateDetailsBanner recurringTask={task as TRecurringTaskTemplate} />
+                    )}
                     <TaskBody
                         id={currentTask.id}
                         body={currentTask.body ?? ''}
