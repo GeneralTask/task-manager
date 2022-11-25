@@ -69,7 +69,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                 tabs={{
                     title: 'Got feedback for us?',
                     body: (
-                        <Flex column gap={Spacing._8}>
+                        <Flex column gap={Spacing._16}>
                             <BodySmall>
                                 Feedback is a gift — thank you. Let us know what things you’d like to see us do more and
                                 what things we can do better.
