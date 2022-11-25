@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
@@ -13,14 +14,16 @@ interface RecurrenceRateSelectorProps {
     selectedDate: DateTime
 }
 const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRateSelectorProps) => {
-    console.log(selectedDate, selectedDate.day)
-    const recurrenceRateLabels: [RecurrenceRate, string][] = [
-        [RecurrenceRate.DAILY, 'Daily'],
-        [RecurrenceRate.WEEK_DAILY, `Weekly on ${selectedDate.weekdayLong}`],
-        [RecurrenceRate.WEEKLY, `Monthly on ${getOrdinal(selectedDate.day)} ${selectedDate.weekdayLong}`],
-        [RecurrenceRate.MONTHLY, `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`],
-        [RecurrenceRate.YEARLY, 'Every weekday (Monday to Friday)'],
-    ]
+    const recurrenceRateLabels: [RecurrenceRate, string][] = useMemo(
+        () => [
+            [RecurrenceRate.DAILY, 'Daily'],
+            [RecurrenceRate.WEEK_DAILY, `Weekly on ${selectedDate.weekdayLong}`],
+            [RecurrenceRate.WEEKLY, `Monthly on ${getOrdinal(selectedDate.day)} ${selectedDate.weekdayLong}`],
+            [RecurrenceRate.MONTHLY, `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`],
+            [RecurrenceRate.YEARLY, 'Every weekday (Monday to Friday)'],
+        ],
+        [selectedDate]
+    )
 
     return (
         <Flex column gap={Spacing._12}>
