@@ -1,7 +1,7 @@
 import { Fragment, useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Typography } from '../../styles'
 import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
@@ -19,8 +19,9 @@ import {
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
-const DropdownMenuContent = styled(DropdownMenu.Content)<{ menuInModal?: boolean; width?: number }>`
+const DropdownMenuContent = styled(DropdownMenu.Content)<{ menuInModal?: boolean; width?: number; isLabel?: boolean }>`
     ${MenuContentShared};
+    ${(props) => props.isLabel && Typography.label};
     ${({ menuInModal }) => menuInModal && `z-index: 1000;`}
     ${({ width }) => width && `width: ${width}px;`}
     box-sizing: border-box;
@@ -46,6 +47,7 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
+    fontStyle?: 'default' | 'label'
 }
 
 const GTDropdownMenu = ({
@@ -58,6 +60,7 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
+    fontStyle = 'default',
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
@@ -74,6 +77,7 @@ const GTDropdownMenu = ({
                         align={align}
                         menuInModal={menuInModal}
                         width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
+                        isLabel={fontStyle === 'label'}
                     >
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>
