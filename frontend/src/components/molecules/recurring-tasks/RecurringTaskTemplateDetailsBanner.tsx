@@ -14,7 +14,7 @@ import FolderDropdown from '../../radix/FolderDropdown'
 const Banner = styled.div`
     border-radius: ${Border.radius.mini};
     background-color: ${Colors.background.light};
-    padding: ${Spacing._12} ${Spacing._16};
+    padding: ${Spacing._8};
     ${Typography.label};
     color: ${Colors.text.light};
     display: flex;
