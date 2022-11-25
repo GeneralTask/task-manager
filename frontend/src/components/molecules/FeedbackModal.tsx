@@ -84,6 +84,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                             />
                             <GTButton
                                 onClick={submitFeedback}
+                                disabled={feedback.trim().length === 0}
                                 value="Send feedback"
                                 styleType="primary"
                                 size="small"
