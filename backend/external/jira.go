@@ -13,7 +13,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/templating"
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -514,7 +513,6 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 	}
 
 	updateRequestBytes, err := json.Marshal(&updateRequest)
-	log.Print(string(updateRequestBytes))
 	if err != nil {
 		return errors.New("unable to marshal update fields for JIRA request")
 	}
