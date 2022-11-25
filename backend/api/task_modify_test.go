@@ -1080,9 +1080,57 @@ func TestEditFields(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"time duration cannot be negative\"}", string(body))
 	})
+	t.Run("Edit priority not in all priorities", func(t *testing.T) {
+		expectedTask := sampleTask
+		expectedTask.UserID = userID
+		insertResult, err := taskCollection.InsertOne(
+			context.Background(),
+			expectedTask,
+		)
+		assert.NoError(t, err)
+		insertedTaskID := insertResult.InsertedID.(primitive.ObjectID)
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/tasks/modify/"+insertedTaskID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"task": {"external_priority": {"external_id":"1"}}}`)))
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{\"detail\":\"priority value not in all prioirities field for task\"}", string(body))
+	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
 		expectedTask := sampleTask
 		expectedTask.UserID = userID
+		expectedTask.ExternalPriority = &database.ExternalTaskPriority{
+			ExternalID:         "1",
+			Name:               "high",
+			PriorityNormalized: 2.0,
+			Color:              "#ffffff",
+			IconURL:            "https://example.com",
+		}
+		expectedTask.AllExternalPriorities = []*database.ExternalTaskPriority{
+			{
+				ExternalID:         "1",
+				Name:               "high",
+				PriorityNormalized: 2.0,
+				Color:              "#ffffff",
+				IconURL:            "https://example.com",
+			},
+			{
+				ExternalID:         "2",
+				Name:               "low",
+				PriorityNormalized: 4.0,
+				Color:              "#ffffff",
+				IconURL:            "https://example.com",
+			},
+		}
 		insertResult, err := taskCollection.InsertOne(
 			context.Background(),
 			expectedTask,
@@ -1103,7 +1151,8 @@ func TestEditFields(t *testing.T) {
 				"time_duration": 20,
 				"due_date": "`+dueDate.Format(time.RFC3339)+`",
 				"title": "New Title",
-				"body": "New Body"
+				"body": "New Body",
+				"task": {"external_priority": {"external_id":"1"}}
 				}`)))
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -1127,6 +1176,9 @@ func TestEditFields(t *testing.T) {
 		expectedTask.Body = &newBody
 		expectedTask.DueDate = &expectedDueDate
 		expectedTask.TimeAllocation = &newTimeAllocation
+
+		assert.Equal(t, 2.0, *task.PriorityNormalized)
+		assert.Equal(t, "1", *&task.ExternalPriority.ExternalID)
 
 		utils.AssertTasksEqual(t, &expectedTask, &task)
 	})

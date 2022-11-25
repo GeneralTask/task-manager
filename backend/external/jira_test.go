@@ -705,6 +705,9 @@ func TestModifyJIRATask(t *testing.T) {
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Title: &newName,
 			Body:  &newBody,
+			ExternalPriority: &database.ExternalTaskPriority{
+				ExternalID: "1",
+			},
 		}, &database.Task{})
 		assert.NoError(t, err)
 	})

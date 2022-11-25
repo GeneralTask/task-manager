@@ -13,6 +13,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/templating"
+	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -47,10 +48,10 @@ type JIRAStatusCategory struct {
 }
 
 type JIRAPriority struct {
-	ID      string `json:"id"`
-	Color   string `json:"statusColor"`
-	Name    string `json:"name"`
-	IconURL string `json:"iconURL"`
+	ID      string `json:"id,omitempty"`
+	Color   string `json:"statusColor,omitempty"`
+	Name    string `json:"name,omitempty"`
+	IconURL string `json:"iconURL,omitempty"`
 }
 
 type JIRAScope struct {
@@ -390,7 +391,7 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 		}
 	}
 
-	if updateFields.Title != nil || updateFields.Body != nil {
+	if updateFields.Title != nil || updateFields.Body != nil || updateFields.ExternalPriority != nil {
 		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields)
 		if err != nil {
 			return err
@@ -448,8 +449,9 @@ type JIRAUpdateRequest struct {
 }
 
 type JIRAUpdateFields struct {
-	Summary     string               `json:"summary,omitempty"`
-	Description JIRADescriptionField `json:"description,omitempty"`
+	Summary     string                `json:"summary,omitempty"`
+	Description *JIRADescriptionField `json:"description,omitempty"`
+	Priority    *JIRAPriority         `json:"priority,omitempty"`
 }
 
 type JIRADescriptionField struct {
@@ -482,13 +484,13 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 	}
 	if updateFields.Body != nil {
 		if *updateFields.Body == "" {
-			updateRequest.Fields.Description = JIRADescriptionField{
+			updateRequest.Fields.Description = &JIRADescriptionField{
 				Type:    "doc",
 				Version: 1,
 				Content: []JIRAFieldContent{},
 			}
 		} else {
-			updateRequest.Fields.Description = JIRADescriptionField{
+			updateRequest.Fields.Description = &JIRADescriptionField{
 				Type:    "doc",
 				Version: 1,
 				Content: []JIRAFieldContent{
@@ -505,8 +507,14 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 			}
 		}
 	}
+	if (updateFields.ExternalPriority != nil && *updateFields.ExternalPriority != database.ExternalTaskPriority{}) {
+		updateRequest.Fields.Priority = &JIRAPriority{
+			ID: updateFields.ExternalPriority.ExternalID,
+		}
+	}
 
 	updateRequestBytes, err := json.Marshal(&updateRequest)
+	log.Print(string(updateRequestBytes))
 	if err != nil {
 		return errors.New("unable to marshal update fields for JIRA request")
 	}

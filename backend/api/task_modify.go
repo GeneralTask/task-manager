@@ -16,11 +16,11 @@ import (
 )
 
 type TaskChangeable struct {
-	PriorityID         *string                      `json:"priority_id,omitempty" bson:"priority_id,omitempty"`
-	PriorityNormalized *float64                     `json:"priority_normalized,omitempty" bson:"priority_normalized,omitempty"`
-	TaskNumber         *int                         `json:"task_number,omitempty" bson:"task_number,omitempty"`
-	Comments           *[]database.Comment          `json:"comments,omitempty" bson:"comments,omitempty"`
-	Status             *database.ExternalTaskStatus `json:"status,omitempty" bson:"status,omitempty"`
+	ExternalPriority   *database.ExternalTaskPriority `json:"external_priority,omitempty" bson:"external_priority,omitempty"`
+	PriorityNormalized *float64                       `json:"priority_normalized,omitempty" bson:"priority_normalized,omitempty"`
+	TaskNumber         *int                           `json:"task_number,omitempty" bson:"task_number,omitempty"`
+	Comments           *[]database.Comment            `json:"comments,omitempty" bson:"comments,omitempty"`
+	Status             *database.ExternalTaskStatus   `json:"status,omitempty" bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
 	PreviousStatus  *database.ExternalTaskStatus `json:"previous_status,omitempty" bson:"previous_status,omitempty"`
 	CompletedStatus *database.ExternalTaskStatus `json:"completed_status,omitempty" bson:"completed_status,omitempty"`
@@ -107,6 +107,7 @@ func (api *API) TaskModify(c *gin.Context) {
 			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
+			ExternalPriority:   modifyParams.TaskItemChangeableFields.Task.ExternalPriority,
 			TaskNumber:         modifyParams.TaskItemChangeableFields.Task.TaskNumber,
 			Comments:           modifyParams.TaskItemChangeableFields.Task.Comments,
 			Status:             modifyParams.TaskItemChangeableFields.Task.Status,
@@ -186,6 +187,20 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 			return false
 		} else {
 			*updateFields.TimeAllocation *= constants.NANOSECONDS_IN_SECOND
+		}
+	}
+	if updateFields.Task.ExternalPriority != nil {
+		matched := false
+		for _, priority := range task.AllExternalPriorities {
+			if updateFields.Task.ExternalPriority.ExternalID == priority.ExternalID {
+				updateFields.Task.ExternalPriority = priority
+				updateFields.Task.PriorityNormalized = &priority.PriorityNormalized
+				matched = true
+			}
+		}
+		if !matched {
+			c.JSON(400, gin.H{"detail": "priority value not in all prioirities field for task"})
+			return false
 		}
 	}
 	return true
