@@ -8,7 +8,6 @@ import RecurrenceRateSelector from './RecurrenceRateSelector'
 
 const SettingsForm = styled.div`
     width: 350px;
-    height: 100%;
     display: flex;
     flex-direction: column;
     gap: 20px;
