@@ -4,7 +4,7 @@ import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 
 const MAX_POPUP_LENGTH = 315
-const MAX_POPUP_HEIGHT = 100
+const MAX_POPUP_HEIGHT = 500
 
 export const EventBoxStyle = styled.div`
     box-sizing: border-box;
@@ -51,9 +51,10 @@ export const EventDate = styled.span`
 export const Description = styled.div`
     ${Typography.label};
     color: ${Colors.text.black};
-    max-height: ${MAX_POPUP_HEIGHT}px;
     overflow-wrap: break-word;
     overflow-y: auto;
+    max-height: ${MAX_POPUP_HEIGHT}px;
+    margin-bottom: ${Spacing._16};
 `
 export const FlexAnchor = styled(NoStyleAnchor)`
     flex: 1;
