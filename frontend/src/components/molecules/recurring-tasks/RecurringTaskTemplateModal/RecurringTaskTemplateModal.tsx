@@ -21,10 +21,10 @@ const SettingsForm = styled.div`
 `
 
 interface RecurringTaskTemplateModalProps {
-    setIsOpen: (isOpen: boolean) => void
+    onClose: () => void
     initialRecurringTask?: TRecurringTaskTemplate
 }
-const RecurringTaskTemplateModal = ({ setIsOpen, initialRecurringTask }: RecurringTaskTemplateModalProps) => {
+const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: RecurringTaskTemplateModalProps) => {
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const { mutate: createRecurringTask } = useCreateRecurringTask()
 
@@ -64,11 +64,11 @@ const RecurringTaskTemplateModal = ({ setIsOpen, initialRecurringTask }: Recurri
                 time_of_day_seconds_to_create_task: 0,
             })
         }
-        setIsOpen(false)
+        onClose()
     }
 
     return (
-        <GTModal isOpen onClose={() => setIsOpen(false)} title="Setting a recurring task" type="medium">
+        <GTModal isOpen onClose={onClose} title="Setting a recurring task" type="medium">
             <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
                 <SettingsForm>
                     {!initialRecurringTask && <TemplateNameInput value={name} onChange={setName} />}
@@ -80,7 +80,7 @@ const RecurringTaskTemplateModal = ({ setIsOpen, initialRecurringTask }: Recurri
                 </SettingsForm>
             </Flex>
             <Flex justifyContent="space-between">
-                <GTButton value="Cancel" styleType="secondary" onClick={() => setIsOpen(false)} />
+                <GTButton value="Cancel" styleType="secondary" onClick={onClose} />
                 <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
             </Flex>
         </GTModal>
