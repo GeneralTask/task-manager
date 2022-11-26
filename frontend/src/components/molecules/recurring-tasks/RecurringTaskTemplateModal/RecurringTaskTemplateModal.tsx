@@ -21,11 +21,10 @@ const SettingsForm = styled.div`
 `
 
 interface RecurringTaskTemplateModalProps {
-    isOpen: boolean
     setIsOpen: (isOpen: boolean) => void
     initialRecurringTask?: TRecurringTaskTemplate
 }
-const RecurringTaskTemplateModal = ({ isOpen, setIsOpen, initialRecurringTask }: RecurringTaskTemplateModalProps) => {
+const RecurringTaskTemplateModal = ({ setIsOpen, initialRecurringTask }: RecurringTaskTemplateModalProps) => {
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const { mutate: createRecurringTask } = useCreateRecurringTask()
 
@@ -69,7 +68,7 @@ const RecurringTaskTemplateModal = ({ isOpen, setIsOpen, initialRecurringTask }:
     }
 
     return (
-        <GTModal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Setting a recurring task" type="medium">
+        <GTModal isOpen onClose={() => setIsOpen(false)} title="Setting a recurring task" type="medium">
             <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
                 <SettingsForm>
                     {!initialRecurringTask && <TemplateNameInput value={name} onChange={setName} />}
