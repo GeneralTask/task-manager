@@ -3,11 +3,12 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate } from '../../../../utils/types'
-import GTModal from '../../../atoms/GTModal'
+import GTModal from '../../../mantine/GTModal'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 
 const SettingsForm = styled.div`
     width: 350px;
+    height: 60vh;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -23,17 +24,25 @@ const RecurringTaskTemplateModal = ({ isOpen, setIsOpen, initialRecurringTask }:
     const [selectedDate] = useState(DateTime.local())
 
     return (
-        <GTModal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Setting a recurring task" type="medium">
-            <div>
-                <SettingsForm>
-                    <RecurrenceRateSelector
-                        value={recurrenceRate}
-                        onChange={setRecurrenceRate}
-                        selectedDate={selectedDate}
-                    />
-                </SettingsForm>
-            </div>
-        </GTModal>
+        <GTModal
+            open={isOpen}
+            setIsModalOpen={setIsOpen}
+            size="lg"
+            tabs={{
+                title: 'Setting a recurring task',
+                body: (
+                    <div>
+                        <SettingsForm>
+                            <RecurrenceRateSelector
+                                value={recurrenceRate}
+                                onChange={setRecurrenceRate}
+                                selectedDate={selectedDate}
+                            />
+                        </SettingsForm>
+                    </div>
+                ),
+            }}
+        />
     )
 }
 
