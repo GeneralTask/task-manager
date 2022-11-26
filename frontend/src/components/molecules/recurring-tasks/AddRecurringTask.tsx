@@ -8,15 +8,8 @@ import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 
 const AddTemplateContainer = styled(CreateNewTaskContainer)<{ isButton?: boolean }>`
     ${Typography.bodySmall};
-    ${(props) =>
-        props.isButton &&
-        `
-        cursor: pointer;
-        :hover {
-            border: ${Border.stroke.medium} solid ${Colors.border.gray};
-        }
-    `}
-    :focus-within {
+    cursor: pointer;
+    :hover {
         border: ${Border.stroke.medium} solid ${Colors.border.purple};
     }
 `
@@ -25,7 +18,7 @@ const AddRecurringTask = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     return (
         <>
-            <AddTemplateContainer isButton onClick={() => setIsModalOpen(true)}>
+            <AddTemplateContainer onClick={() => setIsModalOpen(true)}>
                 <Icon icon={icons.plus} />
                 Add new template
             </AddTemplateContainer>
