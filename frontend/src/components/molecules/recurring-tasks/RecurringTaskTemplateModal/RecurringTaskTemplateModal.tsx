@@ -8,13 +8,14 @@ import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
-import GTModal from '../../../atoms/GTModal'
+import GTModal from '../../../mantine/GTModal'
 import GTButton from '../../../atoms/buttons/GTButton'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 import TemplateNameInput from './TemplateNameInput'
 
 const SettingsForm = styled.div`
     width: 350px;
+    height: 60vh;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -33,9 +34,9 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
     const [selectedDate] = useState<DateTime>(
         initialRecurringTask?.day_to_create_task && initialRecurringTask?.day_to_create_task
             ? DateTime.fromObject({
-                  day: initialRecurringTask.day_to_create_task,
-                  month: initialRecurringTask.month_to_create_task,
-              })
+                day: initialRecurringTask.day_to_create_task,
+                month: initialRecurringTask.month_to_create_task,
+            })
             : DateTime.local()
     )
     const isValid = name !== ''
@@ -68,22 +69,32 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
     }
 
     return (
-        <GTModal isOpen onClose={onClose} title="Setting a recurring task" type="medium">
-            <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
-                <SettingsForm>
-                    {!initialRecurringTask && <TemplateNameInput value={name} onChange={setName} />}
-                    <RecurrenceRateSelector
-                        value={recurrenceRate}
-                        onChange={setRecurrenceRate}
-                        selectedDate={selectedDate}
-                    />
-                </SettingsForm>
-            </Flex>
-            <Flex justifyContent="space-between">
-                <GTButton value="Cancel" styleType="secondary" onClick={onClose} />
-                <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
-            </Flex>
-        </GTModal>
+        <GTModal
+            open
+            setIsModalOpen={onClose}
+            size="lg"
+            tabs={{
+                title: 'Setting a recurring task',
+                body: (
+                    <>
+                        <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
+                            <SettingsForm>
+                                {!initialRecurringTask && <TemplateNameInput value={name} onChange={setName} />}
+                                <RecurrenceRateSelector
+                                    value={recurrenceRate}
+                                    onChange={setRecurrenceRate}
+                                    selectedDate={selectedDate}
+                                />
+                            </SettingsForm>
+                        </Flex>
+                        <Flex justifyContent="space-between">
+                            <GTButton value="Cancel" styleType="secondary" onClick={onClose} />
+                            <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
+                        </Flex>
+                    </>
+                ),
+            }}
+        />
     )
 }
 
