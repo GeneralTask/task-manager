@@ -10,8 +10,8 @@ import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
+import NewTemplateNameInput from './NewTemplateNameInput'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
-import TemplateNameInput from './TemplateNameInput'
 
 const SettingsForm = styled.div`
     width: 350px;
@@ -79,7 +79,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
                     <>
                         <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
                             <SettingsForm>
-                                {!initialRecurringTask && <TemplateNameInput value={title} onChange={setTitle} />}
+                                {!initialRecurringTask && <NewTemplateNameInput value={title} onChange={setTitle} />}
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}
