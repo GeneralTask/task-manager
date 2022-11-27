@@ -11,11 +11,11 @@ const AddTemplateContainer = styled(CreateNewTaskContainer)<{ isButton?: boolean
     }
 `
 
-interface TemplateNameInputProps {
+interface NewTemplateNameInputProps {
     value: string
     onChange: (value: string) => void
 }
-const TemplateNameInput = ({ value, onChange }: TemplateNameInputProps) => {
+const NewTemplateNameInput = ({ value, onChange }: NewTemplateNameInputProps) => {
     return (
         <AddTemplateContainer>
             <Icon icon={icons.plus} />
@@ -24,4 +24,4 @@ const TemplateNameInput = ({ value, onChange }: TemplateNameInputProps) => {
     )
 }
 
-export default TemplateNameInput
+export default NewTemplateNameInput

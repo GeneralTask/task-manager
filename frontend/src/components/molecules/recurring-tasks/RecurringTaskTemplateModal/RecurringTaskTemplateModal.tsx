@@ -30,7 +30,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const { mutate: createRecurringTask } = useCreateRecurringTask()
 
-    const [name, setName] = useState(initialRecurringTask?.title ?? '')
+    const [title, setTitle] = useState(initialRecurringTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(initialRecurringTask?.recurrence_rate ?? RecurrenceRate.DAILY)
     const [folder, setFolder] = useState(initialRecurringTask?.id_task_section ?? DEFAULT_SECTION_ID)
     const [selectedDate] = useState<DateTime>(
@@ -42,12 +42,12 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
             : DateTime.local()
     )
 
-    const isValid = name !== ''
+    const isValid = !!title.trim()
 
     const handleSave = () => {
         if (!isValid) return
         const payload = {
-            title: name,
+            title,
             recurrence_rate: recurrenceRate,
             id_task_section: folder,
         }
@@ -84,7 +84,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
                             <SettingsForm>
                                 {!initialRecurringTask && (
                                     <>
-                                        <NewTemplateNameInput value={name} onChange={setName} />
+                                        <NewTemplateNameInput value={title} onChange={setTitle} />
                                         <NewTemplateFolderSelector value={folder} onChange={setFolder} />
                                     </>
                                 )}
