@@ -41,6 +41,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
               })
             : DateTime.local()
     )
+
     const isValid = name !== ''
 
     const handleSave = () => {
@@ -48,6 +49,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
         const payload = {
             title: name,
             recurrence_rate: recurrenceRate,
+            id_task_section: folder,
         }
         if (initialRecurringTask) {
             // modifying a template
@@ -63,7 +65,6 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
             createRecurringTask({
                 ...payload,
                 optimisticId: uuidv4(),
-                id_task_section: DEFAULT_SECTION_ID,
                 time_of_day_seconds_to_create_task: 0,
             })
         }
