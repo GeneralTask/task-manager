@@ -1,4 +1,3 @@
-import { CSSProperties } from 'react'
 import { Calendar, DayModifiers } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -6,6 +5,7 @@ import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 
 const StyledCalendar = styled(Calendar)`
+    margin: 0 ${Spacing._16};
     .mantine-Calendar-calendarBase {
         max-width: none;
     }
@@ -20,7 +20,7 @@ const StyledCalendar = styled(Calendar)`
         ${Typography.label};
     }
     .mantine-Calendar-day {
-        color: ${Colors.text.black};
+        border: ${Border.stroke.medium} solid transparent;
         border-radius: 50%;
         width: ${Spacing._24};
         height: ${Spacing._24};
@@ -28,12 +28,14 @@ const StyledCalendar = styled(Calendar)`
         display: flex;
         align-items: center;
         justify-content: center;
+        outline: none;
     }
-`
-
-const CalendarContainer = styled.div`
-    margin: 0 auto;
-    padding: 0 ${Spacing._16};
+    .selected {
+        border-color: ${Colors.gtColor.primary};
+        background-color: ${Colors.gtColor.secondary};
+        color: ${Colors.text.black};
+        box-sizing: border-box;
+    }
 `
 
 interface DatePickerProps {
@@ -49,28 +51,21 @@ const DatePicker = ({ date, setDate }: DatePickerProps) => {
         setDate(DateTime.fromJSDate(newDate))
     }
 
-    const handleDayStyle = (_day: Date, modifiers: DayModifiers): CSSProperties => {
+    const applyDayClassNames = (_day: Date, modifiers: DayModifiers) => {
         if (modifiers.selected) {
-            return {
-                border: `${Border.stroke.medium} solid ${Colors.gtColor.primary}`,
-                backgroundColor: Colors.gtColor.secondary,
-                color: Colors.text.black,
-                boxSizing: 'border-box',
-            }
+            return 'selected'
         }
-        return {}
+        return ''
     }
 
     return (
-        <CalendarContainer>
-            <StyledCalendar
-                value={jsDate}
-                onChange={handleChange}
-                firstDayOfWeek="sunday"
-                dayStyle={handleDayStyle}
-                allowLevelChange={false}
-            />
-        </CalendarContainer>
+        <StyledCalendar
+            value={jsDate}
+            onChange={handleChange}
+            firstDayOfWeek="sunday"
+            dayClassName={applyDayClassNames}
+            allowLevelChange={false}
+        />
     )
 }
 
