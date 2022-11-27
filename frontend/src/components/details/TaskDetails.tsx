@@ -272,6 +272,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                                 asDiv
                                             />
                                         )}
+                                        enableKeyboardShortcut
                                     />
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}

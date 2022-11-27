@@ -9,8 +9,9 @@ interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
     renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void) => ReactNode
+    enableKeyboardShortcut?: boolean
 }
-const FolderSelector = ({ value, onChange, renderTrigger }: FolderSelectorProps) => {
+const FolderSelector = ({ value, onChange, renderTrigger, enableKeyboardShortcut }: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
 
@@ -18,7 +19,8 @@ const FolderSelector = ({ value, onChange, renderTrigger }: FolderSelectorProps)
         'moveTaskToFolder',
         useCallback(() => {
             setIsOpen(true)
-        }, [])
+        }, []),
+        !enableKeyboardShortcut
     )
 
     return (
