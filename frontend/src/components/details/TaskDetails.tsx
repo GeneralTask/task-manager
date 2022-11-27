@@ -32,10 +32,10 @@ import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
+import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
-import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -250,7 +250,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                     />
                                 )}
                                 {!is_meeting_preparation_task && !isRecurringTaskTemplate && (
-                                    <FolderDropdown
+                                    <FolderSelector
                                         value={(isRecurringTaskTemplate ? task.id_task_section : params.section) ?? ''}
                                         onChange={(newFolderId) =>
                                             reorderTask(

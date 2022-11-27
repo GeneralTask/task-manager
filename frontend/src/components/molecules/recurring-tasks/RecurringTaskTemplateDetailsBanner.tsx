@@ -9,7 +9,7 @@ import { icons } from '../../../styles/images'
 import { TRecurringTaskTemplate } from '../../../utils/types'
 import Flex from '../../atoms/Flex'
 import GTButton from '../../atoms/buttons/GTButton'
-import FolderDropdown from '../../radix/FolderDropdown'
+import FolderSelector from '../FolderSelector'
 
 const Banner = styled.div`
     border-radius: ${Border.radius.mini};
@@ -59,7 +59,7 @@ const RecurringTaskTemplateDetailsBanner = ({ recurringTask }: RecurringTaskTemp
                         value={folder.name}
                     />
                 </Link>
-                <FolderDropdown
+                <FolderSelector
                     value={folder.id}
                     triggerText="change"
                     onChange={(newFolderId) =>

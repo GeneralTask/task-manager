@@ -7,18 +7,18 @@ import { Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import GTDropdownMenu from './GTDropdownMenu'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 
 const TextTriggerButton = styled(GTButton)`
     ${Typography.label};
 `
 
-interface FolderDropdownProps {
+interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
     triggerText?: string
 }
-const FolderDropdown = ({ value, onChange, triggerText }: FolderDropdownProps) => {
+const FolderSelector = ({ value, onChange, triggerText }: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
 
@@ -67,4 +67,4 @@ const FolderDropdown = ({ value, onChange, triggerText }: FolderDropdownProps) =
     )
 }
 
-export default FolderDropdown
+export default FolderSelector
