@@ -8,10 +8,11 @@ import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
-import GTModal from '../../../mantine/GTModal'
 import GTButton from '../../../atoms/buttons/GTButton'
+import GTModal from '../../../mantine/GTModal'
+import NewTemplateFolderSelector from './NewTemplateFolderSelector'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
-import TemplateNameInput from './TemplateNameInput'
+import NewTemplateNameInput from './TemplateNameInput'
 
 const SettingsForm = styled.div`
     width: 350px;
@@ -31,12 +32,13 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
 
     const [name, setName] = useState(initialRecurringTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(initialRecurringTask?.recurrence_rate ?? RecurrenceRate.DAILY)
+    const [folder, setFolder] = useState(initialRecurringTask?.id_task_section ?? DEFAULT_SECTION_ID)
     const [selectedDate] = useState<DateTime>(
         initialRecurringTask?.day_to_create_task && initialRecurringTask?.day_to_create_task
             ? DateTime.fromObject({
-                day: initialRecurringTask.day_to_create_task,
-                month: initialRecurringTask.month_to_create_task,
-            })
+                  day: initialRecurringTask.day_to_create_task,
+                  month: initialRecurringTask.month_to_create_task,
+              })
             : DateTime.local()
     )
     const isValid = name !== ''
@@ -79,7 +81,12 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
                     <>
                         <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
                             <SettingsForm>
-                                {!initialRecurringTask && <TemplateNameInput value={name} onChange={setName} />}
+                                {!initialRecurringTask && (
+                                    <>
+                                        <NewTemplateNameInput value={name} onChange={setName} />
+                                        <NewTemplateFolderSelector value={folder} onChange={setFolder} />
+                                    </>
+                                )}
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}
