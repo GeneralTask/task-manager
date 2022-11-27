@@ -10,12 +10,14 @@ import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
+import DatePicker from './DatePicker'
 import NewTemplateFolderSelector from './NewTemplateFolderSelector'
 import NewTemplateNameInput from './NewTemplateNameInput'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 
 const SettingsForm = styled.div`
-    width: 350px;
+    flex: 1;
+    /* width: 50%; */
     height: 60vh;
     display: flex;
     flex-direction: column;
@@ -33,7 +35,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
     const [title, setTitle] = useState(initialRecurringTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(initialRecurringTask?.recurrence_rate ?? RecurrenceRate.DAILY)
     const [folder, setFolder] = useState(initialRecurringTask?.id_task_section ?? DEFAULT_SECTION_ID)
-    const [selectedDate] = useState<DateTime>(
+    const [selectedDate, setSelectedDate] = useState<DateTime>(
         initialRecurringTask?.day_to_create_task && initialRecurringTask?.day_to_create_task
             ? DateTime.fromObject({
                   day: initialRecurringTask.day_to_create_task,
@@ -94,6 +96,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
                                     selectedDate={selectedDate}
                                 />
                             </SettingsForm>
+                            <DatePicker date={selectedDate} setDate={setSelectedDate} recurrenceRate={recurrenceRate} />
                         </Flex>
                         <Flex justifyContent="space-between">
                             <GTButton value="Cancel" styleType="secondary" onClick={onClose} />
