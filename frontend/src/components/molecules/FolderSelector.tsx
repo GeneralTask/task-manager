@@ -1,24 +1,16 @@
-import { useCallback, useState } from 'react'
-import styled from 'styled-components'
+import { ReactNode, useCallback, useState } from 'react'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
-import { Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
-
-const TextTriggerButton = styled(GTButton)`
-    ${Typography.label};
-`
 
 interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
-    triggerText?: string
+    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void) => ReactNode
 }
-const FolderSelector = ({ value, onChange, triggerText }: FolderSelectorProps) => {
+const FolderSelector = ({ value, onChange, renderTrigger }: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
 
@@ -45,24 +37,7 @@ const FolderSelector = ({ value, onChange, triggerText }: FolderSelectorProps) =
                           }))
                     : []
             }
-            trigger={
-                triggerText ? (
-                    <TextTriggerButton
-                        onClick={() => setIsOpen(!isOpen)}
-                        value={triggerText}
-                        styleType="simple"
-                        size="small"
-                        isDropdown
-                    />
-                ) : (
-                    <GTIconButton
-                        icon={icons.folder}
-                        onClick={() => setIsOpen(!isOpen)}
-                        forceShowHoverEffect={isOpen}
-                        asDiv
-                    />
-                )
-            }
+            trigger={renderTrigger(isOpen, setIsOpen)}
         />
     )
 }

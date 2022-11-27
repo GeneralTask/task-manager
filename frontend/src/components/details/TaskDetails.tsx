@@ -30,6 +30,7 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
@@ -263,6 +264,14 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                                 currentTask.optimisticId
                                             )
                                         }
+                                        renderTrigger={(isOpen, setIsOpen) => (
+                                            <GTIconButton
+                                                icon={icons.folder}
+                                                onClick={() => setIsOpen(!isOpen)}
+                                                forceShowHoverEffect={isOpen}
+                                                asDiv
+                                            />
+                                        )}
                                     />
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}

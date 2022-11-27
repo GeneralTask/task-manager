@@ -61,7 +61,6 @@ const RecurringTaskTemplateDetailsBanner = ({ recurringTask }: RecurringTaskTemp
                 </Link>
                 <FolderSelector
                     value={folder.id}
-                    triggerText="change"
                     onChange={(newFolderId) =>
                         modifyRecurringTask(
                             {
@@ -71,6 +70,15 @@ const RecurringTaskTemplateDetailsBanner = ({ recurringTask }: RecurringTaskTemp
                             recurringTask.optimisticId
                         )
                     }
+                    renderTrigger={(isOpen, setIsOpen) => (
+                        <FolderButton
+                            onClick={() => setIsOpen(!isOpen)}
+                            value="change"
+                            styleType="simple"
+                            size="small"
+                            isDropdown
+                        />
+                    )}
                 />
             </Flex>
         </Banner>
