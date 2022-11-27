@@ -8,8 +8,8 @@ import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
-import GTModal from '../../../mantine/GTModal'
 import GTButton from '../../../atoms/buttons/GTButton'
+import GTModal from '../../../mantine/GTModal'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 import TemplateNameInput from './TemplateNameInput'
 
@@ -29,22 +29,22 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const { mutate: createRecurringTask } = useCreateRecurringTask()
 
-    const [name, setName] = useState(initialRecurringTask?.title ?? '')
+    const [title, setTitle] = useState(initialRecurringTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(initialRecurringTask?.recurrence_rate ?? RecurrenceRate.DAILY)
     const [selectedDate] = useState<DateTime>(
         initialRecurringTask?.day_to_create_task && initialRecurringTask?.day_to_create_task
             ? DateTime.fromObject({
-                day: initialRecurringTask.day_to_create_task,
-                month: initialRecurringTask.month_to_create_task,
-            })
+                  day: initialRecurringTask.day_to_create_task,
+                  month: initialRecurringTask.month_to_create_task,
+              })
             : DateTime.local()
     )
-    const isValid = name !== ''
+    const isValid = !!title.trim()
 
     const handleSave = () => {
         if (!isValid) return
         const payload = {
-            title: name,
+            title,
             recurrence_rate: recurrenceRate,
         }
         if (initialRecurringTask) {
@@ -79,7 +79,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
                     <>
                         <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
                             <SettingsForm>
-                                {!initialRecurringTask && <TemplateNameInput value={name} onChange={setName} />}
+                                {!initialRecurringTask && <TemplateNameInput value={title} onChange={setTitle} />}
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}
