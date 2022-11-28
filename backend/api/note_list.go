@@ -9,7 +9,7 @@ import (
 )
 
 type NoteResult struct {
-	ID        primitive.ObjectID `json:"_id,omitempty"`
+	ID        primitive.ObjectID `json:"id,omitempty"`
 	Title     string             `json:"title,omitempty"`
 	Body      string             `json:"body,omitempty"`
 	Author    string             `json:"author,omitempty"`
