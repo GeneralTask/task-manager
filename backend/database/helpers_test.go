@@ -224,7 +224,7 @@ func TestGetNotes(t *testing.T) {
 		"foobar_source",
 		&Note{
 			UserID:   userID,
-			IsShared: true,
+			IsShared: false,
 		},
 	)
 	assert.NoError(t, err)
