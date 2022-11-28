@@ -38,7 +38,6 @@ export interface TModifyTaskData {
     id: string
     title?: string
     dueDate?: string
-    timeAllocated?: number
     body?: string
     priorityNormalized?: number
     status?: TExternalStatus
@@ -318,7 +317,6 @@ export const useModifyTask = () => {
                     if (!task) return
                     task.title = data.title || task.title
                     task.due_date = data.dueDate || task.due_date
-                    task.time_allocated = data.timeAllocated || task.time_allocated
                     task.body = data.body || task.body
                     task.priority_normalized = data.priorityNormalized || task.priority_normalized
                     task.external_status = data.status || task.external_status
@@ -354,7 +352,6 @@ export const useModifyTask = () => {
                     if (!task) return
                     task.title = data.title ?? task.title
                     task.due_date = data.dueDate ?? task.due_date
-                    task.time_allocated = data.timeAllocated ?? task.time_allocated
                     task.body = data.body ?? task.body
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
@@ -369,7 +366,6 @@ const modifyTask = async (data: TModifyTaskData) => {
     const requestBody: TTaskModifyRequestBody = { task: {} }
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
-    if (data.timeAllocated !== undefined) requestBody.time_duration = data.timeAllocated / 1000000
     if (data.body !== undefined) requestBody.body = data.body
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
     if (data.status !== undefined) requestBody.task.status = data.status
