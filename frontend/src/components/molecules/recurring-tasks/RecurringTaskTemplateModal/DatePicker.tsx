@@ -4,12 +4,12 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 
-const StyledCalendar = styled(Calendar)`
+const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     margin: 0 ${Spacing._16};
     .mantine-Calendar-calendarBase {
         max-width: none;
     }
-    .mantine-Calendar-calendarHeader {
+    thead {
         border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
     }
     .mantine-Calendar-calendarHeaderLevel {
@@ -29,12 +29,21 @@ const StyledCalendar = styled(Calendar)`
         align-items: center;
         justify-content: center;
         outline: none;
+        ${(props) =>
+            props.disabled &&
+            `
+            background-color: transparent;
+            cursor: default;
+        `}
     }
     .selected {
+        color: ${Colors.text.black};
         border-color: ${Colors.gtColor.primary};
         background-color: ${Colors.gtColor.secondary};
+    }
+    .recurring-selection {
         color: ${Colors.text.black};
-        box-sizing: border-box;
+        background-color: ${Colors.gtColor.secondary};
     }
 `
 
@@ -43,18 +52,26 @@ interface DatePickerProps {
     setDate: (date: DateTime) => void
     recurrenceRate: RecurrenceRate
 }
-const DatePicker = ({ date, setDate }: DatePickerProps) => {
-    const jsDate = date.toJSDate()
+const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
+    const disabled = recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY
+    const selectedDate = disabled ? DateTime.local() : date
+    const jsDate = selectedDate.toJSDate()
 
     const handleChange = (newDate: Date | null) => {
-        if (!newDate) return
+        if (disabled || !newDate) return
         setDate(DateTime.fromJSDate(newDate))
     }
 
-    const applyDayClassNames = (_day: Date, modifiers: DayModifiers) => {
-        if (modifiers.selected) {
-            return 'selected'
-        }
+    const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
+        if (modifiers.selected) return 'selected'
+        if (day.getTime() < jsDate.getTime()) return ''
+        if (
+            recurrenceRate === RecurrenceRate.DAILY ||
+            (recurrenceRate === RecurrenceRate.WEEK_DAILY && !modifiers.weekend) ||
+            (recurrenceRate === RecurrenceRate.WEEKLY && day.getDay() === date.weekday % 7) ||
+            (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day)
+        )
+            return 'recurring-selection'
         return ''
     }
 
@@ -65,6 +82,7 @@ const DatePicker = ({ date, setDate }: DatePickerProps) => {
             firstDayOfWeek="sunday"
             dayClassName={applyDayClassNames}
             allowLevelChange={false}
+            disabled={disabled}
         />
     )
 }
