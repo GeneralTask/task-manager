@@ -102,16 +102,22 @@ export const useModifyRecurringTask = () => {
             if (!recurringTasks) return
 
             const newRecurringTasks = produce(recurringTasks, (draft) => {
-                const recurringTask = draft.find((recurringTask) => recurringTask.id === payload.id)
-                if (!recurringTask) return
-                recurringTask.title = payload.title ?? recurringTask.title
-                recurringTask.body = payload.body ?? recurringTask.body
-                recurringTask.id_task_section = payload.id_task_section ?? recurringTask.id_task_section
-                recurringTask.priority_normalized = payload.priority_normalized ?? recurringTask.priority_normalized
-                recurringTask.recurrence_rate = payload.recurrence_rate ?? recurringTask.recurrence_rate
-                recurringTask.time_of_day_seconds_to_create_task =
-                    payload.time_of_day_seconds_to_create_task ?? recurringTask.time_of_day_seconds_to_create_task
-                recurringTask.day_to_create_task = payload.day_to_create_task ?? recurringTask.day_to_create_task
+                if (payload.is_deleted) {
+                    const index = draft.findIndex((task) => task.id === payload.id)
+                    if (index === -1) return
+                    draft.splice(index, 1)
+                } else {
+                    const recurringTask = draft.find((recurringTask) => recurringTask.id === payload.id)
+                    if (!recurringTask) return
+                    recurringTask.title = payload.title ?? recurringTask.title
+                    recurringTask.body = payload.body ?? recurringTask.body
+                    recurringTask.id_task_section = payload.id_task_section ?? recurringTask.id_task_section
+                    recurringTask.priority_normalized = payload.priority_normalized ?? recurringTask.priority_normalized
+                    recurringTask.recurrence_rate = payload.recurrence_rate ?? recurringTask.recurrence_rate
+                    recurringTask.time_of_day_seconds_to_create_task =
+                        payload.time_of_day_seconds_to_create_task ?? recurringTask.time_of_day_seconds_to_create_task
+                    recurringTask.day_to_create_task = payload.day_to_create_task ?? recurringTask.day_to_create_task
+                }
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
         },
