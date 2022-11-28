@@ -199,7 +199,7 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 			}
 		}
 		if !matched {
-			c.JSON(400, gin.H{"detail": "priority value not in all prioirities field for task"})
+			c.JSON(400, gin.H{"detail": "priority value not valid for task"})
 			return false
 		}
 	}
