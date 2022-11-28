@@ -49,10 +49,11 @@ export interface TTask {
     sub_tasks?: TTask[]
     created_at: string
     updated_at: string
-    parentTaskId?: string
+    parent_task_id?: string
 }
 export interface TTaskV4 {
     id: string
+    optimisticId?: string // Used only internally, not sent in response
     id_ordering: number
     title: string
     deeplink: string
@@ -73,7 +74,6 @@ export interface TTaskV4 {
     comments?: TLinearComment[]
     external_status?: TExternalStatus
 
-    optimisticId?: string // Used only internally, not sent in response
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
 
