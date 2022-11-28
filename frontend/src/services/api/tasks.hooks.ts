@@ -4,7 +4,15 @@ import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection, TUserInfo } from '../../utils/types'
+import {
+    TExternalStatus,
+    TOverviewItem,
+    TOverviewView,
+    TTask,
+    TTaskSection,
+    TTaskV4,
+    TUserInfo,
+} from '../../utils/types'
 import {
     arrayMoveInPlace,
     getTaskFromSections,
@@ -294,12 +302,13 @@ export const useModifyTask = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation((data: TModifyTaskData) => modifyTask(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'overview'],
+        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TModifyTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
                 queryClient.cancelQueries('overview'),
                 queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('tasks_v4'),
             ])
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
@@ -316,6 +325,20 @@ export const useModifyTask = () => {
                 })
 
                 queryClient.setQueryData('tasks', newSections)
+            }
+
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+            if (tasks) {
+                const newTasks = produce(tasks, (draft) => {
+                    const task = draft.find((task) => task.id === data.id)
+                    if (!task) return
+                    task.title = data.title || task.title
+                    task.due_date = data.dueDate || task.due_date
+                    task.body = data.body || task.body
+                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
+                    task.external_status = data.status || task.external_status
+                })
+                queryClient.setQueryData('tasks_v4', newTasks)
             }
 
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
