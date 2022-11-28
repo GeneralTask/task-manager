@@ -73,4 +73,5 @@ export interface GTMenuItem {
     disabled?: boolean
     subItems?: GTMenuItem[]
     renderer?: () => JSX.Element // override how the option is rendered
+    count?: number
 }

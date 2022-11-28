@@ -3,6 +3,8 @@ import { TShortcut, TShortcutCategory } from '../utils/types'
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
 const SHIFT_KEY = 'Shift'
+const NO_SHORTCUT_KEY = 'None'
+const NO_SHORTCUT_KEY_LABEL = ''
 
 // command palette categories will be sorted in the order they appear in this array
 export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'General', 'Navigation']
@@ -218,8 +220,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     sendFeedback: {
         label: 'Send us feedback',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+u`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+U`,
+        key: `${NO_SHORTCUT_KEY}`,
+        keyLabel: `${NO_SHORTCUT_KEY_LABEL}`,
         category: 'General',
         icon: 'megaphone',
     },
