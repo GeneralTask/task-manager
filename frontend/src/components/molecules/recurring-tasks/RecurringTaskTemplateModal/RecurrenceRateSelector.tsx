@@ -17,10 +17,10 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
     const recurrenceRateLabels: [RecurrenceRate, string][] = useMemo(
         () => [
             [RecurrenceRate.DAILY, 'Daily'],
-            [RecurrenceRate.WEEK_DAILY, `Weekly on ${selectedDate.weekdayLong}`],
-            [RecurrenceRate.WEEKLY, `Monthly on ${getOrdinal(selectedDate.day)} ${selectedDate.weekdayLong}`],
-            [RecurrenceRate.MONTHLY, `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`],
-            [RecurrenceRate.YEARLY, 'Every weekday (Monday to Friday)'],
+            [RecurrenceRate.WEEKLY, `Weekly on ${selectedDate.weekdayLong}`],
+            [RecurrenceRate.MONTHLY, `Monthly on the ${getOrdinal(selectedDate.day)} [not supported by backend yet]`],
+            [RecurrenceRate.YEARLY, `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`],
+            [RecurrenceRate.WEEK_DAILY, 'Every weekday (Monday to Friday)'],
         ],
         [selectedDate]
     )
