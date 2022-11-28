@@ -47,10 +47,10 @@ type JIRAStatusCategory struct {
 }
 
 type JIRAPriority struct {
-	ID      string `json:"id"`
-	Color   string `json:"statusColor"`
-	Name    string `json:"name"`
-	IconURL string `json:"iconURL"`
+	ID      string `json:"id,omitempty"`
+	Color   string `json:"statusColor,omitempty"`
+	Name    string `json:"name,omitempty"`
+	IconURL string `json:"iconURL,omitempty"`
 }
 
 type JIRAScope struct {
@@ -390,7 +390,7 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 		}
 	}
 
-	if updateFields.Title != nil || updateFields.Body != nil {
+	if updateFields.Title != nil || updateFields.Body != nil || updateFields.ExternalPriority != nil {
 		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields)
 		if err != nil {
 			return err
@@ -448,8 +448,9 @@ type JIRAUpdateRequest struct {
 }
 
 type JIRAUpdateFields struct {
-	Summary     string               `json:"summary,omitempty"`
-	Description JIRADescriptionField `json:"description,omitempty"`
+	Summary     string                `json:"summary,omitempty"`
+	Description *JIRADescriptionField `json:"description,omitempty"`
+	Priority    *JIRAPriority         `json:"priority,omitempty"`
 }
 
 type JIRADescriptionField struct {
@@ -482,13 +483,13 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 	}
 	if updateFields.Body != nil {
 		if *updateFields.Body == "" {
-			updateRequest.Fields.Description = JIRADescriptionField{
+			updateRequest.Fields.Description = &JIRADescriptionField{
 				Type:    "doc",
 				Version: 1,
 				Content: []JIRAFieldContent{},
 			}
 		} else {
-			updateRequest.Fields.Description = JIRADescriptionField{
+			updateRequest.Fields.Description = &JIRADescriptionField{
 				Type:    "doc",
 				Version: 1,
 				Content: []JIRAFieldContent{
@@ -503,6 +504,11 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 					},
 				},
 			}
+		}
+	}
+	if (updateFields.ExternalPriority != nil && *updateFields.ExternalPriority != database.ExternalTaskPriority{}) {
+		updateRequest.Fields.Priority = &JIRAPriority{
+			ID: updateFields.ExternalPriority.ExternalID,
 		}
 	}
 
