@@ -229,6 +229,23 @@ func GetOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 	return &task, nil
 }
 
+func GetOrCreateNote(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Note, error) {
+	mongoResult := GetOrCreateWithCollection(GetNoteCollection(db), userID, IDExternal, sourceID, fieldsToInsertIfMissing)
+	if mongoResult == nil {
+		return nil, errors.New("unable to create task")
+	}
+
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to get task")
+		return nil, err
+	}
+
+	return &note, nil
+}
+
 func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*CalendarEvent, error) {
 	eventCollection := GetCalendarEventCollection(db)
 	mongoResult := GetOrCreateWithCollection(eventCollection, userID, IDExternal, sourceID, fieldsToInsertIfMissing)
@@ -325,6 +342,33 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, err
 	}
 
 	return &tasks, nil
+}
+
+func GetNotes(db *mongo.Database, userID primitive.ObjectID) (*[]Note, error) {
+	noteCollection := GetNoteCollection(db)
+	cursor, err := noteCollection.Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+			},
+		},
+	)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch items for user")
+		return nil, err
+	}
+
+	var notes []Note
+	err = cursor.All(context.Background(), &notes)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch notes for user")
+		return nil, err
+	}
+
+	return &notes, nil
 }
 
 func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]PullRequest, error) {
@@ -774,6 +818,10 @@ func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 
 func GetTaskCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("tasks")
+}
+
+func GetNoteCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("notes")
 }
 
 func GetCalendarEventCollection(db *mongo.Database) *mongo.Collection {
