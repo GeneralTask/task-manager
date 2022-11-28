@@ -445,41 +445,57 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
 
 const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => {
     const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-    if (!sections) return
-    const newSections = produce(sections, (draft) => {
-        const section = draft.find((s) => s.id === data.dropSectionId)
-        if (!section) return
-        const task = section?.tasks.find((t) => t.id === data.parentId)
-        if (!task) return
-        const subtasks = task.sub_tasks
-        if (!subtasks) return
+    if (sections) {
+        const newSections = produce(sections, (draft) => {
+            const section = draft.find((s) => s.id === data.dropSectionId)
+            if (!section) return
+            const task = section?.tasks.find((t) => t.id === data.parentId)
+            if (!task) return
+            const subtasks = task.sub_tasks
+            if (!subtasks) return
 
-        const startIndex = subtasks.findIndex((s) => s.id === data.id)
-        if (startIndex === -1) return
-        let endIndex = data.orderingId - 1
-        if (startIndex < endIndex) endIndex -= 1
-        arrayMoveInPlace(subtasks, startIndex, endIndex)
-        resetOrderingIds(subtasks)
-    })
-    queryClient.setQueryData('tasks', newSections)
+            const startIndex = subtasks.findIndex((s) => s.id === data.id)
+            if (startIndex === -1) return
+            let endIndex = data.orderingId - 1
+            if (startIndex < endIndex) endIndex -= 1
+            arrayMoveInPlace(subtasks, startIndex, endIndex)
+            resetOrderingIds(subtasks)
+        })
+        queryClient.setQueryData('tasks', newSections)
+    }
+    const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
+    if (tasks) {
+        const updatedTasks = produce(tasks, (draft) => {
+            const subtask = draft.find((task) => task.id === data.id)
+            if (!subtask) return
+            subtask.id_ordering = data.orderingId
+            const parentSubtasks = draft
+                .filter((task) => task.id_parent === data.parentId)
+                .sort((a, b) => a.id_ordering - b.id_ordering)
+            resetOrderingIds(parentSubtasks)
+        })
+        queryClient.setQueryData('tasks', updatedTasks)
+    }
 }
 
 export const useReorderTask = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation((data: TReorderTaskData) => reorderTask(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'overview'],
+        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TReorderTaskData) => {
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
                 queryClient.cancelQueries('overview'),
                 queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('tasks_v4'),
             ])
             if (data.isSubtask) {
                 reorderSubtasks(data, queryClient)
                 return
             }
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
@@ -523,6 +539,21 @@ export const useReorderTask = () => {
                     }
                 })
                 queryClient.setQueryData('tasks', newSections)
+            }
+            if (tasks) {
+                const updatedTasks = produce(tasks, (draft) => {
+                    const task = draft.find((task) => task.id === data.id)
+                    if (!task) return
+                    task.id_ordering = data.orderingId
+                    task.id_folder = data.dropSectionId
+                    task.is_done = data.dropSectionId === DONE_SECTION_ID
+                    task.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+                    const dropFolder = draft
+                        .filter((task) => task.id_folder === data.dropSectionId && !task.id_parent)
+                        .sort((a, b) => a.id_ordering - b.id_ordering)
+                    resetOrderingIds(dropFolder)
+                })
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
             if (views) {
                 const newViews = produce(views, (draft) => {
