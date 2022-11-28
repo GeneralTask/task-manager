@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 import { useEventBanners } from '../../hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground } from '../../styles/images'
 import Loading from '../atoms/Loading'
@@ -20,8 +21,9 @@ import TaskSection from '../views/TaskSectionView'
 const MainScreen = () => {
     const location = useLocation()
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
-    const { isLoading: isTaskSectionsLoading } = useGetTasks()
-    const { isLoading: isPullRequestsLoading } = useGetPullRequests()
+    const { isLoading: areTaskSectionsLoading } = useGetTasks()
+    const { isLoading: areTasksLoading } = useGetTasksV4()
+    const { isLoading: arePullRequestsLoading } = useGetPullRequests()
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
@@ -45,8 +47,8 @@ const MainScreen = () => {
         }
     })()
 
-    if (isTaskSectionsLoading || isUserInfoLoading || isPullRequestsLoading) return <Loading />
-    if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
+    if (!isUserInfoLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
+    if (areTaskSectionsLoading || arePullRequestsLoading || areTasksLoading || isUserInfoLoading) return <Loading />
 
     return (
         <>
