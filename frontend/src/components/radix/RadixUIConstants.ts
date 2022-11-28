@@ -43,7 +43,7 @@ export const MenuItemShared = css<{ textcolor?: TTextColor; disabled?: boolean }
     }
 `
 export const MenuContentShared = css`
-    z-index: 5;
+    z-index: 300;
     ${Typography.body};
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};
