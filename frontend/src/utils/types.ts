@@ -1,5 +1,6 @@
 import { TStatusColors } from '../styles/colors'
 import { TIconImage, TLogoImage } from '../styles/images'
+import { RecurrenceRate } from './enums'
 
 export type EmptyString = ''
 
@@ -24,6 +25,7 @@ export interface TSourcesResult {
 
 export interface TTask {
     id: string
+    optimisticId?: string
     id_ordering: number
     title: string
     deeplink: string
@@ -40,7 +42,6 @@ export interface TTask {
     is_deleted: boolean
     is_meeting_preparation_task: boolean
     comments?: TLinearComment[]
-    isOptimistic?: boolean
     isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
     meeting_preparation_params?: TMeetingPreparationParams
@@ -48,6 +49,7 @@ export interface TTask {
     sub_tasks?: TTask[]
     created_at: string
     updated_at: string
+    parentTaskId?: string
 }
 
 export interface TMeetingPreparationParams {
@@ -97,6 +99,7 @@ export interface TExternalStatus {
 
 export interface TEvent {
     id: string
+    optimisticId?: string
     title: string
     body: string
     account_id: string
@@ -170,6 +173,7 @@ export interface TRepository {
 
 export interface TTaskSection {
     id: string
+    optimisticId?: string
     name: string
     tasks: TTask[]
     is_done: boolean
@@ -210,13 +214,17 @@ export interface TUserInfo {
     name: string
     is_employee: boolean
     email: string
+    linear_name?: string
+    linear_display_name?: string
 }
 
 // React-DND Item Types
 export enum DropType {
     TASK = 'task',
+    SUBTASK = 'subtask',
     NON_REORDERABLE_TASK = 'non-reorderable-task',
     DUE_TASK = 'due-task',
+    WEEK_TASK_TO_CALENDAR_TASK = 'week-task-to-calendar-task',
     EVENT = 'event',
     EVENT_RESIZE_HANDLE = 'event-resize-handle',
     OVERVIEW_VIEW = 'overview-view',
@@ -248,6 +256,7 @@ export type TOverviewViewType = 'github' | 'task_section' | 'linear' | 'slack' |
 
 export interface TOverviewView {
     id: string
+    optimisticId?: string
     name: string
     type: TOverviewViewType
     task_section_id?: string
@@ -255,24 +264,24 @@ export interface TOverviewView {
     logo: TLogoImage
     view_items: TOverviewItem[]
     total_view_items?: number // the total number of items in the view without filters applied
-    isOptimistic?: boolean
     sources: TSourcesResult[]
     is_linked: boolean
 }
 
 export interface TSupportedViewItem {
+    view_id: string // id of view if is_linked is true
+    optimisticId?: string
     name: string
     is_linked: boolean
-    view_id: string // id of view if is_linked is true
     github_id: string
     task_section_id: string
     slack_id: string
     logo: TLogoImage
     is_added: boolean
-    is_add_disabled?: boolean
 }
 
 export interface TSupportedView {
+    optimisticId?: string
     type: TOverviewViewType
     name: string
     logo: TLogoImage
@@ -292,4 +301,18 @@ export interface TShortcut {
     icon?: TIconImage
     hideFromCommandPalette?: boolean
     action: () => void
+}
+
+export interface TRecurringTaskTemplate {
+    id: string
+    optimisticId?: string
+    title: string
+    body?: string
+    id_task_section: string
+    priority_normalized?: number
+    recurrence_rate: RecurrenceRate
+    time_of_day_seconds_to_create_task: number
+    day_to_create_task?: number
+    month_to_create_task?: number
+    last_backfill_datetime: string
 }

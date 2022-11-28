@@ -12,13 +12,14 @@ const TasksDueBody = styled.div`
 
 interface TaskDueBodyProps {
     tasksDue: TTask[]
+    showDueDate?: boolean
 }
 
-const TaskDueBody = ({ tasksDue }: TaskDueBodyProps) => {
+const TaskDueBody = ({ tasksDue, showDueDate = false }: TaskDueBodyProps) => {
     return (
         <TasksDueBody>
             {tasksDue.map((task) => {
-                return <DueTask task={task} key={task.id} />
+                return <DueTask task={task} showDueDate={showDueDate} key={task.id} />
             })}
         </TasksDueBody>
     )

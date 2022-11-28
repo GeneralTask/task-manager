@@ -27,6 +27,14 @@ type externalStatus struct {
 	Color      string `json:"color,omitempty"`
 }
 
+type externalPriority struct {
+	IDExternal         string  `json:"external_id,omitempty"`
+	Name               string  `json:"name,omitempty"`
+	PriorityNormalized float64 `json:"priority_normalized,omitempty"`
+	Color              string  `json:"color,omitempty"`
+	IconURL            string  `json:"icon_url,omitempty"`
+}
+
 type MeetingPreparationParams struct {
 	DatetimeStart string `json:"datetime_start"`
 	DatetimeEnd   string `json:"datetime_end"`
@@ -49,6 +57,8 @@ type TaskResult struct {
 	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
 	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
+	ExternalPriority         *externalPriority            `json:"priority,omitempty"`
+	AllExternalPriorities    []*externalPriority          `json:"all_priorities,omitempty"`
 	Comments                 *[]database.Comment          `json:"comments,omitempty"`
 	SlackMessageParams       *database.SlackMessageParams `json:"slack_message_params,omitempty"`
 	MeetingPreparationParams *MeetingPreparationParams    `json:"meeting_preparation_params,omitempty"`
@@ -128,7 +138,7 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 	for _, taskChannel := range taskChannels {
 		taskResult := <-taskChannel
 		if taskResult.Error != nil {
-			isBadToken := external.CheckAndHandleBadToken(err, db, userID.(primitive.ObjectID), taskResult.AccountID, taskResult.SourceID)
+			isBadToken := external.CheckAndHandleBadToken(taskResult.Error, db, userID.(primitive.ObjectID), taskResult.AccountID, taskResult.SourceID)
 			if !isBadToken {
 				api.Logger.Error().Err(taskResult.Error).Msg("failed to load task source")
 			}
@@ -209,6 +219,24 @@ func (api *API) updateOrderingIDsV2(db *mongo.Database, tasks *[]*TaskResult) er
 		}
 		if res.MatchedCount != 1 {
 			api.Logger.Error().Interface("taskResult", task).Msgf("did not find task to update ordering ID (ID=%v)", task.ID)
+		}
+
+		subtaskOrderingID := 1
+		for _, subtask := range task.SubTasks {
+			subtask.IDOrdering = subtaskOrderingID
+			subtaskOrderingID += 1
+			res, err := tasksCollection.UpdateOne(
+				context.Background(),
+				bson.M{"_id": subtask.ID},
+				bson.M{"$set": bson.M{"id_ordering": subtask.IDOrdering}},
+			)
+			if err != nil {
+				api.Logger.Error().Err(err).Msg("failed to update subtask ordering ID")
+				return err
+			}
+			if res.MatchedCount != 1 {
+				api.Logger.Error().Interface("taskResult", subtask).Msgf("did not find subtask to update ordering ID (ID=%v)", subtask.ID)
+			}
 		}
 	}
 	return nil
@@ -347,6 +375,30 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			DatetimeStart: t.MeetingPreparationParams.DatetimeStart.Time().UTC().Format(time.RFC3339),
 			DatetimeEnd:   t.MeetingPreparationParams.DatetimeEnd.Time().UTC().Format(time.RFC3339),
 		}
+	}
+
+	if t.ExternalPriority != nil && *t.ExternalPriority != (database.ExternalTaskPriority{}) {
+		taskResult.ExternalPriority = &externalPriority{
+			IDExternal:         t.ExternalPriority.ExternalID,
+			Name:               t.ExternalPriority.Name,
+			PriorityNormalized: t.ExternalPriority.PriorityNormalized,
+			Color:              t.ExternalPriority.Color,
+			IconURL:            t.ExternalPriority.IconURL,
+		}
+	}
+
+	if len(t.AllExternalPriorities) > 0 {
+		allPriorities := []*externalPriority{}
+		for _, priority := range t.AllExternalPriorities {
+			allPriorities = append(allPriorities, &externalPriority{
+				IDExternal:         priority.ExternalID,
+				Name:               priority.Name,
+				PriorityNormalized: priority.PriorityNormalized,
+				Color:              priority.Color,
+				IconURL:            priority.IconURL,
+			})
+		}
+		taskResult.AllExternalPriorities = allPriorities
 	}
 
 	return taskResult

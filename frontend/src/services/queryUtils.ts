@@ -11,7 +11,7 @@ import { emptyFunction } from '../utils/utils'
  * Wrapper for useQueryClient that adds getImmutableQueryData method
  * getImmutableQueryData simply casts the result as Immutable so the editor disallows direct assignment
  */
-interface GTQueryClient extends QueryClient {
+export interface GTQueryClient extends QueryClient {
     getImmutableQueryData: <TData = unknown>(queryKey: QueryKey, filters?: QueryFilters) => Immutable<TData> | undefined
     getCurrentEvents: (
         date: DateTime,
@@ -49,18 +49,22 @@ export const useGTQueryClient = (): GTQueryClient => {
  * Mutations will only be sent once all queued mutations have been completed
  * Queues are separated by the tag param - i.e. 'tasks' and 'overview' will get separate queues
  * Once a queue is cleared, the invalidateTagsOnSettled will be invalidated to trigger a refetch
+ *
+ * Mutations that modify an object MUST include an id field
+ * and if the id is waiting to be assigned, then isOptimistic must be passed in as true
  **/
 interface MutationOptions<TData, TError, TVariables, TContext>
     extends Omit<UseMutationOptions<TData, TError, TVariables, TContext>, 'mutationFn'> {
     tag: QueryKey
     invalidateTagsOnSettled?: QueryKey[]
 }
+
 export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
     mutationFn: MutationFunction<TData, TVariables>,
     mutationOptions: MutationOptions<TData, TError, TVariables, TContext>
 ) => {
     const queryClient = useGTQueryClient()
-    const { getQueryQueue } = useQueryContext()
+    const { getQueryQueue, getIdFromOptimisticId } = useQueryContext()
 
     const { mutate, ...rest } = useMutation(mutationFn, {
         ...mutationOptions,
@@ -69,19 +73,49 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
             const queue = getQueryQueue(mutationOptions.tag)
             queue.shift()
             if (queue.length > 0) {
-                queue[0]()
+                if (queue[0].optimisticId) {
+                    const id = getIdFromOptimisticId(queue[0].optimisticId)
+                    if (!id) {
+                        throw new Error('Could not find real id for optimistic id')
+                    }
+                    queue[0].send(id)
+                } else {
+                    queue[0].send()
+                }
             } else {
                 mutationOptions.invalidateTagsOnSettled?.forEach((tag) => queryClient.invalidateQueries(tag))
             }
             mutationOptions.onSettled?.(data, error, variables, context)
         },
     })
-    const newMutate = (variables: TVariables) => {
+    const newMutate = (variables: TVariables, optimisticId?: string) => {
         mutationOptions.onMutate?.(variables)
         const queue = getQueryQueue(mutationOptions.tag)
-        queue.push(() => mutate(variables))
-        if (queue.length === 1) {
-            mutate(variables)
+
+        // if an optimistic ID is passed in, first check if it has already been resolved
+        if (optimisticId) {
+            const realId = getIdFromOptimisticId(optimisticId)
+            if (realId) {
+                optimisticId = undefined
+                variables = { ...variables, id: realId }
+            }
+        }
+
+        if (optimisticId) {
+            if (queue.length === 0) {
+                throw new Error(`Optimistic mutation queued with no pending requests with tag: ${mutationOptions.tag}`)
+            } else {
+                queue.push({
+                    send: (id?: string) => mutate({ ...variables, id }),
+                    optimisticId,
+                })
+            }
+        } else {
+            const send = () => mutate(variables)
+            queue.push({ send })
+            if (queue.length === 1) {
+                send()
+            }
         }
     }
     return {

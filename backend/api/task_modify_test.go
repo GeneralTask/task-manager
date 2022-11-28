@@ -839,7 +839,6 @@ func TestEditFields(t *testing.T) {
 	taskTitle := "Initial Title"
 	taskBody := "Initial Body"
 	taskTime := int64(60 * 60 * 1000 * 1000)
-	taskPriorityID := "PriorityID"
 	taskPriorityNormalized := 5.0
 	taskNumber := 3
 
@@ -860,7 +859,6 @@ func TestEditFields(t *testing.T) {
 		DueDate:            &timeNow,
 		TimeAllocation:     &taskTime,
 		CreatedAtExternal:  primitive.NewDateTimeFromTime(time.Now()),
-		PriorityID:         &taskPriorityID,
 		PriorityNormalized: &taskPriorityNormalized,
 		TaskNumber:         &taskNumber,
 	}
@@ -1192,7 +1190,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"parameter missing\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"task changes missing\"}", string(body))
 	})
 	t.Run("Assign to other General Task user", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()

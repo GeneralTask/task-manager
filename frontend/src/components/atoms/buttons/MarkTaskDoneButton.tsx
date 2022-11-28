@@ -12,6 +12,7 @@ interface MarkTaskDoneButtonProps {
     sectionId?: string
     isDisabled?: boolean
     onMarkComplete?: () => void
+    optimsticId?: string
 }
 const MarkTaskDoneButton = ({
     isDone,
@@ -21,17 +22,21 @@ const MarkTaskDoneButton = ({
     sectionId,
     isDisabled,
     onMarkComplete,
+    optimsticId,
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const onMarkTaskDone = useCallback(() => {
         if (onMarkComplete) onMarkComplete()
-        markTaskDoneOrDeleted({
-            taskId: taskId,
-            sectionId: sectionId,
-            subtaskId: subtaskId,
-            isDone: !isDone,
-            waitForAnimation: true,
-        })
+        markTaskDoneOrDeleted(
+            {
+                id: taskId,
+                sectionId: sectionId,
+                subtaskId: subtaskId,
+                isDone: !isDone,
+                waitForAnimation: true,
+            },
+            optimsticId
+        )
         Log({
             taskId: taskId,
             sectionId: sectionId,
@@ -41,7 +46,7 @@ const MarkTaskDoneButton = ({
     }, [taskId, sectionId, isDone])
 
     useKeyboardShortcut('markAsDone', onMarkTaskDone, !isSelected || isDisabled)
-    return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} disabled={isDisabled} animated />
+    return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} animated />
 }
 
 export default MarkTaskDoneButton

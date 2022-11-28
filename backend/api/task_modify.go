@@ -79,7 +79,7 @@ func (api *API) TaskModify(c *gin.Context) {
 
 	// check if all fields are empty
 	if modifyParams == (TaskModifyParams{}) {
-		c.JSON(400, gin.H{"detail": "parameter missing"})
+		c.JSON(400, gin.H{"detail": "task changes missing"})
 		return
 	}
 
@@ -106,7 +106,6 @@ func (api *API) TaskModify(c *gin.Context) {
 			IsDeleted:          modifyParams.TaskItemChangeableFields.IsDeleted,
 			DeletedAt:          modifyParams.TaskItemChangeableFields.DeletedAt,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
-			PriorityID:         modifyParams.TaskItemChangeableFields.Task.PriorityID,
 			PriorityNormalized: modifyParams.TaskItemChangeableFields.Task.PriorityNormalized,
 			TaskNumber:         modifyParams.TaskItemChangeableFields.Task.TaskNumber,
 			Comments:           modifyParams.TaskItemChangeableFields.Task.Comments,
@@ -192,6 +191,7 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 	return true
 }
 
+// note: check usage of this function before using new fields of the 'task' parameter
 func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID primitive.ObjectID, IDOrdering *int, IDTaskSectionHex *string, task *database.Task) error {
 	taskCollection := database.GetTaskCollection(api.DB)
 	updateFields := bson.M{"has_been_reordered": true}
@@ -225,9 +225,14 @@ func (api *API) ReOrderTask(c *gin.Context, taskID primitive.ObjectID, userID pr
 		return errors.New("task not found")
 	}
 
+	if IDOrdering == nil {
+		// if not updating the ordering of the task, then no need to move the other tasks
+		return nil
+	}
+
 	dbQuery := []bson.M{
 		{"_id": bson.M{"$ne": taskID}},
-		{"id_ordering": bson.M{"$gte": IDOrdering}},
+		{"id_ordering": bson.M{"$gte": *IDOrdering}},
 		{"user_id": userID},
 	}
 	if task.ParentTaskID != primitive.NilObjectID {

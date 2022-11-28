@@ -257,7 +257,7 @@ func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive
 }
 
 func (gitPR GithubPRSource) processRepository(db *mongo.Database, userID primitive.ObjectID, accountID string, repository *github.Repository, githubClient *github.Client, token *oauth2.Token, githubUser *github.User, userTeams []*github.Team, result chan<- ProcessRepositoryResult) {
-	err := updateOrCreateRepository(db, repository, userID)
+	err := updateOrCreateRepository(db, repository, accountID, userID)
 	if err != nil {
 		logging.GetSentryLogger().Error().Err(err).Msg("failed to update or create repository")
 		result <- ProcessRepositoryResult{Error: err}
@@ -515,17 +515,19 @@ func getGithubRepositories(ctx context.Context, githubClient *github.Client, cur
 	result <- GithubRepositoriesResult{Repositories: repositories, Error: err}
 }
 
-func updateOrCreateRepository(db *mongo.Database, repository *github.Repository, userID primitive.ObjectID) error {
+func updateOrCreateRepository(db *mongo.Database, repository *github.Repository, accountID string, userID primitive.ObjectID) error {
 	repositoryCollection := database.GetRepositoryCollection(db)
 	_, err := repositoryCollection.UpdateOne(
 		context.Background(),
 		bson.M{"$and": []bson.M{
+			// TODO: add account_id to query once backfill is completed
 			{"repository_id": fmt.Sprint(repository.GetID())},
 			{"user_id": userID},
 		}},
 		bson.M{"$set": bson.M{
-			"full_name": repository.GetFullName(),
-			"deeplink":  repository.GetHTMLURL(),
+			"account_id": accountID,
+			"full_name":  repository.GetFullName(),
+			"deeplink":   repository.GetHTMLURL(),
 		}},
 		options.Update().SetUpsert(true),
 	)

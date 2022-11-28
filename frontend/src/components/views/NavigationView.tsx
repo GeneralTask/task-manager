@@ -1,20 +1,20 @@
 import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
-import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import useGTLocalStorage from '../../hooks/useGTLocalStorage'
+import { useGlobalKeyboardShortcuts, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
 import { icons } from '../../styles/images'
 import { DropType } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Eyebrow } from '../atoms/typography/Typography'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
-import SettingsModal from '../molecules/SettingsModal'
+import SettingsModalButton from '../molecules/SettingsModalButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
 import NavigationViewCollapsed from './NavigationViewCollapsed'
 
@@ -28,7 +28,7 @@ const NavigationViewContainer = styled.div<{ showDropShadow: boolean; isCollapse
     background-color: ${Colors.background.medium};
     box-sizing: border-box;
     z-index: 1;
-    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover}`}
+    ${(props) => props.showDropShadow && `box-shadow: ${Shadows.button.hover};`}
     width: ${({ isCollapsed }) => (isCollapsed ? 'fit-content' : NAVIGATION_BAR_WIDTH)};
 `
 const NavigationViewHeader = styled.div`
@@ -64,13 +64,13 @@ const CopyrightText = styled.span`
     user-select: none;
     padding: ${Spacing._16};
 `
-const GTBetaLogo = styled.img`
+export const GTBetaLogo = styled.img`
     pointer-events: none;
     width: ${GT_BETA_LOGO_WIDTH};
 `
 
 const NavigationView = () => {
-    const navigate = useNavigate()
+    useGlobalKeyboardShortcuts()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
     const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)
@@ -82,30 +82,12 @@ const NavigationView = () => {
         }),
         []
     )
-
     useKeyboardShortcut(
-        'enterFocusMode',
-        useCallback(() => navigate('/focus-mode'), [])
-    )
-    useKeyboardShortcut(
-        'goToOverviewPage',
-        useCallback(() => navigate('/overview'), [])
-    )
-    useKeyboardShortcut(
-        'goToGithubPRsPage',
-        useCallback(() => navigate('/pull-requests'), [])
-    )
-    useKeyboardShortcut(
-        'goToLinearPage',
-        useCallback(() => navigate('/linear'), [])
-    )
-    useKeyboardShortcut(
-        'goToSlackPage',
-        useCallback(() => navigate('/slack'), [])
-    )
-    useKeyboardShortcut(
-        'goToTaskInbox',
-        useCallback(() => navigate('/tasks'), [])
+        'navigationView',
+        useCallback(() => {
+            if (!isPreviewMode) return
+            setIsCollapsed(!isCollapsed)
+        }, [isPreviewMode, isCollapsed])
     )
 
     return (
@@ -116,19 +98,23 @@ const NavigationView = () => {
                 <>
                     <NavigationViewHeader>
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
-                        <div>
+                        <Flex>
                             {isPreviewMode && (
-                                <GTIconButton icon={icons.collapse} onClick={() => setIsCollapsed(!isCollapsed)} />
+                                <GTIconButton
+                                    icon={icons.sidebar}
+                                    onClick={() => setIsCollapsed(!isCollapsed)}
+                                    shortcutName="navigationView"
+                                />
                             )}
                             <CommandPalette />
-                        </div>
+                        </Flex>
                     </NavigationViewHeader>
                     <OverflowContainer>
                         <NavigationSectionLinks />
                     </OverflowContainer>
                     <GapView>
                         <FeedbackModal />
-                        <SettingsModal />
+                        <SettingsModalButton />
                     </GapView>
                     <CopyrightText>
                         {userInfo?.is_employee ? (

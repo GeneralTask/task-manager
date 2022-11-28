@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import ReactTooltip from 'react-tooltip'
+
 interface TooltipWrapperProps {
     children: JSX.Element
     dataTip: string
@@ -5,6 +8,11 @@ interface TooltipWrapperProps {
     inline?: boolean
 }
 const TooltipWrapper = ({ children, dataTip, tooltipId, inline }: TooltipWrapperProps) => {
+    useEffect(() => {
+        return () => {
+            ReactTooltip.hide()
+        }
+    }, [])
     if (inline)
         return (
             <span data-tip={dataTip} data-for={tooltipId} data-html={true}>

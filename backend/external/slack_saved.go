@@ -92,15 +92,17 @@ func (slackTask SlackSavedTaskSource) CreateNewTask(db *mongo.Database, userID p
 
 	completed := false
 	newTask := database.Task{
-		UserID:          userID,
-		IDTaskSection:   taskSection,
-		SourceID:        TASK_SOURCE_ID_SLACK_SAVED,
-		Title:           &task.Title,
-		Body:            &task.Body,
-		SourceAccountID: accountID,
-		Deeplink:        slackAdditionalInformation.Deeplink,
-		Sender:          slackAdditionalInformation.Username,
-		IsCompleted:     &completed,
+		UserID:            userID,
+		IDTaskSection:     taskSection,
+		SourceID:          TASK_SOURCE_ID_SLACK_SAVED,
+		Title:             &task.Title,
+		Body:              &task.Body,
+		SourceAccountID:   accountID,
+		Deeplink:          slackAdditionalInformation.Deeplink,
+		Sender:            slackAdditionalInformation.Username,
+		IsCompleted:       &completed,
+		CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
+		UpdatedAt:         primitive.NewDateTimeFromTime(time.Now()),
 		SlackMessageParams: &database.SlackMessageParams{
 			Channel: task.SlackMessageParams.Channel,
 			User:    task.SlackMessageParams.User,

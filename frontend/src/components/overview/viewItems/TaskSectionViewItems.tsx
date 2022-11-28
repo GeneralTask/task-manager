@@ -26,12 +26,15 @@ const TaskSectionViewItems = forwardRef(
         const handleReorderTask = useCallback(
             (item: DropItem, dropIndex: number) => {
                 if (!view.task_section_id) return
-                reorderTask({
-                    taskId: item.id,
-                    orderingId: dropIndex,
-                    dropSectionId: view.task_section_id,
-                    dragSectionId: item.sectionId,
-                })
+                reorderTask(
+                    {
+                        id: item.id,
+                        orderingId: dropIndex,
+                        dropSectionId: view.task_section_id,
+                        dragSectionId: item.sectionId,
+                    },
+                    item.task?.optimisticId
+                )
             },
             [view.task_section_id]
         )

@@ -5,6 +5,7 @@ import (
 )
 
 const (
+	TASK_SERVICE_ID_ATLASSIAN = "atlassian"
 	TASK_SERVICE_ID_GT        = "gt"
 	TASK_SERVICE_ID_GITHUB    = "github"
 	TASK_SERVICE_ID_GOOGLE    = "google"
@@ -15,6 +16,7 @@ const (
 	TASK_SOURCE_ID_GCAL        = "gcal"
 	TASK_SOURCE_ID_GITHUB_PR   = "github_pr"
 	TASK_SOURCE_ID_GT_TASK     = "gt_task"
+	TASK_SOURCE_ID_JIRA        = "jira"
 	TASK_SOURCE_ID_LINEAR      = "linear_task"
 	TASK_SOURCE_ID_SLACK_SAVED = "slack"
 )
@@ -26,6 +28,7 @@ type Config struct {
 	Slack                 SlackConfig
 	SlackApp              SlackConfig
 	Linear                LinearConfig
+	Atlassian             AtlassianConfig
 	SlackOverrideURL      string
 	GoogleOverrideURLs    GoogleURLOverrides
 }
@@ -39,6 +42,7 @@ func GetConfig() Config {
 		Slack:                 getSlackConfig(),
 		SlackApp:              GetSlackAppConfig(),
 		Linear:                LinearConfig{OauthConfig: getLinearOauthConfig()},
+		Atlassian:             AtlassianConfig{OauthConfig: getAtlassianOauthConfig()},
 	}
 }
 
@@ -72,6 +76,7 @@ func (config Config) GetSourceResult(sourceID string) (*TaskSourceResult, error)
 }
 
 func (config Config) getNameToSource() map[string]TaskSourceResult {
+	atlassianService := AtlassianService{Config: config.Atlassian}
 	googleService := GoogleService{
 		LoginConfig:  config.GoogleLoginConfig,
 		LinkConfig:   config.GoogleAuthorizeConfig,
@@ -90,6 +95,10 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 			Details: TaskSourceGeneralTask,
 			Source:  GeneralTaskTaskSource{},
 		},
+		TASK_SOURCE_ID_JIRA: {
+			Details: TaskSourceJIRA,
+			Source:  JIRASource{Atlassian: atlassianService},
+		},
 		TASK_SOURCE_ID_LINEAR: {
 			Details: TaskSourceLinear,
 			Source:  LinearTaskSource{Linear: linearService},
@@ -106,6 +115,7 @@ func (config Config) getNameToSource() map[string]TaskSourceResult {
 }
 
 func (config Config) GetNameToService() map[string]TaskServiceResult {
+	atlassianService := AtlassianService{Config: config.Atlassian}
 	linearService := LinearService{Config: config.Linear}
 	googleService := GoogleService{
 		LoginConfig:  config.GoogleLoginConfig,
@@ -116,6 +126,11 @@ func (config Config) GetNameToService() map[string]TaskServiceResult {
 	slackService := SlackService{Config: config.Slack}
 
 	return map[string]TaskServiceResult{
+		TASK_SERVICE_ID_ATLASSIAN: {
+			Service: atlassianService,
+			Details: TaskServiceAtlassian,
+			Sources: []TaskSourceResult{{Source: JIRASource{Atlassian: atlassianService}, Details: TaskSourceJIRA}},
+		},
 		TASK_SERVICE_ID_GT: {
 			Service: GeneralTaskService{},
 			Details: TaskServiceGeneralTask,
@@ -166,6 +181,15 @@ type TaskServiceDetails struct {
 	IsSignupable bool
 }
 
+var TaskServiceAtlassian = TaskServiceDetails{
+	ID:           TASK_SERVICE_ID_ATLASSIAN,
+	Name:         "Atlassian",
+	Logo:         "/images/jira.svg",
+	LogoV2:       "jira-v2",
+	AuthType:     AuthTypeOauth2,
+	IsLinkable:   false,
+	IsSignupable: false,
+}
 var TaskServiceGeneralTask = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_GT,
 	Name:         "General Task",
@@ -248,6 +272,16 @@ var TaskSourceGithubPR = TaskSourceDetails{
 	Name:                   "Git PR",
 	Logo:                   "/images/github.svg",
 	LogoV2:                 "github",
+	IsCompletable:          true,
+	CanCreateTask:          false,
+	IsReplyable:            false,
+	CanCreateCalendarEvent: false,
+}
+var TaskSourceJIRA = TaskSourceDetails{
+	ID:                     TASK_SOURCE_ID_JIRA,
+	Name:                   "Jira",
+	Logo:                   "/images/jira.svg",
+	LogoV2:                 "jira",
 	IsCompletable:          true,
 	CanCreateTask:          false,
 	IsReplyable:            false,

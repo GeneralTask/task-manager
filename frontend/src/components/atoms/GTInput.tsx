@@ -1,12 +1,12 @@
-import React, { forwardRef, useLayoutEffect, useRef, useState } from 'react'
+import React, { forwardRef, useRef } from 'react'
 import styled from 'styled-components'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 
 const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     background-color: inherit;
     color: ${Colors.text.black};
     font: inherit;
-    border: none;
+    border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
     resize: none;
     outline: none;
     overflow: auto;
@@ -17,35 +17,26 @@ const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
         ${({ disabled }) =>
             !disabled &&
             `
-            outline: ${Border.stroke.medium} solid ${Colors.border.light};
-            box-shadow: ${Shadows.light};
+            border-color: ${Colors.border.light};
             background-color: ${Colors.background.white};`}
-    }
-    :focus {
-        outline: ${Border.stroke.medium} solid ${Colors.gtColor.primary};
     }
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
 `
 
-interface GTInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    initialValue: string
-    onEdit: (newValue: string) => void
-    fontSize: 'small' | 'medium' | 'large'
+interface GTInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
+    value: string
+    onChange: (value: string) => void
+    fontSize?: 'small' | 'medium' | 'large'
 }
-const GTInput = forwardRef(({ initialValue, onEdit, fontSize, ...rest }: GTInputProps, ref) => {
-    const [inputValue, setInputValue] = useState(initialValue)
+const GTInput = forwardRef(({ value, onChange, fontSize = 'small', ...rest }: GTInputProps, ref) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (inputRef.current && (e.key === 'Escape' || e.key === 'Enter')) inputRef.current.blur()
         e.stopPropagation()
     }
-
-    useLayoutEffect(() => {
-        setInputValue(initialValue)
-    }, [initialValue])
 
     return (
         <StyledInput
@@ -58,12 +49,9 @@ const GTInput = forwardRef(({ initialValue, onEdit, fontSize, ...rest }: GTInput
                 }
             }}
             onKeyDown={handleKeyDown}
-            value={inputValue}
+            value={value}
             fontSize={fontSize}
-            onChange={(e) => {
-                setInputValue(e.target.value)
-                onEdit(e.target.value)
-            }}
+            onChange={(e) => onChange(e.target.value)}
             {...rest}
         />
     )

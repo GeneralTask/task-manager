@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { TASK_MARK_AS_DONE_TIMEOUT } from '../../constants'
 import { Dimensions } from '../../styles'
 
-const TemplateContainer = styled.div<{ isVisible?: boolean }>`
+export const TemplateContainer = styled.div<{ isVisible?: boolean }>`
     width: 100%;
     position: relative;
     height: ${Dimensions.TASK_HEIGHT};

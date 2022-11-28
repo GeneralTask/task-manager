@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { useWindowSize } from '../../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
@@ -22,9 +22,9 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
 `
 
-const PlainTextEditor = (props: PlainTextEditorProps) => {
+const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) => {
     const { isFullHeight, maxHeight, value, onChange, ...rest } = props
-    const ref = useRef<HTMLTextAreaElement>(null)
+    const ref = useRef<HTMLTextAreaElement | null>(null)
     const windowSize = useWindowSize()
     const { isCollapsed } = useCalendarContext()
     const resizeEditor = () => {
@@ -57,7 +57,14 @@ const PlainTextEditor = (props: PlainTextEditorProps) => {
 
     return (
         <PlainTextArea
-            ref={ref}
+            ref={(node) => {
+                ref.current = node
+                if (typeof textAreaRef === 'function') {
+                    textAreaRef(node)
+                } else if (textAreaRef !== null) {
+                    textAreaRef.current = node
+                }
+            }}
             onChange={(e) => {
                 resizeEditor()
                 onChange(e.target.value)
@@ -66,6 +73,6 @@ const PlainTextEditor = (props: PlainTextEditorProps) => {
             {...rest}
         />
     )
-}
+})
 
 export default PlainTextEditor

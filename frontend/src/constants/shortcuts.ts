@@ -3,6 +3,8 @@ import { TShortcut, TShortcutCategory } from '../utils/types'
 const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
 const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
 const SHIFT_KEY = 'Shift'
+const NO_SHORTCUT_KEY = 'None'
+const NO_SHORTCUT_KEY_LABEL = ''
 
 // command palette categories will be sorted in the order they appear in this array
 export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'General', 'Navigation']
@@ -23,12 +25,26 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'plus',
     },
+    createSubtask: {
+        label: 'Create new subtask',
+        key: `${SHIFT_KEY}+C`,
+        keyLabel: `${SHIFT_KEY}+C`,
+        category: 'Tasks',
+        icon: 'plus',
+    },
     markAsDone: {
         label: 'Mark as done',
         key: 'd',
         keyLabel: 'D',
         category: 'Tasks',
         icon: 'check',
+    },
+    editTaskName: {
+        label: 'Edit task name',
+        key: 'e',
+        keyLabel: 'E',
+        category: 'Tasks',
+        icon: 'pencil',
     },
     moveTaskToFolder: {
         label: 'Move task to folder',
@@ -44,6 +60,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'comment',
         hideFromCommandPalette: true,
+    },
+    navigationView: {
+        label: 'Show/hide navigation view',
+        key: '[',
+        keyLabel: '[',
+        category: 'Navigation',
+        icon: 'sidebar',
     },
     // Calendar shortcuts
     calendar: {
@@ -74,8 +97,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'caret_left',
     },
-    today: {
-        label: 'Today',
+    jumpToToday: {
+        label: 'Jump to Today',
         key: 't',
         keyLabel: 'T',
         category: 'Calendar',
@@ -146,7 +169,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'headphones',
     },
     goToOverviewPage: {
-        label: 'Go to overview page',
+        label: 'Go to Overview page',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+o`,
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+O`,
         category: 'Navigation',
@@ -174,7 +197,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'slack',
     },
     goToTaskInbox: {
-        label: 'Go to task inbox',
+        label: 'Go to Task Inbox',
         key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+i`,
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+I`,
         category: 'Navigation',
@@ -194,6 +217,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: 'M',
         category: 'General',
         icon: 'video',
+    },
+    sendFeedback: {
+        label: 'Send us feedback',
+        key: `${NO_SHORTCUT_KEY}`,
+        keyLabel: `${NO_SHORTCUT_KEY_LABEL}`,
+        category: 'General',
+        icon: 'megaphone',
     },
 })
 

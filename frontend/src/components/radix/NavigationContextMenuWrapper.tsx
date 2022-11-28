@@ -1,19 +1,18 @@
 import { useDeleteTaskSection } from '../../services/api/task-section.hooks'
 import { icons } from '../../styles/images'
+import { TTaskSection } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
 interface NavigationContextMenuWrapperProps {
     children: React.ReactNode
-    sectionId: string
-    setSectionName: () => void
-    setSectionBeingEdited: (sectionId: string) => void
+    section: TTaskSection
+    setSectionBeingEdited: (section: TTaskSection) => void
 }
 const NavigationContextMenuWrapper = ({
     children,
-    sectionId,
-    setSectionName,
+    section,
     setSectionBeingEdited,
 }: NavigationContextMenuWrapperProps) => {
     const { mutate: deleteSection } = useDeleteTaskSection()
@@ -22,8 +21,7 @@ const NavigationContextMenuWrapper = ({
             label: 'Rename Section',
             icon: icons.pencil,
             onClick: () => {
-                setSectionName()
-                setSectionBeingEdited(sectionId)
+                setSectionBeingEdited(section)
             },
         },
         {
@@ -32,7 +30,7 @@ const NavigationContextMenuWrapper = ({
             icon: icons.trash,
             iconColor: 'red',
             onClick: () => {
-                deleteSection({ sectionId: sectionId })
+                deleteSection({ id: section.id }, section.optimisticId)
             },
         },
     ]

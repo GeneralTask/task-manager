@@ -1,4 +1,4 @@
-import { Theme, ToastContainer } from 'react-toastify'
+import { CloseButtonProps, ToastContainer } from 'react-toastify'
 import { cssTransition } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
@@ -12,10 +12,6 @@ const ButtonMarginLeft = styled(NoStyleButton)`
     margin-left: ${Spacing._8};
 `
 
-interface CloseButtonProps {
-    closeToast: () => void
-    theme: Theme
-}
 const CloseButton = ({ closeToast, theme }: CloseButtonProps) => (
     <ButtonMarginLeft onClick={closeToast}>
         <Icon icon={icons.x} color={theme === 'light' ? 'black' : 'white'} />

@@ -8,6 +8,7 @@ import { TASK_SECTION_DEFAULT_ID } from '../../constants'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useReorderTask } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { TIconColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
@@ -59,6 +60,7 @@ interface NavigationLinkProps {
     link: string
     title: string
     icon?: IconProp | string
+    iconColor?: TIconColor
     taskSection?: TTaskSection
     count?: number
     needsRelinking?: boolean
@@ -71,6 +73,7 @@ const NavigationLink = ({
     link,
     title,
     icon,
+    iconColor,
     taskSection,
     count,
     needsRelinking = false,
@@ -85,22 +88,28 @@ const NavigationLink = ({
 
     const onDrop = useCallback(
         (item: DropItem) => {
-            if (!taskSection || !droppable) return
+            if (!taskSection || !droppable || !item.task) return
             if (taskSection.id === item.sectionId) return
             if (taskSection?.is_done || taskSection?.is_trash) {
-                markTaskDoneOrDeleted({
-                    taskId: item.id,
-                    isDone: taskSection?.is_done,
-                    isDeleted: taskSection?.is_trash,
-                    sectionId: taskSection.id,
-                })
+                markTaskDoneOrDeleted(
+                    {
+                        id: item.id,
+                        isDone: taskSection?.is_done,
+                        isDeleted: taskSection?.is_trash,
+                        sectionId: taskSection.id,
+                    },
+                    item.task.optimisticId
+                )
             } else {
-                reorderTask({
-                    taskId: item.id,
-                    orderingId: 1,
-                    dropSectionId: taskSection.id,
-                    dragSectionId: item.sectionId,
-                })
+                reorderTask(
+                    {
+                        id: item.id,
+                        orderingId: 1,
+                        dropSectionId: taskSection.id,
+                        dragSectionId: item.sectionId,
+                    },
+                    item.task.optimisticId
+                )
             }
         },
         [taskSection]
@@ -140,17 +149,24 @@ const NavigationLink = ({
     }, [needsRelinking])
 
     if (isCollapsed && icon) {
-        const dataTip = taskSection ? `${title} (${count ?? 0})` : title
+        const countOverflow = countWithOverflow(count ?? 0)
+        const dataTip = taskSection ? `${title} (${countOverflow})` : title
         return (
             <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
-                <GTIconButton icon={icon} onClick={onClickHandler} />
+                <GTIconButton
+                    ref={drop}
+                    icon={icon}
+                    iconColor={iconColor}
+                    onClick={onClickHandler}
+                    forceShowHoverEffect={isOver || isCurrentPage}
+                />
             </TooltipWrapper>
         )
     }
     return (
         <NavigationLinkTemplate ref={drop} onClick={onClickHandler}>
             <LinkContainer ref={drag} isSelected={isCurrentPage} isOver={isOver}>
-                {icon && <Icon icon={icon} color="black" />}
+                {icon && <Icon icon={icon} color={iconColor} />}
                 <SectionTitle>{title}</SectionTitle>
                 {needsRelinking && (
                     <TooltipWrapper dataTip="Account needs to be re-linked in settings" tooltipId="tooltip">

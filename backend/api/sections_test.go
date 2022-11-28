@@ -12,6 +12,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type sectionCreateResponse struct {
+	ID primitive.ObjectID `json:"id"`
+}
+
 func TestSections(t *testing.T) {
 	authToken := login("test_sections@generaltask.com", "")
 	createdTaskID := ""
@@ -63,7 +67,10 @@ func TestSections(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{}", string(body))
+		responseObject := sectionCreateResponse{}
+		err = json.Unmarshal(body, &responseObject)
+		assert.NoError(t, err)
+		section1ID := responseObject.ID
 		// create a second one
 		request, _ = http.NewRequest(
 			"POST",
@@ -72,6 +79,13 @@ func TestSections(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusCreated, recorder.Code)
+		body, err = ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		responseObject = sectionCreateResponse{}
+		err = json.Unmarshal(body, &responseObject)
+		assert.NoError(t, err)
+		section2ID := responseObject.ID
+		assert.NotEqual(t, section1ID, section2ID)
 	})
 	t.Run("SuccessGet", func(t *testing.T) {
 		api, dbCleanup := GetAPIWithDBCleanup()

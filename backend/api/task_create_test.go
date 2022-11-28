@@ -151,7 +151,25 @@ func TestCreateTask(t *testing.T) {
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), *task.TimeAllocation)
 		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
+		assert.Equal(t, constants.DefaultTaskIDOrdering, task.IDOrdering)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
+	})
+	t.Run("SuccessReordering", func(t *testing.T) {
+		// use same auth token as above to reuse task
+		authToken = login("create_task_success_title_only@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, db, authToken)
+
+		ServeRequest(t, authToken, "POST", "/tasks/create/gt_task/", bytes.NewBuffer([]byte(`{"title": "buy more dogecoin AGAIN"}`)), http.StatusOK, nil)
+
+		tasks, err := database.GetActiveTasks(db, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 6, len(*tasks))
+		task1 := (*tasks)[4]
+		assert.Equal(t, "buy more dogecoin", *task1.Title)
+		assert.Equal(t, 2, task1.IDOrdering)
+		task2 := (*tasks)[5]
+		assert.Equal(t, "buy more dogecoin AGAIN", *task2.Title)
+		assert.Equal(t, constants.DefaultTaskIDOrdering, task2.IDOrdering)
 	})
 	t.Run("SuccessAssignToOtherUser", func(t *testing.T) {
 		authToken = login("assign_to_other_user@generaltask.com", "")
@@ -175,6 +193,7 @@ func TestCreateTask(t *testing.T) {
 		// 1 hour is the default
 		assert.Equal(t, int64(3600000000000), *task.TimeAllocation)
 		assert.Equal(t, constants.IDTaskSectionDefault, task.IDTaskSection)
+		assert.Equal(t, constants.DefaultTaskIDOrdering, task.IDOrdering)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 		assert.Equal(t, task.UserID, johnUser.InsertedID.(primitive.ObjectID))
 	})
@@ -197,6 +216,7 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, int64(300000000000), *task.TimeAllocation)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
 		assert.Equal(t, customSectionID, task.IDTaskSection)
+		assert.Equal(t, constants.DefaultTaskIDOrdering, task.IDOrdering)
 		assert.Equal(t, fmt.Sprintf("{\"task_id\":\"%s\"}", task.ID.Hex()), string(body))
 	})
 	t.Run("SuccessSubTask", func(t *testing.T) {

@@ -1,10 +1,10 @@
-import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
-import { v4 as uuidv4 } from 'uuid'
+import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
-import { useGTQueryClient } from '../queryUtils'
+import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 export const useGetOverviewViews = () => {
     return useQuery<TOverviewView[], void>('overview', getOverviewViews)
@@ -19,19 +19,21 @@ const getOverviewViews = async ({ signal }: QueryFunctionContext) => {
 }
 
 interface TReorderViewData {
-    viewId: string
+    id: string
     idOrdering: number
 }
 export const useReorderViews = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TReorderViewData) => reorderView(data), {
-        onMutate: async ({ viewId, idOrdering }: TReorderViewData) => {
+    return useQueuedMutation((data: TReorderViewData) => reorderView(data), {
+        tag: 'overview',
+        invalidateTagsOnSettled: ['overview'],
+        onMutate: async ({ id, idOrdering }: TReorderViewData) => {
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
             await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
 
             const newViews = produce(views, (draft) => {
-                const startIndex = draft.findIndex((view) => view.id === viewId)
+                const startIndex = draft.findIndex((view) => view.id === id)
                 let endIndex = idOrdering - 1
                 if (startIndex < endIndex) {
                     endIndex -= 1
@@ -49,7 +51,7 @@ export const useReorderViews = () => {
 }
 const reorderView = async (data: TReorderViewData) => {
     try {
-        const res = await apiClient.patch(`/overview/views/${data.viewId}/`, {
+        const res = await apiClient.patch(`/overview/views/${data.id}/`, {
             id_ordering: data.idOrdering,
         })
         return castImmutable(res.data)
@@ -71,6 +73,7 @@ const getSupportedViews = async ({ signal }: QueryFunctionContext) => {
 }
 
 export interface TAddViewData {
+    optimisticId: string
     supportedView: TSupportedView
     supportedViewIndex: number
     supportedViewItem: TSupportedViewItem
@@ -87,7 +90,9 @@ interface TAddViewReponse {
 }
 export const useAddView = () => {
     const queryClient = useGTQueryClient()
-    return useMutation<TAddViewReponse, unknown, TAddViewData, unknown>(
+    const { setOptimisticId } = useQueryContext()
+
+    return useQueuedMutation<TAddViewReponse, unknown, TAddViewData, unknown>(
         ({ supportedView, supportedViewItem }: TAddViewData) => {
             const payload: TAddViewPayload = {
                 type: supportedView.type,
@@ -98,7 +103,10 @@ export const useAddView = () => {
             return addView(payload)
         },
         {
+            tag: 'overview',
+            invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
             onMutate: async ({
+                optimisticId,
                 supportedView,
                 supportedViewIndex,
                 supportedViewItem,
@@ -113,7 +121,8 @@ export const useAddView = () => {
                 if (supportedViews) {
                     const newSupportedViews = produce(supportedViews, (draft) => {
                         draft[supportedViewIndex].views[supportedViewItemIndex].is_added = true
-                        draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = true
+                        draft[supportedViewIndex].views[supportedViewItemIndex].view_id = optimisticId
+                        draft[supportedViewIndex].views[supportedViewItemIndex].optimisticId = optimisticId
                     })
                     queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
@@ -122,14 +131,14 @@ export const useAddView = () => {
                 if (views) {
                     const newViews = produce(views, (draft) => {
                         const optimisticView: TOverviewView = {
-                            id: uuidv4(),
+                            id: optimisticId,
+                            optimisticId,
                             name: supportedViewItem.name,
                             type: supportedView.type,
                             task_section_id: supportedViewItem.task_section_id,
                             is_reorderable: false,
                             logo: supportedView.logo,
                             view_items: [],
-                            isOptimistic: true,
                             sources: [],
                             is_linked: true,
                         }
@@ -138,19 +147,15 @@ export const useAddView = () => {
                     queryClient.setQueryData('overview', newViews)
                 }
             },
-            onSettled: (data, _, { supportedViewIndex, supportedViewItemIndex }) => {
-                queryClient.invalidateQueries('overview')
-                queryClient.invalidateQueries('overview-supported-views')
-                if (data) {
-                    const supportedViews =
-                        queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
-                    if (supportedViews) {
-                        const newSupportedViews = produce(supportedViews, (draft) => {
-                            draft[supportedViewIndex].views[supportedViewItemIndex].view_id = data.id
-                            draft[supportedViewIndex].views[supportedViewItemIndex].is_add_disabled = false
-                        })
-                        queryClient.setQueryData('overview-supported-views', newSupportedViews)
-                    }
+            onSuccess: (data, { optimisticId, supportedViewIndex, supportedViewItemIndex }) => {
+                if (!data) return
+                setOptimisticId(optimisticId, data.id)
+                const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
+                if (supportedViews) {
+                    const newSupportedViews = produce(supportedViews, (draft) => {
+                        draft[supportedViewIndex].views[supportedViewItemIndex].view_id = data.id
+                    })
+                    queryClient.setQueryData('overview-supported-views', newSupportedViews)
                 }
             },
         }
@@ -165,10 +170,15 @@ const addView = async (data: TAddViewPayload) => {
     }
 }
 
+interface TRemoveViewData {
+    id: string
+}
 export const useRemoveView = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((viewId: string) => removeView(viewId), {
-        onMutate: async (viewId: string) => {
+    return useQueuedMutation(({ id }: TRemoveViewData) => removeView(id), {
+        tag: 'overview',
+        invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
+        onMutate: async ({ id }) => {
             const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
@@ -181,9 +191,8 @@ export const useRemoveView = () => {
                     let found = false
                     for (const view of draft) {
                         for (const viewItem of view.views) {
-                            if (viewItem.view_id === viewId) {
+                            if (viewItem.view_id === id) {
                                 viewItem.is_added = false
-                                viewItem.is_add_disabled = false
                                 viewItem.view_id = ''
                                 found = true
                                 break
@@ -198,7 +207,7 @@ export const useRemoveView = () => {
             if (views) {
                 const newViews = produce(views, (draft) => {
                     for (const view of draft) {
-                        if (view.id === viewId) {
+                        if (view.id === id) {
                             draft.splice(draft.indexOf(view), 1)
                             break
                         }
@@ -206,10 +215,6 @@ export const useRemoveView = () => {
                 })
                 queryClient.setQueryData('overview', newViews)
             }
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('overview')
-            queryClient.invalidateQueries('overview-supported-views')
         },
     })
 }

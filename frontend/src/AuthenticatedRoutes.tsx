@@ -34,6 +34,10 @@ const AuthenticatedRoutes = () => {
                                 </Route>
                             </Route>
                         </Route>
+                        <Route path="recurring-tasks" element={<Outlet />}>
+                            <Route index element={<MainScreen />} />
+                            <Route path=":recurringTaskId" element={<MainScreen />} />
+                        </Route>
                         <Route path="tasks" element={<Outlet />}>
                             <Route index element={<MainScreen />} />
                             <Route path=":section" element={<MainScreen />}>

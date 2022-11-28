@@ -66,7 +66,7 @@ func (api *API) SectionAdd(c *gin.Context) {
 
 	userID, _ := c.Get("user")
 
-	_, err = sectionCollection.InsertOne(
+	mongoResult, err := sectionCollection.InsertOne(
 		context.Background(),
 		&database.TaskSection{
 			UserID:     userID.(primitive.ObjectID),
@@ -79,7 +79,8 @@ func (api *API) SectionAdd(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	c.JSON(201, gin.H{})
+	newSectionId := mongoResult.InsertedID.(primitive.ObjectID)
+	c.JSON(201, gin.H{"id": newSectionId.Hex()})
 }
 
 func (api *API) SectionModify(c *gin.Context) {

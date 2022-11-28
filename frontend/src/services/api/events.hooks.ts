@@ -1,12 +1,13 @@
 import { useEffect, useRef } from 'react'
-import { QueryFunctionContext, useMutation, useQuery } from 'react-query'
+import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { useCalendarContext } from '../../components/calendar/CalendarContext'
 import { EVENTS_REFETCH_INTERVAL } from '../../constants'
+import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TEvent, TOverviewView, TTask } from '../../utils/types'
-import { useGTQueryClient } from '../queryUtils'
+import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -37,11 +38,6 @@ interface TModifyEventPayload {
     attendees?: TEventAttendee[]
     add_conference_call?: boolean
 }
-interface TModifyEventData {
-    event: TEvent
-    payload: TModifyEventPayload
-    date: DateTime
-}
 interface TCreateEventParams {
     createEventPayload: TCreateEventPayload
     date: DateTime
@@ -64,6 +60,7 @@ interface TModifyEventPayload {
     add_conference_call?: boolean
 }
 interface TModifyEventData {
+    id: string
     event: TEvent
     payload: TModifyEventPayload
     date: DateTime
@@ -101,6 +98,7 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
+    const { setOptimisticId } = useQueryContext()
 
     // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback
     const selectedEventRef = useRef(selectedEvent)
@@ -108,7 +106,9 @@ export const useCreateEvent = () => {
         selectedEventRef.current = selectedEvent
     }, [selectedEvent])
 
-    return useMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
+    return useQueuedMutation(({ createEventPayload }: TCreateEventParams) => createEvent(createEventPayload), {
+        tag: 'events',
+        invalidateTagsOnSettled: ['events'],
         onMutate: ({ createEventPayload, date, linkedTask, linkedView, optimisticId }: TCreateEventParams) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
@@ -119,6 +119,7 @@ export const useCreateEvent = () => {
 
             const newEvent: TEvent = {
                 id: optimisticId,
+                optimisticId: optimisticId,
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
@@ -126,7 +127,7 @@ export const useCreateEvent = () => {
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
                 datetime_end: createEventPayload.datetime_end,
-                can_modify: false,
+                can_modify: true,
                 conference_call: {
                     url: '',
                     logo: '',
@@ -142,6 +143,8 @@ export const useCreateEvent = () => {
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
         },
         onSuccess: ({ id }: TCreateEventResponse, { createEventPayload, date, optimisticId }: TCreateEventParams) => {
+            setOptimisticId(optimisticId, id)
+
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
                 createEventPayload.datetime_start,
@@ -153,6 +156,7 @@ export const useCreateEvent = () => {
             if (eventIndex === -1) return
             const newEvents = produce(events, (draft) => {
                 draft[eventIndex].id = id
+                draft[eventIndex].optimisticId = undefined
             })
 
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
@@ -161,9 +165,6 @@ export const useCreateEvent = () => {
             if (selectedEventRef.current?.id === optimisticId) {
                 setSelectedEvent(newEvents[eventIndex])
             }
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('events')
         },
     })
 }
@@ -178,7 +179,9 @@ const createEvent = async (data: TCreateEventPayload) => {
 
 export const useDeleteEvent = () => {
     const queryClient = useGTQueryClient()
-    const useMutationResult = useMutation((data: TDeleteEventData) => deleteEvent(data.id), {
+    const useMutationResult = useQueuedMutation((data: TDeleteEventData) => deleteEvent(data.id), {
+        tag: 'events',
+        invalidateTagsOnSettled: ['events'],
         onMutate: (data: TDeleteEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 data.date,
@@ -193,9 +196,6 @@ export const useDeleteEvent = () => {
                 draft.splice(eventIdx, 1)
             })
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries('events')
         },
     })
     const deleteEventInCache = (data: TDeleteEventData) => {
@@ -235,7 +235,9 @@ const deleteEvent = async (eventId: string) => {
 export const useModifyEvent = () => {
     const queryClient = useGTQueryClient()
 
-    return useMutation((data: TModifyEventData) => modifyEvent(data), {
+    return useQueuedMutation((data: TModifyEventData) => modifyEvent(data), {
+        tag: 'events',
+        invalidateTagsOnSettled: ['events'],
         onMutate: ({ event, payload, date }: TModifyEventData) => {
             const { events, blockStartTime } = queryClient.getCurrentEvents(
                 date,
@@ -265,15 +267,12 @@ export const useModifyEvent = () => {
             })
             queryClient.setQueryData(['events', 'calendar', blockStartTime], newEvents)
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('events')
-        },
     })
 }
 
 const modifyEvent = async (data: TModifyEventData) => {
     try {
-        const res = await apiClient.patch(`/events/modify/${data.event.id}/`, data.payload)
+        const res = await apiClient.patch(`/events/modify/${data.id}/`, data.payload)
         return castImmutable(res.data)
     } catch {
         throw new Error('modifyEvent failed')

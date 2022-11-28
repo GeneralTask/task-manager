@@ -29,7 +29,7 @@ const SlackTasksView = () => {
 
     const slackTasks = useMemo(() => {
         const tasks = taskSections?.flatMap((section) => section.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic))
+        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.optimisticId))
     }, [taskSections])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()

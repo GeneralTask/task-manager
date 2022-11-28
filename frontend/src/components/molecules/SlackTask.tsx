@@ -48,7 +48,7 @@ const SlackTask = ({ task, isSelected, onClick }: SlackTaskProps) => {
                     isDone={task.is_done}
                     taskId={task.id}
                     isSelected={true}
-                    isDisabled={task.isOptimistic}
+                    isDisabled={!!task.optimisticId}
                 />
                 <Title>{task.title}</Title>
                 <ExternalLinkContainer>

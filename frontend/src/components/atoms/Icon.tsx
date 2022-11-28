@@ -25,12 +25,13 @@ interface IconProps {
     icon: TIconType
     size?: TIconSize
     color?: TIconColor
+    className?: string
 }
-export const Icon = ({ icon, size = 'default', color = 'black' }: IconProps) => {
+export const Icon = ({ icon, size = 'default', color = 'black', className }: IconProps) => {
     const dimension = Dimensions.iconSize[size]
 
     return (
-        <IconContainer size={dimension}>
+        <IconContainer size={dimension} className={className}>
             {typeof icon === 'string' ? (
                 <ImageContainer src={icon} />
             ) : (

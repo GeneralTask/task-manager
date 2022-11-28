@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import { useToast } from '../../hooks'
+import { useKeyboardShortcut, useToast } from '../../hooks'
 import { usePostFeedback } from '../../services/api/feedback.hooks'
+import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTButton from '../atoms/buttons/GTButton'
@@ -25,6 +27,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
     const { mutate: postFeedback } = usePostFeedback()
     const toast = useToast()
     const submitFeedback = () => {
+        if (feedback.trim().length === 0) return
         postFeedback({ feedback: feedback })
         setFeedback('')
         setModalIsOpen(false)
@@ -38,6 +41,11 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
             }
         )
     }
+
+    useKeyboardShortcut(
+        'sendFeedback',
+        useCallback(() => setModalIsOpen(true), [])
+    )
 
     return (
         <>
@@ -61,7 +69,7 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                 tabs={{
                     title: 'Got feedback for us?',
                     body: (
-                        <>
+                        <Flex column gap={Spacing._16}>
                             <BodySmall>
                                 Feedback is a gift — thank you. Let us know what things you’d like to see us do more and
                                 what things we can do better.
@@ -76,12 +84,13 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                             />
                             <GTButton
                                 onClick={submitFeedback}
+                                disabled={feedback.trim().length === 0}
                                 value="Send feedback"
                                 styleType="primary"
                                 size="small"
                                 fitContent
                             />
-                        </>
+                        </Flex>
                     ),
                 }}
             />

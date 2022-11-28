@@ -16,11 +16,11 @@ const ModalOuter = styled.div<{ fixedHeight: boolean }>`
     display: flex;
     height: ${({ fixedHeight }) => (fixedHeight ? MODAL_HEIGHT : '100%')};
 `
-const ModalContent = styled.div`
+const ModalContent = styled.div<{ smallGap: boolean }>`
     display: flex;
     flex-direction: column;
     flex: 1 0;
-    gap: ${Spacing._24};
+    gap: ${({ smallGap }) => (smallGap ? Spacing._16 : Spacing._24)};
     padding: ${Spacing._24} ${Spacing._32};
     overflow-y: auto;
 `
@@ -52,6 +52,7 @@ const MarginBottom8 = styled.div`
 
 interface GTModalTab {
     title?: string
+    subtitle?: string
     icon?: TIconType
     body: React.ReactNode
 }
@@ -83,13 +84,14 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                         ))}
                     </ModalSidebar>
                 )}
-                <ModalContent>
+                <ModalContent smallGap={!Array.isArray(tabs)}>
                     <Flex justifyContent="space-between" alignItems="center">
                         <Subtitle>{tab.title}</Subtitle>
                         <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
                     </Flex>
+                    {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
                     {Array.isArray(tabs) && <Divider color={Colors.border.light} />}
-                    {tab.body}
+                    <div>{tab.body}</div>
                 </ModalContent>
             </ModalOuter>
         </BaseModal>

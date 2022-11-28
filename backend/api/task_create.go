@@ -42,7 +42,7 @@ func (api *API) TaskCreate(c *gin.Context) {
 	userIDRaw, _ := c.Get("user")
 	userID := userIDRaw.(primitive.ObjectID)
 
-	IDTaskSection := primitive.NilObjectID
+	IDTaskSection := constants.IDTaskSectionDefault
 	if taskCreateParams.IDTaskSection != nil {
 		IDTaskSection, err = getValidTaskSection(*taskCreateParams.IDTaskSection, userID, api.DB)
 		if err != nil {
@@ -104,6 +104,16 @@ func (api *API) TaskCreate(c *gin.Context) {
 	taskID, err := taskSourceResult.Source.CreateNewTask(api.DB, userID, taskCreateParams.AccountID, taskCreationObject)
 	if err != nil {
 		c.JSON(503, gin.H{"detail": "failed to create task"})
+		return
+	}
+	// this database.Task is only used for IDTaskSection and ParentTaskID fields
+	IDOrdering := constants.DefaultTaskIDOrdering
+	err = api.ReOrderTask(c, taskID, userID, &IDOrdering, nil, &database.Task{
+		IDTaskSection: IDTaskSection,
+		ParentTaskID:  parentID,
+	})
+	if err != nil {
+		c.JSON(500, gin.H{"detail": "failed to move task to front of folder"})
 		return
 	}
 	c.JSON(200, gin.H{"task_id": taskID})

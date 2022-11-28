@@ -81,7 +81,7 @@ const PullRequestsView = () => {
     const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Github')
     useEffect(() => {
         if (selectedPullRequest) {
-            navigate(`/pull-requests/${selectedPullRequest.id}`)
+            navigate(`/pull-requests/${selectedPullRequest.id}`, { replace: true })
         }
     }, [selectedPullRequest])
 

@@ -1,33 +1,42 @@
-import { useMutation } from 'react-query'
 import produce, { castImmutable } from 'immer'
-import { TASK_SECTION_DEFAULT_ID } from '../../constants'
+import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TTaskSection } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
-import { useGTQueryClient } from '../queryUtils'
+import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TAddTaskSectionData {
+    optimisticId: string
     name: string
     id_ordering?: number
 }
-
+interface TAddTaskSectionResponse {
+    id: string
+}
+interface TDeleteSectionData {
+    id: string
+}
 interface TModifyTaskSectionData {
-    sectionId: string
+    id: string
     name?: string
     id_ordering?: number
 }
 
 export const useAddTaskSection = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TAddTaskSectionData) => addTaskSection(data), {
-        onMutate: async (data: TAddTaskSectionData) => {
-            // cancel all current getTasks queries
+    const { setOptimisticId } = useQueryContext()
+
+    return useQueuedMutation((data: TAddTaskSectionData) => addTaskSection(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks'],
+        onMutate: async (data) => {
             await queryClient.cancelQueries('tasks')
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
             const newSection: TTaskSection = {
-                id: TASK_SECTION_DEFAULT_ID,
+                id: data.optimisticId,
+                optimisticId: data.optimisticId,
                 name: data.name,
                 is_done: false,
                 is_trash: false,
@@ -38,8 +47,8 @@ export const useAddTaskSection = () => {
             })
             queryClient.setQueryData('tasks', newSections)
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
+        onSuccess: ({ id }: TAddTaskSectionResponse, { optimisticId }) => {
+            setOptimisticId(optimisticId, id)
         },
     })
 }
@@ -54,29 +63,27 @@ const addTaskSection = async (data: TAddTaskSectionData) => {
 
 export const useDeleteTaskSection = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: { sectionId: string }) => deleteTaskSection(data), {
-        onMutate: async (data: { sectionId: string }) => {
-            // cancel all current getTasks queries
+    return useQueuedMutation(({ id }: TDeleteSectionData) => deleteTaskSection(id), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks'],
+        onMutate: async ({ id }) => {
             await queryClient.cancelQueries('tasks')
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
 
             const newSections = produce(sections, (draft) => {
-                const sectionIdx = draft.findIndex((s) => s.id === data.sectionId)
+                const sectionIdx = draft.findIndex((s) => s.id === id)
                 if (sectionIdx === -1) return
                 draft.splice(sectionIdx, 1)
             })
             queryClient.setQueryData('tasks', newSections)
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-        },
     })
 }
-const deleteTaskSection = async (data: { sectionId: string }) => {
+const deleteTaskSection = async (id: string) => {
     try {
-        const res = await apiClient.delete(`/sections/delete/${data.sectionId}/`)
+        const res = await apiClient.delete(`/sections/delete/${id}/`)
         return castImmutable(res.data)
     } catch {
         throw new Error('deleteTaskSection failed')
@@ -85,7 +92,9 @@ const deleteTaskSection = async (data: { sectionId: string }) => {
 
 export const useModifyTaskSection = () => {
     const queryClient = useGTQueryClient()
-    return useMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
+    return useQueuedMutation((data: TModifyTaskSectionData) => modifyTaskSection(data), {
+        tag: 'tasks',
+        invalidateTagsOnSettled: ['tasks'],
         onMutate: async (data: TModifyTaskSectionData) => {
             // cancel all current getTasks queries
             await queryClient.cancelQueries('tasks')
@@ -94,7 +103,7 @@ export const useModifyTaskSection = () => {
             if (!sections) return
 
             const newSections = produce(sections, (draft) => {
-                const sectionIndex = draft.findIndex((s) => s.id === data.sectionId)
+                const sectionIndex = draft.findIndex((s) => s.id === data.id)
                 if (sectionIndex === -1) return
                 if (data.name) draft[sectionIndex].name = data.name
                 if (data.id_ordering) {
@@ -107,14 +116,11 @@ export const useModifyTaskSection = () => {
             })
             queryClient.setQueryData('tasks', newSections)
         },
-        onSettled: () => {
-            queryClient.invalidateQueries('tasks')
-        },
     })
 }
-const modifyTaskSection = async ({ sectionId, name, id_ordering }: TModifyTaskSectionData) => {
+const modifyTaskSection = async ({ id, name, id_ordering }: TModifyTaskSectionData) => {
     try {
-        const res = await apiClient.patch(`/sections/modify/${sectionId}/`, {
+        const res = await apiClient.patch(`/sections/modify/${id}/`, {
             name,
             id_ordering,
         })

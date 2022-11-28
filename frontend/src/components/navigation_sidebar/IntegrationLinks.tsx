@@ -1,9 +1,13 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+import { usePreviewMode } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { icons, logos } from '../../styles/images'
+import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-requests.config'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
+import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import NavigationLink from './NavigationLink'
 
@@ -14,6 +18,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { pathname } = useLocation()
     const { data: folders } = useGetTasks()
+    const { isPreviewMode } = usePreviewMode()
 
     const linearTasksCount = useMemo(() => {
         const tasks =
@@ -24,7 +29,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const slackTasksCount = useMemo(() => {
         const tasks =
             folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.isOptimistic)).length
+        return tasks.filter((task) => task.source.name === 'Slack' && (!task.is_done || task.optimisticId)).length
     }, [folders])
 
     const { data: linkedAccounts } = useGetLinkedAccounts()
@@ -33,8 +38,12 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const isLinearIntegrationLinked = isLinearLinked(linkedAccounts || [])
     const isSlackIntegrationLinked = isSlackLinked(linkedAccounts || [])
 
+    const { selectedFilter: pullRequestFilter } = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
     const githubCount = isGithubIntegrationLinked
-        ? pullRequestRepositories?.reduce<number>((total, repo) => total + repo.pull_requests.length, 0)
+        ? pullRequestRepositories?.reduce<number>(
+              (total, repo) => total + repo.pull_requests.filter(pullRequestFilter.lambda).length,
+              0
+          )
         : undefined
     const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
     const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
@@ -47,6 +56,16 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 isCurrentPage={pathname.split('/')[1] === 'overview'}
                 isCollapsed={isCollapsed}
             />
+            {isPreviewMode && (
+                <NavigationLink
+                    link="/recurring-tasks"
+                    title="Recurring tasks"
+                    icon={icons.arrows_repeat}
+                    iconColor="green"
+                    isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                    isCollapsed={isCollapsed}
+                />
+            )}
             <NavigationLink
                 link="/focus-mode"
                 title="Enter Focus Mode"

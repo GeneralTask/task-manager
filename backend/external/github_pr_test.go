@@ -1352,7 +1352,7 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 	updateFullName := github.String("new_repository_name")
 	updateHTMLURL := github.String("http://new.me")
 	t.Run("SuccessCreate", func(t *testing.T) {
-		err = updateOrCreateRepository(db, repository, userID)
+		err = updateOrCreateRepository(db, repository, "testaccountID", userID)
 		assert.NoError(t, err)
 
 		var result []database.Repository
@@ -1371,12 +1371,13 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
 		assert.Equal(t, repository.GetFullName(), result[0].FullName)
 		assert.Equal(t, repository.GetHTMLURL(), result[0].Deeplink)
+		assert.Equal(t, "testaccountID", result[0].AccountID)
 	})
 	t.Run("SuccessUpdate", func(t *testing.T) {
 		repository.FullName = updateFullName
 		repository.HTMLURL = updateHTMLURL
 
-		err = updateOrCreateRepository(db, repository, userID)
+		err = updateOrCreateRepository(db, repository, "testaccountID2", userID)
 		assert.NoError(t, err)
 
 		var result []database.Repository
@@ -1394,12 +1395,13 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		assert.Equal(t, fmt.Sprint(repository.GetID()), result[0].RepositoryID)
 		assert.Equal(t, *updateFullName, result[0].FullName)
 		assert.Equal(t, *updateHTMLURL, result[0].Deeplink)
+		assert.Equal(t, "testaccountID2", result[0].AccountID)
 	})
 	t.Run("IncorrectUserID", func(t *testing.T) {
 		newFullName := github.String("bad_user_id_full_name")
 		repository.FullName = newFullName
 
-		err = updateOrCreateRepository(db, repository, primitive.NewObjectID())
+		err = updateOrCreateRepository(db, repository, "testaccountID", primitive.NewObjectID())
 		assert.NoError(t, err)
 
 		var result []database.Repository
@@ -1422,7 +1424,7 @@ func TestUpdateOrCreateRepository(t *testing.T) {
 		repository.FullName = newFullName
 		repository.ID = github.Int64(0)
 
-		err = updateOrCreateRepository(db, repository, userID)
+		err = updateOrCreateRepository(db, repository, "testaccountID", userID)
 		assert.NoError(t, err)
 
 		var result []database.Repository
