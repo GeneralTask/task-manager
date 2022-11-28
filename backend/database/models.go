@@ -370,5 +370,5 @@ type Note struct {
 	Author    string             `bson:"author,omitempty"`
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
 	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty"`
-	IsShared  bool               `bson:"is_shared,omitempty"`
+	IsShared  *bool              `bson:"is_shared,omitempty"`
 }
