@@ -382,10 +382,15 @@ export const useMarkTaskDoneOrDeleted = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation((data: TMarkTaskDoneOrDeletedData) => markTaskDoneOrDeleted(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'overview'],
+        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TMarkTaskDoneOrDeletedData) => {
-            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('tasks_v4'),
+                queryClient.cancelQueries('overview'),
+            ])
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const lists = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
             const updateSections = async () => {
@@ -417,6 +422,20 @@ export const useMarkTaskDoneOrDeleted = () => {
                         await sleep(TASK_MARK_AS_DONE_TIMEOUT)
                     }
                     queryClient.setQueryData('tasks', newSections)
+                }
+            }
+            const updateTasks = async () => {
+                if (tasks) {
+                    const newTasks = produce(tasks, (draft) => {
+                        const task = draft.find((task) => task.id === data.id)
+                        if (!task) return
+                        if (data.isDone !== undefined) task.is_done = data.isDone
+                        if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
+                    })
+                    if (data.waitForAnimation) {
+                        await sleep(TASK_MARK_AS_DONE_TIMEOUT)
+                    }
+                    queryClient.setQueryData('tasks_v4', newTasks)
                 }
             }
             const updateOverviewPage = async () => {
@@ -453,6 +472,7 @@ export const useMarkTaskDoneOrDeleted = () => {
             }
             // execute in parallel if waiting for animation delay
             updateSections()
+            updateTasks()
             updateOverviewPage()
         },
     })
