@@ -78,8 +78,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     deleteCalendarEvent: {
         label: 'Delete calendar event',
-        key: 'Backspace',
-        keyLabel: 'Backspace',
+        key: NO_SHORTCUT_KEY,
+        keyLabel: NO_SHORTCUT_KEY_LABEL,
         category: 'Calendar',
         icon: 'trash',
     },
@@ -220,8 +220,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     sendFeedback: {
         label: 'Send us feedback',
-        key: `${NO_SHORTCUT_KEY}`,
-        keyLabel: `${NO_SHORTCUT_KEY_LABEL}`,
+        key: NO_SHORTCUT_KEY,
+        keyLabel: NO_SHORTCUT_KEY_LABEL,
         category: 'General',
         icon: 'megaphone',
     },
