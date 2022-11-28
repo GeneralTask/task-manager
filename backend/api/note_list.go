@@ -42,14 +42,22 @@ func (api *API) NotesList(c *gin.Context) {
 func (api *API) noteListToNoteResultList(notes *[]database.Note, userID primitive.ObjectID) []*NoteResult {
 	noteResults := []*NoteResult{}
 	for _, note := range *notes {
+		body := ""
+		if note.Body != nil {
+			body = *note.Body
+		}
+		title := ""
+		if note.Title != nil {
+			title = *note.Title
+		}
 		result := &NoteResult{
 			ID:        note.ID,
-			Title:     note.Title,
-			Body:      note.Body,
-			Author:    note.Author,
+			Title:     title,
+			Body:      body,
+			Author:    note.AuthorDisplayEmail,
 			CreatedAt: note.CreatedAt,
 			UpdatedAt: note.UpdatedAt,
-			IsShared:  note.IsShared,
+			IsShared:  *note.IsShared,
 		}
 		noteResults = append(noteResults, result)
 	}

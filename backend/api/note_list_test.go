@@ -12,6 +12,10 @@ import (
 func TestNotesList(t *testing.T) {
 	authToken := login("test_notes_list@generaltask.com", "")
 
+	true_val := true
+	false_val := false
+	title1 := "title1"
+	title2 := "title2"
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -24,8 +28,8 @@ func TestNotesList(t *testing.T) {
 		"foobar_source",
 		&database.Note{
 			UserID:   userID,
-			Title:    "title1",
-			IsShared: true,
+			Title:    &title1,
+			IsShared: &true_val,
 		},
 	)
 	assert.NoError(t, err)
@@ -36,8 +40,8 @@ func TestNotesList(t *testing.T) {
 		"foobar_source",
 		&database.Note{
 			UserID:   userID,
-			Title:    "title2",
-			IsShared: false,
+			Title:    &title2,
+			IsShared: &false_val,
 		},
 	)
 	assert.NoError(t, err)
@@ -48,7 +52,7 @@ func TestNotesList(t *testing.T) {
 		"foobar_source",
 		&database.Note{
 			UserID:   notUserID,
-			IsShared: true,
+			IsShared: &true_val,
 		},
 	)
 	assert.NoError(t, err)
