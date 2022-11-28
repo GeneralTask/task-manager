@@ -1103,7 +1103,7 @@ func TestEditFields(t *testing.T) {
 
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"priority value not in all prioirities field for task\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"priority value not valid for task\"}", string(body))
 	})
 	t.Run("Edit multiple fields success", func(t *testing.T) {
 		expectedTask := sampleTask
