@@ -71,7 +71,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
-		commentsServer := getJIRACommentsServer(t, 200, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
+		commentsServer := getJIRACommentsServer(t, http.StatusOK, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
 
 		// ensure external API token values updated
 		var externalJIRAToken database.ExternalAPIToken

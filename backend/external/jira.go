@@ -201,7 +201,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		commentsResult := commentChannelList[idx]
 		commentsOutput := <-commentsResult
 		if commentsOutput.Error != nil {
-			logger.Error().Err(err).Msg("failed to fetch comments")
+			logger.Error().Err(commentsOutput.Error).Msg("failed to fetch comments")
 		} else {
 			task.Comments = commentsOutput.CommentList
 		}
