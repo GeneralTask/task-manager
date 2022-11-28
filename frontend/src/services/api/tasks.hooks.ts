@@ -631,12 +631,17 @@ export const usePostComment = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation((data: TPostCommentData) => postComment(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'overview'],
+        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TPostCommentData) => {
             const userInfo = queryClient.getImmutableQueryData<TUserInfo>('user_info')
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
-            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('overview')])
+            await Promise.all([
+                queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('tasks_v4'),
+                queryClient.cancelQueries('overview'),
+            ])
             if (sections) {
                 const newSections = produce(sections, (draft) => {
                     const task = getTaskFromSections(draft, data.id)
@@ -655,6 +660,24 @@ export const usePostComment = () => {
                 })
 
                 queryClient.setQueryData('tasks', newSections)
+            }
+            if (tasks) {
+                const newTasks = produce(tasks, (draft) => {
+                    const task = draft.find((task) => task.id === data.id)
+                    if (!task) return
+                    task.comments?.unshift({
+                        body: data.body,
+                        created_at: DateTime.local().toISO(),
+                        user: {
+                            DisplayName: userInfo?.linear_display_name ?? 'You',
+                            Email: '',
+                            ExternalID: data.optimisticId,
+                            Name: userInfo?.linear_name ?? 'You',
+                        },
+                    })
+                })
+
+                queryClient.setQueryData('tasks_v4', newTasks)
             }
             if (views) {
                 const newViews = produce(views, (draft) => {
