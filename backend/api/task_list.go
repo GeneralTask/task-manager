@@ -55,6 +55,7 @@ type TaskResult struct {
 	IsDone                   bool                         `json:"is_done"`
 	IsDeleted                bool                         `json:"is_deleted"`
 	IsMeetingPreparationTask bool                         `json:"is_meeting_preparation_task"`
+	RecurringTaskTemplateID  primitive.ObjectID           `json:"recurring_task_template_id,omitempty"`
 	ExternalStatus           *externalStatus              `json:"external_status,omitempty"`
 	AllStatuses              []*externalStatus            `json:"all_statuses,omitempty"`
 	ExternalPriority         *externalPriority            `json:"priority,omitempty"`
@@ -399,6 +400,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 			})
 		}
 		taskResult.AllExternalPriorities = allPriorities
+	}
+
+	if t.RecurringTaskTemplateID != primitive.NilObjectID {
+		taskResult.RecurringTaskTemplateID = t.RecurringTaskTemplateID
 	}
 
 	return taskResult
