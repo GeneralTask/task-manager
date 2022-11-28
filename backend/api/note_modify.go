@@ -57,7 +57,7 @@ func (api *API) NoteModify(c *gin.Context) {
 	if modifyParams.NoteChangeable != (NoteChangeable{}) {
 		isShared := note.IsShared
 		if modifyParams.NoteChangeable.IsShared != nil {
-			isShared = *modifyParams.NoteChangeable.IsShared
+			isShared = modifyParams.NoteChangeable.IsShared
 		}
 		updatedNote := database.Note{
 			Title:     modifyParams.NoteChangeable.Title,
