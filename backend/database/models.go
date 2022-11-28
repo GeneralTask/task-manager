@@ -365,8 +365,8 @@ type DefaultSectionSettings struct {
 type Note struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	UserID    primitive.ObjectID `bson:"user_id"`
-	Title     string             `bson:"title,omitempty"`
-	Body      string             `bson:"body,omitempty"`
+	Title     *string            `bson:"title,omitempty"`
+	Body      *string            `bson:"body,omitempty"`
 	Author    string             `bson:"author,omitempty"`
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
 	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty"`
