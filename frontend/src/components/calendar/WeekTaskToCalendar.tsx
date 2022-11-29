@@ -6,6 +6,7 @@ import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import BaseModal, { BaseModalProps } from '../atoms/BaseModal'
 import { Divider } from '../atoms/SectionDivider'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import CalendarView from '../views/CalendarView'
@@ -64,6 +65,7 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
         })) ?? []
 
     const triggerText = `${selectedSeciton?.name || ''} (${selectedSeciton?.tasks.length || 0})`
+    const closeButton = <GTIconButton icon={icons.x} onClick={() => props.setIsModalOpen(false)} />
     if (!sections) return null
     return (
         <BaseModal {...props}>
@@ -91,6 +93,7 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
                             initialShowMainHeader={false}
                             hasLeftBorder={true}
                             hideContainerShadow={false}
+                            additonalHeaderContent={closeButton}
                         />
                     </CalendarViewContainer>
                 </CalendarAndHeaderContainer>
