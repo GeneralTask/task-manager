@@ -8,7 +8,6 @@ import { TExternalStatus, TOverviewItem, TOverviewView, TTaskSection, TTaskV4, T
 import {
     arrayMoveInPlace,
     createNewTaskHelper,
-    createNewTaskV4Helper,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
@@ -145,22 +144,22 @@ export const useCreateTask = () => {
     const { setOptimisticId } = useQueryContext()
     return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks', 'overview'],
+        invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
         onMutate: async (data: TCreateTaskData) => {
-            if (data.parent_task_id) {
-                updateCacheForOptimsticSubtask(queryClient, data)
-            }
-            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
-            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
                 queryClient.cancelQueries('overview-supported-views'),
                 queryClient.cancelQueries('overview'),
                 queryClient.cancelQueries('tasks'),
                 queryClient.cancelQueries('tasks_v4'),
             ])
+            if (data.parent_task_id) {
+                updateCacheForOptimsticSubtask(queryClient, data)
+                return
+            }
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
-            if (sections && !data.parent_task_id) {
+            if (sections) {
                 const updatedSections = produce(sections, (draft) => {
                     const section = draft.find((section) => section.id === data.taskSectionId)
                     if (!section) return
@@ -169,31 +168,7 @@ export const useCreateTask = () => {
                 })
                 queryClient.setQueryData('tasks', updatedSections)
             }
-            if (tasks_v4) {
-                const updatedTasks = produce(tasks_v4, (draft) => {
-                    const { optimisticId, taskSectionId, title, body, parent_task_id } = data
-                    const newTask = createNewTaskV4Helper({
-                        // map to v4, remove when v3 is removed.
-                        id: optimisticId,
-                        // We're setting id_folder instead of putting the task into a folder directly now
-                        id_folder: taskSectionId,
-                        // Need to set this if it is a subtask
-                        id_parent: parent_task_id,
-                        optimisticId,
-                        title,
-                        body,
-                    })
-                    draft.unshift(newTask)
-                    // Add the id of this new task to the parent's subtask_ids
-                    if (data.parent_task_id) {
-                        const parentTask = draft.find((task) => task.id === data.parent_task_id)
-                        if (!parentTask) return
-                        parentTask.subtask_ids = [data.optimisticId, ...(parentTask.subtask_ids || [])]
-                    }
-                })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
-            }
-            if (views && !data.parent_task_id) {
+            if (views) {
                 const updatedViews = produce(views, (draft) => {
                     const section = draft.find((view) => view.task_section_id === data.taskSectionId)
                     if (!section) return
@@ -207,7 +182,6 @@ export const useCreateTask = () => {
             setOptimisticId(createData.optimisticId, response.task_id)
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-            const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
             if (sections) {
@@ -218,15 +192,6 @@ export const useCreateTask = () => {
                     task.optimisticId = undefined
                 })
                 queryClient.setQueryData('tasks', updatedSections)
-            }
-            if (tasks_v4) {
-                const updatedTasks = produce(tasks_v4, (draft) => {
-                    const task = draft.find((task) => task.id === createData.optimisticId)
-                    if (!task?.id) return
-                    task.id = response.task_id
-                    task.optimisticId = undefined
-                })
-                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
             if (views) {
                 const updatedViews = produce(views, (draft) => {
