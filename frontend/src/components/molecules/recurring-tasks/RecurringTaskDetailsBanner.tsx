@@ -1,9 +1,19 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
+import styled from 'styled-components'
 import { useRecurringTaskTemplates } from '../../../services/api/recurring-tasks.hooks'
 import { useGetTasks } from '../../../services/api/tasks.hooks'
+import { Colors } from '../../../styles'
 import { Banner } from './RecurringTaskTemplateDetailsBanner'
+import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 import { formatRecurrenceRateForRecurringTaskBanner } from './RecurringTaskTemplateModal/recurrenceRate.utils'
+
+const LinkText = styled.span`
+    color: ${Colors.text.purple};
+    cursor: pointer;
+    text-decoration: underline;
+`
 
 interface RecurringTaskDetailsBannerProps {
     templateId: string
@@ -12,6 +22,8 @@ interface RecurringTaskDetailsBannerProps {
 const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetailsBannerProps) => {
     const { data: folders } = useGetTasks()
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
+
+    const [isEditTemplateModalOpen, setIsEditTemplateModalOpen] = useState(false)
 
     const folder = useMemo(() => {
         if (!folders) return null
@@ -33,20 +45,26 @@ const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetai
 
     if (!folder || !recurringTaskTemplate) return null
 
-    console.log({
-        folder,
-        recurringTaskTemplate,
-        templateId,
-        folderId,
-        f: formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate),
-    })
-
     return (
-        <Banner>
-            This task will reappear in the {folder.name} folder{' '}
-            {formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate)} (edit schedule). You can also edit the
-            template for this recurring task.
-        </Banner>
+        <>
+            <Banner>
+                <span>
+                    This task will reappear in the {folder.name} folder{' '}
+                    {formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate)} (
+                    <LinkText onClick={() => setIsEditTemplateModalOpen(true)}>edit schedule</LinkText>). You can also{' '}
+                    <Link to={`/recurring-tasks/${recurringTaskTemplate.id}`}>
+                        edit the template for this recurring task
+                    </Link>
+                    .
+                </span>
+            </Banner>
+            {isEditTemplateModalOpen && (
+                <RecurringTaskTemplateModal
+                    initialRecurringTask={recurringTaskTemplate}
+                    onClose={() => setIsEditTemplateModalOpen(false)}
+                />
+            )}
+        </>
     )
 }
 
