@@ -30,6 +30,9 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 	rate := 0
 	triggerTime := time.Now()
 
+	createdAt := time.Now()
+	createdAt2 := createdAt.Add(time.Hour)
+
 	// enabled and not deleted
 	template1Result, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
 		UserID:               userID,
@@ -39,6 +42,8 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		IsDeleted:            &_false,
 		RecurrenceRate:       &rate,
 		LastBackfillDatetime: primitive.NewDateTimeFromTime(triggerTime),
+		CreatedAt:            primitive.NewDateTimeFromTime(createdAt2),
+		UpdatedAt:            primitive.NewDateTimeFromTime(createdAt2),
 	})
 	assert.NoError(t, err)
 
@@ -51,6 +56,8 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		IsDeleted:            &_false,
 		RecurrenceRate:       &rate,
 		LastBackfillDatetime: primitive.NewDateTimeFromTime(triggerTime),
+		CreatedAt:            primitive.NewDateTimeFromTime(createdAt),
+		UpdatedAt:            primitive.NewDateTimeFromTime(createdAt),
 	})
 	assert.NoError(t, err)
 
@@ -105,7 +112,7 @@ func TestRecurringTaskTemplateList(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`[{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":true,"is_deleted":false,"recurrence_rate":0,"last_backfill_datetime":"%s"},{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":false,"is_deleted":false,"recurrence_rate":0,"last_backfill_datetime":"%s"}]`, template1Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), template2Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00")),
+			fmt.Sprintf(`[{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":false,"is_deleted":false,"recurrence_rate":0,"last_backfill_datetime":"%s","created_at":"%s","updated_at":"%s"},{"id":"%s","user_id":"%s","title":"recurring task!","id_task_section":"000000000000000000000000","priority_normalized":3,"is_enabled":true,"is_deleted":false,"recurrence_rate":0,"last_backfill_datetime":"%s","created_at":"%s","updated_at":"%s"}]`, template2Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), createdAt.Format("2006-01-02T15:04:05.999Z07:00"), createdAt.Format("2006-01-02T15:04:05.999Z07:00"), template1Result.InsertedID.(primitive.ObjectID).Hex(), userID.Hex(), triggerTime.Format("2006-01-02T15:04:05.999Z07:00"), createdAt2.Format("2006-01-02T15:04:05.999Z07:00"), createdAt2.Format("2006-01-02T15:04:05.999Z07:00")),
 			string(body))
 	})
 }

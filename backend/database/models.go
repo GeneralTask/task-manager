@@ -138,6 +138,9 @@ type RecurringTaskTemplate struct {
 	DayToCreateTask              *int               `bson:"day_to_create_task,omitempty" json:"day_to_create_task,omitempty"`
 	MonthToCreateTask            *int               `bson:"month_to_create_task,omitempty" json:"month_to_create_task,omitempty"`
 	LastBackfillDatetime         primitive.DateTime `bson:"last_backfill_datetime,omitempty" json:"last_backfill_datetime,omitempty"`
+	// created at
+	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type PullRequest struct {
