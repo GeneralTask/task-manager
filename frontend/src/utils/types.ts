@@ -41,6 +41,7 @@ export interface TTask {
     is_done: boolean
     is_deleted: boolean
     is_meeting_preparation_task: boolean
+    recurring_task_template_id: string
     comments?: TLinearComment[]
     isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
@@ -72,6 +73,7 @@ export interface TTaskV4 {
     slack_message_params?: TSlackMessageParams
     comments?: TLinearComment[]
     external_status?: TExternalStatus
+    recurring_task_template_id?: string
 
     optimisticId?: string // Used only internally, not sent in response
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)

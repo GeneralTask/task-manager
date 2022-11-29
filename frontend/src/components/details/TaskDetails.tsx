@@ -6,6 +6,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
     DETAILS_SYNC_TIMEOUT,
+    EMPTY_MONGO_OBJECT_ID,
     GENERAL_TASK_SOURCE_NAME,
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
@@ -36,6 +37,7 @@ import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
+import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
@@ -339,8 +341,17 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <Spinner />
             ) : (
                 <>
-                    {isRecurringTaskTemplate && (
-                        <RecurringTaskTemplateDetailsBanner recurringTask={task as TRecurringTaskTemplate} />
+                    {!isRecurringTaskTemplate &&
+                        currentTask.recurring_task_template_id &&
+                        currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
+                        params.section && (
+                            <RecurringTaskDetailsBanner
+                                templateId={'6385dea063f1f295e7ec70cd'}
+                                folderId={params.section}
+                            />
+                        )}
+                    {isRecurringTaskTemplate && task.id_task_section && (
+                        <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody
                         id={currentTask.id}
