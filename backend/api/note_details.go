@@ -15,7 +15,7 @@ func (api *API) NoteDetails(c *gin.Context) {
 		return
 	}
 
-	note, err := database.GetNoteWithoutAuthentication(api.DB, noteID)
+	note, err := database.GetSharedNote(api.DB, noteID)
 	if err != nil {
 		Handle404(c)
 		return
