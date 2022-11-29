@@ -7,7 +7,7 @@ import { useGetTasks } from '../../../services/api/tasks.hooks'
 import { Colors } from '../../../styles'
 import { Banner } from './RecurringTaskTemplateDetailsBanner'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
-import { formatRecurrenceRateForRecurringTaskBanner } from './RecurringTaskTemplateModal/recurrenceRate.utils'
+import { formatRecurrenceRateForRecurringTaskBanner } from './recurrenceRate.utils'
 
 const LinkText = styled.span`
     color: ${Colors.text.purple};

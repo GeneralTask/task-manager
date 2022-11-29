@@ -1,6 +1,6 @@
-import { RecurrenceRate } from '../../../../utils/enums'
-import { getOrdinal } from '../../../../utils/time'
-import { TRecurringTaskTemplate } from '../../../../utils/types'
+import { RecurrenceRate } from '../../../utils/enums'
+import { getOrdinal } from '../../../utils/time'
+import { TRecurringTaskTemplate } from '../../../utils/types'
 
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -12,7 +12,7 @@ export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate
             return 'every weekday'
         case RecurrenceRate.WEEKLY:
             if (recurringTaskTemplate.day_to_create_task) {
-                return `on ${WEEK_DAYS[recurringTaskTemplate.day_to_create_task]} of every week`
+                return `on ${WEEK_DAYS[recurringTaskTemplate.day_to_create_task - 1]} of every week`
             } else return 'every week'
         case RecurrenceRate.MONTHLY:
             if (recurringTaskTemplate.day_to_create_task) {
