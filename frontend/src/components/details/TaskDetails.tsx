@@ -318,7 +318,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                   { id: currentTask.id, priority_normalized: priority },
                                   currentTask.optimisticId
                               )
-                            : modifyTask({ id: currentTask.id, priorityNormalized: priority }, currentTask.id)
+                            : modifyTask({ id: currentTask.id, priorityNormalized: priority }, currentTask.optimisticId)
                     }
                     disabled={isInTrash}
                 />
