@@ -7,6 +7,7 @@ import { icons } from '../../styles/images'
 import { TRecurringTaskTemplate } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
+import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import RecurringTask from '../molecules/recurring-tasks/RecurringTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -50,10 +51,15 @@ const RecurringTasksView = () => {
                     ))
                 )}
             </ScrollableListTemplate>
-            <EmptyDetails
-                icon={icons.arrows_repeat}
-                text={`Details view coming soon for ${selectedRecurringTask?.title}`}
-            />
+            {selectedRecurringTask ? (
+                <TaskDetails
+                    task={selectedRecurringTask}
+                    link={`/recurring-tasks/${selectedRecurringTask.id}`}
+                    isRecurringTaskTemplate
+                />
+            ) : (
+                <EmptyDetails icon={icons.arrows_repeat} text={`Details view coming soon`} />
+            )}
         </>
     )
 }
