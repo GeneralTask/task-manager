@@ -21,6 +21,7 @@ export const FIVE_SECOND_TIMEOUT = 5 * 1000
 export const SINGLE_SECOND_INTERVAL = 1000
 export const EVENT_UNDO_TIMEOUT = 5 * 1000
 export const DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT = 0.5 * 1000
+export const QUEUED_MUTATION_DEBOUNCE = 1 * 1000
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
