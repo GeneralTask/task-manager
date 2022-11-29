@@ -34,7 +34,7 @@ interface EventDetailPopoverProps {
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
-    const { setSelectedEvent } = useCalendarContext()
+    const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')
@@ -100,7 +100,7 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
         'close',
         useCallback(() => setIsOpen(false), [])
     )
-    useKeyboardShortcut('deleteCalendarEvent', onDelete)
+    useKeyboardShortcut('deleteCalendarEvent', onDelete, event.id !== selectedEvent?.id)
 
     const content = (
         <EventBoxStyle>
