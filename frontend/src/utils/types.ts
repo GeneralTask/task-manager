@@ -61,6 +61,7 @@ export interface TTaskV4 {
     priority_normalized: number
     due_date: string
     source: TTaskSource
+    sender: string // Slack sender name
     is_done: boolean
     is_deleted: boolean
     created_at: string
@@ -76,6 +77,8 @@ export interface TTaskV4 {
 
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
+
+export type TTaskUnion = TTask | TTaskV4
 
 export interface TMeetingPreparationParams {
     datetime_start: string

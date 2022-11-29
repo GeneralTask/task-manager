@@ -1,13 +1,14 @@
 import { useCallback, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useItemSelectionController } from '../../hooks'
+import { useItemSelectionController, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
+import { useGetTasksV4 } from '../../services/api/tasksv4.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import { doesAccountNeedRelinking, isLinearLinked } from '../../utils/utils'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -23,19 +24,25 @@ const LinearBodyHeader = styled.div`
 `
 
 const LinearView = () => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: taskSections } = useGetTasks()
+    const { data: tasks } = useGetTasksV4()
     const { linearIssueId } = useParams()
     const navigate = useNavigate()
 
-    const linearTasks = useMemo(() => {
-        const tasks =
-            taskSections
-                ?.filter((section) => !section.is_done && !section.is_trash)
-                .flatMap((section) => section.tasks) ?? []
-        return tasks.filter((task) => task.source.name === 'Linear')
-    }, [taskSections])
+    const linearTasks = useMemo((): TTaskUnion[] => {
+        if (isPreviewMode) {
+            return tasks?.filter((task) => !task.is_done && !task.is_deleted && task.source.name === 'Linear') || []
+        } else {
+            const filteredTasks =
+                taskSections
+                    ?.filter((section) => !section.is_done && !section.is_trash)
+                    .flatMap((section) => section.tasks) ?? []
+            return filteredTasks.filter((task) => task.source.name === 'Linear')
+        }
+    }, [taskSections, isPreviewMode])
 
-    const selectTask = useCallback((task: TTask) => {
+    const selectTask = useCallback((task: TTaskUnion) => {
         navigate(`/linear/${task.id}`)
         Log(`linear_task_select__/linear/${task.id}`)
     }, [])

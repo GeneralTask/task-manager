@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { TASK_PRIORITIES } from '../../constants'
 import { useModifyTask } from '../../services/api/tasks.hooks'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface PriorityDropdownProps {
-    task: TTask
+    task: TTaskUnion
     disabled?: boolean
 }
 const PriorityDropdown = ({ task, disabled }: PriorityDropdownProps) => {

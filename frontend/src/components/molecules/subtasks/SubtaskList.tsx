@@ -37,7 +37,8 @@ const TaskListContainer = styled.div`
 
 interface SubtasksProps {
     taskId: string
-    subtasks: TTask[]
+    subtasks?: TTask[]
+    subtask_ids?: string[]
 }
 
 const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
@@ -80,7 +81,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                         hideCreateNewSubtask={() => setShowCreateNewSubtask(false)}
                     />
                 )}
-                {subtasks.map((subtask, index) => {
+                {subtasks?.map((subtask, index) => {
                     return (
                         <ReorderDropContainer
                             key={subtask.id}
@@ -95,7 +96,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                 })}
             </TaskListContainer>
             <ReorderDropContainer
-                index={subtasks.length + 1}
+                index={(subtasks?.length ?? 0) + 1}
                 acceptDropType={DropType.SUBTASK}
                 onReorder={handleReorder}
                 indicatorType="TOP_ONLY"

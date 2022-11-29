@@ -3,13 +3,13 @@ import { DEFAULT_SECTION_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import { getSectionFromTask } from '../../utils/utils'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface FolderDropdownProps {
-    task: TTask
+    task: TTaskUnion
 }
 const FolderDropdown = ({ task }: FolderDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)

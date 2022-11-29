@@ -262,6 +262,7 @@ export const createNewTaskV4Helper = (data: Partial<TTaskV4> & { optimisticId: s
         subtask_ids: data.subtask_ids,
         meeting_preparation_params: data.meeting_preparation_params,
         slack_message_params: data.slack_message_params,
+        sender: data.sender ?? '',
         comments: data.comments,
         external_status: data.external_status,
         all_statuses: data.all_statuses,

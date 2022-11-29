@@ -5,12 +5,12 @@ import { TIconType } from '../atoms/Icon'
 
 const MENU_WIDTH = '192px'
 
-export const MenuTriggerShared = css<{ unstyled?: boolean }>`
+export const MenuTriggerShared = css<{ isunstyled?: boolean }>`
     all: unset;
     width: 100%;
     height: 100%;
-    ${({ unstyled }) =>
-        !unstyled &&
+    ${({ isunstyled }) =>
+        !isunstyled &&
         `
         border-radius: ${Border.radius.small};
         &:focus {

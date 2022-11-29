@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
 import NUXTaskBody from './NUXTaskBody'
 
@@ -11,12 +11,12 @@ const BodyContainer = styled.div`
 `
 
 interface TaskBodyProps {
-    task: TTask
+    task: TTaskUnion
     onChange: (val: string) => void
     disabled?: boolean
 }
 const TaskBody = ({ task, onChange, disabled }: TaskBodyProps) => {
-    if (!task.nux_number_id) {
+    if (!('nux_number_id' in task ? task.nux_number_id : task.id_nux_number)) {
         return (
             <BodyContainer>
                 <GTTextField

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { linearStatus } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface LinearStatusDropdownProps {
-    task: TTask
+    task: TTaskUnion
     disabled?: boolean
 }
 const LinearStatusDropdown = ({ task, disabled }: LinearStatusDropdownProps) => {

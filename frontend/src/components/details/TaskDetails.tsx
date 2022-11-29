@@ -14,7 +14,7 @@ import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -98,8 +98,8 @@ const SYNC_MESSAGES = {
 }
 
 interface TaskDetailsProps {
-    task: TTask
-    subtask?: TTask
+    task: TTaskUnion
+    subtask?: TTaskUnion
     link: string
 }
 const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
@@ -117,7 +117,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const { is_meeting_preparation_task, meeting_preparation_params } = currentTask
+    const { meeting_preparation_params } = currentTask
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
@@ -227,8 +227,10 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && <FolderDropdown task={currentTask} />}
+                                {/* TODO: Sections */}
+                                {!meeting_preparation_params && <FolderDropdown task={currentTask} />}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
+                                {/* TODO: Sections */}
                                 <TaskActionsDropdown task={currentTask} />
                             </MarginLeftAuto>
                         )}
@@ -243,8 +245,9 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
                     disabled={
                         !!currentTask.optimisticId ||
-                        is_meeting_preparation_task ||
-                        currentTask.nux_number_id > 0 ||
+                        !!meeting_preparation_params ||
+                        ('nux_number_id' in currentTask ? currentTask.nux_number_id : currentTask.id_nux_number ?? 0) >
+                            0 ||
                         isInTrash
                     }
                     onChange={(val) => onEdit({ id: currentTask.id, title: val })}
@@ -281,7 +284,12 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                         disabled={isInTrash}
                     />
                     {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
-                        <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
+                        // TODO: Sections
+                        <SubtaskList
+                            taskId={currentTask.id}
+                            subtasks={'sub_tasks' in currentTask ? currentTask.sub_tasks : undefined}
+                            subtask_ids={'subtask_ids' in currentTask ? currentTask.subtask_ids : undefined}
+                        />
                     )}
                     {currentTask.external_status && (
                         <CommentContainer>

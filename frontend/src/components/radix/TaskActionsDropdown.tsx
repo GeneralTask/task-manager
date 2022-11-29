@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks, useMarkTaskDoneOrDeleted } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
-import { TTask } from '../../utils/types'
+import { TTaskUnion } from '../../utils/types'
 import { getSectionFromTask } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -11,7 +11,7 @@ import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface TaskActionsDropdownProps {
-    task: TTask
+    task: TTaskUnion
 }
 const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
