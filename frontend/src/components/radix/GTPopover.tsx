@@ -34,7 +34,7 @@ const GTPopover = ({
 }: GTPopoverProps) => {
     return (
         <Popover.Root modal={modal} open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger disabled={disabled} isunstyled={unstyledTrigger}>
+            <PopoverTrigger disabled={disabled} unstyled={unstyledTrigger}>
                 {trigger}
             </PopoverTrigger>
             {content && (
