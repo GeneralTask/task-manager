@@ -61,6 +61,14 @@ const NavigationSectionLinks = () => {
             setIsAddSectionInputVisible(false)
         }
     }
+    const onBlurHandler = () => {
+        if (sectionName.trim() !== '') {
+            addTaskSection({ optimisticId: uuidv4(), name: sectionName, id_ordering: folders?.length })
+        }
+        setIsAddSectionInputVisible(false)
+        setSectionName('')
+    }
+
     const inputRef = useRef<HTMLInputElement>(null)
     const onOpenAddSectionInputHandler = useCallback(() => {
         setIsAddSectionInputVisible(true)
@@ -103,8 +111,6 @@ const NavigationSectionLinks = () => {
     const [sectionBeingEdited, setSectionBeingEdited] = useState<TTaskSection | null>(null)
     const [updatedSectionName, setUpdatedSectionName] = useState<string>('')
     const ref = useRef<HTMLDivElement>(null)
-
-    useClickOutside(ref, () => setSectionBeingEdited(null))
 
     const onKeyDownHandlerSectionName = (e: React.KeyboardEvent<HTMLInputElement>) => {
         e.stopPropagation()
@@ -211,6 +217,7 @@ const NavigationSectionLinks = () => {
                                     onChange={onKeyChangeHandler}
                                     onKeyDown={onKeyDownHandler}
                                     placeholder="Add Folder"
+                                    onBlur={onBlurHandler}
                                 />
                             </InputContainer>
                         </AddSectionContainer>
