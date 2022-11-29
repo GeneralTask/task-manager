@@ -1,7 +1,13 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
-import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
+import {
+    DONE_SECTION_ID,
+    EMPTY_MONGO_OBJECT_ID,
+    TASK_MARK_AS_DONE_TIMEOUT,
+    TASK_REFETCH_INTERVAL,
+    TRASH_SECTION_ID,
+} from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TExternalStatus, TOverviewItem, TOverviewView, TTask, TTaskSection, TUserInfo } from '../../utils/types'
@@ -135,6 +141,7 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
         is_done: false,
         is_deleted: false,
         is_meeting_preparation_task: false,
+        recurring_task_template_id: EMPTY_MONGO_OBJECT_ID,
         nux_number_id: 0,
         created_at: '',
         updated_at: '',
@@ -208,6 +215,7 @@ export const useCreateTask = () => {
                         is_done: false,
                         is_deleted: false,
                         is_meeting_preparation_task: false,
+                        recurring_task_template_id: EMPTY_MONGO_OBJECT_ID,
                         nux_number_id: 0,
                         created_at: '',
                         updated_at: '',

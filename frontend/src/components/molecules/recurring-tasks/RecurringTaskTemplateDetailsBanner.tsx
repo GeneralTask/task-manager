@@ -6,12 +6,11 @@ import { useModifyRecurringTask } from '../../../services/api/recurring-tasks.ho
 import { useGetTasks } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
-import { TRecurringTaskTemplate } from '../../../utils/types'
 import Flex from '../../atoms/Flex'
 import GTButton from '../../atoms/buttons/GTButton'
 import FolderSelector from '../FolderSelector'
 
-const Banner = styled.div`
+export const Banner = styled.div`
     border-radius: ${Border.radius.mini};
     background-color: ${Colors.background.light};
     padding: ${Spacing._8};
@@ -26,20 +25,19 @@ const FolderButton = styled(GTButton)`
 `
 
 interface RecurringTaskTemplateDetailsBannerProps {
-    recurringTask: TRecurringTaskTemplate
+    id: string
+    folderId: string
 }
-const RecurringTaskTemplateDetailsBanner = ({ recurringTask }: RecurringTaskTemplateDetailsBannerProps) => {
+const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTemplateDetailsBannerProps) => {
     const { data: folders } = useGetTasks()
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const folder = useMemo(() => {
-        const folder = folders?.find((folder) => folder.id === recurringTask.id_task_section)
+        const folder = folders?.find((folder) => folder.id === folderId)
         if (!folder) {
-            Sentry.captureMessage(
-                'Recurring task has invalid id_task_section with id: ' + recurringTask.id_task_section
-            )
+            Sentry.captureMessage('Recurring task template has invalid id_task_section with id: ' + folderId)
         }
         return folder
-    }, [folders, recurringTask])
+    }, [folders, folderId])
     if (!folder) return null
     return (
         <Banner>
@@ -62,13 +60,10 @@ const RecurringTaskTemplateDetailsBanner = ({ recurringTask }: RecurringTaskTemp
                 <FolderSelector
                     value={folder.id}
                     onChange={(newFolderId) =>
-                        modifyRecurringTask(
-                            {
-                                id: recurringTask.id,
-                                id_task_section: newFolderId,
-                            },
-                            recurringTask.optimisticId
-                        )
+                        modifyRecurringTask({
+                            id,
+                            id_task_section: newFolderId,
+                        })
                     }
                     renderTrigger={(isOpen, setIsOpen) => (
                         <FolderButton
