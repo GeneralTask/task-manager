@@ -51,8 +51,7 @@ export const useCreateTaskV4 = () => {
                     // Add the id of this new task to the parent's subtask_ids
                     if (data.parent_task_id) {
                         const parentTask = draft.find((task) => task.id === data.parent_task_id)
-                        if (!parentTask) return
-                        parentTask.subtask_ids = [data.optimisticId, ...(parentTask.subtask_ids || [])]
+                        if (parentTask) parentTask.subtask_ids = [data.optimisticId, ...(parentTask.subtask_ids || [])]
                     }
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
