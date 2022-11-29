@@ -85,6 +85,8 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.POST("/recurring_task_templates/create/", handlers.RecurringTaskTemplateCreate)
 	router.PATCH("/recurring_task_templates/modify/:template_id/", handlers.RecurringTaskTemplateModify)
 
+	router.GET("/notes/", handlers.NotesList)
+
 	router.GET("/ping_authed/", handlers.Ping)
 
 	router.GET("/settings/", handlers.SettingsList)
