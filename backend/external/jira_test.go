@@ -798,6 +798,7 @@ func TestModifyJIRATask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Now())
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Title: &newName,
@@ -805,6 +806,7 @@ func TestModifyJIRATask(t *testing.T) {
 			ExternalPriority: &database.ExternalTaskPriority{
 				ExternalID: "1",
 			},
+			DueDate: &dueDate,
 		}, &database.Task{})
 		assert.NoError(t, err)
 	})
@@ -833,6 +835,26 @@ func TestModifyJIRATask(t *testing.T) {
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Body: &newBody,
+		}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateZeroDueDateSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newName := "New Title"
+		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
+			Title: &newName,
+			Body:  &newBody,
+			ExternalPriority: &database.ExternalTaskPriority{
+				ExternalID: "1",
+			},
+			DueDate: &dueDate,
 		}, &database.Task{})
 		assert.NoError(t, err)
 	})

@@ -482,8 +482,8 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 		}
 	}
 
-	if updateFields.Title != nil || updateFields.Body != nil || updateFields.ExternalPriority != nil {
-		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields)
+	if updateFields.Title != nil || updateFields.Body != nil || updateFields.ExternalPriority != nil || updateFields.DueDate != nil {
+		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields, task)
 		if err != nil {
 			return err
 		}
@@ -533,6 +533,7 @@ type JIRAUpdateFields struct {
 	Summary     string             `json:"summary,omitempty"`
 	Description *JIRARichTextField `json:"description,omitempty"`
 	Priority    *JIRAPriority      `json:"priority,omitempty"`
+	DueDate     *string            `json:"duedate"`
 }
 
 type JIRARichTextField struct {
@@ -547,7 +548,7 @@ type JIRAFieldContent struct {
 	Text    string             `json:"text,omitempty"`
 }
 
-func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task, task *database.Task) error {
 	apiBaseURL := jira.getJIRABaseURL(siteConfiguration, jira.Atlassian.Config.ConfigValues.IssueUpdateURL)
 
 	var updateRequest JIRAUpdateRequest
@@ -587,6 +588,16 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 		updateRequest.Fields.Priority = &JIRAPriority{
 			ID: updateFields.ExternalPriority.ExternalID,
 		}
+	}
+	if updateFields.DueDate != nil && updateFields.DueDate.Time().Unix() != 0 {
+		dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
+		updateRequest.Fields.DueDate = &dueDateString
+	}
+	if updateFields.DueDate == nil && task.DueDate != nil && task.DueDate.Time().Unix() != 0 {
+		// we need this logic because we need to be able to set the duedate value to nil if the user wants to unset
+		// so if it's not being updated, we just pass in the existing value
+		dueDateString := task.DueDate.Time().Format("2006-01-02")
+		updateRequest.Fields.DueDate = &dueDateString
 	}
 
 	updateRequestBytes, err := json.Marshal(&updateRequest)
