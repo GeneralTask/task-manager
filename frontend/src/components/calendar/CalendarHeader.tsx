@@ -52,6 +52,7 @@ interface CalendarHeaderProps {
     showMainHeader?: boolean
     showDateHeader?: boolean
     ignoreCalendarContext?: boolean
+    additionalHeaderContent?: React.ReactNode
 }
 export default function CalendarHeader({
     date,
@@ -61,6 +62,7 @@ export default function CalendarHeader({
     dayViewDate,
     setDayViewDate,
     ignoreCalendarContext,
+    additionalHeaderContent,
 }: CalendarHeaderProps) {
     const { calendarType, setCalendarType, setIsCollapsed, isCollapsed } = useCalendarContext(ignoreCalendarContext)
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
@@ -166,6 +168,7 @@ export default function CalendarHeader({
                         <ButtonContainer>
                             <GTIconButton onClick={selectPrevious} icon={icons.caret_left} />
                             <GTIconButton onClick={selectNext} icon={icons.caret_right} />
+                            {additionalHeaderContent}
                         </ButtonContainer>
                     </HeaderBodyContainer>
                 </PaddedContainer>
