@@ -201,6 +201,8 @@ func TestGetMeetingPreparationTasks(t *testing.T) {
 }
 
 func TestGetNotes(t *testing.T) {
+	true_val := true
+	false_val := false
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -213,7 +215,7 @@ func TestGetNotes(t *testing.T) {
 		"foobar_source",
 		&Note{
 			UserID:   userID,
-			IsShared: true,
+			IsShared: &true_val,
 		},
 	)
 	assert.NoError(t, err)
@@ -224,7 +226,7 @@ func TestGetNotes(t *testing.T) {
 		"foobar_source",
 		&Note{
 			UserID:   userID,
-			IsShared: false,
+			IsShared: &false_val,
 		},
 	)
 	assert.NoError(t, err)
@@ -235,7 +237,7 @@ func TestGetNotes(t *testing.T) {
 		"foobar_source",
 		&Note{
 			UserID:   notUserID,
-			IsShared: true,
+			IsShared: &true_val,
 		},
 	)
 	assert.NoError(t, err)

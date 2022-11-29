@@ -364,11 +364,7 @@ func GetNotes(db *mongo.Database, userID primitive.ObjectID) (*[]Note, error) {
 	noteCollection := GetNoteCollection(db)
 	cursor, err := noteCollection.Find(
 		context.Background(),
-		bson.M{
-			"$and": []bson.M{
-				{"user_id": userID},
-			},
-		},
+		bson.M{"user_id": userID},
 	)
 	if err != nil {
 		logger := logging.GetSentryLogger()

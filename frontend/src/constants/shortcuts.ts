@@ -220,8 +220,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     sendFeedback: {
         label: 'Send us feedback',
-        key: `${NO_SHORTCUT_KEY}`,
-        keyLabel: `${NO_SHORTCUT_KEY_LABEL}`,
+        key: NO_SHORTCUT_KEY,
+        keyLabel: NO_SHORTCUT_KEY_LABEL,
         category: 'General',
         icon: 'megaphone',
     },

@@ -138,6 +138,9 @@ type RecurringTaskTemplate struct {
 	DayToCreateTask              *int               `bson:"day_to_create_task,omitempty" json:"day_to_create_task,omitempty"`
 	MonthToCreateTask            *int               `bson:"month_to_create_task,omitempty" json:"month_to_create_task,omitempty"`
 	LastBackfillDatetime         primitive.DateTime `bson:"last_backfill_datetime,omitempty" json:"last_backfill_datetime,omitempty"`
+	// created at
+	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type PullRequest struct {
@@ -363,12 +366,12 @@ type DefaultSectionSettings struct {
 }
 
 type Note struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	UserID    primitive.ObjectID `bson:"user_id"`
-	Title     string             `bson:"title,omitempty"`
-	Body      string             `bson:"body,omitempty"`
-	Author    string             `bson:"author,omitempty"`
-	CreatedAt primitive.DateTime `bson:"created_at,omitempty"`
-	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty"`
-	IsShared  bool               `bson:"is_shared,omitempty"`
+	ID                 primitive.ObjectID `bson:"_id,omitempty"`
+	UserID             primitive.ObjectID `bson:"user_id"`
+	Title              *string            `bson:"title,omitempty"`
+	Body               *string            `bson:"body,omitempty"`
+	AuthorDisplayEmail string             `bson:"author_display_email,omitempty"`
+	CreatedAt          primitive.DateTime `bson:"created_at,omitempty"`
+	UpdatedAt          primitive.DateTime `bson:"updated_at,omitempty"`
+	IsShared           *bool              `bson:"is_shared,omitempty"`
 }

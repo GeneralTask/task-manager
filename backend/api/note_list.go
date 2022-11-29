@@ -49,13 +49,21 @@ func (api *API) noteListToNoteResultList(notes *[]database.Note, userID primitiv
 }
 
 func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
+	body := ""
+	if note.Body != nil {
+		body = *note.Body
+	}
+	title := ""
+	if note.Title != nil {
+		title = *note.Title
+	}
 	return &NoteResult{
 		ID:        note.ID,
-		Title:     note.Title,
-		Body:      note.Body,
-		Author:    note.Author,
+		Title:     title,
+		Body:      body,
+		Author:    note.AuthorDisplayEmail,
 		CreatedAt: note.CreatedAt,
 		UpdatedAt: note.UpdatedAt,
-		IsShared:  note.IsShared,
+		IsShared:  *note.IsShared,
 	}
 }
