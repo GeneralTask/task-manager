@@ -42,6 +42,7 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
+    keepOpenOnSelect?: boolean
 }
 
 const GTDropdownMenu = ({
@@ -54,6 +55,7 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
+    keepOpenOnSelect = false,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
@@ -81,6 +83,7 @@ const GTDropdownMenu = ({
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             disabled={item.disabled}
                                             $textColor={item.textColor}
+                                            onSelect={keepOpenOnSelect ? (e) => e.preventDefault() : emptyFunction}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()

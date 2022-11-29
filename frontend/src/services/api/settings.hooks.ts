@@ -21,6 +21,9 @@ export type TSettingsKey =
     | TaskSortPreference
     | TaskSortDirection
     | TaskFilterPreference
+    | 'sidebar_linear_preference'
+    | 'sidebar_github_preference'
+    | 'sidebar_slack_preference'
 
 type TUpdateSettingsData = {
     key: TSettingsKey
