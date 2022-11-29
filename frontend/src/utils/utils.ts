@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TTask, TTaskSection, TTaskV4 } from './types'
+import { TLinkedAccount, TTask, TTaskSection } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -206,64 +206,3 @@ export const isValidDueDate = (date: Date | null) => {
 }
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-export const createNewTaskHelper = (data: Partial<TTask> & { optimisticId: string; title: string }): TTask => {
-    return {
-        id: data.optimisticId,
-        optimisticId: data.optimisticId,
-        id_ordering: data.id_ordering ?? 0.5,
-        title: data.title,
-        body: data.body ?? '',
-        deeplink: data.deeplink ?? '',
-        sent_at: data.sent_at ?? '',
-        priority_normalized: data.priority_normalized ?? 0,
-        time_allocated: data.time_allocated ?? 0,
-        due_date: data.due_date ?? '',
-        source: data.source ?? {
-            name: 'General Task',
-            logo: '',
-            logo_v2: 'generaltask',
-            is_completable: false,
-            is_replyable: false,
-        },
-        sender: data.sender ?? '',
-        is_done: data.is_done ?? false,
-        is_deleted: data.is_deleted ?? false,
-        is_meeting_preparation_task: data.is_meeting_preparation_task ?? false,
-        nux_number_id: data.nux_number_id ?? 0,
-        created_at: data.created_at ?? '',
-        updated_at: data.updated_at ?? '',
-    }
-}
-export const createNewTaskV4Helper = (data: Partial<TTaskV4> & { optimisticId: string; title: string }): TTaskV4 => {
-    return {
-        id: data.optimisticId,
-        optimisticId: data.optimisticId,
-        id_ordering: data.id_ordering ?? 0.5,
-        title: data.title,
-        deeplink: data.deeplink ?? '',
-        body: data.body ?? '',
-        priority_normalized: data.priority_normalized ?? 0,
-        due_date: data.due_date ?? '',
-        source: data.source ?? {
-            name: 'General Task',
-            logo: '',
-            logo_v2: 'generaltask',
-            is_completable: false,
-            is_replyable: false,
-        },
-        is_done: data.is_done ?? false,
-        is_deleted: data.is_deleted ?? false,
-        created_at: data.created_at ?? '',
-        updated_at: data.updated_at ?? '',
-        id_folder: data.id_folder ?? '',
-        id_nux_number: data.id_nux_number,
-        id_parent: data.id_parent,
-        subtask_ids: data.subtask_ids,
-        meeting_preparation_params: data.meeting_preparation_params,
-        slack_message_params: data.slack_message_params,
-        comments: data.comments,
-        external_status: data.external_status,
-        all_statuses: data.all_statuses,
-    }
-}

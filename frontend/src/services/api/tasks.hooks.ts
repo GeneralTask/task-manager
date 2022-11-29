@@ -4,17 +4,24 @@ import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TExternalStatus, TOverviewItem, TOverviewView, TTaskSection, TTaskV4, TUserInfo } from '../../utils/types'
+import {
+    TExternalStatus,
+    TOverviewItem,
+    TOverviewView,
+    TTask,
+    TTaskSection,
+    TTaskV4,
+    TUserInfo,
+} from '../../utils/types'
 import {
     arrayMoveInPlace,
-    createNewTaskHelper,
-    createNewTaskV4Helper,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
 import { GTQueryClient, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
     title: string
@@ -696,5 +703,34 @@ const postComment = async (data: TPostCommentData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('postComment failed')
+    }
+}
+
+export const createNewTaskHelper = (data: Partial<TTask> & { optimisticId: string; title: string }): TTask => {
+    return {
+        id: data.optimisticId,
+        optimisticId: data.optimisticId,
+        id_ordering: data.id_ordering ?? 0.5,
+        title: data.title,
+        body: data.body ?? '',
+        deeplink: data.deeplink ?? '',
+        sent_at: data.sent_at ?? '',
+        priority_normalized: data.priority_normalized ?? 0,
+        time_allocated: data.time_allocated ?? 0,
+        due_date: data.due_date ?? '',
+        source: data.source ?? {
+            name: 'General Task',
+            logo: '',
+            logo_v2: 'generaltask',
+            is_completable: false,
+            is_replyable: false,
+        },
+        sender: data.sender ?? '',
+        is_done: data.is_done ?? false,
+        is_deleted: data.is_deleted ?? false,
+        is_meeting_preparation_task: data.is_meeting_preparation_task ?? false,
+        nux_number_id: data.nux_number_id ?? 0,
+        created_at: data.created_at ?? '',
+        updated_at: data.updated_at ?? '',
     }
 }
