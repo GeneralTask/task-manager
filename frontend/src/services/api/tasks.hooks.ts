@@ -157,6 +157,7 @@ export const useCreateTask = () => {
                 queryClient.cancelQueries('overview-supported-views'),
                 queryClient.cancelQueries('overview'),
                 queryClient.cancelQueries('tasks'),
+                queryClient.cancelQueries('tasks_v4'),
             ])
 
             if (sections && !data.parent_task_id) {
