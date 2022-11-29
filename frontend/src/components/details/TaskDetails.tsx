@@ -30,11 +30,13 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
+import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
+import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
-import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -248,28 +250,29 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && (
-                                    <FolderDropdown
+                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && (
+                                    <FolderSelector
                                         value={(isRecurringTaskTemplate ? task.id_task_section : params.section) ?? ''}
-                                        onChange={(sectionId) =>
-                                            isRecurringTaskTemplate
-                                                ? modifyRecurringTask(
-                                                      {
-                                                          id: currentTask.id,
-                                                          id_task_section: sectionId,
-                                                      },
-                                                      currentTask.optimisticId
-                                                  )
-                                                : reorderTask(
-                                                      {
-                                                          id: currentTask.id,
-                                                          dropSectionId: sectionId,
-                                                          dragSectionId: params.section,
-                                                          orderingId: 1,
-                                                      },
-                                                      currentTask.optimisticId
-                                                  )
+                                        onChange={(newFolderId) =>
+                                            reorderTask(
+                                                {
+                                                    id: currentTask.id,
+                                                    dropSectionId: newFolderId,
+                                                    dragSectionId: params.section,
+                                                    orderingId: 1,
+                                                },
+                                                currentTask.optimisticId
+                                            )
                                         }
+                                        renderTrigger={(isOpen, setIsOpen) => (
+                                            <GTIconButton
+                                                icon={icons.folder}
+                                                onClick={() => setIsOpen(!isOpen)}
+                                                forceShowHoverEffect={isOpen}
+                                                asDiv
+                                            />
+                                        )}
+                                        enableKeyboardShortcut
                                     />
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
@@ -334,6 +337,9 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <Spinner />
             ) : (
                 <>
+                    {isRecurringTaskTemplate && (
+                        <RecurringTaskTemplateDetailsBanner recurringTask={task as TRecurringTaskTemplate} />
+                    )}
                     <TaskBody
                         id={currentTask.id}
                         body={currentTask.body ?? ''}
