@@ -170,14 +170,17 @@ export const useCreateTask = () => {
             }
             if (tasks_v4) {
                 const updatedTasks = produce(tasks_v4, (draft) => {
+                    const { optimisticId, taskSectionId, title, body, parent_task_id } = data
                     const newTask = createNewTaskV4Helper({
                         // map to v4, remove when v3 is removed.
-                        id: data.optimisticId,
+                        id: optimisticId,
                         // We're setting id_folder instead of putting the task into a folder directly now
-                        id_folder: data.taskSectionId,
+                        id_folder: taskSectionId,
                         // Need to set this if it is a subtask
-                        id_parent: data.parent_task_id,
-                        ...data,
+                        id_parent: parent_task_id,
+                        optimisticId,
+                        title,
+                        body,
                     })
                     draft.unshift(newTask)
                     // Add the id of this new task to the parent's subtask_ids
