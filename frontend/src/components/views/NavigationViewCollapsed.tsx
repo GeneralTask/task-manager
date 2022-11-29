@@ -14,11 +14,19 @@ import SettingsModalButton from '../molecules/SettingsModalButton'
 import IntegrationLinks from '../navigation_sidebar/IntegrationLinks'
 import NavigationLink from '../navigation_sidebar/NavigationLink'
 
-const CollapsedContainer = styled.div`
-    padding: ${Spacing._24};
+const PositionedIcon = styled(Icon)`
+    margin-bottom: ${Spacing._32};
+`
+const CollapseAndCommandPaletteContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._16};
+    gap: ${Spacing._8};
+    margin-bottom: ${Spacing._32};
+`
+const CollapsedContainer = styled.div`
+    padding: ${Spacing._24} 0;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     overflow-y: auto;
     align-items: center;
@@ -27,7 +35,6 @@ const FoldersContainer = styled.div`
     margin-top: ${Spacing._32};
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._16};
 `
 const LowerContainer = styled.div`
     margin-top: auto;
@@ -52,9 +59,15 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     }, [])
     return (
         <CollapsedContainer>
-            <Icon icon={logos.generaltask_yellow_circle} size="medium" />
-            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} shortcutName="navigationView" />
-            <CommandPalette />
+            <PositionedIcon icon={logos.generaltask_yellow_circle} size="medium" />
+            <CollapseAndCommandPaletteContainer>
+                <GTIconButton
+                    icon={icons.sidebar}
+                    onClick={() => setIsCollapsed(false)}
+                    shortcutName="navigationView"
+                />
+                <CommandPalette />
+            </CollapseAndCommandPaletteContainer>
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
                 {folders?.map((folder) => {
