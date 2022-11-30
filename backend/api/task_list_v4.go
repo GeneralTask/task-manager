@@ -19,8 +19,8 @@ type TaskSourceV4 struct {
 type TaskResultV4 struct {
 	ID                       primitive.ObjectID           `json:"id"`
 	IDOrdering               int                          `json:"id_ordering"`
-	IDFolder                 primitive.ObjectID           `json:"id_folder"`
-	IDParent                 primitive.ObjectID           `json:"id_parent"`
+	IDFolder                 string                       `json:"id_folder"`
+	IDParent                 string                       `json:"id_parent"`
 	Source                   TaskSourceV4                 `json:"source"`
 	Deeplink                 string                       `json:"deeplink"`
 	Title                    string                       `json:"title"`
@@ -172,8 +172,7 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 	taskResult := &TaskResultV4{
 		ID:                 t.ID,
 		IDOrdering:         t.IDOrdering,
-		IDFolder:           t.IDTaskSection,
-		IDParent:           t.ParentTaskID,
+		IDFolder:           t.IDTaskSection.Hex(),
 		Source:             taskSource,
 		Deeplink:           t.Deeplink,
 		Title:              title,
@@ -186,6 +185,12 @@ func (api *API) taskToTaskResultV4(t *database.Task, userID primitive.ObjectID) 
 		NUXNumber:          t.NUXNumber,
 		CreatedAt:          t.CreatedAtExternal.Time().UTC().Format(time.RFC3339),
 		UpdatedAt:          t.UpdatedAt.Time().UTC().Format(time.RFC3339),
+	}
+
+	if t.ParentTaskID != primitive.NilObjectID {
+		taskResult.IDParent = t.ParentTaskID.Hex()
+		// we want to make folder ID blank if the task is a subtask
+		taskResult.IDFolder = ""
 	}
 
 	if t.Status != nil && *t.Status != (database.ExternalTaskStatus{}) {
