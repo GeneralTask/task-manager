@@ -32,6 +32,7 @@ interface CalendarViewProps {
     hideContainerShadow?: boolean
     hasLeftBorder?: boolean
     ignoreCalendarContext?: boolean
+    additonalHeaderContent?: React.ReactNode
 }
 const CalendarView = ({
     initialType,
@@ -41,6 +42,7 @@ const CalendarView = ({
     hideContainerShadow = false,
     hasLeftBorder = false,
     ignoreCalendarContext = false,
+    additonalHeaderContent,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
@@ -102,6 +104,7 @@ const CalendarView = ({
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
                 ignoreCalendarContext={ignoreCalendarContext}
+                additionalHeaderContent={additonalHeaderContent}
             />
             {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>

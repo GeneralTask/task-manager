@@ -2,7 +2,7 @@ import { ReactNode, createContext, useContext, useRef } from 'react'
 import { QueryKey } from 'react-query'
 import { emptyFunction } from '../utils/utils'
 
-interface TRequest {
+export interface TRequest {
     // if optimistic ID is provided, the actual id must be passed into the send function
     send: (id?: string) => void
     optimisticId?: string
@@ -10,6 +10,8 @@ interface TRequest {
 
 interface TQueryContext {
     getQueryQueue: (key: QueryKey) => TRequest[]
+    getLastSentQuery: (key: QueryKey) => TRequest | undefined
+    setLastSentQuery: (key: QueryKey, request: TRequest) => void
     getIdFromOptimisticId: (optimisticId: string) => string | undefined
     setOptimisticId: (optimisticId: string, realId: string) => void
 }
@@ -17,6 +19,8 @@ interface TQueryContext {
 const QueryContext = createContext<TQueryContext>({
     getQueryQueue: () => [],
     getIdFromOptimisticId: () => '',
+    getLastSentQuery: () => undefined,
+    setLastSentQuery: emptyFunction,
     setOptimisticId: emptyFunction,
 })
 
@@ -26,6 +30,7 @@ interface QueryContextProps {
 
 export const QueryContextProvider = ({ children }: QueryContextProps) => {
     const queueRef = useRef<Map<QueryKey, TRequest[]>>(new Map())
+    const lastSentQueryRef = useRef<Map<QueryKey, TRequest>>(new Map())
     const optimisticIdToRealIdMap = useRef<Map<string, string>>(new Map())
 
     const getQueryQueue = (key: QueryKey): TRequest[] => {
@@ -36,6 +41,14 @@ export const QueryContextProvider = ({ children }: QueryContextProps) => {
             return newQueue
         }
         return queue
+    }
+
+    const getLastSentQuery = (key: QueryKey): TRequest | undefined => {
+        return lastSentQueryRef.current.get(key)
+    }
+
+    const setLastSentQuery = (key: QueryKey, request: TRequest) => {
+        lastSentQueryRef.current.set(key, request)
     }
 
     const getIdFromOptimisticId = (optimisticId: string) => {
@@ -50,6 +63,8 @@ export const QueryContextProvider = ({ children }: QueryContextProps) => {
         <QueryContext.Provider
             value={{
                 getQueryQueue,
+                getLastSentQuery,
+                setLastSentQuery,
                 getIdFromOptimisticId,
                 setOptimisticId,
             }}
