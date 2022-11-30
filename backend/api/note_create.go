@@ -9,11 +9,10 @@ import (
 )
 
 type NoteCreateParams struct {
-	UserID             primitive.ObjectID `json:"user_id"`
-	Title              string             `json:"title" binding:"required"`
-	Body               string             `json:"body"`
-	AuthorDisplayEmail string             `json:"author_display_email"`
-	IsShared           bool               `json:"is_shared"`
+	Title    string `json:"title" binding:"required"`
+	Body     string `json:"body"`
+	Author   string `json:"author"`
+	IsShared bool   `json:"is_shared"`
 }
 
 func (api *API) NoteCreate(c *gin.Context) {
@@ -29,7 +28,7 @@ func (api *API) NoteCreate(c *gin.Context) {
 		UserID:             userID,
 		Title:              &noteCreateParams.Title,
 		Body:               &noteCreateParams.Body,
-		AuthorDisplayEmail: noteCreateParams.AuthorDisplayEmail,
+		AuthorDisplayEmail: noteCreateParams.Author,
 		CreatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 		UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 		IsShared:           &noteCreateParams.IsShared,
