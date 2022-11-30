@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import useKeyboardShortcut from './useKeyboardShortcut'
 
 export default function useItemSelectionController<T extends { id: string }>(
-    items: T[],
+    items: T[] | undefined,
     selectItem: (item: T) => void
 ) {
     const params = useParams()
@@ -11,6 +11,7 @@ export default function useItemSelectionController<T extends { id: string }>(
     // on press DOWN -> select first item
     const onUpDown = useCallback(
         (direction: 'up' | 'down') => {
+            if (!items) return
             const selectedItemId =
                 params.task ??
                 params.pullRequest ??

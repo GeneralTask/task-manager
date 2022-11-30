@@ -33,7 +33,7 @@ const RecurringTasksView = () => {
         Log(`recurring_task_select_${recurringTask.id}`)
     }, [])
 
-    useItemSelectionController(recurringTaskTemplates ?? [], selectRecurringTask)
+    useItemSelectionController(recurringTaskTemplates, selectRecurringTask)
 
     return (
         <>
