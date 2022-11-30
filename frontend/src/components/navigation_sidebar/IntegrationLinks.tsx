@@ -26,6 +26,10 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
 
+    const showGithub = showGitHubSetting.field_value === 'true'
+    const showLinear = showLinearSetting.field_value === 'true'
+    const showSlack = showSlackSetting.field_value === 'true'
+
     const linearTasksCount = useMemo(() => {
         const tasks =
             folders?.filter((section) => !section.is_done && !section.is_trash).flatMap((folder) => folder.tasks) ?? []
@@ -86,7 +90,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     renderButton={() => <ServiceVisibilityDropdown />}
                 />
             )}
-            {(!isPreviewMode || showGitHubSetting.field_value === 'true') && (
+            {(!isPreviewMode || showGithub) && (
                 <NavigationLink
                     link="/pull-requests"
                     title="GitHub PRs"
@@ -97,7 +101,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             )}
-            {(!isPreviewMode || showLinearSetting.field_value === 'true') && (
+            {(!isPreviewMode || showLinear) && (
                 <NavigationLink
                     link="/linear"
                     title="Linear Issues"
@@ -108,7 +112,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             )}
-            {(!isPreviewMode || showSlackSetting.field_value === 'true') && (
+            {(!isPreviewMode || showSlack) && (
                 <NavigationLink
                     link="/slack"
                     title="Slack"
