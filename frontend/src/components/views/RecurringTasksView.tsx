@@ -9,6 +9,7 @@ import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
+import AddRecurringTask from '../molecules/recurring-tasks/AddRecurringTask'
 import RecurringTask from '../molecules/recurring-tasks/RecurringTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -41,14 +42,17 @@ const RecurringTasksView = () => {
                 {!recurringTaskTemplates ? (
                     <Spinner />
                 ) : (
-                    recurringTaskTemplates.map((recurringTask) => (
-                        <RecurringTask
-                            key={recurringTask.id}
-                            recurringTask={recurringTask}
-                            isSelected={recurringTask.id === recurringTaskId}
-                            onSelect={selectRecurringTask}
-                        />
-                    ))
+                    <>
+                        <AddRecurringTask />
+                        {recurringTaskTemplates.map((recurringTask) => (
+                            <RecurringTask
+                                key={recurringTask.id}
+                                recurringTask={recurringTask}
+                                isSelected={recurringTask.id === recurringTaskId}
+                                onSelect={selectRecurringTask}
+                            />
+                        ))}
+                    </>
                 )}
             </ScrollableListTemplate>
             {selectedRecurringTask ? (
