@@ -80,10 +80,6 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 		if linearIssue.State.Id != nil {
 			statusId = (linearIssue.State.Id).(string)
 		}
-		completedStatusId := ""
-		if linearIssue.Team.MergeWorkflowState.Id != nil {
-			statusId = linearIssue.Team.MergeWorkflowState.Id.(string)
-		}
 
 		task := &database.Task{
 			UserID:             userID,
@@ -103,11 +99,6 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 				ExternalID: statusId,
 				State:      string(linearIssue.State.Name),
 				Type:       string(linearIssue.State.Type),
-			},
-			CompletedStatus: &database.ExternalTaskStatus{
-				ExternalID: completedStatusId,
-				State:      string(linearIssue.Team.MergeWorkflowState.Name),
-				Type:       string(linearIssue.Team.MergeWorkflowState.Type),
 			},
 		}
 		if len(linearIssue.Comments.Nodes) > 0 {
