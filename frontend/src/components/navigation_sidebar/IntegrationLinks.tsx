@@ -79,7 +79,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
                 isCollapsed={isCollapsed}
             />
-            {!isCollapsed && (
+            {isPreviewMode && !isCollapsed && (
                 <NavigationHeader
                     title="Services"
                     tooltip="Hide/Show Services"
