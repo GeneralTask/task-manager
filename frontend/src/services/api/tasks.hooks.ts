@@ -278,10 +278,10 @@ export const useModifyTask = () => {
                     const task = getTaskFromSections(draft, data.id)
                     if (!task) return
                     task.title = data.title || task.title
-                    task.due_date = data.dueDate || task.due_date
-                    task.body = data.body || task.body
-                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                    task.external_status = data.status || task.external_status
+                    task.due_date = data.dueDate ?? task.due_date
+                    task.body = data.body ?? task.body
+                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
+                    task.external_status = data.status ?? task.external_status
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -293,10 +293,10 @@ export const useModifyTask = () => {
                     const task = draft.find((task) => task.id === data.id)
                     if (!task) return
                     task.title = data.title || task.title
-                    task.due_date = data.dueDate || task.due_date
-                    task.body = data.body || task.body
-                    task.priority_normalized = data.priorityNormalized || task.priority_normalized
-                    task.external_status = data.status || task.external_status
+                    task.due_date = data.dueDate ?? task.due_date
+                    task.body = data.body ?? task.body
+                    task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
+                    task.external_status = data.status ?? task.external_status
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
@@ -312,7 +312,7 @@ export const useModifyTask = () => {
                     if (sectionIndex === undefined || taskIndex === undefined) return
                     const task = draft[sectionIndex].view_items[taskIndex]
                     if (!task) return
-                    task.title = data.title ?? task.title
+                    task.title = data.title || task.title
                     task.due_date = data.dueDate ?? task.due_date
                     task.body = data.body ?? task.body
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
