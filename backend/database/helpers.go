@@ -137,6 +137,23 @@ func GetTask(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &task, nil
 }
 
+func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetNoteCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"is_shared": true},
+		}})
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
+		return nil, err
+	}
+	return &note, nil
+}
+
 func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	taskCollection := GetTaskCollection(db)

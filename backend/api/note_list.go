@@ -9,7 +9,7 @@ import (
 )
 
 type NoteResult struct {
-	ID        primitive.ObjectID `json:"_id,omitempty"`
+	ID        primitive.ObjectID `json:"id,omitempty"`
 	Title     string             `json:"title,omitempty"`
 	Body      string             `json:"body,omitempty"`
 	Author    string             `json:"author,omitempty"`
@@ -42,24 +42,28 @@ func (api *API) NotesList(c *gin.Context) {
 func (api *API) noteListToNoteResultList(notes *[]database.Note, userID primitive.ObjectID) []*NoteResult {
 	noteResults := []*NoteResult{}
 	for _, note := range *notes {
-		body := ""
-		if note.Body != nil {
-			body = *note.Body
-		}
-		title := ""
-		if note.Title != nil {
-			title = *note.Title
-		}
-		result := &NoteResult{
-			ID:        note.ID,
-			Title:     title,
-			Body:      body,
-			Author:    note.AuthorDisplayEmail,
-			CreatedAt: note.CreatedAt,
-			UpdatedAt: note.UpdatedAt,
-			IsShared:  *note.IsShared,
-		}
+		result := api.noteToNoteResult(&note)
 		noteResults = append(noteResults, result)
 	}
 	return noteResults
+}
+
+func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
+	body := ""
+	if note.Body != nil {
+		body = *note.Body
+	}
+	title := ""
+	if note.Title != nil {
+		title = *note.Title
+	}
+	return &NoteResult{
+		ID:        note.ID,
+		Title:     title,
+		Body:      body,
+		Author:    note.AuthorDisplayEmail,
+		CreatedAt: note.CreatedAt,
+		UpdatedAt: note.UpdatedAt,
+		IsShared:  *note.IsShared,
+	}
 }
