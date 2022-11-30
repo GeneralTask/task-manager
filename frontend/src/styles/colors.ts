@@ -27,7 +27,7 @@ const BLUE = {
     _2: '#BEEBFF',
 }
 const PURPLE = {
-    _1: '#523178',
+    _1: '#5634CF',
     _2: '#EEEBFA',
     _3: '#E1D7FD33', // NOT IN DESIGN DOC (only used for drop indicator)
 }

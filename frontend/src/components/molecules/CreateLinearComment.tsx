@@ -17,11 +17,11 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
     const [comment, setComment] = useState('')
 
     const submitComment = useCallback(() => {
-        if (comment) {
+        if (comment.trim().length > 0) {
             postComment({ id: taskId, body: comment, optimisticId: uuidv4() })
             setComment('')
         }
-    }, [comment, postComment, taskId])
+    }, [comment, taskId])
 
     useKeyboardShortcut('submitComment', submitComment)
 

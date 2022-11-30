@@ -2,7 +2,6 @@ import { Fragment, useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
 import { Colors, Typography } from '../../styles'
-import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -19,17 +18,20 @@ import {
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
-const DropdownMenuContent = styled(DropdownMenu.Content)<{ menuInModal?: boolean; width?: number; isLabel?: boolean }>`
+const DropdownMenuContent = styled(DropdownMenu.Content)<{
+    $menuInModal?: boolean
+    $width?: number
+    $textColor?: string
+    isLabel?: boolean
+}>`
     ${MenuContentShared};
-    ${(props) => props.isLabel && Typography.label};
-    ${({ menuInModal }) => menuInModal && `z-index: 1000;`}
-    ${({ width }) => width && `width: ${width}px;`}
+    ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
+    ${({ $width }) => $width && `width: ${$width}px;`}
+    ${({ $textColor }) => $textColor && `color: ${$textColor};`}
+    ${({ isLabel }) => isLabel && Typography.label};
     box-sizing: border-box;
 `
-const DropdownMenuItem = styled(DropdownMenu.Item)<{
-    textcolor?: TTextColor
-    disabled?: boolean
-}>`
+const DropdownMenuItem = styled(DropdownMenu.Item)`
     ${MenuItemShared};
     width: 100%;
     box-sizing: border-box;
@@ -75,8 +77,8 @@ const GTDropdownMenu = ({
                     <DropdownMenuContent
                         onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}
                         align={align}
-                        menuInModal={menuInModal}
-                        width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
+                        $menuInModal={menuInModal}
+                        $width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
                         isLabel={fontStyle === 'label'}
                     >
                         {groups.map((group, groupIndex) => (
@@ -88,7 +90,7 @@ const GTDropdownMenu = ({
                                             textValue={item.label}
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             disabled={item.disabled}
-                                            textcolor={item.textColor}
+                                            $textColor={item.textColor}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()
