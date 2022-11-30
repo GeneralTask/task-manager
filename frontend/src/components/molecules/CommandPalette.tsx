@@ -19,7 +19,7 @@ import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { BodySmall } from '../atoms/typography/Typography'
 
-const COMMAND_PALETTE_WIDTH = '712px'
+const COMMAND_PALETTE_WIDTH = '512px'
 const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
 
 const CommandDialog = styled(Command.Dialog)`
