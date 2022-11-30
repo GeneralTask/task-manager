@@ -15,6 +15,10 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
 
+    const showGithub = showGitHubSetting.field_value === 'true'
+    const showLinear = showLinearSetting.field_value === 'true'
+    const showSlack = showSlackSetting.field_value === 'true'
+
     return (
         <GTDropdownMenu
             isOpen={isOpen}
@@ -36,18 +40,18 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                 [
                     {
                         label: 'GitHub PRs',
-                        onClick: () => showGitHubSetting.updateSetting(showGitHubSetting.field_value !== 'true'),
-                        selected: showGitHubSetting.field_value === 'true',
+                        onClick: () => showGitHubSetting.updateSetting(!showGithub),
+                        selected: showGithub,
                     },
                     {
                         label: 'Linear',
-                        onClick: () => showLinearSetting.updateSetting(showLinearSetting.field_value !== 'true'),
-                        selected: showLinearSetting.field_value === 'true',
+                        onClick: () => showLinearSetting.updateSetting(!showLinear),
+                        selected: showLinear,
                     },
                     {
                         label: 'Slack',
-                        onClick: () => showSlackSetting.updateSetting(showSlackSetting.field_value !== 'true'),
-                        selected: showSlackSetting.field_value === 'true',
+                        onClick: () => showSlackSetting.updateSetting(!showSlack),
+                        selected: showSlack,
                     },
                 ],
             ]}
