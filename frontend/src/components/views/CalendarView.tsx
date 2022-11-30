@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIdleTimer } from 'react-idle-timer'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
-import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useInterval } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useGetEvents } from '../../services/api/events.hooks'
@@ -70,7 +70,7 @@ const CalendarView = ({
         () => {
             if (timeoutTimer.isIdle()) setDate(DateTime.now())
         },
-        SINGLE_SECOND_INTERVAL,
+        1,
         false
     )
 
