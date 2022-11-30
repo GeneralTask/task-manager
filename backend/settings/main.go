@@ -35,6 +35,10 @@ type SettingChoice struct {
 }
 
 const (
+	// Sidebar settings
+	SettingFieldSidebarLinearPreference = "sidebar_linear_preference"
+	SettingFieldSidebarGithubPreference = "sidebar_github_preference"
+	SettingFieldSidebarSlackPreference  = "sidebar_slack_preference"
 	// Github PR filtering
 	SettingFieldGithubFilteringPreference = "github_filtering_preference"
 	ChoiceKeyAllPRs                       = "all_prs"
@@ -58,6 +62,33 @@ const (
 	// Calendar choice
 	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
 )
+
+var SidebarLinearSetting = SettingDefinition{
+	FieldKey:      SettingFieldSidebarLinearPreference,
+	DefaultChoice: "true",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
+var SidebarGithubSetting = SettingDefinition{
+	FieldKey:      SettingFieldSidebarGithubPreference,
+	DefaultChoice: "true",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
+var SidebarSlackSetting = SettingDefinition{
+	FieldKey:      SettingFieldSidebarSlackPreference,
+	DefaultChoice: "true",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
 
 // human readable names aren't defined here because they are not used
 var GithubFilteringSetting = SettingDefinition{
@@ -117,6 +148,10 @@ var hardcodedSettings = []SettingDefinition{
 	GithubFilteringSetting,
 	GithubSortingPreferenceSetting,
 	GithubSortingDirectionSetting,
+	// these settings are for the sidebar
+	SidebarLinearSetting,
+	SidebarGithubSetting,
+	SidebarSlackSetting,
 }
 
 func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {

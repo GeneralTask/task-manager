@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 import * as ContextMenu from '@radix-ui/react-context-menu'
 import styled from 'styled-components'
-import { TTextColor } from '../../styles/colors'
 import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -23,10 +22,10 @@ const ContextMenuContent = styled(ContextMenu.Content)`
 const ContextMenuSubContent = styled(ContextMenu.SubContent)`
     ${MenuContentShared};
 `
-const ContextMenuItem = styled(ContextMenu.Item)<{ textcolor?: TTextColor }>`
+const ContextMenuItem = styled(ContextMenu.Item)`
     ${MenuItemShared};
 `
-const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)<{ textcolor?: TTextColor }>`
+const ContextMenuSubTrigger = styled(ContextMenu.SubTrigger)`
     ${MenuItemShared};
 `
 const FullWidth = styled.div`
@@ -52,7 +51,7 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                         <ContextMenuSubTrigger
                                             key={item.label}
                                             onClick={item.onClick}
-                                            textcolor={item.textColor}
+                                            $textColor={item.textColor}
                                         >
                                             {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                             <MenuItemLabel>{item.label}</MenuItemLabel>
@@ -89,7 +88,7 @@ const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => 
                                         key={item.label}
                                         textValue={item.label}
                                         onClick={item.onClick}
-                                        textcolor={item.textColor}
+                                        $textColor={item.textColor}
                                     >
                                         {item.icon && <Icon icon={item.icon} color={item.iconColor} />}
                                         {item.label}
