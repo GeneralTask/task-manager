@@ -79,7 +79,9 @@ export default function CalendarHeader({
         }
     }
     useEffect(() => {
-        setCalendarType('week')
+        if (ignoreCalendarContext) {
+            setCalendarType('week')
+        }
         if (date.weekday !== 7) {
             setDate(date.minus({ days: date.weekday % 7 }))
         }
