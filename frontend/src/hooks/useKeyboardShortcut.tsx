@@ -9,6 +9,7 @@ export default function useKeyboardShortcut(shortcutName: TShortcutName, action:
     const shortcut = KEYBOARD_SHORTCUTS[shortcutName]
     useEffect(() => {
         if (!disabled) {
+            console.log(shortcutName)
             setActiveKeyboardShortcuts((activeShortcuts) =>
                 produce(activeShortcuts, (draft) => {
                     draft.set(shortcut.key, {
