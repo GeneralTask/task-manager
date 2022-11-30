@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import { DEFAULT_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
@@ -15,8 +17,9 @@ import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import { BodySmall } from '../atoms/typography/Typography'
 
-const COMMAND_PALETTE_WIDTH = '356px'
+const COMMAND_PALETTE_WIDTH = '712px'
 const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
 
 const CommandDialog = styled(Command.Dialog)`
@@ -85,6 +88,26 @@ const IconContainer = styled.div`
     justify-content: center;
     padding: ${Spacing._16};
 `
+const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    ${({ strike }) =>
+        strike &&
+        css`
+            &::after {
+                content: ' ';
+                position: absolute;
+                left: 0;
+                top: 55%;
+                width: 100%;
+                height: 1px;
+                background-color: ${Colors.text.light};
+            }
+        `}
+`
 interface CommandPaletteProps {
     hideButton?: boolean
 }
@@ -97,6 +120,7 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
 
     const { data: taskFolders } = useGetTasks()
     const navigateToTask = useNavigateToTask()
+    const navigate = useNavigate()
     const tasks = useMemo(() => {
         return taskFolders?.flatMap((folder) => folder.tasks) ?? []
     }, [taskFolders])
@@ -183,7 +207,7 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
-                                                {label}
+                                                <BodySmall>{label}</BodySmall>
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
                                         </CommandItem>
@@ -193,7 +217,26 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                     )}
                     {isPreviewMode && (
                         <CommandGroup heading={`Search for "${searchValue ?? ''}"`}>
-                            {tasks.map(({ title, source, id }) => (
+                            {taskFolders
+                                ?.filter((f) => !f.is_done && !f.is_trash && f.id !== DEFAULT_SECTION_ID)
+                                .map(({ name, id }) => (
+                                    <CommandItem
+                                        key={id}
+                                        onSelect={() => {
+                                            setShowCommandPalette(false)
+                                            navigate(`/tasks/${id}`)
+                                        }}
+                                        value={`${name} ${id}`}
+                                    >
+                                        <Flex alignItems="center" style={{ width: `100%` }}>
+                                            <IconContainer>
+                                                <Icon icon={icons.folder} />
+                                            </IconContainer>
+                                            <TruncatedTitle>{name}</TruncatedTitle>
+                                        </Flex>
+                                    </CommandItem>
+                                ))}
+                            {tasks.map(({ is_done, is_deleted, title, source, id }) => (
                                 <CommandItem
                                     key={id}
                                     onSelect={() => {
@@ -202,11 +245,19 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                     }}
                                     value={`${title} ${id}`}
                                 >
-                                    <Flex flex="1" alignItems="center">
+                                    <Flex alignItems="center" style={{ width: `100%` }}>
                                         <IconContainer>
                                             <Icon icon={logos[source.logo_v2]} />
                                         </IconContainer>
-                                        {title}
+                                        <TruncatedTitle strike={is_done || is_deleted}>{title}</TruncatedTitle>
+                                        {(is_done || is_deleted) && (
+                                            <IconContainer>
+                                                <Icon
+                                                    icon={is_done ? icons.check : icons.trash}
+                                                    color={is_done ? 'purple' : 'black'}
+                                                />
+                                            </IconContainer>
+                                        )}
                                     </Flex>
                                 </CommandItem>
                             ))}
