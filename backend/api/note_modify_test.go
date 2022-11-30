@@ -13,6 +13,8 @@ import (
 func TestNoteModifyEditFields(t *testing.T) {
 	authToken := login("test_notes_modify@generaltask.com", "")
 	true_val := true
+	title1 := "title1"
+	body1 := "body1"
 
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
@@ -24,11 +26,11 @@ func TestNoteModifyEditFields(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
-			UserID:   userID,
-			Title:    "title1",
-			Body:     "body1",
-			Author:   "author1",
-			IsShared: &true_val,
+			UserID:             userID,
+			Title:              &title1,
+			Body:               &body1,
+			AuthorDisplayEmail: "author1",
+			IsShared:           &true_val,
 		},
 	)
 
@@ -45,9 +47,9 @@ func TestNoteModifyEditFields(t *testing.T) {
 		var note database.Note
 		err = database.GetNoteCollection(db).FindOne(context.Background(), bson.M{"_id": note1.ID}).Decode(&note)
 		assert.NoError(t, err)
-		assert.Equal(t, "new title", note.Title)
-		assert.Equal(t, "new body", note.Body)
-		assert.Equal(t, "new author", note.Author)
+		assert.Equal(t, "new title", *note.Title)
+		assert.Equal(t, "new body", *note.Body)
+		assert.Equal(t, "new author", note.AuthorDisplayEmail)
 		assert.Equal(t, false, *note.IsShared)
 	})
 }
