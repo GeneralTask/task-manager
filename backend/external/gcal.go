@@ -27,105 +27,11 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-type GooggleCalendarEventsResult struct {
-	Repositories []*github.Repository
-	Error        error
-}
-
-func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
-	if err != nil {
-		result <- emptyCalendarResult(err)
-		return
-	}
-
-	events := []*database.CalendarEvent{}
-	calendarList, err := calendarService.CalendarList.List().Do()
-	for _, calendar := range calendarList.Items {
-		calendarResponse, err := calendarService.Events.
-			List(calendar.Id).
-			TimeMin(startTime.Format(time.RFC3339)).
-			TimeMax(endTime.Format(time.RFC3339)).
-			SingleEvents(true).
-			OrderBy("startTime").
-			Do()
-		logger := logging.GetSentryLogger()
-		if err != nil {
-			isBadToken := CheckAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
-			if !isBadToken {
-				logger.Error().Err(err).Msg("unable to load calendar events")
-			}
-			result <- emptyCalendarResult(err)
-			return
-		}
-
-		for _, event := range calendarResponse.Items {
-			//exclude all day events which won't have a start time.
-			if len(event.Start.DateTime) == 0 {
-				continue
-			}
-
-			//exclude clockwise events
-			if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
-				continue
-			}
-
-			//exclude events we declined.
-			didDeclineEvent := false
-			for _, attendee := range event.Attendees {
-				if attendee.Self && attendee.ResponseStatus == "declined" {
-					didDeclineEvent = true
-					continue
-				}
-			}
-			if didDeclineEvent {
-				continue
-			}
-
-			startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
-			endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-			conferenceCall := GetConferenceCall(event, accountID)
-			event := &database.CalendarEvent{
-				UserID:          userID,
-				IDExternal:      event.Id,
-				Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
-				SourceID:        TASK_SOURCE_ID_GCAL,
-				Title:           event.Summary,
-				Body:            event.Description,
-				Location:        event.Location,
-				TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
-				SourceAccountID: accountID,
-				DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
-				DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
-				CanModify:       event.GuestsCanModify || event.Organizer.Self,
-				CallURL:         conferenceCall.URL,
-				CallLogo:        conferenceCall.Logo,
-				CallPlatform:    conferenceCall.Platform,
-			}
-
-			dbEvent, err := database.UpdateOrCreateCalendarEvent(
-				db,
-				userID,
-				event.IDExternal,
-				event.SourceID,
-				event,
-				nil,
-			)
-			if err != nil {
-				result <- emptyCalendarResult(err)
-				return
-			}
-			events = append(events, dbEvent)
-		}
-	}
-	//List("primary").
-	//TimeMin(startTime.Format(time.RFC3339)).
-	//TimeMax(endTime.Format(time.RFC3339)).
-	//SingleEvents(true).
-	//OrderBy("startTime").
-
+func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+	result <- emptyCalendarResult(nil)
+	return
 	calendarResponse, err := calendarService.Events.
-		List("primary").
+		List(calendarId).
 		TimeMin(startTime.Format(time.RFC3339)).
 		TimeMax(endTime.Format(time.RFC3339)).
 		SingleEvents(true).
@@ -141,7 +47,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		return
 	}
 
-	events := []*database.CalendarEvent{}
+	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
 		//exclude all day events which won't have a start time.
 		if len(event.Start.DateTime) == 0 {
@@ -165,10 +71,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			continue
 		}
 
-		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
-		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
+		dbStartTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+		dbEndTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 		conferenceCall := GetConferenceCall(event, accountID)
-		event := &database.CalendarEvent{
+		dbEvent := &database.CalendarEvent{
 			UserID:          userID,
 			IDExternal:      event.Id,
 			Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
@@ -176,10 +82,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			Title:           event.Summary,
 			Body:            event.Description,
 			Location:        event.Location,
-			TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
+			TimeAllocation:  dbEndTime.Sub(dbStartTime).Nanoseconds(),
 			SourceAccountID: accountID,
-			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
-			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:     primitive.NewDateTimeFromTime(dbEndTime),
+			DatetimeStart:   primitive.NewDateTimeFromTime(dbStartTime),
 			CanModify:       event.GuestsCanModify || event.Organizer.Self,
 			CallURL:         conferenceCall.URL,
 			CallLogo:        conferenceCall.Logo,
@@ -189,9 +95,9 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		dbEvent, err := database.UpdateOrCreateCalendarEvent(
 			db,
 			userID,
-			event.IDExternal,
-			event.SourceID,
-			event,
+			dbEvent.IDExternal,
+			dbEvent.SourceID,
+			dbEvent,
 			nil,
 		)
 		if err != nil {
@@ -200,7 +106,121 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		}
 		events = append(events, dbEvent)
 	}
+
+}
+
+func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
+	if err != nil {
+		result <- emptyCalendarResult(err)
+		return
+	}
+
+	calendarList, err := calendarService.CalendarList.List().Do()
+	if err != nil {
+		result <- emptyCalendarResult(err)
+	}
+
+	log.Error().Msgf("jerd %+v", calendarList.Items)
+	eventsChannels := []chan CalendarResult{}
+	for _, calendar := range calendarList.Items {
+		eventChannel := make(chan CalendarResult)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
+		eventsChannels = append(eventsChannels, eventChannel)
+	}
+
+	var events []*database.CalendarEvent
+	for _, eventChannel := range eventsChannels {
+		eventResult := <-eventChannel
+		if eventResult.Error != nil {
+			result <- emptyCalendarResult(errors.New("failed to fetch events"))
+		}
+		events = append(events, eventResult.CalendarEvents...)
+	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
+	//List("primary").
+	//TimeMin(startTime.Format(time.RFC3339)).
+	//TimeMax(endTime.Format(time.RFC3339)).
+	//SingleEvents(true).
+	//OrderBy("startTime").
+
+	//calendarResponse, err := calendarService.Events.
+	//	List("primary").
+	//	TimeMin(startTime.Format(time.RFC3339)).
+	//	TimeMax(endTime.Format(time.RFC3339)).
+	//	SingleEvents(true).
+	//	OrderBy("startTime").
+	//	Do()
+	//logger := logging.GetSentryLogger()
+	//if err != nil {
+	//	isBadToken := CheckAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
+	//	if !isBadToken {
+	//		logger.Error().Err(err).Msg("unable to load calendar events")
+	//	}
+	//	result <- emptyCalendarResult(err)
+	//	return
+	//}
+	//
+	//events := []*database.CalendarEvent{}
+	//for _, event := range calendarResponse.Items {
+	//	//exclude all day events which won't have a start time.
+	//	if len(event.Start.DateTime) == 0 {
+	//		continue
+	//	}
+	//
+	//	//exclude clockwise events
+	//	if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
+	//		continue
+	//	}
+	//
+	//	//exclude events we declined.
+	//	didDeclineEvent := false
+	//	for _, attendee := range event.Attendees {
+	//		if attendee.Self && attendee.ResponseStatus == "declined" {
+	//			didDeclineEvent = true
+	//			continue
+	//		}
+	//	}
+	//	if didDeclineEvent {
+	//		continue
+	//	}
+	//
+	//	startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+	//	endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
+	//	conferenceCall := GetConferenceCall(event, accountID)
+	//	event := &database.CalendarEvent{
+	//		UserID:          userID,
+	//		IDExternal:      event.Id,
+	//		Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
+	//		SourceID:        TASK_SOURCE_ID_GCAL,
+	//		Title:           event.Summary,
+	//		Body:            event.Description,
+	//		Location:        event.Location,
+	//		TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
+	//		SourceAccountID: accountID,
+	//		DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
+	//		DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
+	//		CanModify:       event.GuestsCanModify || event.Organizer.Self,
+	//		CallURL:         conferenceCall.URL,
+	//		CallLogo:        conferenceCall.Logo,
+	//		CallPlatform:    conferenceCall.Platform,
+	//	}
+	//
+	//	dbEvent, err := database.UpdateOrCreateCalendarEvent(
+	//		db,
+	//		userID,
+	//		event.IDExternal,
+	//		event.SourceID,
+	//		event,
+	//		nil,
+	//	)
+	//	if err != nil {
+	//		result <- emptyCalendarResult(err)
+	//		return
+	//	}
+	//	events = append(events, dbEvent)
+	//}
+	//result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
 func (googleCalendar GoogleCalendarSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
