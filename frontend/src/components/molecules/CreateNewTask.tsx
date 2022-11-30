@@ -11,7 +11,7 @@ import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 
-export const CreateNewTaskContainer = styled.div`
+const CreateNewTaskContainer = styled.div`
     display: flex;
     flex-shrink: 0;
     flex-direction: row;
