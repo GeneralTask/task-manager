@@ -83,7 +83,7 @@ const GTDropdownMenu = ({
                                             key={item.label}
                                             textValue={item.label}
                                             onClick={item.disabled ? emptyFunction : item.onClick}
-                                            disabled={item.disabled}
+                                            $disabled={item.disabled}
                                             $textColor={item.textColor}
                                             onSelect={keepOpenOnSelect ? (e) => e.preventDefault() : emptyFunction}
                                         >
