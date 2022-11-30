@@ -42,6 +42,7 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
+    unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
 }
 
@@ -55,6 +56,7 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
+    unstyledTrigger = false,
     keepOpenOnSelect = false,
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
@@ -63,7 +65,7 @@ const GTDropdownMenu = ({
     return (
         <div>
             <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger ref={triggerRef} disabled={disabled}>
+                <DropdownMenuTrigger ref={triggerRef} disabled={disabled} $unstyled={unstyledTrigger}>
                     {trigger}
                 </DropdownMenuTrigger>
                 <DropdownMenu.Portal>

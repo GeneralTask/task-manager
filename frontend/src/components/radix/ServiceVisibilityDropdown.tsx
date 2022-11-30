@@ -18,6 +18,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             disabled={disabled}
+            unstyledTrigger
             items={[
                 {
                     label: 'GitHub PRs',
@@ -39,7 +40,15 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                 },
             ]}
             keepOpenOnSelect
-            trigger={<GTIconButton icon={icons.pencil} onClick={() => setIsOpen(!isOpen)} disabled={disabled} asDiv />}
+            trigger={
+                <GTIconButton
+                    icon={icons.ellipsisVertical}
+                    onClick={() => setIsOpen(!isOpen)}
+                    disabled={disabled}
+                    forceShowHoverEffect={isOpen}
+                    asDiv
+                />
+            }
         />
     )
 }

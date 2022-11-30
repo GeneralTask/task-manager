@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
 import { TIconType } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -21,8 +22,8 @@ const Title = styled.span`
 
 interface NavigationHeaderProps {
     title: string
-    icon: TIconType
     tooltip: string
+    icon?: TIconType
     onClick?: () => void
     renderButton?: () => JSX.Element // Override
 }
@@ -39,7 +40,11 @@ const NavigationHeader = ({ title, icon, tooltip, onClick, renderButton }: Navig
                 <Title>{title}</Title>
                 {(onClick || renderButton) && (
                     <TooltipWrapper dataTip={tooltip} tooltipId="tooltip">
-                        {renderButton ? renderButton() : <GTIconButton icon={icon} onClick={handleOnClick} />}
+                        {renderButton ? (
+                            renderButton()
+                        ) : (
+                            <GTIconButton icon={icon ?? icons.x} onClick={handleOnClick} />
+                        )}
                     </TooltipWrapper>
                 )}
             </DropdownContainer>

@@ -79,12 +79,13 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
                 isCollapsed={isCollapsed}
             />
-            <NavigationHeader
-                title="Services"
-                icon={icons.pencil}
-                tooltip="Hide/Show Services"
-                renderButton={() => <ServiceVisibilityDropdown />}
-            />
+            {!isCollapsed && (
+                <NavigationHeader
+                    title="Services"
+                    tooltip="Hide/Show Services"
+                    renderButton={() => <ServiceVisibilityDropdown />}
+                />
+            )}
             {(!isPreviewMode || showGitHubSetting.field_value === 'true') && (
                 <NavigationLink
                     link="/pull-requests"
