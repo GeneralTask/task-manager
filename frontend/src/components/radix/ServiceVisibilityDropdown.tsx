@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useSetting } from '../../hooks'
-import { icons } from '../../styles/images'
-import Flex from '../atoms/Flex'
+import { icons, logos } from '../../styles/images'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { Label } from '../atoms/typography/Typography'
+import SettingsModal from '../molecules/SettingsModal'
 import GTDropdownMenu from './GTDropdownMenu'
 
 interface ServiceVisibilityDropdownProps {
@@ -11,6 +10,7 @@ interface ServiceVisibilityDropdownProps {
 }
 const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
+    const [settingsIsOpen, setSettingsIsOpen] = useState(false)
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
@@ -19,53 +19,68 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
     const showLinear = showLinearSetting.field_value === 'true'
     const showSlack = showSlackSetting.field_value === 'true'
 
+    const handleManageServicesClick = () => {
+        setIsOpen(false)
+        setSettingsIsOpen(true)
+    }
+
     return (
-        <GTDropdownMenu
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            disabled={disabled}
-            unstyledTrigger
-            items={[
-                [
-                    {
-                        label: 'Show these services',
-                        disabled: true,
-                        renderer: () => (
-                            <Flex column>
-                                <Label color="light">Show these services</Label>
-                            </Flex>
-                        ),
-                    },
-                ],
-                [
-                    {
-                        label: 'GitHub PRs',
-                        onClick: () => showGitHubSetting.updateSetting(!showGithub),
-                        selected: showGithub,
-                    },
-                    {
-                        label: 'Linear',
-                        onClick: () => showLinearSetting.updateSetting(!showLinear),
-                        selected: showLinear,
-                    },
-                    {
-                        label: 'Slack',
-                        onClick: () => showSlackSetting.updateSetting(!showSlack),
-                        selected: showSlack,
-                    },
-                ],
-            ]}
-            keepOpenOnSelect
-            trigger={
-                <GTIconButton
-                    icon={icons.ellipsisVertical}
-                    onClick={() => setIsOpen(!isOpen)}
-                    disabled={disabled}
-                    forceShowHoverEffect={isOpen}
-                    asDiv
-                />
-            }
-        />
+        <>
+            <SettingsModal isOpen={settingsIsOpen} setIsOpen={setSettingsIsOpen} />
+            <GTDropdownMenu
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                disabled={disabled}
+                unstyledTrigger
+                items={[
+                    [
+                        {
+                            label: 'Show these services',
+                            disabled: true,
+                            hideCheckmark: true,
+                        },
+                    ],
+                    [
+                        {
+                            label: 'GitHub PRs',
+                            icon: logos.github,
+                            onClick: () => showGitHubSetting.updateSetting(!showGithub),
+                            selected: showGithub,
+                        },
+                        {
+                            label: 'Linear',
+                            icon: logos.linear,
+                            onClick: () => showLinearSetting.updateSetting(!showLinear),
+                            selected: showLinear,
+                        },
+                        {
+                            label: 'Slack',
+                            icon: logos.slack,
+                            onClick: () => showSlackSetting.updateSetting(!showSlack),
+                            selected: showSlack,
+                        },
+                    ],
+                    [
+                        {
+                            label: 'Manage services...',
+                            icon: icons.gear,
+                            hideCheckmark: true,
+                            onClick: handleManageServicesClick,
+                        },
+                    ],
+                ]}
+                keepOpenOnSelect
+                trigger={
+                    <GTIconButton
+                        icon={icons.ellipsisVertical}
+                        onClick={() => setIsOpen(!isOpen)}
+                        disabled={disabled}
+                        forceShowHoverEffect={isOpen}
+                        asDiv
+                    />
+                }
+            />
+        </>
     )
 }
 

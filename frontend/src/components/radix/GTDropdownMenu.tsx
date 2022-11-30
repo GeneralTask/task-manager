@@ -91,7 +91,7 @@ const GTDropdownMenu = ({
                                                 item.renderer()
                                             ) : (
                                                 <>
-                                                    {!hideCheckmark && (
+                                                    {!hideCheckmark && !item.hideCheckmark && (
                                                         <FixedSizeIcon visible={item.selected}>
                                                             <Icon icon={icons.check} />
                                                         </FixedSizeIcon>

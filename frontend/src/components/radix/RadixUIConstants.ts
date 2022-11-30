@@ -70,6 +70,7 @@ export interface GTMenuItem {
     iconColor?: TIconColor
     textColor?: TTextColor
     selected?: boolean
+    hideCheckmark?: boolean
     disabled?: boolean
     subItems?: GTMenuItem[]
     renderer?: () => JSX.Element // override how the option is rendered
