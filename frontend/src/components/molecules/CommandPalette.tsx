@@ -82,11 +82,12 @@ const CommandEmpty = styled(Command.Empty)`
     justify-content: center;
     margin: ${Spacing._8} ${Spacing._8};
 `
-const IconContainer = styled.div`
+const IconContainer = styled.div<{ marginLeftAuto?: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
     padding: ${Spacing._16};
+    ${({ marginLeftAuto }) => marginLeftAuto && 'margin-left: auto'}
 `
 const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
     min-width: 0;
@@ -107,6 +108,9 @@ const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
                 background-color: ${Colors.text.light};
             }
         `}
+`
+const FlexWidth100 = styled(Flex)`
+    width: 100%;
 `
 interface CommandPaletteProps {
     hideButton?: boolean
@@ -228,12 +232,12 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                         }}
                                         value={`${name} ${id}`}
                                     >
-                                        <Flex alignItems="center" style={{ width: `100%` }}>
+                                        <FlexWidth100 alignItems="center">
                                             <IconContainer>
                                                 <Icon icon={icons.folder} />
                                             </IconContainer>
                                             <TruncatedTitle>{name}</TruncatedTitle>
-                                        </Flex>
+                                        </FlexWidth100>
                                     </CommandItem>
                                 ))}
                             {tasks.map(({ is_done, is_deleted, title, source, id }) => (
@@ -245,20 +249,20 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                     }}
                                     value={`${title} ${id}`}
                                 >
-                                    <Flex alignItems="center" style={{ width: `100%` }}>
+                                    <FlexWidth100 alignItems="center">
                                         <IconContainer>
                                             <Icon icon={logos[source.logo_v2]} />
                                         </IconContainer>
                                         <TruncatedTitle strike={is_done || is_deleted}>{title}</TruncatedTitle>
                                         {(is_done || is_deleted) && (
-                                            <IconContainer>
+                                            <IconContainer marginLeftAuto>
                                                 <Icon
                                                     icon={is_done ? icons.check : icons.trash}
                                                     color={is_done ? 'purple' : 'black'}
                                                 />
                                             </IconContainer>
                                         )}
-                                    </Flex>
+                                    </FlexWidth100>
                                 </CommandItem>
                             ))}
                         </CommandGroup>
