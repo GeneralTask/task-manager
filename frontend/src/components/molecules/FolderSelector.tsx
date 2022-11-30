@@ -10,9 +10,18 @@ interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
     renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void, selectedFolder?: TTaskSection) => ReactNode
+    useTriggerWidth?: boolean
+    fontStyle?: 'label' | 'default'
     enableKeyboardShortcut?: boolean
 }
-const FolderSelector = ({ value, onChange, renderTrigger, enableKeyboardShortcut }: FolderSelectorProps) => {
+const FolderSelector = ({
+    value,
+    onChange,
+    renderTrigger,
+    enableKeyboardShortcut,
+    useTriggerWidth,
+    fontStyle,
+}: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
 
@@ -31,6 +40,8 @@ const FolderSelector = ({ value, onChange, renderTrigger, enableKeyboardShortcut
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             menuInModal
+            fontStyle={fontStyle}
+            useTriggerWidth={useTriggerWidth}
             items={
                 taskSections
                     ? taskSections
