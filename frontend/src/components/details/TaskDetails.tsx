@@ -11,10 +11,16 @@ import {
     TRASH_SECTION_ID,
 } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import { TModifyTaskData, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
+import {
+    TModifyTaskData,
+    useMarkTaskDoneOrDeleted,
+    useModifyTask,
+    useReorderTask,
+} from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { TTaskUnion } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskUnion } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -24,11 +30,13 @@ import Spinner from '../atoms/Spinner'
 import TimeRange from '../atoms/TimeRange'
 import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
+import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
+import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
-import FolderDropdown from '../radix/FolderDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -98,16 +106,20 @@ const SYNC_MESSAGES = {
 }
 
 interface TaskDetailsProps {
-    task: TTaskUnion
-    subtask?: TTaskUnion
+    task: Partial<TTaskUnion> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
     link: string
+    subtask?: TTaskUnion
+    isRecurringTaskTemplate?: boolean
 }
-const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
+const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const currentTask = subtask || task
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
 
     const { mutate: modifyTask, isError, isLoading } = useModifyTask()
+    const { mutate: reorderTask } = useReorderTask()
+    const { mutate: modifyRecurringTask } = useModifyRecurringTask()
+
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
     const { isPreviewMode } = usePreviewMode()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
@@ -117,7 +129,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
-    const { meeting_preparation_params } = currentTask
+    const { meeting_preparation_params } = currentTask as TTaskUnion
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
 
@@ -126,7 +138,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
     const titleRef = useRef<HTMLTextAreaElement>(null)
 
     useInterval(() => {
-        if (!currentTask.meeting_preparation_params) return
+        if (!meeting_preparation_params) return
         const minutesToStart = Math.ceil(dateTimeStart.diffNow('minutes').minutes)
         const minutesToEnd = Math.ceil(dateTimeEnd.diffNow('minutes').minutes)
         if (minutesToStart < 0 && minutesToEnd > 0) {
@@ -174,7 +186,18 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
             setIsEditing(false)
             const timerId = id + (title === undefined ? 'body' : 'title')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
-            modifyTask({ id, title, body }, currentTask.optimisticId)
+            if (isRecurringTaskTemplate) {
+                modifyRecurringTask(
+                    {
+                        id,
+                        title,
+                        body,
+                    },
+                    currentTask.optimisticId
+                )
+            } else {
+                modifyTask({ id, title, body }, currentTask.optimisticId)
+            }
         },
         [currentTask.id, modifyTask]
     )
@@ -204,7 +227,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                             <BackButtonText>{task.title}</BackButtonText>
                         </BackButtonContainer>
                     ) : (
-                        <Icon icon={logos[currentTask.source.logo_v2]} />
+                        <Icon icon={logos[currentTask?.source?.logo_v2 ?? 'generaltask']} />
                     )}
                 </DetailItem>
                 {!currentTask.optimisticId && (
@@ -228,10 +251,34 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                                     />
                                 )}
                                 {/* TODO: Sections */}
-                                {!meeting_preparation_params && <FolderDropdown task={currentTask} />}
+                                {!meeting_preparation_params && !isRecurringTaskTemplate && (
+                                    <FolderSelector
+                                        value={(isRecurringTaskTemplate ? task.id_task_section : params.section) ?? ''}
+                                        onChange={(newFolderId) =>
+                                            reorderTask(
+                                                {
+                                                    id: currentTask.id,
+                                                    dropSectionId: newFolderId,
+                                                    dragSectionId: params.section,
+                                                    orderingId: 1,
+                                                },
+                                                currentTask.optimisticId
+                                            )
+                                        }
+                                        renderTrigger={(isOpen, setIsOpen) => (
+                                            <GTIconButton
+                                                icon={icons.folder}
+                                                onClick={() => setIsOpen(!isOpen)}
+                                                forceShowHoverEffect={isOpen}
+                                                asDiv
+                                            />
+                                        )}
+                                        enableKeyboardShortcut
+                                    />
+                                )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 {/* TODO: Sections */}
-                                <TaskActionsDropdown task={currentTask} />
+                                {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTaskUnion} />}
                             </MarginLeftAuto>
                         )}
                     </>
@@ -246,8 +293,8 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     disabled={
                         !!currentTask.optimisticId ||
                         !!meeting_preparation_params ||
-                        ('nux_number_id' in currentTask ? currentTask.nux_number_id : currentTask.id_nux_number ?? 0) >
-                            0 ||
+                        ('nux_number_id' in currentTask && !!currentTask.nux_number_id) ||
+                        ('id_nux_number' in currentTask && !!currentTask.id_nux_number) ||
                         isInTrash
                     }
                     onChange={(val) => onEdit({ id: currentTask.id, title: val })}
@@ -264,27 +311,52 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                <PriorityDropdown task={currentTask} disabled={isInTrash} />
-                <GTDatePicker
-                    initialDate={DateTime.fromISO(currentTask.due_date).toJSDate()}
-                    setDate={(date) => modifyTask({ id: currentTask.id, dueDate: date })}
+                <PriorityDropdown
+                    value={currentTask.priority_normalized ?? 0}
+                    onChange={(priority) =>
+                        isRecurringTaskTemplate
+                            ? modifyRecurringTask(
+                                  { id: currentTask.id, priority_normalized: priority },
+                                  currentTask.optimisticId
+                              )
+                            : modifyTask({ id: currentTask.id, priorityNormalized: priority }, currentTask.optimisticId)
+                    }
                     disabled={isInTrash}
                 />
-                <MarginLeftAuto>
-                    <LinearStatusDropdown task={currentTask} disabled={isInTrash} />
-                </MarginLeftAuto>
+                {!isRecurringTaskTemplate && currentTask.due_date && (
+                    <GTDatePicker
+                        initialDate={DateTime.fromISO(currentTask.due_date).toJSDate()}
+                        setDate={(date) => modifyTask({ id: currentTask.id, dueDate: date })}
+                        disabled={isInTrash}
+                    />
+                )}
+                {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
+                    <MarginLeftAuto>
+                        <LinearStatusDropdown task={currentTask as TTaskUnion} disabled={isInTrash} />
+                    </MarginLeftAuto>
+                )}
             </TaskStatusContainer>
             {currentTask.optimisticId ? (
                 <Spinner />
             ) : (
                 <>
+                    {isRecurringTaskTemplate && (
+                        <RecurringTaskTemplateDetailsBanner recurringTask={task as TRecurringTaskTemplate} />
+                    )}
                     <TaskBody
-                        task={currentTask}
+                        id={currentTask.id}
+                        body={currentTask.body ?? ''}
                         onChange={(val) => onEdit({ id: currentTask.id, body: val })}
                         disabled={isInTrash}
+                        nux_number_id={
+                            'nux_number_id' in currentTask
+                                ? currentTask.nux_number_id
+                                : 'id_nux_number' in currentTask
+                                ? currentTask.id_nux_number
+                                : undefined
+                        }
                     />
-                    {currentTask.source.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
-                        // TODO: Sections
+                    {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
                         <SubtaskList
                             taskId={currentTask.id}
                             subtasks={'sub_tasks' in currentTask ? currentTask.sub_tasks : undefined}
@@ -300,7 +372,7 @@ const TaskDetails = ({ task, subtask, link }: TaskDetailsProps) => {
                     {currentTask.external_status && !isInTrash && (
                         <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
-                    {currentTask.slack_message_params && (
+                    {currentTask.slack_message_params && currentTask.sender && (
                         <SlackMessage
                             sender={currentTask.sender}
                             slack_message_params={currentTask.slack_message_params}

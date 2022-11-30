@@ -4,16 +4,24 @@ import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TExternalStatus, TOverviewItem, TOverviewView, TTaskSection, TTaskV4, TUserInfo } from '../../utils/types'
+import {
+    TExternalStatus,
+    TOverviewItem,
+    TOverviewView,
+    TTask,
+    TTaskSection,
+    TTaskV4,
+    TUserInfo,
+} from '../../utils/types'
 import {
     arrayMoveInPlace,
-    createNewTaskHelper,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
 import { GTQueryClient, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
     title: string
@@ -154,12 +162,12 @@ export const useCreateTask = () => {
             ])
             if (data.parent_task_id) {
                 updateCacheForOptimsticSubtask(queryClient, data)
-                return
             }
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
-            if (sections) {
+            if (sections && !data.parent_task_id) {
                 const updatedSections = produce(sections, (draft) => {
                     const section = draft.find((section) => section.id === data.taskSectionId)
                     if (!section) return
@@ -168,7 +176,28 @@ export const useCreateTask = () => {
                 })
                 queryClient.setQueryData('tasks', updatedSections)
             }
-            if (views) {
+            if (tasks) {
+                const updatedTasks = produce(tasks, (draft) => {
+                    const newTask = createNewTaskV4Helper({
+                        // map to v4, remove when v3 is removed.
+                        id: data.optimisticId,
+                        // We're setting id_folder instead of putting the task into a folder directly now
+                        id_folder: data.taskSectionId,
+                        // Need to set this if it is a subtask
+                        id_parent: data.parent_task_id,
+                        ...data,
+                    })
+                    draft.unshift(newTask)
+                    // Add the id of this new task to the parent's subtask_ids
+                    if (data.parent_task_id) {
+                        const parentTask = draft.find((task) => task.id === data.parent_task_id)
+                        if (!parentTask) return
+                        parentTask.subtask_ids = [data.optimisticId, ...(parentTask.subtask_ids || [])]
+                    }
+                })
+                queryClient.setQueryData('tasks_v4', updatedTasks)
+            }
+            if (views && !data.parent_task_id) {
                 const updatedViews = produce(views, (draft) => {
                     const section = draft.find((view) => view.task_section_id === data.taskSectionId)
                     if (!section) return
@@ -182,6 +211,7 @@ export const useCreateTask = () => {
             setOptimisticId(createData.optimisticId, response.task_id)
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            const tasks = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
 
             if (sections) {
@@ -192,6 +222,15 @@ export const useCreateTask = () => {
                     task.optimisticId = undefined
                 })
                 queryClient.setQueryData('tasks', updatedSections)
+            }
+            if (tasks) {
+                const updatedTasks = produce(tasks, (draft) => {
+                    const task = draft.find((task) => task.id === createData.optimisticId)
+                    if (!task?.id) return
+                    task.id = response.task_id
+                    task.optimisticId = undefined
+                })
+                queryClient.setQueryData('tasks_v4', updatedTasks)
             }
             if (views) {
                 const updatedViews = produce(views, (draft) => {
@@ -443,7 +482,7 @@ const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => 
                 .sort((a, b) => a.id_ordering - b.id_ordering)
             resetOrderingIds(parentSubtasks)
         })
-        queryClient.setQueryData('tasks', updatedTasks)
+        queryClient.setQueryData('tasks_v4', updatedTasks)
     }
 }
 
@@ -665,5 +704,34 @@ const postComment = async (data: TPostCommentData) => {
         return castImmutable(res.data)
     } catch {
         throw new Error('postComment failed')
+    }
+}
+
+export const createNewTaskHelper = (data: Partial<TTask> & { optimisticId: string; title: string }): TTask => {
+    return {
+        id: data.optimisticId,
+        optimisticId: data.optimisticId,
+        id_ordering: data.id_ordering ?? 0.5,
+        title: data.title,
+        body: data.body ?? '',
+        deeplink: data.deeplink ?? '',
+        sent_at: data.sent_at ?? '',
+        priority_normalized: data.priority_normalized ?? 0,
+        time_allocated: data.time_allocated ?? 0,
+        due_date: data.due_date ?? '',
+        source: data.source ?? {
+            name: 'General Task',
+            logo: '',
+            logo_v2: 'generaltask',
+            is_completable: false,
+            is_replyable: false,
+        },
+        sender: data.sender ?? '',
+        is_done: data.is_done ?? false,
+        is_deleted: data.is_deleted ?? false,
+        is_meeting_preparation_task: data.is_meeting_preparation_task ?? false,
+        nux_number_id: data.nux_number_id ?? 0,
+        created_at: data.created_at ?? '',
+        updated_at: data.updated_at ?? '',
     }
 }

@@ -125,7 +125,9 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                     let description
                     if (item.task.nux_number_id) {
                         // if this is a nux task, override body
-                        description = renderToString(<NuxTaskBodyStatic task={item.task} renderSettingsModal={false} />)
+                        description = renderToString(
+                            <NuxTaskBodyStatic nux_number_id={item.task.nux_number_id} renderSettingsModal={false} />
+                        )
                     } else {
                         description = converter.makeHtml(item.task.body)
                         if (description !== '') {
