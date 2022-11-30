@@ -18,7 +18,6 @@ const PriorityDropdown = ({ value, onChange, disabled }: PriorityDropdownProps) 
             disabled={disabled}
             items={TASK_PRIORITIES.map((priority, index) => ({
                 label: priority.label,
-                // onClick: () => modifyTask({ id: task.id, priorityNormalized: val }, task.optimisticId),
                 onClick: () => onChange(index),
                 icon: priority.icon,
                 iconColor: TASK_PRIORITIES[index].color,
