@@ -39,8 +39,7 @@ func (api *API) NoteModify(c *gin.Context) {
 		return
 	}
 
-	userIDRaw, _ := c.Get("user")
-	userID := userIDRaw.(primitive.ObjectID)
+	userID := getUserIDFromContext(c)
 
 	note, err := database.GetNote(api.DB, noteID, userID)
 	if err != nil {
