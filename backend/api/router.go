@@ -90,6 +90,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.PATCH("/recurring_task_templates/modify/:template_id/", handlers.RecurringTaskTemplateModify)
 
 	router.GET("/notes/", handlers.NotesList)
+	router.POST("/notes/create/", handlers.NoteCreate)
 
 	router.GET("/ping_authed/", handlers.Ping)
 
