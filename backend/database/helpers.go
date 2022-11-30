@@ -148,7 +148,7 @@ func GetNote(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	var note Note
 	err := mongoResult.Decode(&note)
 	if err != nil {
-		logger.Error().Err(err).Msgf("failed to get task: %+v", itemID)
+		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
 		return nil, err
 	}
 	return &note, nil
