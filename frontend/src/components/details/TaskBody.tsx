@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { TTask } from '../../utils/types'
 import GTTextField from '../atoms/GTTextField'
 import NUXTaskBody from './NUXTaskBody'
 
@@ -11,30 +10,29 @@ const BodyContainer = styled.div`
 `
 
 interface TaskBodyProps {
-    task: TTask
+    id: string
+    body: string
     onChange: (val: string) => void
     disabled?: boolean
+    nux_number_id?: number
 }
-const TaskBody = ({ task, onChange, disabled }: TaskBodyProps) => {
-    if (!task.nux_number_id) {
-        return (
-            <BodyContainer>
-                <GTTextField
-                    itemId={task.id}
-                    type="markdown"
-                    value={task.body}
-                    placeholder="Add details"
-                    onChange={onChange}
-                    minHeight={BODY_MIN_HEIGHT}
-                    readOnly={disabled}
-                    disabled={disabled}
-                    fontSize="small"
-                />
-            </BodyContainer>
-        )
-    }
-    // else return NUX task body
-    return <NUXTaskBody task={task} />
+const TaskBody = ({ id, body, onChange, disabled, nux_number_id }: TaskBodyProps) => {
+    if (nux_number_id) return <NUXTaskBody nux_number_id={nux_number_id} />
+    return (
+        <BodyContainer>
+            <GTTextField
+                itemId={id}
+                type="markdown"
+                value={body}
+                placeholder="Add details"
+                onChange={onChange}
+                minHeight={BODY_MIN_HEIGHT}
+                readOnly={disabled}
+                disabled={disabled}
+                fontSize="small"
+            />
+        </BodyContainer>
+    )
 }
 
 export default TaskBody

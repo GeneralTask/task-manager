@@ -43,6 +43,14 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		}, userID)
 		assert.Equal(t, primitiveDueDate.Time().UTC().Format("2006-01-02"), result.DueDate)
 	})
+	t.Run("ValidTemplateID", func(t *testing.T) {
+		templateID := primitive.NewObjectID()
+		result := api.taskBaseToTaskResult(&database.Task{
+			SourceID:                external.TASK_SOURCE_ID_LINEAR,
+			RecurringTaskTemplateID: templateID,
+		}, userID)
+		assert.Equal(t, templateID, result.RecurringTaskTemplateID)
+	})
 	t.Run("AllFieldSuccess", func(t *testing.T) {
 		dueDate := time.Unix(420, 0)
 		timeAllocation := int64(420)
@@ -106,6 +114,7 @@ func TestTaskBaseToTaskResult(t *testing.T) {
 		assert.Equal(t, 1, len(result.AllExternalPriorities))
 		assert.Equal(t, externalPriority.Name, result.AllExternalPriorities[0].Name)
 		assert.Equal(t, externalPriority.PriorityNormalized, result.AllExternalPriorities[0].PriorityNormalized)
+		assert.Equal(t, primitive.NilObjectID, result.RecurringTaskTemplateID)
 	})
 }
 

@@ -1,16 +1,17 @@
-import { useCallback, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { icons } from '../../styles/images'
-import GTIconButton from '../atoms/buttons/GTIconButton'
-import GTDropdownMenu from './GTDropdownMenu'
+import GTDropdownMenu from '../radix/GTDropdownMenu'
 
-interface FolderDropdownProps {
+interface FolderSelectorProps {
     value: string
     onChange: (value: string) => void
+    renderTrigger: (isOpen: boolean, setIsOpen: (isOpen: boolean) => void) => ReactNode
+    enableKeyboardShortcut?: boolean
 }
-const FolderDropdown = ({ value, onChange }: FolderDropdownProps) => {
+const FolderSelector = ({ value, onChange, renderTrigger, enableKeyboardShortcut }: FolderSelectorProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { data: taskSections } = useGetTasks(false)
 
@@ -18,7 +19,8 @@ const FolderDropdown = ({ value, onChange }: FolderDropdownProps) => {
         'moveTaskToFolder',
         useCallback(() => {
             setIsOpen(true)
-        }, [])
+        }, []),
+        !enableKeyboardShortcut
     )
 
     return (
@@ -37,16 +39,9 @@ const FolderDropdown = ({ value, onChange }: FolderDropdownProps) => {
                           }))
                     : []
             }
-            trigger={
-                <GTIconButton
-                    icon={icons.folder}
-                    onClick={() => setIsOpen(!isOpen)}
-                    forceShowHoverEffect={isOpen}
-                    asDiv
-                />
-            }
+            trigger={renderTrigger(isOpen, setIsOpen)}
         />
     )
 }
 
-export default FolderDropdown
+export default FolderSelector
