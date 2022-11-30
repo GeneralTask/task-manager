@@ -346,7 +346,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
                         params.section && (
                             <RecurringTaskDetailsBanner
-                                templateId={'6385dea063f1f295e7ec70cd'}
+                                templateId={currentTask.recurring_task_template_id}
                                 folderId={params.section}
                             />
                         )}
