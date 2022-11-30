@@ -123,27 +123,29 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
     if (onlyCalendar) return calendar
 
     return (
-        <GTPopover
-            isOpen={isOpen}
-            setIsOpen={setIsOpen}
-            content={calendar}
-            disabled={disabled}
-            align="start"
-            trigger={
-                <GTButton
-                    styleType="simple"
-                    size="small"
-                    icon={showIcon ? icons.clock : undefined}
-                    value={formattedDate.dateString}
-                    textColor={formattedDate.textColor}
-                    iconColor={formattedDate.iconColor}
-                    onClick={() => setIsOpen(!isOpen)}
-                    active={isOpen}
-                    disabled={disabled}
-                    asDiv
-                />
-            }
-        />
+        <div>
+            <GTPopover
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                content={calendar}
+                disabled={disabled}
+                align="start"
+                trigger={
+                    <GTButton
+                        styleType="simple"
+                        size="small"
+                        icon={showIcon ? icons.clock : undefined}
+                        value={formattedDate.dateString}
+                        textColor={formattedDate.textColor}
+                        iconColor={formattedDate.iconColor}
+                        onClick={() => setIsOpen(!isOpen)}
+                        active={isOpen}
+                        disabled={disabled}
+                        asDiv
+                    />
+                }
+            />
+        </div>
     )
 }
 
