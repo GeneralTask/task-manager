@@ -36,24 +36,17 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                 [
                     {
                         label: 'GitHub PRs',
-                        onClick: () =>
-                            showGitHubSetting.updateSetting(
-                                showGitHubSetting.field_value === 'true' ? 'false' : 'true'
-                            ),
+                        onClick: () => showGitHubSetting.updateSetting(showGitHubSetting.field_value !== 'true'),
                         selected: showGitHubSetting.field_value === 'true',
                     },
                     {
                         label: 'Linear',
-                        onClick: () =>
-                            showLinearSetting.updateSetting(
-                                showLinearSetting.field_value === 'true' ? 'false' : 'true'
-                            ),
+                        onClick: () => showLinearSetting.updateSetting(showLinearSetting.field_value !== 'true'),
                         selected: showLinearSetting.field_value === 'true',
                     },
                     {
                         label: 'Slack',
-                        onClick: () =>
-                            showSlackSetting.updateSetting(showSlackSetting.field_value === 'true' ? 'false' : 'true'),
+                        onClick: () => showSlackSetting.updateSetting(showSlackSetting.field_value !== 'true'),
                         selected: showSlackSetting.field_value === 'true',
                     },
                 ],
