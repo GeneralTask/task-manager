@@ -738,5 +738,6 @@ export const createNewTaskHelper = (data: Partial<TTask> & { optimisticId: strin
         nux_number_id: data.nux_number_id ?? 0,
         created_at: data.created_at ?? '',
         updated_at: data.updated_at ?? '',
+        recurring_task_template_id: EMPTY_MONGO_OBJECT_ID,
     }
 }
