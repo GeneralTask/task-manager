@@ -5,8 +5,6 @@ const GRAY = {
     _100: '#F0F3F7',
     _200: '#DADADA',
     _500: '#717179',
-
-    _101: '#E6E9EC', // special gray for navbar selection
 }
 const RED = {
     _1: '#E24858',
@@ -41,7 +39,6 @@ export const background = {
     dark: GRAY._200,
     black: BLACK,
     dropIndicator: PURPLE._3,
-    sidebarSelect: GRAY._101,
 }
 
 export const border = {
