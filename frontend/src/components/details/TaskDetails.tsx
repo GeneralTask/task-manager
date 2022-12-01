@@ -22,7 +22,7 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTask } from '../../utils/types'
-import { getSectionIdFromTask } from '../../utils/utils'
+import { getFolderIdFromTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -221,7 +221,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     )
 
     const { data: folders } = useGetTasks()
-    const sectionId = getSectionIdFromTask(folders ?? [], currentTask.id)
+    const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
 
     return (
         <DetailsViewTemplate>
@@ -256,15 +256,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && sectionId && (
+                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && folderId && (
                                     <FolderSelector
-                                        value={sectionId}
+                                        value={folderId}
                                         onChange={(newFolderId) =>
                                             reorderTask(
                                                 {
                                                     id: currentTask.id,
                                                     dropSectionId: newFolderId,
-                                                    dragSectionId: sectionId,
+                                                    dragSectionId: folderId,
                                                     orderingId: 1,
                                                 },
                                                 currentTask.optimisticId

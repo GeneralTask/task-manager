@@ -146,11 +146,11 @@ export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TT
     return sections[sectionIndex]
 }
 
-export const getSectionIdFromTask = (sections: TTaskSection[], taskId: string): string | undefined => {
-    for (const section of sections) {
-        for (const task of section.tasks) {
+export const getFolderIdFromTask = (folders: TTaskSection[], taskId: string): string | undefined => {
+    for (const folder of folders) {
+        for (const task of folder.tasks) {
             if (task.id === taskId) {
-                return section.id
+                return folder.id
             }
         }
     }
