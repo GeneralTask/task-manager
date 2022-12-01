@@ -38,7 +38,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
             .map((task) => {
                 return produce(task, (draft) => {
                     for (const subtask of draft.sub_tasks || []) {
-                        subtask.parentTaskId = draft.id
+                        subtask.parent_task_id = draft.id
                         subtask.isSubtask = true
                     }
                 })

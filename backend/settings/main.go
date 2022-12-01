@@ -37,6 +37,7 @@ type SettingChoice struct {
 const (
 	// Sidebar settings
 	SettingFieldSidebarLinearPreference = "sidebar_linear_preference"
+	SettingFieldSidebarJiraPreference   = "sidebar_jira_preference"
 	SettingFieldSidebarGithubPreference = "sidebar_github_preference"
 	SettingFieldSidebarSlackPreference  = "sidebar_slack_preference"
 	// Github PR filtering
@@ -65,6 +66,15 @@ const (
 
 var SidebarLinearSetting = SettingDefinition{
 	FieldKey:      SettingFieldSidebarLinearPreference,
+	DefaultChoice: "true",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
+var SidebarJiraSetting = SettingDefinition{
+	FieldKey:      SettingFieldSidebarJiraPreference,
 	DefaultChoice: "true",
 	Choices: []SettingChoice{
 		{Key: "true"},
@@ -150,6 +160,7 @@ var hardcodedSettings = []SettingDefinition{
 	GithubSortingDirectionSetting,
 	// these settings are for the sidebar
 	SidebarLinearSetting,
+	SidebarJiraSetting,
 	SidebarGithubSetting,
 	SidebarSlackSetting,
 }

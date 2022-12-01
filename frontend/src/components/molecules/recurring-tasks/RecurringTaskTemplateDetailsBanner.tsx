@@ -72,6 +72,7 @@ const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTempl
                             styleType="simple"
                             size="small"
                             isDropdown
+                            asDiv
                         />
                     )}
                 />
