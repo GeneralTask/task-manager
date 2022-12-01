@@ -121,6 +121,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		result <- emptyCalendarResult(err)
 	}
 
+	log.Error().Msgf("jerd %+v", calendarList)
 	log.Error().Msgf("jerd %+v", calendarList.Items)
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
