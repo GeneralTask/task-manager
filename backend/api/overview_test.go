@@ -686,6 +686,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
+		expectedViewResult.Name = "Github PRs"
 		expectedViewResult.ViewItems = []*PullRequestResult{}
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})

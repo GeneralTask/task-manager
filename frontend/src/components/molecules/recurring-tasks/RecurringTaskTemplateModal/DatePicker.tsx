@@ -6,6 +6,7 @@ import { RecurrenceRate } from '../../../../utils/enums'
 
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     margin: 0 ${Spacing._16};
+    width: 250px;
     .mantine-Calendar-calendarBase {
         max-width: none;
     }

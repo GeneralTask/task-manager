@@ -78,7 +78,7 @@ const PullRequestsView = () => {
     }, [params.pullRequest, sortedAndFilteredRepositories])
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
-    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Github')
+    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')
     useEffect(() => {
         if (selectedPullRequest) {
             navigate(`/pull-requests/${selectedPullRequest.id}`, { replace: true })
