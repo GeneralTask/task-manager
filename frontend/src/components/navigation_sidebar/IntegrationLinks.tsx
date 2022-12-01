@@ -52,9 +52,9 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { selectedFilter: pullRequestFilter } = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG)
     const githubCount = isGithubIntegrationLinked
         ? pullRequestRepositories?.reduce<number>(
-              (total, repo) => total + repo.pull_requests.filter(pullRequestFilter.lambda).length,
-              0
-          )
+            (total, repo) => total + repo.pull_requests.filter(pullRequestFilter.lambda).length,
+            0
+        )
         : undefined
     const linearCount = isLinearIntegrationLinked ? linearTasksCount : undefined
     const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
@@ -79,6 +79,15 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             )}
+            {isPreviewMode && (
+                <NavigationLink
+                    link="/notes"
+                    title="Notes"
+                    icon={icons.note}
+                    isCurrentPage={pathname.split('/')[1] === 'notes'}
+                    isCollapsed={isCollapsed}
+                />
+            )}
             <Tip shortcutName="enterFocusMode" side="right">
                 <NavigationLink
                     link="/focus-mode"
@@ -88,48 +97,56 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             </Tip>
-            {isPreviewMode && !isCollapsed && (
-                <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />
-            )}
-            {(!isPreviewMode || showGithub) && (
-                <Tip shortcutName="goToGithubPRsPage" side="right">
-                    <NavigationLink
-                        link="/pull-requests"
-                        title="GitHub"
-                        icon={logos.github}
-                        count={githubCount}
-                        needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
-                        isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-            )}
-            {(!isPreviewMode || showLinear) && (
-                <Tip shortcutName="goToLinearPage" side="right">
-                    <NavigationLink
-                        link="/linear"
-                        title="Linear"
-                        icon={logos.linear}
-                        count={linearCount}
-                        needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
-                        isCurrentPage={pathname.split('/')[1] === 'linear'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-            )}
-            {(!isPreviewMode || showSlack) && (
-                <Tip shortcutName="goToSlackPage" side="right">
-                    <NavigationLink
-                        link="/slack"
-                        title="Slack"
-                        icon={logos.slack}
-                        count={slackCount}
-                        needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
-                        isCurrentPage={pathname.split('/')[1] === 'slack'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-            )}
+            {
+                isPreviewMode && !isCollapsed && (
+                    <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />
+                )
+            }
+            {
+                (!isPreviewMode || showGithub) && (
+                    <Tip shortcutName="goToGithubPRsPage" side="right">
+                        <NavigationLink
+                            link="/pull-requests"
+                            title="GitHub"
+                            icon={logos.github}
+                            count={githubCount}
+                            needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
+                            isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
+                            isCollapsed={isCollapsed}
+                        />
+                    </Tip>
+                )
+            }
+            {
+                (!isPreviewMode || showLinear) && (
+                    <Tip shortcutName="goToLinearPage" side="right">
+                        <NavigationLink
+                            link="/linear"
+                            title="Linear"
+                            icon={logos.linear}
+                            count={linearCount}
+                            needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
+                            isCurrentPage={pathname.split('/')[1] === 'linear'}
+                            isCollapsed={isCollapsed}
+                        />
+                    </Tip>
+                )
+            }
+            {
+                (!isPreviewMode || showSlack) && (
+                    <Tip shortcutName="goToSlackPage" side="right">
+                        <NavigationLink
+                            link="/slack"
+                            title="Slack"
+                            icon={logos.slack}
+                            count={slackCount}
+                            needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
+                            isCurrentPage={pathname.split('/')[1] === 'slack'}
+                            isCollapsed={isCollapsed}
+                        />
+                    </Tip>
+                )
+            }
         </>
     )
 }

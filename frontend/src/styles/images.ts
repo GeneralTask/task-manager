@@ -44,8 +44,10 @@ import {
     faMagnifyingGlass,
     faMegaphone,
     faMessage,
+    faNoteSticky,
     faPencil,
     faPlus,
+    faShare,
     faSidebar,
     faSidebarFlip,
     faSquare,
@@ -137,6 +139,7 @@ export const icons = Object.freeze({
     list: faList,
     magnifying_glass: faMagnifyingGlass,
     megaphone: faMegaphone,
+    note: faNoteSticky,
     pencil: faPencil,
     plus: faPlus,
     priority_high: faCircleChevronUp,
@@ -147,6 +150,7 @@ export const icons = Object.freeze({
     priority: faCircleUpLight,
     quote_right: faQuoteRight,
     repository: faCubes,
+    share: faShare,
     sidebar: faSidebar,
     sidebarFlipped: faSidebarFlip,
     slack: logos.slack,
@@ -180,6 +184,7 @@ export const linearStatus = Object.freeze({
 })
 
 export const focusModeBackground = '/images/focus_mode_background.jpg'
+export const noteBackground = '/images/note_background.jpg'
 
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons

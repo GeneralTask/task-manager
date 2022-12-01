@@ -61,6 +61,10 @@ const AuthenticatedRoutes = () => {
                         <Route path={FOCUS_MODE_ROUTE} element={<Outlet />}>
                             <Route index element={<FocusModeScreen />} />
                         </Route>
+                        <Route path="notes" element={<Outlet />}>
+                            <Route index element={<MainScreen />} />
+                            <Route path=":noteId" element={<MainScreen />} />
+                        </Route>
                     </Routes>
                 </AppContextProvider>
                 <StyledToastContainer />

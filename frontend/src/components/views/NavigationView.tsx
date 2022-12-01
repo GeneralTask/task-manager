@@ -16,6 +16,7 @@ import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import NoteCreateModal from '../notes/NoteCreateButton'
 import NavigationViewCollapsed from './NavigationViewCollapsed'
 
 const GT_BETA_LOGO_WIDTH = '95px'
@@ -106,6 +107,7 @@ const NavigationView = () => {
                                     shortcutName="navigationView"
                                 />
                             )}
+                            {isPreviewMode && <NoteCreateModal />}
                             <CommandPalette />
                         </Flex>
                     </NavigationViewHeader>
