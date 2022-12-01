@@ -28,6 +28,7 @@ const NewTemplateFolderSelector = ({ value, onChange }: NewTemplateFolderSelecto
                         size="small"
                         fitContent={false}
                         isDropdown
+                        asDiv
                     />
                 )}
             />
