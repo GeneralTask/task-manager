@@ -41,7 +41,6 @@ export interface TTask {
     is_done: boolean
     is_deleted: boolean
     is_meeting_preparation_task: boolean
-    recurring_task_template_id: string
     comments?: TLinearComment[]
     isSubtask?: boolean
     slack_message_params?: TSlackMessageParams
@@ -51,6 +50,7 @@ export interface TTask {
     created_at: string
     updated_at: string
     parent_task_id?: string
+    recurring_task_template_id?: string
 }
 export interface TTaskV4 {
     id: string

@@ -1,13 +1,7 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
-import {
-    DONE_SECTION_ID,
-    EMPTY_MONGO_OBJECT_ID,
-    TASK_MARK_AS_DONE_TIMEOUT,
-    TASK_REFETCH_INTERVAL,
-    TRASH_SECTION_ID,
-} from '../../constants'
+import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import {
@@ -738,6 +732,5 @@ export const createNewTaskHelper = (data: Partial<TTask> & { optimisticId: strin
         nux_number_id: data.nux_number_id ?? 0,
         created_at: data.created_at ?? '',
         updated_at: data.updated_at ?? '',
-        recurring_task_template_id: EMPTY_MONGO_OBJECT_ID,
     }
 }

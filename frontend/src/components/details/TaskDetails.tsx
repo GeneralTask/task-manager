@@ -342,6 +342,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <Spinner />
             ) : (
                 <>
+                    {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
                     {!isRecurringTaskTemplate &&
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
