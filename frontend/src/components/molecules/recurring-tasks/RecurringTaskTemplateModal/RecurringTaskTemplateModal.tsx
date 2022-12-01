@@ -41,7 +41,6 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
               })
             : DateTime.local()
     )
-
     const isValid = !!title.trim()
 
     const handleSave = () => {

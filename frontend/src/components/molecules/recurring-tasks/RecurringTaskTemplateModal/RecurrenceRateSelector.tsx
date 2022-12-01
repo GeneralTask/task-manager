@@ -18,7 +18,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
         () => [
             [RecurrenceRate.DAILY, 'Daily'],
             [RecurrenceRate.WEEKLY, `Weekly on ${selectedDate.weekdayLong}`],
-            [RecurrenceRate.MONTHLY, `Monthly on the ${getOrdinal(selectedDate.day)} [not supported by backend yet]`],
+            [RecurrenceRate.MONTHLY, `Monthly on the ${getOrdinal(selectedDate.day)}`],
             [RecurrenceRate.YEARLY, `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`],
             [RecurrenceRate.WEEK_DAILY, 'Every weekday (Monday to Friday)'],
         ],
@@ -44,6 +44,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
                         fitContent={false}
                         size="small"
                         value={recurrenceRateLabels.find(([rate]) => rate === value)?.[1] || 'Select a recurrence rate'}
+                        asDiv
                     />
                 }
             />
