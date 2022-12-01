@@ -56,6 +56,19 @@ const useNavigateToTask = () => {
                     }
                 }
             }
+            // If we can't find the task with taskId, we check all subtasks as temporary hack for subtask-to-event View Details
+            for (const section of sections) {
+                for (const task of section.tasks) {
+                    for (const subtask of task.sub_tasks ?? []) {
+                        if (subtask.id === taskID) {
+                            setCalendarType('day')
+                            navigate(`/tasks/${section.id}/${task.id}/${subtask.id}`)
+                            Log(`task_navigate__/tasks/${section.id}/${task.id}/${subtask.id}`)
+                            return
+                        }
+                    }
+                }
+            }
             return isUserOnOverviewPage
         },
         []

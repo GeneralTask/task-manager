@@ -77,6 +77,7 @@ const RecurringTaskTemplateDetailsBanner = ({ recurringTask }: RecurringTaskTemp
                             styleType="simple"
                             size="small"
                             isDropdown
+                            asDiv
                         />
                     )}
                 />

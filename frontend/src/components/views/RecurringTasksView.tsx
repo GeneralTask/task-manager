@@ -5,10 +5,12 @@ import Log from '../../services/api/log'
 import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { icons } from '../../styles/images'
 import { TRecurringTaskTemplate } from '../../utils/types'
+import { EMPTY_ARRAY } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
+import AddRecurringTask from '../molecules/recurring-tasks/AddRecurringTask'
 import RecurringTask from '../molecules/recurring-tasks/RecurringTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -32,7 +34,7 @@ const RecurringTasksView = () => {
         Log(`recurring_task_select_${recurringTask.id}`)
     }, [])
 
-    useItemSelectionController(recurringTaskTemplates ?? [], selectRecurringTask)
+    useItemSelectionController(recurringTaskTemplates ?? EMPTY_ARRAY, selectRecurringTask)
 
     return (
         <>
@@ -41,14 +43,17 @@ const RecurringTasksView = () => {
                 {!recurringTaskTemplates ? (
                     <Spinner />
                 ) : (
-                    recurringTaskTemplates.map((recurringTask) => (
-                        <RecurringTask
-                            key={recurringTask.id}
-                            recurringTask={recurringTask}
-                            isSelected={recurringTask.id === recurringTaskId}
-                            onSelect={selectRecurringTask}
-                        />
-                    ))
+                    <>
+                        <AddRecurringTask />
+                        {recurringTaskTemplates.map((recurringTask) => (
+                            <RecurringTask
+                                key={recurringTask.id}
+                                recurringTask={recurringTask}
+                                isSelected={recurringTask.id === recurringTaskId}
+                                onSelect={selectRecurringTask}
+                            />
+                        ))}
+                    </>
                 )}
             </ScrollableListTemplate>
             {selectedRecurringTask ? (

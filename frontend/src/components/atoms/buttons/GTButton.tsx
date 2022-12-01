@@ -103,6 +103,9 @@ const Button = styled(NoStyleButton)<{
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
     ${(props) => props.disabled && `cursor: default;`}
 `
+const MarginLeftAuto = styled.div`
+    margin-left: auto;
+`
 
 interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     styleType?: TButtonStyle
@@ -143,7 +146,11 @@ const GTButton = ({
         >
             {icon && <Icon icon={icon} color={iconColor} />}
             {value}
-            {isDropdown && <Icon icon={icons.caret_down_solid} color="gray" />}
+            {isDropdown && (
+                <MarginLeftAuto>
+                    <Icon icon={icons.caret_down_solid} color="gray" />
+                </MarginLeftAuto>
+            )}
         </Button>
     )
 }

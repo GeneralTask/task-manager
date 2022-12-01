@@ -1,7 +1,7 @@
 import { Fragment, useRef } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import styled from 'styled-components'
-import { Colors } from '../../styles'
+import { Colors, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { emptyFunction, stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
@@ -18,10 +18,17 @@ import {
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
-const DropdownMenuContent = styled(DropdownMenu.Content)<{ $menuInModal?: boolean; $width?: number }>`
+const DropdownMenuContent = styled(DropdownMenu.Content)<{
+    $menuInModal?: boolean
+    $width?: number
+    $textColor?: string
+    isLabel?: boolean
+}>`
     ${MenuContentShared};
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
+    ${({ $textColor }) => $textColor && `color: ${$textColor};`}
+    ${({ isLabel }) => isLabel && Typography.label};
     box-sizing: border-box;
 `
 const DropdownMenuItem = styled(DropdownMenu.Item)`
@@ -44,6 +51,7 @@ interface GTDropdownMenuProps {
     useTriggerWidth?: boolean
     unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
+    fontStyle?: 'default' | 'label'
 }
 
 const GTDropdownMenu = ({
@@ -58,6 +66,7 @@ const GTDropdownMenu = ({
     useTriggerWidth = false,
     unstyledTrigger = false,
     keepOpenOnSelect = false,
+    fontStyle = 'default',
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
@@ -74,6 +83,7 @@ const GTDropdownMenu = ({
                         align={align}
                         $menuInModal={menuInModal}
                         $width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
+                        isLabel={fontStyle === 'label'}
                     >
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>

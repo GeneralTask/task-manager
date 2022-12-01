@@ -11,7 +11,6 @@ import (
 
 func TestNotesList(t *testing.T) {
 	authToken := login("test_notes_list@generaltask.com", "")
-
 	true_val := true
 	false_val := false
 	title1 := "title1"
