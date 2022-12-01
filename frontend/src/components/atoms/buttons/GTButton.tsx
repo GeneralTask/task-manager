@@ -72,7 +72,6 @@ const Button = styled(NoStyleButton)<{
     align-items: center;
     border-radius: ${Border.radius.small};
     text-align: center;
-    height: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
     width: ${({ fitContent }) => (fitContent ? 'fit-content' : '100%')};
     ${(props) => props.styleType !== 'simple' && `box-shadow: ${Shadows.button.default};`};
     white-space: ${(props) => (props.wrapText ? 'normal' : 'nowrap')};
