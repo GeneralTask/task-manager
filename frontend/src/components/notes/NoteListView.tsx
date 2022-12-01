@@ -43,18 +43,16 @@ const NoteListView = () => {
                     <Spinner />
                 ) : (
                     <>
-                        {/* <AddNote /> */}
                         {notes.map((note) => (
                             <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
                         ))}
                     </>
                 )}
             </ScrollableListTemplate>
-            {/* <EmptyDetails icon={icons.note} text="You have no notes sadge" /> */}
             {selectedNote ? (
                 <NoteDetails note={selectedNote} link={`/notes/${selectedNote.id}`} />
             ) : (
-                <EmptyDetails icon={icons.note} text="You have no notes sadge" />
+                <EmptyDetails icon={icons.note} text="You have no notes" />
             )}
         </>
     )

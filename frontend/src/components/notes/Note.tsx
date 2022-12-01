@@ -1,12 +1,3 @@
-// import { TASK_PRIORITIES } from '../../../constants'
-// import { Spacing } from '../../../styles'
-// import { icons } from '../../../styles/images'
-// import { TnoteTemplate } from '../../../utils/types'
-// import Flex from '../../atoms/Flex'
-// import { Icon } from '../../atoms/Icon'
-// import TaskTemplate from '../../atoms/TaskTemplate'
-// import { Truncated } from '../../atoms/typography/Typography'
-// import ItemContainer from '../ItemContainer'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
@@ -21,7 +12,7 @@ interface NoteProps {
     isSelected: boolean
     onSelect: (note: TNote) => void
 }
-const note = ({ note, isSelected, onSelect }: NoteProps) => {
+const Note = ({ note, isSelected, onSelect }: NoteProps) => {
     return (
         <TaskTemplate>
             <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)}>
@@ -34,4 +25,4 @@ const note = ({ note, isSelected, onSelect }: NoteProps) => {
     )
 }
 
-export default note
+export default Note

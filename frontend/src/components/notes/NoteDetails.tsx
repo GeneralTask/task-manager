@@ -110,6 +110,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                         value="Copy Note Link"
                         onClick={() => {
                             navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`)
+                            modifyNote({ id: note.id, is_shared: true })
                             toast.show(
                                 {
                                     message: `Note URL copied to clipboard`,
