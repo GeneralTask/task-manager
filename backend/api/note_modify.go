@@ -59,6 +59,7 @@ func (api *API) NoteModify(c *gin.Context) {
 			isShared = modifyParams.NoteChangeable.IsShared
 		}
 		updatedNote := database.Note{
+			UserID:             userID,
 			Title:              modifyParams.NoteChangeable.Title,
 			Body:               modifyParams.NoteChangeable.Body,
 			AuthorDisplayEmail: modifyParams.NoteChangeable.Author,

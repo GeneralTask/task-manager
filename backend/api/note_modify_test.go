@@ -47,6 +47,7 @@ func TestNoteModifyEditFields(t *testing.T) {
 		var note database.Note
 		err = database.GetNoteCollection(db).FindOne(context.Background(), bson.M{"_id": note1.ID}).Decode(&note)
 		assert.NoError(t, err)
+		assert.Equal(t, userID, note.UserID)
 		assert.Equal(t, "new title", *note.Title)
 		assert.Equal(t, "new body", *note.Body)
 		assert.Equal(t, "new author", note.AuthorDisplayEmail)
