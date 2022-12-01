@@ -18,12 +18,11 @@ const AddRecurringTask = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     return (
         <>
-            <AddTemplateContainer onClick={() => setIsModalOpen(true)}>
+            <AddTemplateContainer isButton onClick={() => setIsModalOpen(true)}>
                 <Icon icon={icons.plus} />
                 Add new template
             </AddTemplateContainer>
-            {/* conditionally rendering so that modal re-mounts and resets state after closing */}
-            {isModalOpen && <RecurringTaskTemplateModal onClose={() => setIsModalOpen(false)} />}
+            <RecurringTaskTemplateModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
         </>
     )
 }
