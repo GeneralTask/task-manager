@@ -1,12 +1,23 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { Border, Colors, Typography } from '../../../styles'
+import { Border, Colors, Dimensions, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import { Icon } from '../../atoms/Icon'
-import { CreateNewTaskContainer } from '../CreateNewTask'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 
-const AddTemplateContainer = styled(CreateNewTaskContainer)<{ isButton?: boolean }>`
+export const AddTemplateContainer = styled.div`
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: row;
+    gap: ${Spacing._8};
+    background-color: ${Colors.background.medium};
+    height: ${Dimensions.TASK_HEIGHT};
+    align-items: center;
+    padding: 0px ${Spacing._8};
+    border-radius: ${Border.radius.mini};
+    box-sizing: border-box;
+    border: ${Border.stroke.medium} solid transparent;
+    margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
     cursor: pointer;
     :hover {

@@ -47,7 +47,7 @@ import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
-const TASK_TITLE_MAX_WIDTH = 125
+const TASK_TITLE_MAX_WIDTH = 145
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -94,10 +94,11 @@ const BackButtonContainer = styled(NoStyleLink)`
     gap: ${Spacing._8};
     ${Typography.mini};
 `
-const BackButtonText = styled.span`
+const BackButtonText = styled(Label)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: inherit;
 `
 
 const SYNC_MESSAGES = {
@@ -225,7 +226,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     {subtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
-                            <BackButtonText>{task.title}</BackButtonText>
+                            <BackButtonText>Return to {task.title}</BackButtonText>
                         </BackButtonContainer>
                     ) : (
                         <Icon icon={logos[currentTask?.source?.logo_v2 ?? 'generaltask']} />
@@ -322,9 +323,9 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     }
                     disabled={isInTrash}
                 />
-                {!isRecurringTaskTemplate && currentTask.due_date && (
+                {!isRecurringTaskTemplate && (
                     <GTDatePicker
-                        initialDate={DateTime.fromISO(currentTask.due_date).toJSDate()}
+                        initialDate={DateTime.fromISO(currentTask.due_date ?? '').toJSDate()}
                         setDate={(date) => modifyTask({ id: currentTask.id, dueDate: date })}
                         disabled={isInTrash}
                     />

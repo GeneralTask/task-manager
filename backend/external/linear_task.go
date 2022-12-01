@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -26,7 +25,6 @@ func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitiv
 }
 
 func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	log.Error().Msg("jerdjerd linear get")
 	client, err := GetLinearClient(linearTask.Linear.Config.ConfigValues.UserInfoURL, db, userID, accountID)
 	logger := logging.GetSentryLogger()
 	if err != nil {
@@ -72,13 +70,16 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 
 	var tasks []*database.Task
 	for _, linearIssue := range issuesQuery.Issues.Nodes {
-		log.Error().Msgf("jerd %+v", linearIssue)
 		createdAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.CreatedAt))
 		updatedAt, _ := time.Parse("2006-01-02T15:04:05.000Z", string(linearIssue.UpdatedAt))
 		stringTitle := string(linearIssue.Title)
 		stringBody := string(linearIssue.Description)
 		isCompleted := false
 		isDeleted := false
+		statusId := ""
+		if linearIssue.State.Id != nil {
+			statusId = (linearIssue.State.Id).(string)
+		}
 
 		task := &database.Task{
 			UserID:             userID,
@@ -95,14 +96,9 @@ func (linearTask LinearTaskSource) GetTasks(db *mongo.Database, userID primitive
 			IsDeleted:          &isDeleted,
 			PriorityNormalized: (*float64)(&linearIssue.Priority),
 			Status: &database.ExternalTaskStatus{
-				ExternalID: (linearIssue.State.Id).(string),
+				ExternalID: statusId,
 				State:      string(linearIssue.State.Name),
 				Type:       string(linearIssue.State.Type),
-			},
-			CompletedStatus: &database.ExternalTaskStatus{
-				ExternalID: (linearIssue.Team.MergeWorkflowState.Id).(string),
-				State:      string(linearIssue.Team.MergeWorkflowState.Name),
-				Type:       string(linearIssue.Team.MergeWorkflowState.Type),
 			},
 		}
 		if len(linearIssue.Comments.Nodes) > 0 {
