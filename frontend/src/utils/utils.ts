@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TTask, TTaskSection } from './types'
+import { TLinkedAccount, TLinkedAccountName, TTask, TTaskSection } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -58,8 +58,7 @@ export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
 }
-
-export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: string) => {
+export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: TLinkedAccountName) => {
     return linkedAccounts
         .filter((linkedAccount) => linkedAccount.name === accountName)
         .some((account) => account.has_bad_token)
