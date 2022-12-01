@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
@@ -87,7 +87,7 @@ const IconContainer = styled.div<{ marginLeftAuto?: boolean }>`
     align-items: center;
     justify-content: center;
     padding: ${Spacing._16};
-    ${({ marginLeftAuto }) => marginLeftAuto && 'margin-left: auto'}
+    ${({ marginLeftAuto }) => marginLeftAuto && 'margin-left: auto'};
 `
 const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
     min-width: 0;
@@ -95,19 +95,7 @@ const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
     text-overflow: ellipsis;
     white-space: nowrap;
     position: relative;
-    ${({ strike }) =>
-        strike &&
-        css`
-            &::after {
-                content: ' ';
-                position: absolute;
-                left: 0;
-                top: 55%;
-                width: 100%;
-                height: 1px;
-                background-color: ${Colors.text.light};
-            }
-        `}
+    ${({ strike }) => strike && 'text-decoration: line-through'};
 `
 const FlexWidth100 = styled(Flex)`
     width: 100%;
