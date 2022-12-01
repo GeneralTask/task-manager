@@ -82,10 +82,10 @@ export default function CalendarHeader({
         if (ignoreCalendarContext) {
             setCalendarType('week')
         }
-        if (date.weekday !== 7) {
+        if ((ignoreCalendarContext || calendarType === 'week') && date.weekday !== 7) {
             setDate(date.minus({ days: date.weekday % 7 }))
         }
-    }, [ignoreCalendarContext, setCalendarType, setDate, date])
+    }, [ignoreCalendarContext, calendarType, setCalendarType, setDate, date])
 
     const selectToday = useCallback(() => {
         if (calendarType === 'day') {
