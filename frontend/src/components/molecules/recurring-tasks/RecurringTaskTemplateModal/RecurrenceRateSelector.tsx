@@ -44,6 +44,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
                         fitContent={false}
                         size="small"
                         value={recurrenceRateLabels.find(([rate]) => rate === value)?.[1] || 'Select a recurrence rate'}
+                        asDiv
                     />
                 }
             />
