@@ -46,6 +46,20 @@ func TestGetTasks(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
+	task3, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abcdef",
+		"foobar_source",
+		&Task{
+			IDExternal:   "123abcdef",
+			ParentTaskID: task2.ID,
+			SourceID:     "foobar_source",
+			UserID:       userID,
+			IsCompleted:  &completed,
+		},
+	)
+	assert.NoError(t, err)
 	_, err = GetOrCreateTask(
 		db,
 		notUserID,
@@ -69,15 +83,17 @@ func TestGetTasks(t *testing.T) {
 	t.Run("GetCompletedTasks", func(t *testing.T) {
 		tasks, err := GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, 2, len(*tasks))
 		assert.Equal(t, task2.ID, (*tasks)[0].ID)
+		assert.Equal(t, task3.ID, (*tasks)[1].ID)
 	})
 	t.Run("GetTasks", func(t *testing.T) {
 		tasks, err := GetTasks(db, userID, nil, nil)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(*tasks))
+		assert.Equal(t, 3, len(*tasks))
 		assert.Equal(t, task1.ID, (*tasks)[0].ID)
 		assert.Equal(t, task2.ID, (*tasks)[1].ID)
+		assert.Equal(t, task3.ID, (*tasks)[2].ID)
 	})
 }
 
