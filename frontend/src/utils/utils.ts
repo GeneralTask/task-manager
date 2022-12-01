@@ -79,6 +79,9 @@ export const getHumanDateTime = (date: DateTime) => {
 // to avoid creating empty placeholder functions across the app
 export const emptyFunction = () => void 0
 
+// provides a constant reference in case this is passed into a dependecy array
+export const EMPTY_ARRAY = []
+
 export const countWithOverflow = (count: number, max = 99) => {
     if (count > max) {
         return `${max}+`

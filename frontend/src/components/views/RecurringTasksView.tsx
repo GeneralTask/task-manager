@@ -5,6 +5,7 @@ import Log from '../../services/api/log'
 import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { icons } from '../../styles/images'
 import { TRecurringTaskTemplate } from '../../utils/types'
+import { EMPTY_ARRAY } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -33,7 +34,7 @@ const RecurringTasksView = () => {
         Log(`recurring_task_select_${recurringTask.id}`)
     }, [])
 
-    useItemSelectionController(recurringTaskTemplates, selectRecurringTask)
+    useItemSelectionController(recurringTaskTemplates ?? EMPTY_ARRAY, selectRecurringTask)
 
     return (
         <>
