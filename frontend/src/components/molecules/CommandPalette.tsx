@@ -241,7 +241,12 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                         <IconContainer>
                                             <Icon icon={logos[source.logo_v2]} />
                                         </IconContainer>
-                                        <TruncatedTitle strike={is_done || is_deleted}>{title}</TruncatedTitle>
+                                        <TruncatedTitle
+                                            strike={is_done || is_deleted}
+                                            color={is_done || is_deleted ? 'light' : 'black'}
+                                        >
+                                            {title}
+                                        </TruncatedTitle>
                                         {(is_done || is_deleted) && (
                                             <IconContainer marginLeftAuto>
                                                 <Icon
