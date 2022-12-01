@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
@@ -31,6 +32,8 @@ func TestNoteModifyEditFields(t *testing.T) {
 			Body:               &body1,
 			AuthorDisplayEmail: "author1",
 			IsShared:           &true_val,
+			CreatedAt:          *testutils.CreateDateTime("2020-04-20"),
+			UpdatedAt:          *testutils.CreateDateTime("2020-04-20"),
 		},
 	)
 
@@ -50,6 +53,8 @@ func TestNoteModifyEditFields(t *testing.T) {
 		assert.Equal(t, "new title", *note.Title)
 		assert.Equal(t, "new body", *note.Body)
 		assert.Equal(t, "new author", note.AuthorDisplayEmail)
+		assert.Equal(t, *testutils.CreateDateTime("2020-04-20"), note.CreatedAt)
+		assert.Greater(t, note.UpdatedAt, *testutils.CreateDateTime("2020-04-20"))
 		assert.Equal(t, false, *note.IsShared)
 	})
 }
