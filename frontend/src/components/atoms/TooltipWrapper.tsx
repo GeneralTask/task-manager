@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import ReactTooltip from 'react-tooltip'
 
 interface TooltipWrapperProps {
-    children: JSX.Element
+    children: React.ReactNode
     dataTip: string
     tooltipId: string
     inline?: boolean

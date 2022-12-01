@@ -87,7 +87,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 <NavigationHeader
                     title="Services"
                     tooltip="Hide/Show Services"
-                    renderButton={() => <ServiceVisibilityDropdown />}
+                    button={<ServiceVisibilityDropdown />}
                 />
             )}
             {(!isPreviewMode || showGithub) && (

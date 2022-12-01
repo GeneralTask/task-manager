@@ -1,9 +1,6 @@
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import { icons } from '../../styles/images'
-import { TIconType } from '../atoms/Icon'
 import TooltipWrapper from '../atoms/TooltipWrapper'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 
 const DropdownContainer = styled.div`
     display: flex;
@@ -23,33 +20,16 @@ const Title = styled.span`
 interface NavigationHeaderProps {
     title: string
     tooltip: string
-    icon?: TIconType
-    onClick?: () => void
-    renderButton?: () => JSX.Element // Override
+    button: React.ReactNode
 }
-const NavigationHeader = ({ title, icon, tooltip, onClick, renderButton }: NavigationHeaderProps) => {
-    const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.stopPropagation()
-        if (!onClick) return
-        onClick()
-    }
-
-    return (
-        <>
-            <DropdownContainer>
-                <Title>{title}</Title>
-                {(onClick || renderButton) && (
-                    <TooltipWrapper dataTip={tooltip} tooltipId="tooltip">
-                        {renderButton ? (
-                            renderButton()
-                        ) : (
-                            <GTIconButton icon={icon ?? icons.x} onClick={handleOnClick} />
-                        )}
-                    </TooltipWrapper>
-                )}
-            </DropdownContainer>
-        </>
-    )
-}
+const NavigationHeader = ({ title, tooltip, button }: NavigationHeaderProps) => (
+    <DropdownContainer>
+        <Title>{title}</Title>
+        <TooltipWrapper dataTip={tooltip} tooltipId="tooltip">
+            {button}
+            {/* <GTIconButton icon={icon ?? icons.x} onClick={handleOnClick} /> */}
+        </TooltipWrapper>
+    </DropdownContainer>
+)
 
 export default NavigationHeader

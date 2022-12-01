@@ -12,6 +12,7 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
 import IntegrationLinks from './IntegrationLinks'
 import NavigationHeader from './NavigationHeader'
@@ -69,10 +70,14 @@ const NavigationSectionLinks = () => {
     }
 
     const inputRef = useRef<HTMLInputElement>(null)
-    const onOpenAddSectionInputHandler = useCallback(() => {
-        setIsAddSectionInputVisible(true)
-        inputRef.current?.focus()
-    }, [inputRef])
+    const onOpenAddSectionInputHandler = useCallback(
+        (e: React.MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation()
+            setIsAddSectionInputVisible(true)
+            inputRef.current?.focus()
+        },
+        [inputRef]
+    )
 
     useEffect(() => {
         if (isAddSectionInputVisible && inputRef.current) {
@@ -139,9 +144,8 @@ const NavigationSectionLinks = () => {
             <IntegrationLinks />
             <NavigationHeader
                 title="Folders"
-                icon={icons.plus}
+                button={<GTIconButton icon={icons.plus} onClick={onOpenAddSectionInputHandler} />}
                 tooltip="Add Folder"
-                onClick={onOpenAddSectionInputHandler}
             />
             {defaultFolder && (
                 <NavigationLink
