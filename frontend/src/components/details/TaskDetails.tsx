@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import {
     DETAILS_SYNC_TIMEOUT,
     GENERAL_TASK_SOURCE_NAME,
+    NO_EVENT_TITLE,
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
@@ -188,7 +189,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const syncDetails = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
-            const timerId = id + (title === undefined ? 'body' : 'title')
+            const isEditingTitle = title !== undefined
+            if (isEditingTitle && title === '') {
+                title = NO_EVENT_TITLE
+            }
+            const timerId = id + (isEditingTitle ? title : 'body')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             if (isRecurringTaskTemplate) {
                 modifyRecurringTask(
