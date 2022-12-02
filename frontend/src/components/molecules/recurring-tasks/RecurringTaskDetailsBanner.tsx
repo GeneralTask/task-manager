@@ -2,12 +2,11 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as Sentry from '@sentry/browser'
 import styled from 'styled-components'
-import { useRecurringTaskTemplates } from '../../../services/api/recurring-tasks.hooks'
 import { useGetTasks } from '../../../services/api/tasks.hooks'
 import { Colors } from '../../../styles'
 import { Banner } from './RecurringTaskTemplateDetailsBanner'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
-import { formatRecurrenceRateForRecurringTaskBanner } from './recurrenceRate.utils'
+import { formatRecurrenceRateForRecurringTaskBanner, useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
 
 const LinkText = styled.span`
     color: ${Colors.text.purple};
@@ -21,7 +20,6 @@ interface RecurringTaskDetailsBannerProps {
 }
 const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetailsBannerProps) => {
     const { data: folders } = useGetTasks()
-    const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
 
     const [isEditTemplateModalOpen, setIsEditTemplateModalOpen] = useState(false)
 
@@ -34,14 +32,7 @@ const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetai
         return folder
     }, [folders, folderId])
 
-    const recurringTaskTemplate = useMemo(() => {
-        if (!recurringTaskTemplates) return null
-        const recurringTaskTemplate = recurringTaskTemplates.find((rt) => rt.id === templateId)
-        if (!recurringTaskTemplate) {
-            Sentry.captureMessage('Recurring task has invalid template id: ' + templateId)
-        }
-        return recurringTaskTemplate
-    }, [recurringTaskTemplates, templateId])
+    const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
 
     if (!folder || !recurringTaskTemplate) return null
 

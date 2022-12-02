@@ -1,8 +1,24 @@
+import { useMemo } from 'react'
+import * as Sentry from '@sentry/browser'
+import { useRecurringTaskTemplates } from '../../../services/api/recurring-tasks.hooks'
 import { RecurrenceRate } from '../../../utils/enums'
 import { getOrdinal } from '../../../utils/time'
 import { TRecurringTaskTemplate } from '../../../utils/types'
 
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+export const useGetRecurringTaskTemplateFromId = (templateId: string): TRecurringTaskTemplate | undefined => {
+    const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
+
+    return useMemo(() => {
+        if (!recurringTaskTemplates) return undefined
+        const recurringTaskTemplate = recurringTaskTemplates.find((rt) => rt.id === templateId)
+        if (!recurringTaskTemplate) {
+            Sentry.captureMessage('Recurring task has invalid template id: ' + templateId)
+        }
+        return recurringTaskTemplate
+    }, [recurringTaskTemplates, templateId])
+}
 
 export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate: TRecurringTaskTemplate) => {
     switch (recurringTaskTemplate.recurrence_rate) {
