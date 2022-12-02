@@ -10,13 +10,14 @@ import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
+import DatePicker from './DatePicker'
 import NewTemplateFolderSelector from './NewTemplateFolderSelector'
 import NewTemplateNameInput from './NewTemplateNameInput'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 
 const SettingsForm = styled.div`
-    width: 350px;
-    height: 60vh;
+    flex: 1;
+    height: 50vh;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -33,7 +34,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
     const [title, setTitle] = useState(initialRecurringTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(initialRecurringTask?.recurrence_rate ?? RecurrenceRate.DAILY)
     const [folder, setFolder] = useState(initialRecurringTask?.id_task_section ?? DEFAULT_SECTION_ID)
-    const [selectedDate] = useState<DateTime>(
+    const [selectedDate, setSelectedDate] = useState<DateTime>(
         initialRecurringTask?.day_to_create_task && initialRecurringTask?.day_to_create_task
             ? DateTime.fromObject({
                   day: initialRecurringTask.day_to_create_task,
@@ -45,10 +46,18 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
 
     const handleSave = () => {
         if (!isValid) return
+        let dayToCreateTask: number | undefined = undefined
+        if (recurrenceRate === RecurrenceRate.WEEKLY) {
+            dayToCreateTask = selectedDate.weekday
+        } else if (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY) {
+            dayToCreateTask = selectedDate.day
+        }
         const payload = {
             title,
             recurrence_rate: recurrenceRate,
             id_task_section: folder,
+            day_to_create_task: dayToCreateTask,
+            month_to_create_task: recurrenceRate === RecurrenceRate.YEARLY ? selectedDate.month : undefined,
         }
         if (initialRecurringTask) {
             // modifying a template
@@ -93,6 +102,7 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
                                     selectedDate={selectedDate}
                                 />
                             </SettingsForm>
+                            <DatePicker date={selectedDate} setDate={setSelectedDate} recurrenceRate={recurrenceRate} />
                         </Flex>
                         <Flex justifyContent="space-between">
                             <GTButton value="Cancel" styleType="secondary" onClick={onClose} />
