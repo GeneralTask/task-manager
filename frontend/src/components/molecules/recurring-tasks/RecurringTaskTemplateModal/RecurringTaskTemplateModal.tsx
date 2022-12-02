@@ -46,12 +46,17 @@ const RecurringTaskTemplateModal = ({ onClose, initialRecurringTask }: Recurring
 
     const handleSave = () => {
         if (!isValid) return
-        const sendDay = [RecurrenceRate.WEEKLY, RecurrenceRate.MONTHLY, RecurrenceRate.YEARLY].includes(recurrenceRate)
+        let dayToCreateTask: number | undefined = undefined
+        if (recurrenceRate === RecurrenceRate.WEEKLY) {
+            dayToCreateTask = selectedDate.weekday
+        } else if (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY) {
+            dayToCreateTask = selectedDate.day
+        }
         const payload = {
             title,
             recurrence_rate: recurrenceRate,
             id_task_section: folder,
-            day_to_create_task: sendDay ? selectedDate.weekday : undefined,
+            day_to_create_task: dayToCreateTask,
             month_to_create_task: recurrenceRate === RecurrenceRate.YEARLY ? selectedDate.month : undefined,
         }
         if (initialRecurringTask) {

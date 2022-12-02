@@ -145,6 +145,17 @@ export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TT
     return sections[sectionIndex]
 }
 
+export const getFolderIdFromTask = (folders: TTaskSection[], taskId: string): string | undefined => {
+    for (const folder of folders) {
+        for (const task of folder.tasks) {
+            if (task.id === taskId) {
+                return folder.id
+            }
+        }
+    }
+    return undefined
+}
+
 export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
     let keyName = ''
     if (e.ctrlKey) {
