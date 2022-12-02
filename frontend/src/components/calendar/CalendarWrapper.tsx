@@ -4,32 +4,16 @@ import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../con
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import BaseModal, { BaseModalProps } from '../atoms/BaseModal'
+import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import CalendarView from '../views/CalendarView'
+import { useCalendarContext } from './CalendarContext'
 import CalendarDropTask from './CalendarDropTask'
 import DropdownButton from './DropdownButton'
 
-const MODAL_VIEW_HEIGHT = '750px'
 const SIDEBAR_WIDTH = '326px'
-const TaskToCalendarContainer = styled.div`
-    display: flex;
-    height: ${MODAL_VIEW_HEIGHT};
-`
-const CalendarAndHeaderContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-`
-const CalendarViewContainer = styled.div`
-    height: 100%;
-    overflow-y: auto;
-    box-sizing: border-box;
-    flex: 1;
-`
 const ScheduleTaskSidebar = styled.div`
     width: ${SIDEBAR_WIDTH};
     padding: ${Spacing._24} ${Spacing._16};
@@ -47,14 +31,15 @@ const MarginDivider = styled(Divider)`
     margin: ${Spacing._16} 0;
 `
 
-const WeekTaskToCalendar = (props: BaseModalProps) => {
+const CalendarWrapper = () => {
     const { data: sections } = useGetTasks()
-    const [isOpen, setIsOpen] = useState(false)
+    const { calendarType, showTaskToCalSidebar } = useCalendarContext()
+    const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(false)
     const [sectionIndex, setSectionIndex] = useState(0)
-
     const validDragSections =
         sections?.filter((section) => section.id !== DONE_SECTION_ID && section.id !== TRASH_SECTION_ID) ?? []
-    const selectedSeciton = sections?.[sectionIndex]
+
+    const selectedSection = sections?.[sectionIndex]
     const DropdownMenuItem =
         validDragSections?.map((section, index) => ({
             label: section.name,
@@ -64,42 +49,38 @@ const WeekTaskToCalendar = (props: BaseModalProps) => {
             count: section.tasks.length,
         })) ?? []
 
-    const triggerText = `${selectedSeciton?.name || ''} (${selectedSeciton?.tasks.length || 0})`
-    const closeButton = <GTIconButton icon={icons.x} onClick={() => props.setIsModalOpen(false)} />
+    const triggerText = `${selectedSection?.name || ''} (${selectedSection?.tasks.length || 0})`
     if (!sections) return null
     return (
-        <BaseModal {...props}>
-            <TaskToCalendarContainer>
+        <Flex>
+            {calendarType === 'week' && showTaskToCalSidebar && (
                 <ScheduleTaskSidebar>
                     <SidebarHeader>Schedule tasks</SidebarHeader>
                     <GTDropdownMenu
-                        menuInModal
                         items={DropdownMenuItem}
                         trigger={<DropdownButton label={triggerText} />}
-                        isOpen={isOpen}
-                        setIsOpen={setIsOpen}
+                        isOpen={isTaskDropdownOpen}
+                        setIsOpen={setIsTaskDropdownOpen}
                         useTriggerWidth
                     />
                     <MarginDivider color={Colors.border.light} />
-                    {selectedSeciton?.tasks.map((task) => (
+                    {selectedSection?.tasks.map((task) => (
                         <CalendarDropTask task={task} key={task.id} />
                     ))}
                 </ScheduleTaskSidebar>
-                <CalendarAndHeaderContainer>
-                    <CalendarViewContainer>
-                        <CalendarView
-                            initialType="week"
-                            ignoreCalendarContext
-                            initialShowMainHeader={false}
-                            hasLeftBorder={true}
-                            hideContainerShadow={false}
-                            additonalHeaderContent={closeButton}
-                        />
-                    </CalendarViewContainer>
-                </CalendarAndHeaderContainer>
-            </TaskToCalendarContainer>
-        </BaseModal>
+            )}
+            {/* <CalendarAndHeaderContainer>
+                <CalendarViewContainer> */}
+            <CalendarView
+                initialType="day"
+                // initialShowMainHeader={false}
+                // hasLeftBorder={true}
+                // hideContainerShadow={false}
+            />
+            {/* </CalendarViewContainer>
+            </CalendarAndHeaderContainer> */}
+        </Flex>
     )
 }
 
-export default WeekTaskToCalendar
+export default CalendarWrapper

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { MEDIA_MAX_WIDTH, TOOLTIP_MAX_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
 import { useCalendarContext } from '../calendar/CalendarContext'
-import CalendarView from '../views/CalendarView'
+import CalendarWrapper from '../calendar/CalendarWrapper'
 import NavigationView from '../views/NavigationView'
 
 const DefaultTemplateContainer = styled.div`
@@ -81,7 +81,8 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
             />
             <NavigationView />
             {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
-            <CalendarView initialType="day" />
+            {/* <CalendarView initialType="day" /> */}
+            <CalendarWrapper />
         </DefaultTemplateContainer>
     )
 }
