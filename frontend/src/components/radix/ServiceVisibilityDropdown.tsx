@@ -31,7 +31,6 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
                 disabled={disabled}
-                unstyledTrigger
                 items={[
                     [
                         {
@@ -70,6 +69,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                     ],
                 ]}
                 keepOpenOnSelect
+                unstyledTrigger
                 trigger={
                     <GTIconButton
                         icon={icons.ellipsisVertical}
