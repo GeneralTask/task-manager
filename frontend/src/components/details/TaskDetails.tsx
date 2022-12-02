@@ -15,6 +15,7 @@ import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
+    useGetTasks,
     useMarkTaskDoneOrDeleted,
     useModifyTask,
     useReorderTask,
@@ -22,6 +23,7 @@ import {
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { TRecurringTaskTemplate, TTask } from '../../utils/types'
+import { getFolderIdFromTask } from '../../utils/utils'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { MeetingStartText } from '../atoms/MeetingStartText'
@@ -221,6 +223,9 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
         useCallback(() => titleRef.current?.select(), [])
     )
 
+    const { data: folders } = useGetTasks()
+    const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -254,15 +259,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                         size="small"
                                     />
                                 )}
-                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && (
+                                {!is_meeting_preparation_task && !isRecurringTaskTemplate && folderId && (
                                     <FolderSelector
-                                        value={(isRecurringTaskTemplate ? task.id_task_section : params.section) ?? ''}
+                                        value={folderId}
                                         onChange={(newFolderId) =>
                                             reorderTask(
                                                 {
                                                     id: currentTask.id,
                                                     dropSectionId: newFolderId,
-                                                    dragSectionId: params.section,
+                                                    dragSectionId: folderId,
                                                     orderingId: 1,
                                                 },
                                                 currentTask.optimisticId
