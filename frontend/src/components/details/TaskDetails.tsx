@@ -42,6 +42,7 @@ import GTDatePicker from '../molecules/GTDatePicker'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
+import RecurringTaskTemplateEditButton from '../molecules/recurring-tasks/RecurringTaskTemplateEditButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
@@ -342,6 +343,10 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                     />
                 )}
+                {currentTask.recurring_task_template_id &&
+                    currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID && (
+                        <RecurringTaskTemplateEditButton templateId={currentTask.recurring_task_template_id} />
+                    )}
                 {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                     <MarginLeftAuto>
                         <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
