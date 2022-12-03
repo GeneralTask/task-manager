@@ -1,7 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -175,7 +174,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     }, [currentTask.optimisticId, location, link])
 
     useEffect(() => {
-        ReactTooltip.rebuild()
         return () => {
             for (const timer of Object.values(timers.current)) {
                 timer.callback()
