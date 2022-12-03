@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import {
     DETAILS_SYNC_TIMEOUT,
     GENERAL_TASK_SOURCE_NAME,
+    NO_TITLE,
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
@@ -175,6 +176,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     }, [currentTask.optimisticId, location, link])
 
     useEffect(() => {
+        titleRef.current?.addEventListener('focus', () => {
+            if (titleRef.current?.value === NO_TITLE) {
+                titleRef?.current?.select()
+            }
+        })
         ReactTooltip.rebuild()
         return () => {
             for (const timer of Object.values(timers.current)) {
@@ -187,7 +193,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const syncDetails = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
-            const timerId = id + (title === undefined ? 'body' : 'title')
+            const isEditingTitle = title !== undefined
+            if (isEditingTitle && title === '' && titleRef.current) {
+                title = NO_TITLE
+                titleRef.current.value = NO_TITLE
+                if (document.activeElement === titleRef.current) {
+                    titleRef.current.select()
+                }
+            }
+            const timerId = id + (isEditingTitle ? title : 'body')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             if (isRecurringTaskTemplate) {
                 modifyRecurringTask(
