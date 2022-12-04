@@ -6,6 +6,20 @@ import { getOrdinal } from '../../../utils/time'
 import { TRecurringTaskTemplate } from '../../../utils/types'
 
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const MONTHS = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+]
 
 export const useGetRecurringTaskTemplateFromId = (templateId: string): TRecurringTaskTemplate | undefined => {
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
@@ -27,7 +41,7 @@ export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate
         case RecurrenceRate.WEEK_DAILY:
             return 'every weekday'
         case RecurrenceRate.WEEKLY:
-            if (recurringTaskTemplate.day_to_create_task) {
+            if (recurringTaskTemplate.day_to_create_task !== undefined) {
                 return `on ${WEEK_DAYS[recurringTaskTemplate.day_to_create_task - 1]} of every week`
             } else return 'every week'
         case RecurrenceRate.MONTHLY:
@@ -35,9 +49,9 @@ export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate
                 return `on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)} of every month`
             } else return 'every month'
         case RecurrenceRate.YEARLY:
-            if (recurringTaskTemplate.day_to_create_task && recurringTaskTemplate.month_to_create_task) {
+            if (recurringTaskTemplate.day_to_create_task && recurringTaskTemplate.month_to_create_task !== undefined) {
                 return `on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)} of ${
-                    recurringTaskTemplate.month_to_create_task
+                    MONTHS[recurringTaskTemplate.month_to_create_task - 1]
                 } of every year`
             } else return 'every year'
         default:
