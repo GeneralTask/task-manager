@@ -94,6 +94,6 @@ export default function useEventBanners(date: DateTime) {
             if (currentMeeting?.conference_call.url) {
                 window.open(currentMeeting.conference_call.url, '_blank')
             }
-        }, [eventsWithinTenMinutes.current])
+        }, [])
     )
 }
