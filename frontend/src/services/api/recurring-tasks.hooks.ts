@@ -1,5 +1,6 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
+import { BACKFILL_RECURRING_TASKS_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
@@ -133,7 +134,13 @@ const modifyRecurringTask = async (payload: TModifyRecurringTaskPayload) => {
     }
 }
 
-export const backfillRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
+export const useBackfillRecurringTasks = () => {
+    return useQuery('backfill-recurring-tasks', backfillRecurringTasks, {
+        refetchInterval: BACKFILL_RECURRING_TASKS_INTERVAL,
+    })
+}
+
+const backfillRecurringTasks = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/recurring_task_templates/backfill_tasks/', {
             signal,

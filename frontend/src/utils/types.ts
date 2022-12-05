@@ -50,6 +50,7 @@ export interface TTask {
     created_at: string
     updated_at: string
     parent_task_id?: string
+    recurring_task_template_id?: string
 }
 export interface TTaskV4 {
     id: string
@@ -97,6 +98,7 @@ export interface TTaskV4 {
     slack_message_params?: TSlackMessageParams
     comments?: TLinearComment[]
     external_status?: TExternalStatus
+    recurring_task_template_id?: string
 
     optimisticId?: string // Used only internally, not sent in response
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
