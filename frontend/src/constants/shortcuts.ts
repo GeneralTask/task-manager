@@ -48,7 +48,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     moveTaskToFolder: {
         label: 'Move task to folder',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+m`,
+        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+M`,
         keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+M`,
         category: 'Tasks',
         icon: 'folder',

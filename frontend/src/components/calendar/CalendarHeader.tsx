@@ -79,10 +79,13 @@ export default function CalendarHeader({
         }
     }
     useEffect(() => {
-        if (!ignoreCalendarContext) return
-        setCalendarType('week')
-        setDate(date.minus({ days: date.weekday % 7 }))
-    }, [ignoreCalendarContext, setCalendarType, setDate, date])
+        if (ignoreCalendarContext) {
+            setCalendarType('week')
+        }
+        if ((ignoreCalendarContext || calendarType === 'week') && date.weekday !== 7) {
+            setDate(date.minus({ days: date.weekday % 7 }))
+        }
+    }, [ignoreCalendarContext, calendarType, setCalendarType, setDate, date])
 
     const selectToday = useCallback(() => {
         if (calendarType === 'day') {
@@ -95,17 +98,13 @@ export default function CalendarHeader({
         if (calendarType === 'day') {
             setDayViewDate(dayViewDate.plus({ days: 1 }))
         }
-        setDate((date) => {
-            return date.plus({ days: isCalendarExpanded ? 7 : 1 })
-        })
+        setDate(date.plus({ days: isCalendarExpanded ? 7 : 1 }))
     }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
     const selectPrevious = useCallback(() => {
         if (calendarType === 'day') {
             setDayViewDate(dayViewDate.minus({ days: 1 }))
         }
-        setDate((date) => {
-            return date.minus({ days: isCalendarExpanded ? 7 : 1 })
-        })
+        setDate(date.minus({ days: isCalendarExpanded ? 7 : 1 }))
     }, [date, setDate, setDayViewDate, dayViewDate, isCalendarExpanded])
     useKeyboardShortcut('jumpToToday', selectToday, isFocusMode)
     useKeyboardShortcut('nextDate', selectNext, isFocusMode)

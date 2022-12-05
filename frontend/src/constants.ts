@@ -21,6 +21,8 @@ export const FIVE_SECOND_TIMEOUT = 5 * 1000
 export const SINGLE_SECOND_INTERVAL = 1000
 export const EVENT_UNDO_TIMEOUT = 5 * 1000
 export const DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT = 0.5 * 1000
+export const BACKFILL_RECURRING_TASKS_INTERVAL = 5 * 60 * 1000
+export const QUEUED_MUTATION_DEBOUNCE = 1 * 1000
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
@@ -45,10 +47,12 @@ export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const FOCUS_MODE_ROUTE = 'focus-mode'
 
 export const NO_EVENT_TITLE = '(no title)'
+export const EMPTY_MONGO_OBJECT_ID = '000000000000000000000000'
 export const DEFAULT_SECTION_ID = '000000000000000000000001'
 export const DONE_SECTION_ID = '000000000000000000000004'
 export const TRASH_SECTION_ID = '000000000000000000000005'
 
+export const TASK_INBOX_NAME = 'Task Inbox'
 export const GITHUB_SUPPORTED_TYPE_NAME = 'GitHub'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 

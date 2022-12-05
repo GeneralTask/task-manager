@@ -78,7 +78,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 title="GitHub PRs"
                 icon={logos.github}
                 count={githubCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Github')}
+                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
                 isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
                 isCollapsed={isCollapsed}
             />

@@ -5,12 +5,12 @@ import { TIconType } from '../atoms/Icon'
 
 const MENU_WIDTH = '192px'
 
-export const MenuTriggerShared = css<{ unstyled?: boolean }>`
+export const MenuTriggerShared = css<{ $unstyled?: boolean }>`
     all: unset;
     width: 100%;
     height: 100%;
-    ${({ unstyled }) =>
-        !unstyled &&
+    ${({ $unstyled }) =>
+        !$unstyled &&
         `
         border-radius: ${Border.radius.small};
         &:focus {
@@ -18,7 +18,7 @@ export const MenuTriggerShared = css<{ unstyled?: boolean }>`
         }
     `}
 `
-export const MenuItemShared = css<{ textcolor?: TTextColor; disabled?: boolean }>`
+export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean }>`
     display: flex;
     align-items: center;
     gap: ${Spacing._12};
@@ -28,22 +28,19 @@ export const MenuItemShared = css<{ textcolor?: TTextColor; disabled?: boolean }
     padding: ${Spacing._4} ${Spacing._12};
     outline: none;
     border-radius: ${Border.radius.mini};
-    ${({ textcolor }) => textcolor && `color: ${Colors.text[textcolor]};`}
-    ${({ disabled }) =>
-        !disabled &&
-        `:hover, :focus {
+    ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
+    ${({ $disabled }) => !$disabled && `cursor: pointer;`}
+    &[data-highlighted] {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
-    cursor: pointer;
-    `}
     &[data-state='open'] {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
 `
 export const MenuContentShared = css`
-    z-index: 5;
+    z-index: 300;
     ${Typography.body};
     padding: ${Spacing._4};
     background-color: ${Colors.background.white};

@@ -38,14 +38,16 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     padding: ${Spacing._8};
     width: 100%;
     border-radius: ${Border.radius.small};
-    background-color: ${(props) =>
-        props.isOver ? Colors.background.white : props.isSelected ? Colors.background.dark : 'inherit'};
+    background-color: ${({ isOver, isSelected }) =>
+        isOver ? Colors.background.white : isSelected ? Colors.background.medium : 'inherit'};
+    mix-blend-mode: ${({ isOver, isSelected }) => (isSelected && !isOver ? 'multiply' : 'inherit')};
     color: ${Colors.text.black};
     box-sizing: border-box;
     gap: ${Spacing._12};
     transform: translate(0, 0); // to hide corners when dragging
     :hover {
         background-color: ${Colors.background.white};
+        mix-blend-mode: inherit;
     }
 `
 const SectionTitle = styled.span`

@@ -137,6 +137,40 @@ func GetTask(db *mongo.Database, itemID primitive.ObjectID, userID primitive.Obj
 	return &task, nil
 }
 
+func GetNote(db *mongo.Database, itemID primitive.ObjectID, userID primitive.ObjectID) (*Note, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetNoteCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"user_id": userID},
+		}})
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
+		return nil, err
+	}
+	return &note, nil
+}
+
+func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error) {
+	logger := logging.GetSentryLogger()
+	mongoResult := GetNoteCollection(db).FindOne(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"_id": itemID},
+			{"is_shared": true},
+		}})
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger.Error().Err(err).Msgf("failed to get note: %+v", itemID)
+		return nil, err
+	}
+	return &note, nil
+}
+
 func GetTaskByExternalIDWithoutUser(db *mongo.Database, externalID string) (*Task, error) {
 	logger := logging.GetSentryLogger()
 	taskCollection := GetTaskCollection(db)
@@ -227,6 +261,23 @@ func GetOrCreateTask(db *mongo.Database, userID primitive.ObjectID, IDExternal s
 	}
 
 	return &task, nil
+}
+
+func GetOrCreateNote(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*Note, error) {
+	mongoResult := GetOrCreateWithCollection(GetNoteCollection(db), userID, IDExternal, sourceID, fieldsToInsertIfMissing)
+	if mongoResult == nil {
+		return nil, errors.New("unable to create task")
+	}
+
+	var note Note
+	err := mongoResult.Decode(&note)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to get task")
+		return nil, err
+	}
+
+	return &note, nil
 }
 
 func GetOrCreateCalendarEvent(db *mongo.Database, userID primitive.ObjectID, IDExternal string, sourceID string, fieldsToInsertIfMissing interface{}) (*CalendarEvent, error) {
@@ -325,6 +376,29 @@ func GetActiveTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, err
 	}
 
 	return &tasks, nil
+}
+
+func GetNotes(db *mongo.Database, userID primitive.ObjectID) (*[]Note, error) {
+	noteCollection := GetNoteCollection(db)
+	cursor, err := noteCollection.Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch items for user")
+		return nil, err
+	}
+
+	var notes []Note
+	err = cursor.All(context.Background(), &notes)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch notes for user")
+		return nil, err
+	}
+
+	return &notes, nil
 }
 
 func GetActivePRs(db *mongo.Database, userID primitive.ObjectID) (*[]PullRequest, error) {
@@ -774,6 +848,10 @@ func GetStateTokenCollection(db *mongo.Database) *mongo.Collection {
 
 func GetTaskCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("tasks")
+}
+
+func GetNoteCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("notes")
 }
 
 func GetCalendarEventCollection(db *mongo.Database) *mongo.Collection {

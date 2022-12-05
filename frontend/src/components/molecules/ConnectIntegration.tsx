@@ -6,7 +6,7 @@ import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
-import { TSupportedType } from '../../utils/types'
+import { TLinkedAccountName, TSupportedType } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
@@ -28,7 +28,7 @@ const IconAndText = styled.span`
     margin-right: auto;
 `
 
-const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: string) => {
+const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: TLinkedAccountName) => {
     const supportedType = supportedTypes.find((type) => type.name === name)
     if (!supportedType) return null
     return supportedType.authorization_url
@@ -49,7 +49,7 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
                 return {
                     icon: logos.github,
                     name: 'GitHub',
-                    authUrl: getAuthorizationUrl(supportedTypes || [], 'Github'),
+                    authUrl: getAuthorizationUrl(supportedTypes || [], 'GitHub'),
                 }
             case 'google_calendar':
                 return {

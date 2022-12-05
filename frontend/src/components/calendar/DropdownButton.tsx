@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../styles'
+import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 
@@ -13,6 +13,7 @@ const ButtonContainer = styled.div`
     width: 100%;
     box-sizing: border-box;
     background-color: ${Colors.background.medium};
+    border-radius: ${Border.radius.mini};
 `
 const PositionedIcon = styled(Icon)`
     margin-left: auto;

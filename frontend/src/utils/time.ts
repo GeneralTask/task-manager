@@ -28,3 +28,18 @@ export function getDiffBetweenISOTimes(start: string, end: string) {
 export function isDateToday(date: DateTime) {
     return date.hasSame(DateTime.local(), 'day')
 }
+
+// https://www.sitepoint.com/convert-numbers-to-ordinals-javascript/
+export function getOrdinal(n: number) {
+    let ord = 'th'
+
+    if (n % 10 == 1 && n % 100 != 11) {
+        ord = 'st'
+    } else if (n % 10 == 2 && n % 100 != 12) {
+        ord = 'nd'
+    } else if (n % 10 == 3 && n % 100 != 13) {
+        ord = 'rd'
+    }
+
+    return n + ord
+}

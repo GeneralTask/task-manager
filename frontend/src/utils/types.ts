@@ -49,7 +49,33 @@ export interface TTask {
     sub_tasks?: TTask[]
     created_at: string
     updated_at: string
-    parentTaskId?: string
+    parent_task_id?: string
+    recurring_task_template_id?: string
+}
+export interface TTaskV4 {
+    id: string
+    optimisticId?: string // Used only internally, not sent in response
+    id_ordering: number
+    title: string
+    deeplink: string
+    body: string
+    priority_normalized: number
+    due_date: string
+    source: TTaskSource
+    is_done: boolean
+    is_deleted: boolean
+    created_at: string
+    updated_at: string
+    id_folder: string
+    id_nux_number?: number
+    id_parent?: string
+    subtask_ids?: string[]
+    meeting_preparation_params?: TMeetingPreparationParams
+    slack_message_params?: TSlackMessageParams
+    comments?: TLinearComment[]
+    external_status?: TExternalStatus
+
+    all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
 }
 export interface TTaskV4 {
     id: string
@@ -72,6 +98,7 @@ export interface TTaskV4 {
     slack_message_params?: TSlackMessageParams
     comments?: TLinearComment[]
     external_status?: TExternalStatus
+    recurring_task_template_id?: string
 
     optimisticId?: string // Used only internally, not sent in response
     all_statuses?: TExternalStatus[] // Deprecated but still in response (will be moved to userInfo)
@@ -341,3 +368,5 @@ export interface TRecurringTaskTemplate {
     month_to_create_task?: number
     last_backfill_datetime: string
 }
+
+export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear'

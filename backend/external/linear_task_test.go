@@ -281,7 +281,6 @@ func TestLoadLinearTasks(t *testing.T) {
 		assert.Equal(t, 1, len(result.Tasks))
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
 		assert.Equal(t, expectedTask.Status, result.Tasks[0].Status)
-		assert.Equal(t, expectedTask.CompletedStatus, result.Tasks[0].CompletedStatus)
 		assert.True(t, (expectedTask.Comments == nil) == (result.Tasks[0].Comments == nil))
 		if (expectedTask.Comments != nil) && (result.Tasks[0].Comments != nil) {
 			expectedComments := *expectedTask.Comments
@@ -824,7 +823,6 @@ func assertTasksEqual(t *testing.T, a *database.Task, b *database.Task) {
 	assert.Equal(t, a.SourceID, b.SourceID)
 	assert.Equal(t, a.TimeAllocation, b.TimeAllocation)
 	assert.Equal(t, a.Status, b.Status)
-	assert.Equal(t, a.CompletedStatus, b.CompletedStatus)
 	assert.True(t, (a.Title == nil) == (b.Title == nil))
 	if (a.Title != nil) && (b.Title != nil) {
 		assert.Equal(t, *a.Title, *b.Title)

@@ -19,13 +19,13 @@ const RecurringTask = ({ recurringTask, isSelected, onSelect }: RecurringTaskPro
             <ItemContainer isSelected={isSelected} onClick={() => onSelect(recurringTask)}>
                 <Truncated>{recurringTask.title}</Truncated>
                 <Flex gap={Spacing._12}>
-                    <Icon icon={icons.arrows_repeat} />
-                    {recurringTask.priority_normalized ? (
+                    {recurringTask.priority_normalized && (
                         <Icon
                             icon={TASK_PRIORITIES[recurringTask.priority_normalized].icon}
                             color={TASK_PRIORITIES[recurringTask.priority_normalized].color}
                         />
-                    ) : null}
+                    )}
+                    <Icon icon={icons.arrows_repeat} color="green" />
                 </Flex>
             </ItemContainer>
         </TaskTemplate>

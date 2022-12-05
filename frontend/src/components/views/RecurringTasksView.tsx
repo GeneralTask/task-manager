@@ -2,17 +2,22 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
-import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
+import { useBackfillRecurringTasks, useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { icons } from '../../styles/images'
 import { TRecurringTaskTemplate } from '../../utils/types'
+import { EMPTY_ARRAY } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
+import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
+import AddRecurringTask from '../molecules/recurring-tasks/AddRecurringTask'
 import RecurringTask from '../molecules/recurring-tasks/RecurringTask'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const RecurringTasksView = () => {
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
+    useBackfillRecurringTasks()
+
     const { recurringTaskId } = useParams()
     const navigate = useNavigate()
 
@@ -31,7 +36,7 @@ const RecurringTasksView = () => {
         Log(`recurring_task_select_${recurringTask.id}`)
     }, [])
 
-    useItemSelectionController(recurringTaskTemplates ?? [], selectRecurringTask)
+    useItemSelectionController(recurringTaskTemplates ?? EMPTY_ARRAY, selectRecurringTask)
 
     return (
         <>
@@ -40,20 +45,28 @@ const RecurringTasksView = () => {
                 {!recurringTaskTemplates ? (
                     <Spinner />
                 ) : (
-                    recurringTaskTemplates.map((recurringTask) => (
-                        <RecurringTask
-                            key={recurringTask.id}
-                            recurringTask={recurringTask}
-                            isSelected={recurringTask.id === recurringTaskId}
-                            onSelect={selectRecurringTask}
-                        />
-                    ))
+                    <>
+                        <AddRecurringTask />
+                        {recurringTaskTemplates.map((recurringTask) => (
+                            <RecurringTask
+                                key={recurringTask.id}
+                                recurringTask={recurringTask}
+                                isSelected={recurringTask.id === recurringTaskId}
+                                onSelect={selectRecurringTask}
+                            />
+                        ))}
+                    </>
                 )}
             </ScrollableListTemplate>
-            <EmptyDetails
-                icon={icons.arrows_repeat}
-                text={`Details view coming soon for ${selectedRecurringTask?.title}`}
-            />
+            {selectedRecurringTask ? (
+                <TaskDetails
+                    task={selectedRecurringTask}
+                    link={`/recurring-tasks/${selectedRecurringTask.id}`}
+                    isRecurringTaskTemplate
+                />
+            ) : (
+                <EmptyDetails icon={icons.arrows_repeat} text={`Details view coming soon`} />
+            )}
         </>
     )
 }

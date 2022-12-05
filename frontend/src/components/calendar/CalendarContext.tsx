@@ -56,7 +56,7 @@ const TaskToCalendarViewContext = {
     selectedEvent: null,
     isPopoverDisabled: false,
     isTasksDueViewCollapsed: false,
-    disableSelectEvent: true,
+    disableSelectEvent: false,
     isTasksOverdueViewCollapsed: true,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
