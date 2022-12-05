@@ -173,9 +173,6 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 
 	// Reset ID orderings to begin at 1
 	taskResults := api.taskListToTaskResultList(tasks, userID)
-	for _, tasks := range taskResults {
-		log.Print(*tasks)
-	}
 	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
 	for _, task := range taskResults {
