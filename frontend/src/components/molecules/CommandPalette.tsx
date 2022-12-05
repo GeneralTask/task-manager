@@ -17,7 +17,7 @@ import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { BodySmall } from '../atoms/typography/Typography'
+import { BodySmall, Label } from '../atoms/typography/Typography'
 
 const COMMAND_PALETTE_WIDTH = '512px'
 const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
@@ -82,12 +82,11 @@ const CommandEmpty = styled(Command.Empty)`
     justify-content: center;
     margin: ${Spacing._8} ${Spacing._8};
 `
-const IconContainer = styled.div<{ marginLeftAuto?: boolean }>`
+const IconContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
     padding: ${Spacing._16};
-    ${({ marginLeftAuto }) => marginLeftAuto && 'margin-left: auto'};
 `
 const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
     min-width: 0;
@@ -99,6 +98,9 @@ const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
 `
 const FlexWidth100 = styled(Flex)`
     width: 100%;
+`
+const RightLabel = styled(Label)`
+    margin-left: auto;
 `
 interface CommandPaletteProps {
     hideButton?: boolean
@@ -248,12 +250,9 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                             {title}
                                         </TruncatedTitle>
                                         {(is_done || is_deleted) && (
-                                            <IconContainer marginLeftAuto>
-                                                <Icon
-                                                    icon={is_done ? icons.check : icons.trash}
-                                                    color={is_done ? 'purple' : 'black'}
-                                                />
-                                            </IconContainer>
+                                            <RightLabel color={is_deleted ? 'light' : 'purple'}>
+                                                {is_deleted ? '(deleted)' : '(done)'}
+                                            </RightLabel>
                                         )}
                                     </FlexWidth100>
                                 </CommandItem>
