@@ -1,12 +1,12 @@
 import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
+import { GITHUB_SUPPORTED_VIEW_NAME, TASK_INBOX_NAME } from '../../constants'
 import { usePreviewMode } from '../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { isGithubLinked } from '../../utils/utils'
 import GTCheckbox from '../atoms/GTCheckbox'
@@ -39,6 +39,12 @@ const NoListsDialog = styled.div`
     ${Typography.body};
     margin-top: ${Spacing._8};
 `
+
+const getIcon = (supportedView: TSupportedView) => {
+    if (supportedView.type === 'task_section' && supportedView.name === TASK_INBOX_NAME) return icons.inbox
+    if (supportedView.type === 'task_section') return icons.folder
+    else return logos[supportedView.logo]
+}
 
 interface AddListsModalProps {
     isOpen: boolean
@@ -118,7 +124,7 @@ export const AddListsModalContent = () => {
                     {supportedView.is_linked ? (
                         <SupportedView>
                             <SupportedViewContent>
-                                <Icon icon={logos[supportedView.logo]} />
+                                <Icon icon={getIcon(supportedView)} />
                                 {supportedView.name}
                             </SupportedViewContent>
                             {!supportedView.is_nested && supportedView.views.length === 1 && (
@@ -149,7 +155,7 @@ export const AddListsModalContent = () => {
                             <Fragment key={viewItemIndex}>
                                 <SupportedView isIndented>
                                     <SupportedViewContent>
-                                        <Icon icon={logos[supportedView.logo]} />
+                                        <Icon icon={getIcon(supportedView)} />
                                         {supportedViewItem.name}
                                     </SupportedViewContent>
                                     <GTCheckbox
