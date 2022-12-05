@@ -93,7 +93,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="GitHub PRs" />
+                    <SectionHeader sectionName="GitHub Pull Requests" />
                     {doesNeedRelinking && <ConnectIntegration type="github" reconnect />}
                     <MarginBottom4>
                         <SortAndFilterSelectors settings={sortAndFilterSettings} />

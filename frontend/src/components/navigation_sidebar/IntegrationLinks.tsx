@@ -75,7 +75,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
             />
             <NavigationLink
                 link="/pull-requests"
-                title="GitHub PRs"
+                title="GitHub"
                 icon={logos.github}
                 count={githubCount}
                 needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
@@ -84,7 +84,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
             />
             <NavigationLink
                 link="/linear"
-                title="Linear Issues"
+                title="Linear"
                 icon={logos.linear}
                 count={linearCount}
                 needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
