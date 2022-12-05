@@ -29,14 +29,11 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
     outline: none;
     border-radius: ${Border.radius.mini};
     ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
-    ${({ $disabled }) =>
-        !$disabled &&
-        `:hover, :focus {
+    ${({ $disabled }) => !$disabled && `cursor: pointer;`}
+    &[data-highlighted] {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
     }
-    cursor: pointer;
-    `}
     &[data-state='open'] {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
