@@ -21,11 +21,11 @@ const MONTHS = [
     'December',
 ]
 
-export const useGetRecurringTaskTemplateFromId = (templateId: string): TRecurringTaskTemplate | undefined => {
+export const useGetRecurringTaskTemplateFromId = (templateId?: string): TRecurringTaskTemplate | undefined => {
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
 
     return useMemo(() => {
-        if (!recurringTaskTemplates) return undefined
+        if (!recurringTaskTemplates || !templateId) return undefined
         const recurringTaskTemplate = recurringTaskTemplates.find((rt) => rt.id === templateId)
         if (!recurringTaskTemplate) {
             Sentry.captureMessage('Recurring task has invalid template id: ' + templateId)

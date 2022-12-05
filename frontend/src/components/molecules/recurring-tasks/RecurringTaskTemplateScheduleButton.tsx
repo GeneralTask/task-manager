@@ -1,31 +1,43 @@
 import { useState } from 'react'
 import { icons } from '../../../styles/images'
+import { TTask } from '../../../utils/types'
 import GTButton from '../../atoms/buttons/GTButton'
+import GTIconButton from '../../atoms/buttons/GTIconButton'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
-import { formatRecurrenceRateForEditButton, useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
+import { formatRecurrenceRateForScheduleButton, useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
 
 interface RecurringTaskTemplateEditButtonProps {
-    templateId: string
+    templateId?: string
+    task?: TTask
 }
-const RecurringTaskTemplateEditButton = ({ templateId }: RecurringTaskTemplateEditButtonProps) => {
+const RecurringTaskTemplateEditButton = ({ templateId, task }: RecurringTaskTemplateEditButtonProps) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
 
-    if (!recurringTaskTemplate) return null
+    const button = recurringTaskTemplate ? (
+        <GTButton
+            icon={icons.arrows_repeat}
+            iconColor="green"
+            value={formatRecurrenceRateForScheduleButton(recurringTaskTemplate)}
+            styleType="simple"
+            size="small"
+            onClick={() => setIsEditModalOpen(true)}
+        />
+    ) : (
+        <GTIconButton
+            icon={icons.arrows_repeat}
+            tooltipText="Make this a recurring task"
+            onClick={() => setIsEditModalOpen(true)}
+        />
+    )
     return (
         <>
-            <GTButton
-                icon={icons.arrows_repeat}
-                iconColor="green"
-                value={formatRecurrenceRateForEditButton(recurringTaskTemplate)}
-                styleType="simple"
-                size="small"
-                onClick={() => setIsEditModalOpen(true)}
-            />
+            {button}
             {isEditModalOpen && (
                 <RecurringTaskTemplateModal
                     onClose={() => setIsEditModalOpen(false)}
-                    initialRecurringTask={recurringTaskTemplate}
+                    initialRecurringTaskTemplate={recurringTaskTemplate}
+                    initialTask={task}
                 />
             )}
         </>

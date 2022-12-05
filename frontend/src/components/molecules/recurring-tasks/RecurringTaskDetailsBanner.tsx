@@ -51,7 +51,7 @@ const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetai
             </Banner>
             {isEditTemplateModalOpen && (
                 <RecurringTaskTemplateModal
-                    initialRecurringTask={recurringTaskTemplate}
+                    initialRecurringTaskTemplate={recurringTaskTemplate}
                     onClose={() => setIsEditTemplateModalOpen(false)}
                 />
             )}
