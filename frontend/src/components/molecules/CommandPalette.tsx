@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
 import styled from 'styled-components'
-import { DEFAULT_SECTION_ID } from '../../constants'
+import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
@@ -212,7 +212,7 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                     {isPreviewMode && searchValue && (
                         <CommandGroup heading={`Search for "${searchValue}"`}>
                             {taskFolders
-                                ?.filter((f) => !f.is_done && !f.is_trash && f.id !== DEFAULT_SECTION_ID)
+                                ?.filter((f) => f.id !== DEFAULT_SECTION_ID)
                                 .map(({ name, id }) => (
                                     <CommandItem
                                         key={id}
@@ -224,7 +224,15 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                     >
                                         <FlexWidth100 alignItems="center">
                                             <IconContainer>
-                                                <Icon icon={icons.folder} />
+                                                <Icon
+                                                    icon={
+                                                        id === TRASH_SECTION_ID
+                                                            ? icons.trash
+                                                            : id === DONE_SECTION_ID
+                                                            ? icons.checkbox_checked
+                                                            : icons.folder
+                                                    }
+                                                />
                                             </IconContainer>
                                             <TruncatedTitle>{name}</TruncatedTitle>
                                         </FlexWidth100>
