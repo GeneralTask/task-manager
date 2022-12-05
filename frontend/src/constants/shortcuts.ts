@@ -1,10 +1,18 @@
 import { TShortcut, TShortcutCategory } from '../utils/types'
 
-const CMD_CTRL_KEY = navigator.userAgent.includes('Mac') ? 'Meta' : 'Ctrl'
-const CMD_CTRL_KEY_LABEL = navigator.userAgent.includes('Mac') ? '⌘' : 'Ctrl'
-const SHIFT_KEY = 'Shift'
-const NO_SHORTCUT_KEY = 'None'
-const NO_SHORTCUT_KEY_LABEL = ''
+const IS_MAC_OS = navigator.userAgent.includes('Mac')
+
+const CMD_CTRL = {
+    key: IS_MAC_OS ? 'Meta' : 'Ctrl',
+    label: IS_MAC_OS ? '⌘' : 'Ctrl',
+}
+const OPT_ALT = {
+    key: IS_MAC_OS ? 'Alt' : 'Alt',
+    label: IS_MAC_OS ? '⌥' : 'Alt',
+}
+
+const SHIFT = 'Shift'
+const NO_SHORTCUT = ''
 
 // command palette categories will be sorted in the order they appear in this array
 export const ShortcutCategories: TShortcutCategory[] = ['Tasks', 'Calendar', 'General', 'Navigation']
@@ -27,8 +35,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     createSubtask: {
         label: 'Create new subtask',
-        key: `${SHIFT_KEY}+C`,
-        keyLabel: `${SHIFT_KEY}+C`,
+        key: `${SHIFT}+C`,
+        keyLabel: `${SHIFT}+C`,
         category: 'Tasks',
         icon: 'plus',
     },
@@ -48,15 +56,15 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     moveTaskToFolder: {
         label: 'Move task to folder',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+M`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+M`,
+        key: `${CMD_CTRL.key}+${SHIFT}+M`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+M`,
         category: 'Tasks',
         icon: 'folder',
     },
     submitComment: {
         label: 'Submit comment',
-        key: CMD_CTRL_KEY + '+Enter',
-        keyLabel: CMD_CTRL_KEY_LABEL + '+Enter',
+        key: `${CMD_CTRL.key}+Enter`,
+        keyLabel: `${CMD_CTRL.label}+Enter`,
         category: 'Tasks',
         icon: 'comment',
         hideFromCommandPalette: true,
@@ -135,15 +143,15 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     refresh: {
         label: 'Refresh',
-        key: CMD_CTRL_KEY + '+r',
-        keyLabel: CMD_CTRL_KEY_LABEL + '+R',
+        key: `®`,
+        keyLabel: `${OPT_ALT.label}+R`,
         category: 'Navigation',
         icon: 'spinner',
     },
     toggleCommandPalette: {
         label: 'Show/hide command palette',
-        key: CMD_CTRL_KEY + '+k',
-        keyLabel: CMD_CTRL_KEY_LABEL + '+K',
+        key: `${CMD_CTRL.key}+k`,
+        keyLabel: `${CMD_CTRL.label}+K`,
         category: 'Navigation',
         hideFromCommandPalette: true,
     },
@@ -163,43 +171,43 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     enterFocusMode: {
         label: 'Enter Focus Mode',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+f`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+F`,
+        key: `${CMD_CTRL.key}+${SHIFT}+f`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+F`,
         category: 'Navigation',
         icon: 'headphones',
     },
     goToOverviewPage: {
         label: 'Go to Overview page',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+o`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+O`,
+        key: `${CMD_CTRL.key}+${SHIFT}+o`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+O`,
         category: 'Navigation',
         icon: 'list',
     },
     goToGithubPRsPage: {
         label: 'Go to GitHub PRs page',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+g`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+G`,
+        key: `${CMD_CTRL.key}+${SHIFT}+g`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+G`,
         category: 'Navigation',
         icon: 'github',
     },
     goToLinearPage: {
         label: 'Go to Linear page',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+l`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+L`,
+        key: `${CMD_CTRL.key}+${SHIFT}+l`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+L`,
         category: 'Navigation',
         icon: 'linear',
     },
     goToSlackPage: {
         label: 'Go to Slack page',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+s`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+S`,
+        key: `${CMD_CTRL.key}+${SHIFT}+s`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+S`,
         category: 'Navigation',
         icon: 'slack',
     },
     goToTaskInbox: {
         label: 'Go to Task Inbox',
-        key: `${CMD_CTRL_KEY}+${SHIFT_KEY}+i`,
-        keyLabel: `${CMD_CTRL_KEY_LABEL}+${SHIFT_KEY}+I`,
+        key: `${CMD_CTRL.key}+${SHIFT}+i`,
+        keyLabel: `${CMD_CTRL.label}+${SHIFT}+I`,
         category: 'Navigation',
         icon: 'inbox',
     },
@@ -220,8 +228,8 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     sendFeedback: {
         label: 'Send us feedback',
-        key: NO_SHORTCUT_KEY,
-        keyLabel: NO_SHORTCUT_KEY_LABEL,
+        key: NO_SHORTCUT,
+        keyLabel: NO_SHORTCUT,
         category: 'General',
         icon: 'megaphone',
     },
