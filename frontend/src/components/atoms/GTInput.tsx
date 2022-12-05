@@ -7,8 +7,8 @@ import { Icon } from './Icon'
 const Container = styled.div`
     display: flex;
     align-items: center;
-    gap: ${Spacing._16};
-    padding: ${Spacing._8} ${Spacing._12};
+    gap: ${Spacing._8};
+    padding: ${Spacing._8};
     border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     width: 100%;
