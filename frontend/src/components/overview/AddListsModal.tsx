@@ -111,7 +111,8 @@ export const AddListsModalContent = () => {
                     <GTInput
                         value={searchTerm}
                         onChange={(value: string) => setSearchTerm(value)}
-                        placeholder=" 🔍 Search lists"
+                        placeholder="Search lists"
+                        showSearchIcon
                     />
                 </Flex>
             )}

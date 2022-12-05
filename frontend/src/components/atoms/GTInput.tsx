@@ -1,17 +1,22 @@
 import React, { forwardRef, useRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
+import { icons } from '../../styles/images'
+import { Icon } from './Icon'
 
-const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
-    background-color: inherit;
-    color: ${Colors.text.black};
-    font: inherit;
+const Container = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._16};
+    padding: ${Spacing._8} ${Spacing._12};
     border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
-    resize: none;
-    outline: none;
-    overflow: auto;
-    padding: ${Spacing._8};
     border-radius: ${Border.radius.small};
+    width: 100%;
+`
+const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
+    all: unset;
+    width: 100%;
+    box-sizing: border-box;
     :focus,
     :hover {
         ${({ disabled }) =>
@@ -29,8 +34,9 @@ interface GTInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>,
     value: string
     onChange: (value: string) => void
     fontSize?: 'small' | 'medium' | 'large'
+    showSearchIcon?: boolean
 }
-const GTInput = forwardRef(({ value, onChange, fontSize = 'small', ...rest }: GTInputProps, ref) => {
+const GTInput = forwardRef(({ value, onChange, fontSize = 'small', showSearchIcon, ...rest }: GTInputProps, ref) => {
     const inputRef = useRef<HTMLInputElement | null>(null)
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -39,21 +45,24 @@ const GTInput = forwardRef(({ value, onChange, fontSize = 'small', ...rest }: GT
     }
 
     return (
-        <StyledInput
-            ref={(node) => {
-                inputRef.current = node
-                if (typeof ref === 'function') {
-                    ref(node)
-                } else if (ref !== null) {
-                    ref.current = node
-                }
-            }}
-            onKeyDown={handleKeyDown}
-            value={value}
-            fontSize={fontSize}
-            onChange={(e) => onChange(e.target.value)}
-            {...rest}
-        />
+        <Container>
+            {showSearchIcon && <Icon icon={icons.magnifying_glass} />}
+            <StyledInput
+                ref={(node) => {
+                    inputRef.current = node
+                    if (typeof ref === 'function') {
+                        ref(node)
+                    } else if (ref !== null) {
+                        ref.current = node
+                    }
+                }}
+                onKeyDown={handleKeyDown}
+                value={value}
+                fontSize={fontSize}
+                onChange={(e) => onChange(e.target.value)}
+                {...rest}
+            />
+        </Container>
     )
 })
 
