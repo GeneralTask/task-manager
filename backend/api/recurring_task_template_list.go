@@ -11,7 +11,7 @@ func (api *API) RecurringTaskTemplateList(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 
 	var templates []database.RecurringTaskTemplate
-	opts := options.Find().SetSort(bson.M{"created_at": 1})
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
 	err := database.FindWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, &[]bson.M{{"is_deleted": false}}, &templates, opts)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to fetch recurring task templates")
