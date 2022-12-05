@@ -20,14 +20,13 @@ const Title = styled.span`
 interface NavigationHeaderProps {
     title: string
     tooltip: string
-    button: React.ReactNode
+    rightContent: React.ReactNode
 }
-const NavigationHeader = ({ title, tooltip, button }: NavigationHeaderProps) => (
+const NavigationHeader = ({ title, tooltip, rightContent }: NavigationHeaderProps) => (
     <DropdownContainer>
         <Title>{title}</Title>
         <TooltipWrapper dataTip={tooltip} tooltipId="tooltip">
-            {button}
-            {/* <GTIconButton icon={icon ?? icons.x} onClick={handleOnClick} /> */}
+            {rightContent}
         </TooltipWrapper>
     </DropdownContainer>
 )
