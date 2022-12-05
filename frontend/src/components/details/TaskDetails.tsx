@@ -343,16 +343,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                     />
                 )}
-                {isRecurringTaskTemplate ? (
-                    <RecurringTaskTemplateScheduleButton templateId={task.id} />
-                ) : (
-                    isPreviewMode && (
+                {isPreviewMode &&
+                    (isRecurringTaskTemplate ? (
+                        <RecurringTaskTemplateScheduleButton templateId={task.id} />
+                    ) : (
                         <RecurringTaskTemplateScheduleButton
                             templateId={currentTask.recurring_task_template_id}
                             task={currentTask as TTask}
                         />
-                    )
-                )}
+                    ))}
                 {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                     <MarginLeftAuto>
                         <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />

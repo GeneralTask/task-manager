@@ -87,6 +87,7 @@ const RecurringTaskTemplateModal = ({
                 time_of_day_seconds_to_create_task: 0,
                 body: initialTask?.body,
                 priority_normalized: initialTask?.priority_normalized,
+                task_id: initialTask?.id,
             })
         }
         onClose()

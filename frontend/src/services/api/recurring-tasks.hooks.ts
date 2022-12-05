@@ -4,8 +4,9 @@ import { BACKFILL_RECURRING_TASKS_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
-import { TRecurringTaskTemplate } from '../../utils/types'
-import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
+import { getTaskFromSections } from '../../utils/utils'
+import { GTQueryClient, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TCreateRecurringTaskPayload {
     optimisticId: string
@@ -17,6 +18,7 @@ interface TCreateRecurringTaskPayload {
     priority_normalized?: number
     day_to_create_task?: number
     month_to_create_task?: number
+    task_id?: string
 }
 interface TCreateRecurringTaskResponse {
     template_id: string
@@ -74,9 +76,15 @@ export const useCreateRecurringTask = () => {
                 draft.push(newRecurringTask)
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
+            if (payload.task_id) {
+                updateTaskTemplateId(queryClient, payload.optimisticId, payload.task_id)
+            }
         },
         onSuccess: (response: TCreateRecurringTaskResponse, payload) => {
             setOptimisticId(payload.optimisticId, response.template_id)
+            if (payload.task_id) {
+                updateTaskTemplateId(queryClient, payload.optimisticId, payload.task_id)
+            }
         },
     })
 }
@@ -88,6 +96,18 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
     } catch {
         throw new Error('createRecurringTask failed')
     }
+}
+
+const updateTaskTemplateId = (queryClient: GTQueryClient, templateId: string, taskId: string) => {
+    const folders = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+    if (!folders) return
+
+    const updatedFolders = produce(folders, (draft) => {
+        const task = getTaskFromSections(draft, taskId)
+        if (!task) return
+        task.recurring_task_template_id = templateId
+    })
+    queryClient.setQueryData('tasks', updatedFolders)
 }
 
 export const useModifyRecurringTask = () => {
