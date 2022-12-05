@@ -207,8 +207,8 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
                                 </CommandGroup>
                             )
                     )}
-                    {isPreviewMode && (
-                        <CommandGroup heading={`Search for "${searchValue ?? ''}"`}>
+                    {isPreviewMode && searchValue && (
+                        <CommandGroup heading={`Search for "${searchValue}"`}>
                             {taskFolders
                                 ?.filter((f) => !f.is_done && !f.is_trash && f.id !== DEFAULT_SECTION_ID)
                                 .map(({ name, id }) => (
