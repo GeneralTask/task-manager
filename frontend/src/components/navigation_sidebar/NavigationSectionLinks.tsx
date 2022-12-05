@@ -144,8 +144,9 @@ const NavigationSectionLinks = () => {
             <IntegrationLinks />
             <NavigationHeader
                 title="Folders"
-                rightContent={<GTIconButton icon={icons.plus} onClick={onOpenAddSectionInputHandler} />}
-                tooltip="Add Folder"
+                rightContent={
+                    <GTIconButton icon={icons.plus} onClick={onOpenAddSectionInputHandler} tooltipText="Add Folder" />
+                }
             />
             {defaultFolder && (
                 <NavigationLink

@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import Tip from '../radix/Tip'
 
 const DropdownContainer = styled.div`
     display: flex;
@@ -19,13 +18,12 @@ const Title = styled.span`
 
 interface NavigationHeaderProps {
     title: string
-    tooltip: string
     rightContent: React.ReactNode
 }
-const NavigationHeader = ({ title, tooltip, rightContent }: NavigationHeaderProps) => (
+const NavigationHeader = ({ title, rightContent }: NavigationHeaderProps) => (
     <DropdownContainer>
         <Title>{title}</Title>
-        <Tip content={tooltip}>{rightContent}</Tip>
+        {rightContent}
     </DropdownContainer>
 )
 
