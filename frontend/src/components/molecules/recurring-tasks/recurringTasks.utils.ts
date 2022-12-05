@@ -58,3 +58,28 @@ export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate
             return ''
     }
 }
+
+export const formatRecurrenceRateForEditButton = (recurringTaskTemplate: TRecurringTaskTemplate) => {
+    switch (recurringTaskTemplate.recurrence_rate) {
+        case RecurrenceRate.DAILY:
+            return 'Daily'
+        case RecurrenceRate.WEEK_DAILY:
+            return 'Every weekday'
+        case RecurrenceRate.WEEKLY:
+            if (recurringTaskTemplate.day_to_create_task !== undefined) {
+                return `Weekly on ${WEEK_DAYS[recurringTaskTemplate.day_to_create_task - 1]}`
+            } else return 'Weekly'
+        case RecurrenceRate.MONTHLY:
+            if (recurringTaskTemplate.day_to_create_task) {
+                return `Monthly on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)}`
+            } else return 'Monthly'
+        case RecurrenceRate.YEARLY:
+            if (recurringTaskTemplate.day_to_create_task && recurringTaskTemplate.month_to_create_task !== undefined) {
+                return `Yearly on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)} of ${
+                    MONTHS[recurringTaskTemplate.month_to_create_task - 1]
+                }`
+            } else return 'Yearly'
+        default:
+            return ''
+    }
+}

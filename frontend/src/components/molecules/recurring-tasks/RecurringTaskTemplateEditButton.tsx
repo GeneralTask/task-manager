@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { icons } from '../../../styles/images'
 import GTButton from '../../atoms/buttons/GTButton'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
-import { useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
+import { formatRecurrenceRateForEditButton, useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
 
 interface RecurringTaskTemplateEditButtonProps {
     templateId: string
@@ -10,6 +10,7 @@ interface RecurringTaskTemplateEditButtonProps {
 const RecurringTaskTemplateEditButton = ({ templateId }: RecurringTaskTemplateEditButtonProps) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
+    console.log(recurringTaskTemplate)
 
     if (!recurringTaskTemplate) return null
     return (
@@ -17,7 +18,7 @@ const RecurringTaskTemplateEditButton = ({ templateId }: RecurringTaskTemplateEd
             <GTButton
                 icon={icons.arrows_repeat}
                 iconColor="green"
-                value="hi"
+                value={formatRecurrenceRateForEditButton(recurringTaskTemplate)}
                 styleType="simple"
                 size="small"
                 onClick={() => setIsEditModalOpen(true)}
