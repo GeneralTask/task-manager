@@ -11,6 +11,7 @@ interface FlexProps {
     column?: boolean
     justifyContent?: 'baseline' | 'center' | 'space-between' | 'end'
     alignItems?: 'baseline' | 'center' | 'flex-end' | 'flex-start'
+    minWidth?: string
 }
 
 const Flex = styled.div<FlexProps>`
@@ -20,6 +21,7 @@ const Flex = styled.div<FlexProps>`
     ${({ gap }) => gap && `gap: ${gap};`}
     ${({ justifyContent }) => justifyContent && `justify-content: ${justifyContent};`}
     ${({ alignItems }) => alignItems && `align-items: ${alignItems};`}
+    ${({ minWidth }) => minWidth && `min-width: ${minWidth};`}
 `
 
 export default Flex

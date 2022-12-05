@@ -40,8 +40,7 @@ export const Mini = styled.span<{ color?: TTextColor }>`
     ${SharedStyles};
     ${Typography.mini};
 `
-export const Truncated = styled.span`
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+export const Truncated = styled.span<{ color?: TTextColor }>`
+    ${SharedStyles};
+    ${Typography.truncated};
 `

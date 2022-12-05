@@ -86,3 +86,8 @@ export const mini = css`
 export const bold = css`
     font-weight: ${weight.medium}; // 510
 `
+export const truncated = css`
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`

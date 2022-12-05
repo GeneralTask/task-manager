@@ -1,4 +1,5 @@
 import React from 'react'
+import { ToastProvider } from '@radix-ui/react-toast'
 import { CalendarContextProvider } from '../components/calendar/CalendarContext'
 import { QueryContextProvider } from './QueryContext'
 import { ShortcutContextProvider } from './ShortcutContext'
@@ -10,7 +11,9 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
     return (
         <QueryContextProvider>
             <CalendarContextProvider>
-                <ShortcutContextProvider>{children}</ShortcutContextProvider>
+                <ShortcutContextProvider>
+                    <ToastProvider>{children}</ToastProvider>
+                </ShortcutContextProvider>
             </CalendarContextProvider>
         </QueryContextProvider>
     )
