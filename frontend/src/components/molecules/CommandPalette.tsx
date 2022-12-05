@@ -110,7 +110,6 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
     const { isPreviewMode } = usePreviewMode()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
-    const buttonRef = useRef<HTMLButtonElement>(null)
 
     const { data: taskFolders } = useGetTasks()
     const navigateToTask = useNavigateToTask()
@@ -118,16 +117,6 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
     const tasks = useMemo(() => {
         return taskFolders?.flatMap((folder) => folder.tasks) ?? []
     }, [taskFolders])
-
-    /*
-        When the command palette is closed, the page seems to lose focus
-        So we have to manually focus on an element in the page to make kb shortcuts work
-    */
-    useEffect(() => {
-        if (!showCommandPalette) {
-            buttonRef.current?.focus()
-        }
-    }, [showCommandPalette])
 
     useKeyboardShortcut(
         'toggleCommandPalette',
@@ -158,7 +147,6 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
         <>
             {!hideButton && (
                 <GTIconButton
-                    ref={buttonRef}
                     icon={icons.magnifying_glass}
                     onClick={() => setShowCommandPalette(!showCommandPalette)}
                     shortcutName="toggleCommandPalette"

@@ -2,9 +2,10 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
-import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
+import { useBackfillRecurringTasks, useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { icons } from '../../styles/images'
 import { TRecurringTaskTemplate } from '../../utils/types'
+import { EMPTY_ARRAY } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -15,6 +16,8 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const RecurringTasksView = () => {
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
+    useBackfillRecurringTasks()
+
     const { recurringTaskId } = useParams()
     const navigate = useNavigate()
 
@@ -33,7 +36,7 @@ const RecurringTasksView = () => {
         Log(`recurring_task_select_${recurringTask.id}`)
     }, [])
 
-    useItemSelectionController(recurringTaskTemplates ?? [], selectRecurringTask)
+    useItemSelectionController(recurringTaskTemplates ?? EMPTY_ARRAY, selectRecurringTask)
 
     return (
         <>

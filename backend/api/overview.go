@@ -352,16 +352,9 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 		return nil, errors.New("invalid user")
 	}
 	authURL := config.GetAuthorizationURL(external.TASK_SERVICE_ID_GITHUB)
-	repositoryCollection := database.GetRepositoryCollection(api.DB)
-	var repository database.Repository
-	err := repositoryCollection.FindOne(context.Background(), bson.M{"$and": []bson.M{{"repository_id": view.GithubID, "user_id": userID}}}).Decode(&repository)
-	if err != nil {
-		return nil, err
-	}
-
 	result := OverviewResult[PullRequestResult]{
 		ID:       view.ID,
-		Name:     fmt.Sprintf("GitHub PRs from %s", repository.FullName),
+		Name:     "Github PRs",
 		Logo:     external.TaskServiceGithub.LogoV2,
 		Type:     constants.ViewGithub,
 		IsLinked: view.IsLinked,
@@ -378,6 +371,13 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 	}
 	if !view.IsLinked {
 		return &result, nil
+	}
+
+	var repository database.Repository
+	repositoryCollection := database.GetRepositoryCollection(api.DB)
+	err := repositoryCollection.FindOne(context.Background(), bson.M{"$and": []bson.M{{"repository_id": view.GithubID, "user_id": userID}}}).Decode(&repository)
+	if err != nil {
+		return nil, err
 	}
 
 	githubPRs, err := database.GetPullRequests(api.DB, userID,
@@ -397,6 +397,7 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 		pullResults = append(pullResults, &pullRequestResult)
 	}
 	api.sortPullRequestResults(pullResults)
+	result.Name = fmt.Sprintf("GitHub PRs from %s", repository.FullName)
 	result.ViewItems = pullResults
 	return &result, nil
 }

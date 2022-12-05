@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
-import { TLinkedAccount, TTask, TTaskSection } from './types'
+import { TLinkedAccount, TLinkedAccountName, TTask, TTaskSection } from './types'
 
 // https://github.com/sindresorhus/array-move/blob/main/index.js
 export function arrayMoveInPlace<T>(array: Array<T>, fromIndex: number, toIndex: number) {
@@ -58,8 +58,7 @@ export const isSlackLinked = (linkedAccounts: TLinkedAccount[]) => {
 export const isLinearLinked = (linkedAccounts: TLinkedAccount[]) => {
     return linkedAccounts.some((account) => account.name === 'Linear')
 }
-
-export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: string) => {
+export const doesAccountNeedRelinking = (linkedAccounts: TLinkedAccount[], accountName: TLinkedAccountName) => {
     return linkedAccounts
         .filter((linkedAccount) => linkedAccount.name === accountName)
         .some((account) => account.has_bad_token)
@@ -78,6 +77,9 @@ export const getHumanDateTime = (date: DateTime) => {
 
 // to avoid creating empty placeholder functions across the app
 export const emptyFunction = () => void 0
+
+// provides a constant reference in case this is passed into a dependecy array
+export const EMPTY_ARRAY = []
 
 export const countWithOverflow = (count: number, max = 99) => {
     if (count > max) {
@@ -141,6 +143,17 @@ export const getSectionFromTask = (sections: TTaskSection[], taskId: string): TT
     const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, taskId)
     if (taskIndex === undefined || sectionIndex === undefined) return undefined
     return sections[sectionIndex]
+}
+
+export const getFolderIdFromTask = (folders: TTaskSection[], taskId: string): string | undefined => {
+    for (const folder of folders) {
+        for (const task of folder.tasks) {
+            if (task.id === taskId) {
+                return folder.id
+            }
+        }
+    }
+    return undefined
 }
 
 export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
