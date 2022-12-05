@@ -93,6 +93,13 @@ const RecurringTaskTemplateModal = ({
         onClose()
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSave()
+        }
+        stopKeydownPropogation(e, undefined, true)
+    }
+
     return (
         <GTModal
             open
@@ -102,7 +109,7 @@ const RecurringTaskTemplateModal = ({
                 title: 'Setting a recurring task',
                 body: (
                     <>
-                        <Flex flex="1" onKeyDown={(e) => stopKeydownPropogation(e, undefined, true)}>
+                        <Flex flex="1" onKeyDown={handleKeyDown}>
                             <SettingsForm>
                                 {!initialRecurringTaskTemplate && (
                                     <>
