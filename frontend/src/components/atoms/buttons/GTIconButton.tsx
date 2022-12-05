@@ -20,7 +20,7 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     icon: TIconType
     iconColor?: TIconColor
     forceShowHoverEffect?: boolean
-    tooltipText?: string
+    tooltipText?: string // note: shortcutName takes precedence over tooltipText
     tooltipSide?: TTooltipSide
     shortcutName?: TShortcutName
     asDiv?: boolean
