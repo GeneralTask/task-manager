@@ -6,7 +6,8 @@ import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
 import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
 import { getTaskFromSections } from '../../utils/utils'
-import { GTQueryClient, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { useModifyTask } from './tasks.hooks'
 
 interface TCreateRecurringTaskPayload {
     optimisticId: string
@@ -57,6 +58,7 @@ const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
 export const useCreateRecurringTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
+    const { mutate: modifyTask } = useModifyTask()
 
     return useQueuedMutation((payload: TCreateRecurringTaskPayload) => createRecurringTask(payload), {
         tag: 'recurring-tasks',
@@ -76,14 +78,38 @@ export const useCreateRecurringTask = () => {
                 draft.push(newRecurringTask)
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
-            if (payload.task_id) {
-                updateTaskTemplateId(queryClient, payload.optimisticId, payload.task_id)
+
+            const taskId = payload.task_id
+            if (taskId) {
+                const folders = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+                if (!folders) return
+
+                const updatedFolders = produce(folders, (draft) => {
+                    const task = getTaskFromSections(draft, taskId)
+                    if (!task) return
+                    task.recurring_task_template_id = payload.optimisticId
+                })
+                queryClient.setQueryData('tasks', updatedFolders)
             }
         },
         onSuccess: (response: TCreateRecurringTaskResponse, payload) => {
             setOptimisticId(payload.optimisticId, response.template_id)
+
+            const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
+            if (!recurringTasks) return
+
+            const newRecurringTasks = produce(recurringTasks, (draft) => {
+                const recurringTaskTemplate = draft.find((rt) => rt.id === payload.optimisticId)
+                if (!recurringTaskTemplate) return
+                recurringTaskTemplate.id = response.template_id
+            })
+            queryClient.setQueryData('recurring-tasks', newRecurringTasks)
+
             if (payload.task_id) {
-                updateTaskTemplateId(queryClient, payload.optimisticId, payload.task_id)
+                modifyTask({
+                    id: payload.task_id,
+                    recurringTaskTemplateId: response.template_id,
+                })
             }
         },
     })
@@ -96,18 +122,6 @@ const createRecurringTask = async (payload: TCreateRecurringTaskPayload) => {
     } catch {
         throw new Error('createRecurringTask failed')
     }
-}
-
-const updateTaskTemplateId = (queryClient: GTQueryClient, templateId: string, taskId: string) => {
-    const folders = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
-    if (!folders) return
-
-    const updatedFolders = produce(folders, (draft) => {
-        const task = getTaskFromSections(draft, taskId)
-        if (!task) return
-        task.recurring_task_template_id = templateId
-    })
-    queryClient.setQueryData('tasks', updatedFolders)
 }
 
 export const useModifyRecurringTask = () => {
