@@ -12,6 +12,7 @@ const Container = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     width: 100%;
+    box-sizing: border-box;
 `
 const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     all: unset;

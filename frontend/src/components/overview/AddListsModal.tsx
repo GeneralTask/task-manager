@@ -9,7 +9,6 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { isGithubLinked } from '../../utils/utils'
-import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTInput from '../atoms/GTInput'
 import GTModal from '../atoms/GTModal'
@@ -106,15 +105,12 @@ export const AddListsModalContent = () => {
     return (
         <>
             {isPreviewMode && (
-                <Flex alignItems="center">
-                    {/* TODO: use our actual magnifiying glass icon - not implemented because our input component doesnt support jsx/icons in the placeholder prop */}
-                    <GTInput
-                        value={searchTerm}
-                        onChange={(value: string) => setSearchTerm(value)}
-                        placeholder="Search lists"
-                        showSearchIcon
-                    />
-                </Flex>
+                <GTInput
+                    value={searchTerm}
+                    onChange={(value: string) => setSearchTerm(value)}
+                    placeholder="Search lists"
+                    showSearchIcon
+                />
             )}
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
