@@ -14,6 +14,9 @@ const RecurringTaskTemplateEditButton = ({ templateId, task }: RecurringTaskTemp
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
 
+    // temporarily hide the button to create a template from a task until the backend supports this
+    if (task && !recurringTaskTemplate) return null
+
     const button = recurringTaskTemplate ? (
         <GTButton
             icon={icons.arrows_repeat}
