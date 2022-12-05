@@ -16,9 +16,9 @@ type RecurringTaskTemplateModifyParams struct {
 	IDTaskSection                *string  `json:"id_task_section,omitempty"`
 	PriorityNormalized           *float64 `json:"priority_normalized,omitempty"`
 	RecurrenceRate               *int     `json:"recurrence_rate,omitempty"`
-	TimeOfDaySecondsToCreateTask *int     `bson:"time_of_day_seconds_to_create_task,omitempty"`
-	DayToCreateTask              *int     `bson:"day_to_create_task,omitempty"`
-	MonthToCreateTask            *int     `bson:"month_to_create_task,omitempty"`
+	TimeOfDaySecondsToCreateTask *int     `json:"time_of_day_seconds_to_create_task,omitempty"`
+	DayToCreateTask              *int     `json:"day_to_create_task,omitempty"`
+	MonthToCreateTask            *int     `json:"month_to_create_task,omitempty"`
 	IsEnabled                    *bool    `json:"is_enabled,omitempty"`
 	IsDeleted                    *bool    `json:"is_deleted,omitempty"`
 }
