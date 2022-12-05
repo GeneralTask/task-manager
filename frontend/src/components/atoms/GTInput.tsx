@@ -13,19 +13,14 @@ const Container = styled.div`
     border-radius: ${Border.radius.small};
     width: 100%;
     box-sizing: border-box;
+    :focus-within {
+        border: ${Border.stroke.medium} solid ${Colors.border.purple};
+    }
 `
 const StyledInput = styled.input<{ fontSize: 'small' | 'medium' | 'large' }>`
     all: unset;
     width: 100%;
     box-sizing: border-box;
-    :focus,
-    :hover {
-        ${({ disabled }) =>
-            !disabled &&
-            `
-            border-color: ${Colors.border.light};
-            background-color: ${Colors.background.white};`}
-    }
     ${({ fontSize }) => fontSize === 'small' && Typography.bodySmall};
     ${({ fontSize }) => fontSize === 'medium' && Typography.subtitle};
     ${({ fontSize }) => fontSize === 'large' && Typography.title};
