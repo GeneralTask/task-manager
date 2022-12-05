@@ -42,7 +42,7 @@ import GTDatePicker from '../molecules/GTDatePicker'
 import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
 import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
-import RecurringTaskTemplateEditButton from '../molecules/recurring-tasks/RecurringTaskTemplateEditButton'
+import RecurringTaskTemplateScheduleButton from '../molecules/recurring-tasks/RecurringTaskTemplateScheduleButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
@@ -346,7 +346,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 {(isRecurringTaskTemplate ||
                     (currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID)) && (
-                    <RecurringTaskTemplateEditButton
+                    <RecurringTaskTemplateScheduleButton
                         templateId={isRecurringTaskTemplate ? task.id : currentTask.recurring_task_template_id}
                     />
                 )}

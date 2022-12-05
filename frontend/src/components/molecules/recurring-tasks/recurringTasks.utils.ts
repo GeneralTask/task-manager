@@ -59,7 +59,7 @@ export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate
     }
 }
 
-export const formatRecurrenceRateForEditButton = (recurringTaskTemplate: TRecurringTaskTemplate) => {
+export const formatRecurrenceRateForScheduleButton = (recurringTaskTemplate: TRecurringTaskTemplate) => {
     switch (recurringTaskTemplate.recurrence_rate) {
         case RecurrenceRate.DAILY:
             return 'Daily'
