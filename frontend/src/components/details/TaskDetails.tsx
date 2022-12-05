@@ -353,7 +353,8 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
             ) : (
                 <>
                     {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
-                    {!isRecurringTaskTemplate &&
+                    {isPreviewMode &&
+                        !isRecurringTaskTemplate &&
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
                         params.section && (
@@ -362,7 +363,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                 folderId={params.section}
                             />
                         )}
-                    {isRecurringTaskTemplate && task.id_task_section && (
+                    {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody
