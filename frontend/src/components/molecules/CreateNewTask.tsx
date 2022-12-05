@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
@@ -9,7 +8,7 @@ import { Border, Colors, Dimensions, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
+import Tip from '../radix/Tip'
 
 export const CreateNewTaskContainer = styled.div`
     display: flex;
@@ -35,12 +34,6 @@ export const TaskInput = styled.input`
     flex: 1;
     ${Typography.bodySmall};
 `
-const Tooltip = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-    ${Typography.bodySmall};
-`
 
 const blurShortcuts = [KEYBOARD_SHORTCUTS.close.key]
 
@@ -53,7 +46,6 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     const [shouldFocus, setShouldFocus] = useState(false)
     const { mutate: createTask } = useCreateTask()
     const inputRef = useRef<HTMLInputElement>(null)
-    const containerRef = useRef<HTMLDivElement>(null)
 
     const submitNewTask = async () => {
         if (!text) return
@@ -73,28 +65,6 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     }
 
     useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
-
-    const overrideTooltipPosition = useCallback(
-        (
-            position: { left: number; top: number },
-            _currentEvent: Event,
-            _currentTarget: EventTarget,
-            refNode: null | HTMLDivElement | HTMLSpanElement
-        ) => {
-            const { left, top } = position
-            if (containerRef.current && refNode) {
-                const createNewTaskHalfWidth = containerRef.current.offsetWidth / 2
-                const tooltipHalfWidth = refNode?.offsetWidth / 2
-                return { left: left + createNewTaskHalfWidth - tooltipHalfWidth, top: top }
-            }
-            return { left: left, top: top }
-        },
-        [containerRef.current]
-    )
-
-    useEffect(() => {
         if (shouldFocus) {
             inputRef.current?.focus()
             setShouldFocus(false)
@@ -109,34 +79,18 @@ const CreateNewTask = ({ sectionId, disableTooltip }: CreateNewTaskProps) => {
     )
 
     return (
-        <>
-            <CreateNewTaskContainer data-tip data-for="createNewTaskTip" ref={containerRef}>
+        <Tip shortcutName="createTask" side="top" align="end">
+            <CreateNewTaskContainer>
                 <Icon icon={icons.plus} />
                 <TaskInput
                     ref={inputRef}
                     value={text}
-                    placeholder="Add new task"
+                    placeholder="Create new task"
                     onKeyDown={handleKeyDown}
                     onChange={(e) => setText(e.target.value)}
                 />
             </CreateNewTaskContainer>
-            {!disableTooltip && (
-                <ReactTooltip
-                    id="createNewTaskTip"
-                    place="top"
-                    type="light"
-                    effect="solid"
-                    delayShow={500}
-                    className="tooltip"
-                    overridePosition={overrideTooltipPosition}
-                >
-                    <Tooltip>
-                        <span>Add new task</span>
-                        <KeyboardShortcutContainer>{KEYBOARD_SHORTCUTS.createTask.keyLabel}</KeyboardShortcutContainer>
-                    </Tooltip>
-                </ReactTooltip>
-            )}
-        </>
+        </Tip>
     )
 }
 

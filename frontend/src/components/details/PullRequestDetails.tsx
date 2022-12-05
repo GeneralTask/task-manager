@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
@@ -90,10 +88,6 @@ const PullRequestDetails = ({ pullRequest }: PullRequestDetailsProps) => {
     } = pullRequest
     const formattedTimeSince = getHumanTimeSinceDateTime(DateTime.fromISO(last_updated_at))
     const statusDescription = PULL_REQUEST_ACTIONS.find((action) => action.text === status.text)?.description
-
-    useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
 
     return (
         <DetailsViewTemplate>
