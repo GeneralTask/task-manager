@@ -15,10 +15,11 @@ const AddTemplateContainer = styled.div`
     border-radius: ${Border.radius.mini};
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid transparent;
+    margin-bottom: ${Spacing._8};
     ${Typography.bodySmall};
     cursor: pointer;
     :hover {
-        border: ${Border.stroke.medium} solid ${Colors.border.gray};
+        border: ${Border.stroke.medium} solid ${Colors.border.purple};
     }
 `
 
