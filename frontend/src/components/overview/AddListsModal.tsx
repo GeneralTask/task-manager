@@ -39,6 +39,9 @@ const NoListsDialog = styled.div`
     ${Typography.body};
     margin-top: ${Spacing._8};
 `
+const SearchBarContainer = styled.div`
+    margin-bottom: ${Spacing._16};
+`
 
 const getIcon = (supportedView: TSupportedView) => {
     if (supportedView.type === 'task_section' && supportedView.name === TASK_INBOX_NAME) return icons.inbox
@@ -111,12 +114,14 @@ export const AddListsModalContent = () => {
     return (
         <>
             {isPreviewMode && (
-                <GTInput
-                    value={searchTerm}
-                    onChange={(value: string) => setSearchTerm(value)}
-                    placeholder="Search lists"
-                    showSearchIcon
-                />
+                <SearchBarContainer>
+                    <GTInput
+                        value={searchTerm}
+                        onChange={(value: string) => setSearchTerm(value)}
+                        placeholder="Search lists"
+                        showSearchIcon
+                    />
+                </SearchBarContainer>
             )}
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
