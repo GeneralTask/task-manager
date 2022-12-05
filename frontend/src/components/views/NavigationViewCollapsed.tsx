@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
@@ -7,12 +7,11 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import IntegrationLinks from '../navigation_sidebar/IntegrationLinks'
-import NavigationLink from '../navigation_sidebar/NavigationLink'
+import NavigationLink, { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
 
 const PositionedIcon = styled(Icon)`
     margin-bottom: ${Spacing._32};
@@ -39,10 +38,10 @@ const FoldersContainer = styled.div`
 const LowerContainer = styled.div`
     margin-top: auto;
     padding-top: ${Spacing._32};
-    margin-bottom: ${Spacing._64};
+    margin-bottom: auto;
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._16};
+    gap: ${Spacing._8};
 `
 
 interface NavigationViewCollapsedProps {
@@ -61,12 +60,16 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
         <CollapsedContainer>
             <PositionedIcon icon={logos.generaltask_yellow_circle} size="medium" />
             <CollapseAndCommandPaletteContainer>
-                <GTIconButton
-                    icon={icons.sidebar}
-                    onClick={() => setIsCollapsed(false)}
-                    shortcutName="navigationView"
+                <CollapsedIconContainer onClick={() => setIsCollapsed(false)}>
+                    <Icon icon={icons.sidebar} />
+                </CollapsedIconContainer>
+                <CommandPalette
+                    customButton={(onClick: React.MouseEventHandler) => (
+                        <CollapsedIconContainer onClick={onClick}>
+                            <Icon icon={icons.magnifying_glass} />
+                        </CollapsedIconContainer>
+                    )}
                 />
-                <CommandPalette />
             </CollapseAndCommandPaletteContainer>
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
