@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io/ioutil"
@@ -13,8 +14,6 @@ import (
 
 func TestNoteDetail(t *testing.T) {
 	authToken := login("test_notes_list@generaltask.com", "")
-	true_val := true
-	false_val := false
 	title1 := "title1"
 	title2 := "title2"
 
@@ -28,9 +27,9 @@ func TestNoteDetail(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
-			UserID:   userID,
-			Title:    &title1,
-			IsShared: &true_val,
+			UserID:      userID,
+			Title:       &title1,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -40,9 +39,9 @@ func TestNoteDetail(t *testing.T) {
 		"123abcdef",
 		"foobar_source",
 		&database.Note{
-			UserID:   userID,
-			Title:    &title2,
-			IsShared: &false_val,
+			UserID:      userID,
+			Title:       &title2,
+			SharedUntil: *testutils.CreateDateTime("1999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -88,7 +87,7 @@ func TestNoteDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","title":"title1","is_shared":true}`, note1.ID.Hex()),
+			fmt.Sprintf(`{"id":"%s","title":"title1","shared_until":"9999-01-01T00:00:00Z"}`, note1.ID.Hex()),
 			string(body))
 	})
 }
