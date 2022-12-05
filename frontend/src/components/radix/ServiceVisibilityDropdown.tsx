@@ -41,7 +41,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                     ],
                     [
                         {
-                            label: 'GitHub PRs',
+                            label: 'GitHub',
                             icon: logos.github,
                             onClick: () => showGitHubSetting.updateSetting(!showGithub),
                             selected: showGithub,

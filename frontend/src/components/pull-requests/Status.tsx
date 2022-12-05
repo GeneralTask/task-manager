@@ -1,11 +1,9 @@
-import { useEffect } from 'react'
-import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TStatusColors } from '../../styles/colors'
 import { colorToIcon } from '../../utils/sortAndFilter/pull-requests.config'
 import { Icon } from '../atoms/Icon'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import Tip from '../radix/Tip'
 
 const StatusContainer = styled.div<{ type: TStatusColors }>`
     display: flex;
@@ -27,18 +25,13 @@ interface StatusProps {
     status: string
     color: TStatusColors
 }
-const Status = ({ description = '', status, color }: StatusProps) => {
-    useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
-    return (
-        <TooltipWrapper dataTip={description} tooltipId="tooltip">
-            <StatusContainer type={color}>
-                <Icon icon={colorToIcon[color]} color={color} />
-                {status}
-            </StatusContainer>
-        </TooltipWrapper>
-    )
-}
+const Status = ({ description = '', status, color }: StatusProps) => (
+    <Tip content={description}>
+        <StatusContainer type={color}>
+            <Icon icon={colorToIcon[color]} color={color} />
+            {status}
+        </StatusContainer>
+    </Tip>
+)
 
 export default Status

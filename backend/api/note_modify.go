@@ -14,10 +14,10 @@ import (
 )
 
 type NoteChangeable struct {
-	Title    *string `json:"title,omitempty"`
-	Body     *string `json:"body,omitempty"`
-	Author   string  `json:"author,omitempty"`
-	IsShared *bool   `json:"is_shared,omitempty"`
+	Title       *string             `json:"title,omitempty"`
+	Body        *string             `json:"body,omitempty"`
+	Author      string              `json:"author,omitempty"`
+	SharedUntil *primitive.DateTime `json:"shared_until,omitempty"`
 }
 
 type NoteModifyParams struct {
@@ -54,16 +54,16 @@ func (api *API) NoteModify(c *gin.Context) {
 	}
 
 	if modifyParams.NoteChangeable != (NoteChangeable{}) {
-		isShared := note.IsShared
-		if modifyParams.NoteChangeable.IsShared != nil {
-			isShared = modifyParams.NoteChangeable.IsShared
+		sharedUntil := note.SharedUntil
+		if modifyParams.NoteChangeable.SharedUntil != nil {
+			sharedUntil = *modifyParams.NoteChangeable.SharedUntil
 		}
 		updatedNote := database.Note{
 			UserID:             userID,
 			Title:              modifyParams.NoteChangeable.Title,
 			Body:               modifyParams.NoteChangeable.Body,
 			AuthorDisplayEmail: modifyParams.NoteChangeable.Author,
-			IsShared:           isShared,
+			SharedUntil:        sharedUntil,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 		}
 

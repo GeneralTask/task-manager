@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import Tip from '../radix/Tip'
 
 const DropdownContainer = styled.div`
     display: flex;
@@ -25,9 +25,7 @@ interface NavigationHeaderProps {
 const NavigationHeader = ({ title, tooltip, rightContent }: NavigationHeaderProps) => (
     <DropdownContainer>
         <Title>{title}</Title>
-        <TooltipWrapper dataTip={tooltip} tooltipId="tooltip">
-            {rightContent}
-        </TooltipWrapper>
+        <Tip content={tooltip}>{rightContent}</Tip>
     </DropdownContainer>
 )
 

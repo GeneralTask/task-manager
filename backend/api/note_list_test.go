@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -11,8 +12,6 @@ import (
 
 func TestNotesList(t *testing.T) {
 	authToken := login("test_notes_list@generaltask.com", "")
-	true_val := true
-	false_val := false
 	title1 := "title1"
 	title2 := "title2"
 	db, dbCleanup, err := database.GetDBConnection()
@@ -26,9 +25,9 @@ func TestNotesList(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
-			UserID:   userID,
-			Title:    &title1,
-			IsShared: &true_val,
+			UserID:      userID,
+			Title:       &title1,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -38,9 +37,9 @@ func TestNotesList(t *testing.T) {
 		"123abcdef",
 		"foobar_source",
 		&database.Note{
-			UserID:   userID,
-			Title:    &title2,
-			IsShared: &false_val,
+			UserID:      userID,
+			Title:       &title2,
+			SharedUntil: *testutils.CreateDateTime("1999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -50,8 +49,8 @@ func TestNotesList(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
-			UserID:   notUserID,
-			IsShared: &true_val,
+			UserID:      notUserID,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -69,13 +68,14 @@ func TestNotesList(t *testing.T) {
 		assert.Equal(t, 2, len(result))
 		assert.Equal(t, []NoteResult{
 			{
-				ID:       task1.ID,
-				Title:    "title1",
-				IsShared: true,
+				ID:          task1.ID,
+				Title:       "title1",
+				SharedUntil: "9999-01-01T00:00:00Z",
 			},
 			{
-				ID:    task2.ID,
-				Title: "title2",
+				ID:          task2.ID,
+				Title:       "title2",
+				SharedUntil: "1999-01-01T00:00:00Z",
 			},
 		}, result)
 	})

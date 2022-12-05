@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 
 func TestNoteModifyEditFields(t *testing.T) {
 	authToken := login("test_notes_modify@generaltask.com", "")
-	true_val := true
 	title1 := "title1"
 	body1 := "body1"
 
@@ -30,7 +30,7 @@ func TestNoteModifyEditFields(t *testing.T) {
 			Title:              &title1,
 			Body:               &body1,
 			AuthorDisplayEmail: "author1",
-			IsShared:           &true_val,
+			SharedUntil:        *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 
@@ -51,6 +51,6 @@ func TestNoteModifyEditFields(t *testing.T) {
 		assert.Equal(t, "new title", *note.Title)
 		assert.Equal(t, "new body", *note.Body)
 		assert.Equal(t, "new author", note.AuthorDisplayEmail)
-		assert.Equal(t, false, *note.IsShared)
+		assert.Equal(t, *testutils.CreateDateTime("9999-01-01"), note.SharedUntil)
 	})
 }

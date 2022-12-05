@@ -22,13 +22,13 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
     $textColor?: string
-    isLabel?: boolean
+    $isLabel?: boolean
 }>`
     ${MenuContentShared};
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
     ${({ $textColor }) => $textColor && `color: ${$textColor};`}
-    ${({ isLabel }) => isLabel && Typography.label};
+    ${({ $isLabel }) => $isLabel && Typography.label};
     box-sizing: border-box;
 `
 const DropdownMenuItem = styled(DropdownMenu.Item)`
@@ -83,7 +83,7 @@ const GTDropdownMenu = ({
                         align={align}
                         $menuInModal={menuInModal}
                         $width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
-                        isLabel={fontStyle === 'label'}
+                        $isLabel={fontStyle === 'label'}
                     >
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>
