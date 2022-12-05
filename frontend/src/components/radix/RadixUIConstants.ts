@@ -31,8 +31,12 @@ export const MenuItemShared = css<{ $textColor?: TTextColor; $disabled?: boolean
     ${({ $textColor }) => $textColor && `color: ${Colors.text[$textColor]};`}
     ${({ $disabled }) => !$disabled && `cursor: pointer;`}
     &[data-highlighted] {
+        ${({ $disabled }) =>
+            !$disabled &&
+            `
         outline: ${Border.stroke.small} solid ${Colors.border.light};
         background-color: ${Colors.background.medium};
+        `}
     }
     &[data-state='open'] {
         outline: ${Border.stroke.small} solid ${Colors.border.light};
@@ -67,6 +71,7 @@ export interface GTMenuItem {
     iconColor?: TIconColor
     textColor?: TTextColor
     selected?: boolean
+    hideCheckmark?: boolean
     disabled?: boolean
     subItems?: GTMenuItem[]
     renderer?: () => JSX.Element // override how the option is rendered
