@@ -17,7 +17,7 @@ import TooltipWrapper from '../atoms/TooltipWrapper'
 import { useCalendarContext } from '../calendar/CalendarContext'
 
 const CollapsedIconContainer = styled.div<{ isSelected: boolean }>`
-    padding: ${Spacing._16} ${Spacing._24};
+    padding: ${Spacing._8} ${Spacing._24};
     cursor: pointer;
     margin-bottom: ${Spacing._8};
     ${({ isSelected }) =>
