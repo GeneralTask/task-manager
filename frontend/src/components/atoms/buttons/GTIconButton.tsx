@@ -40,9 +40,7 @@ const GTIconButton = forwardRef(
         }: GTIconButtonProps,
         ref: React.Ref<HTMLButtonElement>
     ) => {
-        const tooltipContent = tooltipText || shortcutName
-
-        if (tooltipContent)
+        if (tooltipText || shortcutName)
             return (
                 <Tip content={tooltipText} shortcutName={shortcutName} side={tooltipSide}>
                     <Button
