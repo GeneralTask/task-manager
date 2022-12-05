@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type NoteResult struct {
@@ -15,7 +16,7 @@ type NoteResult struct {
 	Author      string             `json:"author,omitempty"`
 	CreatedAt   primitive.DateTime `json:"created_at,omitempty"`
 	UpdatedAt   primitive.DateTime `json:"updated_at,omitempty"`
-	SharedUntil primitive.DateTime `json:"shared_until,omitempty"`
+	SharedUntil string             `json:"shared_until,omitempty"`
 }
 
 func (api *API) NotesList(c *gin.Context) {
@@ -64,6 +65,6 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 		Author:      note.AuthorDisplayEmail,
 		CreatedAt:   note.CreatedAt,
 		UpdatedAt:   note.UpdatedAt,
-		SharedUntil: note.SharedUntil,
+		SharedUntil: note.SharedUntil.Time().UTC().Format(time.RFC3339),
 	}
 }

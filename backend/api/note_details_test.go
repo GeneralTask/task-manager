@@ -87,7 +87,7 @@ func TestNoteDetail(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t,
-			fmt.Sprintf(`{"id":"%s","title":"title1","shared_until":"9998-12-31T18:00:00-06:00"}`, note1.ID.Hex()),
+			fmt.Sprintf(`{"id":"%s","title":"title1","shared_until":"9999-01-01T00:00:00Z"}`, note1.ID.Hex()),
 			string(body))
 	})
 }

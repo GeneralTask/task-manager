@@ -70,12 +70,12 @@ func TestNotesList(t *testing.T) {
 			{
 				ID:          task1.ID,
 				Title:       "title1",
-				SharedUntil: *testutils.CreateDateTime("9999-01-01"),
+				SharedUntil: "9999-01-01T00:00:00Z",
 			},
 			{
 				ID:          task2.ID,
 				Title:       "title2",
-				SharedUntil: *testutils.CreateDateTime("1999-01-01"),
+				SharedUntil: "1999-01-01T00:00:00Z",
 			},
 		}, result)
 	})
