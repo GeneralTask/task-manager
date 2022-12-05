@@ -10,7 +10,6 @@ interface RecurringTaskTemplateEditButtonProps {
 const RecurringTaskTemplateEditButton = ({ templateId }: RecurringTaskTemplateEditButtonProps) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
-    console.log(recurringTaskTemplate)
 
     if (!recurringTaskTemplate) return null
     return (
