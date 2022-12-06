@@ -18,7 +18,6 @@ const PositionedIcon = styled(Icon)`
 const CollapseAndCommandPaletteContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._8};
     margin-bottom: ${Spacing._32};
 `
 const CollapsedContainer = styled.div`
