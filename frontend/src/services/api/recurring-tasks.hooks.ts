@@ -39,7 +39,9 @@ interface TModifyRecurringTaskPayload {
 }
 
 export const useRecurringTaskTemplates = () => {
-    return useQuery<TRecurringTaskTemplate[], void>('recurring-tasks', getRecurringTaskTemplates)
+    return useQuery<TRecurringTaskTemplate[], void>('recurring-tasks', getRecurringTaskTemplates, {
+        refetchOnMount: false,
+    })
 }
 
 const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
@@ -95,6 +97,12 @@ export const useCreateRecurringTask = () => {
         onSuccess: (response: TCreateRecurringTaskResponse, payload) => {
             setOptimisticId(payload.optimisticId, response.template_id)
 
+            if (payload.task_id) {
+                modifyTask({
+                    id: payload.task_id,
+                    recurringTaskTemplateId: response.template_id,
+                })
+            }
             const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
             if (!recurringTasks) return
 
@@ -104,13 +112,6 @@ export const useCreateRecurringTask = () => {
                 recurringTaskTemplate.id = response.template_id
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
-
-            if (payload.task_id) {
-                modifyTask({
-                    id: payload.task_id,
-                    recurringTaskTemplateId: response.template_id,
-                })
-            }
         },
     })
 }
