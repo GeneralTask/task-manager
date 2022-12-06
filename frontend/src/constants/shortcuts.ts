@@ -26,6 +26,13 @@ const asShortcuts = <T extends { [key: string]: Omit<TShortcut, 'action'> }>(arg
 
 const KEYBOARD_SHORTCUTS = asShortcuts({
     // Task shortcuts
+    backToParentTask: {
+        label: 'Back to parent task',
+        key: 'Escape',
+        keyLabel: 'Esc',
+        category: 'Tasks',
+        icon: 'arrow_left',
+    },
     createTask: {
         label: 'Create new task',
         key: 'c',
