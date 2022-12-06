@@ -1,8 +1,10 @@
 import { useParams } from 'react-router-dom'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
+import { usePreviewMode } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
-import { Spacing } from '../../styles'
+import { useGetUserInfo } from '../../services/api/user-info.hooks'
+import { Colors, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
 import CommandPalette from '../molecules/CommandPalette'
@@ -49,6 +51,26 @@ const LowerContainer = styled.div`
     flex-direction: column;
     gap: ${Spacing._8};
 `
+const Beta = styled.div<{ isPreviewMode: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+    background-color: ${Colors.icon.gray};
+    color: ${Colors.text.black};
+    user-select: none;
+    cursor: pointer;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    width: 40px;
+    ${(props) =>
+        props.isPreviewMode &&
+        css`
+            background-color: ${Colors.text.purple};
+            color: ${Colors.text.white};
+        `}
+`
 
 interface NavigationViewCollapsedProps {
     setIsCollapsed: (isCollapsed: boolean) => void
@@ -56,6 +78,8 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
+    const { data: userInfo } = useGetUserInfo()
+    const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
 
     return (
         <CollapsedContainer>
@@ -105,6 +129,17 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
             <LowerContainer>
                 <FeedbackModal isCollapsed />
                 <SettingsModalButton isCollapsed />
+                {userInfo?.is_employee && (
+                    <Beta
+                        isPreviewMode={isPreviewMode}
+                        onClick={() => {
+                            setIsCollapsed(false)
+                            togglePreviewMode()
+                        }}
+                    >
+                        {isPreviewMode ? 'GK' : 'GT'}
+                    </Beta>
+                )}
             </LowerContainer>
         </CollapsedContainer>
     )
