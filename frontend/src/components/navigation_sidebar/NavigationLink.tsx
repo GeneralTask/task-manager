@@ -1,7 +1,6 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { useNavigate } from 'react-router-dom'
-import ReactTooltip from 'react-tooltip'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { TASK_SECTION_DEFAULT_ID } from '../../constants'
@@ -13,8 +12,8 @@ import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import TooltipWrapper from '../atoms/TooltipWrapper'
 import { useCalendarContext } from '../calendar/CalendarContext'
+import Tip from '../radix/Tip'
 
 export const CollapsedIconContainer = styled.div<{ isSelected?: boolean }>`
     padding: ${Spacing._8} ${Spacing._24};
@@ -158,21 +157,15 @@ const NavigationLink = ({
         navigate(link)
     }
 
-    useEffect(() => {
-        if (needsRelinking) {
-            ReactTooltip.rebuild()
-        }
-    }, [needsRelinking])
-
     if (isCollapsed && icon) {
         const countOverflow = countWithOverflow(count ?? 0)
-        const dataTip = taskSection ? `${title} (${countOverflow})` : title
+        const content = taskSection ? `${title} (${countOverflow})` : title
         return (
-            <TooltipWrapper dataTip={dataTip} tooltipId="navigation-tooltip">
+            <Tip content={content} side="right">
                 <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
                     <Icon icon={icon} size="default" />
                 </CollapsedIconContainer>
-            </TooltipWrapper>
+            </Tip>
         )
     }
     return (
@@ -181,9 +174,9 @@ const NavigationLink = ({
                 {icon && <Icon icon={icon} color={iconColor} />}
                 <SectionTitle>{title}</SectionTitle>
                 {needsRelinking && (
-                    <TooltipWrapper dataTip="Account needs to be re-linked in settings" tooltipId="tooltip">
+                    <Tip content="Account needs to be re-linked in settings">
                         <Icon icon={icons.warning} color="red" />
-                    </TooltipWrapper>
+                    </Tip>
                 )}
                 <SectionTitleItemCount>{count && countWithOverflow(count)}</SectionTitleItemCount>
             </LinkContainer>

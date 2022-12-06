@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -12,6 +10,7 @@ import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import IntegrationLinks from '../navigation_sidebar/IntegrationLinks'
 import NavigationLink, { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
+import Tip from '../radix/Tip'
 
 const PositionedIcon = styled(Icon)`
     margin-bottom: ${Spacing._32};
@@ -51,23 +50,22 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
 
-    useEffect(() => {
-        return () => {
-            ReactTooltip.hide()
-        }
-    }, [])
     return (
         <CollapsedContainer>
             <PositionedIcon icon={logos.generaltask_yellow_circle} size="medium" />
             <CollapseAndCommandPaletteContainer>
-                <CollapsedIconContainer onClick={() => setIsCollapsed(false)}>
-                    <Icon icon={icons.sidebar} />
-                </CollapsedIconContainer>
+                <Tip shortcutName="navigationView" side="right">
+                    <CollapsedIconContainer onClick={() => setIsCollapsed(false)}>
+                        <Icon icon={icons.sidebar} />
+                    </CollapsedIconContainer>
+                </Tip>
                 <CommandPalette
                     customButton={(onClick: React.MouseEventHandler) => (
-                        <CollapsedIconContainer onClick={onClick}>
-                            <Icon icon={icons.magnifying_glass} />
-                        </CollapsedIconContainer>
+                        <Tip shortcutName="toggleCommandPalette" side="right">
+                            <CollapsedIconContainer onClick={onClick}>
+                                <Icon icon={icons.magnifying_glass} />
+                            </CollapsedIconContainer>
+                        </Tip>
                     )}
                 />
             </CollapseAndCommandPaletteContainer>

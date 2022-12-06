@@ -4,6 +4,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 func (api *API) NoteDetails(c *gin.Context) {
@@ -20,7 +21,7 @@ func (api *API) NoteDetails(c *gin.Context) {
 		Handle404(c)
 		return
 	}
-	if !*note.IsShared {
+	if note.SharedUntil < primitive.NewDateTimeFromTime(time.Now()) {
 		Handle404(c)
 		return
 	}

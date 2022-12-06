@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import Tip from '../radix/Tip'
 
 const DropdownContainer = styled.div`
     display: flex;
@@ -53,11 +53,11 @@ const NavigationLinkDropdown = ({ children, title, openAddSectionInput }: Naviga
             <DropdownContainer>
                 <SectionTitle>{title}</SectionTitle>
                 {openAddSectionInput && (
-                    <AddSectionContainer onClick={openAddSectionHandler}>
-                        <TooltipWrapper dataTip="Add Folder" tooltipId="tooltip">
+                    <Tip content="Add Folder">
+                        <AddSectionContainer onClick={openAddSectionHandler}>
                             <Icon icon={icons.plus} color="black" />
-                        </TooltipWrapper>
-                    </AddSectionContainer>
+                        </AddSectionContainer>
+                    </Tip>
                 )}
             </DropdownContainer>
             <LinksContainer>{children}</LinksContainer>
