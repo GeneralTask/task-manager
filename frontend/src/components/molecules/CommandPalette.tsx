@@ -103,9 +103,10 @@ const RightLabel = styled(Label)`
     margin-left: auto;
 `
 interface CommandPaletteProps {
+    customButton?: React.ReactNode
     hideButton?: boolean
 }
-const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
+const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const { isPreviewMode } = usePreviewMode()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
@@ -145,13 +146,16 @@ const CommandPalette = ({ hideButton }: CommandPaletteProps) => {
 
     return (
         <>
-            {!hideButton && (
-                <GTIconButton
-                    icon={icons.magnifying_glass}
-                    onClick={() => setShowCommandPalette(!showCommandPalette)}
-                    shortcutName="toggleCommandPalette"
-                />
-            )}
+            {!hideButton &&
+                (customButton ? (
+                    <div onClick={() => setShowCommandPalette(!showCommandPalette)}>{customButton}</div>
+                ) : (
+                    <GTIconButton
+                        icon={icons.magnifying_glass}
+                        onClick={() => setShowCommandPalette(!showCommandPalette)}
+                        shortcutName="toggleCommandPalette"
+                    />
+                ))}
             <CommandDialog
                 open={showCommandPalette}
                 onOpenChange={setShowCommandPalette}

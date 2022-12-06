@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { icons } from '../../styles/images'
+import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
+import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
+import Tip from '../radix/Tip'
 import SettingsModal from './SettingsModal'
 
 interface SettingsModalSettingsModalButtonProps {
@@ -13,12 +15,11 @@ const SettingsModalButton = ({ isCollapsed = false }: SettingsModalSettingsModal
     return (
         <>
             {isCollapsed ? (
-                <GTIconButton
-                    icon={icons.gear}
-                    onClick={() => setModalIsOpen(true)}
-                    tooltipText="Settings"
-                    tooltipSide="right"
-                />
+                <Tip content="Settings" side="right">
+                    <CollapsedIconContainer onClick={() => setModalIsOpen(true)}>
+                        <Icon icon={icons.gear} />
+                    </CollapsedIconContainer>
+                </Tip>
             ) : (
                 <GTButton
                     value="Settings"

@@ -5,18 +5,25 @@ import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import IntegrationLinks from '../navigation_sidebar/IntegrationLinks'
-import NavigationLink from '../navigation_sidebar/NavigationLink'
+import NavigationLink, { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
+import Tip from '../radix/Tip'
 
-const CollapsedContainer = styled.div`
-    padding: ${Spacing._24};
+const PositionedIcon = styled(Icon)`
+    margin-bottom: ${Spacing._32};
+`
+const CollapseAndCommandPaletteContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._16};
+    margin-bottom: ${Spacing._32};
+`
+const CollapsedContainer = styled.div`
+    padding: ${Spacing._24} 0;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     overflow-y: auto;
     align-items: center;
@@ -25,15 +32,14 @@ const FoldersContainer = styled.div`
     margin-top: ${Spacing._32};
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._16};
 `
 const LowerContainer = styled.div`
     margin-top: auto;
     padding-top: ${Spacing._32};
-    margin-bottom: ${Spacing._64};
+    margin-bottom: auto;
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._16};
+    gap: ${Spacing._8};
 `
 
 interface NavigationViewCollapsedProps {
@@ -45,9 +51,23 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
 
     return (
         <CollapsedContainer>
-            <Icon icon={logos.generaltask_yellow_circle} size="medium" />
-            <GTIconButton icon={icons.sidebar} onClick={() => setIsCollapsed(false)} shortcutName="navigationView" />
-            <CommandPalette />
+            <PositionedIcon icon={logos.generaltask_yellow_circle} size="medium" />
+            <CollapseAndCommandPaletteContainer>
+                <Tip shortcutName="navigationView" side="right">
+                    <CollapsedIconContainer onClick={() => setIsCollapsed(false)}>
+                        <Icon icon={icons.sidebar} />
+                    </CollapsedIconContainer>
+                </Tip>
+                <CommandPalette
+                    customButton={
+                        <Tip shortcutName="toggleCommandPalette" side="right">
+                            <CollapsedIconContainer>
+                                <Icon icon={icons.magnifying_glass} />
+                            </CollapsedIconContainer>
+                        </Tip>
+                    }
+                />
+            </CollapseAndCommandPaletteContainer>
             <IntegrationLinks isCollapsed />
             <FoldersContainer>
                 {folders?.map((folder) => {

@@ -12,10 +12,24 @@ import { icons } from '../../styles/images'
 import { DropItem, DropType, TTaskSection } from '../../utils/types'
 import { countWithOverflow } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import Tip from '../radix/Tip'
 
+export const CollapsedIconContainer = styled.div<{ isSelected?: boolean }>`
+    padding: ${Spacing._8} ${Spacing._24};
+    cursor: pointer;
+    margin-bottom: ${Spacing._8};
+    ${({ isSelected }) =>
+        isSelected &&
+        `
+        background-color: ${Colors.background.medium};
+        mix-blend-mode: multiply;
+    `}
+    :hover {
+        background-color: ${Colors.background.white};
+        mix-blend-mode: normal;
+    }
+`
 const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     display: flex;
     flex-direction: row;
@@ -147,15 +161,11 @@ const NavigationLink = ({
         const countOverflow = countWithOverflow(count ?? 0)
         const content = taskSection ? `${title} (${countOverflow})` : title
         return (
-            <GTIconButton
-                ref={drop}
-                icon={icon}
-                iconColor={iconColor}
-                onClick={onClickHandler}
-                forceShowHoverEffect={isOver || isCurrentPage}
-                tooltipText={content}
-                tooltipSide="right"
-            />
+            <Tip content={content} side="right">
+                <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
+                    <Icon icon={icon} size="default" />
+                </CollapsedIconContainer>
+            </Tip>
         )
     }
     return (
