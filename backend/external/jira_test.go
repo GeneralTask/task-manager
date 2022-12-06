@@ -729,7 +729,8 @@ func TestModifyJIRATask(t *testing.T) {
 	testTitle := "test title"
 	testDescription := "test description"
 	dueDate := primitive.NewDateTimeFromTime(time.Time{})
-	_true := true
+	hasPriorityField := true
+	hasDueDateField := true
 	expectedTask := database.Task{
 		IDOrdering:        0,
 		IDExternal:        "6942069420",
@@ -763,8 +764,8 @@ func TestModifyJIRATask(t *testing.T) {
 		},
 		Comments: nil,
 		JIRATaskParams: &database.JIRATaskParams{
-			HasPriorityField: &_true,
-			HasDueDateField:  &_true,
+			HasPriorityField: &hasPriorityField,
+			HasDueDateField:  &hasDueDateField,
 		},
 	}
 	database.GetOrCreateTask(
