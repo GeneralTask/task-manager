@@ -6,11 +6,11 @@ import GTIconButton from '../../atoms/buttons/GTIconButton'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 import { formatRecurrenceRateForScheduleButton, useGetRecurringTaskTemplateFromId } from './recurringTasks.utils'
 
-interface RecurringTaskTemplateEditButtonProps {
+interface RecurringTaskTemplateScheduleButtonProps {
     templateId?: string
     task?: TTask
 }
-const RecurringTaskTemplateEditButton = ({ templateId, task }: RecurringTaskTemplateEditButtonProps) => {
+const RecurringTaskTemplateScheduleButton = ({ templateId, task }: RecurringTaskTemplateScheduleButtonProps) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
 
@@ -44,4 +44,4 @@ const RecurringTaskTemplateEditButton = ({ templateId, task }: RecurringTaskTemp
     )
 }
 
-export default RecurringTaskTemplateEditButton
+export default RecurringTaskTemplateScheduleButton

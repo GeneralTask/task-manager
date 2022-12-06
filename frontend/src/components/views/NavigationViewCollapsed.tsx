@@ -68,13 +68,13 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                         </CollapsedIconContainer>
                     </Tip>
                     <CommandPalette
-                        customButton={(onClick: React.MouseEventHandler) => (
+                        customButton={
                             <Tip shortcutName="toggleCommandPalette" side="right">
-                                <CollapsedIconContainer onClick={onClick}>
+                                <CollapsedIconContainer>
                                     <Icon icon={icons.magnifying_glass} />
                                 </CollapsedIconContainer>
                             </Tip>
-                        )}
+                        }
                     />
                 </CollapseAndCommandPaletteContainer>
             </UpperContainer>

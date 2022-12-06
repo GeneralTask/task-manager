@@ -55,6 +55,7 @@ const TaskActionsDropdown = ({ task }: TaskActionsDropdownProps) => {
                     },
                 ],
             ]}
+            unstyledTrigger
             trigger={
                 <GTIconButton
                     icon={icons.ellipsisVertical}

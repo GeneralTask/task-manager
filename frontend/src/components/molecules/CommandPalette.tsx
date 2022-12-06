@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Command } from 'cmdk'
 import styled from 'styled-components'
+import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
@@ -15,8 +17,9 @@ import { Icon } from '../atoms/Icon'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
+import { BodySmall, Label } from '../atoms/typography/Typography'
 
-const COMMAND_PALETTE_WIDTH = '356px'
+const COMMAND_PALETTE_WIDTH = '512px'
 const COMMAND_PALETTE_MAX_LIST_HEIGHT = '50vh'
 
 const CommandDialog = styled(Command.Dialog)`
@@ -85,8 +88,22 @@ const IconContainer = styled.div`
     justify-content: center;
     padding: ${Spacing._16};
 `
+const TruncatedTitle = styled(BodySmall)<{ strike?: boolean }>`
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    ${({ strike }) => strike && 'text-decoration: line-through'};
+`
+const FlexWidth100 = styled(Flex)`
+    width: 100%;
+`
+const RightLabel = styled(Label)`
+    margin-left: auto;
+`
 interface CommandPaletteProps {
-    customButton?: (onClick: React.MouseEventHandler) => React.ReactNode
+    customButton?: React.ReactNode
     hideButton?: boolean
 }
 const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
@@ -97,6 +114,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
 
     const { data: taskFolders } = useGetTasks()
     const navigateToTask = useNavigateToTask()
+    const navigate = useNavigate()
     const tasks = useMemo(() => {
         return taskFolders?.flatMap((folder) => folder.tasks) ?? []
     }, [taskFolders])
@@ -130,7 +148,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
         <>
             {!hideButton &&
                 (customButton ? (
-                    customButton(() => setShowCommandPalette(!showCommandPalette))
+                    <div onClick={() => setShowCommandPalette(!showCommandPalette)}>{customButton}</div>
                 ) : (
                     <GTIconButton
                         icon={icons.magnifying_glass}
@@ -175,7 +193,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
-                                                {label}
+                                                <BodySmall>{label}</BodySmall>
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
                                         </CommandItem>
@@ -183,9 +201,36 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                 </CommandGroup>
                             )
                     )}
-                    {isPreviewMode && (
-                        <CommandGroup heading={`Search for "${searchValue ?? ''}"`}>
-                            {tasks.map(({ title, source, id }) => (
+                    {isPreviewMode && searchValue && (
+                        <CommandGroup heading={`Search for "${searchValue}"`}>
+                            {taskFolders
+                                ?.filter((f) => f.id !== DEFAULT_SECTION_ID)
+                                .map(({ name, id }) => (
+                                    <CommandItem
+                                        key={id}
+                                        onSelect={() => {
+                                            setShowCommandPalette(false)
+                                            navigate(`/tasks/${id}`)
+                                        }}
+                                        value={`${name} ${id}`}
+                                    >
+                                        <FlexWidth100 alignItems="center">
+                                            <IconContainer>
+                                                <Icon
+                                                    icon={
+                                                        id === TRASH_SECTION_ID
+                                                            ? icons.trash
+                                                            : id === DONE_SECTION_ID
+                                                            ? icons.checkbox_checked
+                                                            : icons.folder
+                                                    }
+                                                />
+                                            </IconContainer>
+                                            <TruncatedTitle>{name}</TruncatedTitle>
+                                        </FlexWidth100>
+                                    </CommandItem>
+                                ))}
+                            {tasks.map(({ is_done, is_deleted, title, source, id }) => (
                                 <CommandItem
                                     key={id}
                                     onSelect={() => {
@@ -194,12 +239,22 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                     }}
                                     value={`${title} ${id}`}
                                 >
-                                    <Flex flex="1" alignItems="center">
+                                    <FlexWidth100 alignItems="center">
                                         <IconContainer>
                                             <Icon icon={logos[source.logo_v2]} />
                                         </IconContainer>
-                                        {title}
-                                    </Flex>
+                                        <TruncatedTitle
+                                            strike={is_done || is_deleted}
+                                            color={is_done || is_deleted ? 'light' : 'black'}
+                                        >
+                                            {title}
+                                        </TruncatedTitle>
+                                        {(is_done || is_deleted) && (
+                                            <RightLabel color={is_deleted ? 'light' : 'purple'}>
+                                                {is_deleted ? '(deleted)' : '(done)'}
+                                            </RightLabel>
+                                        )}
+                                    </FlexWidth100>
                                 </CommandItem>
                             ))}
                         </CommandGroup>
