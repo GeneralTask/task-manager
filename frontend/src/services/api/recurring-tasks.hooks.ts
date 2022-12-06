@@ -64,7 +64,7 @@ export const useCreateRecurringTask = () => {
         tag: 'recurring-tasks',
         invalidateTagsOnSettled: ['recurring-tasks'],
         onMutate: async (payload) => {
-            await queryClient.cancelQueries('recurring-tasks')
+            await Promise.all([queryClient.cancelQueries('recurring-tasks'), queryClient.cancelQueries('tasks')])
 
             const recurringTasks = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
             if (!recurringTasks) return
