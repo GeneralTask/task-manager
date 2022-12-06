@@ -230,6 +230,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const { data: folders } = useGetTasks()
     const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
 
+    useKeyboardShortcut(
+        'backToParentTask',
+        useCallback(() => {
+            if (subtask) {
+                navigate('..', { relative: 'path' })
+            }
+        }, [subtask])
+    )
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
