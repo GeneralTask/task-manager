@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
 import { useToast } from '../../hooks'
@@ -135,7 +136,6 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     onChange={(val) => onEdit({ id: note.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
-                    hideUnfocusedOutline
                     blurOnEnter
                 />
             </div>
@@ -148,6 +148,12 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 minHeight={BODY_MIN_HEIGHT}
                 fontSize="small"
             />
+            <Label color="light">{`Last updated ${DateTime.fromISO(note.updated_at).toLocaleString({
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+            })}`}</Label>
         </DetailsViewTemplate>
     )
 }

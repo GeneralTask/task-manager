@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetNotes } from '../../services/api/notes.hooks'
+import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
@@ -11,7 +13,12 @@ import EmptyDetails from '../details/EmptyDetails'
 import { SectionHeader } from '../molecules/Header'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 import Note from './Note'
+import NoteCreateButton from './NoteCreateButton'
 import NoteDetails from './NoteDetails'
+
+const ActionsContainer = styled.div`
+    margin-bottom: ${Spacing._16};
+`
 
 const NoteListView = () => {
     const { data: notes } = useGetNotes()
@@ -39,6 +46,9 @@ const NoteListView = () => {
         <>
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Notes" />
+                <ActionsContainer>
+                    <NoteCreateButton type="button" />
+                </ActionsContainer>
                 {!notes ? (
                     <Spinner />
                 ) : (
