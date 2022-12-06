@@ -10,6 +10,7 @@ import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilter
 import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
 import ServiceVisibilityDropdown from '../radix/ServiceVisibilityDropdown'
+import Tip from '../radix/Tip'
 import NavigationHeader from './NavigationHeader'
 import NavigationLink from './NavigationLink'
 
@@ -59,13 +60,15 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const slackCount = isSlackIntegrationLinked ? slackTasksCount : undefined
     return (
         <>
-            <NavigationLink
-                link="/overview"
-                title="Overview"
-                icon={icons.list}
-                isCurrentPage={pathname.split('/')[1] === 'overview'}
-                isCollapsed={isCollapsed}
-            />
+            <Tip shortcutName="goToOverviewPage" side="right">
+                <NavigationLink
+                    link="/overview"
+                    title="Overview"
+                    icon={icons.list}
+                    isCurrentPage={pathname.split('/')[1] === 'overview'}
+                    isCollapsed={isCollapsed}
+                />
+            </Tip>
             {isPreviewMode && (
                 <NavigationLink
                     link="/recurring-tasks"
@@ -76,48 +79,56 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             )}
-            <NavigationLink
-                link="/focus-mode"
-                title="Enter Focus Mode"
-                icon={icons.headphones}
-                isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
-                isCollapsed={isCollapsed}
-            />
+            <Tip shortcutName="enterFocusMode" side="right">
+                <NavigationLink
+                    link="/focus-mode"
+                    title="Enter Focus Mode"
+                    icon={icons.headphones}
+                    isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
+                    isCollapsed={isCollapsed}
+                />
+            </Tip>
             {isPreviewMode && !isCollapsed && (
                 <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />
             )}
             {(!isPreviewMode || showGithub) && (
-                <NavigationLink
-                    link="/pull-requests"
-                    title="GitHub"
-                    icon={logos.github}
-                    count={githubCount}
-                    needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
-                    isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
-                    isCollapsed={isCollapsed}
-                />
+                <Tip shortcutName="goToGithubPRsPage" side="right">
+                    <NavigationLink
+                        link="/pull-requests"
+                        title="GitHub"
+                        icon={logos.github}
+                        count={githubCount}
+                        needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
+                        isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
+                        isCollapsed={isCollapsed}
+                    />
+                </Tip>
             )}
             {(!isPreviewMode || showLinear) && (
-                <NavigationLink
-                    link="/linear"
-                    title="Linear"
-                    icon={logos.linear}
-                    count={linearCount}
-                    needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
-                    isCurrentPage={pathname.split('/')[1] === 'linear'}
-                    isCollapsed={isCollapsed}
-                />
+                <Tip shortcutName="goToLinearPage" side="right">
+                    <NavigationLink
+                        link="/linear"
+                        title="Linear"
+                        icon={logos.linear}
+                        count={linearCount}
+                        needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
+                        isCurrentPage={pathname.split('/')[1] === 'linear'}
+                        isCollapsed={isCollapsed}
+                    />
+                </Tip>
             )}
             {(!isPreviewMode || showSlack) && (
-                <NavigationLink
-                    link="/slack"
-                    title="Slack"
-                    icon={logos.slack}
-                    count={slackCount}
-                    needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
-                    isCurrentPage={pathname.split('/')[1] === 'slack'}
-                    isCollapsed={isCollapsed}
-                />
+                <Tip shortcutName="goToSlackPage" side="right">
+                    <NavigationLink
+                        link="/slack"
+                        title="Slack"
+                        icon={logos.slack}
+                        count={slackCount}
+                        needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
+                        isCurrentPage={pathname.split('/')[1] === 'slack'}
+                        isCollapsed={isCollapsed}
+                    />
+                </Tip>
             )}
         </>
     )

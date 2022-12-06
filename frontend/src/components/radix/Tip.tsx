@@ -44,7 +44,9 @@ const Tip = ({ content, shortcutName, side, align, children, disabled }: Tooltip
     return (
         <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>
             <Tooltip.Root defaultOpen={false}>
-                <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+                <Tooltip.Trigger asChild>
+                    <span>{children}</span>
+                </Tooltip.Trigger>
                 <Tooltip.Portal>
                     <TooltipContent sideOffset={5} side={side} align={align}>
                         {tooltipContent}
