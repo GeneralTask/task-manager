@@ -60,7 +60,7 @@ const CreateNewSubtask = ({ parentTaskId, sectionId, hideCreateNewSubtask }: Cre
                 ref={(node) => node?.focus()}
                 onBlur={hideCreateNewSubtask}
                 value={taskTitle}
-                placeholder="Write new subtask title"
+                placeholder="Add new subtask"
                 onKeyDown={handleKeyDown}
                 onChange={(e) => setTaskTitle(e.target.value)}
             />
