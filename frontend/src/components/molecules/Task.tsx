@@ -233,7 +233,7 @@ const Task = ({
                                 color={TASK_PRIORITIES[task.priority_normalized].color}
                             />
                         )}
-                        {task.sub_tasks && task.sub_tasks.length > 0 && (
+                        {isPreviewMode && task.sub_tasks && task.sub_tasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
                                 <Mini>{task.sub_tasks.length}</Mini>
