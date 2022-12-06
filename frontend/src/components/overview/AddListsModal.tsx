@@ -2,7 +2,6 @@ import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { GITHUB_SUPPORTED_VIEW_NAME, TASK_INBOX_NAME } from '../../constants'
-import { usePreviewMode } from '../../hooks'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -59,7 +58,6 @@ export const AddListsModalContent = () => {
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const { isPreviewMode } = usePreviewMode()
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
@@ -68,7 +66,7 @@ export const AddListsModalContent = () => {
 
     const filteredSupportedViews = useMemo(() => {
         const lowercaseSearchTerm = deferredSearchTerm.toLowerCase()
-        if (!lowercaseSearchTerm || !isPreviewMode || !supportedViews) {
+        if (!lowercaseSearchTerm || !supportedViews) {
             return supportedViews
         }
         const filtered: TSupportedView[] = []
@@ -113,16 +111,14 @@ export const AddListsModalContent = () => {
     }
     return (
         <>
-            {isPreviewMode && (
-                <SearchBarContainer>
-                    <GTInput
-                        value={searchTerm}
-                        onChange={(value: string) => setSearchTerm(value)}
-                        placeholder="Search lists"
-                        showSearchIcon
-                    />
-                </SearchBarContainer>
-            )}
+            <SearchBarContainer>
+                <GTInput
+                    value={searchTerm}
+                    onChange={(value: string) => setSearchTerm(value)}
+                    placeholder="Search lists"
+                    showSearchIcon
+                />
+            </SearchBarContainer>
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
