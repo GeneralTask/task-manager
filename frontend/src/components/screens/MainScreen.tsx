@@ -4,6 +4,8 @@ import 'animate.css'
 import { DateTime } from 'luxon'
 import { useEventBanners } from '../../hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
+import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
+import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground } from '../../styles/images'
@@ -24,7 +26,9 @@ const MainScreen = () => {
     const { isLoading: isPullRequestsLoading } = useGetPullRequests()
     useFetchPullRequests()
     useFetchExternalTasks()
+    useGetSettings()
     useEventBanners(DateTime.now())
+    useRecurringTaskTemplates()
 
     const currentPage = (() => {
         switch (location.pathname.split('/')[1]) {

@@ -30,7 +30,7 @@ const TaskDueContainer = styled.div`
 `
 const AbsoluteCaretIcon = styled.div`
     position: absolute;
-    top: ${Spacing._16};
+    top: ${Spacing._8};
     right: ${Spacing._12};
     cursor: pointer;
 `

@@ -5,10 +5,8 @@ import { icons } from '../../../styles/images'
 import { Icon } from '../../atoms/Icon'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 
-export const AddTemplateContainer = styled.div`
+const AddTemplateContainer = styled.div`
     display: flex;
-    flex-shrink: 0;
-    flex-direction: row;
     gap: ${Spacing._8};
     background-color: ${Colors.background.medium};
     height: ${Dimensions.TASK_HEIGHT};
@@ -33,6 +31,7 @@ const AddRecurringTask = () => {
                 <Icon icon={icons.plus} />
                 Add new template
             </AddTemplateContainer>
+            {/* conditionally rendering so that modal re-mounts and resets state after closing */}
             {isModalOpen && <RecurringTaskTemplateModal onClose={() => setIsModalOpen(false)} />}
         </>
     )

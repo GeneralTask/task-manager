@@ -1,15 +1,13 @@
 import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { GITHUB_SUPPORTED_VIEW_NAME } from '../../constants'
-import { usePreviewMode } from '../../hooks'
+import { GITHUB_SUPPORTED_VIEW_NAME, TASK_INBOX_NAME } from '../../constants'
 import { useAddView, useGetSupportedViews, useRemoveView } from '../../services/api/overview.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
-import { logos } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { isGithubLinked } from '../../utils/utils'
-import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import GTInput from '../atoms/GTInput'
 import GTModal from '../atoms/GTModal'
@@ -40,6 +38,15 @@ const NoListsDialog = styled.div`
     ${Typography.body};
     margin-top: ${Spacing._8};
 `
+const SearchBarContainer = styled.div`
+    margin-bottom: ${Spacing._16};
+`
+
+const getIcon = (supportedView: TSupportedView) => {
+    if (supportedView.type === 'task_section' && supportedView.name === TASK_INBOX_NAME) return icons.inbox
+    if (supportedView.type === 'task_section') return icons.folder
+    else return logos[supportedView.logo]
+}
 
 interface AddListsModalProps {
     isOpen: boolean
@@ -51,7 +58,6 @@ export const AddListsModalContent = () => {
     const { mutate: addView } = useAddView()
     const { mutate: removeView } = useRemoveView()
     const { data: linkedAccounts } = useGetLinkedAccounts()
-    const { isPreviewMode } = usePreviewMode()
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
 
@@ -60,7 +66,7 @@ export const AddListsModalContent = () => {
 
     const filteredSupportedViews = useMemo(() => {
         const lowercaseSearchTerm = deferredSearchTerm.toLowerCase()
-        if (!lowercaseSearchTerm || !isPreviewMode || !supportedViews) {
+        if (!lowercaseSearchTerm || !supportedViews) {
             return supportedViews
         }
         const filtered: TSupportedView[] = []
@@ -105,23 +111,21 @@ export const AddListsModalContent = () => {
     }
     return (
         <>
-            {isPreviewMode && (
-                <Flex alignItems="center">
-                    {/* TODO: use our actual magnifiying glass icon - not implemented because our input component doesnt support jsx/icons in the placeholder prop */}
-                    <GTInput
-                        value={searchTerm}
-                        onChange={(value: string) => setSearchTerm(value)}
-                        placeholder=" 🔍 Search lists"
-                    />
-                </Flex>
-            )}
+            <SearchBarContainer>
+                <GTInput
+                    value={searchTerm}
+                    onChange={(value: string) => setSearchTerm(value)}
+                    placeholder="Search lists"
+                    showSearchIcon
+                />
+            </SearchBarContainer>
             {filteredSupportedViews.length === 0 && <NoListsDialog>No lists matching your query</NoListsDialog>}
             {filteredSupportedViews.map((supportedView, viewIndex) => (
                 <Fragment key={viewIndex}>
                     {supportedView.is_linked ? (
                         <SupportedView>
                             <SupportedViewContent>
-                                <Icon icon={logos[supportedView.logo]} />
+                                <Icon icon={getIcon(supportedView)} />
                                 {supportedView.name}
                             </SupportedViewContent>
                             {!supportedView.is_nested && supportedView.views.length === 1 && (
@@ -152,7 +156,7 @@ export const AddListsModalContent = () => {
                             <Fragment key={viewItemIndex}>
                                 <SupportedView isIndented>
                                     <SupportedViewContent>
-                                        <Icon icon={logos[supportedView.logo]} />
+                                        <Icon icon={getIcon(supportedView)} />
                                         {supportedViewItem.name}
                                     </SupportedViewContent>
                                     <GTCheckbox

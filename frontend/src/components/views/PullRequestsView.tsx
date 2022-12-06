@@ -78,7 +78,7 @@ const PullRequestsView = () => {
     }, [params.pullRequest, sortedAndFilteredRepositories])
 
     const isGithubIntegrationLinked = isGithubLinked(linkedAccounts ?? [])
-    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'Github')
+    const doesNeedRelinking = doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')
     useEffect(() => {
         if (selectedPullRequest) {
             navigate(`/pull-requests/${selectedPullRequest.id}`, { replace: true })
@@ -93,7 +93,7 @@ const PullRequestsView = () => {
         <>
             <PullRequestsContainer>
                 <ScrollableListTemplate>
-                    <SectionHeader sectionName="GitHub PRs" />
+                    <SectionHeader sectionName="GitHub Pull Requests" />
                     {doesNeedRelinking && <ConnectIntegration type="github" reconnect />}
                     <MarginBottom4>
                         <SortAndFilterSelectors settings={sortAndFilterSettings} />

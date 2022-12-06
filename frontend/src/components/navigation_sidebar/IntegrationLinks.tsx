@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { usePreviewMode } from '../../hooks'
+import { usePreviewMode, useSetting } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -9,6 +9,8 @@ import { PR_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/pull-reques
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TPullRequest } from '../../utils/types'
 import { doesAccountNeedRelinking, isGithubLinked, isLinearLinked, isSlackLinked } from '../../utils/utils'
+import ServiceVisibilityDropdown from '../radix/ServiceVisibilityDropdown'
+import NavigationHeader from './NavigationHeader'
 import NavigationLink from './NavigationLink'
 
 interface IntegrationLinksProps {
@@ -19,6 +21,14 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { pathname } = useLocation()
     const { data: folders } = useGetTasks()
     const { isPreviewMode } = usePreviewMode()
+
+    const showGitHubSetting = useSetting('sidebar_github_preference')
+    const showLinearSetting = useSetting('sidebar_linear_preference')
+    const showSlackSetting = useSetting('sidebar_slack_preference')
+
+    const showGithub = showGitHubSetting.field_value === 'true'
+    const showLinear = showLinearSetting.field_value === 'true'
+    const showSlack = showSlackSetting.field_value === 'true'
 
     const linearTasksCount = useMemo(() => {
         const tasks =
@@ -73,33 +83,42 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
                 isCollapsed={isCollapsed}
             />
-            <NavigationLink
-                link="/pull-requests"
-                title="GitHub PRs"
-                icon={logos.github}
-                count={githubCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Github')}
-                isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
-                isCollapsed={isCollapsed}
-            />
-            <NavigationLink
-                link="/linear"
-                title="Linear Issues"
-                icon={logos.linear}
-                count={linearCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
-                isCurrentPage={pathname.split('/')[1] === 'linear'}
-                isCollapsed={isCollapsed}
-            />
-            <NavigationLink
-                link="/slack"
-                title="Slack"
-                icon={logos.slack}
-                count={slackCount}
-                needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
-                isCurrentPage={pathname.split('/')[1] === 'slack'}
-                isCollapsed={isCollapsed}
-            />
+            {isPreviewMode && !isCollapsed && (
+                <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />
+            )}
+            {(!isPreviewMode || showGithub) && (
+                <NavigationLink
+                    link="/pull-requests"
+                    title="GitHub"
+                    icon={logos.github}
+                    count={githubCount}
+                    needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
+                    isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
+                    isCollapsed={isCollapsed}
+                />
+            )}
+            {(!isPreviewMode || showLinear) && (
+                <NavigationLink
+                    link="/linear"
+                    title="Linear"
+                    icon={logos.linear}
+                    count={linearCount}
+                    needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
+                    isCurrentPage={pathname.split('/')[1] === 'linear'}
+                    isCollapsed={isCollapsed}
+                />
+            )}
+            {(!isPreviewMode || showSlack) && (
+                <NavigationLink
+                    link="/slack"
+                    title="Slack"
+                    icon={logos.slack}
+                    count={slackCount}
+                    needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
+                    isCurrentPage={pathname.split('/')[1] === 'slack'}
+                    isCollapsed={isCollapsed}
+                />
+            )}
         </>
     )
 }
