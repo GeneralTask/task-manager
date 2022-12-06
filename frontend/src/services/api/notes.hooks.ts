@@ -10,7 +10,7 @@ export interface TCreateNoteData {
     title: string
     body?: string
     author: string
-    is_shared?: boolean
+    shared_until?: string
     optimisticId: string
 }
 
@@ -27,7 +27,7 @@ export interface TModifyNoteData {
     title?: string
     body?: string
     // author?: never // we don't want to allow this to be modified (right now, to be decided later)
-    is_shared?: boolean
+    shared_until?: string
 }
 
 export const useGetNote = (params: TGetNoteParams) => {
@@ -48,6 +48,7 @@ export const useGetNotes = (isEnabled = true) => {
 const getNotes = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/notes/', { signal })
+        console.log(res.data)
         return castImmutable(res.data)
     } catch {
         throw new Error('getNotes failed')
@@ -113,7 +114,7 @@ export const useModifyNote = () => {
                 if (!note) return
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
-                note.is_shared = data.is_shared ?? note.is_shared
+                note.shared_until = data.shared_until ?? note.shared_until
             })
             queryClient.setQueryData('notes', updatedNotes)
         },
@@ -139,6 +140,6 @@ export const createNewNoteHelper = (
         author: data.author,
         created_at: data.created_at ?? DateTime.local().toISO(),
         updated_at: data.updated_at ?? DateTime.local().toISO(),
-        is_shared: data.is_shared ?? false,
+        shared_until: data.shared_until ?? '',
     }
 }

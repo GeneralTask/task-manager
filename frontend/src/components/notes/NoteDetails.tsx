@@ -13,6 +13,7 @@ import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import NoteSharingDropdown from './NoteSharingDropdown'
 
 const TITLE_MAX_HEIGHT = 208
 const NOTE_TITLE_MAX_WIDTH = 125
@@ -107,7 +108,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Label color="light">{syncIndicatorText}</Label>
                 </DetailItem>
                 <MarginLeftAuto>
-                    <GTButton
+                    <NoteSharingDropdown note={note} />
+                    {/* <GTButton
                         value="Copy Note Link"
                         onClick={() => {
                             navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`)
@@ -125,7 +127,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                         }}
                         styleType="secondary"
                         size="small"
-                    />
+                    /> */}
                 </MarginLeftAuto>
             </DetailsTopContainer>
             <div>
@@ -154,6 +156,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 hour: 'numeric',
                 minute: '2-digit',
             })}`}</Label>
+            <Label color="light">{'shared' + note.shared_until}</Label>
+            <GTButton
+                value="share"
+                onClick={() => modifyNote({ id: note.id, shared_until: DateTime.local().plus({ weeks: 1 }).toISO() })}
+                styleType="secondary"
+                size="small"
+            />
         </DetailsViewTemplate>
     )
 }
