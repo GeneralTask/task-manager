@@ -86,7 +86,7 @@ const IconContainer = styled.div`
     padding: ${Spacing._16};
 `
 interface CommandPaletteProps {
-    customButton?: (onClick: React.MouseEventHandler) => React.ReactNode
+    customButton?: React.ReactNode
     hideButton?: boolean
 }
 const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
@@ -130,7 +130,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
         <>
             {!hideButton &&
                 (customButton ? (
-                    customButton(() => setShowCommandPalette(!showCommandPalette))
+                    <div onClick={() => setShowCommandPalette(!showCommandPalette)}>{customButton}</div>
                 ) : (
                     <GTIconButton
                         icon={icons.magnifying_glass}
