@@ -3,9 +3,10 @@ import { TSettingsKey, useGetSettings, useUpdateSetting } from '../services/api/
 import { TSetting } from '../utils/types'
 import { emptyFunction } from '../utils/utils'
 
+export type TSettingValue = string | number | boolean
 interface SettingResult extends TSetting {
     isLoading: boolean
-    updateSetting: (value: string) => void
+    updateSetting: (value: TSettingValue) => void
 }
 const useSetting = (settingKey: TSettingsKey): SettingResult => {
     const { data, isLoading } = useGetSettings()
@@ -25,8 +26,8 @@ const useSetting = (settingKey: TSettingsKey): SettingResult => {
             }
         }
 
-        const updateSetting = (value: string) => {
-            mutate({ key: settingKey, value: value })
+        const updateSetting = (value: TSettingValue) => {
+            mutate({ key: settingKey, value: String(value) })
         }
 
         return {

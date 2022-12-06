@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import * as Sentry from '@sentry/browser'
+import { EMPTY_MONGO_OBJECT_ID } from '../../../constants'
 import { useRecurringTaskTemplates } from '../../../services/api/recurring-tasks.hooks'
 import { RecurrenceRate } from '../../../utils/enums'
 import { getOrdinal } from '../../../utils/time'
@@ -25,7 +26,7 @@ export const useGetRecurringTaskTemplateFromId = (templateId?: string): TRecurri
     const { data: recurringTaskTemplates } = useRecurringTaskTemplates()
 
     return useMemo(() => {
-        if (!recurringTaskTemplates || !templateId) return undefined
+        if (!recurringTaskTemplates || !templateId || templateId === EMPTY_MONGO_OBJECT_ID) return undefined
         const recurringTaskTemplate = recurringTaskTemplates.find((rt) => rt.id === templateId)
         if (!recurringTaskTemplate) {
             Sentry.captureMessage('Recurring task has invalid template id: ' + templateId)

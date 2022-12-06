@@ -19,7 +19,6 @@ const NewTemplateNameInput = ({ value, onChange }: NewTemplateNameInputProps) =>
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder="Add new template"
-                ref={(node) => node?.focus()}
             />
         </CreateNewTaskContainer>
     )

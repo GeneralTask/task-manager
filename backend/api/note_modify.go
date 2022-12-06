@@ -65,6 +65,7 @@ func (api *API) NoteModify(c *gin.Context) {
 			AuthorDisplayEmail: modifyParams.NoteChangeable.Author,
 			SharedUntil:        sharedUntil,
 			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
+			CreatedAt:          note.CreatedAt,
 		}
 
 		api.UpdateNoteInDB(c, note, userID, &updatedNote)

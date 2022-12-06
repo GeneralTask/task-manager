@@ -37,6 +37,7 @@ const FolderDropdown = ({ value, onChange }: FolderDropdownProps) => {
                           }))
                     : []
             }
+            unstyledTrigger
             trigger={
                 <GTIconButton
                     icon={icons.folder}

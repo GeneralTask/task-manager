@@ -12,10 +12,11 @@ import { Icon } from '../atoms/Icon'
 import Loading from '../atoms/Loading'
 import NoStyleInput from '../atoms/NoStyleInput'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import NavigationContextMenuWrapper from '../radix/NavigationContextMenuWrapper'
 import IntegrationLinks from './IntegrationLinks'
+import NavigationHeader from './NavigationHeader'
 import NavigationLink, { NavigationLinkTemplate } from './NavigationLink'
-import NavigationLinkDropdown from './NavigationLinkDropdown'
 
 const AddSectionContainer = styled.div`
     display: flex;
@@ -69,10 +70,14 @@ const NavigationSectionLinks = () => {
     }
 
     const inputRef = useRef<HTMLInputElement>(null)
-    const onOpenAddSectionInputHandler = useCallback(() => {
-        setIsAddSectionInputVisible(true)
-        inputRef.current?.focus()
-    }, [inputRef])
+    const onOpenAddSectionInputHandler = useCallback(
+        (e: React.MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation()
+            setIsAddSectionInputVisible(true)
+            inputRef.current?.focus()
+        },
+        [inputRef]
+    )
 
     useEffect(() => {
         if (isAddSectionInputVisible && inputRef.current) {
@@ -137,122 +142,126 @@ const NavigationSectionLinks = () => {
     return (
         <>
             <IntegrationLinks />
-            <NavigationLinkDropdown title="Folders" openAddSectionInput={onOpenAddSectionInputHandler}>
-                {defaultFolder && (
-                    <NavigationLink
-                        link={`/tasks/${defaultFolder.id}`}
-                        title={defaultFolder.name}
-                        icon={icons.inbox}
-                        isCurrentPage={sectionId === defaultFolder.id}
-                        taskSection={defaultFolder}
-                        count={defaultFolder.tasks.length}
-                        droppable
-                    />
-                )}
-                {folders
-                    ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
-                    .map((section, index) =>
-                        sectionBeingEdited?.id !== section.id ? (
-                            <ReorderDropContainer
-                                key={section.id}
-                                index={index} // +1 because we skip the default folder
-                                acceptDropType={DropType.FOLDER}
-                                onReorder={handleReorder}
+            <NavigationHeader
+                title="Folders"
+                rightContent={
+                    <GTIconButton icon={icons.plus} onClick={onOpenAddSectionInputHandler} tooltipText="Add Folder" />
+                }
+            />
+            {defaultFolder && (
+                <NavigationLink
+                    link={`/tasks/${defaultFolder.id}`}
+                    title={defaultFolder.name}
+                    icon={icons.inbox}
+                    isCurrentPage={sectionId === defaultFolder.id}
+                    taskSection={defaultFolder}
+                    count={defaultFolder.tasks.length}
+                    droppable
+                />
+            )}
+            {folders
+                ?.filter((section) => section.id !== DEFAULT_SECTION_ID && !section.is_done && !section.is_trash)
+                .map((section, index) =>
+                    sectionBeingEdited?.id !== section.id ? (
+                        <ReorderDropContainer
+                            key={section.id}
+                            index={index} // +1 because we skip the default folder
+                            acceptDropType={DropType.FOLDER}
+                            onReorder={handleReorder}
+                        >
+                            <NavigationContextMenuWrapper
+                                section={section}
+                                setSectionBeingEdited={(section) => {
+                                    setUpdatedSectionName(section.name)
+                                    setSectionBeingEdited(section)
+                                }}
                             >
-                                <NavigationContextMenuWrapper
-                                    section={section}
-                                    setSectionBeingEdited={(section) => {
-                                        setUpdatedSectionName(section.name)
-                                        setSectionBeingEdited(section)
-                                    }}
-                                >
-                                    <NavigationLink
-                                        link={`/tasks/${section.id}`}
-                                        title={section.name}
-                                        icon={icons.folder}
-                                        isCurrentPage={sectionId === section.id}
-                                        taskSection={section}
-                                        count={section.tasks.length}
-                                        draggable
-                                        droppable
-                                    />
-                                </NavigationContextMenuWrapper>
-                            </ReorderDropContainer>
-                        ) : (
-                            <NavigationLinkTemplate key={section.id} ref={ref}>
-                                <AddSectionContainer>
-                                    <div>
-                                        <Icon icon={icons.folder} color="black" />
-                                    </div>
-                                    <InputContainer>
-                                        <NoStyleInput
-                                            ref={(node) => {
-                                                if (!node) return
-                                                if (sectionBeingEdited.id === section.id) node.focus()
-                                                else if (sectionBeingEdited === null) node.blur()
-                                            }}
-                                            value={updatedSectionName}
-                                            onChange={(e) => {
-                                                setUpdatedSectionName(e.target.value)
-                                            }}
-                                            onKeyDown={onKeyDownHandlerSectionName}
-                                            placeholder="Enter a section name"
-                                        />
-                                    </InputContainer>
-                                </AddSectionContainer>
-                            </NavigationLinkTemplate>
-                        )
-                    )}
-                {isAddSectionInputVisible && (
-                    <NavigationLinkTemplate>
-                        <AddSectionContainer>
-                            <div>
-                                <Icon icon={icons.folder} color="black" />
-                            </div>
-                            <InputContainer>
-                                <NoStyleInput
-                                    ref={inputRef}
-                                    value={sectionName}
-                                    onChange={onKeyChangeHandler}
-                                    onKeyDown={onKeyDownHandler}
-                                    placeholder="Add Folder"
-                                    onBlur={onBlurHandler}
+                                <NavigationLink
+                                    link={`/tasks/${section.id}`}
+                                    title={section.name}
+                                    icon={icons.folder}
+                                    isCurrentPage={sectionId === section.id}
+                                    taskSection={section}
+                                    count={section.tasks.length}
+                                    draggable
+                                    droppable
                                 />
-                            </InputContainer>
-                        </AddSectionContainer>
-                    </NavigationLinkTemplate>
+                            </NavigationContextMenuWrapper>
+                        </ReorderDropContainer>
+                    ) : (
+                        <NavigationLinkTemplate key={section.id} ref={ref}>
+                            <AddSectionContainer>
+                                <div>
+                                    <Icon icon={icons.folder} color="black" />
+                                </div>
+                                <InputContainer>
+                                    <NoStyleInput
+                                        ref={(node) => {
+                                            if (!node) return
+                                            if (sectionBeingEdited.id === section.id) node.focus()
+                                            else if (sectionBeingEdited === null) node.blur()
+                                        }}
+                                        value={updatedSectionName}
+                                        onChange={(e) => {
+                                            setUpdatedSectionName(e.target.value)
+                                        }}
+                                        onKeyDown={onKeyDownHandlerSectionName}
+                                        placeholder="Enter a section name"
+                                    />
+                                </InputContainer>
+                            </AddSectionContainer>
+                        </NavigationLinkTemplate>
+                    )
                 )}
-                <ReorderDropContainer
-                    index={folders.length - 2} // -2 because we skip the done and trash folders
-                    acceptDropType={DropType.FOLDER}
-                    onReorder={handleReorder}
-                    indicatorType="TOP_ONLY"
-                >
-                    <>
-                        {doneFolder && (
-                            <NavigationLink
-                                link={`/tasks/${doneFolder.id}`}
-                                title={doneFolder.name}
-                                icon={icons.checkbox_checked}
-                                isCurrentPage={sectionId === doneFolder.id}
-                                count={doneFolder.tasks.length}
-                                taskSection={doneFolder}
-                                droppable
+            {isAddSectionInputVisible && (
+                <NavigationLinkTemplate>
+                    <AddSectionContainer>
+                        <div>
+                            <Icon icon={icons.folder} color="black" />
+                        </div>
+                        <InputContainer>
+                            <NoStyleInput
+                                ref={inputRef}
+                                value={sectionName}
+                                onChange={onKeyChangeHandler}
+                                onKeyDown={onKeyDownHandler}
+                                placeholder="Add Folder"
+                                onBlur={onBlurHandler}
                             />
-                        )}
-                        {trashFolder && (
-                            <NavigationLink
-                                link={`/tasks/${trashFolder.id}`}
-                                title={trashFolder.name}
-                                icon={icons.trash}
-                                isCurrentPage={sectionId === trashFolder.id}
-                                taskSection={trashFolder}
-                                droppable
-                            />
-                        )}
-                    </>
-                </ReorderDropContainer>
-            </NavigationLinkDropdown>
+                        </InputContainer>
+                    </AddSectionContainer>
+                </NavigationLinkTemplate>
+            )}
+            <ReorderDropContainer
+                index={folders.length - 2} // -2 because we skip the done and trash folders
+                acceptDropType={DropType.FOLDER}
+                onReorder={handleReorder}
+                indicatorType="TOP_ONLY"
+            >
+                <>
+                    {doneFolder && (
+                        <NavigationLink
+                            link={`/tasks/${doneFolder.id}`}
+                            title={doneFolder.name}
+                            icon={icons.checkbox_checked}
+                            isCurrentPage={sectionId === doneFolder.id}
+                            count={doneFolder.tasks.length}
+                            taskSection={doneFolder}
+                            droppable
+                        />
+                    )}
+                    {trashFolder && (
+                        <NavigationLink
+                            link={`/tasks/${trashFolder.id}`}
+                            title={trashFolder.name}
+                            icon={icons.trash}
+                            isCurrentPage={sectionId === trashFolder.id}
+                            taskSection={trashFolder}
+                            droppable
+                        />
+                    )}
+                </>
+            </ReorderDropContainer>
         </>
     )
 }

@@ -49,6 +49,8 @@ interface GTDropdownMenuProps {
     hideCheckmark?: boolean
     menuInModal?: boolean
     useTriggerWidth?: boolean
+    unstyledTrigger?: boolean
+    keepOpenOnSelect?: boolean
     fontStyle?: 'default' | 'label'
 }
 
@@ -62,6 +64,8 @@ const GTDropdownMenu = ({
     hideCheckmark = false,
     menuInModal = false,
     useTriggerWidth = false,
+    unstyledTrigger = false,
+    keepOpenOnSelect = false,
     fontStyle = 'default',
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
@@ -70,7 +74,7 @@ const GTDropdownMenu = ({
     return (
         <div>
             <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
-                <DropdownMenuTrigger ref={triggerRef} disabled={disabled}>
+                <DropdownMenuTrigger ref={triggerRef} disabled={disabled} $unstyled={unstyledTrigger}>
                     {trigger}
                 </DropdownMenuTrigger>
                 <DropdownMenu.Portal>
@@ -89,14 +93,15 @@ const GTDropdownMenu = ({
                                             key={item.label}
                                             textValue={item.label}
                                             onClick={item.disabled ? emptyFunction : item.onClick}
-                                            disabled={item.disabled}
+                                            $disabled={item.disabled}
                                             $textColor={item.textColor}
+                                            onSelect={keepOpenOnSelect ? (e) => e.preventDefault() : emptyFunction}
                                         >
                                             {item.renderer ? (
                                                 item.renderer()
                                             ) : (
                                                 <>
-                                                    {!hideCheckmark && (
+                                                    {!hideCheckmark && !item.hideCheckmark && (
                                                         <FixedSizeIcon visible={item.selected}>
                                                             <Icon icon={icons.check} />
                                                         </FixedSizeIcon>
