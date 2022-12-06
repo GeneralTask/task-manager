@@ -184,7 +184,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'list',
     },
     goToGithubPRsPage: {
-        label: 'Go to GitHub PRs page',
+        label: 'Go to GitHub page',
         key: `${CMD_CTRL.key}+${SHIFT}+g`,
         keyLabel: `${CMD_CTRL.label}+${SHIFT}+G`,
         category: 'Navigation',
