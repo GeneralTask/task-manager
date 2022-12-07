@@ -125,14 +125,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 'ArrowUp',
         keyLabel: '↑',
         category: 'Navigation',
-        hideFromCommandPalette: true,
+        icon: 'arrow_up',
     },
     arrowDown: {
         label: 'Next item',
         key: 'ArrowDown',
         keyLabel: '↓',
         category: 'Navigation',
-        hideFromCommandPalette: true,
+        icon: 'arrow_down',
     },
     up: {
         label: 'Previous item',
