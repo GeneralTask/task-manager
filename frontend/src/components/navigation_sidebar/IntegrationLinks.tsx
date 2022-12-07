@@ -64,7 +64,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 <NavigationLink
                     link="/overview"
                     title="Overview"
-                    icon={icons.list}
+                    icon={icons.list_ul}
                     isCurrentPage={pathname.split('/')[1] === 'overview'}
                     isCollapsed={isCollapsed}
                 />
