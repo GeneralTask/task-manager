@@ -5,7 +5,7 @@ import { RecurrenceRate } from './enums'
 export type EmptyString = ''
 
 export interface TTaskSource {
-    name: string
+    name: 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
     logo: string
     logo_v2: TLogoImage
     is_completable: boolean
