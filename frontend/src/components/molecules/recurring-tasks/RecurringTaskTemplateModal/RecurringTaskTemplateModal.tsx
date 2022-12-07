@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID } from '../../../../constants'
 import { useCreateRecurringTask, useModifyRecurringTask } from '../../../../services/api/recurring-tasks.hooks'
+import { Border, Colors, Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate, TTask } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
@@ -21,6 +22,8 @@ const SettingsForm = styled.div`
     display: flex;
     flex-direction: column;
     gap: 20px;
+    border-right: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+    padding-right: ${Spacing._32};
 `
 
 interface RecurringTaskTemplateModalProps {
@@ -111,11 +114,11 @@ const RecurringTaskTemplateModal = ({
                     <>
                         <Flex flex="1" onKeyDown={handleKeyDown}>
                             <SettingsForm>
+                                {!initialRecurringTaskTemplate && !initialTask && (
+                                    <NewTemplateNameInput value={title} onChange={setTitle} />
+                                )}
                                 {!initialRecurringTaskTemplate && (
-                                    <>
-                                        <NewTemplateNameInput value={title} onChange={setTitle} />
-                                        <NewTemplateFolderSelector value={folder} onChange={setFolder} />
-                                    </>
+                                    <NewTemplateFolderSelector value={folder} onChange={setFolder} />
                                 )}
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
