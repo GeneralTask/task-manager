@@ -190,13 +190,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                 <FeedbackModal isCollapsed />
                 <SettingsModalButton isCollapsed />
                 {userInfo?.is_employee && (
-                    <Beta
-                        isPreviewMode={isPreviewMode}
-                        onClick={() => {
-                            setIsCollapsed(false)
-                            togglePreviewMode()
-                        }}
-                    >
+                    <Beta isPreviewMode={isPreviewMode} onClick={() => togglePreviewMode()}>
                         {isPreviewMode ? 'GK' : 'GT'}
                     </Beta>
                 )}
