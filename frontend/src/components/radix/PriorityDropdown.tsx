@@ -11,6 +11,8 @@ interface PriorityDropdownProps {
 const PriorityDropdown = ({ value, onChange, disabled }: PriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
 
+    if (!Number.isInteger(value)) return null
+
     return (
         <GTDropdownMenu
             isOpen={isOpen}

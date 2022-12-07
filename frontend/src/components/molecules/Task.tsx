@@ -227,7 +227,7 @@ const Task = ({
                                 <Icon icon={icons.arrows_repeat} color="green" />
                             )}
                         <DueDate date={dueDate} />
-                        {task.priority_normalized !== 0 && (
+                        {task.priority_normalized !== 0 && Number.isInteger(task.priority_normalized) && (
                             <Icon
                                 icon={TASK_PRIORITIES[task.priority_normalized].icon}
                                 color={TASK_PRIORITIES[task.priority_normalized].color}
