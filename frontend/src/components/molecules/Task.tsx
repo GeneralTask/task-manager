@@ -27,6 +27,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
 
@@ -227,6 +228,9 @@ const Task = ({
                                 <Icon icon={icons.arrows_repeat} color="green" />
                             )}
                         <DueDate date={dueDate} />
+                        {task.priority && task.all_priorities && (
+                            <JiraPriorityDropdown currentPriority={task.priority} allPriorities={task.all_priorities} />
+                        )}
                         {task.priority_normalized !== 0 && Number.isInteger(task.priority_normalized) && (
                             <Icon
                                 icon={TASK_PRIORITIES[task.priority_normalized].icon}
