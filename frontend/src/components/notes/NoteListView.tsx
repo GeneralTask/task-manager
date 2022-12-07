@@ -27,7 +27,7 @@ const NoteListView = () => {
 
     const selectedNote = useMemo(() => {
         if (notes == null || notes.length === 0) return null
-        return notes.find((note) => note.id === noteId) ?? notes[0]
+        return notes.find((note) => note.id === noteId) ?? notes[notes.length - 1]
     }, [noteId, notes])
 
     useEffect(() => {
