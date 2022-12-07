@@ -53,7 +53,7 @@ const NoteListView = () => {
                     <Spinner />
                 ) : (
                     <>
-                        {notes.map((note) => (
+                        {[...notes].reverse().map((note) => (
                             <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
                         ))}
                     </>
