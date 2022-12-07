@@ -399,7 +399,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                             <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
                     )}
-                    {currentTask.external_status && !isInTrash && (
+                    {currentTask.source?.name !== 'Jira' && currentTask.external_status && !isInTrash && (
                         <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && currentTask.sender && (
