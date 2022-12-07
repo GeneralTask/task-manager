@@ -13,7 +13,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/GeneralTask/task-manager/backend/templating"
-	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -779,8 +778,6 @@ func (jira JIRASource) executeFieldUpdate(apiBaseURL string, AtlassianAuthToken 
 		return err
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 204 {
-		cloudIDData, _ := ioutil.ReadAll(resp.Body)
-		log.Print(string(cloudIDData))
 		return errors.New("unable to successfully make field update request")
 	}
 	return nil
