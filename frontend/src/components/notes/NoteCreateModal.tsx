@@ -7,6 +7,7 @@ import { useCreateNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import { getKeyCode, stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
@@ -48,11 +49,19 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             optimisticId: noteId,
         })
 
-        setNote('')
         setIsOpen(false)
+        setNote('')
     }, [note, title, isOpen])
 
     useKeyboardShortcut('submitText', finishNote)
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        const keyCode = getKeyCode(e)
+        if (keyCode === KEYBOARD_SHORTCUTS.submitText.key) {
+            finishNote()
+        }
+        stopKeydownPropogation(e, undefined, true)
+    }
 
     return (
         <GTModal
@@ -62,7 +71,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             tabs={{
                 title: 'Note',
                 body: (
-                    <Flex column gap={Spacing._12}>
+                    <Flex column gap={Spacing._12} onKeyDown={handleKeyDown}>
                         <Flex>
                             <TitleField
                                 type="plaintext"
