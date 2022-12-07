@@ -1,9 +1,8 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useLocalStorage } from 'usehooks-ts'
 import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
-import { useKeyboardShortcut, useToast } from '../../hooks'
+import { useKeyboardShortcut } from '../../hooks'
 import { useCreateNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
@@ -28,9 +27,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const { data: userInfo } = useGetUserInfo()
     const [coupledTitle, setCoupledTitle] = useState(true)
     const [title, setTitle] = useState('New Note')
-    const [note, setNote] = useLocalStorage('note', '')
-
-    const toast = useToast()
+    const [note, setNote] = useState('note')
 
     useLayoutEffect(() => {
         if (coupledTitle) {
@@ -41,7 +38,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
     }, [note, coupledTitle])
 
-    const createAndShareNote = useCallback(() => {
+    const finishNote = useCallback(() => {
         if (!note || !isOpen) return
 
         const noteId = uuidv4()
@@ -54,23 +51,9 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
 
         setNote('')
         setIsOpen(false)
-
-        const testingURL = `https://generaltask.com/notes/${noteId}` //TODO: change to actual URL
-
-        navigator.clipboard.writeText(testingURL)
-        toast.show(
-            {
-                message: `Note URL copied to clipboard`,
-            },
-            {
-                autoClose: 2000,
-                pauseOnFocusLoss: false,
-                theme: 'dark',
-            }
-        )
     }, [note, title, isOpen])
 
-    useKeyboardShortcut('submitText', createAndShareNote)
+    useKeyboardShortcut('submitText', finishNote)
 
     return (
         <GTModal
@@ -101,7 +84,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                             minHeight={300}
                             actions={
                                 <ShareButton
-                                    onClick={createAndShareNote}
+                                    onClick={finishNote}
                                     value="Share Note"
                                     icon={icons.share}
                                     styleType="secondary"
