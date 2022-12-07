@@ -52,7 +52,6 @@ const NoteBody = styled.div`
     padding: ${Spacing._24};
     gap: ${Spacing._32};
     margin: ${Spacing._24};
-    /* margin-bottom: ${Spacing._32}; */
 `
 const SignInButton = styled.div`
     width: 200px;
@@ -64,7 +63,6 @@ const NoteView = () => {
     if (!noteId) navigate('/')
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-    // if (!isLoading && !note) navigate('/')
     if (isLoading) return <Spinner />
 
     const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
