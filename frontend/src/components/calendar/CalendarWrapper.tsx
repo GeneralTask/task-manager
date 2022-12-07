@@ -54,10 +54,8 @@ const CalendarWrapper = () => {
     const triggerText = `${selectedFolder?.name || ''} (${selectedFolder?.tasks.length || 0})`
 
     useEffect(() => {
-        if (folderId) {
-            const index = validDragFolders.findIndex((folder) => folder.id === folderId)
-            if (index !== -1) setFolderIndex(index)
-        }
+        const index = validDragFolders.findIndex((folder) => folder.id === folderId)
+        if (index !== -1) setFolderIndex(index)
     }, [folderId])
 
     if (!taskFolders) return null
