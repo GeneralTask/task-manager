@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -33,6 +34,7 @@ const MarginDivider = styled(Divider)`
 
 const CalendarWrapper = () => {
     const { data: taskFolders } = useGetTasks()
+    const { section: folderId } = useParams()
     const { calendarType, showTaskToCalSidebar } = useCalendarContext()
     const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(false)
     const [folderIndex, setFolderIndex] = useState(0)
@@ -50,6 +52,14 @@ const CalendarWrapper = () => {
         })) ?? []
 
     const triggerText = `${selectedFolder?.name || ''} (${selectedFolder?.tasks.length || 0})`
+
+    useEffect(() => {
+        if (folderId) {
+            const index = validDragFolders.findIndex((folder) => folder.id === folderId)
+            if (index !== -1) setFolderIndex(index)
+        }
+    }, [folderId])
+
     if (!taskFolders) return null
     return (
         <Flex>
