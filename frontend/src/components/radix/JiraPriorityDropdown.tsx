@@ -1,21 +1,26 @@
 import { useState } from 'react'
+import { useModifyTask } from '../../services/api/tasks.hooks'
 import { TExternalPriority } from '../../utils/types'
-import { emptyFunction } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 import GTDropdownMenu from './GTDropdownMenu'
+import { GTMenuItem } from './RadixUIConstants'
 
 interface JiraPriorityDropdownProps {
+    taskId: string
     currentPriority: TExternalPriority
     allPriorities: TExternalPriority[]
     disabled?: boolean
 }
 
-const JiraPriorityDropdown = ({ currentPriority, allPriorities, disabled }: JiraPriorityDropdownProps) => {
+const JiraPriorityDropdown = ({ taskId, currentPriority, allPriorities, disabled }: JiraPriorityDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
+    const { mutate: modifyTask } = useModifyTask()
 
-    const items = allPriorities.map((priority) => ({
+    const items: GTMenuItem[] = allPriorities.map((priority) => ({
         label: priority.name,
-        onClick: emptyFunction,
+        onClick: () => {
+            modifyTask({ id: taskId, external_priority_id: priority.external_id })
+        },
         icon: priority.icon_url,
         selected: currentPriority.external_id === priority.external_id,
     }))
