@@ -79,6 +79,7 @@ import {
 
 export const logos = Object.freeze({
     generaltask_single_color: 'images/gt-logo-single-color.svg',
+    generaltask_black_on_white: 'images/gt-logo-black-on-white.svg',
     generaltask: '/images/generaltask.svg',
     generaltask_beta: '/images/GT-beta-logo.png',
     generaltask_yellow_circle: '/images/gt-logo-yellow-circle.png',

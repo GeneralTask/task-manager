@@ -111,7 +111,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Label color="light">{syncIndicatorText}</Label>
                 </DetailItem>
                 <MarginLeftAuto>
-                    <Flex gap={Spacing._4}>
+                    <Flex gap={Spacing._8}>
                         <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'red'} />
                         <Label color={isShared ? 'green' : 'red'}>{`${
                             isShared ? `Shared until ${sharedUntil}` : 'Not shared'

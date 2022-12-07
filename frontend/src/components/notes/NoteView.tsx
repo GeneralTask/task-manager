@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { AUTHORIZATION_COOKE } from '../../constants'
 import { useGetNote } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { icons, noteBackground } from '../../styles/images'
@@ -10,11 +12,14 @@ import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
+import GTButton from '../atoms/buttons/GTButton'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Label, Subtitle } from '../atoms/typography/Typography'
-import { GTBetaLogo } from '../views/NavigationView'
 
+const Logo = styled.img`
+    width: 153px;
+`
 const MainContainer = styled.div`
     width: 100vw;
     height: 100vh;
@@ -22,16 +27,21 @@ const MainContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: auto;
 `
 const ColumnContainer = styled.div`
-    width: 700px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 750px;
 `
 const TopContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: ${Spacing._32} 0;
+    margin: ${Spacing._32} ${Spacing._24} ${Spacing._12};
+`
+const BottomContainer = styled.div`
+    overflow-y: scroll;
 `
 const NoteBody = styled.div`
     background: ${Colors.background.white};
@@ -41,7 +51,8 @@ const NoteBody = styled.div`
     flex-direction: column;
     padding: ${Spacing._24};
     gap: ${Spacing._32};
-    margin-bottom: ${Spacing._32};
+    margin: ${Spacing._24};
+    /* margin-bottom: ${Spacing._32}; */
 `
 const SignInButton = styled.div`
     width: 200px;
@@ -58,42 +69,50 @@ const NoteView = () => {
 
     const { title, author, body, updated_at, shared_until } = note
 
+    const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
+
     return (
         <MainContainer>
             <ColumnContainer>
                 <TopContainer>
                     <NoStyleButton onClick={() => navigate('/')}>
-                        <GTBetaLogo src="/images/GT-beta-logo.png" />
+                        <Logo src="/images/gt-logo-black-on-white.svg" />
                     </NoStyleButton>
-                    <SignInButton>
-                        <GoogleSignInButton />
-                    </SignInButton>
+                    {isLoggedIn ? (
+                        <GTButton styleType="secondary" value="Back to General Task" onClick={() => navigate('/')} />
+                    ) : (
+                        <SignInButton>
+                            <GoogleSignInButton />
+                        </SignInButton>
+                    )}
                 </TopContainer>
-                <NoteBody>
-                    <Subtitle>{title}</Subtitle>
-                    <GTTextField
-                        type="markdown"
-                        value={body}
-                        onChange={emptyFunction}
-                        fontSize="small"
-                        disabled
-                        readOnly
-                    />
-                    <Divider color={Colors.border.light} />
-                    <Flex justifyContent="space-between" alignItems="center">
-                        <Flex gap={Spacing._4}>
-                            <Label>{author}</Label>
-                            <Label color="light">shared this note with you</Label>
-                            <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(updated_at))}</Label>
+                <BottomContainer>
+                    <NoteBody>
+                        <Subtitle>{title}</Subtitle>
+                        <GTTextField
+                            type="markdown"
+                            value={body}
+                            onChange={emptyFunction}
+                            fontSize="small"
+                            disabled
+                            readOnly
+                        />
+                        <Divider color={Colors.border.light} />
+                        <Flex justifyContent="space-between" alignItems="center">
+                            <Flex gap={Spacing._4}>
+                                <Label>{author}</Label>
+                                <Label color="light">shared this note with you</Label>
+                                <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(updated_at))}</Label>
+                            </Flex>
+                            <Flex gap={Spacing._4}>
+                                <Icon color="gray" icon={icons.link} />
+                                <Label color="light">{`Link expires in ${DateTime.fromISO(shared_until)
+                                    .diffNow(['days', 'hours'])
+                                    .toHuman({ maximumFractionDigits: 0 })}`}</Label>
+                            </Flex>
                         </Flex>
-                        <Flex gap={Spacing._4}>
-                            <Icon color="gray" icon={icons.link} />
-                            <Label color="light">{`Link expires in ${DateTime.fromISO(shared_until)
-                                .diffNow(['days', 'hours'])
-                                .toHuman({ maximumFractionDigits: 0 })}`}</Label>
-                        </Flex>
-                    </Flex>
-                </NoteBody>
+                    </NoteBody>
+                </BottomContainer>
             </ColumnContainer>
         </MainContainer>
     )
