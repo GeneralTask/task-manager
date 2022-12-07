@@ -16,7 +16,7 @@ export default function useKeyboardShortcut(shortcutName: TShortcutName, action:
                         ...shortcut,
                         action: () => {
                             action()
-                            Log(`keyboard_shortcut_${shortcutName}`)
+                            Log(`keyboard_shortcut_${shortcut.label.replaceAll(' ', '_').toLowerCase()}`)
                         },
                     })
                 })

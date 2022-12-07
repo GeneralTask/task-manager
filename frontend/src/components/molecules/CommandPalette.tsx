@@ -7,6 +7,7 @@ import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcut
 import useShortcutContext from '../../context/ShortcutContext'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
+import Log from '../../services/api/log'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -187,6 +188,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                             key={keyLabel}
                                             onSelect={() => {
                                                 setShowCommandPalette(false)
+                                                Log(`command_palette_${label.replaceAll(' ', '_').toLowerCase()}`)
                                                 action()
                                             }}
                                             value={`${label} ${category}`}
