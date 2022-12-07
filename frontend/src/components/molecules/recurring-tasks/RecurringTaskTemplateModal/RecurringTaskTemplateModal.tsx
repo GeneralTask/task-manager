@@ -107,7 +107,7 @@ const RecurringTaskTemplateModal = ({
         <GTModal
             open
             setIsModalOpen={onClose}
-            size="lg"
+            size="sm"
             tabs={{
                 title: 'Setting a recurring task',
                 body: (
