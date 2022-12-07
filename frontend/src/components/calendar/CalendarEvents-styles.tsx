@@ -21,7 +21,8 @@ const getEventWidth = (squishFactor: number) => `calc(
 )`
 
 export const CalendarWeekDateHeaderContainer = styled.div`
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     margin-left: ${CELL_TIME_WIDTH};
 `
 
