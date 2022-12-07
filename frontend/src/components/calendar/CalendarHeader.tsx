@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useKeyboardShortcut } from '../../hooks'
@@ -9,10 +8,10 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { isGoogleCalendarLinked } from '../../utils/utils'
 import { Divider } from '../atoms/SectionDivider'
-import TooltipWrapper from '../atoms/TooltipWrapper'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import ConnectIntegration from '../molecules/ConnectIntegration'
+import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 
 const RelativeDiv = styled.div`
@@ -74,10 +73,6 @@ export default function CalendarHeader({
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
 
-    useEffect(() => {
-        ReactTooltip.rebuild()
-    }, [])
-
     const toggleCalendar = () => {
         if (calendarType === 'week') {
             setCalendarType('day')
@@ -136,14 +131,14 @@ export default function CalendarHeader({
                         <HeaderBodyContainer>
                             <HeaderActionsContainer>
                                 {showTaskToCalSidebar && calendarType === 'week' && (
-                                    <TooltipWrapper dataTip="Hide task to calendar sidebar" tooltipId="tooltip">
+                                    <Tip content="Hide task to calendar sidebar">
                                         <GTIconButton
                                             icon={icons.caret_left}
                                             onClick={() => {
                                                 setShowTaskToCalSidebar(false)
                                             }}
                                         />
-                                    </TooltipWrapper>
+                                    </Tip>
                                 )}
                                 {showScheduleTasksButton ? (
                                     <GTButton
