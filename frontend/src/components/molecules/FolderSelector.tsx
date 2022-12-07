@@ -42,6 +42,7 @@ const FolderSelector = ({
             menuInModal
             fontStyle={fontStyle}
             useTriggerWidth={useTriggerWidth}
+            unstyledTrigger
             items={
                 taskSections
                     ? taskSections

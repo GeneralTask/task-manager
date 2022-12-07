@@ -32,6 +32,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
                 menuInModal
                 useTriggerWidth
                 fontStyle="label"
+                unstyledTrigger
                 items={recurrenceRateLabels.map(([rate, label]) => ({
                     label,
                     onClick: () => onChange(rate),
