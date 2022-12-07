@@ -235,7 +235,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     newNote: {
         label: 'New note',
         key: ' ',
-        keyLabel: 'Space',
+        keyLabel: 'Space', // maybe ␣
         category: 'General',
         icon: 'note',
     },

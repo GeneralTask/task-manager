@@ -18,7 +18,9 @@ const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
 
     return (
         <>
-            {type === 'icon' && <GTIconButton icon={icons.note} onClick={() => setModalIsOpen(true)} />}
+            {type === 'icon' && (
+                <GTIconButton icon={icons.note} onClick={() => setModalIsOpen(true)} shortcutName="newNote" />
+            )}
             {type === 'button' && (
                 <GTButton
                     size="small"
