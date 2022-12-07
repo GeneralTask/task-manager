@@ -28,16 +28,16 @@ type GoogleCalendarSource struct {
 }
 
 func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(nil)
-	return
 	calendarResponse, err := calendarService.Events.
 		List(calendarId).
+		//List("primary").
 		TimeMin(startTime.Format(time.RFC3339)).
 		TimeMax(endTime.Format(time.RFC3339)).
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
 	logger := logging.GetSentryLogger()
+
 	if err != nil {
 		isBadToken := CheckAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
 		if !isBadToken {
@@ -106,7 +106,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 		}
 		events = append(events, dbEvent)
 	}
-
+	result <- CalendarResult{events, nil}
 }
 
 func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
@@ -121,10 +121,14 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		result <- emptyCalendarResult(err)
 	}
 
-	log.Error().Msgf("jerd %+v", calendarList)
-	log.Error().Msgf("jerd %+v", calendarList.Items)
+	if calendarList == nil {
+		result <- emptyCalendarResult(err)
+		return
+	}
+
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
+		log.Error().Msgf("calendar %s", calendar.Id)
 		eventChannel := make(chan CalendarResult)
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
 		eventsChannels = append(eventsChannels, eventChannel)
@@ -139,6 +143,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		events = append(events, eventResult.CalendarEvents...)
 	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
+
 	//List("primary").
 	//TimeMin(startTime.Format(time.RFC3339)).
 	//TimeMax(endTime.Format(time.RFC3339)).
