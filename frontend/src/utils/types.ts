@@ -23,6 +23,14 @@ export interface TSourcesResult {
     authorization_url: string
 }
 
+export interface TExternalPriority {
+    external_id: string
+    name: string
+    priority_normalized: number
+    color: string
+    icon_url: string
+}
+
 export interface TTask {
     id: string
     optimisticId?: string
@@ -51,6 +59,8 @@ export interface TTask {
     updated_at: string
     parent_task_id?: string
     recurring_task_template_id?: string
+    priority?: TExternalPriority
+    all_priorities?: TExternalPriority[]
 }
 export interface TTaskV4 {
     id: string
