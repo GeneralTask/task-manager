@@ -351,6 +351,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     />
                 )}
                 {isPreviewMode &&
+                    task.source?.name === 'General Task' &&
                     (isRecurringTaskTemplate ? (
                         <RecurringTaskTemplateScheduleButton templateId={task.id} />
                     ) : (
