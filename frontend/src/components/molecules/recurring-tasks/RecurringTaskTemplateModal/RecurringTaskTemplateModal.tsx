@@ -12,9 +12,9 @@ import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
 import DatePicker from './DatePicker'
-import NewTemplateFolderSelector from './NewTemplateFolderSelector'
 import NewTemplateNameInput from './NewTemplateNameInput'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
+import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
     flex: 1;
@@ -117,9 +117,7 @@ const RecurringTaskTemplateModal = ({
                                 {!initialRecurringTaskTemplate && !initialTask && (
                                     <NewTemplateNameInput value={title} onChange={setTitle} />
                                 )}
-                                {!initialRecurringTaskTemplate && (
-                                    <NewTemplateFolderSelector value={folder} onChange={setFolder} />
-                                )}
+                                <TemplateFolderSelector value={folder} onChange={setFolder} />
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}
