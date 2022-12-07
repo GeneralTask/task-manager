@@ -12,7 +12,7 @@ import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Body, Label, Subtitle } from '../atoms/typography/Typography'
+import { Label, Subtitle } from '../atoms/typography/Typography'
 import { GTBetaLogo } from '../views/NavigationView'
 
 const MainContainer = styled.div`
