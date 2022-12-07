@@ -71,6 +71,7 @@ func TestLoadJIRATasks(t *testing.T) {
 		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
 		searchServer := getSearchServerForJIRA(t, http.StatusOK, false)
 		statusServer := getStatusServerForJIRA(t, http.StatusOK, false)
+		fieldsServer := getJIRAFieldsServer(t, http.StatusOK, []byte(`{"fields":{}}`))
 		commentsServer := getJIRACommentsServer(t, http.StatusOK, []byte(`{"comments": [{"id": "10000","author":{"accountId": "example-id-1", "displayName": "test"}},{"id": "10001","author":{"accountId": "example-id-2", "displayName": "test2"}}]}`))
 
 		// ensure external API token values updated
@@ -140,12 +141,14 @@ func TestLoadJIRATasks(t *testing.T) {
 		}
 
 		var JIRATasks = make(chan TaskResult)
-		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL}}}}
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{APIBaseURL: &searchServer.URL, TokenURL: &tokenServer.URL, StatusListURL: &statusServer.URL, CommentsListURL: &commentsServer.URL, FieldsListURL: &fieldsServer.URL}}}}
 		go JIRA.GetTasks(db, *userID, accountID, JIRATasks)
 		result := <-JIRATasks
 		assert.Equal(t, 1, len(result.Tasks))
 
 		assertTasksEqual(t, &expectedTask, result.Tasks[0])
+		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasDueDateField)
+		assert.Equal(t, false, *result.Tasks[0].JIRATaskParams.HasPriorityField)
 
 		var taskFromDB database.Task
 		dbCtx, cancel = context.WithTimeout(parentCtx, constants.DatabaseTimeout)
@@ -611,6 +614,14 @@ func getJIRACommentsServer(t *testing.T, statusCode int, response []byte) *httpt
 	}))
 }
 
+func getJIRAFieldsServer(t *testing.T, statusCode int, response []byte) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "GET", r.Method)
+		w.WriteHeader(statusCode)
+		w.Write(response)
+	}))
+}
+
 func getStatusServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/rest/api/3/status/", r.RequestURI)
@@ -718,6 +729,8 @@ func TestModifyJIRATask(t *testing.T) {
 	testTitle := "test title"
 	testDescription := "test description"
 	dueDate := primitive.NewDateTimeFromTime(time.Time{})
+	hasPriorityField := true
+	hasDueDateField := true
 	expectedTask := database.Task{
 		IDOrdering:        0,
 		IDExternal:        "6942069420",
@@ -750,6 +763,10 @@ func TestModifyJIRATask(t *testing.T) {
 			},
 		},
 		Comments: nil,
+		JIRATaskParams: &database.JIRATaskParams{
+			HasPriorityField: &hasPriorityField,
+			HasDueDateField:  &hasDueDateField,
+		},
 	}
 	database.GetOrCreateTask(
 		db,
@@ -798,6 +815,7 @@ func TestModifyJIRATask(t *testing.T) {
 
 		newName := "New Title"
 		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Now())
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Title: &newName,
@@ -805,6 +823,7 @@ func TestModifyJIRATask(t *testing.T) {
 			ExternalPriority: &database.ExternalTaskPriority{
 				ExternalID: "1",
 			},
+			DueDate: &dueDate,
 		}, &database.Task{})
 		assert.NoError(t, err)
 	})
@@ -833,6 +852,26 @@ func TestModifyJIRATask(t *testing.T) {
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Body: &newBody,
+		}, &database.Task{})
+		assert.NoError(t, err)
+	})
+	t.Run("UpdateZeroDueDateSuccess", func(t *testing.T) {
+		tokenServer := getTokenServerForJIRA(t, http.StatusOK)
+		taskUpdateServer := testutils.GetMockAPIServer(t, 204, "")
+		defer taskUpdateServer.Close()
+		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
+
+		newName := "New Title"
+		newBody := "New Body"
+		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
+
+		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
+			Title: &newName,
+			Body:  &newBody,
+			ExternalPriority: &database.ExternalTaskPriority{
+				ExternalID: "1",
+			},
+			DueDate: &dueDate,
 		}, &database.Task{})
 		assert.NoError(t, err)
 	})

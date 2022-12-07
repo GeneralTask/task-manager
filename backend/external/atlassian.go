@@ -36,6 +36,7 @@ type AtlassianConfigValues struct {
 	PriorityListURL *string
 	StatusListURL   *string
 	CommentsListURL *string
+	FieldsListURL   *string
 	IssueUpdateURL  *string
 	IssueDeleteURL  *string
 }

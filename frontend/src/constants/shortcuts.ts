@@ -26,6 +26,13 @@ const asShortcuts = <T extends { [key: string]: Omit<TShortcut, 'action'> }>(arg
 
 const KEYBOARD_SHORTCUTS = asShortcuts({
     // Task shortcuts
+    backToParentTask: {
+        label: 'Back to parent task',
+        key: 'Escape',
+        keyLabel: 'Esc',
+        category: 'Tasks',
+        icon: 'arrow_left',
+    },
     createTask: {
         label: 'Create new task',
         key: 'c',
@@ -118,14 +125,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 'ArrowUp',
         keyLabel: '↑',
         category: 'Navigation',
-        hideFromCommandPalette: true,
+        icon: 'arrow_up',
     },
     arrowDown: {
         label: 'Next item',
         key: 'ArrowDown',
         keyLabel: '↓',
         category: 'Navigation',
-        hideFromCommandPalette: true,
+        icon: 'arrow_down',
     },
     up: {
         label: 'Previous item',
@@ -184,7 +191,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'list',
     },
     goToGithubPRsPage: {
-        label: 'Go to GitHub PRs page',
+        label: 'Go to GitHub page',
         key: `${CMD_CTRL.key}+${SHIFT}+g`,
         keyLabel: `${CMD_CTRL.label}+${SHIFT}+G`,
         category: 'Navigation',

@@ -117,6 +117,8 @@ type Task struct {
 	AllStatuses     []*ExternalTaskStatus `bson:"all_statuses,omitempty"`
 	// info required for Slack integration
 	SlackMessageParams *SlackMessageParams `bson:"slack_message_params,omitempty"`
+	// info required for JIRA integration
+	JIRATaskParams *JIRATaskParams `bson:"jira_task_params,omitempty"`
 	// meeting prep fields
 	MeetingPreparationParams *MeetingPreparationParams `bson:"meeting_preparation_params,omitempty"`
 	IsMeetingPreparationTask bool                      `bson:"is_meeting_preparation_task,omitempty"`
@@ -211,6 +213,11 @@ type MeetingPreparationParams struct {
 	DatetimeStart                 primitive.DateTime `bson:"datetime_start,omitempty"`
 	DatetimeEnd                   primitive.DateTime `bson:"datetime_end,omitempty"`
 	HasBeenAutomaticallyCompleted bool               `bson:"has_been_automatically_completed,omitempty"`
+}
+
+type JIRATaskParams struct {
+	HasPriorityField *bool `bson:"has_priority_field,omitempty"`
+	HasDueDateField  *bool `bson:"has_due_date_field,omitempty"`
 }
 
 // Note that this model is used in the request for Slack, and thus should match
