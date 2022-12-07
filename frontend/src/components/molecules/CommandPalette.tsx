@@ -145,15 +145,20 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
         }))
     }, [activeKeyboardShortcuts])
 
+    const handleButtonClick = () => {
+        setShowCommandPalette(true)
+        Log('click_show_command_palette')
+    }
+
     return (
         <>
             {!hideButton &&
                 (customButton ? (
-                    <div onClick={() => setShowCommandPalette(!showCommandPalette)}>{customButton}</div>
+                    <div onClick={handleButtonClick}>{customButton}</div>
                 ) : (
                     <GTIconButton
                         icon={icons.magnifying_glass}
-                        onClick={() => setShowCommandPalette(!showCommandPalette)}
+                        onClick={handleButtonClick}
                         shortcutName="toggleCommandPalette"
                     />
                 ))}
