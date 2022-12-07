@@ -8,7 +8,7 @@ type TLocalStorageKeys =
     | 'resizableDetails'
     | 'overdueCollapsed'
     | 'dueTodayCollapsed'
-    | 'taskToCalSidebar'
+    | 'taskToCalendarSidebar'
 
 declare type SetValue<T> = Dispatch<SetStateAction<T>>
 const useGTLocalStorage = <T>(key: TLocalStorageKeys, initialValue: T): [T, SetValue<T>] => {

@@ -68,7 +68,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
     const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useGTLocalStorage('dueTodayCollapsed', false)
     const [isTasksOverdueViewCollapsed, setIsTasksOverdueViewCollapsed] = useGTLocalStorage('overdueCollapsed', false)
-    const [showTaskToCalSidebar, setShowTaskToCalSidebar] = useGTLocalStorage('taskToCalSidebar', true)
+    const [showTaskToCalSidebar, setShowTaskToCalSidebar] = useGTLocalStorage('taskToCalendarSidebar', false)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
