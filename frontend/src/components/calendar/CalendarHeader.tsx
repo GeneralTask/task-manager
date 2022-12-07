@@ -152,6 +152,7 @@ export default function CalendarHeader({
                                                 styleType="secondary"
                                                 onClick={() => {
                                                     setCalendarType('week')
+                                                    setDate(date.minus({ days: date.weekday % 7 }))
                                                     setShowTaskToCalSidebar(true)
                                                 }}
                                             />
