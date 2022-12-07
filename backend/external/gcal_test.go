@@ -31,7 +31,7 @@ func TestCalendar(t *testing.T) {
 			Location:        "Event Location",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:        "generaltask.com",
+			HtmlLink:        "app.generaltask.com",
 			Id:              "standard_event",
 			GuestsCanModify: false,
 			Organizer:       &calendar.EventOrganizer{Self: true},
@@ -44,7 +44,7 @@ func TestCalendar(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
-			Deeplink:      "generaltask.com&authuser=exampleAccountID",
+			Deeplink:      "app.generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
 			Location:      "Event Location",
 			Body:          "event <strong>description</strong>",
@@ -60,7 +60,7 @@ func TestCalendar(t *testing.T) {
 			Summary:        "Auto Event (via Clockwise)",
 			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
+			HtmlLink:       "app.generaltask.com",
 			Id:             "auto_event",
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
@@ -70,7 +70,7 @@ func TestCalendar(t *testing.T) {
 			Summary:        "All day Event",
 			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
 			End:            &calendar.EventDateTime{Date: "2021-03-06"},
-			HtmlLink:       "generaltask.com",
+			HtmlLink:       "app.generaltask.com",
 			Id:             "all_day_event",
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
@@ -114,7 +114,7 @@ func TestCalendar(t *testing.T) {
 			Location:        "new location",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:        "generaltask.com",
+			HtmlLink:        "app.generaltask.com",
 			Id:              "standard_event",
 			GuestsCanModify: false,
 			Organizer:       &calendar.EventOrganizer{Self: false},
@@ -128,7 +128,7 @@ func TestCalendar(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
-			Deeplink:        "generaltask.com&authuser=exampleAccountID",
+			Deeplink:        "app.generaltask.com&authuser=exampleAccountID",
 			Title:           "Standard Event",
 			Location:        "old location",
 			Body:            "old description",
@@ -150,7 +150,7 @@ func TestCalendar(t *testing.T) {
 			Summary:        "Auto Event (via Clockwise)",
 			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
+			HtmlLink:       "app.generaltask.com",
 			Id:             "auto_event",
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
@@ -160,7 +160,7 @@ func TestCalendar(t *testing.T) {
 			Summary:        "All day Event",
 			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
 			End:            &calendar.EventDateTime{Date: "2021-03-06"},
-			HtmlLink:       "generaltask.com",
+			HtmlLink:       "app.generaltask.com",
 			Id:             "all_day_event",
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
@@ -202,7 +202,7 @@ func TestCalendar(t *testing.T) {
 			Summary:         "Standard Event",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:        "generaltask.com",
+			HtmlLink:        "app.generaltask.com",
 			Id:              "standard_event",
 			GuestsCanModify: true,
 			Organizer:       &calendar.EventOrganizer{Self: false},
@@ -217,7 +217,7 @@ func TestCalendar(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:      "standard_event",
-			Deeplink:        "generaltask.com&authuser=exampleAccountID",
+			Deeplink:        "app.generaltask.com&authuser=exampleAccountID",
 			Title:           "Standard Event",
 			Location:        "Standard Location",
 			SourceID:        TASK_SOURCE_ID_GCAL,
@@ -283,7 +283,7 @@ func TestCalendar(t *testing.T) {
 			Location:        "Standard Location",
 			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:        "generaltask.com",
+			HtmlLink:        "app.generaltask.com",
 			Id:              "standard_event",
 			GuestsCanModify: true,
 			Organizer:       &calendar.EventOrganizer{Self: true},
@@ -307,7 +307,7 @@ func TestCalendar(t *testing.T) {
 		userID := primitive.NewObjectID()
 		standardDBEvent := database.CalendarEvent{
 			IDExternal:    "standard_event",
-			Deeplink:      "generaltask.com&authuser=exampleAccountID",
+			Deeplink:      "app.generaltask.com&authuser=exampleAccountID",
 			Title:         "Standard Event",
 			Location:      "Standard Location",
 			SourceID:      TASK_SOURCE_ID_GCAL,
@@ -325,7 +325,7 @@ func TestCalendar(t *testing.T) {
 			Summary:        "Auto Event (via Clockwise)",
 			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
 			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
+			HtmlLink:       "app.generaltask.com",
 			Id:             "auto_event",
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
@@ -335,7 +335,7 @@ func TestCalendar(t *testing.T) {
 			Summary:        "All day Event",
 			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
 			End:            &calendar.EventDateTime{Date: "2021-03-06"},
-			HtmlLink:       "generaltask.com",
+			HtmlLink:       "app.generaltask.com",
 			Id:             "all_day_event",
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
