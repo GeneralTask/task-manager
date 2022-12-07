@@ -163,6 +163,7 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 		{"is_completed": false},
 		{"is_deleted": bson.M{"$ne": true}},
 		{"id_task_section": view.TaskSectionID},
+		{"parent_task_id": bson.M{"$exists": false}},
 	}, nil)
 	if err != nil {
 		return nil, err
@@ -173,6 +174,12 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 
 	// Reset ID orderings to begin at 1
 	taskResults := api.taskListToTaskResultList(tasks, userID)
+	for _, result := range taskResults {
+		subTasks := api.getSubtaskResults(result.ID, userID)
+		if subTasks != nil {
+			result.SubTasks = subTasks
+		}
+	}
 	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
 	for _, task := range taskResults {
