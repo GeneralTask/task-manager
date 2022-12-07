@@ -2,7 +2,7 @@ import { useCallback, useLayoutEffect, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
-import { useKeyboardShortcut } from '../../hooks'
+import { useGTLocalStorage, useKeyboardShortcut } from '../../hooks'
 import { useCreateNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { icons } from '../../styles/images'
@@ -27,7 +27,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const { data: userInfo } = useGetUserInfo()
     const [coupledTitle, setCoupledTitle] = useState(true)
     const [title, setTitle] = useState('New Note')
-    const [note, setNote] = useState('note')
+    const [note, setNote] = useGTLocalStorage('noteCreation', '')
 
     useLayoutEffect(() => {
         if (coupledTitle) {
@@ -79,14 +79,14 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                             value={note}
                             onChange={(val) => setNote(val)}
                             fontSize="small"
-                            placeholder="Type your note here. It will be saved automatically."
+                            placeholder="Type your note here."
                             keyDownExceptions={[KEYBOARD_SHORTCUTS.submitText.key]}
                             minHeight={300}
                             actions={
                                 <ShareButton
                                     onClick={finishNote}
-                                    value="Share Note"
-                                    icon={icons.share}
+                                    value="Save note"
+                                    icon={icons.save}
                                     styleType="secondary"
                                     size="small"
                                     fitContent
