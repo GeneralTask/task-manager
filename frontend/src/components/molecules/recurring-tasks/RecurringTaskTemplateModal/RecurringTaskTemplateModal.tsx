@@ -43,7 +43,7 @@ const RecurringTaskTemplateModal = ({
 
     const [title, setTitle] = useState(initialRecurringTaskTemplate?.title ?? initialTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(
-        initialRecurringTaskTemplate?.recurrence_rate ?? RecurrenceRate.DAILY
+        initialRecurringTaskTemplate?.recurrence_rate ?? RecurrenceRate.WEEKLY
     )
     const [folder, setFolder] = useState(
         initialRecurringTaskTemplate?.id_task_section ?? initialFolderId ?? DEFAULT_SECTION_ID
