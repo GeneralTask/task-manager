@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID } from '../../../../constants'
 import { useCreateRecurringTask, useModifyRecurringTask } from '../../../../services/api/recurring-tasks.hooks'
+import { Border, Colors, Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 import { TRecurringTaskTemplate, TTask } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
@@ -11,9 +12,9 @@ import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
 import DatePicker from './DatePicker'
-import NewTemplateFolderSelector from './NewTemplateFolderSelector'
 import NewTemplateNameInput from './NewTemplateNameInput'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
+import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
     flex: 1;
@@ -21,6 +22,8 @@ const SettingsForm = styled.div`
     display: flex;
     flex-direction: column;
     gap: 20px;
+    border-right: ${Border.stroke.medium} solid ${Colors.border.extra_light};
+    padding-right: ${Spacing._32};
 `
 
 interface RecurringTaskTemplateModalProps {
@@ -111,12 +114,10 @@ const RecurringTaskTemplateModal = ({
                     <>
                         <Flex flex="1" onKeyDown={handleKeyDown}>
                             <SettingsForm>
-                                {!initialRecurringTaskTemplate && (
-                                    <>
-                                        <NewTemplateNameInput value={title} onChange={setTitle} />
-                                        <NewTemplateFolderSelector value={folder} onChange={setFolder} />
-                                    </>
+                                {!initialRecurringTaskTemplate && !initialTask && (
+                                    <NewTemplateNameInput value={title} onChange={setTitle} />
                                 )}
+                                <TemplateFolderSelector value={folder} onChange={setFolder} />
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}
