@@ -142,17 +142,21 @@ export default function CalendarHeader({
                                     </Tip>
                                 )}
                                 {isPreviewMode && showScheduleTasksButton ? (
-                                    <GTButton
-                                        icon={icons.calendar_blank}
-                                        iconColor="black"
-                                        value="Schedule Tasks"
-                                        size="small"
-                                        styleType="secondary"
-                                        onClick={() => {
-                                            setCalendarType('week')
-                                            setShowTaskToCalSidebar(true)
-                                        }}
-                                    />
+                                    <>
+                                        {(calendarType === 'day' || !showTaskToCalSidebar) && (
+                                            <GTButton
+                                                icon={icons.calendar_blank}
+                                                iconColor="black"
+                                                value="Schedule Tasks"
+                                                size="small"
+                                                styleType="secondary"
+                                                onClick={() => {
+                                                    setCalendarType('week')
+                                                    setShowTaskToCalSidebar(true)
+                                                }}
+                                            />
+                                        )}
+                                    </>
                                 ) : (
                                     <GTButton
                                         value="Jump to Today"
