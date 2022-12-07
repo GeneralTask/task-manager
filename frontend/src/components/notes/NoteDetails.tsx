@@ -2,15 +2,14 @@ import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, REACT_APP_FRONTEND_BASE_URL } from '../../constants'
-import { useToast } from '../../hooks'
+import { DETAILS_SYNC_TIMEOUT } from '../../constants'
 import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
-import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
 import NoteSharingDropdown from './NoteSharingDropdown'
@@ -31,6 +30,7 @@ const MarginLeftAuto = styled.div`
     flex-direction: row;
     align-items: center;
     margin-left: auto;
+    gap: ${Spacing._8};
 `
 const DetailItem = styled.div`
     display: flex;
@@ -96,8 +96,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         }
     }
 
-    const toast = useToast()
-
+    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -108,26 +107,11 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Label color="light">{syncIndicatorText}</Label>
                 </DetailItem>
                 <MarginLeftAuto>
+                    <Flex gap={Spacing._4}>
+                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'red'} />
+                        <Label color={isShared ? 'green' : 'red'}>{`${isShared ? 'Shared' : 'Not shared'}`}</Label>
+                    </Flex>
                     <NoteSharingDropdown note={note} />
-                    {/* <GTButton
-                        value="Copy Note Link"
-                        onClick={() => {
-                            navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`)
-                            modifyNote({ id: note.id, is_shared: true })
-                            toast.show(
-                                {
-                                    message: `Note URL copied to clipboard`,
-                                },
-                                {
-                                    autoClose: 2000,
-                                    pauseOnFocusLoss: false,
-                                    theme: 'dark',
-                                }
-                            )
-                        }}
-                        styleType="secondary"
-                        size="small"
-                    /> */}
                 </MarginLeftAuto>
             </DetailsTopContainer>
             <div>
@@ -156,13 +140,6 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 hour: 'numeric',
                 minute: '2-digit',
             })}`}</Label>
-            <Label color="light">{'shared' + note.shared_until}</Label>
-            <GTButton
-                value="share"
-                onClick={() => modifyNote({ id: note.id, shared_until: DateTime.local().plus({ weeks: 1 }).toISO() })}
-                styleType="secondary"
-                size="small"
-            />
         </DetailsViewTemplate>
     )
 }
