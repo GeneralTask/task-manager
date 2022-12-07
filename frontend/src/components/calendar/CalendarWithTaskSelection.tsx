@@ -32,7 +32,7 @@ const MarginDivider = styled(Divider)`
     margin: ${Spacing._16} 0;
 `
 
-const CalendarWrapper = () => {
+const CalendarWithTaskSelection = () => {
     const { data: taskFolders } = useGetTasks()
     const { section: folderId } = useParams()
     const { calendarType, showTaskToCalSidebar } = useCalendarContext()
@@ -82,4 +82,4 @@ const CalendarWrapper = () => {
     )
 }
 
-export default CalendarWrapper
+export default CalendarWithTaskSelection
