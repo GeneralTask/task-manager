@@ -227,14 +227,12 @@ const Task = ({
                                 <Icon icon={icons.arrows_repeat} color="green" />
                             )}
                         <DueDate date={dueDate} />
-                        {task.priority_normalized &&
-                            task.priority_normalized !== 0 &&
-                            Number.isInteger(task.priority_normalized) && (
-                                <Icon
-                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                                    color={TASK_PRIORITIES[task.priority_normalized].color}
-                                />
-                            )}
+                        {task.priority_normalized !== 0 && Number.isInteger(task.priority_normalized) && (
+                            <Icon
+                                icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                                color={TASK_PRIORITIES[task.priority_normalized].color}
+                            />
+                        )}
                         {isPreviewMode && task.sub_tasks && task.sub_tasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
