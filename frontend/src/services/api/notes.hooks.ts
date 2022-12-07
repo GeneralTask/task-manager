@@ -26,7 +26,6 @@ export interface TModifyNoteData {
     id: string
     title?: string
     body?: string
-    // author?: never // we don't want to allow this to be modified (right now, to be decided later)
     shared_until?: string
 }
 
@@ -48,7 +47,6 @@ export const useGetNotes = (isEnabled = true) => {
 const getNotes = async ({ signal }: QueryFunctionContext) => {
     try {
         const res = await apiClient.get('/notes/', { signal })
-        console.log(res.data)
         return castImmutable(res.data)
     } catch {
         throw new Error('getNotes failed')
