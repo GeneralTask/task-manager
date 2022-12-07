@@ -15,7 +15,7 @@ import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Label, Subtitle } from '../atoms/typography/Typography'
+import { Body, Label, Subtitle, Title } from '../atoms/typography/Typography'
 
 const Logo = styled.img`
     width: 153px;
@@ -64,10 +64,8 @@ const NoteView = () => {
     if (!noteId) navigate('/')
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-    if (!isLoading && !note) navigate('/')
-    if (!note) return <Spinner />
-
-    const { title, author, body, updated_at, shared_until } = note
+    // if (!isLoading && !note) navigate('/')
+    if (isLoading) return <Spinner />
 
     const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
 
@@ -88,29 +86,41 @@ const NoteView = () => {
                 </TopContainer>
                 <BottomContainer>
                     <NoteBody>
-                        <Subtitle>{title}</Subtitle>
-                        <GTTextField
-                            type="markdown"
-                            value={body}
-                            onChange={emptyFunction}
-                            fontSize="small"
-                            disabled
-                            readOnly
-                        />
-                        <Divider color={Colors.border.light} />
-                        <Flex justifyContent="space-between" alignItems="center">
-                            <Flex gap={Spacing._4}>
-                                <Label>{author}</Label>
-                                <Label color="light">shared this note with you</Label>
-                                <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(updated_at))}</Label>
-                            </Flex>
-                            <Flex gap={Spacing._4}>
-                                <Icon color="gray" icon={icons.link} />
-                                <Label color="light">{`Link expires in ${DateTime.fromISO(shared_until)
-                                    .diffNow(['days', 'hours'])
-                                    .toHuman({ maximumFractionDigits: 0 })}`}</Label>
-                            </Flex>
-                        </Flex>
+                        {note ? (
+                            <>
+                                <Subtitle>{note.title}</Subtitle>
+                                <GTTextField
+                                    type="markdown"
+                                    value={note.body}
+                                    onChange={emptyFunction}
+                                    fontSize="small"
+                                    disabled
+                                    readOnly
+                                />
+                                <Divider color={Colors.border.light} />
+                                <Flex justifyContent="space-between" alignItems="center">
+                                    <Flex gap={Spacing._4}>
+                                        <Label>{note.author}</Label>
+                                        <Label color="light">shared this note with you</Label>
+                                        <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(note.updated_at))}</Label>
+                                    </Flex>
+                                    <Flex gap={Spacing._4}>
+                                        <Icon color="gray" icon={icons.link} />
+                                        <Label color="light">{`Link expires in ${DateTime.fromISO(note.shared_until)
+                                            .diffNow(['days', 'hours'])
+                                            .toHuman({ maximumFractionDigits: 0 })}`}</Label>
+                                    </Flex>
+                                </Flex>
+                            </>
+                        ) : (
+                            <>
+                                <Title>This link has expired.</Title>
+                                <Body>
+                                    The link to this shared note has expired. Please reach out to the person who sent
+                                    this shared note for a new link.
+                                </Body>
+                            </>
+                        )}
                     </NoteBody>
                 </BottomContainer>
             </ColumnContainer>
