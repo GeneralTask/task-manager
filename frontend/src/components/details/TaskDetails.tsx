@@ -1,12 +1,13 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
     DETAILS_SYNC_TIMEOUT,
+    EMPTY_MONGO_OBJECT_ID,
     GENERAL_TASK_SOURCE_NAME,
+    NO_EVENT_TITLE,
     SINGLE_SECOND_INTERVAL,
     TRASH_SECTION_ID,
 } from '../../constants'
@@ -37,7 +38,10 @@ import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
+import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
+import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
+import RecurringTaskTemplateScheduleButton from '../molecules/recurring-tasks/RecurringTaskTemplateScheduleButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
@@ -175,7 +179,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     }, [currentTask.optimisticId, location, link])
 
     useEffect(() => {
-        ReactTooltip.rebuild()
         return () => {
             for (const timer of Object.values(timers.current)) {
                 timer.callback()
@@ -187,7 +190,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const syncDetails = useCallback(
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
-            const timerId = id + (title === undefined ? 'body' : 'title')
+            const isEditingTitle = title !== undefined
+            if (isEditingTitle && title === '') {
+                title = NO_EVENT_TITLE
+            }
+            const timerId = id + (isEditingTitle ? title : 'body')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             if (isRecurringTaskTemplate) {
                 modifyRecurringTask(
@@ -222,6 +229,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
 
     const { data: folders } = useGetTasks()
     const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
+
+    useKeyboardShortcut(
+        'backToParentTask',
+        useCallback(() => {
+            if (subtask) {
+                navigate('..', { relative: 'path' })
+            }
+        }, [subtask])
+    )
 
     return (
         <DetailsViewTemplate>
@@ -283,6 +299,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTask} />}
+                                {isRecurringTaskTemplate && <DeleteRecurringTaskTemplateButton templateId={task.id} />}
                             </MarginLeftAuto>
                         )}
                     </>
@@ -333,6 +350,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                     />
                 )}
+                {isPreviewMode &&
+                    (isRecurringTaskTemplate ? (
+                        <RecurringTaskTemplateScheduleButton templateId={task.id} />
+                    ) : (
+                        <RecurringTaskTemplateScheduleButton
+                            templateId={currentTask.recurring_task_template_id}
+                            task={currentTask as TTask}
+                        />
+                    ))}
                 {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                     <MarginLeftAuto>
                         <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
@@ -343,8 +369,19 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <Spinner />
             ) : (
                 <>
-                    {isRecurringTaskTemplate && (
-                        <RecurringTaskTemplateDetailsBanner recurringTask={task as TRecurringTaskTemplate} />
+                    {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
+                    {isPreviewMode &&
+                        !isRecurringTaskTemplate &&
+                        currentTask.recurring_task_template_id &&
+                        currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
+                        params.section && (
+                            <RecurringTaskDetailsBanner
+                                templateId={currentTask.recurring_task_template_id}
+                                folderId={params.section}
+                            />
+                        )}
+                    {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
+                        <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody
                         id={currentTask.id}

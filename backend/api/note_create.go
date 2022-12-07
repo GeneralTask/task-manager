@@ -9,10 +9,10 @@ import (
 )
 
 type NoteCreateParams struct {
-	Title    string `json:"title" binding:"required"`
-	Body     string `json:"body"`
-	Author   string `json:"author"`
-	IsShared bool   `json:"is_shared"`
+	Title       string             `json:"title" binding:"required"`
+	Body        string             `json:"body"`
+	Author      string             `json:"author"`
+	SharedUntil primitive.DateTime `json:"shared_until"`
 }
 
 func (api *API) NoteCreate(c *gin.Context) {
@@ -31,7 +31,7 @@ func (api *API) NoteCreate(c *gin.Context) {
 		AuthorDisplayEmail: noteCreateParams.Author,
 		CreatedAt:          primitive.NewDateTimeFromTime(time.Now()),
 		UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
-		IsShared:           &noteCreateParams.IsShared,
+		SharedUntil:        noteCreateParams.SharedUntil,
 	}
 	insertResult, err := database.GetNoteCollection(api.DB).InsertOne(context.Background(), newNote)
 	if err != nil {

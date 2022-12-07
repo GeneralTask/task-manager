@@ -1,4 +1,3 @@
-import ReactTooltip from 'react-tooltip'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { MEDIA_MAX_WIDTH, TOOLTIP_MAX_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
@@ -50,35 +49,6 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
 
     return (
         <DefaultTemplateContainer>
-            <ReactTooltip
-                id="navigation-tooltip"
-                effect="solid"
-                delayShow={250}
-                delayUpdate={500}
-                className="tooltip"
-                backgroundColor={Colors.background.white}
-                textColor={Colors.text.black}
-                place="right"
-            />
-            <ReactTooltip
-                id="recipients-tooltip"
-                effect="solid"
-                delayShow={250}
-                delayHide={250}
-                delayUpdate={500}
-                className="recipients-tooltip"
-                backgroundColor={Colors.background.white}
-                textColor={Colors.text.black}
-            />
-            <ReactTooltip
-                id="tooltip"
-                effect="solid"
-                delayShow={250}
-                delayUpdate={500}
-                className="tooltip"
-                backgroundColor={Colors.background.white}
-                textColor={Colors.text.black}
-            />
             <NavigationView />
             {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
             <CalendarWrapper />

@@ -4,8 +4,14 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { useInterval } from '../../hooks'
+import {
+    DONE_SECTION_ID,
+    EMPTY_MONGO_OBJECT_ID,
+    SINGLE_SECOND_INTERVAL,
+    TASK_PRIORITIES,
+    TRASH_SECTION_ID,
+} from '../../constants'
+import { useInterval, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -75,6 +81,7 @@ const Task = ({
     shouldScrollToTask,
     setShouldScrollToTask,
 }: TaskProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -214,14 +221,19 @@ const Task = ({
                     )}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
+                        {isPreviewMode &&
+                            task.recurring_task_template_id &&
+                            task.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID && (
+                                <Icon icon={icons.arrows_repeat} color="green" />
+                            )}
                         <DueDate date={dueDate} />
-                        {task.priority_normalized !== 0 && (
+                        {task.priority_normalized !== 0 && Number.isInteger(task.priority_normalized) && (
                             <Icon
                                 icon={TASK_PRIORITIES[task.priority_normalized].icon}
                                 color={TASK_PRIORITIES[task.priority_normalized].color}
                             />
                         )}
-                        {task.sub_tasks && task.sub_tasks.length > 0 && (
+                        {isPreviewMode && task.sub_tasks && task.sub_tasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
                                 <Mini>{task.sub_tasks.length}</Mini>

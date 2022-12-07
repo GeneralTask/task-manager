@@ -1,13 +1,17 @@
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { useKeyboardShortcut } from '.'
 
 const useGlobalKeyboardShortcuts = () => {
     const navigate = useNavigate()
+    const { pathname } = useLocation()
+
     useKeyboardShortcut(
         'enterFocusMode',
-        useCallback(() => navigate('/focus-mode'), [])
+        useCallback(() => {
+            if (pathname !== '/focus-mode') navigate('/focus-mode')
+        }, [pathname])
     )
     useKeyboardShortcut(
         'goToOverviewPage',

@@ -22,8 +22,9 @@ type TaskChangeable struct {
 	Comments           *[]database.Comment            `json:"comments,omitempty" bson:"comments,omitempty"`
 	Status             *database.ExternalTaskStatus   `json:"status,omitempty" bson:"status,omitempty"`
 	// Used to cache the current status before marking the task as done
-	PreviousStatus  *database.ExternalTaskStatus `json:"previous_status,omitempty" bson:"previous_status,omitempty"`
-	CompletedStatus *database.ExternalTaskStatus `json:"completed_status,omitempty" bson:"completed_status,omitempty"`
+	PreviousStatus          *database.ExternalTaskStatus `json:"previous_status,omitempty" bson:"previous_status,omitempty"`
+	CompletedStatus         *database.ExternalTaskStatus `json:"completed_status,omitempty" bson:"completed_status,omitempty"`
+	RecurringTaskTemplateID *string                      `json:"recurring_task_template_id,omitempty" bson:"recurring_task_template_id,omitempty"`
 }
 
 type TaskItemChangeableFields struct {
@@ -113,6 +114,15 @@ func (api *API) TaskModify(c *gin.Context) {
 			Status:             modifyParams.TaskItemChangeableFields.Task.Status,
 			PreviousStatus:     modifyParams.TaskItemChangeableFields.Task.PreviousStatus,
 			CompletedStatus:    modifyParams.TaskItemChangeableFields.Task.CompletedStatus,
+		}
+		if modifyParams.TaskItemChangeableFields.Task.RecurringTaskTemplateID != nil {
+			recurring_task_template_id, err := primitive.ObjectIDFromHex(*modifyParams.TaskItemChangeableFields.Task.RecurringTaskTemplateID)
+			if err != nil {
+				api.Logger.Error().Err(err).Msg("failed to parse recurring_task_template_id")
+				Handle500(c)
+				return
+			}
+			updateTask.RecurringTaskTemplateID = recurring_task_template_id
 		}
 
 		err = taskSourceResult.Source.ModifyTask(api.DB, userID, task.SourceAccountID, task.IDExternal, &updateTask, task)

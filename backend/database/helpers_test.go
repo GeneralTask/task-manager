@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
 
@@ -46,6 +47,20 @@ func TestGetTasks(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
+	task3, err := GetOrCreateTask(
+		db,
+		userID,
+		"123abcdef",
+		"foobar_source",
+		&Task{
+			IDExternal:   "123abcdef",
+			ParentTaskID: task2.ID,
+			SourceID:     "foobar_source",
+			UserID:       userID,
+			IsCompleted:  &completed,
+		},
+	)
+	assert.NoError(t, err)
 	_, err = GetOrCreateTask(
 		db,
 		notUserID,
@@ -69,15 +84,17 @@ func TestGetTasks(t *testing.T) {
 	t.Run("GetCompletedTasks", func(t *testing.T) {
 		tasks, err := GetCompletedTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(*tasks))
+		assert.Equal(t, 2, len(*tasks))
 		assert.Equal(t, task2.ID, (*tasks)[0].ID)
+		assert.Equal(t, task3.ID, (*tasks)[1].ID)
 	})
 	t.Run("GetTasks", func(t *testing.T) {
 		tasks, err := GetTasks(db, userID, nil, nil)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(*tasks))
+		assert.Equal(t, 3, len(*tasks))
 		assert.Equal(t, task1.ID, (*tasks)[0].ID)
 		assert.Equal(t, task2.ID, (*tasks)[1].ID)
+		assert.Equal(t, task3.ID, (*tasks)[2].ID)
 	})
 }
 
@@ -201,32 +218,30 @@ func TestGetMeetingPreparationTasks(t *testing.T) {
 }
 
 func TestGetNotes(t *testing.T) {
-	true_val := true
-	false_val := false
 	db, dbCleanup, err := GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
 	userID := primitive.NewObjectID()
 	notUserID := primitive.NewObjectID()
-	task1, err := GetOrCreateNote(
+	note1, err := GetOrCreateNote(
 		db,
 		userID,
 		"123abc",
 		"foobar_source",
 		&Note{
-			UserID:   userID,
-			IsShared: &true_val,
+			UserID:      userID,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
-	task2, err := GetOrCreateNote(
+	note2, err := GetOrCreateNote(
 		db,
 		userID,
 		"123abcdef",
 		"foobar_source",
 		&Note{
-			UserID:   userID,
-			IsShared: &false_val,
+			UserID:      userID,
+			SharedUntil: *testutils.CreateDateTime("1999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -236,8 +251,8 @@ func TestGetNotes(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&Note{
-			UserID:   notUserID,
-			IsShared: &true_val,
+			UserID:      notUserID,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 	assert.NoError(t, err)
@@ -246,8 +261,16 @@ func TestGetNotes(t *testing.T) {
 		notes, err := GetNotes(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(*notes))
-		assert.Equal(t, task1.ID, (*notes)[0].ID)
-		assert.Equal(t, task2.ID, (*notes)[1].ID)
+		assert.Equal(t, note1.ID, (*notes)[0].ID)
+		assert.Equal(t, note2.ID, (*notes)[1].ID)
+	})
+	t.Run("GetSharedNote", func(t *testing.T) {
+		_, err := GetSharedNote(db, note1.ID)
+		assert.NoError(t, err)
+	})
+	t.Run("GetSharedNoteForExpiredNote", func(t *testing.T) {
+		_, err := GetSharedNote(db, note2.ID)
+		assert.Error(t, err)
 	})
 }
 

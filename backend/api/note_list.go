@@ -6,16 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type NoteResult struct {
-	ID        primitive.ObjectID `json:"id,omitempty"`
-	Title     string             `json:"title,omitempty"`
-	Body      string             `json:"body,omitempty"`
-	Author    string             `json:"author,omitempty"`
-	CreatedAt primitive.DateTime `json:"created_at,omitempty"`
-	UpdatedAt primitive.DateTime `json:"updated_at,omitempty"`
-	IsShared  bool               `json:"is_shared,omitempty"`
+	ID          primitive.ObjectID `json:"id,omitempty"`
+	Title       string             `json:"title,omitempty"`
+	Body        string             `json:"body,omitempty"`
+	Author      string             `json:"author,omitempty"`
+	CreatedAt   primitive.DateTime `json:"created_at,omitempty"`
+	UpdatedAt   primitive.DateTime `json:"updated_at,omitempty"`
+	SharedUntil string             `json:"shared_until,omitempty"`
 }
 
 func (api *API) NotesList(c *gin.Context) {
@@ -58,12 +59,12 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 		title = *note.Title
 	}
 	return &NoteResult{
-		ID:        note.ID,
-		Title:     title,
-		Body:      body,
-		Author:    note.AuthorDisplayEmail,
-		CreatedAt: note.CreatedAt,
-		UpdatedAt: note.UpdatedAt,
-		IsShared:  *note.IsShared,
+		ID:          note.ID,
+		Title:       title,
+		Body:        body,
+		Author:      note.AuthorDisplayEmail,
+		CreatedAt:   note.CreatedAt,
+		UpdatedAt:   note.UpdatedAt,
+		SharedUntil: note.SharedUntil.Time().UTC().Format(time.RFC3339),
 	}
 }

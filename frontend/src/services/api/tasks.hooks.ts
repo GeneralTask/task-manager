@@ -42,12 +42,14 @@ export interface TModifyTaskData {
     body?: string
     priorityNormalized?: number
     status?: TExternalStatus
+    recurringTaskTemplateId?: string
 }
 
 interface TTaskModifyRequestBody {
     task: {
         priority_normalized?: number
         status?: TExternalStatus
+        recurring_task_template_id?: string
     }
     id_task_section?: string
     id_ordering?: number
@@ -281,6 +283,7 @@ export const useModifyTask = () => {
                     task.body = data.body || task.body
                     task.priority_normalized = data.priorityNormalized || task.priority_normalized
                     task.external_status = data.status || task.external_status
+                    task.recurring_task_template_id = data.recurringTaskTemplateId || task.recurring_task_template_id
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -296,6 +299,7 @@ export const useModifyTask = () => {
                     task.body = data.body || task.body
                     task.priority_normalized = data.priorityNormalized || task.priority_normalized
                     task.external_status = data.status || task.external_status
+                    task.recurring_task_template_id = data.recurringTaskTemplateId || task.recurring_task_template_id
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
@@ -330,6 +334,8 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.body !== undefined) requestBody.body = data.body
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
     if (data.status !== undefined) requestBody.task.status = data.status
+    if (data.recurringTaskTemplateId !== undefined)
+        requestBody.task.recurring_task_template_id = data.recurringTaskTemplateId
     try {
         const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)

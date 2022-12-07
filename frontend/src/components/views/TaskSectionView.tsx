@@ -50,6 +50,7 @@ const ActionsContainer = styled.div`
 `
 
 const TaskSectionView = () => {
+    const [shouldScrollToTask, setShouldScrollToTask] = useState(false)
     const sectionScrollingRef = useRef<HTMLDivElement | null>(null)
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
@@ -60,18 +61,7 @@ const TaskSectionView = () => {
     const navigate = useNavigate()
     const params = useParams()
 
-    const { section, task, subtask } = useMemo(() => {
-        const section = taskSections?.find(({ id }) => id === params.section)
-        const task = section?.tasks.find(({ id }) => id === params.task)
-        const subtask = task?.sub_tasks?.find(({ id }) => id === params.subtaskId)
-        return { section, task, subtask }
-    }, [taskSections, params.task, params.section, params.subtaskId])
-
-    const detailsLink = subtask
-        ? `/tasks/${params.section}/${task?.id}/${subtask.id}`
-        : `/tasks/${params.section}/${task?.id}`
-
-    const [shouldScrollToTask, setShouldScrollToTask] = useState(false)
+    const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
 
     const sortAndFilterSettings = useSortAndFilterSettings<TTask>(TASK_SORT_AND_FILTER_CONFIG, section?.id, '_main')
     const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
@@ -85,6 +75,12 @@ const TaskSectionView = () => {
             tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
         })
     }, [section, selectedSort, selectedSortDirection, selectedFilter])
+
+    const task = useMemo(
+        () => sortedTasks.find(({ id }) => id === params.task) ?? (sortedTasks.length > 0 ? sortedTasks[0] : undefined),
+        [sortedTasks, params.task]
+    )
+    const subtask = useMemo(() => task?.sub_tasks?.find(({ id }) => id === params.subtaskId), [task, params.subtaskId])
 
     const [taskIndex, setTaskIndex] = useState(0)
 
@@ -135,6 +131,10 @@ const TaskSectionView = () => {
             }
         }
     }, [taskSections, params.section, params.task])
+
+    const detailsLink = subtask
+        ? `/tasks/${params.section}/${task?.id}/${subtask.id}`
+        : `/tasks/${params.section}/${task?.id}`
 
     useItemSelectionController(sortedTasks, selectTask)
 

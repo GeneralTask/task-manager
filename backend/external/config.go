@@ -185,7 +185,7 @@ var TaskServiceAtlassian = TaskServiceDetails{
 	ID:           TASK_SERVICE_ID_ATLASSIAN,
 	Name:         "Atlassian",
 	Logo:         "/images/jira.svg",
-	LogoV2:       "jira-v2",
+	LogoV2:       "jira",
 	AuthType:     AuthTypeOauth2,
 	IsLinkable:   false,
 	IsSignupable: false,
