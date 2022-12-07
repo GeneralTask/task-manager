@@ -30,7 +30,6 @@ type GoogleCalendarSource struct {
 func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	calendarResponse, err := calendarService.Events.
 		List(calendarId).
-		//List("primary").
 		TimeMin(startTime.Format(time.RFC3339)).
 		TimeMax(endTime.Format(time.RFC3339)).
 		SingleEvents(true).
