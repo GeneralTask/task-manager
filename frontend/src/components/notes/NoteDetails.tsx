@@ -97,6 +97,10 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
     }
 
     const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
+    const sharedUntil = DateTime.fromISO(note.shared_until).toLocaleString({
+        month: 'long',
+        day: 'numeric',
+    })
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -109,7 +113,9 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 <MarginLeftAuto>
                     <Flex gap={Spacing._4}>
                         <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'red'} />
-                        <Label color={isShared ? 'green' : 'red'}>{`${isShared ? 'Shared' : 'Not shared'}`}</Label>
+                        <Label color={isShared ? 'green' : 'red'}>{`${
+                            isShared ? `Shared until ${sharedUntil}` : 'Not shared'
+                        }`}</Label>
                     </Flex>
                     <NoteSharingDropdown note={note} />
                 </MarginLeftAuto>
