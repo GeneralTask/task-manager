@@ -13,6 +13,13 @@ import ItemContainer from '../molecules/ItemContainer'
 const NoteTitle = styled(Truncated)`
     ${Typography.bodySmall};
 `
+const TitleContainer = styled.span`
+    display: flex;
+    gap: ${Spacing._8};
+    align-items: center;
+    min-width: 0;
+    margin-right: ${Spacing._8};
+`
 interface NoteProps {
     note: TNote
     isSelected: boolean
@@ -23,10 +30,11 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
     return (
         <TaskTemplate>
             <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)}>
-                <Flex gap={Spacing._12} alignItems="center">
-                    <Icon icon={isShared ? icons.link : icons.note} color={isShared ? 'green' : 'black'} />
+                <TitleContainer>
+                    <Icon icon={icons.note} />
                     <NoteTitle>{note.title}</NoteTitle>
-                </Flex>
+                    {isShared && <Icon icon={icons.link} />}
+                </TitleContainer>
                 <Flex gap={Spacing._12} alignItems="center">
                     <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
                 </Flex>
