@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { useKeyboardShortcut } from '../../hooks'
+import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
@@ -71,6 +71,7 @@ export default function CalendarHeader({
     } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
+    const { isPreviewMode } = usePreviewMode()
     const isFocusMode = pathname.startsWith('/focus-mode')
 
     const toggleCalendar = () => {
@@ -140,7 +141,7 @@ export default function CalendarHeader({
                                         />
                                     </Tip>
                                 )}
-                                {showScheduleTasksButton ? (
+                                {isPreviewMode && showScheduleTasksButton ? (
                                     <GTButton
                                         icon={icons.calendar_blank}
                                         iconColor="black"

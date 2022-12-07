@@ -38,7 +38,7 @@ const CalendarContext = createContext<ContextValues>({
     isTasksDueViewCollapsed: false,
     disableSelectEvent: false,
     isTasksOverdueViewCollapsed: false,
-    showTaskToCalSidebar: true,
+    showTaskToCalSidebar: false,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
