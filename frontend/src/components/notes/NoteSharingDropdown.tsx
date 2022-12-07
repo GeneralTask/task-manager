@@ -24,7 +24,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const toast = useToast()
 
     const shareNote = () => {
-        modifyNote({ id: note.id, shared_until: DateTime.local().plus({ days: 7 }).toISO() })
+        modifyNote({ id: note.id, shared_until: DateTime.local().plus({ months: 3 }).toISO() })
     }
     const unshareNote = () => {
         modifyNote({ id: note.id, shared_until: DateTime.fromMillis(1).toISO() })
@@ -72,7 +72,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   disabled: true,
                   keepOpenOnSelect: true,
                   renderer: () => (
-                      <MiniWrap>This note is currently being shared. The link will expire in 7 days.</MiniWrap>
+                      <MiniWrap>This note is currently being shared. The link will expire in 3 months.</MiniWrap>
                   ),
               },
           ]
@@ -92,7 +92,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   keepOpenOnSelect: true,
                   renderer: () => (
                       <MiniWrap>
-                          This note is currently not being shared. Links to shared notes expire after 7 days upon
+                          This note is currently not being shared. Links to shared notes expire after 3 months upon
                           creation.
                       </MiniWrap>
                   ),
