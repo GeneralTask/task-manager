@@ -19,14 +19,17 @@ interface NoteProps {
     onSelect: (note: TNote) => void
 }
 const Note = ({ note, isSelected, onSelect }: NoteProps) => {
+    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
     return (
         <TaskTemplate>
             <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)}>
                 <Flex gap={Spacing._12} alignItems="center">
-                    <Icon icon={icons.note} />
+                    <Icon icon={isShared ? icons.link : icons.note} color={isShared ? 'green' : 'black'} />
                     <NoteTitle>{note.title}</NoteTitle>
                 </Flex>
-                <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
+                <Flex gap={Spacing._12} alignItems="center">
+                    <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
+                </Flex>
             </ItemContainer>
         </TaskTemplate>
     )
