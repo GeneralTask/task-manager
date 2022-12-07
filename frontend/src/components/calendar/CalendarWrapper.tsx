@@ -32,25 +32,25 @@ const MarginDivider = styled(Divider)`
 `
 
 const CalendarWrapper = () => {
-    const { data: sections } = useGetTasks()
+    const { data: taskFolders } = useGetTasks()
     const { calendarType, showTaskToCalSidebar } = useCalendarContext()
     const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(false)
-    const [sectionIndex, setSectionIndex] = useState(0)
-    const validDragSections =
-        sections?.filter((section) => section.id !== DONE_SECTION_ID && section.id !== TRASH_SECTION_ID) ?? []
+    const [folderIndex, setFolderIndex] = useState(0)
+    const validDragFolders =
+        taskFolders?.filter((folder) => folder.id !== DONE_SECTION_ID && folder.id !== TRASH_SECTION_ID) ?? []
 
-    const selectedSection = sections?.[sectionIndex]
+    const selectedFolder = taskFolders?.[folderIndex]
     const DropdownMenuItem =
-        validDragSections?.map((section, index) => ({
-            label: section.name,
-            onClick: () => setSectionIndex(index),
-            icon: section.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
-            selected: index === sectionIndex,
-            count: section.tasks.length,
+        validDragFolders?.map((folder, index) => ({
+            label: folder.name,
+            onClick: () => setFolderIndex(index),
+            icon: folder.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder,
+            selected: index === folderIndex,
+            count: folder.tasks.length,
         })) ?? []
 
-    const triggerText = `${selectedSection?.name || ''} (${selectedSection?.tasks.length || 0})`
-    if (!sections) return null
+    const triggerText = `${selectedFolder?.name || ''} (${selectedFolder?.tasks.length || 0})`
+    if (!taskFolders) return null
     return (
         <Flex>
             {calendarType === 'week' && showTaskToCalSidebar && (
@@ -64,21 +64,12 @@ const CalendarWrapper = () => {
                         useTriggerWidth
                     />
                     <MarginDivider color={Colors.border.light} />
-                    {selectedSection?.tasks.map((task) => (
+                    {selectedFolder?.tasks.map((task) => (
                         <CalendarDropTask task={task} key={task.id} />
                     ))}
                 </ScheduleTaskSidebar>
             )}
-            {/* <CalendarAndHeaderContainer>
-                <CalendarViewContainer> */}
-            <CalendarView
-                initialType="day"
-                // initialShowMainHeader={false}
-                // hasLeftBorder={true}
-                // hideContainerShadow={false}
-            />
-            {/* </CalendarViewContainer>
-            </CalendarAndHeaderContainer> */}
+            <CalendarView initialType="day" />
         </Flex>
     )
 }

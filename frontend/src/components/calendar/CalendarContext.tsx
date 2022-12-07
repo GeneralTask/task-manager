@@ -51,10 +51,6 @@ const CalendarContext = createContext<ContextValues>({
     setShowTaskToCalSidebar: emptyFunction,
 })
 
-// showMainHeader: false,
-// showDateHeader: false,
-// isTasksOverdueViewCollapsed: true,
-
 export const useCalendarContext = () => {
     return useContext(CalendarContext)
 }

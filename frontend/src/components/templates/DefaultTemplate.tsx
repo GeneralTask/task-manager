@@ -81,7 +81,6 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
             />
             <NavigationView />
             {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
-            {/* <CalendarView initialType="day" /> */}
             <CalendarWrapper />
         </DefaultTemplateContainer>
     )
