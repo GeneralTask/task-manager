@@ -75,12 +75,20 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
 
     const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
         if (modifiers.selected) return 'selected'
-        if (day.getTime() < jsDate.getTime()) return ''
+        if (
+            recurrenceRate !== RecurrenceRate.MONTHLY &&
+            recurrenceRate !== RecurrenceRate.YEARLY &&
+            day.getTime() < jsDate.getTime()
+        )
+            return ''
         if (
             recurrenceRate === RecurrenceRate.DAILY ||
             (recurrenceRate === RecurrenceRate.WEEK_DAILY && !modifiers.weekend) ||
             (recurrenceRate === RecurrenceRate.WEEKLY && day.getDay() === date.weekday % 7) ||
-            (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day)
+            (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day) ||
+            (recurrenceRate === RecurrenceRate.YEARLY &&
+                day.getMonth() === date.month - 1 &&
+                day.getDate() === date.day)
         )
             return 'recurring-selection'
         return ''
