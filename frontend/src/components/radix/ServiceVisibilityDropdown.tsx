@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useSetting } from '../../hooks'
 import { icons, logos } from '../../styles/images'
 import GTIconButton from '../atoms/buttons/GTIconButton'
-import { BodySmall } from '../atoms/typography/Typography'
+import { Label } from '../atoms/typography/Typography'
 import SettingsModal from '../molecules/SettingsModal'
 import GTDropdownMenu from './GTDropdownMenu'
 
@@ -38,10 +38,8 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                             label: 'Show these services',
                             disabled: true,
                             hideCheckmark: true,
-                            renderer: () => <BodySmall color="light">Show these services</BodySmall>,
+                            renderer: () => <Label color="light">Show these services</Label>,
                         },
-                    ],
-                    [
                         {
                             label: 'GitHub',
                             icon: logos.github,
