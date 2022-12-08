@@ -351,14 +351,16 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     />
                 )}
                 {isPreviewMode &&
-                    task.source?.name === 'General Task' &&
                     (isRecurringTaskTemplate ? (
                         <RecurringTaskTemplateScheduleButton templateId={task.id} />
                     ) : (
-                        <RecurringTaskTemplateScheduleButton
-                            templateId={currentTask.recurring_task_template_id}
-                            task={currentTask as TTask}
-                        />
+                        task.source?.name === 'General Task' && (
+                            <RecurringTaskTemplateScheduleButton
+                                templateId={currentTask.recurring_task_template_id}
+                                task={currentTask as TTask}
+                                folderId={folderId}
+                            />
+                        )
                     ))}
                 {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                     <MarginLeftAuto>
@@ -376,10 +378,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
                         params.section && (
-                            <RecurringTaskDetailsBanner
-                                templateId={currentTask.recurring_task_template_id}
-                                folderId={params.section}
-                            />
+                            <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />
                         )}
                     {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
