@@ -97,6 +97,7 @@ func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 
 func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	token, err := Google.LinkConfig.Exchange(context.Background(), *params.Oauth2Code)
+	log.Error().Msgf("jerd %+v", token.Extra("id_token").(string))
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch token from google")
@@ -169,7 +170,12 @@ func getGoogleGrantedScopes(client *HTTPClient, token *oauth2.Token) []string {
 
 func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
 	scopes := getGoogleGrantedScopes(client, token)
-	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events")
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events") || slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
+}
+
+func hasUserGrantedMulticalScope(client *HTTPClient, token *oauth2.Token) bool {
+	scopes := getGoogleGrantedScopes(client, token)
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
 
 func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
