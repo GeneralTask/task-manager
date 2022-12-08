@@ -6,11 +6,12 @@ import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
-import GTIconButton from '../atoms/buttons/GTIconButton'
 import { BodySmall } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
+import { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
+import Tip from '../radix/Tip'
 
 const FEEDBACK_MIN_HEIGHT = 100
 
@@ -50,9 +51,11 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
     return (
         <>
             {isCollapsed ? (
-                <TooltipWrapper dataTip="Share Feedback" tooltipId="navigation-tooltip">
-                    <GTIconButton icon={icons.megaphone} onClick={() => setModalIsOpen(true)} />
-                </TooltipWrapper>
+                <Tip content="Share Feedback" side="right">
+                    <CollapsedIconContainer onClick={() => setModalIsOpen(true)}>
+                        <Icon icon={icons.megaphone} />
+                    </CollapsedIconContainer>
+                </Tip>
             ) : (
                 <GTButton
                     value="Share feedback"

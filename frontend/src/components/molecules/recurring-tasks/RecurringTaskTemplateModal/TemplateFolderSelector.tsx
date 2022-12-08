@@ -6,11 +6,11 @@ import GTButton from '../../../atoms/buttons/GTButton'
 import { BodySmall } from '../../../atoms/typography/Typography'
 import FolderSelector from '../../FolderSelector'
 
-interface NewTemplateFolderSelectorProps {
+interface TemplateFolderSelectorProps {
     value: string
     onChange: (value: string) => void
 }
-const NewTemplateFolderSelector = ({ value, onChange }: NewTemplateFolderSelectorProps) => {
+const TemplateFolderSelector = ({ value, onChange }: TemplateFolderSelectorProps) => {
     return (
         <Flex column gap={Spacing._12}>
             <BodySmall>Which folder should this task appear in?</BodySmall>
@@ -36,4 +36,4 @@ const NewTemplateFolderSelector = ({ value, onChange }: NewTemplateFolderSelecto
     )
 }
 
-export default NewTemplateFolderSelector
+export default TemplateFolderSelector

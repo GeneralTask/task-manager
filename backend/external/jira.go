@@ -18,7 +18,9 @@ import (
 )
 
 const (
-	JIRADone = "done"
+	JIRADone        = "done"
+	JIRAPriorityKey = "priority"
+	JIRADueDateKey  = "duedate"
 )
 
 type JIRASource struct {
@@ -164,11 +166,16 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	defer dbCleanup()
 
 	// fetch the comments in tandem to avoid too much latency for tasks fetch endpoint
+	fieldChannelList := []chan JIRAFieldsResult{}
 	commentChannelList := []chan JIRACommentResult{}
 	for _, jiraTask := range jiraTasks.Issues {
-		resultChan := make(chan JIRACommentResult)
-		go jira.GetListOfComments(siteConfiguration, userID, jiraTask.ID, authToken.AccessToken, resultChan)
-		commentChannelList = append(commentChannelList, resultChan)
+		commentsChan := make(chan JIRACommentResult)
+		go jira.GetListOfComments(siteConfiguration, userID, jiraTask.ID, authToken.AccessToken, commentsChan)
+		commentChannelList = append(commentChannelList, commentsChan)
+
+		fieldsChan := make(chan JIRAFieldsResult)
+		go jira.GetListOfFields(siteConfiguration, userID, jiraTask.ID, authToken.AccessToken, fieldsChan)
+		fieldChannelList = append(fieldChannelList, fieldsChan)
 	}
 
 	var tasks []*database.Task
@@ -204,6 +211,14 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			logger.Error().Err(commentsOutput.Error).Msg("failed to fetch comments")
 		} else {
 			task.Comments = commentsOutput.CommentList
+		}
+
+		fieldsResult := fieldChannelList[idx]
+		fieldsOutput := <-fieldsResult
+		if fieldsOutput.Error != nil {
+			logger.Error().Err(fieldsOutput.Error).Msg("failed to fetch editable fields")
+		} else {
+			task.JIRATaskParams = &fieldsOutput.JIRATaskParams
 		}
 
 		dueDate, err := time.Parse("2006-01-02", jiraTask.Fields.DueDate)
@@ -264,6 +279,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			AllStatuses:           task.AllStatuses,
 			Comments:              task.Comments,
 			IsCompleted:           &isCompleted,
+			JIRATaskParams:        task.JIRATaskParams,
 		}
 
 		dbTask, err := database.UpdateOrCreateTask(
@@ -452,6 +468,74 @@ func (jira JIRASource) GetListOfPriorities(siteConfiguration *database.Atlassian
 	return priorityIds, nil
 }
 
+type JIRAFieldsResult struct {
+	JIRATaskParams database.JIRATaskParams
+	Error          error
+}
+
+type JIRAFieldsResponse struct {
+	Fields map[string]JIRAFieldResponse `json:"fields"`
+}
+
+type JIRAFieldResponse struct {
+	Key string `json:"key"`
+}
+
+func (jira JIRASource) GetListOfFields(siteConfiguration *database.AtlassianSiteConfiguration, userID primitive.ObjectID, issueID string, authToken string, result chan<- JIRAFieldsResult) {
+	var jiraFields database.JIRATaskParams
+	baseURL := jira.getJIRABaseURL(siteConfiguration, jira.Atlassian.Config.ConfigValues.FieldsListURL)
+
+	url := baseURL + "/rest/api/3/issue/" + issueID + "/editmeta"
+	req, _ := http.NewRequest("GET", url, nil)
+	req = addJIRARequestHeaders(req, authToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		result <- JIRAFieldsResult{
+			JIRATaskParams: jiraFields,
+			Error:          err,
+		}
+		return
+	}
+
+	fieldsString, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		result <- JIRAFieldsResult{
+			JIRATaskParams: jiraFields,
+			Error:          err,
+		}
+		return
+	}
+
+	var fields JIRAFieldsResponse
+	err = json.Unmarshal(fieldsString, &fields)
+	if err != nil {
+		result <- JIRAFieldsResult{
+			JIRATaskParams: jiraFields,
+			Error:          err,
+		}
+		return
+	}
+
+	hasPriority := false
+	hasDueDate := false
+	for _, field := range fields.Fields {
+		if field.Key == JIRAPriorityKey {
+			hasPriority = true
+		} else if field.Key == JIRADueDateKey {
+			hasDueDate = true
+		}
+	}
+
+	result <- JIRAFieldsResult{
+		JIRATaskParams: database.JIRATaskParams{
+			HasPriorityField: &hasPriority,
+			HasDueDateField:  &hasDueDate,
+		},
+		Error: err,
+	}
+}
+
 func (jira JIRASource) CreateNewTask(db *mongo.Database, userID primitive.ObjectID, accountID string, task TaskCreationObject) (primitive.ObjectID, error) {
 	return primitive.NilObjectID, errors.New("has not been implemented yet")
 }
@@ -482,8 +566,8 @@ func (jira JIRASource) ModifyTask(db *mongo.Database, userID primitive.ObjectID,
 		}
 	}
 
-	if updateFields.Title != nil || updateFields.Body != nil || updateFields.ExternalPriority != nil {
-		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields)
+	if updateFields.Title != nil || updateFields.Body != nil || updateFields.ExternalPriority != nil || updateFields.DueDate != nil {
+		err := jira.handleJIRAFieldUpdate(siteConfiguration, token, issueID, updateFields, task)
 		if err != nil {
 			return err
 		}
@@ -525,6 +609,17 @@ func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.At
 	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
 }
 
+type JIRAUpdateRequestWithDueDate struct {
+	Fields JIRAUpdateFieldsWithDueDate `json:"fields"`
+}
+
+type JIRAUpdateFieldsWithDueDate struct {
+	Summary     string             `json:"summary,omitempty"`
+	Description *JIRARichTextField `json:"description,omitempty"`
+	Priority    *JIRAPriority      `json:"priority,omitempty"`
+	DueDate     *string            `json:"duedate"`
+}
+
 type JIRAUpdateRequest struct {
 	Fields JIRAUpdateFields `json:"fields"`
 }
@@ -547,7 +642,7 @@ type JIRAFieldContent struct {
 	Text    string             `json:"text,omitempty"`
 }
 
-func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task) error {
+func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task, task *database.Task) error {
 	apiBaseURL := jira.getJIRABaseURL(siteConfiguration, jira.Atlassian.Config.ConfigValues.IssueUpdateURL)
 
 	var updateRequest JIRAUpdateRequest
@@ -583,10 +678,30 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 			}
 		}
 	}
-	if (updateFields.ExternalPriority != nil && *updateFields.ExternalPriority != database.ExternalTaskPriority{}) {
+	if (updateFields.ExternalPriority != nil && *updateFields.ExternalPriority != database.ExternalTaskPriority{}) && (task.JIRATaskParams != nil && *task.JIRATaskParams.HasPriorityField) {
 		updateRequest.Fields.Priority = &JIRAPriority{
 			ID: updateFields.ExternalPriority.ExternalID,
 		}
+	}
+
+	var dueDateUpdateRequest JIRAUpdateRequestWithDueDate
+	if updateFields.DueDate != nil && (task.JIRATaskParams != nil && *task.JIRATaskParams.HasDueDateField) {
+		dueDateUpdateRequest.Fields = JIRAUpdateFieldsWithDueDate{
+			Summary:     updateRequest.Fields.Summary,
+			Description: updateRequest.Fields.Description,
+			Priority:    updateRequest.Fields.Priority,
+		}
+		if updateFields.DueDate != nil && updateFields.DueDate.Time().Unix() != 0 {
+			dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
+			dueDateUpdateRequest.Fields.DueDate = &dueDateString
+		}
+
+		updateRequestBytes, err := json.Marshal(&dueDateUpdateRequest)
+		if err != nil {
+			return errors.New("unable to marshal update fields for JIRA request")
+		}
+
+		return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateRequestBytes)
 	}
 
 	updateRequestBytes, err := json.Marshal(&updateRequest)

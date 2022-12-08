@@ -1,7 +1,7 @@
 import { useToast } from '../../hooks'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import TooltipWrapper from '../atoms/TooltipWrapper'
+import Tip from '../radix/Tip'
 import { BranchNameContainer, BranchNameText } from './styles'
 
 interface BranchNameProps {
@@ -23,12 +23,12 @@ const BranchName = ({ name }: BranchNameProps) => {
         )
     }
     return (
-        <TooltipWrapper dataTip={name} tooltipId="tooltip" inline>
+        <Tip content={name}>
             <BranchNameContainer onClick={handleClick}>
                 <BranchNameText>{name}</BranchNameText>
                 <Icon icon={icons.copy} color="purple" />
             </BranchNameContainer>
-        </TooltipWrapper>
+        </Tip>
     )
 }
 

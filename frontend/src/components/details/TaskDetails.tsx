@@ -1,11 +1,11 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import ReactTooltip from 'react-tooltip'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
     DETAILS_SYNC_TIMEOUT,
+    EMPTY_MONGO_OBJECT_ID,
     GENERAL_TASK_SOURCE_NAME,
     NO_TITLE,
     SINGLE_SECOND_INTERVAL,
@@ -38,8 +38,12 @@ import { Label } from '../atoms/typography/Typography'
 import CreateLinearComment from '../molecules/CreateLinearComment'
 import FolderSelector from '../molecules/FolderSelector'
 import GTDatePicker from '../molecules/GTDatePicker'
+import DeleteRecurringTaskTemplateButton from '../molecules/recurring-tasks/DeleteRecurringTaskTemplateButton'
+import RecurringTaskDetailsBanner from '../molecules/recurring-tasks/RecurringTaskDetailsBanner'
 import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/RecurringTaskTemplateDetailsBanner'
+import RecurringTaskTemplateScheduleButton from '../molecules/recurring-tasks/RecurringTaskTemplateScheduleButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
+import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -181,7 +185,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 titleRef?.current?.select()
             }
         })
-        ReactTooltip.rebuild()
         return () => {
             for (const timer of Object.values(timers.current)) {
                 timer.callback()
@@ -237,6 +240,15 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const { data: folders } = useGetTasks()
     const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
 
+    useKeyboardShortcut(
+        'backToParentTask',
+        useCallback(() => {
+            if (subtask) {
+                navigate('..', { relative: 'path' })
+            }
+        }, [subtask])
+    )
+
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -255,7 +267,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        {!subtask && (
+                        {task.source?.name !== 'Jira' && !subtask && (
                             <MarginLeftAuto>
                                 {isInTrash && (
                                     <GTButton
@@ -297,6 +309,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                 )}
                                 {currentTask.deeplink && <ExternalLinkButton link={currentTask.deeplink} />}
                                 {!isRecurringTaskTemplate && <TaskActionsDropdown task={currentTask as TTask} />}
+                                {isRecurringTaskTemplate && <DeleteRecurringTaskTemplateButton templateId={task.id} />}
                             </MarginLeftAuto>
                         )}
                     </>
@@ -328,18 +341,29 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 </MeetingPreparationTimeContainer>
             )}
             <TaskStatusContainer>
-                <PriorityDropdown
-                    value={currentTask.priority_normalized ?? 0}
-                    onChange={(priority) =>
-                        isRecurringTaskTemplate
-                            ? modifyRecurringTask(
-                                  { id: currentTask.id, priority_normalized: priority },
-                                  currentTask.optimisticId
-                              )
-                            : modifyTask({ id: currentTask.id, priorityNormalized: priority }, currentTask.optimisticId)
-                    }
-                    disabled={isInTrash}
-                />
+                {task.source?.name === 'Jira' && task.priority && task.all_priorities ? (
+                    <JiraPriorityDropdown
+                        taskId={task.id}
+                        currentPriority={task.priority}
+                        allPriorities={task.all_priorities}
+                    />
+                ) : (
+                    <PriorityDropdown
+                        value={currentTask.priority_normalized ?? 0}
+                        onChange={(priority) =>
+                            isRecurringTaskTemplate
+                                ? modifyRecurringTask(
+                                      { id: currentTask.id, priority_normalized: priority },
+                                      currentTask.optimisticId
+                                  )
+                                : modifyTask(
+                                      { id: currentTask.id, priorityNormalized: priority },
+                                      currentTask.optimisticId
+                                  )
+                        }
+                        disabled={isInTrash}
+                    />
+                )}
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
                         initialDate={DateTime.fromISO(currentTask.due_date ?? '').toJSDate()}
@@ -347,18 +371,42 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                     />
                 )}
-                {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
-                    <MarginLeftAuto>
-                        <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
-                    </MarginLeftAuto>
-                )}
+                {isPreviewMode &&
+                    task.source?.name === 'General Task' &&
+                    (isRecurringTaskTemplate ? (
+                        <RecurringTaskTemplateScheduleButton templateId={task.id} />
+                    ) : (
+                        <RecurringTaskTemplateScheduleButton
+                            templateId={currentTask.recurring_task_template_id}
+                            task={currentTask as TTask}
+                        />
+                    ))}
+                {!isRecurringTaskTemplate &&
+                    task.external_status &&
+                    task.all_statuses &&
+                    task.source?.name === 'Linear' && (
+                        <MarginLeftAuto>
+                            <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                        </MarginLeftAuto>
+                    )}
             </TaskStatusContainer>
             {currentTask.optimisticId ? (
                 <Spinner />
             ) : (
                 <>
-                    {isRecurringTaskTemplate && (
-                        <RecurringTaskTemplateDetailsBanner recurringTask={task as TRecurringTaskTemplate} />
+                    {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
+                    {isPreviewMode &&
+                        !isRecurringTaskTemplate &&
+                        currentTask.recurring_task_template_id &&
+                        currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
+                        params.section && (
+                            <RecurringTaskDetailsBanner
+                                templateId={currentTask.recurring_task_template_id}
+                                folderId={params.section}
+                            />
+                        )}
+                    {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
+                        <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody
                         id={currentTask.id}
@@ -376,7 +424,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                             <LinearCommentList comments={currentTask.comments ?? []} />
                         </CommentContainer>
                     )}
-                    {currentTask.external_status && !isInTrash && (
+                    {currentTask.source?.name !== 'Jira' && currentTask.external_status && !isInTrash && (
                         <CreateLinearComment taskId={currentTask.id} numComments={currentTask.comments?.length ?? 0} />
                     )}
                     {currentTask.slack_message_params && currentTask.sender && (

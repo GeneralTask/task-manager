@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/GeneralTask/task-manager/backend/database"
+	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateNote(t *testing.T) {
@@ -33,7 +33,7 @@ func TestCreateNote(t *testing.T) {
 		assert.Equal(t, "buy more dogecoin", *note.Title)
 		assert.Equal(t, "test body", *note.Body)
 		assert.Equal(t, "test author", note.AuthorDisplayEmail)
-		assert.Equal(t, true, *note.IsShared)
+		assert.Equal(t, primitive.DateTime(0), note.SharedUntil)
 		assert.Equal(t, fmt.Sprintf("{\"note_id\":\"%s\"}", note.ID.Hex()), string(body))
 	})
 }
