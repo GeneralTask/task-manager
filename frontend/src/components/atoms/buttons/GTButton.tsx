@@ -102,9 +102,6 @@ const Button = styled(NoStyleButton)<{
     }
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
     ${(props) => props.disabled && `cursor: default;`}
-    [data-state='open'] {
-        background-color: red;
-    }
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
