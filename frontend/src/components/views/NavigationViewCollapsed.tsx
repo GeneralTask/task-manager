@@ -11,11 +11,13 @@ import {
     TRASH_SECTION_ID,
 } from '../../constants'
 import { usePreviewMode } from '../../hooks'
+import Log from '../../services/api/log'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
+import { useCalendarContext } from '../calendar/CalendarContext'
 import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
@@ -90,6 +92,7 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
+    const { setCalendarType } = useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const navigate = useNavigate()
 
@@ -104,6 +107,8 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
         filteredFolders?.map((folder) => ({
             label: `${folder.name} (${folder.tasks.length})`,
             onClick: () => {
+                setCalendarType('day')
+                Log(`navigate__/tasks/${folder.id}`)
                 navigate(`/tasks/${folder.id}`)
             },
             icon: icons.folder,
