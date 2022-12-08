@@ -74,13 +74,17 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     }
 
     const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
-        if (modifiers.selected) return 'selected'
+        // show selected day EXCEPT if WEEKLY mode
+        if (recurrenceRate !== RecurrenceRate.WEEKLY && modifiers.selected) return 'selected'
+
+        // if DAILY or WEEK_DAILY, show highlight on all days after today
         if (
-            recurrenceRate !== RecurrenceRate.MONTHLY &&
-            recurrenceRate !== RecurrenceRate.YEARLY &&
+            (recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY) &&
             day.getTime() < jsDate.getTime()
-        )
+        ) {
             return ''
+        }
+
         if (
             recurrenceRate === RecurrenceRate.DAILY ||
             (recurrenceRate === RecurrenceRate.WEEK_DAILY && !modifiers.weekend) ||
