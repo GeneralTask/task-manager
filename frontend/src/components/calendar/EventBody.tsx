@@ -26,12 +26,9 @@ interface EventBodyProps {
     leftOffset: number
     date: DateTime
     isBeingDragged?: boolean
-    ignoreCalendarContext?: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
-    const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext(
-        props.ignoreCalendarContext
-    )
+    const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
