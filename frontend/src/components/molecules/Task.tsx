@@ -27,6 +27,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import MarkTaskDoneButton from '../atoms/buttons/MarkTaskDoneButton'
 import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
 
@@ -189,36 +190,37 @@ const Task = ({
             >
                 <ItemContainer isSelected={isSelected} onClick={onClick} ref={drag} forceHoverStyle={contextMenuOpen}>
                     <PositionedDomino isVisible={isHovered && !dragDisabled} />
-                    {task.external_status && task.all_statuses ? (
-                        <GTDropdownMenu
-                            disabled={sectionId === TRASH_SECTION_ID}
-                            items={task.all_statuses.map((status) => ({
-                                label: status.state,
-                                onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
-                                icon: linearStatus[status.type],
-                                selected: status.state === task.external_status?.state,
-                            }))}
-                            trigger={
-                                <GTButtonHack
-                                    value={status}
-                                    icon={linearStatus[task.external_status.type]}
-                                    size="small"
-                                    styleType="simple"
-                                    asDiv
-                                />
-                            }
-                        />
-                    ) : (
-                        <MarkTaskDoneButton
-                            taskId={task.id}
-                            sectionId={sectionId}
-                            isDone={task.is_done}
-                            isSelected={isSelected}
-                            isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
-                            onMarkComplete={taskFadeOut}
-                            optimsticId={task.optimisticId}
-                        />
-                    )}
+                    {task.source?.name !== 'Jira' &&
+                        (task.external_status && task.all_statuses ? (
+                            <GTDropdownMenu
+                                disabled={sectionId === TRASH_SECTION_ID}
+                                items={task.all_statuses.map((status) => ({
+                                    label: status.state,
+                                    onClick: () => modifyTask({ id: task.id, status: status }, task.optimisticId),
+                                    icon: linearStatus[status.type],
+                                    selected: status.state === task.external_status?.state,
+                                }))}
+                                trigger={
+                                    <GTButtonHack
+                                        value={status}
+                                        icon={linearStatus[task.external_status.type]}
+                                        size="small"
+                                        styleType="simple"
+                                        asDiv
+                                    />
+                                }
+                            />
+                        ) : (
+                            <MarkTaskDoneButton
+                                taskId={task.id}
+                                sectionId={sectionId}
+                                isDone={task.is_done}
+                                isSelected={isSelected}
+                                isDisabled={!!task.optimisticId || sectionId === TRASH_SECTION_ID}
+                                onMarkComplete={taskFadeOut}
+                                optimsticId={task.optimisticId}
+                            />
+                        ))}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {isPreviewMode &&
@@ -227,12 +229,21 @@ const Task = ({
                                 <Icon icon={icons.arrows_repeat} color="green" />
                             )}
                         <DueDate date={dueDate} />
-                        {task.priority_normalized !== 0 && (
-                            <Icon
-                                icon={TASK_PRIORITIES[task.priority_normalized].icon}
-                                color={TASK_PRIORITIES[task.priority_normalized].color}
+                        {task.priority && task.all_priorities && (
+                            <JiraPriorityDropdown
+                                taskId={task.id}
+                                currentPriority={task.priority}
+                                allPriorities={task.all_priorities}
                             />
                         )}
+                        {task.source?.name !== 'Jira' &&
+                            task.priority_normalized !== 0 &&
+                            Number.isInteger(task.priority_normalized) && (
+                                <Icon
+                                    icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                                    color={TASK_PRIORITIES[task.priority_normalized].color}
+                                />
+                            )}
                         {isPreviewMode && task.sub_tasks && task.sub_tasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />

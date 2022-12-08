@@ -86,9 +86,8 @@ const NavigationView = () => {
     useKeyboardShortcut(
         'navigationView',
         useCallback(() => {
-            if (!isPreviewMode) return
             setIsCollapsed(!isCollapsed)
-        }, [isPreviewMode, isCollapsed])
+        }, [isCollapsed])
     )
 
     return (
@@ -100,13 +99,11 @@ const NavigationView = () => {
                     <NavigationViewHeader>
                         <GTBetaLogo src="/images/GT-beta-logo.png" />
                         <Flex>
-                            {isPreviewMode && (
-                                <GTIconButton
-                                    icon={icons.sidebar}
-                                    onClick={() => setIsCollapsed(!isCollapsed)}
-                                    shortcutName="navigationView"
-                                />
-                            )}
+                            <GTIconButton
+                                icon={icons.sidebar}
+                                onClick={() => setIsCollapsed(!isCollapsed)}
+                                shortcutName="navigationView"
+                            />
                             {isPreviewMode && <NoteCreateButton type="icon" />}
                             <CommandPalette />
                         </Flex>

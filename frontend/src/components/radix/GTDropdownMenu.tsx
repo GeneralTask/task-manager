@@ -43,6 +43,7 @@ interface GTDropdownMenuProps {
     items: GTMenuItem[] | GTMenuItem[][] // allow for divided groups of items
     trigger: React.ReactNode // component that opens the dropdown menu when clicked
     align?: 'start' | 'end'
+    side?: 'top' | 'bottom' | 'left' | 'right'
     isOpen?: boolean
     setIsOpen?: React.Dispatch<React.SetStateAction<boolean>>
     disabled?: boolean
@@ -58,6 +59,7 @@ const GTDropdownMenu = ({
     items,
     trigger,
     align = 'start',
+    side = 'bottom',
     isOpen,
     setIsOpen,
     disabled,
@@ -84,6 +86,7 @@ const GTDropdownMenu = ({
                         $menuInModal={menuInModal}
                         $width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
                         $isLabel={fontStyle === 'label'}
+                        side={side}
                     >
                         {groups.map((group, groupIndex) => (
                             <Fragment key={groupIndex}>

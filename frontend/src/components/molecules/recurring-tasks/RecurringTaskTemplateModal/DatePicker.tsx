@@ -5,8 +5,9 @@ import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
-    margin: 0 ${Spacing._16};
     width: 250px;
+    margin: 0 ${Spacing._16};
+    box-sizing: border-box;
     .mantine-Calendar-calendarBase {
         max-width: none;
     }

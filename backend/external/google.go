@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/exp/slices"
 	"net/http"
 	"strings"
 	"time"
@@ -148,12 +149,12 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 	return nil
 }
 
-func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
+func getGoogleGrantedScopes(client *HTTPClient, token *oauth2.Token) []string {
 	tokenResponse, err := (*client).Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s", token.AccessToken))
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to load token info")
-		return false
+		return []string{}
 	}
 	defer tokenResponse.Body.Close()
 
@@ -161,9 +162,14 @@ func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
 	err = json.NewDecoder(tokenResponse.Body).Decode(&tokenInfo)
 	if err != nil {
 		logger.Error().Err(err).Msg("error decoding JSON")
-		return false
+		return []string{}
 	}
-	return strings.Contains(tokenInfo.Scope, "https://www.googleapis.com/auth/calendar.events")
+	return strings.Split(tokenInfo.Scope, " ")
+}
+
+func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
+	scopes := getGoogleGrantedScopes(client, token)
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events")
 }
 
 func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {

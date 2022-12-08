@@ -5,7 +5,7 @@ import { RecurrenceRate } from './enums'
 export type EmptyString = ''
 
 export interface TTaskSource {
-    name: string
+    name: 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
     logo: string
     logo_v2: TLogoImage
     is_completable: boolean
@@ -21,6 +21,14 @@ export interface TConferenceCall {
 export interface TSourcesResult {
     name: string
     authorization_url: string
+}
+
+export interface TExternalPriority {
+    external_id: string
+    name: string
+    priority_normalized: number
+    color: string
+    icon_url: string
 }
 
 export interface TTask {
@@ -51,6 +59,8 @@ export interface TTask {
     updated_at: string
     parent_task_id?: string
     recurring_task_template_id?: string
+    priority?: TExternalPriority
+    all_priorities?: TExternalPriority[]
 }
 export interface TTaskV4 {
     id: string
