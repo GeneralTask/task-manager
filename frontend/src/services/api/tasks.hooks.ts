@@ -295,6 +295,12 @@ export const useModifyTask = () => {
                     task.priority_normalized = data.priorityNormalized || task.priority_normalized
                     task.external_status = data.status || task.external_status
                     task.recurring_task_template_id = data.recurringTaskTemplateId || task.recurring_task_template_id
+                    if (data.external_priority_id) {
+                        const newPriority = task.all_priorities?.find(
+                            (priority) => priority.external_id === data.external_priority_id
+                        )
+                        if (newPriority) task.priority = newPriority
+                    }
                 })
 
                 queryClient.setQueryData('tasks', newSections)
