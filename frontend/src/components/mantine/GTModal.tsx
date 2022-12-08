@@ -51,7 +51,7 @@ const MarginBottom8 = styled.div`
 `
 
 interface GTModalTab {
-    title?: string | React.ReactNode
+    title?: string
     subtitle?: string
     icon?: TIconType
     body: React.ReactNode
