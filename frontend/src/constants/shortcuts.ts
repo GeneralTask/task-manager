@@ -178,7 +178,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     enterFocusMode: {
         label: 'Enter Focus Mode',
-        key: `${CMD_CTRL.key}+${SHIFT}+f`,
+        key: `${CMD_CTRL.key}+${SHIFT}+F`,
         keyLabel: `${CMD_CTRL.label}+${SHIFT}+F`,
         category: 'Navigation',
         icon: 'headphones',
