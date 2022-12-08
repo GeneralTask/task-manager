@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Calendar, DayModifiers } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -8,12 +9,13 @@ import GTButton from '../../../atoms/buttons/GTButton'
 const Container = styled.div`
     padding-left: ${Spacing._16};
     box-sizing: border-box;
-    width: 50%;
 `
 const MonthButton = styled(GTButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+    margin-bottom: ${Spacing._4};
 `
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
+    height: 250px;
     .mantine-Calendar-calendarBase {
         max-width: none;
     }
@@ -61,6 +63,7 @@ interface DatePickerProps {
     recurrenceRate: RecurrenceRate
 }
 const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
+    const [month, setMonth] = useState(date.toJSDate())
     const disabled = recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY
     const selectedDate = disabled ? DateTime.local() : date
     const jsDate = selectedDate.toJSDate()
@@ -83,12 +86,15 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
         return ''
     }
 
-    const isThisMonthSelected = selectedDate.month === DateTime.local().month
-    console.log({ sdm: selectedDate.month, dlm: DateTime.local().month, isThisMonthSelected })
-
     return (
         <Container>
-            <MonthButton visible={!isThisMonthSelected} styleType="secondary" size="small" value="month" />
+            <MonthButton
+                visible={month.getMonth() !== new Date().getMonth()}
+                styleType="secondary"
+                size="small"
+                value="Return to this month"
+                onClick={() => setMonth(new Date())}
+            />
             <StyledCalendar
                 value={jsDate}
                 onChange={handleChange}
@@ -96,7 +102,8 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 dayClassName={applyDayClassNames}
                 allowLevelChange={false}
                 disabled={disabled}
-                fullWidth
+                month={month}
+                onMonthChange={setMonth}
             />
         </Container>
     )

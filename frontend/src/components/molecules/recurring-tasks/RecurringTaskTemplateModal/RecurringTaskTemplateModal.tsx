@@ -17,7 +17,6 @@ import RecurrenceRateSelector from './RecurrenceRateSelector'
 import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
-    height: 30vh;
     flex: 1;
     display: flex;
     flex-direction: column;
