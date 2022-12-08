@@ -53,6 +53,8 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 		DayToCreateTask:              templateCreateParams.DayToCreateTask,
 		MonthToCreateTask:            templateCreateParams.MonthToCreateTask,
 		LastBackfillDatetime:         primitive.NewDateTimeFromTime(api.GetCurrentTime()),
+		CreatedAt:                    primitive.NewDateTimeFromTime(api.GetCurrentTime()),
+		UpdatedAt:                    primitive.NewDateTimeFromTime(api.GetCurrentTime()),
 	}
 
 	templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
