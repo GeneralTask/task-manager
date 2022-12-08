@@ -81,6 +81,7 @@ const Button = styled(NoStyleButton)<{
     transition: box-shadow 0.25s;
     user-select: none;
     font-family: inherit;
+    box-sizing: border-box;
     ${Typography.body};
     ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
@@ -101,6 +102,9 @@ const Button = styled(NoStyleButton)<{
     }
     ${(props) => props.textColor && `color: ${Colors.text[props.textColor]};`}
     ${(props) => props.disabled && `cursor: default;`}
+    [data-state='open'] {
+        background-color: red;
+    }
 `
 const MarginLeftAuto = styled.div`
     margin-left: auto;
