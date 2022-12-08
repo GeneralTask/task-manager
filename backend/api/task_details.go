@@ -26,7 +26,7 @@ func (api *API) TaskDetail(c *gin.Context) {
 
 	taskResult := api.taskBaseToTaskResult(task, userID)
 	// should fetch subTasks as we only have a single task in memory
-	subTasks := api.getSubtaskResults(task, userID)
+	subTasks := api.getSubtaskResults(task.ID, userID)
 	if subTasks != nil {
 		taskResult.SubTasks = subTasks
 	}
