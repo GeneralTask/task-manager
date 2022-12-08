@@ -609,6 +609,17 @@ func (jira JIRASource) handleJIRATransitionUpdate(siteConfiguration *database.At
 	return jira.executeTransition(apiBaseURL, token.AccessToken, issueID, *finalTransitionID)
 }
 
+type JIRAUpdateRequestWithDueDate struct {
+	Fields JIRAUpdateFieldsWithDueDate `json:"fields"`
+}
+
+type JIRAUpdateFieldsWithDueDate struct {
+	Summary     string             `json:"summary,omitempty"`
+	Description *JIRARichTextField `json:"description,omitempty"`
+	Priority    *JIRAPriority      `json:"priority,omitempty"`
+	DueDate     *string            `json:"duedate"`
+}
+
 type JIRAUpdateRequest struct {
 	Fields JIRAUpdateFields `json:"fields"`
 }
@@ -617,7 +628,6 @@ type JIRAUpdateFields struct {
 	Summary     string             `json:"summary,omitempty"`
 	Description *JIRARichTextField `json:"description,omitempty"`
 	Priority    *JIRAPriority      `json:"priority,omitempty"`
-	DueDate     *string            `json:"duedate"`
 }
 
 type JIRARichTextField struct {
@@ -673,15 +683,25 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 			ID: updateFields.ExternalPriority.ExternalID,
 		}
 	}
-	if updateFields.DueDate != nil && updateFields.DueDate.Time().Unix() != 0 && (task.JIRATaskParams != nil && *task.JIRATaskParams.HasDueDateField) {
-		dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
-		updateRequest.Fields.DueDate = &dueDateString
-	}
-	if updateFields.DueDate == nil && task.DueDate != nil && task.DueDate.Time().Unix() != 0 && (task.JIRATaskParams != nil && *task.JIRATaskParams.HasDueDateField) {
-		// we need this logic because we need to be able to set the duedate value to nil if the user wants to unset
-		// so if it's not being updated, we just pass in the existing value
-		dueDateString := task.DueDate.Time().Format("2006-01-02")
-		updateRequest.Fields.DueDate = &dueDateString
+
+	var dueDateUpdateRequest JIRAUpdateRequestWithDueDate
+	if updateFields.DueDate != nil && (task.JIRATaskParams != nil && *task.JIRATaskParams.HasDueDateField) {
+		dueDateUpdateRequest.Fields = JIRAUpdateFieldsWithDueDate{
+			Summary:     updateRequest.Fields.Summary,
+			Description: updateRequest.Fields.Description,
+			Priority:    updateRequest.Fields.Priority,
+		}
+		if updateFields.DueDate != nil && updateFields.DueDate.Time().Unix() != 0 {
+			dueDateString := updateFields.DueDate.Time().Format("2006-01-02")
+			dueDateUpdateRequest.Fields.DueDate = &dueDateString
+		}
+
+		updateRequestBytes, err := json.Marshal(&dueDateUpdateRequest)
+		if err != nil {
+			return errors.New("unable to marshal update fields for JIRA request")
+		}
+
+		return jira.executeFieldUpdate(apiBaseURL, token.AccessToken, issueID, updateRequestBytes)
 	}
 
 	updateRequestBytes, err := json.Marshal(&updateRequest)

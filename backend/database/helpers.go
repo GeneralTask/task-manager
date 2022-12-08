@@ -498,6 +498,7 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 				{"user_id": userID},
 				{"is_completed": true},
 				{"is_deleted": bson.M{"$ne": true}},
+				{"parent_task_id": bson.M{"$exists": false}},
 			},
 		},
 		findOptions,
@@ -513,6 +514,29 @@ func GetCompletedTasks(db *mongo.Database, userID primitive.ObjectID) (*[]Task, 
 		logger.Error().Err(err).Msg("failed to fetch tasks for user")
 		return nil, err
 	}
+
+	cursor, err = GetTaskCollection(db).Find(
+		context.Background(),
+		bson.M{
+			"$and": []bson.M{
+				{"user_id": userID},
+				{"is_completed": true},
+				{"is_deleted": bson.M{"$ne": true}},
+				{"parent_task_id": bson.M{"$exists": true}},
+			},
+		},
+	)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch completed subtasks for user")
+		return nil, err
+	}
+	var subtasks []Task
+	err = cursor.All(context.Background(), &subtasks)
+	if err != nil {
+		logger.Error().Err(err).Msg("failed to fetch completed subtasks for user")
+		return nil, err
+	}
+	tasks = append(tasks, subtasks...)
 	return &tasks, nil
 }
 

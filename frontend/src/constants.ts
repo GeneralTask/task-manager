@@ -53,6 +53,8 @@ export const DONE_SECTION_ID = '000000000000000000000004'
 export const TRASH_SECTION_ID = '000000000000000000000005'
 
 export const TASK_INBOX_NAME = 'Task Inbox'
+export const TRASH_FOLDER_NAME = 'Trash'
+export const DONE_FOLDER_NAME = 'Done'
 export const GITHUB_SUPPORTED_TYPE_NAME = 'GitHub'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 

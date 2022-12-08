@@ -64,7 +64,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 <NavigationLink
                     link="/overview"
                     title="Overview"
-                    icon={icons.list}
+                    icon={icons.list_ul}
                     isCurrentPage={pathname.split('/')[1] === 'overview'}
                     isCollapsed={isCollapsed}
                 />
@@ -88,10 +88,8 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             </Tip>
-            {isPreviewMode && !isCollapsed && (
-                <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />
-            )}
-            {(!isPreviewMode || showGithub) && (
+            {!isCollapsed && <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />}
+            {showGithub && (
                 <Tip shortcutName="goToGithubPRsPage" side="right">
                     <NavigationLink
                         link="/pull-requests"
@@ -104,7 +102,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     />
                 </Tip>
             )}
-            {(!isPreviewMode || showLinear) && (
+            {showLinear && (
                 <Tip shortcutName="goToLinearPage" side="right">
                     <NavigationLink
                         link="/linear"
@@ -117,7 +115,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     />
                 </Tip>
             )}
-            {(!isPreviewMode || showSlack) && (
+            {showSlack && (
                 <Tip shortcutName="goToSlackPage" side="right">
                     <NavigationLink
                         link="/slack"
