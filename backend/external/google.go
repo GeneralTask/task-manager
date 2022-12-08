@@ -173,11 +173,6 @@ func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
 	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events") || slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
 
-func hasUserGrantedMulticalScope(client *HTTPClient, token *oauth2.Token) bool {
-	scopes := getGoogleGrantedScopes(client, token)
-	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
-}
-
 func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
 	parentCtx := context.Background()
 
