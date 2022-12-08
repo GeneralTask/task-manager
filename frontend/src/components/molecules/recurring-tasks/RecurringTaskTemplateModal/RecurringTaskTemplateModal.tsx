@@ -17,6 +17,7 @@ import RecurrenceRateSelector from './RecurrenceRateSelector'
 import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
+    height: 30vh;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -116,7 +117,7 @@ const RecurringTaskTemplateModal = ({
                 title: 'Setting a recurring task',
                 body: (
                     <>
-                        <Flex flex="1" onKeyDown={handleKeyDown}>
+                        <Flex flex="1" onKeyDown={handleKeyDown} justifyContent="space-between">
                             <SettingsForm>
                                 {!initialRecurringTaskTemplate && !initialTask && (
                                     <NewTemplateNameInput value={title} onChange={setTitle} />

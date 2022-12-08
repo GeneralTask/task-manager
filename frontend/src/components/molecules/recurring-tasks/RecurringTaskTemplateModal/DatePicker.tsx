@@ -3,12 +3,17 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
+import GTButton from '../../../atoms/buttons/GTButton'
 
-const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
-    /* width: 200px; */
-    width: fit-content;
-    margin: 0 ${Spacing._16};
+const Container = styled.div`
+    padding-left: ${Spacing._16};
     box-sizing: border-box;
+    width: 50%;
+`
+const MonthButton = styled(GTButton)<{ visible: boolean }>`
+    visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+`
+const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     .mantine-Calendar-calendarBase {
         max-width: none;
     }
@@ -78,15 +83,22 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
         return ''
     }
 
+    const isThisMonthSelected = selectedDate.month === DateTime.local().month
+    console.log({ sdm: selectedDate.month, dlm: DateTime.local().month, isThisMonthSelected })
+
     return (
-        <StyledCalendar
-            value={jsDate}
-            onChange={handleChange}
-            firstDayOfWeek="sunday"
-            dayClassName={applyDayClassNames}
-            allowLevelChange={false}
-            disabled={disabled}
-        />
+        <Container>
+            <MonthButton visible={!isThisMonthSelected} styleType="secondary" size="small" value="month" />
+            <StyledCalendar
+                value={jsDate}
+                onChange={handleChange}
+                firstDayOfWeek="sunday"
+                dayClassName={applyDayClassNames}
+                allowLevelChange={false}
+                disabled={disabled}
+                fullWidth
+            />
+        </Container>
     )
 }
 
