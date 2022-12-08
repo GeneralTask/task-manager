@@ -9,8 +9,13 @@ import { formatRecurrenceRateForScheduleButton, useGetRecurringTaskTemplateFromI
 interface RecurringTaskTemplateScheduleButtonProps {
     templateId?: string
     task?: TTask
+    folderId?: string
 }
-const RecurringTaskTemplateScheduleButton = ({ templateId, task }: RecurringTaskTemplateScheduleButtonProps) => {
+const RecurringTaskTemplateScheduleButton = ({
+    templateId,
+    task,
+    folderId,
+}: RecurringTaskTemplateScheduleButtonProps) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
 
@@ -38,6 +43,7 @@ const RecurringTaskTemplateScheduleButton = ({ templateId, task }: RecurringTask
                     onClose={() => setIsEditModalOpen(false)}
                     initialRecurringTaskTemplate={recurringTaskTemplate}
                     initialTask={task}
+                    initialFolderId={folderId}
                 />
             )}
         </>

@@ -16,23 +16,22 @@ const LinkText = styled.span`
 
 interface RecurringTaskDetailsBannerProps {
     templateId: string
-    folderId: string
 }
-const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetailsBannerProps) => {
+const RecurringTaskDetailsBanner = ({ templateId }: RecurringTaskDetailsBannerProps) => {
     const { data: folders } = useGetTasks()
 
     const [isEditTemplateModalOpen, setIsEditTemplateModalOpen] = useState(false)
 
+    const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
+
     const folder = useMemo(() => {
         if (!folders) return null
-        const folder = folders.find((folder) => folder.id === folderId)
+        const folder = folders.find((folder) => folder.id === recurringTaskTemplate?.id_task_section)
         if (!folder) {
-            Sentry.captureMessage('Recurring task has invalid folder id: ' + folderId)
+            Sentry.captureMessage('Recurring task has invalid folder id: ' + recurringTaskTemplate?.id_task_section)
         }
         return folder
-    }, [folders, folderId])
-
-    const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(templateId)
+    }, [folders, recurringTaskTemplate])
 
     if (!folder || !recurringTaskTemplate) return null
 
@@ -42,7 +41,8 @@ const RecurringTaskDetailsBanner = ({ templateId, folderId }: RecurringTaskDetai
                 <span>
                     This task will reappear in the {folder.name} folder{' '}
                     {formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate)} (
-                    <LinkText onClick={() => setIsEditTemplateModalOpen(true)}>edit schedule</LinkText>). You can also{' '}
+                    <LinkText onClick={() => setIsEditTemplateModalOpen(true)}>edit schedule</LinkText>). You can make
+                    changes to this task independently. To change future tasks, you can{' '}
                     <Link to={`/recurring-tasks/${recurringTaskTemplate.id}`}>
                         edit the template for this recurring task
                     </Link>
