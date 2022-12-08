@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
@@ -14,8 +13,6 @@ import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilter
 import { DropItem, DropType, TTask } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
-import GTButton from '../atoms/buttons/GTButton'
-import WeekTaskToCalendar from '../calendar/WeekTaskToCalendar'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import CreateNewTask from '../molecules/CreateNewTask'
@@ -63,7 +60,6 @@ const TaskSectionView = () => {
 
     const navigate = useNavigate()
     const params = useParams()
-    const { isPreviewMode } = usePreviewMode()
 
     const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
 
@@ -141,7 +137,6 @@ const TaskSectionView = () => {
         : `/tasks/${params.section}/${task?.id}`
 
     useItemSelectionController(sortedTasks, selectTask)
-    const [showTaskToCalendarModal, setShowTaskToCalendarModal] = useState(false)
 
     return (
         <>
@@ -152,24 +147,10 @@ const TaskSectionView = () => {
                             <Spinner />
                         ) : (
                             <>
-                                <WeekTaskToCalendar
-                                    open={showTaskToCalendarModal}
-                                    setIsModalOpen={setShowTaskToCalendarModal}
-                                    size="lg"
-                                />
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && !section.is_trash && (
                                     <ActionsContainer>
                                         <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                                        {isPreviewMode && (
-                                            <GTButton
-                                                styleType="secondary"
-                                                value="Schedule tasks"
-                                                icon={icons.calendar_blank}
-                                                size="small"
-                                                onClick={() => setShowTaskToCalendarModal(true)}
-                                            />
-                                        )}
                                     </ActionsContainer>
                                 )}
                                 {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
