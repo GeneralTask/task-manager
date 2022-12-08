@@ -9,6 +9,7 @@ import GTButton from '../../../atoms/buttons/GTButton'
 const Container = styled.div`
     padding-left: ${Spacing._16};
     box-sizing: border-box;
+    width: 50%;
 `
 const MonthButton = styled(GTButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
@@ -63,7 +64,7 @@ interface DatePickerProps {
     recurrenceRate: RecurrenceRate
 }
 const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
-    const [month, setMonth] = useState(date.toJSDate())
+    const [calendarDate, setCalendarDate] = useState(date.toJSDate())
     const disabled = recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY
     const selectedDate = disabled ? DateTime.local() : date
     const jsDate = selectedDate.toJSDate()
@@ -101,11 +102,14 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     return (
         <Container>
             <MonthButton
-                visible={month.getMonth() !== new Date().getMonth()}
+                visible={
+                    calendarDate.getMonth() !== new Date().getMonth() ||
+                    calendarDate.getFullYear() !== new Date().getFullYear()
+                }
                 styleType="secondary"
                 size="small"
                 value="Return to this month"
-                onClick={() => setMonth(new Date())}
+                onClick={() => setCalendarDate(new Date())}
             />
             <StyledCalendar
                 value={jsDate}
@@ -114,8 +118,9 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 dayClassName={applyDayClassNames}
                 allowLevelChange={false}
                 disabled={disabled}
-                month={month}
-                onMonthChange={setMonth}
+                month={calendarDate}
+                onMonthChange={setCalendarDate}
+                fullWidth
             />
         </Container>
     )
