@@ -331,6 +331,12 @@ export const useModifyTask = () => {
                     task.body = data.body ?? task.body
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
+                    if (data.external_priority_id) {
+                        const newPriority = task.all_priorities?.find(
+                            (priority) => priority.external_id === data.external_priority_id
+                        )
+                        if (newPriority) task.priority = newPriority
+                    }
                 })
 
                 queryClient.setQueryData('overview', newViews)
