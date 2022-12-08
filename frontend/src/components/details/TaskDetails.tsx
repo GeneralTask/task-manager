@@ -258,7 +258,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        {task.source?.name !== 'Jira' && !subtask && (
+                        {!subtask && (
                             <MarginLeftAuto>
                                 {isInTrash && (
                                     <GTButton
