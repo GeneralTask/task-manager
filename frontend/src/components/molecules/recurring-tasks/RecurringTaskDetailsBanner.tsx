@@ -41,7 +41,8 @@ const RecurringTaskDetailsBanner = ({ templateId }: RecurringTaskDetailsBannerPr
                 <span>
                     This task will reappear in the {folder.name} folder{' '}
                     {formatRecurrenceRateForRecurringTaskBanner(recurringTaskTemplate)} (
-                    <LinkText onClick={() => setIsEditTemplateModalOpen(true)}>edit schedule</LinkText>). You can also{' '}
+                    <LinkText onClick={() => setIsEditTemplateModalOpen(true)}>edit schedule</LinkText>). You can make
+                    changes to this task independently. To change future tasks, you can{' '}
                     <Link to={`/recurring-tasks/${recurringTaskTemplate.id}`}>
                         edit the template for this recurring task
                     </Link>
