@@ -18,6 +18,7 @@ function eventsDoOverlap(eventA: TEvent, eventB: TEvent): boolean {
  * overlap with event A.
  */
 function findCollisionGroups(events: TEvent[]): TEvent[][] {
+    events.sort((a, b) => a.title.localeCompare(b.title))
     const collisionGroups: TEvent[][] = [[]]
     events.forEach((event) => {
         let placed = false
