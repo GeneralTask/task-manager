@@ -191,6 +191,8 @@ type CalendarEvent struct {
 	IDExternal      string             `bson:"id_external,omitempty"`
 	SourceID        string             `bson:"source_id,omitempty"`
 	SourceAccountID string             `bson:"source_account_id,omitempty"`
+	CalendarID      string             `bson:"calendar_id,omitempty"`
+	ColorID         string             `bson:"color_id,omitempty"`
 	Deeplink        string             `bson:"deeplink,omitempty"`
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`

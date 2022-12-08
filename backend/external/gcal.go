@@ -27,7 +27,7 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string) *database.CalendarEvent {
+func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarID string) *database.CalendarEvent {
 	//exclude all day events which won't have a start time.
 	if len(event.Start.DateTime) == 0 {
 		return &database.CalendarEvent{}
@@ -56,6 +56,8 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	dbEvent := &database.CalendarEvent{
 		UserID:          userID,
 		IDExternal:      event.Id,
+		CalendarID:      calendarID,
+		ColorID:         event.ColorId,
 		Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
 		SourceID:        TASK_SOURCE_ID_GCAL,
 		Title:           event.Summary,
@@ -107,7 +109,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 
 	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
-		dbEvent := processAndStoreEvent(event, db, userID, accountID)
+		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId)
 		events = append(events, dbEvent)
 	}
 	result <- CalendarResult{events, nil}
@@ -119,14 +121,19 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		result <- emptyCalendarResult(err)
 		return
 	}
+	var events []*database.CalendarEvent
 
 	calendarList, err := calendarService.CalendarList.List().Do()
-	if err != nil {
-		result <- emptyCalendarResult(err)
-	}
-
-	if calendarList == nil {
-		result <- emptyCalendarResult(err)
+	// If we can't fetch the calendar list, we try fetching just the primary calendar
+	if err != nil || calendarList == nil {
+		log.Warn().Err(err).Msgf("could not fetch calendar list for accountID: %s", accountID)
+		eventChannel := make(chan CalendarResult)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel)
+		eventResult := <-eventChannel
+		if eventResult.Error != nil {
+			result <- emptyCalendarResult(errors.New("failed to fetch events"))
+		}
+		events = append(events, eventResult.CalendarEvents...)
 		return
 	}
 
@@ -137,12 +144,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
 		eventsChannels = append(eventsChannels, eventChannel)
 	}
-
-	var events []*database.CalendarEvent
 	for _, eventChannel := range eventsChannels {
 		eventResult := <-eventChannel
 		if eventResult.Error != nil {
-			result <- emptyCalendarResult(errors.New("failed to fetch events"))
+			continue
 		}
 		events = append(events, eventResult.CalendarEvents...)
 	}
