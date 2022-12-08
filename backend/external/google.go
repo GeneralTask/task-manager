@@ -140,6 +140,7 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 			DisplayID:      userInfo.EMAIL,
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
+			Scopes:         strings.Join(getGoogleGrantedScopes(&client, token), " "),
 		}},
 		options.Update().SetUpsert(true),
 	)
@@ -272,6 +273,7 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 				DisplayID:      userInfo.EMAIL,
 				IsUnlinkable:   false,
 				IsPrimaryLogin: true,
+				Scopes:         strings.Join(getGoogleGrantedScopes(&client, token), " "),
 			}},
 			options.Update().SetUpsert(true),
 		)

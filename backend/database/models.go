@@ -48,6 +48,7 @@ type ExternalAPIToken struct {
 	IsBadToken          bool               `bson:"is_bad_token"`
 	ExternalID          string             `bson:"external_id"`
 	LastFullRefreshTime primitive.DateTime `bson:"last_full_refresh_time"`
+	Scopes              string             `bson:"scopes"`
 }
 
 type AtlassianSiteConfiguration struct {
