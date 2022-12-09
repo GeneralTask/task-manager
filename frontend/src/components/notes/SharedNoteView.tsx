@@ -57,7 +57,7 @@ const SignInButton = styled.div`
     width: 200px;
 `
 
-const NoteView = () => {
+const SharedNoteView = () => {
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
@@ -126,4 +126,4 @@ const NoteView = () => {
     )
 }
 
-export default NoteView
+export default SharedNoteView

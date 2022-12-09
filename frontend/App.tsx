@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import Spinner from './src/components/atoms/Spinner'
-import NoteView from './src/components/notes/NoteView'
+import SharedNoteView from './src/components/notes/SharedNoteView'
 import LandingScreen from './src/components/screens/LandingScreen'
 import { AUTHORIZATION_COOKE, NOTE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import { GlobalStyle } from './src/styles'
@@ -31,8 +31,8 @@ const App = () => {
                             path={PRIVACY_POLICY_ROUTE}
                             element={<CompanyPolicyView page={CompanyPolicyPages.PrivacyPolicy} />}
                         />
-                        <Route path={NOTE_ROUTE} element={<NoteView />}>
-                            <Route path=":noteId" element={<NoteView />} />
+                        <Route path={NOTE_ROUTE} element={<SharedNoteView />}>
+                            <Route path=":noteId" element={<SharedNoteView />} />
                         </Route>
                         {isLoggedIn && <Route path="*" element={<AuthenticatedRoutes />} />}
                         <Route path="*" element={<Navigate to="/" />} />
