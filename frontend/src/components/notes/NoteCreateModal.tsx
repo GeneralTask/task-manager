@@ -38,7 +38,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
     }, [note, coupledTitle])
 
-    const finishNote = useCallback(() => {
+    const handleSave = useCallback(() => {
         if (!note || !isOpen) return
 
         const noteId = uuidv4()
@@ -53,12 +53,12 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         setNote('')
     }, [note, title, isOpen])
 
-    useKeyboardShortcut('submit', finishNote)
+    useKeyboardShortcut('submit', handleSave)
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
         if (keyCode === KEYBOARD_SHORTCUTS.submit.key) {
-            finishNote()
+            handleSave()
         }
         stopKeydownPropogation(e, undefined, true)
     }
@@ -94,7 +94,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 minHeight={300}
                                 actions={
                                     <ShareButton
-                                        onClick={finishNote}
+                                        onClick={handleSave}
                                         value="Save note"
                                         icon={icons.save}
                                         styleType="secondary"
