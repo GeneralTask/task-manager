@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { DEFAULT_SECTION_ID } from '../../constants'
+import { useKeyboardShortcut } from '../../hooks'
 import { useAddTaskSection, useModifyTaskSection } from '../../services/api/task-section.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -71,8 +72,8 @@ const NavigationSectionLinks = () => {
 
     const inputRef = useRef<HTMLInputElement>(null)
     const onOpenAddSectionInputHandler = useCallback(
-        (e: React.MouseEvent<HTMLButtonElement>) => {
-            e.stopPropagation()
+        (e?: React.MouseEvent<HTMLButtonElement>) => {
+            e?.stopPropagation()
             setIsAddSectionInputVisible(true)
             inputRef.current?.focus()
         },
@@ -138,6 +139,8 @@ const NavigationSectionLinks = () => {
     if (!folders) {
         return <Loading />
     }
+
+    useKeyboardShortcut('createFolder', onOpenAddSectionInputHandler)
 
     return (
         <>
