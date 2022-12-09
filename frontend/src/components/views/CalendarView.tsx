@@ -85,6 +85,22 @@ const CalendarView = ({
         useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed]),
         isFocusMode
     )
+    useKeyboardShortcut(
+        'showDailyCalendar',
+        useCallback(() => {
+            setIsCollapsed(false)
+            setCalendarType('day')
+        }, [calendarType, setCalendarType]),
+        isFocusMode
+    )
+    useKeyboardShortcut(
+        'showWeeklyCalendar',
+        useCallback(() => {
+            setIsCollapsed(false)
+            setCalendarType('week')
+        }, [calendarType, setCalendarType]),
+        isFocusMode
+    )
 
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
