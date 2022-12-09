@@ -185,7 +185,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     refresh: {
         label: 'Refresh',
-        key: `${OPT_ALT.key}+r ${OPT_ALT.key}+®`,
+        key: `${OPT_ALT.key}+r|${OPT_ALT.key}+®`,
         keyLabel: `${OPT_ALT.label}+R`,
         category: 'Navigation',
         icon: 'spinner',
@@ -234,21 +234,21 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     goToLinearPage: {
         label: 'Go to Linear page',
-        key: `${OPT_ALT.key}+${SHIFT}+L ${OPT_ALT.key}+${SHIFT}+Ò`,
+        key: `${OPT_ALT.key}+${SHIFT}+L|${OPT_ALT.key}+${SHIFT}+Ò`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+L`,
         category: 'Navigation',
         icon: 'linear',
     },
     goToSlackPage: {
         label: 'Go to Slack page',
-        key: `${OPT_ALT.key}+${SHIFT}+S`,
+        key: `${OPT_ALT.key}+${SHIFT}+S|${OPT_ALT.key}+${SHIFT}+Í`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+S`,
         category: 'Navigation',
         icon: 'slack',
     },
     goToTaskInbox: {
         label: 'Go to Task Inbox',
-        key: `${OPT_ALT.key}+${SHIFT}+I ${OPT_ALT.key}+${SHIFT}+Í`,
+        key: `${OPT_ALT.key}+${SHIFT}+I|${OPT_ALT.key}+${SHIFT}+ˆ`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+I`,
         category: 'Navigation',
         icon: 'inbox',
