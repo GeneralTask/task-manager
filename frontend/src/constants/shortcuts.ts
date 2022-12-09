@@ -154,34 +154,17 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    // Navigation shortcuts
-    arrowUp: {
-        label: 'Previous item',
-        key: 'ArrowUp',
-        keyLabel: '↑',
-        category: 'Navigation',
-        icon: 'arrow_up',
-    },
-    arrowDown: {
-        label: 'Next item',
-        key: 'ArrowDown',
-        keyLabel: '↓',
-        category: 'Navigation',
-        icon: 'arrow_down',
-    },
     up: {
         label: 'Previous item',
-        key: 'k',
-        keyLabel: 'K',
+        key: 'k|ArrowUp',
+        keyLabel: 'K or ↑',
         category: 'Navigation',
-        hideFromCommandPalette: true,
     },
     down: {
         label: 'Next item',
-        key: 'j',
-        keyLabel: 'J',
+        key: 'j|ArrowDown',
+        keyLabel: 'J or ↓',
         category: 'Navigation',
-        hideFromCommandPalette: true,
     },
     refresh: {
         label: 'Refresh',
