@@ -1,5 +1,4 @@
-import { useCallback, useRef } from 'react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
