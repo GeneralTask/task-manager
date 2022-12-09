@@ -9,7 +9,7 @@ import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.ho
 import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { focusModeBackground } from '../../styles/images'
+import { focusModeBackground, noteBackground } from '../../styles/images'
 import Loading from '../atoms/Loading'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
@@ -60,6 +60,7 @@ const MainScreen = () => {
     return (
         <>
             <link rel="preload" as="image" href={focusModeBackground} />
+            <link rel="preload" as="image" href={noteBackground} />
             <DefaultTemplate>
                 <>{currentPage}</>
             </DefaultTemplate>
