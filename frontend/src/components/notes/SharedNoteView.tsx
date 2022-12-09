@@ -41,7 +41,7 @@ const TopContainer = styled.div`
     margin: ${Spacing._32} ${Spacing._24} ${Spacing._12};
 `
 const BottomContainer = styled.div`
-    overflow-y: scroll;
+    overflow-y: auto;
 `
 const NoteBody = styled.div`
     background: ${Colors.background.white};
