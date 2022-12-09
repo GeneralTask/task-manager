@@ -32,7 +32,7 @@ const App = () => {
                             element={<CompanyPolicyView page={CompanyPolicyPages.PrivacyPolicy} />}
                         />
                         <Route path={NOTE_ROUTE} element={<NoteView />}>
-                            <Route path=":note" element={<NoteView />} />
+                            <Route path=":noteId" element={<NoteView />} />
                         </Route>
                         {isLoggedIn && <Route path="*" element={<AuthenticatedRoutes />} />}
                         <Route path="*" element={<Navigate to="/" />} />

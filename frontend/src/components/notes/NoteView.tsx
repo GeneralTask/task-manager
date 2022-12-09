@@ -59,7 +59,7 @@ const SignInButton = styled.div`
 
 const NoteView = () => {
     const navigate = useNavigate()
-    const { note: noteId } = useParams()
+    const { noteId } = useParams()
     if (!noteId) navigate('/')
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
