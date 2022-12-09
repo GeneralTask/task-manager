@@ -53,11 +53,11 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         setNote('')
     }, [note, title, isOpen])
 
-    useKeyboardShortcut('submitText', finishNote)
+    useKeyboardShortcut('submit', finishNote)
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
-        if (keyCode === KEYBOARD_SHORTCUTS.submitText.key) {
+        if (keyCode === KEYBOARD_SHORTCUTS.submit.key) {
             finishNote()
         }
         stopKeydownPropogation(e, undefined, true)
@@ -90,7 +90,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 onChange={(val) => setNote(val)}
                                 fontSize="small"
                                 placeholder="Type your note here."
-                                keyDownExceptions={[KEYBOARD_SHORTCUTS.submitText.key, KEYBOARD_SHORTCUTS.close.key]}
+                                keyDownExceptions={[KEYBOARD_SHORTCUTS.submit.key, KEYBOARD_SHORTCUTS.close.key]}
                                 minHeight={300}
                                 actions={
                                     <ShareButton

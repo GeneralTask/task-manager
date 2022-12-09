@@ -239,7 +239,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'General',
         icon: 'note',
     },
-    submitText: {
+    submit: {
         label: 'Submit text',
         key: `${CMD_CTRL.key}+Enter`,
         keyLabel: `${CMD_CTRL.label}+Enter`,
