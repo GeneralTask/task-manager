@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
 import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -39,13 +39,6 @@ const DetailItem = styled.div`
     max-width: ${NOTE_TITLE_MAX_WIDTH}px;
     display: block;
 `
-
-const SYNC_MESSAGES = {
-    SYNCING: 'Syncing...',
-    ERROR: 'There was an error syncing with our servers',
-    COMPLETE: '',
-}
-
 interface NoteDetailsProps {
     note: TNote
     link: string
