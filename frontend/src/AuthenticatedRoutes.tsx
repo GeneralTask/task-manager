@@ -1,7 +1,6 @@
 import { lazy } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { Outlet, Route, Routes } from 'react-router-dom'
 import { enableMapSet } from 'immer'
@@ -16,9 +15,8 @@ const TermsOfServiceSummaryScreen = lazy(() => import('./components/screens/Term
 enableMapSet() // this allows immer to produce immutable maps and sets
 
 const AuthenticatedRoutes = () => {
-    const queryClient = new QueryClient()
     return (
-        <QueryClientProvider client={queryClient}>
+        <>
             {isDevelopmentMode && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
             <DndProvider backend={HTML5Backend}>
                 <AppContextProvider>
@@ -69,7 +67,7 @@ const AuthenticatedRoutes = () => {
                 </AppContextProvider>
                 <StyledToastContainer />
             </DndProvider>
-        </QueryClientProvider>
+        </>
     )
 }
 
