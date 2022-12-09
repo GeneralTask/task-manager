@@ -60,6 +60,9 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         if (keyCode === KEYBOARD_SHORTCUTS.submit.key) {
             handleSave()
         }
+        if (keyCode === KEYBOARD_SHORTCUTS.close.key) {
+            setIsOpen(false)
+        }
         stopKeydownPropogation(e, undefined, true)
     }
 
@@ -69,7 +72,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             setIsModalOpen={setIsOpen}
             size="lg"
             tabs={{
-                title: 'Note',
                 body: (
                     <Flex column gap={Spacing._12} onKeyDown={handleKeyDown}>
                         <Flex>
