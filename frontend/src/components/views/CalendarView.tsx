@@ -105,11 +105,11 @@ const CalendarView = ({
     useKeyboardShortcut(
         'scheduleTasks',
         useCallback(() => {
-            setShowTaskToCalSidebar(true)
             setIsCollapsed(false)
             setCalendarType('week')
+            setShowTaskToCalSidebar(true)
         }, [calendarType, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar]),
-        isFocusMode || isPreviewMode
+        isFocusMode || !isPreviewMode
     )
 
     return isCollapsed ? (

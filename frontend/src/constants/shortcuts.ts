@@ -140,14 +140,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Calendar',
         icon: 'caret_left',
     },
-    jumpToToday: {
+    scheduleTasks: {
         label: 'Schedule tasks',
         key: 's',
         keyLabel: 'S',
         category: 'Calendar',
         icon: 'calendar_blank',
     },
-    scheduleTasks: {
+    jumpToToday: {
         label: 'Jump to Today',
         key: 't',
         keyLabel: 'T',
