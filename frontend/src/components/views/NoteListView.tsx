@@ -11,10 +11,10 @@ import { EMPTY_ARRAY } from '../../utils/utils'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import { SectionHeader } from '../molecules/Header'
+import Note from '../notes/Note'
+import NoteCreateButton from '../notes/NoteCreateButton'
+import NoteDetails from '../notes/NoteDetails'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
-import Note from './Note'
-import NoteCreateButton from './NoteCreateButton'
-import NoteDetails from './NoteDetails'
 
 const ActionsContainer = styled.div`
     margin-bottom: ${Spacing._16};
