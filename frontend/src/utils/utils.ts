@@ -170,7 +170,6 @@ export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
     if (e.shiftKey) {
         keyName += 'Shift+'
     }
-    console.log(keyName + e.key)
     return keyName + e.key
 }
 
