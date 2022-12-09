@@ -185,7 +185,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     refresh: {
         label: 'Refresh',
-        key: `®`,
+        key: `${OPT_ALT.key}+r ${OPT_ALT.key}+®`,
         keyLabel: `${OPT_ALT.label}+R`,
         category: 'Navigation',
         icon: 'spinner',
@@ -220,21 +220,21 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     goToOverviewPage: {
         label: 'Go to Overview page',
-        key: `${OPT_ALT.key}+${SHIFT}+O`,
+        key: `${OPT_ALT.key}+${SHIFT}+O|${OPT_ALT.key}+${SHIFT}+Ø`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+O`,
         category: 'Navigation',
         icon: 'list',
     },
     goToGithubPRsPage: {
         label: 'Go to GitHub page',
-        key: `${OPT_ALT.key}+${SHIFT}+G`,
+        key: `${OPT_ALT.key}+${SHIFT}+G|${OPT_ALT.key}+${SHIFT}+˝`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+G`,
         category: 'Navigation',
         icon: 'github',
     },
     goToLinearPage: {
         label: 'Go to Linear page',
-        key: `${OPT_ALT.key}+${SHIFT}+L`,
+        key: `${OPT_ALT.key}+${SHIFT}+L ${OPT_ALT.key}+${SHIFT}+Ò`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+L`,
         category: 'Navigation',
         icon: 'linear',
@@ -248,7 +248,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     goToTaskInbox: {
         label: 'Go to Task Inbox',
-        key: `${OPT_ALT.key}+${SHIFT}+I`,
+        key: `${OPT_ALT.key}+${SHIFT}+I ${OPT_ALT.key}+${SHIFT}+Í`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+I`,
         category: 'Navigation',
         icon: 'inbox',
