@@ -26,7 +26,7 @@ spec:
           name: "core"
           env:
             - name: ACCESS_CONTROL_ALLOW_ORIGINS
-              value: https://generaltask.com,https://mobile.generaltask.com
+              value: https://generaltask.com,https://mobile.generaltask.com,https://app.generaltask.com/
 
             - name: DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN
               value: https://generaltask.com
