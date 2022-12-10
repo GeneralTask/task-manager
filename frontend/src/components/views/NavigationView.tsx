@@ -6,7 +6,7 @@ import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -96,7 +96,7 @@ const NavigationView = () => {
             ) : (
                 <>
                     <NavigationViewHeader>
-                        <GTBetaLogo src="/images/GT-beta-logo.png" />
+                        <GTBetaLogo src={isPreviewMode ? logos.generaltask_beta_blue : logos.generaltask_beta_yellow} />
                         <Flex>
                             <GTIconButton
                                 icon={icons.sidebar}

@@ -75,8 +75,10 @@ import {
 export const logos = Object.freeze({
     generaltask_single_color: 'images/gt-logo-single-color.svg',
     generaltask: '/images/generaltask.svg',
-    generaltask_beta: '/images/GT-beta-logo.png',
+    generaltask_beta_yellow: '/images/GT-beta-logo.png',
+    generaltask_beta_blue: '/images/GT-beta-logo-blue.png',
     generaltask_yellow_circle: '/images/gt-logo-yellow-circle.png',
+    generaltask_blue_circle: '/images/gt-logo-blue-circle.png',
     github: faGithub,
     gmail: '/images/google.svg',
     gcal: '/images/gcal.png',
