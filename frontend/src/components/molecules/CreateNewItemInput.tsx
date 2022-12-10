@@ -39,7 +39,7 @@ interface CreateNewItemInputProps {
     initialValue?: string
     placeholder: string
     shortcutName?: TShortcutName
-    shouldFocusOnMount?: boolean
+    autoFocus?: boolean
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
 }
@@ -47,12 +47,12 @@ const CreateNewItemInput = ({
     initialValue = '',
     placeholder,
     shortcutName,
-    shouldFocusOnMount,
+    autoFocus,
     onChange,
     onSubmit,
 }: CreateNewItemInputProps) => {
     const [text, setText] = useState(initialValue)
-    const [shouldFocus, setShouldFocus] = useState(shouldFocusOnMount ?? false)
+    const [shouldFocus, setShouldFocus] = useState(autoFocus ?? false)
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -69,9 +69,8 @@ const CreateNewItemInput = ({
 
     useEffect(() => {
         if (shouldFocus) {
-            console.log(inputRef.current)
-            // inputRef.current?.focus()
-            // setShouldFocus(false)
+            inputRef.current?.focus()
+            setShouldFocus(false)
         }
     }, [shouldFocus])
 
@@ -94,7 +93,6 @@ const CreateNewItemInput = ({
                         setText(e.target.value)
                         onChange?.(e.target.value)
                     }}
-                    autoFocus
                 />
             </CreateNewItemInputContainer>
         </Tip>

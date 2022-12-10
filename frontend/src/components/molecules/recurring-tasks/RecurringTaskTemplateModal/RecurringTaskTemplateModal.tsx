@@ -124,7 +124,7 @@ const RecurringTaskTemplateModal = ({
                                     <CreateNewItemInput
                                         placeholder="Recurring task title"
                                         initialValue={title}
-                                        shouldFocusOnMount
+                                        autoFocus
                                         onChange={setTitle}
                                     />
                                 )}

@@ -39,7 +39,13 @@ export interface BaseModalProps {
 }
 const BaseModal = ({ children, size = 'sm', open, setIsModalOpen }: BaseModalProps) => {
     return (
-        <Modal opened={open} onClose={() => setIsModalOpen(false)} size={MODAL_WIDTH[size]} {...modalProps}>
+        <Modal
+            opened={open}
+            onClose={() => setIsModalOpen(false)}
+            size={MODAL_WIDTH[size]}
+            {...modalProps}
+            trapFocus={false}
+        >
             <ModalContentContainer>{children}</ModalContentContainer>
         </Modal>
     )
