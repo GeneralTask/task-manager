@@ -33,6 +33,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'arrow_left',
     },
+    createRecurringTask: {
+        label: 'Create new recurring task',
+        key: 'c',
+        keyLabel: 'C',
+        category: 'Tasks',
+        icon: 'plus',
+    },
     createTask: {
         label: 'Create new task',
         key: 'c',

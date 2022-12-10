@@ -1,38 +1,24 @@
 import { useState } from 'react'
-import styled from 'styled-components'
-import { Border, Colors, Dimensions, Spacing, Typography } from '../../../styles'
-import { icons } from '../../../styles/images'
-import { Icon } from '../../atoms/Icon'
+import CreateNewItemInput from '../CreateNewItemInput'
 import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
-
-const AddTemplateContainer = styled.div`
-    display: flex;
-    gap: ${Spacing._8};
-    background-color: ${Colors.background.medium};
-    height: ${Dimensions.TASK_HEIGHT};
-    align-items: center;
-    padding: 0px ${Spacing._8};
-    border-radius: ${Border.radius.mini};
-    box-sizing: border-box;
-    border: ${Border.stroke.medium} solid transparent;
-    margin-bottom: ${Spacing._8};
-    ${Typography.bodySmall};
-    cursor: pointer;
-    :hover {
-        border: ${Border.stroke.medium} solid ${Colors.border.purple};
-    }
-`
 
 const AddRecurringTask = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [newTemplateName, setNewTemplateName] = useState('')
+    console.log({ newTemplateName })
     return (
         <>
-            <AddTemplateContainer onClick={() => setIsModalOpen(true)}>
-                <Icon icon={icons.plus} />
-                Add new template
-            </AddTemplateContainer>
+            <CreateNewItemInput
+                placeholder="Create new recurring task"
+                initialValue={newTemplateName}
+                onChange={setNewTemplateName}
+                shortcutName="createRecurringTask"
+                onSubmit={() => setIsModalOpen(true)}
+            />
             {/* conditionally rendering so that modal re-mounts and resets state after closing */}
-            {isModalOpen && <RecurringTaskTemplateModal onClose={() => setIsModalOpen(false)} />}
+            {isModalOpen && (
+                <RecurringTaskTemplateModal initialTitle={newTemplateName} onClose={() => setIsModalOpen(false)} />
+            )}
         </>
     )
 }

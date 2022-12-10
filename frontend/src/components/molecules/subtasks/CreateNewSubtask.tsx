@@ -5,7 +5,7 @@ import KEYBOARD_SHORTCUTS from '../../../constants/shortcuts'
 import { useCreateTask } from '../../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
-import { TaskInput } from '../CreateNewTask'
+import { TaskInput } from '../CreateNewItemInput'
 import { SubtaskContainer } from './Subtask'
 
 const blurShortcuts = [KEYBOARD_SHORTCUTS.close.key]
