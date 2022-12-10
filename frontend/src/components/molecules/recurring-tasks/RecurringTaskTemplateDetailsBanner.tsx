@@ -8,13 +8,14 @@ import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import GTButton from '../../atoms/buttons/GTButton'
+import { Bold } from '../../atoms/typography/Typography'
 import FolderSelector from '../FolderSelector'
 
 export const Banner = styled.div`
     border-radius: ${Border.radius.mini};
     background-color: ${Colors.background.light};
-    padding: ${Spacing._8};
-    ${Typography.label};
+    padding: ${Spacing._16};
+    ${Typography.bodySmall};
     color: ${Colors.text.light};
     display: flex;
     flex-direction: column;
@@ -42,8 +43,8 @@ const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTempl
     return (
         <Banner>
             <div>
-                This is a template for a recurring task. Any change you make will be reflected whenever this task
-                repeats. Existing tasks will not be modified.
+                <Bold>This is a template for a recurring task.</Bold> Any changes you make will show up when it repeats
+                again. Tasks you already have won’t be changed.
             </div>
             <Flex alignItems="center">
                 Appears in folder:
