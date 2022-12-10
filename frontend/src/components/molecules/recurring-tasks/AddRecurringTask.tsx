@@ -5,7 +5,6 @@ import RecurringTaskTemplateModal from './RecurringTaskTemplateModal'
 const AddRecurringTask = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [newTemplateName, setNewTemplateName] = useState('')
-    console.log({ newTemplateName })
     return (
         <>
             <CreateNewItemInput
