@@ -170,7 +170,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                             {account.is_unlinkable && (
                                                 <GTButton
                                                     onClick={() => onUnlink(account.id)}
-                                                    value="Remove account"
+                                                    value="Disconnect account"
                                                     styleType="secondary"
                                                     size="small"
                                                 />
