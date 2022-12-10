@@ -39,18 +39,20 @@ interface CreateNewItemInputProps {
     initialValue?: string
     placeholder: string
     shortcutName?: TShortcutName
+    shouldFocusOnMount?: boolean
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
 }
 const CreateNewItemInput = ({
-    initialValue,
+    initialValue = '',
     placeholder,
     shortcutName,
+    shouldFocusOnMount,
     onChange,
     onSubmit,
 }: CreateNewItemInputProps) => {
-    const [text, setText] = useState(initialValue ?? '')
-    const [shouldFocus, setShouldFocus] = useState(false)
+    const [text, setText] = useState(initialValue)
+    const [shouldFocus, setShouldFocus] = useState(shouldFocusOnMount ?? false)
     const inputRef = useRef<HTMLInputElement>(null)
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -58,16 +60,18 @@ const CreateNewItemInput = ({
         if (blurShortcuts.includes(e.key)) {
             inputRef.current?.blur()
         }
-        if (e.key === 'Enter') {
+        const trimmedText = text.trim()
+        if (onSubmit && e.key === 'Enter' && trimmedText !== '') {
             setText('')
-            onSubmit?.(text)
+            onSubmit(trimmedText)
         }
     }
 
     useEffect(() => {
         if (shouldFocus) {
-            inputRef.current?.focus()
-            setShouldFocus(false)
+            console.log(inputRef.current)
+            // inputRef.current?.focus()
+            // setShouldFocus(false)
         }
     }, [shouldFocus])
 
@@ -90,6 +94,7 @@ const CreateNewItemInput = ({
                         setText(e.target.value)
                         onChange?.(e.target.value)
                     }}
+                    autoFocus
                 />
             </CreateNewItemInputContainer>
         </Tip>

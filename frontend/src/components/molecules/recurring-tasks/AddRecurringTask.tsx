@@ -10,8 +10,8 @@ const AddRecurringTask = () => {
             <CreateNewItemInput
                 placeholder="Create new recurring task"
                 initialValue={newTemplateName}
-                onChange={setNewTemplateName}
                 shortcutName="createRecurringTask"
+                onChange={setNewTemplateName}
                 onSubmit={() => setIsModalOpen(true)}
             />
             {/* conditionally rendering so that modal re-mounts and resets state after closing */}
