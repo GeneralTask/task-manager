@@ -109,8 +109,6 @@ const RecurringTaskTemplateModal = ({
         stopKeydownPropogation(e, undefined, true)
     }
 
-    console.log({ initialTitle, title })
-
     return (
         <GTModal
             open
