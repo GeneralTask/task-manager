@@ -72,7 +72,7 @@ const CreateNewItemInput = ({
     }, [shouldFocus])
 
     useKeyboardShortcut(
-        shortcutName,
+        shortcutName ?? 'createTask', // shortcut will be disabled if shortcutName is undefined
         useCallback(() => setShouldFocus(true), []),
         !shortcutName
     )
