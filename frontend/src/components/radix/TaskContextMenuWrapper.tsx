@@ -14,10 +14,11 @@ import { GTMenuItem } from './RadixUIConstants'
 interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
+    isSubtask?: boolean
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -28,7 +29,8 @@ const TaskContextMenuWrapper = ({ task, sectionId, children, onOpenChange }: Tas
     const showRecurringTaskOption =
         isPreviewMode &&
         task.source?.name === 'General Task' && // must be a native task
-        (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) // and not already be a recurring task
+        (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
+        !isSubtask
 
     const contextMenuItems: GTMenuItem[] = [
         ...(sectionId

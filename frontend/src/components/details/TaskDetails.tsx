@@ -375,7 +375,8 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     (isRecurringTaskTemplate ? (
                         <RecurringTaskTemplateScheduleButton templateId={task.id} />
                     ) : (
-                        task.source?.name === 'General Task' && (
+                        task.source?.name === 'General Task' &&
+                        subtask === undefined && (
                             <RecurringTaskTemplateScheduleButton
                                 templateId={currentTask.recurring_task_template_id}
                                 task={currentTask as TTask}
