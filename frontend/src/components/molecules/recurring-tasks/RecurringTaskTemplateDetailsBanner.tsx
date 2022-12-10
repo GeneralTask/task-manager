@@ -19,10 +19,12 @@ export const Banner = styled.div`
     color: ${Colors.text.light};
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._12};
+    gap: ${Spacing._8};
 `
 const FolderButton = styled(GTButton)`
-    ${Typography.label};
+    :hover {
+        outline: none;
+    }
 `
 
 interface RecurringTaskTemplateDetailsBannerProps {
@@ -67,7 +69,7 @@ const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTempl
                         })
                     }
                     renderTrigger={(isOpen, setIsOpen) => (
-                        <FolderButton
+                        <GTButton
                             onClick={() => setIsOpen(!isOpen)}
                             value="change"
                             styleType="simple"
