@@ -49,23 +49,19 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         `}
     }
     [data-selected='true'] {
-        color: ${Colors.text.black};
         background-color: inherit;
     }
     [data-outside='true'] {
         color: ${Colors.text.light};
     }
     .today {
-        color: ${Colors.text.black};
         border-color: ${Colors.gtColor.primary};
     }
     .selected {
-        color: ${Colors.text.black};
         border-color: ${Colors.gtColor.primary};
         background-color: ${Colors.gtColor.secondary};
     }
     .recurring-selection {
-        color: ${Colors.text.black};
         background-color: ${Colors.gtColor.secondary};
     }
 `
