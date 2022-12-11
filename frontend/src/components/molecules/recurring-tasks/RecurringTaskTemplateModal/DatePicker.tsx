@@ -31,6 +31,7 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         ${Typography.label};
     }
     .mantine-Calendar-day {
+        color: ${Colors.text.black};
         border: ${Border.stroke.medium} solid transparent;
         border-radius: 50%;
         width: ${Spacing._24};
@@ -50,6 +51,9 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     [data-selected='true'] {
         color: ${Colors.text.black};
         background-color: inherit;
+    }
+    [data-outside='true'] {
+        color: ${Colors.text.light};
     }
     .today {
         color: ${Colors.text.black};
