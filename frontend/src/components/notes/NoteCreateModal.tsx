@@ -32,7 +32,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         } else if (isError) {
             setSyncIndicatorText(SYNC_MESSAGES.ERROR)
         } else {
-            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
+            setSyncIndicatorText('Your note is saved')
         }
     }, [isError, isLoading, isEditing])
 
@@ -117,7 +117,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 value={noteBody}
                                 onChange={(body) => onEdit({ body })}
                                 fontSize="small"
-                                placeholder="Type your note here."
+                                placeholder="Type your note here. It will be saved automatically."
                                 keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key]}
                                 minHeight={300}
                                 autoFocus
