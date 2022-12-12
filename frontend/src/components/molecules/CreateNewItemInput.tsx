@@ -93,6 +93,7 @@ const CreateNewItemInput = ({
                         setText(e.target.value)
                         onChange?.(e.target.value)
                     }}
+                    data-autofocus={autoFocus}
                 />
             </CreateNewItemInputContainer>
         </Tip>
