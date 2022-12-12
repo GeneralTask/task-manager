@@ -62,7 +62,7 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 		ID:          note.ID,
 		Title:       title,
 		Body:        body,
-		Author:      note.AuthorDisplayEmail,
+		Author:      note.Author,
 		CreatedAt:   note.CreatedAt,
 		UpdatedAt:   note.UpdatedAt,
 		SharedUntil: note.SharedUntil.Time().UTC().Format(time.RFC3339),

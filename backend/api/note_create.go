@@ -25,13 +25,13 @@ func (api *API) NoteCreate(c *gin.Context) {
 	userID := getUserIDFromContext(c)
 
 	newNote := database.Note{
-		UserID:             userID,
-		Title:              &noteCreateParams.Title,
-		Body:               &noteCreateParams.Body,
-		AuthorDisplayEmail: noteCreateParams.Author,
-		CreatedAt:          primitive.NewDateTimeFromTime(time.Now()),
-		UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
-		SharedUntil:        noteCreateParams.SharedUntil,
+		UserID:      userID,
+		Title:       &noteCreateParams.Title,
+		Body:        &noteCreateParams.Body,
+		Author:      noteCreateParams.Author,
+		CreatedAt:   primitive.NewDateTimeFromTime(time.Now()),
+		UpdatedAt:   primitive.NewDateTimeFromTime(time.Now()),
+		SharedUntil: noteCreateParams.SharedUntil,
 	}
 	insertResult, err := database.GetNoteCollection(api.DB).InsertOne(context.Background(), newNote)
 	if err != nil {

@@ -59,13 +59,13 @@ func (api *API) NoteModify(c *gin.Context) {
 			sharedUntil = *modifyParams.NoteChangeable.SharedUntil
 		}
 		updatedNote := database.Note{
-			UserID:             userID,
-			Title:              modifyParams.NoteChangeable.Title,
-			Body:               modifyParams.NoteChangeable.Body,
-			AuthorDisplayEmail: modifyParams.NoteChangeable.Author,
-			SharedUntil:        sharedUntil,
-			UpdatedAt:          primitive.NewDateTimeFromTime(time.Now()),
-			CreatedAt:          note.CreatedAt,
+			UserID:      userID,
+			Title:       modifyParams.NoteChangeable.Title,
+			Body:        modifyParams.NoteChangeable.Body,
+			Author:      modifyParams.NoteChangeable.Author,
+			SharedUntil: sharedUntil,
+			UpdatedAt:   primitive.NewDateTimeFromTime(time.Now()),
+			CreatedAt:   note.CreatedAt,
 		}
 
 		api.UpdateNoteInDB(c, note, userID, &updatedNote)
