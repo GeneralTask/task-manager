@@ -41,7 +41,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
                 trigger={
                     <GTButton
                         isDropdown
-                        styleType="simple"
+                        styleType="secondary"
                         fitContent={false}
                         size="small"
                         value={recurrenceRateLabels.find(([rate]) => rate === value)?.[1] || 'Select a recurrence rate'}

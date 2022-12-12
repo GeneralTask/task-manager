@@ -5,7 +5,7 @@ import { RecurrenceRate } from './enums'
 export type EmptyString = ''
 
 export interface TTaskSource {
-    name: string
+    name: 'General Task' | 'Google Calendar' | 'Git PR' | 'Jira' | 'Linear' | 'Slack'
     logo: string
     logo_v2: TLogoImage
     is_completable: boolean
@@ -380,3 +380,14 @@ export interface TRecurringTaskTemplate {
 }
 
 export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear'
+
+export interface TNote {
+    id: string
+    title: string
+    body: string
+    author: string
+    created_at: string
+    updated_at: string
+    shared_until: string
+    optimisticId?: string
+}

@@ -40,13 +40,18 @@ export interface TModifyTaskData {
     title?: string
     dueDate?: string
     body?: string
+    external_priority_id?: string
     priorityNormalized?: number
     status?: TExternalStatus
     recurringTaskTemplateId?: string
 }
 
+interface TExternalPriority {
+    external_id: string
+}
 interface TTaskModifyRequestBody {
     task: {
+        external_priority?: TExternalPriority
         priority_normalized?: number
         status?: TExternalStatus
         recurring_task_template_id?: string
@@ -80,8 +85,14 @@ export interface TReorderTaskData {
     dropSectionId: string
     orderingId: number
     dragSectionId?: string
+    isJiraTask?: boolean
 }
-
+interface TReorderTaskRequestBody {
+    id_task_section: string
+    id_ordering: number
+    is_completed: boolean
+    is_deleted?: boolean
+}
 export interface TPostCommentData {
     id: string
     body: string
@@ -284,6 +295,12 @@ export const useModifyTask = () => {
                     task.priority_normalized = data.priorityNormalized || task.priority_normalized
                     task.external_status = data.status || task.external_status
                     task.recurring_task_template_id = data.recurringTaskTemplateId || task.recurring_task_template_id
+                    if (data.external_priority_id) {
+                        const newPriority = task.all_priorities?.find(
+                            (priority) => priority.external_id === data.external_priority_id
+                        )
+                        if (newPriority) task.priority = newPriority
+                    }
                 })
 
                 queryClient.setQueryData('tasks', newSections)
@@ -320,6 +337,12 @@ export const useModifyTask = () => {
                     task.body = data.body ?? task.body
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
+                    if (data.external_priority_id) {
+                        const newPriority = task.all_priorities?.find(
+                            (priority) => priority.external_id === data.external_priority_id
+                        )
+                        if (newPriority) task.priority = newPriority
+                    }
                 })
 
                 queryClient.setQueryData('overview', newViews)
@@ -332,6 +355,12 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.title !== undefined) requestBody.title = data.title
     if (data.dueDate !== undefined) requestBody.due_date = data.dueDate
     if (data.body !== undefined) requestBody.body = data.body
+    if (data.external_priority_id !== undefined) {
+        if (!requestBody.task.external_priority)
+            requestBody.task.external_priority = {
+                external_id: data.external_priority_id,
+            }
+    }
     if (data.priorityNormalized !== undefined) requestBody.task.priority_normalized = data.priorityNormalized
     if (data.status !== undefined) requestBody.task.status = data.status
     if (data.recurringTaskTemplateId !== undefined)
@@ -610,14 +639,18 @@ export const useReorderTask = () => {
         },
     })
 }
+
 export const reorderTask = async (data: TReorderTaskData) => {
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, {
+        const requestBody: TReorderTaskRequestBody = {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
             is_completed: data.dropSectionId === DONE_SECTION_ID,
-            is_deleted: data.dropSectionId === TRASH_SECTION_ID,
-        })
+        }
+        if (data.isJiraTask) {
+            requestBody.is_deleted = data.dropSectionId === TRASH_SECTION_ID
+        }
+        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
         return castImmutable(res.data)
     } catch {
         throw new Error('reorderTask failed')

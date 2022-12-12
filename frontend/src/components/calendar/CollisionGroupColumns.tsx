@@ -7,7 +7,6 @@ import { createEventColumns } from './utils/eventLayout'
 interface CollisionGroupColumnsProps {
     events: TEvent[]
     date: DateTime
-    ignoreCalendarContext?: boolean
 }
 
 const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element => {
@@ -22,7 +21,6 @@ const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element =
                             leftOffset={index}
                             collisionGroupSize={eventColumns.length}
                             date={props.date}
-                            ignoreCalendarContext={props.ignoreCalendarContext}
                         />
                     </EventBodyDraggable>
                 ))

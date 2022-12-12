@@ -24,7 +24,7 @@ const TemplateFolderSelector = ({ value, onChange }: TemplateFolderSelectorProps
                         onClick={() => setIsOpen(!isOpen)}
                         icon={selectedFolderName?.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder}
                         value={selectedFolderName?.name}
-                        styleType="simple"
+                        styleType="secondary"
                         size="small"
                         fitContent={false}
                         isDropdown

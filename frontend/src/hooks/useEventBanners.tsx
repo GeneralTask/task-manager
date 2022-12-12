@@ -3,7 +3,7 @@ import { toast } from 'react-toastify'
 import { DateTime } from 'luxon'
 import { useInterval, useKeyboardShortcut } from '.'
 import ToastTemplate from '../components/atoms/toast/ToastTemplate'
-import { NO_EVENT_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
+import { NO_TITLE, SINGLE_SECOND_INTERVAL } from '../constants'
 import { useGetEvents } from '../services/api/events.hooks'
 import { icons } from '../styles/images'
 import { TEvent } from '../utils/types'
@@ -46,7 +46,7 @@ export default function useEventBanners(date: DateTime) {
                     timeUntilEvent > 0
                         ? `is in ${timeUntilEvent} ${timeUntilEvent > 1 ? 'minutes' : 'minute'}.`
                         : 'is now.'
-                const eventTitle = event.title.length > 0 ? event.title : NO_EVENT_TITLE
+                const eventTitle = event.title.length > 0 ? event.title : NO_TITLE
                 const lastShownAt = eventBannerLastShownAt.current.get(event.id)
                 const toastProps = {
                     title: eventTitle,
