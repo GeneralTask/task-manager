@@ -32,7 +32,7 @@ func TestCreateNote(t *testing.T) {
 		note := (*notes)[0]
 		assert.Equal(t, "buy more dogecoin", *note.Title)
 		assert.Equal(t, "test body", *note.Body)
-		assert.Equal(t, "test author", note.AuthorDisplayEmail)
+		assert.Equal(t, "test author", note.Author)
 		assert.Equal(t, primitive.DateTime(0), note.SharedUntil)
 		assert.Equal(t, fmt.Sprintf("{\"note_id\":\"%s\"}", note.ID.Hex()), string(body))
 	})
