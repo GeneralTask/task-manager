@@ -42,10 +42,12 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         if (!note || !isOpen) return
 
         const noteId = uuidv4()
+        const splitName = userInfo?.name.split(' ') ?? []
+        const name = splitName.length > 0 ? splitName[0] : 'Anonymous'
         createNote({
             title: title,
             body: note,
-            author: userInfo?.name ?? 'Anonymous',
+            author: name,
             optimisticId: noteId,
         })
 
