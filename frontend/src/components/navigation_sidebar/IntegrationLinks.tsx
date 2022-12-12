@@ -79,15 +79,13 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             )}
-            {isPreviewMode && (
-                <NavigationLink
-                    link="/notes"
-                    title="Notes"
-                    icon={icons.note}
-                    isCurrentPage={pathname.split('/')[1] === 'notes'}
-                    isCollapsed={isCollapsed}
-                />
-            )}
+            <NavigationLink
+                link="/notes"
+                title="Notes"
+                icon={icons.note}
+                isCurrentPage={pathname.split('/')[1] === 'notes'}
+                isCollapsed={isCollapsed}
+            />
             <Tip shortcutName="enterFocusMode" side="right">
                 <NavigationLink
                     link="/focus-mode"
