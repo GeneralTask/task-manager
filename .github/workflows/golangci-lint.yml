@@ -27,5 +27,3 @@ jobs:
 
           # Optional: working directory, useful for monorepos
           working-directory: backend
-
-          only-new-issues: true
