@@ -7,9 +7,9 @@ import { RecurrenceRate } from '../../../../utils/enums'
 import GTButton from '../../../atoms/buttons/GTButton'
 
 const Container = styled.div`
+    width: 250px;
     padding-left: ${Spacing._16};
     box-sizing: border-box;
-    width: 50%;
 `
 const MonthButton = styled(GTButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
