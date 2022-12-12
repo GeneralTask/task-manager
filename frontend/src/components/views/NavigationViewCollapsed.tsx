@@ -120,7 +120,10 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     return (
         <CollapsedContainer>
             <UpperContainer>
-                <PositionedIcon icon={logos.generaltask_yellow_circle} size="medium" />
+                <PositionedIcon
+                    icon={isPreviewMode ? logos.generaltask_blue_circle : logos.generaltask_yellow_circle}
+                    size="medium"
+                />
                 <CollapseAndCommandPaletteContainer>
                     <Tip shortcutName="navigationView" side="right">
                         <CollapsedIconContainer onClick={() => setIsCollapsed(false)}>
