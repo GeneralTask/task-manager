@@ -380,3 +380,14 @@ export interface TRecurringTaskTemplate {
 }
 
 export type TLinkedAccountName = 'Atlassian' | 'GitHub' | 'Google Calendar' | 'Slack' | 'Linear'
+
+export interface TNote {
+    id: string
+    title: string
+    body: string
+    author: string
+    created_at: string
+    updated_at: string
+    shared_until: string
+    optimisticId?: string
+}
