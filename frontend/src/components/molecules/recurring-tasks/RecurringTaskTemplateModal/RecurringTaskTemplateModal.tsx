@@ -79,7 +79,6 @@ const RecurringTaskTemplateModal = ({
         }
         if (initialRecurringTaskTemplate) {
             // modifying a template
-            console.log(payload)
             modifyRecurringTask(
                 {
                     id: initialRecurringTaskTemplate.id,
