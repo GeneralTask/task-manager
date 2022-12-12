@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { FOCUS_MODE_ROUTE } from '../../constants'
 import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { isGoogleCalendarLinked } from '../../utils/utils'
+import NoStyleLink from '../atoms/NoStyleLink'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -117,7 +119,7 @@ export default function CalendarHeader({
 
     if (!showMainHeader && !showDateHeader) return null
 
-    const showScheduleTasksButton = useMemo(() => {
+    const isCalendarShowingToday = useMemo(() => {
         const startOfToday = DateTime.now().startOf('day')
         const isToday = date.startOf('day').equals(startOfToday)
         const isThisWeek = date.startOf('day').equals(startOfToday.minus({ days: startOfToday.weekday % 7 }))
@@ -141,7 +143,7 @@ export default function CalendarHeader({
                                         />
                                     </Tip>
                                 )}
-                                {isPreviewMode && showScheduleTasksButton ? (
+                                {isPreviewMode && isCalendarShowingToday ? (
                                     <>
                                         {(calendarType === 'day' || !showTaskToCalSidebar) && (
                                             <GTButton
@@ -159,12 +161,26 @@ export default function CalendarHeader({
                                         )}
                                     </>
                                 ) : (
-                                    <GTButton
-                                        value="Jump to Today"
-                                        onClick={selectToday}
-                                        size="small"
-                                        styleType="secondary"
-                                    />
+                                    <>
+                                        {isCalendarShowingToday ? (
+                                            <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                                                <GTButton
+                                                    icon={icons.headphones}
+                                                    iconColor="black"
+                                                    value="Enter Focus Mode"
+                                                    size="small"
+                                                    styleType="secondary"
+                                                />
+                                            </NoStyleLink>
+                                        ) : (
+                                            <GTButton
+                                                value="Jump to Today"
+                                                onClick={selectToday}
+                                                size="small"
+                                                styleType="secondary"
+                                            />
+                                        )}
+                                    </>
                                 )}
                             </HeaderActionsContainer>
                             <HeaderActionsContainer>
