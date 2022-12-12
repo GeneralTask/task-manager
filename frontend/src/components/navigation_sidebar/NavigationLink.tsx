@@ -98,7 +98,7 @@ const NavigationLink = ({
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { setCalendarType } = useCalendarContext()
+    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
@@ -153,6 +153,7 @@ const NavigationLink = ({
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
         setCalendarType('day')
+        setDate(dayViewDate)
         Log(`navigate__${link}`)
         navigate(link)
     }

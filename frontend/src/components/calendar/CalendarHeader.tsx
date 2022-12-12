@@ -44,21 +44,13 @@ const CalendarDateText = styled.div`
 `
 
 interface CalendarHeaderProps {
-    date: DateTime
-    setDate: React.Dispatch<React.SetStateAction<DateTime>>
-    dayViewDate: DateTime
-    setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     showMainHeader?: boolean
     showDateHeader?: boolean
     additionalHeaderContent?: React.ReactNode
 }
 export default function CalendarHeader({
-    date,
-    setDate,
     showMainHeader = true,
     showDateHeader = true,
-    dayViewDate,
-    setDayViewDate,
     additionalHeaderContent,
 }: CalendarHeaderProps) {
     const {
@@ -68,6 +60,10 @@ export default function CalendarHeader({
         isCollapsed,
         showTaskToCalSidebar,
         setShowTaskToCalSidebar,
+        date,
+        setDate,
+        dayViewDate,
+        setDayViewDate,
     } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
