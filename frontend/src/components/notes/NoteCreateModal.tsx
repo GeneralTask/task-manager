@@ -1,22 +1,15 @@
-import { useCallback, useLayoutEffect, useState } from 'react'
-import styled from 'styled-components'
+import { useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { NOTE_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
-import { useGTLocalStorage, useKeyboardShortcut } from '../../hooks'
-import { useCreateNote } from '../../services/api/notes.hooks'
+import { useCreateNote, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
-import { icons } from '../../styles/images'
 import { getKeyCode, stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import GTButton from '../atoms/buttons/GTButton'
+import { Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
-
-const TitleField = styled(GTTextField)``
-const ShareButton = styled(GTButton)`
-    margin-left: auto;
-`
 
 interface NoteCreateModalProps {
     isOpen: boolean
@@ -24,47 +17,81 @@ interface NoteCreateModalProps {
 }
 const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const { mutate: createNote } = useCreateNote()
+    const { mutate: modifyNote, isError, isLoading } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
-    const [coupledTitle, setCoupledTitle] = useState(true)
-    const [title, setTitle] = useState('New Note')
-    const [note, setNote] = useGTLocalStorage('noteCreation', '')
+    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
+    const [noteTitle, setNoteTitle] = useState('New Note')
+    const [noteBody, setNoteBody] = useState('')
+    const [isEditing, setIsEditing] = useState(false)
+    const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
 
-    useLayoutEffect(() => {
-        if (coupledTitle) {
-            setTitle(note.split('\n')[0] || 'New Note')
+    useEffect(() => {
+        if (isEditing || isLoading) {
+            setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
+        } else if (isError) {
+            setSyncIndicatorText(SYNC_MESSAGES.ERROR)
+        } else {
+            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
         }
-        if (!title) {
-            setCoupledTitle(true)
+    }, [isError, isLoading, isEditing])
+
+    const onEdit = ({ title, body }: { title?: string; body?: string }) => {
+        if (title) setNoteTitle(title)
+        if (body) setNoteBody(body)
+        setIsEditing(true)
+        if (timer.current) clearTimeout(timer.current.timeout)
+        timer.current = {
+            timeout: setTimeout(
+                () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody }),
+                NOTE_SYNC_TIMEOUT
+            ),
+            callback: () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody }),
         }
-    }, [note, coupledTitle])
+    }
 
-    const handleSave = useCallback(() => {
-        if (!note || !isOpen) return
+    const handleSave = ({ title, body }: { title: string; body: string }) => {
+        if (!body) return
 
-        const noteId = uuidv4()
-        createNote({
-            title: title,
-            body: note,
-            author: userInfo?.name ?? 'Anonymous',
-            optimisticId: noteId,
-        })
+        setIsEditing(false)
+        if (timer.current) clearTimeout(timer.current.timeout)
 
-        setIsOpen(false)
-        setNote('')
-    }, [note, title, isOpen])
-
-    useKeyboardShortcut('submit', handleSave)
+        if (!optimisticId) {
+            const newOptimisticNoteId = uuidv4()
+            createNote({
+                title: title,
+                body: body,
+                author: userInfo?.name ?? 'Anonymous',
+                optimisticId: newOptimisticNoteId,
+            })
+            setOptimisticId(newOptimisticNoteId)
+        } else {
+            modifyNote(
+                {
+                    id: optimisticId,
+                    title: title,
+                    body: body,
+                },
+                optimisticId
+            )
+        }
+    }
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
-        if (keyCode === KEYBOARD_SHORTCUTS.submit.key) {
-            handleSave()
-        }
         if (keyCode === KEYBOARD_SHORTCUTS.close.key) {
             setIsOpen(false)
         }
         stopKeydownPropogation(e, undefined, true)
     }
+
+    useEffect(() => {
+        if (!isOpen) {
+            setNoteTitle('New Note')
+            setNoteBody('')
+            setOptimisticId(undefined)
+        }
+    }, [isOpen])
 
     return (
         <GTModal
@@ -75,38 +102,28 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                 body: (
                     <Flex column gap={Spacing._12} onKeyDown={handleKeyDown}>
                         <Flex>
-                            <TitleField
+                            <GTTextField
                                 type="plaintext"
-                                value={title}
-                                onChange={(val) => {
-                                    setTitle(val)
-                                    setCoupledTitle(false)
-                                }}
+                                value={noteTitle}
+                                onChange={(title) => onEdit({ title })}
+                                placeholder="Note Title"
+                                keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key]}
                                 fontSize="medium"
                             />
                         </Flex>
                         <Flex data-autofocus>
                             <GTTextField
                                 type="markdown"
-                                value={note}
-                                onChange={(val) => setNote(val)}
+                                value={noteBody}
+                                onChange={(body) => onEdit({ body })}
                                 fontSize="small"
                                 placeholder="Type your note here."
-                                keyDownExceptions={[KEYBOARD_SHORTCUTS.submit.key, KEYBOARD_SHORTCUTS.close.key]}
+                                keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key]}
                                 minHeight={300}
-                                actions={
-                                    <ShareButton
-                                        onClick={handleSave}
-                                        value="Save note"
-                                        icon={icons.save}
-                                        styleType="secondary"
-                                        size="small"
-                                        fitContent
-                                    />
-                                }
                                 autoFocus
                             />
                         </Flex>
+                        <Label color="light">{syncIndicatorText}</Label>
                     </Flex>
                 ),
             }}
