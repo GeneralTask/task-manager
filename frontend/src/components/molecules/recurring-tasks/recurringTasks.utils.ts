@@ -7,6 +7,7 @@ import { getOrdinal } from '../../../utils/time'
 import { TRecurringTaskTemplate } from '../../../utils/types'
 
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const MONTHS_SHORTENED = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const MONTHS = [
     'January',
     'February',
@@ -75,11 +76,14 @@ export const formatRecurrenceRateForScheduleButton = (recurringTaskTemplate: TRe
                 return `Monthly on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)}`
             } else return 'Monthly'
         case RecurrenceRate.YEARLY:
-            if (recurringTaskTemplate.day_to_create_task && recurringTaskTemplate.month_to_create_task !== undefined) {
-                return `Yearly on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)} of ${
-                    MONTHS[recurringTaskTemplate.month_to_create_task - 1]
-                }`
-            } else return 'Yearly'
+            if (
+                recurringTaskTemplate.day_to_create_task !== undefined &&
+                recurringTaskTemplate.month_to_create_task !== undefined
+            ) {
+                return `Annually on ${MONTHS_SHORTENED[recurringTaskTemplate.month_to_create_task - 1]} ${getOrdinal(
+                    recurringTaskTemplate.day_to_create_task
+                )}`
+            } else return 'Annually'
         default:
             return ''
     }
