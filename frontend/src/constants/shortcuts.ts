@@ -75,14 +75,6 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'folder',
     },
-    submitComment: {
-        label: 'Submit comment',
-        key: `${CMD_CTRL.key}+Enter`,
-        keyLabel: `${CMD_CTRL.label}+Enter`,
-        category: 'Tasks',
-        icon: 'comment',
-        hideFromCommandPalette: true,
-    },
     navigationView: {
         label: 'Show/hide navigation view',
         key: '[',
@@ -246,6 +238,21 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: NO_SHORTCUT,
         category: 'General',
         icon: 'megaphone',
+    },
+    newNote: {
+        label: 'New note',
+        key: ' ',
+        keyLabel: 'Space', // maybe ␣
+        category: 'General',
+        icon: 'note',
+    },
+    submit: {
+        label: 'Submit text',
+        key: `${CMD_CTRL.key}+Enter`,
+        keyLabel: `${CMD_CTRL.label}+Enter`,
+        category: 'General',
+        icon: 'comment',
+        hideFromCommandPalette: true,
     },
 })
 

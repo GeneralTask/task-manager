@@ -26,13 +26,13 @@ func TestNoteModifyEditFields(t *testing.T) {
 		"123abc",
 		"foobar_source",
 		&database.Note{
-			UserID:             userID,
-			Title:              &title1,
-			Body:               &body1,
-			AuthorDisplayEmail: "author1",
-			CreatedAt:          *testutils.CreateDateTime("2020-04-20"),
-			UpdatedAt:          *testutils.CreateDateTime("2020-04-20"),
-			SharedUntil:        *testutils.CreateDateTime("9999-01-01"),
+			UserID:      userID,
+			Title:       &title1,
+			Body:        &body1,
+			Author:      "author1",
+			CreatedAt:   *testutils.CreateDateTime("2020-04-20"),
+			UpdatedAt:   *testutils.CreateDateTime("2020-04-20"),
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
 		},
 	)
 
@@ -52,7 +52,7 @@ func TestNoteModifyEditFields(t *testing.T) {
 		assert.Equal(t, userID, note.UserID)
 		assert.Equal(t, "new title", *note.Title)
 		assert.Equal(t, "new body", *note.Body)
-		assert.Equal(t, "new author", note.AuthorDisplayEmail)
+		assert.Equal(t, "new author", note.Author)
 		assert.Equal(t, *testutils.CreateDateTime("2020-04-20"), note.CreatedAt)
 		assert.Greater(t, note.UpdatedAt, *testutils.CreateDateTime("2020-04-20"))
 		assert.Equal(t, *testutils.CreateDateTime("9999-01-01"), note.SharedUntil)

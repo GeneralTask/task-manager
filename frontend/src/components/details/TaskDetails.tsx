@@ -9,6 +9,7 @@ import {
     GENERAL_TASK_SOURCE_NAME,
     NO_TITLE,
     SINGLE_SECOND_INTERVAL,
+    SYNC_MESSAGES,
     TRASH_SECTION_ID,
 } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
@@ -106,12 +107,6 @@ const BackButtonText = styled(Label)`
     white-space: nowrap;
     color: inherit;
 `
-
-const SYNC_MESSAGES = {
-    SYNCING: 'Syncing...',
-    ERROR: 'There was an error syncing with our servers',
-    COMPLETE: '',
-}
 
 interface TaskDetailsProps {
     task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
@@ -375,7 +370,8 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     (isRecurringTaskTemplate ? (
                         <RecurringTaskTemplateScheduleButton templateId={task.id} />
                     ) : (
-                        task.source?.name === 'General Task' && (
+                        task.source?.name === 'General Task' &&
+                        subtask === undefined && (
                             <RecurringTaskTemplateScheduleButton
                                 templateId={currentTask.recurring_task_template_id}
                                 task={currentTask as TTask}

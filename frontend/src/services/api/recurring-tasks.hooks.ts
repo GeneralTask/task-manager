@@ -153,6 +153,8 @@ export const useModifyRecurringTask = () => {
                     recurringTask.time_of_day_seconds_to_create_task =
                         payload.time_of_day_seconds_to_create_task ?? recurringTask.time_of_day_seconds_to_create_task
                     recurringTask.day_to_create_task = payload.day_to_create_task ?? recurringTask.day_to_create_task
+                    recurringTask.month_to_create_task =
+                        payload.month_to_create_task ?? recurringTask.month_to_create_task
                 }
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)

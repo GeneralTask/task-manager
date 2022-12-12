@@ -17,8 +17,8 @@ const TemplateFolderSelector = ({ value, onChange }: TemplateFolderSelectorProps
             <FolderSelector
                 value={value}
                 onChange={onChange}
-                fontStyle="label"
                 useTriggerWidth
+                fontStyle="bodySmall"
                 renderTrigger={(isOpen, setIsOpen, selectedFolderName) => (
                     <GTButton
                         onClick={() => setIsOpen(!isOpen)}

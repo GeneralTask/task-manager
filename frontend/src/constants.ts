@@ -3,7 +3,7 @@ import getEnvVars from './environment'
 import { TIconColor } from './styles/colors'
 import { icons } from './styles/images'
 
-export const { REACT_APP_API_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
+export const { REACT_APP_API_BASE_URL, REACT_APP_FRONTEND_BASE_URL, COOKIE_DOMAIN } = getEnvVars()
 
 // API Constants
 export const TASK_SECTION_DEFAULT_ID = '-1'
@@ -45,6 +45,7 @@ export const EVENTS_URL = REACT_APP_API_BASE_URL + '/events/'
 export const TERMS_OF_SERVICE_ROUTE = 'terms-of-service'
 export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const FOCUS_MODE_ROUTE = 'focus-mode'
+export const NOTE_ROUTE = 'note'
 
 export const NO_TITLE = '(no title)'
 export const EMPTY_MONGO_OBJECT_ID = '000000000000000000000000'
@@ -73,3 +74,9 @@ export const TASK_PRIORITIES: TTaskPriority[] = [
 
 export const GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME = 'Google Calendar'
 export const GENERAL_TASK_SOURCE_NAME = 'General Task'
+
+export const SYNC_MESSAGES = {
+    SYNCING: 'Syncing...',
+    ERROR: 'There was an error syncing with our servers',
+    COMPLETE: '',
+}

@@ -7,9 +7,9 @@ import { RecurrenceRate } from '../../../../utils/enums'
 import GTButton from '../../../atoms/buttons/GTButton'
 
 const Container = styled.div`
+    width: 250px;
     padding-left: ${Spacing._16};
     box-sizing: border-box;
-    width: 50%;
 `
 const MonthButton = styled(GTButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
@@ -31,6 +31,7 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         ${Typography.label};
     }
     .mantine-Calendar-day {
+        color: ${Colors.text.black};
         border: ${Border.stroke.medium} solid transparent;
         border-radius: 50%;
         width: ${Spacing._24};
@@ -47,13 +48,20 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
             cursor: default;
         `}
     }
+    [data-selected='true'] {
+        background-color: inherit;
+    }
+    [data-outside='true'] {
+        color: ${Colors.text.light};
+    }
+    .today {
+        border-color: ${Colors.gtColor.primary};
+    }
     .selected {
-        color: ${Colors.text.black};
         border-color: ${Colors.gtColor.primary};
         background-color: ${Colors.gtColor.secondary};
     }
     .recurring-selection {
-        color: ${Colors.text.black};
         background-color: ${Colors.gtColor.secondary};
     }
 `
@@ -68,6 +76,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     const disabled = recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY
     const selectedDate = disabled ? DateTime.local() : date
     const jsDate = selectedDate.toJSDate()
+    const today = new Date()
 
     const handleChange = (newDate: Date | null) => {
         if (disabled || !newDate) return
@@ -75,13 +84,27 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     }
 
     const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
-        // show selected day EXCEPT if WEEKLY mode
-        if (recurrenceRate !== RecurrenceRate.WEEKLY && modifiers.selected) return 'selected'
+        // show selected day ONLY in MONTHLY OR YEARLY mode
+        if (
+            modifiers.selected &&
+            (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
+        )
+            return 'selected'
+
+        // show today
+        if (
+            day.getDate() === today.getDate() &&
+            day.getMonth() === today.getMonth() &&
+            day.getFullYear() === today.getFullYear()
+        )
+            return 'today'
 
         // if DAILY or WEEK_DAILY, show highlight on all days after today
         if (
-            (recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY) &&
-            day.getTime() < jsDate.getTime()
+            (recurrenceRate === RecurrenceRate.DAILY ||
+                recurrenceRate === RecurrenceRate.WEEK_DAILY ||
+                recurrenceRate === RecurrenceRate.WEEKLY) &&
+            day.getTime() < today.getTime()
         ) {
             return ''
         }

@@ -22,7 +22,7 @@ const SettingsForm = styled.div`
     flex-direction: column;
     gap: 20px;
     border-right: ${Border.stroke.medium} solid ${Colors.border.extra_light};
-    padding-right: ${Spacing._32};
+    padding-right: ${Spacing._24};
 `
 const Footer = styled.div`
     display: flex;

@@ -31,6 +31,7 @@ import {
     faDiagramSubtask,
     faEllipsisVertical,
     faFlask,
+    faFloppyDisk,
     faFolder,
     faGear,
     faGlobe,
@@ -38,14 +39,18 @@ import {
     faInbox,
     faItalic,
     faLink,
+    faLinkSlash,
     faList,
     faListOl,
     faListUl,
     faMagnifyingGlass,
     faMegaphone,
     faMessage,
+    faNoteSticky,
+    faPenToSquare,
     faPencil,
     faPlus,
+    faShare,
     faSidebar,
     faSidebarFlip,
     faSquare,
@@ -74,6 +79,7 @@ import {
 
 export const logos = Object.freeze({
     generaltask_single_color: 'images/gt-logo-single-color.svg',
+    generaltask_black_on_white: 'images/gt-logo-black-on-white.svg',
     generaltask: '/images/generaltask.svg',
     generaltask_beta: '/images/GT-beta-logo.png',
     generaltask_yellow_circle: '/images/gt-logo-yellow-circle.png',
@@ -133,11 +139,14 @@ export const icons = Object.freeze({
     label: faTag,
     linear: logos.linear,
     link: faLink,
+    link_slashed: faLinkSlash,
     list_ol: faListOl,
     list_ul: faListUl,
     list: faList,
     magnifying_glass: faMagnifyingGlass,
     megaphone: faMegaphone,
+    note: faNoteSticky,
+    penToSquare: faPenToSquare,
     pencil: faPencil,
     plus: faPlus,
     priority_high: faCircleChevronUp,
@@ -148,6 +157,8 @@ export const icons = Object.freeze({
     priority: faCircleUpLight,
     quote_right: faQuoteRight,
     repository: faCubes,
+    save: faFloppyDisk,
+    share: faShare,
     sidebar: faSidebar,
     sidebarFlipped: faSidebarFlip,
     slack: logos.slack,
@@ -181,6 +192,7 @@ export const linearStatus = Object.freeze({
 })
 
 export const focusModeBackground = '/images/focus_mode_background.jpg'
+export const noteBackground = '/images/note_background.jpg'
 
 export type TLogoImage = keyof typeof logos
 export type TIconImage = keyof typeof icons

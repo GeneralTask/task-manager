@@ -158,14 +158,10 @@ const NavigationLink = ({
     }
 
     if (isCollapsed && icon) {
-        const countOverflow = countWithOverflow(count ?? 0)
-        const content = taskSection ? `${title} (${countOverflow})` : title
         return (
-            <Tip content={content} side="right">
-                <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
-                    <Icon icon={icon} size="default" />
-                </CollapsedIconContainer>
-            </Tip>
+            <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
+                <Icon icon={icon} size="default" color={iconColor} />
+            </CollapsedIconContainer>
         )
     }
     return (
