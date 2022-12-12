@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 
 type TLocalStorageKeys =
+    | 'noteCreation'
     | 'previewMode'
     | 'navigationCollapsed'
     | 'calendarCollapsed'

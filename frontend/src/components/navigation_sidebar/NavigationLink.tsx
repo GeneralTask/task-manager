@@ -160,7 +160,7 @@ const NavigationLink = ({
     if (isCollapsed && icon) {
         return (
             <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
-                <Icon icon={icon} size="default" />
+                <Icon icon={icon} size="default" color={iconColor} />
             </CollapsedIconContainer>
         )
     }
