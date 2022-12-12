@@ -52,9 +52,9 @@ export const formatRecurrenceRateForRecurringTaskBanner = (recurringTaskTemplate
             } else return 'every month'
         case RecurrenceRate.YEARLY:
             if (recurringTaskTemplate.day_to_create_task && recurringTaskTemplate.month_to_create_task !== undefined) {
-                return `on the ${getOrdinal(recurringTaskTemplate.day_to_create_task)} of ${
-                    MONTHS[recurringTaskTemplate.month_to_create_task - 1]
-                } of every year`
+                return `on ${MONTHS[recurringTaskTemplate.month_to_create_task - 1]} ${getOrdinal(
+                    recurringTaskTemplate.day_to_create_task
+                )} of every year`
             } else return 'every year'
         default:
             return ''
