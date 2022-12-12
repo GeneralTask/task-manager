@@ -69,16 +69,14 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     isCollapsed={isCollapsed}
                 />
             </Tip>
-            {isPreviewMode && (
-                <NavigationLink
-                    link="/recurring-tasks"
-                    title="Recurring tasks"
-                    icon={icons.arrows_repeat}
-                    iconColor="green"
-                    isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
-                    isCollapsed={isCollapsed}
-                />
-            )}
+            <NavigationLink
+                link="/recurring-tasks"
+                title="Recurring tasks"
+                icon={icons.arrows_repeat}
+                iconColor="green"
+                isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                isCollapsed={isCollapsed}
+            />
             {isPreviewMode && (
                 <NavigationLink
                     link="/notes"
