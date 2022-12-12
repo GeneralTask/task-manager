@@ -45,3 +45,6 @@ export const Truncated = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
 `
+export const Bold = styled.span`
+    ${Typography.bold};
+`
