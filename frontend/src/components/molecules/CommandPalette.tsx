@@ -109,7 +109,6 @@ interface CommandPaletteProps {
 }
 const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
-    const { isPreviewMode } = usePreviewMode()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
 
@@ -210,7 +209,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                 </CommandGroup>
                             )
                     )}
-                    {isPreviewMode && searchValue && (
+                    {searchValue && (
                         <CommandGroup heading={`Search for "${searchValue}"`}>
                             {taskFolders
                                 ?.filter((f) => f.id !== DEFAULT_SECTION_ID)
@@ -259,9 +258,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                             {title}
                                         </TruncatedTitle>
                                         {(is_done || is_deleted) && (
-                                            <RightLabel color={is_deleted ? 'light' : 'purple'}>
-                                                {is_deleted ? '(deleted)' : '(done)'}
-                                            </RightLabel>
+                                            <RightLabel color="light">{is_deleted ? '(deleted)' : '(done)'}</RightLabel>
                                         )}
                                     </FlexWidth100>
                                 </CommandItem>
