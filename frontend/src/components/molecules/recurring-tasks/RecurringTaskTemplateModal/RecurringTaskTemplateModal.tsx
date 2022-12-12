@@ -120,14 +120,12 @@ const RecurringTaskTemplateModal = ({
                     <>
                         <Flex flex="1" onKeyDown={handleKeyDown} justifyContent="space-between">
                             <SettingsForm>
-                                {!initialRecurringTaskTemplate && !initialTask && (
-                                    <CreateNewItemInput
-                                        placeholder="Recurring task title"
-                                        initialValue={title}
-                                        autoFocus
-                                        onChange={setTitle}
-                                    />
-                                )}
+                                <CreateNewItemInput
+                                    placeholder="Recurring task title"
+                                    initialValue={title}
+                                    autoFocus
+                                    onChange={setTitle}
+                                />
                                 <TemplateFolderSelector value={folder} onChange={setFolder} />
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
