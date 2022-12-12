@@ -23,7 +23,10 @@ const Logo = styled.img`
 const MainContainer = styled.div`
     width: 100vw;
     height: 100vh;
-    background: url(${noteBackground}) no-repeat center/100% fixed;
+    background: url(${noteBackground});
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     display: flex;
     flex-direction: column;
     align-items: center;
