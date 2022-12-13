@@ -97,7 +97,6 @@ func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forceP
 
 func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params CallbackParams, userID primitive.ObjectID) error {
 	token, err := Google.LinkConfig.Exchange(context.Background(), *params.Oauth2Code)
-	log.Error().Msgf("jerd %+v", token.Extra("id_token").(string))
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to fetch token from google")
