@@ -11,39 +11,45 @@ import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
+import CreateNewItemInput from '../../CreateNewItemInput'
 import DatePicker from './DatePicker'
-import NewTemplateNameInput from './NewTemplateNameInput'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
     flex: 1;
-    height: 50vh;
     display: flex;
     flex-direction: column;
     gap: 20px;
     border-right: ${Border.stroke.medium} solid ${Colors.border.extra_light};
-    padding-right: ${Spacing._32};
+    padding-right: ${Spacing._24};
+`
+const Footer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    margin-top: ${Spacing._24};
 `
 
 interface RecurringTaskTemplateModalProps {
     onClose: () => void
+    initialTitle?: string // takes precedence over initialTask
     initialRecurringTaskTemplate?: TRecurringTaskTemplate // takes precedence over initial fields below
     initialTask?: TTask
     initialFolderId?: string
 }
 const RecurringTaskTemplateModal = ({
     onClose,
-    initialRecurringTaskTemplate,
     initialTask,
+    initialRecurringTaskTemplate,
+    initialTitle,
     initialFolderId,
 }: RecurringTaskTemplateModalProps) => {
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
     const { mutate: createRecurringTask } = useCreateRecurringTask()
 
-    const [title, setTitle] = useState(initialRecurringTaskTemplate?.title ?? initialTask?.title ?? '')
+    const [title, setTitle] = useState(initialTitle ?? initialRecurringTaskTemplate?.title ?? initialTask?.title ?? '')
     const [recurrenceRate, setRecurrenceRate] = useState(
-        initialRecurringTaskTemplate?.recurrence_rate ?? RecurrenceRate.DAILY
+        initialRecurringTaskTemplate?.recurrence_rate ?? RecurrenceRate.WEEKLY
     )
     const [folder, setFolder] = useState(
         initialRecurringTaskTemplate?.id_task_section ?? initialFolderId ?? DEFAULT_SECTION_ID
@@ -107,16 +113,19 @@ const RecurringTaskTemplateModal = ({
         <GTModal
             open
             setIsModalOpen={onClose}
-            size="lg"
+            size="sm"
             tabs={{
                 title: 'Setting a recurring task',
                 body: (
                     <>
-                        <Flex flex="1" onKeyDown={handleKeyDown}>
+                        <Flex flex="1" onKeyDown={handleKeyDown} justifyContent="space-between">
                             <SettingsForm>
-                                {!initialRecurringTaskTemplate && !initialTask && (
-                                    <NewTemplateNameInput value={title} onChange={setTitle} />
-                                )}
+                                <CreateNewItemInput
+                                    placeholder="Recurring task title"
+                                    initialValue={title}
+                                    autoFocus
+                                    onChange={setTitle}
+                                />
                                 <TemplateFolderSelector value={folder} onChange={setFolder} />
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
@@ -126,10 +135,9 @@ const RecurringTaskTemplateModal = ({
                             </SettingsForm>
                             <DatePicker date={selectedDate} setDate={setSelectedDate} recurrenceRate={recurrenceRate} />
                         </Flex>
-                        <Flex justifyContent="space-between">
-                            <GTButton value="Cancel" styleType="secondary" onClick={onClose} />
+                        <Footer>
                             <GTButton value="Save" onClick={handleSave} disabled={!isValid} />
-                        </Flex>
+                        </Footer>
                     </>
                 ),
             }}

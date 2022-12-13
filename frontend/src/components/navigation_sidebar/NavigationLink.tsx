@@ -98,7 +98,7 @@ const NavigationLink = ({
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { setCalendarType } = useCalendarContext()
+    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const navigate = useNavigate()
 
     const onDrop = useCallback(
@@ -153,19 +153,16 @@ const NavigationLink = ({
     const onClickHandler = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
         if (taskSection?.id === TASK_SECTION_DEFAULT_ID) e.preventDefault()
         setCalendarType('day')
+        setDate(dayViewDate)
         Log(`navigate__${link}`)
         navigate(link)
     }
 
     if (isCollapsed && icon) {
-        const countOverflow = countWithOverflow(count ?? 0)
-        const content = taskSection ? `${title} (${countOverflow})` : title
         return (
-            <Tip content={content} side="right">
-                <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
-                    <Icon icon={icon} size="default" />
-                </CollapsedIconContainer>
-            </Tip>
+            <CollapsedIconContainer onClick={onClickHandler} isSelected={isCurrentPage}>
+                <Icon icon={icon} size="default" color={iconColor} />
+            </CollapsedIconContainer>
         )
     }
     return (

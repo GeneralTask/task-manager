@@ -139,6 +139,7 @@ func (Google GoogleService) HandleLinkCallback(db *mongo.Database, params Callba
 			DisplayID:      userInfo.EMAIL,
 			IsUnlinkable:   true,
 			IsPrimaryLogin: false,
+			Scopes:         getGoogleGrantedScopes(&client, token),
 		}},
 		options.Update().SetUpsert(true),
 	)
@@ -169,7 +170,7 @@ func getGoogleGrantedScopes(client *HTTPClient, token *oauth2.Token) []string {
 
 func hasUserGrantedCalendarScope(client *HTTPClient, token *oauth2.Token) bool {
 	scopes := getGoogleGrantedScopes(client, token)
-	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events")
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar.events") || slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
 
 func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params CallbackParams) (primitive.ObjectID, *bool, *string, error) {
@@ -266,6 +267,7 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 				DisplayID:      userInfo.EMAIL,
 				IsUnlinkable:   false,
 				IsPrimaryLogin: true,
+				Scopes:         getGoogleGrantedScopes(&client, token),
 			}},
 			options.Update().SetUpsert(true),
 		)

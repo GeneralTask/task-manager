@@ -75,6 +75,7 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 		DayToCreateTask:              modifyParams.DayToCreateTask,
 		MonthToCreateTask:            modifyParams.MonthToCreateTask,
 		IDTaskSection:                taskSection,
+		UpdatedAt:                    primitive.NewDateTimeFromTime(api.GetCurrentTime()),
 	}
 
 	mongoResult := database.GetRecurringTaskTemplateCollection(api.DB).FindOneAndUpdate(

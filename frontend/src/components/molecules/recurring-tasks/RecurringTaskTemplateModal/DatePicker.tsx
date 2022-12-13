@@ -1,13 +1,22 @@
+import { useState } from 'react'
 import { Calendar, DayModifiers } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
+import GTButton from '../../../atoms/buttons/GTButton'
 
-const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
+const Container = styled.div`
     width: 250px;
-    margin: 0 ${Spacing._16};
+    padding-left: ${Spacing._16};
     box-sizing: border-box;
+`
+const MonthButton = styled(GTButton)<{ visible: boolean }>`
+    visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+    margin-bottom: ${Spacing._4};
+`
+const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
+    height: 250px;
     .mantine-Calendar-calendarBase {
         max-width: none;
     }
@@ -22,6 +31,7 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         ${Typography.label};
     }
     .mantine-Calendar-day {
+        color: ${Colors.text.black};
         border: ${Border.stroke.medium} solid transparent;
         border-radius: 50%;
         width: ${Spacing._24};
@@ -38,13 +48,20 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
             cursor: default;
         `}
     }
+    [data-selected='true'] {
+        background-color: inherit;
+    }
+    [data-outside='true'] {
+        color: ${Colors.text.light};
+    }
+    .today {
+        border-color: ${Colors.gtColor.primary};
+    }
     .selected {
-        color: ${Colors.text.black};
         border-color: ${Colors.gtColor.primary};
         background-color: ${Colors.gtColor.secondary};
     }
     .recurring-selection {
-        color: ${Colors.text.black};
         background-color: ${Colors.gtColor.secondary};
     }
 `
@@ -55,9 +72,11 @@ interface DatePickerProps {
     recurrenceRate: RecurrenceRate
 }
 const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
+    const [calendarDate, setCalendarDate] = useState(date.toJSDate())
     const disabled = recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY
     const selectedDate = disabled ? DateTime.local() : date
     const jsDate = selectedDate.toJSDate()
+    const today = new Date()
 
     const handleChange = (newDate: Date | null) => {
         if (disabled || !newDate) return
@@ -65,27 +84,68 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     }
 
     const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
-        if (modifiers.selected) return 'selected'
-        if (day.getTime() < jsDate.getTime()) return ''
+        // show selected day ONLY in MONTHLY OR YEARLY mode
+        if (
+            modifiers.selected &&
+            (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
+        )
+            return 'selected'
+
+        // show today
+        if (
+            day.getDate() === today.getDate() &&
+            day.getMonth() === today.getMonth() &&
+            day.getFullYear() === today.getFullYear()
+        )
+            return 'today'
+
+        // if DAILY or WEEK_DAILY, show highlight on all days after today
+        if (
+            (recurrenceRate === RecurrenceRate.DAILY ||
+                recurrenceRate === RecurrenceRate.WEEK_DAILY ||
+                recurrenceRate === RecurrenceRate.WEEKLY) &&
+            day.getTime() < today.getTime()
+        ) {
+            return ''
+        }
+
         if (
             recurrenceRate === RecurrenceRate.DAILY ||
             (recurrenceRate === RecurrenceRate.WEEK_DAILY && !modifiers.weekend) ||
             (recurrenceRate === RecurrenceRate.WEEKLY && day.getDay() === date.weekday % 7) ||
-            (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day)
+            (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day) ||
+            (recurrenceRate === RecurrenceRate.YEARLY &&
+                day.getMonth() === date.month - 1 &&
+                day.getDate() === date.day)
         )
             return 'recurring-selection'
         return ''
     }
 
     return (
-        <StyledCalendar
-            value={jsDate}
-            onChange={handleChange}
-            firstDayOfWeek="sunday"
-            dayClassName={applyDayClassNames}
-            allowLevelChange={false}
-            disabled={disabled}
-        />
+        <Container>
+            <MonthButton
+                visible={
+                    calendarDate.getMonth() !== new Date().getMonth() ||
+                    calendarDate.getFullYear() !== new Date().getFullYear()
+                }
+                styleType="secondary"
+                size="small"
+                value="Return to this month"
+                onClick={() => setCalendarDate(new Date())}
+            />
+            <StyledCalendar
+                value={jsDate}
+                onChange={handleChange}
+                firstDayOfWeek="sunday"
+                dayClassName={applyDayClassNames}
+                allowLevelChange={false}
+                disabled={disabled}
+                month={calendarDate}
+                onMonthChange={setCalendarDate}
+                fullWidth
+            />
+        </Container>
     )
 }
 

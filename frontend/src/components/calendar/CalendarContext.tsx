@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState } from 'react'
+import { DateTime } from 'luxon'
 import { useGTLocalStorage } from '../../hooks'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
 
 export interface ContextValues {
+    date: DateTime
+    dayViewDate: DateTime
     calendarType: TCalendarType
     showMainHeader: boolean
     showDateHeader: boolean
@@ -15,6 +18,9 @@ export interface ContextValues {
     isTasksDueViewCollapsed: boolean
     disableSelectEvent: boolean
     isTasksOverdueViewCollapsed: boolean
+    showTaskToCalSidebar: boolean
+    setDate: React.Dispatch<React.SetStateAction<DateTime>>
+    setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
@@ -24,8 +30,11 @@ export interface ContextValues {
     setIsPopoverDisabled: React.Dispatch<React.SetStateAction<boolean>>
     setIsTasksDueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
     setIsTasksOverdueViewCollapsed: React.Dispatch<React.SetStateAction<boolean>>
+    setShowTaskToCalSidebar: React.Dispatch<React.SetStateAction<boolean>>
 }
 const CalendarContext = createContext<ContextValues>({
+    date: DateTime.now(),
+    dayViewDate: DateTime.now(),
     calendarType: 'day',
     showMainHeader: true,
     showDateHeader: true,
@@ -36,6 +45,9 @@ const CalendarContext = createContext<ContextValues>({
     isTasksDueViewCollapsed: false,
     disableSelectEvent: false,
     isTasksOverdueViewCollapsed: false,
+    showTaskToCalSidebar: false,
+    setDate: emptyFunction,
+    setDayViewDate: emptyFunction,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -45,31 +57,10 @@ const CalendarContext = createContext<ContextValues>({
     setIsPopoverDisabled: emptyFunction,
     setIsTasksDueViewCollapsed: emptyFunction,
     setIsTasksOverdueViewCollapsed: emptyFunction,
+    setShowTaskToCalSidebar: emptyFunction,
 })
 
-const TaskToCalendarViewContext = {
-    calendarType: 'week',
-    showMainHeader: false,
-    showDateHeader: false,
-    isCollapsed: false,
-    isTaskDraggingOverDetailsView: false,
-    selectedEvent: null,
-    isPopoverDisabled: false,
-    isTasksDueViewCollapsed: false,
-    disableSelectEvent: false,
-    isTasksOverdueViewCollapsed: true,
-    setCalendarType: emptyFunction,
-    setShowMainHeader: emptyFunction,
-    setShowDateHeader: emptyFunction,
-    setIsCollapsed: emptyFunction,
-    setIsTaskDraggingOverDetailsView: emptyFunction,
-    setSelectedEvent: emptyFunction,
-    setIsPopoverDisabled: emptyFunction,
-    setIsTasksDueViewCollapsed: emptyFunction,
-    setIsTasksOverdueViewCollapsed: emptyFunction,
-}
-export const useCalendarContext = (isTaskToCalendarView = false) => {
-    if (isTaskToCalendarView) return TaskToCalendarViewContext
+export const useCalendarContext = () => {
     return useContext(CalendarContext)
 }
 
@@ -77,6 +68,8 @@ interface CalendarContextProviderProps {
     children: React.ReactNode
 }
 export const CalendarContextProvider = ({ children }: CalendarContextProviderProps) => {
+    const [date, setDate] = useState<DateTime>(DateTime.now())
+    const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
     const [calendarType, setCalendarType] = useState<TCalendarType>('day')
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
@@ -86,12 +79,15 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
     const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useGTLocalStorage('dueTodayCollapsed', false)
     const [isTasksOverdueViewCollapsed, setIsTasksOverdueViewCollapsed] = useGTLocalStorage('overdueCollapsed', false)
+    const [showTaskToCalSidebar, setShowTaskToCalSidebar] = useGTLocalStorage('taskToCalendarSidebar', false)
     const collapseAndSetType = (isCollapsed: boolean) => {
         setIsCollapsed(isCollapsed)
         if (isCollapsed) setCalendarType('day')
     }
 
     const value = {
+        date,
+        dayViewDate,
         calendarType,
         showMainHeader,
         showDateHeader,
@@ -102,6 +98,9 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         isTasksDueViewCollapsed,
         disableSelectEvent: false,
         isTasksOverdueViewCollapsed,
+        showTaskToCalSidebar,
+        setDate,
+        setDayViewDate,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
@@ -111,6 +110,7 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         setIsPopoverDisabled,
         setIsTasksDueViewCollapsed,
         setIsTasksOverdueViewCollapsed,
+        setShowTaskToCalSidebar,
     }
 
     return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>

@@ -6,7 +6,7 @@ import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { DropType } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -16,6 +16,7 @@ import CommandPalette from '../molecules/CommandPalette'
 import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import NavigationSectionLinks from '../navigation_sidebar/NavigationSectionLinks'
+import NoteCreateButton from '../notes/NoteCreateButton'
 import NavigationViewCollapsed from './NavigationViewCollapsed'
 
 const GT_BETA_LOGO_WIDTH = '95px'
@@ -96,13 +97,14 @@ const NavigationView = () => {
             ) : (
                 <>
                     <NavigationViewHeader>
-                        <GTBetaLogo src="/images/GT-beta-logo.png" />
+                        <GTBetaLogo src={isPreviewMode ? logos.generaltask_beta_blue : logos.generaltask_beta_yellow} />
                         <Flex>
                             <GTIconButton
                                 icon={icons.sidebar}
                                 onClick={() => setIsCollapsed(!isCollapsed)}
                                 shortcutName="navigationView"
                             />
+                            {isPreviewMode && <NoteCreateButton type="icon" />}
                             <CommandPalette />
                         </Flex>
                     </NavigationViewHeader>

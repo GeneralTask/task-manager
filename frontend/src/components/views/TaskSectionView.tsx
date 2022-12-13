@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { usePreviewMode } from '../../hooks'
+import { v4 as uuidv4 } from 'uuid'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
-import { useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
+import { useCreateTask, useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
@@ -14,11 +14,9 @@ import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilter
 import { DropItem, DropType, TTask } from '../../utils/types'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
-import GTButton from '../atoms/buttons/GTButton'
-import WeekTaskToCalendar from '../calendar/WeekTaskToCalendar'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
-import CreateNewTask from '../molecules/CreateNewTask'
+import CreateNewItemInput from '../molecules/CreateNewItemInput'
 import { SectionHeader } from '../molecules/Header'
 import Task from '../molecules/Task'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -58,12 +56,12 @@ const TaskSectionView = () => {
     const sectionViewRef = useRef<HTMLDivElement>(null)
 
     const { data: taskSections, isLoading: isLoadingTasks } = useGetTasks()
+    const { mutate: createTask } = useCreateTask()
     const { mutate: reorderTask } = useReorderTask()
     useFetchExternalTasks()
 
     const navigate = useNavigate()
     const params = useParams()
-    const { isPreviewMode } = usePreviewMode()
 
     const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
 
@@ -141,7 +139,6 @@ const TaskSectionView = () => {
         : `/tasks/${params.section}/${task?.id}`
 
     useItemSelectionController(sortedTasks, selectTask)
-    const [showTaskToCalendarModal, setShowTaskToCalendarModal] = useState(false)
 
     return (
         <>
@@ -152,27 +149,25 @@ const TaskSectionView = () => {
                             <Spinner />
                         ) : (
                             <>
-                                <WeekTaskToCalendar
-                                    open={showTaskToCalendarModal}
-                                    setIsModalOpen={setShowTaskToCalendarModal}
-                                    size="lg"
-                                />
                                 <SectionHeader sectionName={section.name} taskSectionId={section.id} />
                                 {!section.is_done && !section.is_trash && (
                                     <ActionsContainer>
                                         <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                                        {isPreviewMode && (
-                                            <GTButton
-                                                styleType="secondary"
-                                                value="Schedule tasks"
-                                                icon={icons.calendar_blank}
-                                                size="small"
-                                                onClick={() => setShowTaskToCalendarModal(true)}
-                                            />
-                                        )}
                                     </ActionsContainer>
                                 )}
-                                {!section.is_done && !section.is_trash && <CreateNewTask sectionId={section.id} />}
+                                {!section.is_done && !section.is_trash && (
+                                    <CreateNewItemInput
+                                        placeholder="Create new task"
+                                        shortcutName="createTask"
+                                        onSubmit={(title) =>
+                                            createTask({
+                                                title: title,
+                                                taskSectionId: section.id,
+                                                optimisticId: uuidv4(),
+                                            })
+                                        }
+                                    />
+                                )}
                                 <TasksContainer ref={sectionViewRef}>
                                     {sortedTasks.map((task, index) => (
                                         <ReorderDropContainer
