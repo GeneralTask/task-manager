@@ -115,18 +115,32 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 	result <- CalendarResult{events, nil}
 }
 
-func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
 	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
 	if err != nil {
 		result <- emptyCalendarResult(err)
 		return
 	}
+	calendarAccount := database.CalendarAccount{
+		UserID:     userID,
+		IDExternal: accountID,
+		SourceID:   TASK_SOURCE_ID_GCAL,
+		Scopes:     scopes,
+	}
 	var events []*database.CalendarEvent
 
-	calendarList, err := calendarService.CalendarList.List().Do()
+	fetchAllCalendars := false
+	var calendarList *calendar.CalendarList
+	if hasUserGrantedMultiCalendarScope(scopes) {
+		calendarList, err = calendarService.CalendarList.List().Do()
+		if err == nil && calendarList != nil {
+			fetchAllCalendars = true
+		}
+	}
+
 	// If we can't fetch the calendar list, we try fetching just the primary calendar
-	if err != nil || calendarList == nil {
-		log.Warn().Err(err).Msgf("could not fetch calendar list for accountID: %s", accountID)
+	if !fetchAllCalendars {
+		log.Debug().Err(err).Msgf("could not fetch calendar list for accountID: %s", accountID)
 		eventChannel := make(chan CalendarResult)
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel)
 		eventResult := <-eventChannel
@@ -137,9 +151,13 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		return
 	}
 
+	var calendars []database.Calendar
 	eventsChannels := []chan CalendarResult{}
 	for _, calendar := range calendarList.Items {
-		log.Error().Msgf("calendar %s", calendar.Id)
+		calendars = append(calendars, database.Calendar{
+			CalendarID: calendar.Id,
+			ColorID:    calendar.ColorId,
+		})
 		eventChannel := make(chan CalendarResult)
 		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
 		eventsChannels = append(eventsChannels, eventChannel)
@@ -151,6 +169,8 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		}
 		events = append(events, eventResult.CalendarEvents...)
 	}
+	calendarAccount.Calendars = calendars
+	database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
