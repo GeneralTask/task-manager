@@ -96,6 +96,7 @@ export interface TTaskV4 {
     priority_normalized: number
     due_date: string
     source: TTaskSource
+    sender: string // Slack sender name
     is_done: boolean
     is_deleted: boolean
     created_at: string
