@@ -4,13 +4,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import {
-    DONE_SECTION_ID,
-    EMPTY_MONGO_OBJECT_ID,
-    SINGLE_SECOND_INTERVAL,
-    TASK_PRIORITIES,
-    TRASH_SECTION_ID,
-} from '../../constants'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
@@ -30,6 +24,7 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
+import { useGetRecurringTaskTemplateFromId } from './recurring-tasks/recurringTasks.utils'
 
 export const GTButtonHack = styled(GTButton)`
     width: 20px !important;
@@ -187,6 +182,8 @@ const Task = ({
 
     useKeyboardShortcut('deleteTask', deleteTask, !isSelected)
 
+    const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
+
     return (
         <TaskContextMenuWrapper task={task} sectionId={sectionId} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
@@ -230,11 +227,7 @@ const Task = ({
                         ))}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
-                        {isPreviewMode &&
-                            task.recurring_task_template_id &&
-                            task.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID && (
-                                <Icon icon={icons.arrows_repeat} color="green" />
-                            )}
+                        {isPreviewMode && recurringTaskTemplate && <Icon icon={icons.arrows_repeat} color="green" />}
                         <DueDate date={dueDate} />
                         {task.priority && task.all_priorities && (
                             <JiraPriorityDropdown
