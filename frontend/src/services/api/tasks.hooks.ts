@@ -453,7 +453,6 @@ export const useMarkTaskDoneOrDeleted = () => {
                         if (!task.sub_tasks) return
                         if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
                         if (data.isDeleted !== undefined) task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
-                        task.sub_tasks.splice(subtaskIndex, 1)
                     } else {
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
