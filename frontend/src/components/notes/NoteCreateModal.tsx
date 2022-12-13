@@ -31,8 +31,10 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
         } else if (isError) {
             setSyncIndicatorText(SYNC_MESSAGES.ERROR)
+        } else if (noteBody || noteTitle) {
+            setSyncIndicatorText('Your note has been saved')
         } else {
-            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
+            setSyncIndicatorText('Your note will be saved automatically')
         }
     }, [isError, isLoading, isEditing])
 
@@ -51,8 +53,6 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     }
 
     const handleSave = ({ title, body }: { title: string; body: string }) => {
-        if (!body) return
-
         setIsEditing(false)
         if (timer.current) clearTimeout(timer.current.timeout)
 
@@ -123,7 +123,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 minHeight={300}
                             />
                         </Flex>
-                        <Label color="light">{syncIndicatorText || 'Your note is saved'}</Label>
+                        <Label color="light">{syncIndicatorText}</Label>
                     </Flex>
                 ),
             }}
