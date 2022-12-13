@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState } from 'react'
+import { DateTime } from 'luxon'
 import { useGTLocalStorage } from '../../hooks'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { TCalendarType } from '../views/CalendarView'
 
 export interface ContextValues {
+    date: DateTime
+    dayViewDate: DateTime
     calendarType: TCalendarType
     showMainHeader: boolean
     showDateHeader: boolean
@@ -16,6 +19,8 @@ export interface ContextValues {
     disableSelectEvent: boolean
     isTasksOverdueViewCollapsed: boolean
     showTaskToCalSidebar: boolean
+    setDate: React.Dispatch<React.SetStateAction<DateTime>>
+    setDayViewDate: React.Dispatch<React.SetStateAction<DateTime>>
     setCalendarType: React.Dispatch<React.SetStateAction<TCalendarType>>
     setShowMainHeader: React.Dispatch<React.SetStateAction<boolean>>
     setShowDateHeader: React.Dispatch<React.SetStateAction<boolean>>
@@ -28,6 +33,8 @@ export interface ContextValues {
     setShowTaskToCalSidebar: React.Dispatch<React.SetStateAction<boolean>>
 }
 const CalendarContext = createContext<ContextValues>({
+    date: DateTime.now(),
+    dayViewDate: DateTime.now(),
     calendarType: 'day',
     showMainHeader: true,
     showDateHeader: true,
@@ -39,6 +46,8 @@ const CalendarContext = createContext<ContextValues>({
     disableSelectEvent: false,
     isTasksOverdueViewCollapsed: false,
     showTaskToCalSidebar: false,
+    setDate: emptyFunction,
+    setDayViewDate: emptyFunction,
     setCalendarType: emptyFunction,
     setShowMainHeader: emptyFunction,
     setShowDateHeader: emptyFunction,
@@ -59,6 +68,8 @@ interface CalendarContextProviderProps {
     children: React.ReactNode
 }
 export const CalendarContextProvider = ({ children }: CalendarContextProviderProps) => {
+    const [date, setDate] = useState<DateTime>(DateTime.now())
+    const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
     const [calendarType, setCalendarType] = useState<TCalendarType>('day')
     const [showMainHeader, setShowMainHeader] = useState<boolean>(true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(true)
@@ -75,6 +86,8 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     }
 
     const value = {
+        date,
+        dayViewDate,
         calendarType,
         showMainHeader,
         showDateHeader,
@@ -86,6 +99,8 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         disableSelectEvent: false,
         isTasksOverdueViewCollapsed,
         showTaskToCalSidebar,
+        setDate,
+        setDayViewDate,
         setCalendarType,
         setShowMainHeader,
         setShowDateHeader,
