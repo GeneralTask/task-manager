@@ -3,16 +3,18 @@ import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
 import { useEventBanners } from '../../hooks'
+import { useGetNotes } from '../../services/api/notes.hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
 import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
-import { focusModeBackground } from '../../styles/images'
+import { focusModeBackground, noteBackground } from '../../styles/images'
 import Loading from '../atoms/Loading'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import LinearView from '../views/LinearView'
+import NoteListView from '../views/NoteListView'
 import OverviewPageView from '../views/OverviewPageView'
 import PullRequestsView from '../views/PullRequestsView'
 import RecurringTasksView from '../views/RecurringTasksView'
@@ -24,6 +26,7 @@ const MainScreen = () => {
     const { data: userInfo, isLoading: isUserInfoLoading } = useGetUserInfo()
     const { isLoading: isTaskSectionsLoading } = useGetTasks()
     const { isLoading: isPullRequestsLoading } = useGetPullRequests()
+    const { isLoading: isNotesLoading } = useGetNotes()
     useFetchPullRequests()
     useFetchExternalTasks()
     useGetSettings()
@@ -36,6 +39,8 @@ const MainScreen = () => {
                 return <OverviewPageView />
             case 'recurring-tasks':
                 return <RecurringTasksView />
+            case 'notes':
+                return <NoteListView />
             case 'tasks':
                 return <TaskSection />
             case 'pull-requests':
@@ -49,12 +54,13 @@ const MainScreen = () => {
         }
     })()
 
-    if (isTaskSectionsLoading || isUserInfoLoading || isPullRequestsLoading) return <Loading />
+    if (isTaskSectionsLoading || isUserInfoLoading || isPullRequestsLoading || isNotesLoading) return <Loading />
     if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
         <>
             <link rel="preload" as="image" href={focusModeBackground} />
+            <link rel="preload" as="image" href={noteBackground} />
             <DefaultTemplate>
                 <>{currentPage}</>
             </DefaultTemplate>

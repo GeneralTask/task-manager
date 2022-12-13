@@ -45,8 +45,8 @@ const CalendarView = ({
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
-    const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
-    const [date, setDate] = useState<DateTime>(DateTime.now())
+    const { date, calendarType, isCollapsed, setDate, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar } =
+        useCalendarContext()
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
@@ -56,8 +56,6 @@ const CalendarView = ({
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
     const { isPreviewMode } = usePreviewMode()
-
-    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar } = useCalendarContext()
     useEffect(() => {
         setCalendarType(initialType)
         if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
@@ -121,10 +119,6 @@ const CalendarView = ({
             hasLeftBorder={hasLeftBorder}
         >
             <CalendarHeader
-                date={date}
-                setDate={setDate}
-                dayViewDate={dayViewDate}
-                setDayViewDate={setDayViewDate}
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
                 additionalHeaderContent={additonalHeaderContent}

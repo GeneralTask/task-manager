@@ -5,11 +5,15 @@ import useShortcutContext from '../context/ShortcutContext'
 import Log from '../services/api/log'
 
 // action should be a useCallback function to avoid unnecessary rerenders
-export default function useKeyboardShortcut(shortcutName: TShortcutName, action: () => void, disabled = false) {
+export default function useKeyboardShortcut(
+    shortcutName: TShortcutName | undefined,
+    action: () => void,
+    disabled = false
+) {
     const { setActiveKeyboardShortcuts } = useShortcutContext()
-    const shortcut = KEYBOARD_SHORTCUTS[shortcutName]
     useEffect(() => {
-        if (!disabled) {
+        if (!disabled && shortcutName) {
+            const shortcut = KEYBOARD_SHORTCUTS[shortcutName]
             setActiveKeyboardShortcuts((activeShortcuts) =>
                 produce(activeShortcuts, (draft) => {
                     shortcut.key.split('|').forEach((combo) => {
