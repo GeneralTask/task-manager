@@ -36,7 +36,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         } else {
             setSyncIndicatorText('Your note will be saved automatically')
         }
-    }, [isError, isLoading, isEditing])
+    }, [isOpen, isError, isLoading, isEditing])
 
     const onEdit = ({ title, body }: { title?: string; body?: string }) => {
         if (title) setNoteTitle(title)
