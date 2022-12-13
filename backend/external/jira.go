@@ -92,7 +92,7 @@ func (jira JIRASource) getAPIBaseURL(siteConfiguration database.AtlassianSiteCon
 }
 
 func (jira JIRASource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	result <- emptyCalendarResult(errors.New("github PR cannot fetch events"))
+	result <- emptyCalendarResult(errors.New("jira cannot fetch events"))
 }
 
 func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
