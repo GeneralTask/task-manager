@@ -72,7 +72,11 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   disabled: true,
                   keepOpenOnSelect: true,
                   renderer: () => (
-                      <MiniWrap>This note is currently being shared. The link will expire in 3 months.</MiniWrap>
+                      <MiniWrap>{`This note is currently being shared. The link will expire in ${DateTime.fromISO(
+                          note.shared_until
+                      )
+                          .diffNow(['days', 'hours'])
+                          .toHuman({ maximumFractionDigits: 0 })}.`}</MiniWrap>
                   ),
               },
           ]
@@ -92,8 +96,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   keepOpenOnSelect: true,
                   renderer: () => (
                       <MiniWrap>
-                          This note is currently not being shared. Links to shared notes expire after 3 months upon
-                          creation.
+                          This note is currently not being shared. Sharing a note will share your full name to whoever
+                          opens the link. Links to shared notes expire after 3 months upon creation.
                       </MiniWrap>
                   ),
               },
