@@ -97,7 +97,6 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 		OrderBy("startTime").
 		Do()
 	logger := logging.GetSentryLogger()
-	logger.Debug().Msg("jerd")
 
 	if err != nil {
 		isBadToken := CheckAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
@@ -108,7 +107,6 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 		return
 	}
 
-	logger.Debug().Msg("jerd")
 	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
 		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId)
@@ -116,9 +114,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 			events = append(events, dbEvent)
 		}
 	}
-	log.Debug().Msg("jerd 2")
 	result <- CalendarResult{events, nil}
-	log.Debug().Msg("jerd 3")
 }
 
 func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
