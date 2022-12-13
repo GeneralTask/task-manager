@@ -11,9 +11,9 @@ import {
     TASK_PRIORITIES,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
-import { useModifyTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
@@ -93,6 +93,7 @@ const Task = ({
     const { meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -179,6 +180,12 @@ const Task = ({
 
     const dueDate = DateTime.fromISO(task.due_date).toJSDate()
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
+
+    const deleteTask = useCallback(() => {
+        markTaskDoneOrDeleted({ id: task.id, isDeleted: true }, task.optimisticId)
+    }, [task])
+
+    useKeyboardShortcut('deleteTask', deleteTask, !isSelected)
 
     return (
         <TaskContextMenuWrapper task={task} sectionId={sectionId} onOpenChange={setContextMenuOpen}>

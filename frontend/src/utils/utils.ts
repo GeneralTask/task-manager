@@ -164,6 +164,9 @@ export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
     if (e.metaKey) {
         keyName += 'Meta+'
     }
+    if (e.altKey) {
+        keyName += 'Alt+'
+    }
     if (e.shiftKey) {
         keyName += 'Shift+'
     }
