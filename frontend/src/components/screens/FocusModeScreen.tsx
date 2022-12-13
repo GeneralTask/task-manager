@@ -187,13 +187,15 @@ const FocusModeScreen = () => {
     const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
         useCalendarContext()
     useLayoutEffect(() => {
-        setIsCollapsed(false)
         setCalendarType('day')
         setIsPopoverDisabled(true)
         return () => {
             setIsPopoverDisabled(false)
             setSelectedEvent(null)
         }
+    }, [])
+    useEffect(() => {
+        setIsCollapsed(false)
     }, [])
     const blocks = getMonthsAroundDate(DateTime.now(), 1)
     const monthBlocks = blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
