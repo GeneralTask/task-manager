@@ -20,7 +20,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const { mutate: modifyNote, isError, isLoading } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
     const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
-    const [noteTitle, setNoteTitle] = useState('New Note')
+    const [noteTitle, setNoteTitle] = useState('')
     const [noteBody, setNoteBody] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
@@ -87,7 +87,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
 
     useEffect(() => {
         if (!isOpen) {
-            setNoteTitle('New Note')
+            setNoteTitle('')
             setNoteBody('')
             setOptimisticId(undefined)
         }
