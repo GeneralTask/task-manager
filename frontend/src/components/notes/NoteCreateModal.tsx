@@ -32,7 +32,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         } else if (isError) {
             setSyncIndicatorText(SYNC_MESSAGES.ERROR)
         } else {
-            setSyncIndicatorText('Your note is saved')
+            setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
         }
     }, [isError, isLoading, isEditing])
 
@@ -109,9 +109,10 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 placeholder="Note Title"
                                 keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key]}
                                 fontSize="medium"
+                                data-autofocus
                             />
                         </Flex>
-                        <Flex data-autofocus>
+                        <Flex>
                             <GTTextField
                                 type="markdown"
                                 value={noteBody}
@@ -120,10 +121,9 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 placeholder="Type your note here. It will be saved automatically."
                                 keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key]}
                                 minHeight={300}
-                                autoFocus
                             />
                         </Flex>
-                        <Label color="light">{syncIndicatorText}</Label>
+                        <Label color="light">{syncIndicatorText || 'Your note is saved'}</Label>
                     </Flex>
                 ),
             }}
