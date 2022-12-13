@@ -16,12 +16,14 @@ export default function useKeyboardShortcut(
             const shortcut = KEYBOARD_SHORTCUTS[shortcutName]
             setActiveKeyboardShortcuts((activeShortcuts) =>
                 produce(activeShortcuts, (draft) => {
-                    draft.set(shortcut.key, {
-                        ...shortcut,
-                        action: () => {
-                            action()
-                            Log(`keyboard_shortcut_${shortcut.label.replaceAll(' ', '_').toLowerCase()}`)
-                        },
+                    shortcut.key.split('|').forEach((combo) => {
+                        draft.set(combo, {
+                            ...shortcut,
+                            action: () => {
+                                action()
+                                Log(`keyboard_shortcut_${shortcut.label.replaceAll(' ', '_').toLowerCase()}`)
+                            },
+                        })
                     })
                 })
             )

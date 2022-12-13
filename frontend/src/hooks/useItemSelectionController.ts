@@ -48,12 +48,4 @@ export default function useItemSelectionController<T extends { id: string }>(
         'up',
         useCallback(() => onUpDown('up'), [onUpDown])
     )
-    useKeyboardShortcut(
-        'arrowDown',
-        useCallback(() => onUpDown('down'), [onUpDown])
-    )
-    useKeyboardShortcut(
-        'arrowUp',
-        useCallback(() => onUpDown('up'), [onUpDown])
-    )
 }

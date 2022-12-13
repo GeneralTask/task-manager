@@ -6,6 +6,7 @@ import { useToast } from '../../hooks'
 import { useModifyNote } from '../../services/api/notes.hooks'
 import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
+import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
@@ -47,6 +48,10 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     }
 
     const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
+    const sharedUntilString = getFormattedDuration(
+        DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
+        2
+    )
     const dropdownItems: GTMenuItem[] = isShared
         ? [
               {
@@ -72,7 +77,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   disabled: true,
                   keepOpenOnSelect: true,
                   renderer: () => (
-                      <MiniWrap>This note is currently being shared. The link will expire in 3 months.</MiniWrap>
+                      <MiniWrap>{`This note is currently being shared. The link will expire in ${sharedUntilString}.`}</MiniWrap>
                   ),
               },
           ]
@@ -92,8 +97,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   keepOpenOnSelect: true,
                   renderer: () => (
                       <MiniWrap>
-                          This note is currently not being shared. Links to shared notes expire after 3 months upon
-                          creation.
+                          This note is currently not being shared. Sharing a note will share your full name to whoever
+                          opens the link. Links to shared notes expire after 3 months upon creation.
                       </MiniWrap>
                   ),
               },

@@ -136,7 +136,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
         const groups = new Map<TShortcutCategory, TShortcut[]>(ShortcutCategories.map((category) => [category, []]))
         activeKeyboardShortcuts.forEach((shortcut) => {
             if (!shortcut.hideFromCommandPalette) {
-                groups.get(shortcut.category)?.push(shortcut)
+                if (!groups.get(shortcut.category)?.some((s) => s.label === shortcut.label)) {
+                    groups.get(shortcut.category)?.push(shortcut)
+                }
             }
         })
         return Array.from(groups.entries()).map(([category, shortcuts]) => ({

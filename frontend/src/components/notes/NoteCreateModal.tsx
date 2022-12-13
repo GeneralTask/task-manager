@@ -61,7 +61,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             createNote({
                 title: title || '(Untitled Note)',
                 body: body,
-                author: userInfo?.name ?? 'Anonymous',
+                author: userInfo?.name || 'Anonymous',
                 optimisticId: newOptimisticNoteId,
             })
             setOptimisticId(newOptimisticNoteId)
