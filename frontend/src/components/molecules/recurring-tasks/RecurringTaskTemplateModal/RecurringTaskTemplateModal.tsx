@@ -125,6 +125,7 @@ const RecurringTaskTemplateModal = ({
                                     initialValue={title}
                                     autoFocus
                                     onChange={setTitle}
+                                    onSubmit={handleSave}
                                 />
                                 <TemplateFolderSelector value={folder} onChange={setFolder} />
                                 <RecurrenceRateSelector
