@@ -488,6 +488,7 @@ export const markTaskDoneOrDeleted = async (data: TMarkTaskDoneOrDeletedData) =>
 
 const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => {
     const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+    const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
     if (sections) {
         const newSections = produce(sections, (draft) => {
             const section = draft.find((s) => s.id === data.dropSectionId)
@@ -506,6 +507,25 @@ const reorderSubtasks = (data: TReorderTaskData, queryClient: GTQueryClient) => 
         })
         queryClient.setQueryData('tasks', newSections)
     }
+    if (views) {
+        const newViews = produce(views, (draft) => {
+            const view = draft.find((v) => v.task_section_id === data.dropSectionId)
+            if (!view) return
+            const task = view.view_items.find((t) => t.id === data.parentId)
+            if (!task) return
+            const subtasks = task.sub_tasks
+            if (!subtasks) return
+
+            const startIndex = subtasks.findIndex((s) => s.id === data.id)
+            if (startIndex === -1) return
+            let endIndex = data.orderingId - 1
+            if (startIndex < endIndex) endIndex -= 1
+            arrayMoveInPlace(subtasks, startIndex, endIndex)
+            resetOrderingIds(subtasks)
+        })
+        queryClient.setQueryData('overview', newViews)
+    }
+
     const tasks_v4 = queryClient.getImmutableQueryData<TTaskV4[]>('tasks_v4')
     if (tasks_v4) {
         const updatedTasks = produce(tasks_v4, (draft) => {
