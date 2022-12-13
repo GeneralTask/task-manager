@@ -1,12 +1,13 @@
 import { Ref, forwardRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { useReorderTask } from '../../../services/api/tasks.hooks'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
-import CreateNewTask from '../../molecules/CreateNewTask'
+import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
@@ -16,6 +17,7 @@ const TaskSectionViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
+        const { mutate: createTask } = useCreateTask()
         const { mutate: reorderTask } = useReorderTask()
 
         const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
@@ -45,7 +47,18 @@ const TaskSectionViewItems = forwardRef(
                     <ViewName>{view.name}</ViewName>
                 </ViewHeader>
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
-                {sectionId && <CreateNewTask disableTooltip sectionId={sectionId} />}
+                {sectionId && (
+                    <CreateNewItemInput
+                        placeholder="Create new task"
+                        onSubmit={(title) =>
+                            createTask({
+                                title: title,
+                                taskSectionId: sectionId,
+                                optimisticId: uuidv4(),
+                            })
+                        }
+                    />
+                )}
                 {view.view_items.length > 0 ? (
                     view.view_items.slice(0, visibleItemsCount).map((item, index) => (
                         <ReorderDropContainer

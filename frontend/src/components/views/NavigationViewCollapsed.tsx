@@ -92,7 +92,7 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
-    const { setCalendarType } = useCalendarContext()
+    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const navigate = useNavigate()
 
@@ -108,6 +108,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
             label: `${folder.name} (${folder.tasks.length})`,
             onClick: () => {
                 setCalendarType('day')
+                setDate(dayViewDate)
                 Log(`navigate__/tasks/${folder.id}`)
                 navigate(`/tasks/${folder.id}`)
             },
@@ -119,7 +120,10 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
     return (
         <CollapsedContainer>
             <UpperContainer>
-                <PositionedIcon icon={logos.generaltask_yellow_circle} size="medium" />
+                <PositionedIcon
+                    icon={isPreviewMode ? logos.generaltask_blue_circle : logos.generaltask_yellow_circle}
+                    size="medium"
+                />
                 <CollapseAndCommandPaletteContainer>
                     <Tip shortcutName="navigationView" side="right">
                         <CollapsedIconContainer onClick={() => setIsCollapsed(false)}>

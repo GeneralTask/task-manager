@@ -77,7 +77,7 @@ export const useCreateRecurringTask = () => {
                     id: payload.optimisticId,
                     last_backfill_datetime: '',
                 }
-                draft.unshift(newRecurringTask)
+                draft.push(newRecurringTask)
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
 
@@ -153,6 +153,8 @@ export const useModifyRecurringTask = () => {
                     recurringTask.time_of_day_seconds_to_create_task =
                         payload.time_of_day_seconds_to_create_task ?? recurringTask.time_of_day_seconds_to_create_task
                     recurringTask.day_to_create_task = payload.day_to_create_task ?? recurringTask.day_to_create_task
+                    recurringTask.month_to_create_task =
+                        payload.month_to_create_task ?? recurringTask.month_to_create_task
                 }
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)

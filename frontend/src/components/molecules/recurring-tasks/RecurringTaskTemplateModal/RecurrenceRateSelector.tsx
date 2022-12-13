@@ -30,8 +30,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
             <BodySmall>How often would you like this task to repeat?</BodySmall>
             <GTDropdownMenu
                 menuInModal
-                useTriggerWidth
-                fontStyle="label"
+                fontStyle="bodySmall"
                 unstyledTrigger
                 items={recurrenceRateLabels.map(([rate, label]) => ({
                     label,
