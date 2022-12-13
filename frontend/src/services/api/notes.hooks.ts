@@ -7,7 +7,7 @@ import { TNote } from '../../utils/types'
 import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 export interface TCreateNoteData {
-    title?: string
+    title: string
     body?: string
     author: string
     shared_until?: string
@@ -127,11 +127,13 @@ const modifyNote = async (data: TModifyNoteData) => {
     }
 }
 
-export const createNewNoteHelper = (data: Partial<TNote> & { optimisticId: string; author: string }): TNote => {
+export const createNewNoteHelper = (
+    data: Partial<TNote> & { optimisticId: string; title: string; author: string }
+): TNote => {
     return {
         id: data.optimisticId,
         optimisticId: data.optimisticId,
-        title: data.title ?? '',
+        title: data.title,
         body: data.body ?? '',
         author: data.author,
         created_at: data.created_at ?? DateTime.local().toISO(),
