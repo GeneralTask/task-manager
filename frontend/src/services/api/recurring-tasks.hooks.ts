@@ -77,7 +77,7 @@ export const useCreateRecurringTask = () => {
                     id: payload.optimisticId,
                     last_backfill_datetime: '',
                 }
-                draft.push(newRecurringTask)
+                draft.unshift(newRecurringTask)
             })
             queryClient.setQueryData('recurring-tasks', newRecurringTasks)
 
