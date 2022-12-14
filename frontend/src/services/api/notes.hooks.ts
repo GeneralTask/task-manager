@@ -138,6 +138,6 @@ export const createNewNoteHelper = (
         author: data.author,
         created_at: data.created_at ?? DateTime.local().toISO(),
         updated_at: data.updated_at ?? DateTime.local().toISO(),
-        shared_until: data.shared_until ?? '',
+        shared_until: data.shared_until,
     }
 }

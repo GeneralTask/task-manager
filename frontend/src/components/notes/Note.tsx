@@ -26,7 +26,7 @@ interface NoteProps {
     onSelect: (note: TNote) => void
 }
 const Note = ({ note, isSelected, onSelect }: NoteProps) => {
-    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
     return (
         <TaskTemplate>
             <ItemContainer isSelected={isSelected} onClick={() => onSelect(note)}>

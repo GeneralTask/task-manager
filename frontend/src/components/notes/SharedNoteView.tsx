@@ -87,7 +87,7 @@ const SharedNoteView = () => {
                 </TopContainer>
                 <BottomContainer>
                     <NoteBody>
-                        {note ? (
+                        {note && note.shared_until ? (
                             <>
                                 <GTTextField
                                     type="plaintext"
