@@ -62,6 +62,9 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         border-color: ${Colors.gtColor.primary};
         background-color: ${Colors.gtColor.secondary};
     }
+    .recurring-past {
+        border-color: ${Colors.gtColor.primary};
+    }
     .recurring-selection {
         background-color: ${Colors.gtColor.secondary};
     }
@@ -99,7 +102,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
             (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
         ) {
             if (day.getTime() < today.getTime()) {
-                return 'recurring-selection'
+                return 'recurring-past'
             }
             return 'selected'
         }
