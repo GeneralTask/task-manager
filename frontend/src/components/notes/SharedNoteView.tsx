@@ -15,7 +15,7 @@ import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Body, Label, Subtitle, Title } from '../atoms/typography/Typography'
+import { Body, Label, Title } from '../atoms/typography/Typography'
 
 const Logo = styled.img`
     width: 153px;
@@ -53,7 +53,7 @@ const NoteBody = styled.div`
     display: flex;
     flex-direction: column;
     padding: ${Spacing._24};
-    gap: ${Spacing._32};
+    gap: ${Spacing._24};
     margin: ${Spacing._24};
 `
 const SignInButton = styled.div`
@@ -89,9 +89,18 @@ const SharedNoteView = () => {
                     <NoteBody>
                         {note ? (
                             <>
-                                <Subtitle>{note.title}</Subtitle>
+                                <GTTextField
+                                    type="plaintext"
+                                    itemId={note.title}
+                                    value={note.title}
+                                    onChange={emptyFunction}
+                                    fontSize="large"
+                                    disabled
+                                    readOnly
+                                />
                                 <GTTextField
                                     type="markdown"
+                                    itemId={note.body}
                                     value={note.body}
                                     onChange={emptyFunction}
                                     fontSize="small"
