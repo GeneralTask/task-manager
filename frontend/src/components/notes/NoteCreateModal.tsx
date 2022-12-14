@@ -58,7 +58,10 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         )
     }
 
-    const onEdit = ({ title, body, shared_until }: { title?: string; body?: string; shared_until?: string }) => {
+    const onEdit = (
+        { title, body, shared_until }: { title?: string; body?: string; shared_until?: string },
+        timeoutOverride?: number
+    ) => {
         if (title) setNoteTitle(title)
         if (body) setNoteBody(body)
         setIsEditing(true)
@@ -66,7 +69,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         timer.current = {
             timeout: setTimeout(
                 () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody, shared_until }),
-                NOTE_SYNC_TIMEOUT
+                timeoutOverride ?? NOTE_SYNC_TIMEOUT
             ),
             callback: () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody, shared_until }),
         }
@@ -166,11 +169,14 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 icon={icons.share}
                                 disabled={!realId}
                                 onClick={() => {
-                                    onEdit({
-                                        title: noteTitle,
-                                        body: noteBody,
-                                        shared_until: DateTime.local().plus({ months: 3 }).toISO(),
-                                    })
+                                    onEdit(
+                                        {
+                                            title: noteTitle,
+                                            body: noteBody,
+                                            shared_until: DateTime.local().plus({ months: 3 }).toISO(),
+                                        },
+                                        0
+                                    )
                                     copyNoteLink()
                                 }}
                             />
