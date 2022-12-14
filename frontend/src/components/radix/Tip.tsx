@@ -22,24 +22,39 @@ export type TTooltipAlign = 'start' | 'center' | 'end'
 interface TooltipProps {
     content?: React.ReactNode
     shortcutName?: TShortcutName
+    overrideShortcutLabel?: string
+    overrideShortcut?: string
     side?: TTooltipSide
     align?: TTooltipAlign
     children?: React.ReactNode
     disabled?: boolean
 }
-const Tip = ({ content, shortcutName, side, align, children, disabled }: TooltipProps) => {
+const Tip = ({
+    content,
+    shortcutName,
+    overrideShortcutLabel,
+    overrideShortcut,
+    side,
+    align,
+    children,
+    disabled,
+}: TooltipProps) => {
     if (disabled) return <>{children}</>
 
-    const tooltipContent = shortcutName ? (
-        <Flex alignItems="center" justifyContent="center" gap={Spacing._8}>
-            {KEYBOARD_SHORTCUTS[shortcutName].label}
-            {KEYBOARD_SHORTCUTS[shortcutName].keyLabel.split('+').map((keyLabel) => (
-                <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
-            ))}
-        </Flex>
-    ) : (
-        content
-    )
+    const shortcutLabel = overrideShortcutLabel ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].label : null)
+    const shortcut = overrideShortcut ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].keyLabel : null)
+
+    const tooltipContent =
+        shortcutLabel || shortcut ? (
+            <Flex alignItems="center" justifyContent="center" gap={Spacing._8}>
+                {shortcutLabel}
+                {shortcut?.split('+').map((keyLabel) => (
+                    <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
+                ))}
+            </Flex>
+        ) : (
+            content
+        )
 
     return (
         <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>

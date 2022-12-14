@@ -2,16 +2,20 @@ import { TShortcut, TShortcutCategory } from '../utils/types'
 
 const IS_MAC_OS = navigator.userAgent.includes('Mac')
 
-const CMD_CTRL = {
+export const CMD_CTRL = {
     key: IS_MAC_OS ? 'Meta' : 'Ctrl',
     label: IS_MAC_OS ? '⌘' : 'Ctrl',
 }
-const OPT_ALT = {
+export const OPT_ALT = {
     key: IS_MAC_OS ? 'Alt' : 'Alt',
     label: IS_MAC_OS ? '⌥' : 'Alt',
 }
+export const CTRL = {
+    key: 'Ctrl',
+    label: '^',
+}
 
-const SHIFT = 'Shift'
+export const SHIFT = 'Shift'
 const NO_SHORTCUT = ''
 
 // command palette categories will be sorted in the order they appear in this array
