@@ -20,16 +20,13 @@ interface NoteCreateModalProps {
     setIsOpen: (isOpen: boolean) => void
 }
 const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
-    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
-    const [realId, setRealId] = useState<string | undefined>(undefined)
-    const { mutate: createNote } = useCreateNote((data) => {
-        setRealId(data.note_id)
-        setOptimisticId(undefined)
-    })
+    const { mutate: createNote } = useCreateNote()
     const { mutate: modifyNote, isError, isLoading } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
     const [noteTitle, setNoteTitle] = useState('')
     const [noteBody, setNoteBody] = useState('')
+    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
+    const [realId, setRealId] = useState<string | undefined>(undefined)
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
     const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
@@ -93,7 +90,11 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                 body: body,
                 author: userInfo?.name || 'Anonymous',
                 optimisticId: newOptimisticNoteId,
-                shared_until,
+                shared_until: shared_until,
+                callback: (data) => {
+                    setRealId(data.note_id)
+                    setOptimisticId(undefined)
+                },
             })
             setOptimisticId(newOptimisticNoteId)
         } else {

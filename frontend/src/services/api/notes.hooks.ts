@@ -12,6 +12,7 @@ export interface TCreateNoteData {
     author: string
     shared_until?: string
     optimisticId: string
+    callback?: (data: TNoteResponse) => void
 }
 
 export interface TNoteResponse {
@@ -53,7 +54,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
     }
 }
 
-export const useCreateNote = (callback?: (data: TNoteResponse) => void) => {
+export const useCreateNote = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
     return useQueuedMutation((data: TCreateNoteData) => createNote(data), {
@@ -74,7 +75,7 @@ export const useCreateNote = (callback?: (data: TNoteResponse) => void) => {
             // check response to see if we get anything back for this endpoint
             setOptimisticId(createData.optimisticId, response.note_id)
 
-            if (callback) callback(response)
+            if (createData.callback) createData.callback(response)
 
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
             if (!notes) return
@@ -91,7 +92,12 @@ export const useCreateNote = (callback?: (data: TNoteResponse) => void) => {
 }
 export const createNote = async (data: TCreateNoteData) => {
     try {
-        const res = await apiClient.post('/notes/create/', data)
+        const res = await apiClient.post('/notes/create/', {
+            title: data.title,
+            body: data.body,
+            author: data.author,
+            shared_until: data.shared_until,
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('createNote failed')
