@@ -1,5 +1,6 @@
 import { useActive, useCommands } from '@remirror/react'
 import styled from 'styled-components'
+import { CMD_CTRL, CTRL, SHIFT } from '../../../../constants/shortcuts'
 import { Border, Colors, Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
 import ToolbarButton from './ToolbarButton'
@@ -35,24 +36,33 @@ const RichTextToolbar = ({ actions }: RichTextToolbarProps) => {
 
     return (
         <MenuContainer onMouseDown={(e) => e.preventDefault()}>
-            <ToolbarButton icon={icons.bold} action={commands.toggleBold} isActive={active.bold()} title="Bold" />
+            <ToolbarButton
+                icon={icons.bold}
+                action={commands.toggleBold}
+                isActive={active.bold()}
+                shortcutLabel="Bold"
+                shortcut={`${CMD_CTRL.label}+B`}
+            />
             <ToolbarButton
                 icon={icons.italic}
                 action={commands.toggleItalic}
                 isActive={active.italic()}
-                title="Italic"
+                shortcutLabel="Italic"
+                shortcut={`${CMD_CTRL.label}+I`}
             />
             <ToolbarButton
                 icon={icons.underline}
                 action={commands.toggleUnderline}
                 isActive={active.underline()}
-                title="Underline"
+                shortcutLabel="Underline"
+                shortcut={`${CMD_CTRL.label}+U`}
             />
             <ToolbarButton
                 icon={icons.strikethrough}
                 action={commands.toggleStrike}
                 isActive={active.strike()}
-                title="Strikethrough"
+                shortcutLabel="Strikethrough"
+                shortcut={`${CMD_CTRL.label}+D`}
             />
             <Divider />
             {/* TODO: will add this back with full link functionality */}
@@ -62,27 +72,35 @@ const RichTextToolbar = ({ actions }: RichTextToolbarProps) => {
                 icon={icons.list_ol}
                 action={commands.toggleOrderedList}
                 isActive={active.orderedList()}
-                title="Ordered list"
+                shortcutLabel="Ordered list"
+                shortcut={`${CMD_CTRL.label}+${SHIFT}+9`}
             />
             <ToolbarButton
                 icon={icons.list_ul}
                 action={commands.toggleBulletList}
                 isActive={active.bulletList()}
-                title="Bullet list"
+                shortcutLabel="Bulleted list"
+                shortcut={`${CMD_CTRL.label}+${SHIFT}+8`}
             />
             <Divider />
             <ToolbarButton
                 icon={icons.quote_right}
                 action={commands.toggleBlockquote}
                 isActive={active.blockquote()}
-                title="Quote"
+                shortcutLabel="Blockquote"
+                shortcut={`${CTRL.label}+>`}
             />
-            <ToolbarButton icon={icons.code} action={commands.toggleCode} isActive={active.code()} title="Code" />
+            <ToolbarButton
+                icon={icons.code}
+                action={commands.toggleCode}
+                isActive={active.code()}
+                shortcutLabel="Code"
+            />
             <ToolbarButton
                 icon={icons.code_block}
                 action={commands.toggleCodeBlock}
                 isActive={active.codeBlock()}
-                title="Code block"
+                shortcutLabel="Code block"
             />
             <MarginLeftGap>{actions}</MarginLeftGap>
         </MenuContainer>
