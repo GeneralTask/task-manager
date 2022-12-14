@@ -55,11 +55,15 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         color: ${Colors.text.light};
     }
     .today {
-        border-color: ${Colors.gtColor.primary};
+        background-color: ${Colors.gtColor.primary};
+        color: white;
     }
     .selected {
         border-color: ${Colors.gtColor.primary};
         background-color: ${Colors.gtColor.secondary};
+    }
+    .recurring-past {
+        border-color: ${Colors.gtColor.primary};
     }
     .recurring-selection {
         background-color: ${Colors.gtColor.secondary};
@@ -84,13 +88,6 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     }
 
     const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
-        // show selected day ONLY in MONTHLY OR YEARLY mode
-        if (
-            modifiers.selected &&
-            (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
-        )
-            return 'selected'
-
         // show today
         if (
             day.getDate() === today.getDate() &&
@@ -98,6 +95,17 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
             day.getFullYear() === today.getFullYear()
         )
             return 'today'
+
+        // show selected day ONLY in MONTHLY OR YEARLY mode
+        if (
+            modifiers.selected &&
+            (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
+        ) {
+            if (day.getTime() < today.getTime()) {
+                return 'recurring-past'
+            }
+            return 'selected'
+        }
 
         // if DAILY or WEEK_DAILY, show highlight on all days after today
         if (
