@@ -118,10 +118,10 @@ const SharedNoteView = () => {
                             </>
                         ) : (
                             <>
-                                <Title>This link has expired.</Title>
+                                <Title>This note is no longer available.</Title>
                                 <Body>
-                                    The link to this shared note has expired. Please reach out to the person who sent
-                                    this shared note for a new link.
+                                    This shared note has expired or is unavailable. Please reach out to the person who
+                                    sent this shared note for a new link.
                                 </Body>
                             </>
                         )}
