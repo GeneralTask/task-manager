@@ -3,25 +3,36 @@ import { Calendar, DayModifiers } from '@mantine/dates'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
+import { icons } from '../../../../styles/images'
 import { RecurrenceRate } from '../../../../utils/enums'
-import GTButton from '../../../atoms/buttons/GTButton'
+import Flex from '../../../atoms/Flex'
+import GTIconButton from '../../../atoms/buttons/GTIconButton'
+import { Eyebrow } from '../../../atoms/typography/Typography'
 
 const Container = styled.div`
     width: 250px;
     padding-left: ${Spacing._16};
     box-sizing: border-box;
 `
-const MonthButton = styled(GTButton)<{ visible: boolean }>`
+const Header = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: ${Spacing._8};
+`
+const ReturnToCurrentMonthButton = styled(GTIconButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
-    margin-bottom: ${Spacing._4};
 `
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
-    height: 250px;
+    height: 220px;
     .mantine-Calendar-calendarBase {
         max-width: none;
     }
     thead {
         border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+    }
+    .mantine-Calendar-calendarHeader {
+        display: none;
     }
     .mantine-Calendar-calendarHeaderLevel {
         color: ${Colors.text.light};
@@ -72,7 +83,7 @@ interface DatePickerProps {
     recurrenceRate: RecurrenceRate
 }
 const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
-    const [calendarDate, setCalendarDate] = useState(date.toJSDate())
+    const [calendarDate, setCalendarDate] = useState(DateTime.local())
     const disabled = recurrenceRate === RecurrenceRate.DAILY || recurrenceRate === RecurrenceRate.WEEK_DAILY
     const selectedDate = disabled ? DateTime.local() : date
     const jsDate = selectedDate.toJSDate()
@@ -124,16 +135,27 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
 
     return (
         <Container>
-            <MonthButton
-                visible={
-                    calendarDate.getMonth() !== new Date().getMonth() ||
-                    calendarDate.getFullYear() !== new Date().getFullYear()
-                }
-                styleType="secondary"
-                size="small"
-                value="Return to this month"
-                onClick={() => setCalendarDate(new Date())}
-            />
+            <Header>
+                <ReturnToCurrentMonthButton
+                    icon={icons.calendar_star}
+                    iconColor="gray"
+                    visible={calendarDate.month !== today.getMonth() + 1 || calendarDate.year !== today.getFullYear()}
+                    onClick={() => setCalendarDate(DateTime.local())}
+                />
+                <Eyebrow color="light">{calendarDate.toFormat('LLLL yyyy')}</Eyebrow>
+                <Flex>
+                    <GTIconButton
+                        icon={icons.arrow_left}
+                        iconColor="gray"
+                        onClick={() => setCalendarDate(calendarDate.minus({ month: 1 }))}
+                    />
+                    <GTIconButton
+                        icon={icons.arrow_right}
+                        iconColor="gray"
+                        onClick={() => setCalendarDate(calendarDate.plus({ month: 1 }))}
+                    />
+                </Flex>
+            </Header>
             <StyledCalendar
                 value={jsDate}
                 onChange={handleChange}
@@ -141,8 +163,8 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 dayClassName={applyDayClassNames}
                 allowLevelChange={false}
                 disabled={disabled}
-                month={calendarDate}
-                onMonthChange={setCalendarDate}
+                month={calendarDate.toJSDate()}
+                onMonthChange={(newDate) => setCalendarDate(DateTime.fromJSDate(newDate))}
                 fullWidth
             />
         </Container>
