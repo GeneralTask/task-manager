@@ -440,9 +440,11 @@ func TestGetEvents(t *testing.T) {
 		assert.Equal(t, 2, len(result.CalendarEvents)) // the event exists in both calendars
 		firstEvent := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstEvent)
+		assert.Equal(t, "primary", firstEvent.CalendarID)
 
 		secondEvent := result.CalendarEvents[1]
 		assertCalendarEventsEqual(t, &standardDBEvent, secondEvent)
+		assert.Equal(t, "testuser@gmail.com", secondEvent.CalendarID)
 
 		eventCollection := database.GetCalendarEventCollection(db)
 
