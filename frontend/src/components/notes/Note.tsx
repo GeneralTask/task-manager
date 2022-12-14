@@ -33,9 +33,9 @@ const Note = ({ note, isSelected, onSelect }: NoteProps) => {
                 <TitleContainer>
                     <Icon icon={icons.note} />
                     <NoteTitle>{note.title}</NoteTitle>
-                    {isShared && <Icon icon={icons.link} />}
                 </TitleContainer>
                 <Flex gap={Spacing._12} alignItems="center">
+                    {isShared && <Icon icon={icons.link} />}
                     <Label color="light">{getHumanDateTime(DateTime.fromISO(note.created_at))}</Label>
                 </Flex>
             </ItemContainer>
