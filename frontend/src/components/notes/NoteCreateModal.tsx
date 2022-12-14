@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { NOTE_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
+import { NOTE_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useCreateNote, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
@@ -59,7 +59,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         if (!optimisticId) {
             const newOptimisticNoteId = uuidv4()
             createNote({
-                title: title || '(Untitled Note)',
+                title: title || NO_TITLE,
                 body: body,
                 author: userInfo?.name || 'Anonymous',
                 optimisticId: newOptimisticNoteId,
@@ -69,7 +69,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             modifyNote(
                 {
                     id: optimisticId,
-                    title: title || '(Untitled Note)',
+                    title: title || NO_TITLE,
                     body: body,
                 },
                 optimisticId

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
 import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -72,6 +72,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         ({ id, title, body }: TModifyNoteData) => {
             setIsEditing(false)
             const timerId = id + (title === undefined ? 'body' : 'title')
+            if (title === '') title = NO_TITLE
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             modifyNote({ id, title, body })
         },
