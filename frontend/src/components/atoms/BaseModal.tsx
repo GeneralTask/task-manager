@@ -7,7 +7,7 @@ const ModalContentContainer = styled.div`
     height: 100%;
 `
 const MODAL_WIDTH = {
-    sm: '502px',
+    sm: '625px',
     lg: '1004px',
 }
 type TModalSize = keyof typeof MODAL_WIDTH

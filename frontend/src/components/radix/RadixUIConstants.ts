@@ -3,7 +3,7 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TIconColor, TTextColor } from '../../styles/colors'
 import { TIconType } from '../atoms/Icon'
 
-const MENU_WIDTH = '192px'
+export const MENU_WIDTH = '192px'
 
 export const MenuTriggerShared = css<{ $unstyled?: boolean }>`
     all: unset;
@@ -76,4 +76,5 @@ export interface GTMenuItem {
     subItems?: GTMenuItem[]
     renderer?: () => JSX.Element // override how the option is rendered
     count?: number
+    keepOpenOnSelect?: boolean
 }

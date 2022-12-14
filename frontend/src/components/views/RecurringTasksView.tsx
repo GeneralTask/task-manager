@@ -65,7 +65,7 @@ const RecurringTasksView = () => {
                     isRecurringTaskTemplate
                 />
             ) : (
-                <EmptyDetails icon={icons.arrows_repeat} text={`Details view coming soon`} />
+                <EmptyDetails icon={icons.arrows_repeat} text="You have no recurring tasks" />
             )}
         </>
     )

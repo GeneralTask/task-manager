@@ -17,14 +17,14 @@ const TemplateFolderSelector = ({ value, onChange }: TemplateFolderSelectorProps
             <FolderSelector
                 value={value}
                 onChange={onChange}
-                fontStyle="label"
                 useTriggerWidth
+                fontStyle="bodySmall"
                 renderTrigger={(isOpen, setIsOpen, selectedFolderName) => (
                     <GTButton
                         onClick={() => setIsOpen(!isOpen)}
                         icon={selectedFolderName?.id === DEFAULT_SECTION_ID ? icons.inbox : icons.folder}
                         value={selectedFolderName?.name}
-                        styleType="simple"
+                        styleType="secondary"
                         size="small"
                         fitContent={false}
                         isDropdown

@@ -7,8 +7,9 @@ import {
     DETAILS_SYNC_TIMEOUT,
     EMPTY_MONGO_OBJECT_ID,
     GENERAL_TASK_SOURCE_NAME,
-    NO_EVENT_TITLE,
+    NO_TITLE,
     SINGLE_SECOND_INTERVAL,
+    SYNC_MESSAGES,
     TRASH_SECTION_ID,
 } from '../../constants'
 import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
@@ -107,12 +108,6 @@ const BackButtonText = styled(Label)`
     color: inherit;
 `
 
-const SYNC_MESSAGES = {
-    SYNCING: 'Syncing...',
-    ERROR: 'There was an error syncing with our servers',
-    COMPLETE: '',
-}
-
 interface TaskDetailsProps {
     task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
     link: string
@@ -180,6 +175,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     }, [currentTask.optimisticId, location, link])
 
     useEffect(() => {
+        titleRef.current?.addEventListener('focus', () => {
+            if (titleRef.current?.value === NO_TITLE) {
+                titleRef?.current?.select()
+            }
+        })
         return () => {
             for (const timer of Object.values(timers.current)) {
                 timer.callback()
@@ -192,8 +192,12 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
         ({ id, title, body }: TModifyTaskData) => {
             setIsEditing(false)
             const isEditingTitle = title !== undefined
-            if (isEditingTitle && title === '') {
-                title = NO_EVENT_TITLE
+            if (isEditingTitle && title === '' && titleRef.current) {
+                title = NO_TITLE
+                titleRef.current.value = NO_TITLE
+                if (document.activeElement === titleRef.current) {
+                    titleRef.current.select()
+                }
             }
             const timerId = id + (isEditingTitle ? title : 'body')
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
@@ -258,7 +262,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         <DetailItem>
                             <Label color="light">{syncIndicatorText}</Label>
                         </DetailItem>
-                        {task.source?.name !== 'Jira' && !subtask && (
+                        {!subtask && (
                             <MarginLeftAuto>
                                 {isInTrash && (
                                     <GTButton
@@ -363,14 +367,17 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     />
                 )}
                 {isPreviewMode &&
-                    task.source?.name === 'General Task' &&
                     (isRecurringTaskTemplate ? (
                         <RecurringTaskTemplateScheduleButton templateId={task.id} />
                     ) : (
-                        <RecurringTaskTemplateScheduleButton
-                            templateId={currentTask.recurring_task_template_id}
-                            task={currentTask as TTask}
-                        />
+                        task.source?.name === 'General Task' &&
+                        subtask === undefined && (
+                            <RecurringTaskTemplateScheduleButton
+                                templateId={currentTask.recurring_task_template_id}
+                                task={currentTask as TTask}
+                                folderId={folderId}
+                            />
+                        )
                     ))}
                 {!isRecurringTaskTemplate &&
                     task.external_status &&
@@ -391,10 +398,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
                         params.section && (
-                            <RecurringTaskDetailsBanner
-                                templateId={currentTask.recurring_task_template_id}
-                                folderId={params.section}
-                            />
+                            <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />
                         )}
                     {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />

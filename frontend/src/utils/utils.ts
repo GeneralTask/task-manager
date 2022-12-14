@@ -1,5 +1,5 @@
 import { Immutable } from 'immer'
-import { DateTime } from 'luxon'
+import { DateTime, Duration, DurationUnit } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../constants'
 import KEYBOARD_SHORTCUTS from '../constants/shortcuts'
 import { TIconColor, TTextColor } from '../styles/colors'
@@ -164,6 +164,9 @@ export const getKeyCode = (e: KeyboardEvent | React.KeyboardEvent): string => {
     if (e.metaKey) {
         keyName += 'Meta+'
     }
+    if (e.altKey) {
+        keyName += 'Alt+'
+    }
     if (e.shiftKey) {
         keyName += 'Shift+'
     }
@@ -212,6 +215,23 @@ export const getFormattedDate = (
         return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd yyyy'), textColor: 'light', iconColor: 'gray' }
     }
     return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
+}
+
+export const getFormattedDuration = (duration: Duration, maxUnits?: number) => {
+    const allUnits: DurationUnit[] = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
+    const newDuration = duration.rescale()
+    if (!maxUnits) return newDuration.toHuman({ maximumFractionDigits: 0 })
+    for (const [index, unit] of allUnits.entries()) {
+        if (newDuration.get(unit) !== 0) {
+            const units = allUnits.slice(index, index + maxUnits)
+            const lowestUnit = index + maxUnits - 1 >= allUnits.length ? 'seconds' : allUnits[index + maxUnits - 1]
+            return newDuration
+                .minus({ [lowestUnit]: 0.5 })
+                .shiftTo(...units)
+                .toHuman({ maximumFractionDigits: 0 })
+        }
+    }
+    return newDuration.shiftTo('seconds').toHuman({ maximumFractionDigits: 0 })
 }
 
 export const isValidDueDate = (date: Date | null) => {

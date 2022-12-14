@@ -180,41 +180,14 @@ func TestGetSubtaskResults(t *testing.T) {
 	api, dbCleanup := GetAPIWithDBCleanup()
 	defer dbCleanup()
 
-	dueDate := time.Unix(420, 0)
-	timeAllocation := int64(420)
-	primitiveDueDate := primitive.NewDateTimeFromTime(dueDate)
-	notCompleted := false
-	title := "hello!"
-	body := "example body"
-	externalStatus := database.ExternalTaskStatus{
-		ExternalID: "example ID",
-		State:      "example state",
-		Type:       "example type",
-	}
-	slackMessageParams := database.SlackMessageParams{
-		Channel: database.SlackChannel{
-			ID: "slackID",
-		},
-	}
-
 	userID := primitive.NewObjectID()
 	t.Run("NoSubtasks", func(t *testing.T) {
-		results := api.getSubtaskResults(
-			&database.Task{
-				ID:                 primitive.NewObjectID(),
-				UserID:             userID,
-				SourceID:           external.TASK_SOURCE_ID_LINEAR,
-				DueDate:            &primitiveDueDate,
-				TimeAllocation:     &timeAllocation,
-				IsCompleted:        &notCompleted,
-				Title:              &title,
-				Body:               &body,
-				Status:             &externalStatus,
-				SlackMessageParams: &slackMessageParams,
-			}, userID)
+		results := api.getSubtaskResults(primitive.NewObjectID(), userID)
 		assert.Equal(t, 0, len(results))
 	})
 	t.Run("SubtaskSuccess", func(t *testing.T) {
+		notCompleted := false
+
 		taskCollection := database.GetTaskCollection(api.DB)
 		parentTaskID := primitive.NewObjectID()
 		insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
@@ -226,19 +199,7 @@ func TestGetSubtaskResults(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		results := api.getSubtaskResults(
-			&database.Task{
-				ID:                 parentTaskID,
-				UserID:             userID,
-				SourceID:           external.TASK_SOURCE_ID_LINEAR,
-				DueDate:            &primitiveDueDate,
-				TimeAllocation:     &timeAllocation,
-				IsCompleted:        &notCompleted,
-				Title:              &title,
-				Body:               &body,
-				Status:             &externalStatus,
-				SlackMessageParams: &slackMessageParams,
-			}, userID)
+		results := api.getSubtaskResults(parentTaskID, userID)
 		assert.Equal(t, 1, len(results))
 		assert.Equal(t, insertResult.InsertedID.(primitive.ObjectID), results[0].ID)
 	})

@@ -160,7 +160,6 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 	}
 
 	tasks, err := database.GetTasks(api.DB, userID, &[]bson.M{
-		{"is_completed": false},
 		{"is_deleted": bson.M{"$ne": true}},
 		{"id_task_section": view.TaskSectionID},
 	}, nil)
@@ -173,9 +172,16 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 
 	// Reset ID orderings to begin at 1
 	taskResults := api.taskListToTaskResultList(tasks, userID)
+	usableTaskResults := []*TaskResult{}
+	for _, task := range taskResults {
+		if task.IsDone != true {
+			usableTaskResults = append(usableTaskResults, task)
+		}
+	}
+
 	taskCollection := database.GetTaskCollection(api.DB)
 	orderingID := 1
-	for _, task := range taskResults {
+	for _, task := range usableTaskResults {
 		if task.IDOrdering != orderingID {
 			task.IDOrdering = orderingID
 			res, err := taskCollection.UpdateOne(
@@ -203,7 +209,7 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 		TaskSectionID: view.TaskSectionID,
 		IsReorderable: view.IsReorderable,
 		IDOrdering:    view.IDOrdering,
-		ViewItems:     taskResults,
+		ViewItems:     usableTaskResults,
 	}, nil
 }
 
@@ -480,6 +486,12 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 	}
 	taskResults := api.taskListToTaskResultList(dueTasks, userID)
 	taskResults = reorderTaskResultsByDueDate(taskResults)
+	for _, result := range taskResults {
+		subTasks := api.getSubtaskResults(result.ID, userID)
+		if subTasks != nil {
+			result.SubTasks = subTasks
+		}
+	}
 	result.ViewItems = taskResults
 	return &result, nil
 }

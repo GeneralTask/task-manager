@@ -186,7 +186,7 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 const FocusModeScreen = () => {
     const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
         useCalendarContext()
-    useLayoutEffect(() => {
+    useEffect(() => {
         setIsCollapsed(false)
         setCalendarType('day')
         setIsPopoverDisabled(true)

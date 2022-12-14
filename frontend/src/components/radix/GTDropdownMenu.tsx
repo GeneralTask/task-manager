@@ -22,13 +22,13 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
     $menuInModal?: boolean
     $width?: number
     $textColor?: string
-    $isLabel?: boolean
+    $fontStyle?: 'body' | 'bodySmall' | 'label'
 }>`
     ${MenuContentShared};
     ${({ $menuInModal }) => $menuInModal && `z-index: 1000;`}
     ${({ $width }) => $width && `width: ${$width}px;`}
     ${({ $textColor }) => $textColor && `color: ${$textColor};`}
-    ${({ $isLabel }) => $isLabel && Typography.label};
+    ${({ $fontStyle }) => $fontStyle && Typography[$fontStyle]};
     box-sizing: border-box;
 `
 const DropdownMenuItem = styled(DropdownMenu.Item)`
@@ -52,7 +52,7 @@ interface GTDropdownMenuProps {
     useTriggerWidth?: boolean
     unstyledTrigger?: boolean
     keepOpenOnSelect?: boolean
-    fontStyle?: 'default' | 'label'
+    fontStyle?: 'body' | 'bodySmall' | 'label'
 }
 
 const GTDropdownMenu = ({
@@ -68,7 +68,7 @@ const GTDropdownMenu = ({
     useTriggerWidth = false,
     unstyledTrigger = false,
     keepOpenOnSelect = false,
-    fontStyle = 'default',
+    fontStyle = 'body',
 }: GTDropdownMenuProps) => {
     const groups = (items.length > 0 && Array.isArray(items[0]) ? items : [items]) as GTMenuItem[][]
 
@@ -85,7 +85,7 @@ const GTDropdownMenu = ({
                         align={align}
                         $menuInModal={menuInModal}
                         $width={useTriggerWidth ? triggerRef.current?.getBoundingClientRect().width : undefined}
-                        $isLabel={fontStyle === 'label'}
+                        $fontStyle={fontStyle}
                         side={side}
                     >
                         {groups.map((group, groupIndex) => (
@@ -98,7 +98,11 @@ const GTDropdownMenu = ({
                                             onClick={item.disabled ? emptyFunction : item.onClick}
                                             $disabled={item.disabled}
                                             $textColor={item.textColor}
-                                            onSelect={keepOpenOnSelect ? (e) => e.preventDefault() : emptyFunction}
+                                            onSelect={
+                                                item.keepOpenOnSelect || keepOpenOnSelect
+                                                    ? (e) => e.preventDefault()
+                                                    : emptyFunction
+                                            }
                                         >
                                             {item.renderer ? (
                                                 item.renderer()

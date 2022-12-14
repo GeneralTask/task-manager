@@ -3,7 +3,7 @@ import { useIdleTimer } from 'react-idle-timer'
 import { useLocation } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useInterval } from '../../hooks'
+import { useInterval, usePreviewMode } from '../../hooks'
 import useKeyboardShortcut from '../../hooks/useKeyboardShortcut'
 import { useGetEvents } from '../../services/api/events.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
@@ -45,8 +45,8 @@ const CalendarView = ({
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
-    const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
-    const [date, setDate] = useState<DateTime>(DateTime.now())
+    const { date, calendarType, isCollapsed, setDate, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar } =
+        useCalendarContext()
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
@@ -55,8 +55,7 @@ const CalendarView = ({
 
     const { pathname } = useLocation()
     const isFocusMode = pathname.startsWith('/focus-mode')
-
-    const { calendarType, isCollapsed, setCalendarType, setIsCollapsed } = useCalendarContext()
+    const { isPreviewMode } = usePreviewMode()
     useEffect(() => {
         setCalendarType(initialType)
         if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
@@ -85,6 +84,31 @@ const CalendarView = ({
         useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed, setIsCollapsed]),
         isFocusMode
     )
+    useKeyboardShortcut(
+        'showDailyCalendar',
+        useCallback(() => {
+            setIsCollapsed(false)
+            setCalendarType('day')
+        }, [calendarType, setCalendarType, setIsCollapsed]),
+        isFocusMode
+    )
+    useKeyboardShortcut(
+        'showWeeklyCalendar',
+        useCallback(() => {
+            setIsCollapsed(false)
+            setCalendarType('week')
+        }, [calendarType, setCalendarType, setIsCollapsed]),
+        isFocusMode
+    )
+    useKeyboardShortcut(
+        'scheduleTasks',
+        useCallback(() => {
+            setIsCollapsed(false)
+            setCalendarType('week')
+            setShowTaskToCalSidebar(true)
+        }, [calendarType, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar]),
+        isFocusMode || !isPreviewMode
+    )
 
     return isCollapsed ? (
         <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
@@ -95,10 +119,6 @@ const CalendarView = ({
             hasLeftBorder={hasLeftBorder}
         >
             <CalendarHeader
-                date={date}
-                setDate={setDate}
-                dayViewDate={dayViewDate}
-                setDayViewDate={setDayViewDate}
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
                 additionalHeaderContent={additonalHeaderContent}

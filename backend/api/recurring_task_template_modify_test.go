@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
@@ -22,6 +23,8 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 	userID := getUserIDFromAuthToken(t, db, authToken)
 
 	api, dbCleanup := GetAPIWithDBCleanup()
+	currentTime := time.Now()
+	api.OverrideTime = &currentTime
 	defer dbCleanup()
 	router := GetRouter(api)
 
@@ -94,5 +97,6 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		err = database.FindWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, &[]bson.M{{"is_deleted": false}}, &templates, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, "new title!", *(templates[0].Title))
+		assert.Equal(t, primitive.NewDateTimeFromTime(currentTime), templates[0].UpdatedAt)
 	})
 }
