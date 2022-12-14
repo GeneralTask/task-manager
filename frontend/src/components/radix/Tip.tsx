@@ -41,18 +41,14 @@ const Tip = ({
 }: TooltipProps) => {
     if (disabled) return <>{children}</>
 
+    const shortcutLabel = overrideShortcutLabel ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].label : null)
+    const shortcut = overrideShortcut ?? (shortcutName ? KEYBOARD_SHORTCUTS[shortcutName].keyLabel : null)
+
     const tooltipContent =
-        overrideShortcutLabel || overrideShortcut ? (
+        shortcutLabel || shortcut ? (
             <Flex alignItems="center" justifyContent="center" gap={Spacing._8}>
-                {overrideShortcutLabel}
-                {overrideShortcut?.split('+').map((keyLabel) => (
-                    <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
-                ))}
-            </Flex>
-        ) : shortcutName ? (
-            <Flex alignItems="center" justifyContent="center" gap={Spacing._8}>
-                {KEYBOARD_SHORTCUTS[shortcutName].label}
-                {KEYBOARD_SHORTCUTS[shortcutName].keyLabel.split('+').map((keyLabel) => (
+                {shortcutLabel}
+                {shortcut?.split('+').map((keyLabel) => (
                     <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
                 ))}
             </Flex>
