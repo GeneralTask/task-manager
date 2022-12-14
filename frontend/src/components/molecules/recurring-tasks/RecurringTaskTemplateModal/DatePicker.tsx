@@ -55,7 +55,8 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
         color: ${Colors.text.light};
     }
     .today {
-        border-color: ${Colors.gtColor.primary};
+        background-color: ${Colors.gtColor.primary};
+        color: white;
     }
     .selected {
         border-color: ${Colors.gtColor.primary};
