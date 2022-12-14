@@ -45,6 +45,7 @@ import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/Rec
 import RecurringTaskTemplateScheduleButton from '../molecules/recurring-tasks/RecurringTaskTemplateScheduleButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import JiraStatusDropdown from '../radix/JiraStatusDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -379,14 +380,18 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                             />
                         )
                     ))}
-                {!isRecurringTaskTemplate &&
-                    task.external_status &&
-                    task.all_statuses &&
-                    task.source?.name === 'Linear' && (
-                        <MarginLeftAuto>
-                            <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
-                        </MarginLeftAuto>
+                <MarginLeftAuto>
+                    {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
+                        <>
+                            {task.source?.name === 'Linear' && (
+                                <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                            )}
+                            {task.source?.name === 'Jira' && (
+                                <JiraStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                            )}
+                        </>
                     )}
+                </MarginLeftAuto>
             </TaskStatusContainer>
             {currentTask.optimisticId ? (
                 <Spinner />
