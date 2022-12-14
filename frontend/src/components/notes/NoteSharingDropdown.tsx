@@ -47,11 +47,13 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
         window.open(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`, '_blank')
     }
 
-    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
-    const sharedUntilString = getFormattedDuration(
-        DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
-        2
-    )
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const sharedUntilString = note.shared_until
+        ? getFormattedDuration(
+              DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
+              2
+          )
+        : 'not shared'
     const dropdownItems: GTMenuItem[] = isShared
         ? [
               {

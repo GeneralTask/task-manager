@@ -89,8 +89,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         }
     }
 
-    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
-    const sharedUntil = DateTime.fromISO(note.shared_until).toLocaleString({
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const sharedUntil = DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
         month: 'long',
         day: 'numeric',
     })

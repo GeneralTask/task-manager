@@ -107,7 +107,9 @@ const SharedNoteView = () => {
                                     </Flex>
                                     <Flex gap={Spacing._4}>
                                         <Icon color="gray" icon={icons.link} />
-                                        <Label color="light">{`Link expires in ${DateTime.fromISO(note.shared_until)
+                                        <Label color="light">{`Link expires in ${DateTime.fromISO(
+                                            note.shared_until ?? '0'
+                                        )
                                             .diffNow(['days', 'hours'])
                                             .toHuman({ maximumFractionDigits: 0 })}`}</Label>
                                     </Flex>
