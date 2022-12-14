@@ -97,7 +97,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         <GTModal
             open={isOpen}
             setIsModalOpen={setIsOpen}
-            size="lg"
+            size="md"
             tabs={{
                 body: (
                     <Flex column gap={Spacing._12} onKeyDown={handleKeyDown}>
