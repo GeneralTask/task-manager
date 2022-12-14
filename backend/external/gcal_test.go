@@ -75,7 +75,8 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -165,7 +166,7 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -230,7 +231,7 @@ func TestCalendar(t *testing.T) {
 		database.GetOrCreateCalendarEvent(db, userID, "standard_event", TASK_SOURCE_ID_GCAL, standardDBEvent)
 		standardDBEvent.DatetimeStart = primitive.NewDateTimeFromTime(startTime)
 
-		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -263,7 +264,7 @@ func TestCalendar(t *testing.T) {
 		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
 	})
 	t.Run("EmptyResult", func(t *testing.T) {
-		server := testutils.GetServerForEvents([]*calendar.Event{})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{})
 		googleCalendar := GoogleCalendarSource{
 			Google: GoogleService{
 				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
@@ -340,7 +341,7 @@ func TestCalendar(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
