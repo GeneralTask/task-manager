@@ -18,7 +18,7 @@ const Header = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: ${Spacing._8};
+    margin-bottom: ${Spacing._4};
 `
 const ReturnToCurrentMonthButton = styled(GTIconButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
@@ -30,6 +30,7 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     }
     thead {
         border-bottom: ${Border.stroke.medium} solid ${Colors.border.light};
+        margin-bottom: 40px;
     }
     .mantine-Calendar-calendarHeader {
         display: none;
