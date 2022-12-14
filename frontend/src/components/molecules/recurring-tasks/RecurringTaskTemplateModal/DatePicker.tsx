@@ -85,13 +85,6 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
     }
 
     const applyDayClassNames = (day: Date, modifiers: DayModifiers) => {
-        // show selected day ONLY in MONTHLY OR YEARLY mode
-        if (
-            modifiers.selected &&
-            (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
-        )
-            return 'selected'
-
         // show today
         if (
             day.getDate() === today.getDate() &&
@@ -99,6 +92,17 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
             day.getFullYear() === today.getFullYear()
         )
             return 'today'
+
+        // show selected day ONLY in MONTHLY OR YEARLY mode
+        if (
+            modifiers.selected &&
+            (recurrenceRate === RecurrenceRate.MONTHLY || recurrenceRate === RecurrenceRate.YEARLY)
+        ) {
+            if (day.getTime() < today.getTime()) {
+                return 'recurring-selection'
+            }
+            return 'selected'
+        }
 
         // if DAILY or WEEK_DAILY, show highlight on all days after today
         if (
