@@ -5,7 +5,6 @@ import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../con
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
-import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import { Subtitle } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
@@ -15,6 +14,11 @@ import CalendarDropTask from './CalendarDropTask'
 import DropdownButton from './DropdownButton'
 
 const SIDEBAR_WIDTH = '326px'
+const CALENDAR_WITH_SECTION_WIDTH = '875px'
+const Container = styled.div`
+    display: flex;
+    min-width: ${CALENDAR_WITH_SECTION_WIDTH};
+`
 const ScheduleTaskSidebar = styled.div`
     width: ${SIDEBAR_WIDTH};
     padding: ${Spacing._24} ${Spacing._16};
@@ -60,7 +64,7 @@ const CalendarWithTaskSelection = () => {
 
     if (!taskFolders) return null
     return (
-        <Flex>
+        <Container>
             {calendarType === 'week' && showTaskToCalSidebar && (
                 <ScheduleTaskSidebar>
                     <SidebarHeader>Schedule tasks</SidebarHeader>
@@ -78,7 +82,7 @@ const CalendarWithTaskSelection = () => {
                 </ScheduleTaskSidebar>
             )}
             <CalendarView initialType="day" />
-        </Flex>
+        </Container>
     )
 }
 
