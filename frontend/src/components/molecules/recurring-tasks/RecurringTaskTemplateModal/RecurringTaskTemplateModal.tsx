@@ -124,6 +124,7 @@ const RecurringTaskTemplateModal = ({
                                     placeholder="Recurring task title"
                                     initialValue={title}
                                     autoFocus
+                                    hideIcon
                                     onChange={setTitle}
                                     onSubmit={handleSave}
                                 />
