@@ -53,7 +53,7 @@ const getNotes = async ({ signal }: QueryFunctionContext) => {
     }
 }
 
-export const useCreateNote = () => {
+export const useCreateNote = (callback?: (data: TNoteResponse) => void) => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
     return useQueuedMutation((data: TCreateNoteData) => createNote(data), {
@@ -73,6 +73,8 @@ export const useCreateNote = () => {
         onSuccess: async (response: TNoteResponse, createData: TCreateNoteData) => {
             // check response to see if we get anything back for this endpoint
             setOptimisticId(createData.optimisticId, response.note_id)
+
+            if (callback) callback(response)
 
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
             if (!notes) return

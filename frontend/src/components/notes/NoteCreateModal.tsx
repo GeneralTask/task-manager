@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
+import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { NOTE_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
+import { NOTE_SYNC_TIMEOUT, NO_TITLE, REACT_APP_FRONTEND_BASE_URL, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
+import { useToast } from '../../hooks'
 import { useCreateNote, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
+import { icons } from '../../styles/images'
 import { getKeyCode, stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
+import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 
@@ -16,15 +20,20 @@ interface NoteCreateModalProps {
     setIsOpen: (isOpen: boolean) => void
 }
 const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
-    const { mutate: createNote } = useCreateNote()
+    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
+    const [realId, setRealId] = useState<string | undefined>(undefined)
+    const { mutate: createNote } = useCreateNote((data) => {
+        setRealId(data.note_id)
+        setOptimisticId(undefined)
+    })
     const { mutate: modifyNote, isError, isLoading } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
-    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
     const [noteTitle, setNoteTitle] = useState('')
     const [noteBody, setNoteBody] = useState('')
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
     const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
+    const toast = useToast()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -38,31 +47,53 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         }
     }, [isOpen, isError, isLoading, isEditing])
 
-    const onEdit = ({ title, body }: { title?: string; body?: string }) => {
+    const copyNoteLink = () => {
+        navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${realId}`)
+        toast.show(
+            {
+                message: `Note URL copied to clipboard`,
+            },
+            {
+                autoClose: 2000,
+                pauseOnFocusLoss: false,
+                theme: 'dark',
+            }
+        )
+    }
+
+    const onEdit = ({ title, body, shared_until }: { title?: string; body?: string; shared_until?: string }) => {
         if (title) setNoteTitle(title)
         if (body) setNoteBody(body)
         setIsEditing(true)
         if (timer.current) clearTimeout(timer.current.timeout)
         timer.current = {
             timeout: setTimeout(
-                () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody }),
+                () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody, shared_until }),
                 NOTE_SYNC_TIMEOUT
             ),
-            callback: () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody }),
+            callback: () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody, shared_until }),
         }
     }
 
-    const handleSave = ({ title, body }: { title: string; body: string }) => {
+    const handleSave = ({ title, body, shared_until }: { title: string; body: string; shared_until?: string }) => {
         setIsEditing(false)
         if (timer.current) clearTimeout(timer.current.timeout)
 
-        if (!optimisticId) {
+        if (realId) {
+            modifyNote({
+                id: realId,
+                title: title || NO_TITLE,
+                body: body,
+                shared_until,
+            })
+        } else if (!optimisticId) {
             const newOptimisticNoteId = uuidv4()
             createNote({
                 title: title || NO_TITLE,
                 body: body,
                 author: userInfo?.name || 'Anonymous',
                 optimisticId: newOptimisticNoteId,
+                shared_until,
             })
             setOptimisticId(newOptimisticNoteId)
         } else {
@@ -71,6 +102,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                     id: optimisticId,
                     title: title || NO_TITLE,
                     body: body,
+                    shared_until,
                 },
                 optimisticId
             )
@@ -90,6 +122,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
             setNoteTitle('')
             setNoteBody('')
             setOptimisticId(undefined)
+            setRealId(undefined)
         }
     }, [isOpen])
 
@@ -123,7 +156,24 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 minHeight={300}
                             />
                         </Flex>
-                        <Label color="light">{syncIndicatorText}</Label>
+                        <Flex justifyContent="space-between" alignItems="center">
+                            <Label color="light">{syncIndicatorText}</Label>
+                            <GTButton
+                                value="Share note"
+                                styleType="secondary"
+                                size="small"
+                                icon={icons.share}
+                                disabled={!realId}
+                                onClick={() => {
+                                    onEdit({
+                                        title: noteTitle,
+                                        body: noteBody,
+                                        shared_until: DateTime.local().plus({ months: 3 }).toISO(),
+                                    })
+                                    copyNoteLink()
+                                }}
+                            />
+                        </Flex>
                     </Flex>
                 ),
             }}
