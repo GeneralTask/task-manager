@@ -105,8 +105,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 </DetailItem>
                 <MarginLeftAuto>
                     <Flex gap={Spacing._8}>
-                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'red'} />
-                        <Label color={isShared ? 'green' : 'red'}>{`${
+                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'gray'} />
+                        <Label color={isShared ? 'green' : 'light'}>{`${
                             isShared ? `Shared until ${sharedUntil}` : 'Not shared'
                         }`}</Label>
                     </Flex>

@@ -6,7 +6,7 @@ import { AUTHORIZATION_COOKE } from '../../constants'
 import { useGetNote } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { icons, noteBackground } from '../../styles/images'
-import { emptyFunction, getHumanTimeSinceDateTime } from '../../utils/utils'
+import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -87,7 +87,7 @@ const SharedNoteView = () => {
                 </TopContainer>
                 <BottomContainer>
                     <NoteBody>
-                        {note ? (
+                        {note && note.shared_until ? (
                             <>
                                 <Subtitle>{note.title}</Subtitle>
                                 <GTTextField
@@ -107,11 +107,12 @@ const SharedNoteView = () => {
                                     </Flex>
                                     <Flex gap={Spacing._4}>
                                         <Icon color="gray" icon={icons.link} />
-                                        <Label color="light">{`Link expires in ${DateTime.fromISO(
-                                            note.shared_until ?? '0'
-                                        )
-                                            .diffNow(['days', 'hours'])
-                                            .toHuman({ maximumFractionDigits: 0 })}`}</Label>
+                                        <Label color="light">{`Link expires in ${getFormattedDuration(
+                                            DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                                conversionAccuracy: 'longterm',
+                                            }),
+                                            2
+                                        )}`}</Label>
                                     </Flex>
                                 </Flex>
                             </>
