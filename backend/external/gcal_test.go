@@ -19,7 +19,7 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-func TestCalendar(t *testing.T) {
+func TestGetEvents(t *testing.T) {
 	db, dbCleanup, err := database.GetDBConnection()
 	assert.NoError(t, err)
 	defer dbCleanup()
@@ -356,6 +356,93 @@ func TestCalendar(t *testing.T) {
 		assert.Equal(t, 1, len(result.CalendarEvents))
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstTask)
+
+		eventCollection := database.GetCalendarEventCollection(db)
+
+		var calendarEventFromDB database.CalendarEvent
+		err = eventCollection.FindOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"id_external": "standard_event"},
+				{"source_id": TASK_SOURCE_ID_GCAL},
+				{"user_id": userID},
+			}},
+		).Decode(&calendarEventFromDB)
+		assert.NoError(t, err)
+		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventFromDB)
+		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+	})
+	t.Run("SuccessMultiCal", func(t *testing.T) {
+		standardEvent := calendar.Event{
+			Created:         "2021-02-25T17:53:01.000Z",
+			Summary:         "Standard Event",
+			Description:     "event <strong>description</strong>",
+			Location:        "Event Location",
+			Start:           &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:             &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:        "generaltask.com",
+			Id:              "standard_event",
+			GuestsCanModify: false,
+			Organizer:       &calendar.EventOrganizer{Self: true},
+			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
+
+		startTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:00:00-05:00")
+		endTime, _ := time.Parse(time.RFC3339, "2021-03-06T15:30:00-05:00")
+
+		userID := primitive.NewObjectID()
+		standardDBEvent := database.CalendarEvent{
+			IDExternal:    "standard_event",
+			Deeplink:      "generaltask.com&authuser=exampleAccountID",
+			Title:         "Standard Event",
+			Location:      "Event Location",
+			Body:          "event <strong>description</strong>",
+			SourceID:      TASK_SOURCE_ID_GCAL,
+			UserID:        userID,
+			CanModify:     true,
+			DatetimeStart: primitive.NewDateTimeFromTime(startTime),
+			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
+		}
+
+		autoEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "Auto Event (via Clockwise)",
+			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
+			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
+			HtmlLink:       "generaltask.com",
+			Id:             "auto_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
+
+		allDayEvent := calendar.Event{
+			Created:        "2021-02-25T17:53:01.000Z",
+			Summary:        "All day Event",
+			Start:          &calendar.EventDateTime{Date: "2021-03-06"},
+			End:            &calendar.EventDateTime{Date: "2021-03-06"},
+			HtmlLink:       "generaltask.com",
+			Id:             "all_day_event",
+			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
+		}
+
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+
+		defer server.Close()
+
+		var calendarResult = make(chan CalendarResult)
+		googleCalendar := GoogleCalendarSource{
+			Google: GoogleService{
+				OverrideURLs: GoogleURLOverrides{CalendarFetchURL: &server.URL},
+			},
+		}
+		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), []string{"https://www.googleapis.com/auth/calendar"}, calendarResult)
+		result := <-calendarResult
+		assert.NoError(t, result.Error)
+		assert.Equal(t, 2, len(result.CalendarEvents)) // the event exists in both calendars
+		firstEvent := result.CalendarEvents[0]
+		assertCalendarEventsEqual(t, &standardDBEvent, firstEvent)
+
+		secondEvent := result.CalendarEvents[1]
+		assertCalendarEventsEqual(t, &standardDBEvent, secondEvent)
 
 		eventCollection := database.GetCalendarEventCollection(db)
 

@@ -39,15 +39,10 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	}
 
 	//exclude events we declined.
-	didDeclineEvent := false
 	for _, attendee := range event.Attendees {
 		if attendee.Self && attendee.ResponseStatus == "declined" {
-			didDeclineEvent = true
-			continue
+			return &database.CalendarEvent{}
 		}
-	}
-	if didDeclineEvent {
-		return &database.CalendarEvent{}
 	}
 
 	dbStartTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
@@ -137,6 +132,8 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		calendarList, err = calendarService.CalendarList.List().Do()
 		if err == nil && calendarList != nil {
 			fetchAllCalendars = true
+		} else {
+			log.Error().Err(err).Send()
 		}
 	}
 

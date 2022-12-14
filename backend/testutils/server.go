@@ -31,7 +31,26 @@ func GetGcalFetchServer(events []*calendar.Event) *httptest.Server {
 		w := httptest.NewRecorder()
 		_, r := gin.CreateTestContext(w)
 
-		//r.Any("/*proxyPath", func(c *gin.Context) {
+		r.GET("/calendars/:calendarId/events", func(c *gin.Context) {
+			response := &calendar.Events{
+				Items:          events,
+				ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
+			}
+			c.JSON(200, response)
+		})
+		r.GET("/users/me/calendarList", func(c *gin.Context) {
+			response := &calendar.CalendarList{
+				Items: []*calendar.CalendarListEntry{
+					{ColorId: "1", Id: "primary"},
+					{ColorId: "2", Id: "testuser@gmail.com"},
+				},
+				ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
+			}
+			c.JSON(200, response)
+		})
+
+		////r.Any("/*proxyPath", func(c *gin.Context) {
+		//r.NoRoute(func(c *gin.Context) {
 		//	//threads := make([]*gmail.Thread, 0, len(threadsMap))
 		//	//for _, value := range threadsMap {
 		//	//	threads = append(threads, value)
@@ -46,38 +65,6 @@ func GetGcalFetchServer(events []*calendar.Event) *httptest.Server {
 		//	}
 		//	c.JSON(200, response)
 		//})
-
-		v1 := r.Group("/calendars/")
-		{
-			v1.GET("/:calendarId/events", func(c *gin.Context) {
-				response := &calendar.Events{
-					Items:          events,
-					ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
-				}
-				c.JSON(200, response)
-			})
-			v1.GET("/users/me", func(c *gin.Context) {
-				response := &calendar.CalendarList{
-					Items: []*calendar.CalendarListEntry{
-						{ColorId: "1", Id: "testuser@gmail.com"},
-					},
-					ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 200},
-				}
-				c.JSON(200, response)
-			})
-			//v1.GET("/messages", func(c *gin.Context) {
-			//	threads := make([]*gmail.Message, 0, len(messages))
-			//	for _, value := range messages {
-			//		threads = append(threads, value)
-			//	}
-			//	response := &gmail.ListMessagesResponse{Messages: messages}
-			//	c.JSON(200, response)
-			//})
-			//v1.GET("/threads/:threadID", func(c *gin.Context) {
-			//	response := threadsMap[c.Param("threadID")]
-			//	c.JSON(200, response)
-			//})
-		}
 
 		return r
 	}())
