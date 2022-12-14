@@ -28,6 +28,7 @@ const JiraStatusDropdown = ({ task, disabled }: JiraStatusDropdownProps) => {
             isOpen={isOpen}
             setIsOpen={setIsOpen}
             items={dropdownItems}
+            unstyledTrigger
             trigger={
                 <GTButton
                     value={externalStatus.state}
