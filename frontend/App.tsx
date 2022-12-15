@@ -1,18 +1,15 @@
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import Cookies from 'js-cookie'
 import Spinner from './src/components/atoms/Spinner'
 import SharedNoteView from './src/components/notes/SharedNoteView'
 import LandingScreen from './src/components/screens/LandingScreen'
-import { AUTHORIZATION_COOKE, NOTE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
+import { NOTE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/constants'
 import { GlobalStyle } from './src/styles'
 import { CompanyPolicyPages } from './src/utils/enums'
 
 const AuthenticatedRoutes = lazy(() => import('./src/AuthenticatedRoutes'))
 const CompanyPolicyView = lazy(() => import('./src/components/views/CompanyPolicyView'))
-
-const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
 
 const App = () => {
     const queryClient = new QueryClient()
@@ -34,7 +31,7 @@ const App = () => {
                         <Route path={NOTE_ROUTE} element={<SharedNoteView />}>
                             <Route path=":noteId" element={<SharedNoteView />} />
                         </Route>
-                        {isLoggedIn && <Route path="*" element={<AuthenticatedRoutes />} />}
+                        <Route path="*" element={<AuthenticatedRoutes />} />
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                 </Suspense>
