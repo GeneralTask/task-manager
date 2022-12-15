@@ -45,6 +45,7 @@ import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/Rec
 import RecurringTaskTemplateScheduleButton from '../molecules/recurring-tasks/RecurringTaskTemplateScheduleButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import JiraStatusDropdown from '../radix/JiraStatusDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -54,7 +55,6 @@ import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
-const TASK_TITLE_MAX_WIDTH = 145
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -73,7 +73,6 @@ const DetailItem = styled.div`
     display: flex;
     align-items: center;
     margin-left: ${Spacing._8};
-    max-width: ${TASK_TITLE_MAX_WIDTH}px;
     display: block;
 `
 const TaskStatusContainer = styled.div`
@@ -251,7 +250,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     {subtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
-                            <BackButtonText>Return to {task.title}</BackButtonText>
+                            <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
                     ) : (
                         <Icon icon={logos[currentTask?.source?.logo_v2 ?? 'generaltask']} />
@@ -379,14 +378,18 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                             />
                         )
                     ))}
-                {!isRecurringTaskTemplate &&
-                    task.external_status &&
-                    task.all_statuses &&
-                    task.source?.name === 'Linear' && (
-                        <MarginLeftAuto>
-                            <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
-                        </MarginLeftAuto>
+                <MarginLeftAuto>
+                    {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
+                        <>
+                            {task.source?.name === 'Linear' && (
+                                <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                            )}
+                            {task.source?.name === 'Jira' && (
+                                <JiraStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                            )}
+                        </>
                     )}
+                </MarginLeftAuto>
             </TaskStatusContainer>
             {currentTask.optimisticId ? (
                 <Spinner />

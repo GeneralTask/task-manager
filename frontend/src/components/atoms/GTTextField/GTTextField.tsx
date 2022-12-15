@@ -8,7 +8,8 @@ import { GTTextFieldProps } from './types'
 
 const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled?: boolean }>`
     border: ${Border.stroke.medium} solid
-        ${({ hideUnfocusedOutline }) => (hideUnfocusedOutline ? 'transparent' : Colors.border.extra_light)};
+        ${({ hideUnfocusedOutline, disabled }) =>
+            hideUnfocusedOutline || disabled ? 'transparent' : Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     flex: 1;
     :focus-within {

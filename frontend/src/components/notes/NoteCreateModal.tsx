@@ -1,9 +1,10 @@
-import { useCallback, useLayoutEffect, useState } from 'react'
-import styled from 'styled-components'
+import { useEffect, useRef, useState } from 'react'
+import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
+import { NOTE_SYNC_TIMEOUT, NO_TITLE, REACT_APP_FRONTEND_BASE_URL, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
-import { useGTLocalStorage, useKeyboardShortcut } from '../../hooks'
-import { useCreateNote } from '../../services/api/notes.hooks'
+import { useToast } from '../../hooks'
+import { useCreateNote, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -11,12 +12,8 @@ import { getKeyCode, stopKeydownPropogation } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import GTButton from '../atoms/buttons/GTButton'
+import { Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
-
-const TitleField = styled(GTTextField)``
-const ShareButton = styled(GTButton)`
-    margin-left: auto;
-`
 
 interface NoteCreateModalProps {
     isOpen: boolean
@@ -24,89 +21,164 @@ interface NoteCreateModalProps {
 }
 const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const { mutate: createNote } = useCreateNote()
+    const { mutate: modifyNote, isError, isLoading } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
-    const [coupledTitle, setCoupledTitle] = useState(true)
-    const [title, setTitle] = useState('New Note')
-    const [note, setNote] = useGTLocalStorage('noteCreation', '')
+    const [noteTitle, setNoteTitle] = useState('')
+    const [noteBody, setNoteBody] = useState('')
+    const [optimisticId, setOptimisticId] = useState<string | undefined>(undefined)
+    const [realId, setRealId] = useState<string | undefined>(undefined)
+    const [isEditing, setIsEditing] = useState(false)
+    const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
+    const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
+    const toast = useToast()
 
-    useLayoutEffect(() => {
-        if (coupledTitle) {
-            setTitle(note.split('\n')[0] || 'New Note')
+    useEffect(() => {
+        if (isEditing || isLoading) {
+            setSyncIndicatorText(SYNC_MESSAGES.SYNCING)
+        } else if (isError) {
+            setSyncIndicatorText(SYNC_MESSAGES.ERROR)
+        } else if (noteBody || noteTitle) {
+            setSyncIndicatorText('Your note has been saved')
+        } else {
+            setSyncIndicatorText('Your note will be saved automatically')
         }
-        if (!title) {
-            setCoupledTitle(true)
+    }, [isOpen, isError, isLoading, isEditing])
+
+    const copyNoteLink = () => {
+        navigator.clipboard.writeText(`${REACT_APP_FRONTEND_BASE_URL}/note/${realId}`)
+        toast.show(
+            {
+                message: `Note URL copied to clipboard`,
+            },
+            {
+                autoClose: 2000,
+                pauseOnFocusLoss: false,
+                theme: 'dark',
+            }
+        )
+    }
+
+    const onEdit = (
+        { title, body, shared_until }: { title?: string; body?: string; shared_until?: string },
+        timeoutOverride?: number
+    ) => {
+        if (title) setNoteTitle(title)
+        if (body) setNoteBody(body)
+        setIsEditing(true)
+        if (timer.current) clearTimeout(timer.current.timeout)
+        timer.current = {
+            timeout: setTimeout(
+                () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody, shared_until }),
+                timeoutOverride ?? NOTE_SYNC_TIMEOUT
+            ),
+            callback: () => handleSave({ title: title ?? noteTitle, body: body ?? noteBody, shared_until }),
         }
-    }, [note, coupledTitle])
+    }
 
-    const handleSave = useCallback(() => {
-        if (!note || !isOpen) return
+    const handleSave = ({ title, body, shared_until }: { title: string; body: string; shared_until?: string }) => {
+        setIsEditing(false)
+        if (timer.current) clearTimeout(timer.current.timeout)
 
-        const noteId = uuidv4()
-        const splitName = userInfo?.name.split(' ') ?? []
-        const name = splitName.length > 0 ? splitName[0] : 'Anonymous'
-        createNote({
-            title: title,
-            body: note,
-            author: name,
-            optimisticId: noteId,
-        })
-
-        setIsOpen(false)
-        setNote('')
-    }, [note, title, isOpen])
-
-    useKeyboardShortcut('submit', handleSave)
+        if (realId) {
+            modifyNote({
+                id: realId,
+                title: title || NO_TITLE,
+                body: body,
+                shared_until,
+            })
+        } else if (!optimisticId) {
+            const newOptimisticNoteId = uuidv4()
+            createNote({
+                title: title || NO_TITLE,
+                body: body,
+                author: userInfo?.name || 'Anonymous',
+                optimisticId: newOptimisticNoteId,
+                shared_until: shared_until,
+                callback: (data) => {
+                    setRealId(data.note_id)
+                    setOptimisticId(undefined)
+                },
+            })
+            setOptimisticId(newOptimisticNoteId)
+        } else {
+            modifyNote(
+                {
+                    id: optimisticId,
+                    title: title || NO_TITLE,
+                    body: body,
+                    shared_until,
+                },
+                optimisticId
+            )
+        }
+    }
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
-        if (keyCode === KEYBOARD_SHORTCUTS.submit.key) {
-            handleSave()
-        }
-        if (keyCode === KEYBOARD_SHORTCUTS.close.key) {
+        if (keyCode === KEYBOARD_SHORTCUTS.close.key || keyCode === KEYBOARD_SHORTCUTS.submit.key) {
             setIsOpen(false)
         }
         stopKeydownPropogation(e, undefined, true)
     }
 
+    useEffect(() => {
+        if (!isOpen) {
+            setNoteTitle('')
+            setNoteBody('')
+            setOptimisticId(undefined)
+            setRealId(undefined)
+        }
+    }, [isOpen])
+
     return (
         <GTModal
             open={isOpen}
             setIsModalOpen={setIsOpen}
-            size="lg"
+            size="md"
             tabs={{
                 body: (
                     <Flex column gap={Spacing._12} onKeyDown={handleKeyDown}>
                         <Flex>
-                            <TitleField
+                            <GTTextField
                                 type="plaintext"
-                                value={title}
-                                onChange={(val) => {
-                                    setTitle(val)
-                                    setCoupledTitle(false)
-                                }}
+                                value={noteTitle}
+                                onChange={(title) => onEdit({ title })}
+                                placeholder="Note Title"
+                                keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key, KEYBOARD_SHORTCUTS.submit.key]}
                                 fontSize="medium"
                             />
                         </Flex>
                         <Flex data-autofocus>
                             <GTTextField
                                 type="markdown"
-                                value={note}
-                                onChange={(val) => setNote(val)}
+                                value={noteBody}
+                                onChange={(body) => onEdit({ body })}
                                 fontSize="small"
-                                placeholder="Type your note here."
-                                keyDownExceptions={[KEYBOARD_SHORTCUTS.submit.key, KEYBOARD_SHORTCUTS.close.key]}
+                                placeholder="Type your note here. It will be saved automatically."
+                                keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key, KEYBOARD_SHORTCUTS.submit.key]}
                                 minHeight={300}
-                                actions={
-                                    <ShareButton
-                                        onClick={handleSave}
-                                        value="Save note"
-                                        icon={icons.save}
-                                        styleType="secondary"
-                                        size="small"
-                                        fitContent
-                                    />
-                                }
                                 autoFocus
+                            />
+                        </Flex>
+                        <Flex justifyContent="space-between" alignItems="center">
+                            <Label color="light">{syncIndicatorText}</Label>
+                            <GTButton
+                                value="Share note"
+                                styleType="secondary"
+                                size="small"
+                                icon={icons.share}
+                                disabled={!realId}
+                                onClick={() => {
+                                    onEdit(
+                                        {
+                                            title: noteTitle,
+                                            body: noteBody,
+                                            shared_until: DateTime.local().plus({ months: 3 }).toISO(),
+                                        },
+                                        0
+                                    )
+                                    copyNoteLink()
+                                }}
                             />
                         </Flex>
                     </Flex>

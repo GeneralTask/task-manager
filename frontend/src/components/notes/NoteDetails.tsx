@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
 import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -72,6 +72,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         ({ id, title, body }: TModifyNoteData) => {
             setIsEditing(false)
             const timerId = id + (title === undefined ? 'body' : 'title')
+            if (title === '') title = NO_TITLE
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             modifyNote({ id, title, body })
         },
@@ -88,8 +89,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         }
     }
 
-    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
-    const sharedUntil = DateTime.fromISO(note.shared_until).toLocaleString({
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const sharedUntil = DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
         month: 'long',
         day: 'numeric',
     })
@@ -104,8 +105,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 </DetailItem>
                 <MarginLeftAuto>
                     <Flex gap={Spacing._8}>
-                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'red'} />
-                        <Label color={isShared ? 'green' : 'red'}>{`${
+                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'gray'} />
+                        <Label color={isShared ? 'green' : 'light'}>{`${
                             isShared ? `Shared until ${sharedUntil}` : 'Not shared'
                         }`}</Label>
                     </Flex>
@@ -124,8 +125,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 />
             </div>
             <GTTextField
-                itemId={note.id}
                 type="markdown"
+                itemId={note.body}
                 value={note.body}
                 placeholder="Add details"
                 onChange={(val) => onEdit({ id: note.id, body: val })}

@@ -1,35 +1,14 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import styled from 'styled-components'
-import { useKeyboardShortcut } from '../../../hooks'
-import { useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
-import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { icons } from '../../../styles/images'
+import { v4 as uuidv4 } from 'uuid'
+import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import { getSectionFromTask } from '../../../utils/utils'
 import Flex from '../../atoms/Flex'
-import { Icon } from '../../atoms/Icon'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
-import CreateNewSubtask from './CreateNewSubtask'
+import CreateNewItemInput from '../CreateNewItemInput'
 import Subtask from './Subtask'
 
-const AddTaskbutton = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._8};
-    color: ${Colors.text.light};
-    ${Typography.label};
-    cursor: pointer;
-    user-select: none;
-    padding: ${Spacing._8};
-    height: fit-content;
-    width: fit-content;
-    border: ${Border.stroke.small} solid transparent;
-    :hover {
-        border-color: ${Colors.border.light};
-        border-radius: ${Border.radius.small};
-    }
-    margin-bottom: ${Spacing._16};
-`
 const TaskListContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -43,13 +22,8 @@ interface SubtasksProps {
 const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const { data: taskSections } = useGetTasks()
     const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
-    const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
+    const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
-
-    useKeyboardShortcut(
-        'createSubtask',
-        useCallback(() => setShowCreateNewSubtask(true), [])
-    )
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {
@@ -68,16 +42,19 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     if (!sectionId) return null
     return (
         <Flex flex="1" column>
-            <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
-                <Icon icon={icons.plus} color="gray" />
-                Add new subtask
-            </AddTaskbutton>
             <TaskListContainer>
-                {showCreateNewSubtask && sectionId && (
-                    <CreateNewSubtask
-                        parentTaskId={taskId}
-                        sectionId={sectionId}
-                        hideCreateNewSubtask={() => setShowCreateNewSubtask(false)}
+                {sectionId && (
+                    <CreateNewItemInput
+                        placeholder="Add new subtask"
+                        onSubmit={(title) =>
+                            createTask({
+                                title: title,
+                                parent_task_id: taskId,
+                                taskSectionId: sectionId,
+                                optimisticId: uuidv4(),
+                            })
+                        }
+                        shortcutName="createSubtask"
                     />
                 )}
                 {subtasks.map((subtask, index) => {

@@ -6,7 +6,7 @@ import { AUTHORIZATION_COOKE } from '../../constants'
 import { useGetNote } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { icons, noteBackground } from '../../styles/images'
-import { emptyFunction, getHumanTimeSinceDateTime } from '../../utils/utils'
+import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
@@ -15,7 +15,7 @@ import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Body, Label, Subtitle, Title } from '../atoms/typography/Typography'
+import { Body, Label, Title } from '../atoms/typography/Typography'
 
 const Logo = styled.img`
     width: 153px;
@@ -53,7 +53,7 @@ const NoteBody = styled.div`
     display: flex;
     flex-direction: column;
     padding: ${Spacing._24};
-    gap: ${Spacing._32};
+    gap: ${Spacing._24};
     margin: ${Spacing._24};
 `
 const SignInButton = styled.div`
@@ -87,11 +87,20 @@ const SharedNoteView = () => {
                 </TopContainer>
                 <BottomContainer>
                     <NoteBody>
-                        {note ? (
+                        {note && note.shared_until ? (
                             <>
-                                <Subtitle>{note.title}</Subtitle>
+                                <GTTextField
+                                    type="plaintext"
+                                    itemId={note.title}
+                                    value={note.title}
+                                    onChange={emptyFunction}
+                                    fontSize="large"
+                                    disabled
+                                    readOnly
+                                />
                                 <GTTextField
                                     type="markdown"
+                                    itemId={note.body}
                                     value={note.body}
                                     onChange={emptyFunction}
                                     fontSize="small"
@@ -107,18 +116,21 @@ const SharedNoteView = () => {
                                     </Flex>
                                     <Flex gap={Spacing._4}>
                                         <Icon color="gray" icon={icons.link} />
-                                        <Label color="light">{`Link expires in ${DateTime.fromISO(note.shared_until)
-                                            .diffNow(['days', 'hours'])
-                                            .toHuman({ maximumFractionDigits: 0 })}`}</Label>
+                                        <Label color="light">{`Link expires in ${getFormattedDuration(
+                                            DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                                conversionAccuracy: 'longterm',
+                                            }),
+                                            2
+                                        )}`}</Label>
                                     </Flex>
                                 </Flex>
                             </>
                         ) : (
                             <>
-                                <Title>This link has expired.</Title>
+                                <Title>This note is no longer available.</Title>
                                 <Body>
-                                    The link to this shared note has expired. Please reach out to the person who sent
-                                    this shared note for a new link.
+                                    This shared note has expired or is unavailable. Please reach out to the person who
+                                    sent this shared note for a new link.
                                 </Body>
                             </>
                         )}
