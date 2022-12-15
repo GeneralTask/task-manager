@@ -10,7 +10,7 @@ import { MenuContentShared, MenuItemShared, MenuTriggerShared } from './RadixUIC
 const SelectTrigger = styled(Select.Trigger)`
     ${MenuTriggerShared};
     ${Typography.bodySmall};
-    padding: 8px;
+    padding: ${Spacing._4} ${Spacing._8};
     border: ${Border.stroke.medium} solid ${Colors.border.light};
     box-sizing: border-box;
     user-select: none;
@@ -50,7 +50,8 @@ const GTSelect = ({ items, value, onChange }: GTSelectProps) => {
                             <SelectItem key={item.value} value={item.value}>
                                 <Select.ItemText>
                                     <Flex alignItems="center" gap={Spacing._8}>
-                                        <Icon icon={icons[item.icon]} /> {item.label}
+                                        {item.icon && <Icon icon={icons[item.icon]} />}
+                                        {item.label}
                                     </Flex>
                                 </Select.ItemText>
                             </SelectItem>
