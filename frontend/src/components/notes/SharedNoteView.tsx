@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE } from '../../constants'
-import { useGetNote } from '../../services/api/notes.hooks'
+import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { icons, noteBackground } from '../../styles/images'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
@@ -64,12 +64,13 @@ const SharedNoteView = () => {
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
+    const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-    if (isLoading) return <Spinner />
 
-    const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
+    const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
 
+    if (isLoading || isLoadingNotes) return <Spinner />
     return (
         <MainContainer>
             <ColumnContainer>
@@ -110,9 +111,24 @@ const SharedNoteView = () => {
                                 <Divider color={Colors.border.light} />
                                 <Flex justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
-                                        <Label>{note.author}</Label>
-                                        <Label color="light">shared this note with you</Label>
-                                        <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(note.updated_at))}</Label>
+                                        {isLoggedIn && notes?.findIndex((n) => n.id === note.id) !== -1 ? (
+                                            <>
+                                                <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
+                                                    DateTime.fromISO(note.updated_at)
+                                                )}`}</Label>
+                                                <Label>
+                                                    <NoStyleButton onClick={() => navigate(`/notes/${noteId}`)}>
+                                                        (edit note)
+                                                    </NoStyleButton>
+                                                </Label>
+                                            </>
+                                        ) : (
+                                            <Label color="light">{`${
+                                                note.author
+                                            } shared this note with you ${getHumanTimeSinceDateTime(
+                                                DateTime.fromISO(note.updated_at)
+                                            )}`}</Label>
+                                        )}
                                     </Flex>
                                     <Flex gap={Spacing._4}>
                                         <Icon color="gray" icon={icons.link} />
