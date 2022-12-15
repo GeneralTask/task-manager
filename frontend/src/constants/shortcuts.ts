@@ -162,12 +162,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 'k|ArrowUp',
         keyLabel: 'K or ↑',
         category: 'Navigation',
+        icon: 'arrow_up',
     },
     down: {
         label: 'Next item',
         key: 'j|ArrowDown',
         keyLabel: 'J or ↓',
         category: 'Navigation',
+        icon: 'arrow_down',
     },
     refresh: {
         label: 'Refresh',
