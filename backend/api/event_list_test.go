@@ -192,7 +192,7 @@ func TestEventList(t *testing.T) {
 			Organizer:       &calendar.EventOrganizer{Self: true},
 			ServerResponse:  googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
-		server := testutils.GetServerForEvents([]*calendar.Event{&standardEvent, &newEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &newEvent})
 		defer server.Close()
 		api.ExternalConfig.GoogleOverrideURLs.CalendarFetchURL = &server.URL
 
