@@ -125,8 +125,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 />
             </div>
             <GTTextField
-                itemId={note.id}
                 type="markdown"
+                itemId={note.body}
                 value={note.body}
                 placeholder="Add details"
                 onChange={(val) => onEdit({ id: note.id, body: val })}
