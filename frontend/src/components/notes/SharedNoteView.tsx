@@ -2,10 +2,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { AUTHORIZATION_COOKE } from '../../constants'
+import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { icons, noteBackground } from '../../styles/images'
+import { buttons, icons, noteBackground } from '../../styles/images'
+import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -13,7 +14,6 @@ import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Body, Label, Title } from '../atoms/typography/Typography'
 
@@ -56,8 +56,11 @@ const NoteBody = styled.div`
     gap: ${Spacing._24};
     margin: ${Spacing._24};
 `
-const SignInButton = styled.div`
+const SignInButton = styled(NoStyleButton)`
     width: 200px;
+`
+const GoogleImage = styled.img`
+    width: 100%;
 `
 
 const SharedNoteView = () => {
@@ -81,8 +84,8 @@ const SharedNoteView = () => {
                     {isLoggedIn ? (
                         <GTButton styleType="secondary" value="Back to General Task" onClick={() => navigate('/')} />
                     ) : (
-                        <SignInButton>
-                            <GoogleSignInButton />
+                        <SignInButton onClick={() => openPopupWindow(LOGIN_URL, emptyFunction, false, true)}>
+                            <GoogleImage src={buttons.google_sign_in} />
                         </SignInButton>
                     )}
                 </TopContainer>
