@@ -146,10 +146,9 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 placeholder="Note Title"
                                 keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key, KEYBOARD_SHORTCUTS.submit.key]}
                                 fontSize="medium"
-                                data-autofocus
                             />
                         </Flex>
-                        <Flex>
+                        <Flex data-autofocus>
                             <GTTextField
                                 type="markdown"
                                 value={noteBody}
@@ -158,6 +157,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 placeholder="Type your note here. It will be saved automatically."
                                 keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key, KEYBOARD_SHORTCUTS.submit.key]}
                                 minHeight={300}
+                                autoFocus
                             />
                         </Flex>
                         <Flex justifyContent="space-between" alignItems="center">
