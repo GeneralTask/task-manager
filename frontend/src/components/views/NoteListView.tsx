@@ -61,7 +61,6 @@ const NoteListView = () => {
                     <Spinner />
                 ) : (
                     <>
-                        {/* temporarily reversing notes so that the most recent note is at the top (backend will change to be correct soon) */}
                         {sortedNotes.map((note) => (
                             <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
                         ))}
