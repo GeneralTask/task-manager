@@ -11,6 +11,7 @@ import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
 import GTModal from '../../../mantine/GTModal'
+import GTSelect from '../../../radix/GTSelect'
 import CreateNewItemInput from '../../CreateNewItemInput'
 import DatePicker from './DatePicker'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
@@ -108,6 +109,7 @@ const RecurringTaskTemplateModal = ({
         }
         stopKeydownPropogation(e, undefined, true)
     }
+    const [q, sq] = useState<string>()
 
     return (
         <GTModal
@@ -127,6 +129,14 @@ const RecurringTaskTemplateModal = ({
                                     hideIcon
                                     onChange={setTitle}
                                     onSubmit={handleSave}
+                                />
+                                <GTSelect
+                                    items={[
+                                        { label: 'DUCK', value: 'duck', icon: 'trash' },
+                                        { label: 'GOOSE', value: 'goose', icon: 'trash' },
+                                    ]}
+                                    value={q}
+                                    onChange={sq}
                                 />
                                 <TemplateFolderSelector value={folder} onChange={setFolder} />
                                 <RecurrenceRateSelector

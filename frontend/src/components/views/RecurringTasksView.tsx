@@ -12,7 +12,6 @@ import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import AddRecurringTask from '../molecules/recurring-tasks/AddRecurringTask'
 import RecurringTask from '../molecules/recurring-tasks/RecurringTask'
-import GTSelect from '../radix/GTSelect'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const RecurringTasksView = () => {
@@ -42,9 +41,6 @@ const RecurringTasksView = () => {
     return (
         <>
             <ScrollableListTemplate>
-                <div>
-                    <GTSelect items={[{ label: 'duck', value: 'duck' }]} value="duck" onChange={() => 1} />
-                </div>
                 <SectionHeader sectionName="Recurring tasks" />
                 {!recurringTaskTemplates ? (
                     <Spinner />
