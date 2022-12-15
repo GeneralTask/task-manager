@@ -111,7 +111,7 @@ const SharedNoteView = () => {
                                 <Flex justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
                                         <Label>{note.author}</Label>
-                                        <Label color="light">shared this note with you</Label>
+                                        <Label color="light">shared this note</Label>
                                         <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(note.updated_at))}</Label>
                                     </Flex>
                                     <Flex gap={Spacing._4}>
