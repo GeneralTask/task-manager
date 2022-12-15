@@ -12,7 +12,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/logging"
-	"github.com/GeneralTask/task-manager/backend/templating"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -65,14 +64,14 @@ type JIRAProject struct {
 
 // JIRATaskFields ...
 type JIRATaskFields struct {
-	DueDate     string       `json:"duedate"`
-	Summary     string       `json:"summary"`
-	Description string       `json:"description"`
-	CreatedAt   string       `json:"created"`
-	UpdatedAt   string       `json:"updated"`
-	Project     JIRAProject  `json:"project"`
-	Status      JIRAStatus   `json:"status"`
-	Priority    JIRAPriority `json:"priority"`
+	DueDate     string          `json:"duedate"`
+	Summary     string          `json:"summary"`
+	Description json.RawMessage `json:"description"`
+	CreatedAt   string          `json:"created"`
+	UpdatedAt   string          `json:"updated"`
+	Project     JIRAProject     `json:"project"`
+	Status      JIRAStatus      `json:"status"`
+	Priority    JIRAPriority    `json:"priority"`
 }
 
 // JIRATask represents the API detail result for issues - only fields we need
@@ -109,7 +108,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		apiBaseURL = *jira.Atlassian.Config.ConfigValues.APIBaseURL
 	}
 	JQL := "assignee=currentuser() AND statusCategory != Done"
-	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/2/search?jql="+url.QueryEscape(JQL), nil)
+	req, err := http.NewRequest("GET", apiBaseURL+"/rest/api/3/search?jql="+url.QueryEscape(JQL), nil)
 	logger := logging.GetSentryLogger()
 	if err != nil {
 		logger.Error().Err(err).Msg("error forming search request")
@@ -181,7 +180,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	var tasks []*database.Task
 	for idx, jiraTask := range jiraTasks.Issues {
 		titleString := jiraTask.Fields.Summary
-		bodyString, err := templating.FormatPlainTextAsHTML(jiraTask.Fields.Description)
+		bodyString := string(jiraTask.Fields.Description)
 		if err != nil {
 			logger.Error().Err(err).Msg("unable to parse JIRA template")
 			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
@@ -195,7 +194,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			Deeplink:        siteConfiguration.SiteURL + "/browse/" + jiraTask.Key,
 			SourceID:        TASK_SOURCE_ID_JIRA,
 			Title:           &titleString,
-			Body:            &bodyString,
 			SourceAccountID: accountID,
 			Status: &database.ExternalTaskStatus{
 				ExternalID:        jiraTask.Fields.Status.ID,
@@ -205,6 +203,12 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 			},
 		}
 
+		if bodyString != "null" {
+			task.Body = &bodyString
+		} else {
+			bodyString = ""
+			task.Body = &bodyString
+		}
 		commentsResult := commentChannelList[idx]
 		commentsOutput := <-commentsResult
 		if commentsOutput.Error != nil {
@@ -270,6 +274,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	for _, task := range tasks {
 		updateTask := database.Task{
 			Title:                 task.Title,
+			Body:                  task.Body,
 			DueDate:               task.DueDate,
 			Status:                task.Status,
 			UpdatedAt:             task.UpdatedAt,
@@ -316,10 +321,10 @@ type JIRAUser struct {
 }
 
 type JIRAComment struct {
-	ID        string            `json:"id"`
-	Author    JIRAUser          `json:"author"`
-	Body      JIRARichTextField `json:"body"`
-	CreatedAt string            `json:"created"`
+	ID        string          `json:"id"`
+	Author    JIRAUser        `json:"author"`
+	Body      json.RawMessage `json:"body"`
+	CreatedAt string          `json:"created"`
 }
 
 type JIRACommentList struct {
@@ -367,17 +372,9 @@ func (jira JIRASource) GetListOfComments(siteConfiguration *database.AtlassianSi
 	}
 
 	for _, comment := range commentList.Comments {
-		// subject to change, simply done this way because of Atlassian's strange rich text format
-		bodyString := ""
-		for _, bodyBase := range comment.Body.Content {
-			for _, innerContent := range bodyBase.Content {
-				bodyString = bodyString + innerContent.Text
-			}
-		}
-
 		dbComment := database.Comment{
 			ExternalID: comment.ID,
-			Body:       bodyString,
+			Body:       string(comment.Body),
 			User: database.ExternalUser{
 				ExternalID:  comment.Author.AccountID,
 				Name:        comment.Author.DisplayName,
@@ -614,10 +611,10 @@ type JIRAUpdateRequestWithDueDate struct {
 }
 
 type JIRAUpdateFieldsWithDueDate struct {
-	Summary     string             `json:"summary,omitempty"`
-	Description *JIRARichTextField `json:"description,omitempty"`
-	Priority    *JIRAPriority      `json:"priority,omitempty"`
-	DueDate     *string            `json:"duedate"`
+	Summary     string           `json:"summary,omitempty"`
+	Description *json.RawMessage `json:"description,omitempty"`
+	Priority    *JIRAPriority    `json:"priority,omitempty"`
+	DueDate     *string          `json:"duedate"`
 }
 
 type JIRAUpdateRequest struct {
@@ -625,21 +622,9 @@ type JIRAUpdateRequest struct {
 }
 
 type JIRAUpdateFields struct {
-	Summary     string             `json:"summary,omitempty"`
-	Description *JIRARichTextField `json:"description,omitempty"`
-	Priority    *JIRAPriority      `json:"priority,omitempty"`
-}
-
-type JIRARichTextField struct {
-	Type    string             `json:"type,omitempty"`
-	Version int                `json:"version,omitempty"`
-	Content []JIRAFieldContent `json:"content"`
-}
-
-type JIRAFieldContent struct {
-	Type    string             `json:"type"`
-	Content []JIRAFieldContent `json:"content,omitempty"`
-	Text    string             `json:"text,omitempty"`
+	Summary     string           `json:"summary,omitempty"`
+	Description *json.RawMessage `json:"description,omitempty"`
+	Priority    *JIRAPriority    `json:"priority,omitempty"`
 }
 
 func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.AtlassianSiteConfiguration, token *AtlassianAuthToken, issueID string, updateFields *database.Task, task *database.Task) error {
@@ -654,29 +639,8 @@ func (jira JIRASource) handleJIRAFieldUpdate(siteConfiguration *database.Atlassi
 		updateRequest.Fields.Summary = *updateFields.Title
 	}
 	if updateFields.Body != nil {
-		if *updateFields.Body == "" {
-			updateRequest.Fields.Description = &JIRARichTextField{
-				Type:    "doc",
-				Version: 1,
-				Content: []JIRAFieldContent{},
-			}
-		} else {
-			updateRequest.Fields.Description = &JIRARichTextField{
-				Type:    "doc",
-				Version: 1,
-				Content: []JIRAFieldContent{
-					{
-						Type: "paragraph",
-						Content: []JIRAFieldContent{
-							{
-								Text: *updateFields.Body,
-								Type: "text",
-							},
-						},
-					},
-				},
-			}
-		}
+		bodyBytes := json.RawMessage(*updateFields.Body)
+		updateRequest.Fields.Description = &bodyBytes
 	}
 	if (updateFields.ExternalPriority != nil && *updateFields.ExternalPriority != database.ExternalTaskPriority{}) && (task.JIRATaskParams != nil && *task.JIRATaskParams.HasPriorityField) {
 		updateRequest.Fields.Priority = &JIRAPriority{

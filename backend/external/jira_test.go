@@ -814,7 +814,7 @@ func TestModifyJIRATask(t *testing.T) {
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
 		newName := "New Title"
-		newBody := "New Body"
+		newBody := `{"body": "New Body"}`
 		dueDate := primitive.NewDateTimeFromTime(time.Now())
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
@@ -848,7 +848,7 @@ func TestModifyJIRATask(t *testing.T) {
 		defer taskUpdateServer.Close()
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
-		newBody := ""
+		newBody := `{"body": ""}`
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Body: &newBody,
@@ -862,7 +862,7 @@ func TestModifyJIRATask(t *testing.T) {
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
 		newName := "New Title"
-		newBody := "New Body"
+		newBody := `{"body": "New Body"}`
 		dueDate := primitive.NewDateTimeFromTime(time.Unix(0, 0))
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
@@ -882,7 +882,7 @@ func TestModifyJIRATask(t *testing.T) {
 		JIRA := JIRASource{Atlassian: AtlassianService{Config: AtlassianConfig{ConfigValues: AtlassianConfigValues{IssueUpdateURL: &taskUpdateServer.URL, TokenURL: &tokenServer.URL}}}}
 
 		newName := ""
-		newBody := "New Body"
+		newBody := `{"body": "New Body"}`
 
 		err := JIRA.ModifyTask(db, *userID, account_id, "6942069420", &database.Task{
 			Title: &newName,
