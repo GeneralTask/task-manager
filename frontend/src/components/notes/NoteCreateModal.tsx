@@ -115,7 +115,11 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keyCode = getKeyCode(e)
-        if (keyCode === KEYBOARD_SHORTCUTS.close.key || keyCode === KEYBOARD_SHORTCUTS.submit.key) {
+        if (
+            keyCode === KEYBOARD_SHORTCUTS.close.key ||
+            keyCode === KEYBOARD_SHORTCUTS.submit.key ||
+            (keyCode === KEYBOARD_SHORTCUTS.newNote.key && !noteBody && !optimisticId && !isEditing)
+        ) {
             setIsOpen(false)
         }
         stopKeydownPropogation(e, undefined, true)
@@ -155,7 +159,11 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 onChange={(body) => onEdit({ body })}
                                 fontSize="small"
                                 placeholder="Type your note here. It will be saved automatically."
-                                keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key, KEYBOARD_SHORTCUTS.submit.key]}
+                                keyDownExceptions={[
+                                    KEYBOARD_SHORTCUTS.close.key,
+                                    KEYBOARD_SHORTCUTS.submit.key,
+                                    KEYBOARD_SHORTCUTS.newNote.key,
+                                ]}
                                 minHeight={300}
                                 autoFocus
                             />
