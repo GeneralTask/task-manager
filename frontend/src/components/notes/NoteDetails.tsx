@@ -104,12 +104,12 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Label color="light">{syncIndicatorText}</Label>
                 </DetailItem>
                 <MarginLeftAuto>
-                    <Flex gap={Spacing._8}>
-                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'gray'} />
-                        <Label color={isShared ? 'green' : 'light'}>{`${
-                            isShared ? `Shared until ${sharedUntil}` : 'Not shared'
-                        }`}</Label>
-                    </Flex>
+                    {isShared && (
+                        <Flex gap={Spacing._8}>
+                            <Icon icon={icons.link} color="green" />
+                            <Label color="green">{`Shared until ${sharedUntil}`}</Label>
+                        </Flex>
+                    )}
                     <NoteSharingDropdown note={note} />
                 </MarginLeftAuto>
             </DetailsTopContainer>
