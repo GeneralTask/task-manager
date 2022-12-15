@@ -27,7 +27,7 @@ const NoteListView = () => {
 
     const sortedNotes = useMemo(() => {
         if (!notes) return EMPTY_ARRAY
-        return [...notes].reverse() // temporarily reversing notes so that the most recent note is at the top (backend will change to be correct soon)
+        return [...notes].reverse()
     }, [notes])
 
     const selectedNote = useMemo(() => {
