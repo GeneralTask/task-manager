@@ -55,7 +55,6 @@ import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
-const TASK_TITLE_MAX_WIDTH = 145
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -74,7 +73,6 @@ const DetailItem = styled.div`
     display: flex;
     align-items: center;
     margin-left: ${Spacing._8};
-    max-width: ${TASK_TITLE_MAX_WIDTH}px;
     display: block;
 `
 const TaskStatusContainer = styled.div`
@@ -252,7 +250,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     {subtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
-                            <BackButtonText>Return to {task.title}</BackButtonText>
+                            <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
                     ) : (
                         <Icon icon={logos[currentTask?.source?.logo_v2 ?? 'generaltask']} />
