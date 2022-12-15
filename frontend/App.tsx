@@ -1,7 +1,6 @@
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import AuthenticatedRoutes from './src/AuthenticatedRoutes'
 import Spinner from './src/components/atoms/Spinner'
 import SharedNoteView from './src/components/notes/SharedNoteView'
 import LandingScreen from './src/components/screens/LandingScreen'
@@ -9,6 +8,7 @@ import { NOTE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/
 import { GlobalStyle } from './src/styles'
 import { CompanyPolicyPages } from './src/utils/enums'
 
+const AuthenticatedRoutes = lazy(() => import('./src/AuthenticatedRoutes'))
 const CompanyPolicyView = lazy(() => import('./src/components/views/CompanyPolicyView'))
 
 const App = () => {
