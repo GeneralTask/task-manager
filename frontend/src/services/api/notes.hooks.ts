@@ -12,6 +12,7 @@ export interface TCreateNoteData {
     author: string
     shared_until?: string
     optimisticId: string
+    callback?: (data: TNoteResponse) => void
 }
 
 export interface TNoteResponse {
@@ -74,6 +75,8 @@ export const useCreateNote = () => {
             // check response to see if we get anything back for this endpoint
             setOptimisticId(createData.optimisticId, response.note_id)
 
+            if (createData.callback) createData.callback(response)
+
             const notes = queryClient.getImmutableQueryData<TNote[]>('notes')
             if (!notes) return
 
@@ -89,7 +92,12 @@ export const useCreateNote = () => {
 }
 export const createNote = async (data: TCreateNoteData) => {
     try {
-        const res = await apiClient.post('/notes/create/', data)
+        const res = await apiClient.post('/notes/create/', {
+            title: data.title,
+            body: data.body,
+            author: data.author,
+            shared_until: data.shared_until,
+        })
         return castImmutable(res.data)
     } catch {
         throw new Error('createNote failed')
