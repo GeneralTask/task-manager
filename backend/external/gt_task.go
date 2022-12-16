@@ -17,7 +17,7 @@ import (
 
 type GeneralTaskTaskSource struct{}
 
-func (generalTask GeneralTaskTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
+func (generalTask GeneralTaskTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(errors.New("GT task cannot fetch events"))
 }
 

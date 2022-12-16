@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"sort"
 	"time"
 
@@ -22,8 +21,6 @@ type EventListParams struct {
 type EventResult struct {
 	ID             primitive.ObjectID   `json:"id"`
 	AccountID      string               `json:"account_id"`
-	CalendarID     string               `json:"calendar_id"`
-	ColorID        string               `json:"color_id"`
 	Deeplink       string               `json:"deeplink"`
 	Title          string               `json:"title"`
 	Body           string               `json:"body"`
@@ -89,7 +86,7 @@ func (api *API) EventsList(c *gin.Context) {
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var calendarEvents = make(chan external.CalendarResult)
-			go taskSourceResult.Source.GetEvents(api.DB, userID, token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, token.Scopes, calendarEvents)
+			go taskSourceResult.Source.GetEvents(api.DB, userID, token.AccountID, *eventListParams.DatetimeStart, *eventListParams.DatetimeEnd, calendarEvents)
 			calendarEventChannels = append(calendarEventChannels, calendarEvents)
 		}
 	}
@@ -98,19 +95,10 @@ func (api *API) EventsList(c *gin.Context) {
 	for _, calendarEventChannel := range calendarEventChannels {
 		calendarResult := <-calendarEventChannel
 		if calendarResult.Error != nil {
-			log.Error().Err(calendarResult.Error).Send()
 			continue
 		}
 		for _, event := range calendarResult.CalendarEvents {
-			if event == nil || *event == (database.CalendarEvent{}) {
-				log.Debug().Msg("event is empty")
-				continue
-			}
-			taskSourceResult, err := api.ExternalConfig.GetSourceResult(event.SourceID)
-			if err != nil {
-				log.Error().Err(err).Msgf("could not find task source: %s for event: %+v", event.SourceID, event)
-			}
-
+			taskSourceResult, _ := api.ExternalConfig.GetSourceResult(event.SourceID)
 			logo := taskSourceResult.Details.LogoV2
 			var linkedTaskID string
 			if event.LinkedTaskID != primitive.NilObjectID {
@@ -129,8 +117,6 @@ func (api *API) EventsList(c *gin.Context) {
 			calendarEvents = append(calendarEvents, EventResult{
 				ID:            event.ID,
 				AccountID:     event.SourceAccountID,
-				CalendarID:    event.CalendarID,
-				ColorID:       event.ColorID,
 				Deeplink:      event.Deeplink,
 				Title:         event.Title,
 				Body:          event.Body,

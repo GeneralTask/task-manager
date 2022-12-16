@@ -116,7 +116,7 @@ type ProcessRepositoryResult struct {
 	ShouldLog           bool
 }
 
-func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
+func (gitPR GithubPRSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(errors.New("github PR cannot fetch events"))
 }
 
