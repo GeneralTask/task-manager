@@ -16,19 +16,25 @@ const TooltipContent = styled(Tooltip.Content)`
         position: absolute;
         width: 0;
         height: 0;
-        border-style: solid;
-        border-bottom: 10px solid ${Colors.background.white};
-        border-top: 10px solid transparent;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        bottom: -20px;
-        left: 50%;
-        margin-left: -5px;
-        transform: rotate(180deg);
+        border: 5px solid transparent;
+        ${({ side }) => {
+            if (side == null || side === 'top') {
+                return `
+                    bottom: -10px;
+                    left: 50%;
+                    margin-left: -5px;
+                    border-top: 5px solid ${Colors.background.white};
+                `
+            } else if (side === 'right') {
+                return `
+                    top: 50%;
+                    left: -10px;
+                    margin-top: -5px;
+                    border-right: 5px solid ${Colors.background.white};
+                `
+            }
+        }}
     }
-`
-const TooltipArrow = styled(Tooltip.Arrow)`
-    fill: ${Colors.background.white};
 `
 
 export type TTooltipSide = 'top' | 'right' | 'bottom' | 'left'
@@ -73,12 +79,12 @@ const Tip = ({
 
     return (
         <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>
-            <Tooltip.Root open defaultOpen={true}>
+            <Tooltip.Root defaultOpen={false}>
                 <Tooltip.Trigger asChild>
                     <span>{children}</span>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
-                    <TooltipContent side={side} align={align}>
+                    <TooltipContent side={side} sideOffset={10} align={align} avoidCollisions={false} arrowPadding={10}>
                         {tooltipContent}
                     </TooltipContent>
                 </Tooltip.Portal>
