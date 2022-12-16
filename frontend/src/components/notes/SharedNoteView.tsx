@@ -62,6 +62,9 @@ const SignInButton = styled(NoStyleButton)`
 const GoogleImage = styled.img`
     width: 100%;
 `
+const FlexPadding8Horizontal = styled(Flex)`
+    padding: 0 ${Spacing._8};
+`
 
 const SharedNoteView = () => {
     const navigate = useNavigate()
@@ -112,7 +115,7 @@ const SharedNoteView = () => {
                                     readOnly
                                 />
                                 <Divider color={Colors.border.light} />
-                                <Flex justifyContent="space-between" alignItems="center">
+                                <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
                                         {isLoggedIn && notes?.findIndex((n) => n.id === note.id) !== -1 ? (
                                             <>
@@ -128,7 +131,7 @@ const SharedNoteView = () => {
                                         ) : (
                                             <Label color="light">{`${
                                                 note.author
-                                            } shared this note with you ${getHumanTimeSinceDateTime(
+                                            } shared this note ${getHumanTimeSinceDateTime(
                                                 DateTime.fromISO(note.updated_at)
                                             )}`}</Label>
                                         )}
@@ -142,7 +145,7 @@ const SharedNoteView = () => {
                                             2
                                         )}`}</Label>
                                     </Flex>
-                                </Flex>
+                                </FlexPadding8Horizontal>
                             </>
                         ) : (
                             <>
