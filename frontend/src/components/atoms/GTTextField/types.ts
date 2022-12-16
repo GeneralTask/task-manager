@@ -10,7 +10,7 @@ export interface MarkdownEditorProps {
     itemId?: string // use if reusing field for multiple items
     autoFocus?: boolean
     autoSelect?: boolean
-    blurOnEnter?: boolean
+    onEnterKeyDown?: 'blur' | 'disable'
     disabled?: boolean
     readOnly?: boolean
     isFullHeight?: boolean

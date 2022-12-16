@@ -50,8 +50,11 @@ const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) =>
     }, [])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-        if (ref.current && (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter'))) {
+        if (ref.current && (e.key === 'Escape' || (props.onEnterKeyDown === 'blur' && e.key === 'Enter'))) {
             ref.current.blur()
+        }
+        if (props.onEnterKeyDown === 'disable' && e.key === 'Enter') {
+            e.preventDefault()
         }
     }
 

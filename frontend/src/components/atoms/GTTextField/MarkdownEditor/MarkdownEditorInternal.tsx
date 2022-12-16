@@ -91,7 +91,7 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
     }, [props.autoSelect])
 
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-        if (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter')) {
+        if (e.key === 'Escape' || (props.onEnterKeyDown === 'blur' && e.key === 'Enter')) {
             blur()
         }
     }

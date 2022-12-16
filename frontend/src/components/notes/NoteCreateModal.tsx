@@ -149,6 +149,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 onChange={(title) => onEdit({ title })}
                                 placeholder="Note Title"
                                 keyDownExceptions={[KEYBOARD_SHORTCUTS.close.key, KEYBOARD_SHORTCUTS.submit.key]}
+                                onEnterKeyDown="disable"
                                 fontSize="medium"
                             />
                         </Flex>

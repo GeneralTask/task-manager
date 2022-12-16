@@ -324,7 +324,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
-                    blurOnEnter
+                    onEnterKeyDown="blur"
                 />
             </div>
             {meeting_preparation_params && (
