@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
@@ -120,9 +120,9 @@ const SharedNoteView = () => {
                                                     DateTime.fromISO(note.updated_at)
                                                 )}`}</Label>
                                                 <Label>
-                                                    <NoStyleButton onClick={() => navigate(`/notes/${noteId}`)}>
-                                                        (edit note)
-                                                    </NoStyleButton>
+                                                    {'('}
+                                                    <Link to={`/notes/${noteId}`}>edit note</Link>
+                                                    {')'}
                                                 </Label>
                                             </>
                                         ) : (
