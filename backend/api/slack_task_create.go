@@ -102,7 +102,11 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 	// gather payload from the request
 	formData := []byte{}
-	c.Request.ParseForm()
+	err = c.Request.ParseForm()
+	if err != nil {
+		c.JSON(400, gin.H{"detail": "unable to parse payload"})
+		return
+	}
 	if val, ok := c.Request.Form["payload"]; ok {
 		if len(val) > 0 {
 			formData = []byte(val[0])
@@ -177,7 +181,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 
 		title, err := getSlackMessageTitle(source, slackParams, externalToken)
 		if err != nil {
-			logger.Error().Err(err).Msg("error parsing Slack timestamp")
+			logger.Error().Err(err).Msg("error parsing Slack title")
 			Handle500(c)
 			return
 		}
@@ -294,7 +298,10 @@ func getSlackMessageTitle(slackTask external.SlackSavedTaskSource, messageParams
 	title := ""
 
 	var oauthToken oauth2.Token
-	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	err := json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	if err != nil {
+		return "", err
+	}
 
 	client := slack.New(oauthToken.AccessToken)
 	config := slackTask.Slack.Config.ConfigValues

@@ -72,7 +72,10 @@ func GetGithubToken(externalAPITokenCollection *mongo.Collection, userID primiti
 	}
 
 	var token oauth2.Token
-	json.Unmarshal([]byte(githubToken.Token), &token)
+	err := json.Unmarshal([]byte(githubToken.Token), &token)
+	if err != nil {
+		return nil, err
+	}
 	return &token, nil
 }
 

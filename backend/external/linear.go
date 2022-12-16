@@ -24,7 +24,7 @@ import (
 const (
 	LinearGraphqlEndpoint = "https://api.linear.app/graphql"
 	LinearAuthUrl         = "https://linear.app/oauth/authorize"
-	LinearTokenUrl        = "https://api.linear.app/oauth/token"
+	LinearTokenUrl        = "https://api.linear.app/oauth/token" //#nosec
 	LinearCompletedType   = "completed"
 	LinearCanceledType    = "canceled"
 )

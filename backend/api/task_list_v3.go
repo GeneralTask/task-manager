@@ -70,7 +70,9 @@ func (api *API) mergeTasksV3(
 	}
 	deletedTaskResults := []*TaskResult{}
 	for index, task := range *deletedTasks {
-		taskResult := api.taskBaseToTaskResult(&task, userID)
+		// for implicit memory aliasing
+		tempTask := task
+		taskResult := api.taskBaseToTaskResult(&tempTask, userID)
 		taskResult.IDOrdering = index + 1
 		deletedTaskResults = append(deletedTaskResults, taskResult)
 	}
@@ -165,7 +167,10 @@ func (api *API) extractSectionTasksV3(
 		}
 	}
 	for _, resultSection := range resultSections {
-		api.updateOrderingIDsV2(db, &resultSection.Tasks)
+		err := api.updateOrderingIDsV2(db, &resultSection.Tasks)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to update ordering ids")
+		}
 	}
 	return resultSections, nil
 }
