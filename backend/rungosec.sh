@@ -1,4 +1,4 @@
-curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s vX.Y.Z
+curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s latest
 gosec -r
 if [ $? -eq 0 ]
 then
