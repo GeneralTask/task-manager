@@ -73,7 +73,6 @@ const DetailItem = styled.div`
     display: flex;
     align-items: center;
     margin-left: ${Spacing._8};
-    display: block;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
