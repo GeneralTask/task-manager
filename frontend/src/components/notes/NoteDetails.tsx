@@ -36,7 +36,6 @@ const DetailItem = styled.div`
     align-items: center;
     margin-left: ${Spacing._8};
     max-width: ${NOTE_TITLE_MAX_WIDTH}px;
-    display: block;
 `
 interface NoteDetailsProps {
     note: TNote
