@@ -14,8 +14,8 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
-      - name: Run Gosec Security Scanner
+      - name: Install Gosec
         uses: securego/gosec@master
-        with:
-          args: -r
-          cache-dependency-path: backend/go.mod
+      - name: Run Gosec
+        run: gosec -r
+        working-directory: backend
