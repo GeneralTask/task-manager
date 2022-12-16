@@ -120,7 +120,11 @@ func (api *API) LinkCallback(c *gin.Context) {
 		return
 	}
 
-	c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
+	_, err = c.Writer.Write([]byte("<html><head><script>window.open('','_parent','');window.close();</script></head><body>Success</body></html>"))
+	if err != nil {
+		c.JSON(500, gin.H{"detail": err.Error()})
+		return
+	}
 	c.Status(200)
 }
 

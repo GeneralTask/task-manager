@@ -14,8 +14,13 @@ export const authSignOut = () => {
     window.location.href = getEnvVars().REACT_APP_TRY_BASE_URL
 }
 
-export const openPopupWindow = (authorizationURL: string, onWindowClose: () => void) => {
-    Log(`open_auth_window_${authorizationURL}`)
+export const openPopupWindow = (
+    authorizationURL: string,
+    onWindowClose: () => void,
+    logEvent = true,
+    closeOnCookieSet = false
+) => {
+    if (logEvent) Log(`open_auth_window_${authorizationURL}`)
     const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
     const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
     const win = window.open(
@@ -25,6 +30,11 @@ export const openPopupWindow = (authorizationURL: string, onWindowClose: () => v
     )
     if (win != null) {
         const timer = setInterval(() => {
+            if (closeOnCookieSet && Cookie.get(AUTHORIZATION_COOKE)) {
+                win.close()
+                clearInterval(timer)
+                onWindowClose()
+            }
             if (win.closed) {
                 clearInterval(timer)
                 onWindowClose()

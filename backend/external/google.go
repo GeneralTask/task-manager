@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"net/http"
 	"strings"
 	"time"
+
+	"golang.org/x/exp/slices"
 
 	"github.com/rs/zerolog/log"
 
@@ -231,12 +232,16 @@ func (Google GoogleService) HandleSignupCallback(db *mongo.Database, params Call
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After))
 
 	log.Debug().Msgf("userChangeable: %+v", userChangeable)
-	userCollection.FindOneAndUpdate(
+	err = userCollection.FindOneAndUpdate(
 		context.Background(),
 		bson.M{"google_id": userInfo.SUB},
 		bson.M{"$set": userChangeable},
 		options.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(options.After),
 	).Decode(&user)
+	if err != nil {
+		logger.Error().Err(err).Msg("error decoding user object")
+		return primitive.NilObjectID, nil, nil, err
+	}
 
 	if user.ID == primitive.NilObjectID {
 		logger.Error().Msg("unable to create user")

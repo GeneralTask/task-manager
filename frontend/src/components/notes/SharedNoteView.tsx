@@ -1,11 +1,12 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { AUTHORIZATION_COOKE } from '../../constants'
-import { useGetNote } from '../../services/api/notes.hooks'
+import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
+import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { icons, noteBackground } from '../../styles/images'
+import { buttons, icons, noteBackground } from '../../styles/images'
+import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -13,7 +14,6 @@ import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Body, Label, Title } from '../atoms/typography/Typography'
 
@@ -56,20 +56,27 @@ const NoteBody = styled.div`
     gap: ${Spacing._24};
     margin: ${Spacing._24};
 `
-const SignInButton = styled.div`
+const SignInButton = styled(NoStyleButton)`
     width: 200px;
+`
+const GoogleImage = styled.img`
+    width: 100%;
+`
+const FlexPadding8Horizontal = styled(Flex)`
+    padding: 0 ${Spacing._8};
 `
 
 const SharedNoteView = () => {
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
+    const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-    if (isLoading) return <Spinner />
 
-    const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
+    const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
 
+    if (isLoading || isLoadingNotes) return <Spinner />
     return (
         <MainContainer>
             <ColumnContainer>
@@ -80,8 +87,8 @@ const SharedNoteView = () => {
                     {isLoggedIn ? (
                         <GTButton styleType="secondary" value="Back to General Task" onClick={() => navigate('/')} />
                     ) : (
-                        <SignInButton>
-                            <GoogleSignInButton />
+                        <SignInButton onClick={() => openPopupWindow(LOGIN_URL, emptyFunction, false, true)}>
+                            <GoogleImage src={buttons.google_sign_in} />
                         </SignInButton>
                     )}
                 </TopContainer>
@@ -108,11 +115,26 @@ const SharedNoteView = () => {
                                     readOnly
                                 />
                                 <Divider color={Colors.border.light} />
-                                <Flex justifyContent="space-between" alignItems="center">
+                                <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
-                                        <Label>{note.author}</Label>
-                                        <Label color="light">shared this note with you</Label>
-                                        <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(note.updated_at))}</Label>
+                                        {isLoggedIn && notes?.findIndex((n) => n.id === note.id) !== -1 ? (
+                                            <>
+                                                <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
+                                                    DateTime.fromISO(note.updated_at)
+                                                )}`}</Label>
+                                                <Label>
+                                                    {'('}
+                                                    <Link to={`/notes/${noteId}`}>edit note</Link>
+                                                    {')'}
+                                                </Label>
+                                            </>
+                                        ) : (
+                                            <Label color="light">{`${
+                                                note.author
+                                            } shared this note ${getHumanTimeSinceDateTime(
+                                                DateTime.fromISO(note.updated_at)
+                                            )}`}</Label>
+                                        )}
                                     </Flex>
                                     <Flex gap={Spacing._4}>
                                         <Icon color="gray" icon={icons.link} />
@@ -123,7 +145,7 @@ const SharedNoteView = () => {
                                             2
                                         )}`}</Label>
                                     </Flex>
-                                </Flex>
+                                </FlexPadding8Horizontal>
                             </>
                         ) : (
                             <>

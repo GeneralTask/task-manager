@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
+	"time"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"time"
 )
 
 type NoteResult struct {
@@ -43,7 +44,9 @@ func (api *API) NotesList(c *gin.Context) {
 func (api *API) noteListToNoteResultList(notes *[]database.Note, userID primitive.ObjectID) []*NoteResult {
 	noteResults := []*NoteResult{}
 	for _, note := range *notes {
-		result := api.noteToNoteResult(&note)
+		// for implicit memory aliasing
+		tempNote := note
+		result := api.noteToNoteResult(&tempNote)
 		noteResults = append(noteResults, result)
 	}
 	return noteResults

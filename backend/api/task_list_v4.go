@@ -112,7 +112,9 @@ func (api *API) taskListToTaskResultListV4(tasks *[]database.Task, userID primit
 				parentToChildIDs[task.ParentTaskID] = []primitive.ObjectID{task.ID}
 			}
 		}
-		taskResults = append(taskResults, api.taskToTaskResultV4(&task, userID))
+		// for implicit memory aliasing
+		tempTask := task
+		taskResults = append(taskResults, api.taskToTaskResultV4(&tempTask, userID))
 	}
 
 	// nodes with no valid parent will not appear in task results

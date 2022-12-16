@@ -125,9 +125,12 @@ func (gitPR GithubPRSource) GetTasks(db *mongo.Database, userID primitive.Object
 }
 
 func (gitPR GithubPRSource) GetPullRequests(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- PullRequestResult) {
-	database.InsertLogEvent(db, userID, "get_pull_requests")
-	parentCtx := context.Background()
 	logger := logging.GetSentryLogger()
+	err := database.InsertLogEvent(db, userID, "get_pull_requests")
+	if err != nil {
+		logger.Error().Err(err).Msg("error inserting log event")
+	}
+	parentCtx := context.Background()
 
 	var githubClient *github.Client
 	// need to copy github client for each async call so that override url setting is threadsafe
@@ -266,11 +269,14 @@ func (gitPR GithubPRSource) processRepository(db *mongo.Database, userID primiti
 	extCtx, cancel := context.WithTimeout(context.Background(), constants.ExternalTimeout)
 	defer cancel()
 	fetchedPullRequests, err := getGithubPullRequests(extCtx, githubClient, repository, gitPR.Github.Config.ConfigValues.ListPullRequestsURL)
-	database.InsertLogEvent(db, userID, "list_pull_requests")
 	if err != nil && shouldLogError(err) {
 		shouldLog := handleErrorLogging(err, db, userID, "failed to fetch Github PRs")
 		result <- ProcessRepositoryResult{Error: err, ShouldLog: shouldLog}
 		return
+	}
+	err = database.InsertLogEvent(db, userID, "list_pull_requests")
+	if err != nil {
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to insert log event")
 	}
 	var pullRequestChannels []chan *database.PullRequest
 	var requestTimes []primitive.DateTime
@@ -292,7 +298,10 @@ func (gitPR GithubPRSource) processRepository(db *mongo.Database, userID primiti
 }
 
 func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primitive.ObjectID, accountID string, requestData GithubPRRequestData, result chan<- *database.PullRequest) {
-	database.InsertLogEvent(db, userID, "get_pull_request_info")
+	err := database.InsertLogEvent(db, userID, "get_pull_request_info")
+	if err != nil {
+		logging.GetSentryLogger().Error().Err(err).Msg("failed to insert log event")
+	}
 	githubClient := requestData.Client
 	githubUser := requestData.User
 	repository := requestData.Repository
@@ -307,7 +316,7 @@ func (gitPR GithubPRSource) getPullRequestInfo(db *mongo.Database, userID primit
 		return
 	}
 
-	err := setOverrideURL(githubClient, gitPR.Github.Config.ConfigValues.ListPullRequestReviewURL)
+	err = setOverrideURL(githubClient, gitPR.Github.Config.ConfigValues.ListPullRequestReviewURL)
 	if err != nil {
 		handleErrorLogging(err, db, userID, "failed to set override url for Github PR reviews")
 		result <- nil
@@ -418,7 +427,10 @@ func handleErrorLogging(err error, db *mongo.Database, userID primitive.ObjectID
 		logging.GetSentryLogger().Error().Err(err).Msg(msg)
 	}
 	if strings.Contains(err.Error(), "403 API rate limit") {
-		database.InsertLogEvent(db, userID, "github_pr_rate_limited")
+		err := database.InsertLogEvent(db, userID, "github_pr_rate_limited")
+		if err != nil {
+			logging.GetSentryLogger().Error().Err(err).Msg(msg)
+		}
 	}
 	return shouldLog
 }
