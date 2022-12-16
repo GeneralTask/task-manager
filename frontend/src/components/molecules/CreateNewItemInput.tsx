@@ -6,7 +6,7 @@ import { Border, Colors, Dimensions, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import Tip, { TTooltipAlign } from '../radix/Tip'
+import Tip from '../radix/Tip'
 
 export const CreateNewItemInputContainer = styled.div`
     display: flex;
