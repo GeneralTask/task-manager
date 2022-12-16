@@ -11,6 +11,7 @@ import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { Label } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
 
 const TITLE_MAX_HEIGHT = 208
@@ -111,6 +112,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                         </Flex>
                     )}
                     <NoteSharingDropdown note={note} />
+                    <NoteActionsDropdown note={note} />
                 </MarginLeftAuto>
             </DetailsTopContainer>
             <div>
@@ -133,12 +135,6 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 minHeight={BODY_MIN_HEIGHT}
                 fontSize="small"
             />
-            <Label color="light">{`Last updated ${DateTime.fromISO(note.updated_at).toLocaleString({
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-            })}`}</Label>
         </DetailsViewTemplate>
     )
 }
