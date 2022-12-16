@@ -6,6 +6,10 @@ import Flex from '../../../atoms/Flex'
 import { BodySmall } from '../../../atoms/typography/Typography'
 import GTSelect from '../../../radix/GTSelect'
 
+/*
+    The core radix Select component only selects strings, so the RECURRENCE_RATE enum is converted to a string in order to be used here.
+*/
+
 interface RecurrenceRateSelectorProps {
     value: RecurrenceRate
     onChange: (value: RecurrenceRate) => void
