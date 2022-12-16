@@ -1,12 +1,10 @@
-import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import { Spacing } from '../../../../styles'
 import { RecurrenceRate } from '../../../../utils/enums'
 import { getOrdinal } from '../../../../utils/time'
 import Flex from '../../../atoms/Flex'
-import GTButton from '../../../atoms/buttons/GTButton'
 import { BodySmall } from '../../../atoms/typography/Typography'
-import GTDropdownMenu from '../../../radix/GTDropdownMenu'
+import GTSelect from '../../../radix/GTSelect'
 
 interface RecurrenceRateSelectorProps {
     value: RecurrenceRate
@@ -14,39 +12,25 @@ interface RecurrenceRateSelectorProps {
     selectedDate: DateTime
 }
 const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRateSelectorProps) => {
-    const recurrenceRateLabels: [RecurrenceRate, string][] = useMemo(
-        () => [
-            [RecurrenceRate.DAILY, 'Daily'],
-            [RecurrenceRate.WEEKLY, `Weekly on ${selectedDate.weekdayLong}`],
-            [RecurrenceRate.MONTHLY, `Monthly on the ${getOrdinal(selectedDate.day)}`],
-            [RecurrenceRate.YEARLY, `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`],
-            [RecurrenceRate.WEEK_DAILY, 'Every weekday (Monday to Friday)'],
-        ],
-        [selectedDate]
-    )
-
     return (
         <Flex column gap={Spacing._12}>
             <BodySmall>How often would you like this task to repeat?</BodySmall>
-            <GTDropdownMenu
-                menuInModal
-                fontStyle="bodySmall"
-                unstyledTrigger
-                items={recurrenceRateLabels.map(([rate, label]) => ({
-                    label,
-                    onClick: () => onChange(rate),
-                    selected: value === rate,
-                }))}
-                trigger={
-                    <GTButton
-                        isDropdown
-                        styleType="secondary"
-                        fitContent={false}
-                        size="small"
-                        value={recurrenceRateLabels.find(([rate]) => rate === value)?.[1] || 'Select a recurrence rate'}
-                        asDiv
-                    />
-                }
+            <GTSelect
+                items={[
+                    { value: RecurrenceRate.DAILY.toString(), label: 'Daily' },
+                    { value: RecurrenceRate.WEEKLY.toString(), label: `Weekly on ${selectedDate.weekdayLong}` },
+                    {
+                        value: RecurrenceRate.MONTHLY.toString(),
+                        label: `Monthly on the ${getOrdinal(selectedDate.day)}`,
+                    },
+                    {
+                        value: RecurrenceRate.YEARLY.toString(),
+                        label: `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`,
+                    },
+                    { value: RecurrenceRate.WEEK_DAILY.toString(), label: 'Every weekday (Monday to Friday)' },
+                ]}
+                value={value.toString()}
+                onChange={(newValue) => onChange(parseInt(newValue))}
             />
         </Flex>
     )
