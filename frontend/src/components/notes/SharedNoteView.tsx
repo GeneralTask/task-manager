@@ -1,9 +1,9 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
-import { useGetNote } from '../../services/api/notes.hooks'
+import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { buttons, icons, noteBackground } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
@@ -70,12 +70,13 @@ const SharedNoteView = () => {
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
+    const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-    if (isLoading) return <Spinner />
 
-    const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
+    const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
 
+    if (isLoading || isLoadingNotes) return <Spinner />
     return (
         <MainContainer>
             <ColumnContainer>
@@ -116,9 +117,24 @@ const SharedNoteView = () => {
                                 <Divider color={Colors.border.light} />
                                 <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
-                                        <Label>{note.author}</Label>
-                                        <Label color="light">shared this note</Label>
-                                        <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(note.updated_at))}</Label>
+                                        {isLoggedIn && notes?.findIndex((n) => n.id === note.id) !== -1 ? (
+                                            <>
+                                                <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
+                                                    DateTime.fromISO(note.updated_at)
+                                                )}`}</Label>
+                                                <Label>
+                                                    {'('}
+                                                    <Link to={`/notes/${noteId}`}>edit note</Link>
+                                                    {')'}
+                                                </Label>
+                                            </>
+                                        ) : (
+                                            <Label color="light">{`${
+                                                note.author
+                                            } shared this note ${getHumanTimeSinceDateTime(
+                                                DateTime.fromISO(note.updated_at)
+                                            )}`}</Label>
+                                        )}
                                     </Flex>
                                     <Flex gap={Spacing._4}>
                                         <Icon color="gray" icon={icons.link} />
