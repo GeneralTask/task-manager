@@ -121,7 +121,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     onChange={(val) => onEdit({ id: note.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
-                    blurOnEnter
+                    onEnterKeyDown="blur"
                 />
             </div>
             <GTTextField
