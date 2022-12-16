@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GO111MODULE: on
-      working-directory: ./backend
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
@@ -19,3 +18,4 @@ jobs:
         uses: securego/gosec@master
         with:
           args: -r
+          cache-dependency-path: backend/go.mod
