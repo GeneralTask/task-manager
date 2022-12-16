@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { NOTE_SYNC_TIMEOUT, NO_TITLE, REACT_APP_FRONTEND_BASE_URL, SYNC_MESSAGES } from '../../constants'
 import KEYBOARD_SHORTCUTS from '../../constants/shortcuts'
 import { useToast } from '../../hooks'
-import { useCreateNote, useModifyNote } from '../../services/api/notes.hooks'
+import { useCreateNote, useGetNotes, useModifyNote } from '../../services/api/notes.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -20,6 +21,7 @@ interface NoteCreateModalProps {
     setIsOpen: (isOpen: boolean) => void
 }
 const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
+    const { data: notes } = useGetNotes()
     const { mutate: createNote } = useCreateNote()
     const { mutate: modifyNote, isError, isLoading } = useModifyNote()
     const { data: userInfo } = useGetUserInfo()
@@ -31,6 +33,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
     const timer = useRef<{ timeout: NodeJS.Timeout; callback: () => void }>()
     const toast = useToast()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (isEditing || isLoading) {
@@ -127,6 +130,11 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
 
     useEffect(() => {
         if (!isOpen) {
+            // If this is the user's first note, we navigate to the notes page the modal is closed (learnability)
+            if ((isEditing && notes?.length === 0) || ((realId || optimisticId) && notes?.length === 1)) {
+                navigate('/notes')
+            }
+
             setNoteTitle('')
             setNoteBody('')
             setOptimisticId(undefined)
