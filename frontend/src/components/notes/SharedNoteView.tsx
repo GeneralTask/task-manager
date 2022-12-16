@@ -11,6 +11,7 @@ import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
@@ -158,16 +159,12 @@ const SharedNoteView = () => {
                                     If you need access to this note, please reach out to the person who sent it.
                                 </Body>
                                 <FlexMargin8Top gap={Spacing._8}>
-                                    <GTButton
-                                        styleType="primary"
-                                        value="Sign In to General Task"
-                                        onClick={() => window.location.replace(getEnvVars().REACT_APP_TRY_SIGN_UP_URL)}
-                                    />
-                                    <GTButton
-                                        styleType="secondary"
-                                        value="Learn more about General Task"
-                                        onClick={() => window.location.replace(getEnvVars().REACT_APP_TRY_BASE_URL)}
-                                    />
+                                    <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_SIGN_UP_URL}>
+                                        <GTButton styleType="primary" value="Sign In to General Task" />
+                                    </NoStyleAnchor>
+                                    <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_BASE_URL}>
+                                        <GTButton styleType="secondary" value="Learn more about General Task" />
+                                    </NoStyleAnchor>
                                 </FlexMargin8Top>
                             </>
                         )}
