@@ -13,6 +13,7 @@ const TooltipContent = styled(Tooltip.Content)`
     ${Typography.bodySmall};
 `
 const TooltipArrow = styled(Tooltip.Arrow)`
+    visibility: visible;
     fill: ${Colors.background.white};
 `
 
@@ -63,7 +64,7 @@ const Tip = ({
                     <span>{children}</span>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
-                    <TooltipContent sideOffset={5} side={side} align={align}>
+                    <TooltipContent sideOffset={5} side={side} align={align} arrowPadding={8}>
                         {tooltipContent}
                         <TooltipArrow />
                     </TooltipContent>
