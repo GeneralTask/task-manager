@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
@@ -27,7 +28,7 @@ const NoteListView = () => {
 
     const sortedNotes = useMemo(() => {
         if (!notes) return EMPTY_ARRAY
-        return [...notes].reverse()
+        return notes.sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
     }, [notes])
 
     const selectedNote = useMemo(() => {
