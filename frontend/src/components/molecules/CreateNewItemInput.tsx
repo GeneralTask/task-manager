@@ -44,7 +44,6 @@ interface CreateNewItemInputProps {
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
     onBlur?: () => void
-    align?: TTooltipAlign
 }
 const CreateNewItemInput = ({
     initialValue = '',
@@ -55,7 +54,6 @@ const CreateNewItemInput = ({
     onChange,
     onSubmit,
     onBlur,
-    align = 'end',
 }: CreateNewItemInputProps) => {
     const [text, setText] = useState(initialValue)
     const [shouldFocus, setShouldFocus] = useState(autoFocus ?? false)
@@ -87,7 +85,7 @@ const CreateNewItemInput = ({
     )
 
     return (
-        <Tip shortcutName={shortcutName} side="top" align={align} disabled={!shortcutName}>
+        <Tip shortcutName={shortcutName} side="top" align="end" disabled={!shortcutName}>
             <CreateNewItemInputContainer>
                 {!hideIcon && <Icon icon={icons.plus} />}
                 <TaskInput
