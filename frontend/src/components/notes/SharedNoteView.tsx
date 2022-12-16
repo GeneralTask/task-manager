@@ -15,6 +15,7 @@ import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Body, Label, Title } from '../atoms/typography/Typography'
+import NoteActionsDropdown from './NoteActionsDropdown'
 
 const Logo = styled.img`
     width: 153px;
@@ -95,15 +96,18 @@ const SharedNoteView = () => {
                     <NoteBody>
                         {note && note.shared_until ? (
                             <>
-                                <GTTextField
-                                    type="plaintext"
-                                    itemId={note.title}
-                                    value={note.title}
-                                    onChange={emptyFunction}
-                                    fontSize="large"
-                                    disabled
-                                    readOnly
-                                />
+                                <Flex alignItems="flex-start">
+                                    <GTTextField
+                                        type="plaintext"
+                                        itemId={note.title}
+                                        value={note.title}
+                                        onChange={emptyFunction}
+                                        fontSize="large"
+                                        disabled
+                                        readOnly
+                                    />
+                                    <NoteActionsDropdown note={note} />
+                                </Flex>
                                 <GTTextField
                                     type="markdown"
                                     itemId={note.body}
