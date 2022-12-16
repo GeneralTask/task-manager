@@ -3,6 +3,7 @@ import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
+import getEnvVars from '../../environment'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { buttons, noteBackground } from '../../styles/images'
@@ -10,6 +11,7 @@ import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
@@ -64,6 +66,9 @@ const GoogleImage = styled.img`
 `
 const FlexPadding8Horizontal = styled(Flex)`
     padding: 0 ${Spacing._8};
+`
+const FlexMargin8Top = styled(Flex)`
+    margin-top: ${Spacing._8};
 `
 
 const SharedNoteView = () => {
@@ -149,11 +154,28 @@ const SharedNoteView = () => {
                             </>
                         ) : (
                             <>
-                                <Title>This note is no longer available.</Title>
+                                <Title>This note is not available</Title>
                                 <Body>
-                                    This shared note has expired or is unavailable. Please reach out to the person who
-                                    sent this shared note for a new link.
+                                    If you need access to this note, please reach out to the person who sent it.
                                 </Body>
+                                <FlexMargin8Top gap={Spacing._8}>
+                                    {isLoggedIn ? (
+                                        <GTButton
+                                            styleType="primary"
+                                            value="Back to General Task"
+                                            onClick={() => navigate('/')}
+                                        />
+                                    ) : (
+                                        <>
+                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_SIGN_UP_URL}>
+                                                <GTButton styleType="primary" value="Sign In to General Task" />
+                                            </NoStyleAnchor>
+                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_BASE_URL}>
+                                                <GTButton styleType="secondary" value="Learn more about General Task" />
+                                            </NoStyleAnchor>
+                                        </>
+                                    )}
+                                </FlexMargin8Top>
                             </>
                         )}
                     </NoteBody>
