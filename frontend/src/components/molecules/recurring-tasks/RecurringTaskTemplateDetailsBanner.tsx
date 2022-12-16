@@ -5,11 +5,9 @@ import styled from 'styled-components'
 import { useModifyRecurringTask } from '../../../services/api/recurring-tasks.hooks'
 import { useGetTasks } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
-import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
-import GTButton from '../../atoms/buttons/GTButton'
 import { Bold } from '../../atoms/typography/Typography'
-import FolderSelector from '../FolderSelector'
+import TemplateFolderSelector from './RecurringTaskTemplateModal/TemplateFolderSelector'
 
 export const Banner = styled.div`
     border-radius: ${Border.radius.mini};
@@ -21,10 +19,9 @@ export const Banner = styled.div`
     flex-direction: column;
     gap: ${Spacing._8};
 `
-const FolderButton = styled(GTButton)`
-    :hover {
-        outline: none;
-    }
+const FolderSelectorContainer = styled.div`
+    max-width: 200px;
+    margin: 0 ${Spacing._4};
 `
 
 interface RecurringTaskTemplateDetailsBannerProps {
@@ -50,35 +47,18 @@ const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTempl
             </div>
             <Flex alignItems="center">
                 Appears in folder:
-                <Link to={`/tasks/${folder.id}`}>
-                    <FolderButton
-                        icon={icons.folder}
-                        iconColor="purple"
-                        styleType="simple"
-                        textColor="purple"
-                        size="small"
-                        value={folder.name}
+                <FolderSelectorContainer>
+                    <TemplateFolderSelector
+                        value={folder.id}
+                        onChange={(newFolderId) =>
+                            modifyRecurringTask({
+                                id,
+                                id_task_section: newFolderId,
+                            })
+                        }
                     />
-                </Link>
-                <FolderSelector
-                    value={folder.id}
-                    onChange={(newFolderId) =>
-                        modifyRecurringTask({
-                            id,
-                            id_task_section: newFolderId,
-                        })
-                    }
-                    renderTrigger={(isOpen, setIsOpen) => (
-                        <GTButton
-                            onClick={() => setIsOpen(!isOpen)}
-                            value="change"
-                            styleType="simple"
-                            size="small"
-                            isDropdown
-                            asDiv
-                        />
-                    )}
-                />
+                </FolderSelectorContainer>
+                (<Link to={`/tasks/${folder.id}`}>view folder</Link>)
             </Flex>
         </Banner>
     )

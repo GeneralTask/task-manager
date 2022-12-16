@@ -9,6 +9,8 @@ import { Icon } from '../atoms/Icon'
 import { Truncated } from '../atoms/typography/Typography'
 import { MenuContentShared, MenuItemShared, MenuTriggerShared } from './RadixUIConstants'
 
+const DEFAULT_MAX_WIDTH = '400px'
+
 const SelectTrigger = styled(Select.Trigger)`
     ${MenuTriggerShared};
     ${Typography.bodySmall};
@@ -24,7 +26,7 @@ const SelectTrigger = styled(Select.Trigger)`
 const SelectContent = styled(Select.Content)<{ $useTriggerWidth?: boolean }>`
     ${MenuContentShared};
     ${Typography.bodySmall};
-    ${({ $useTriggerWidth }) => ($useTriggerWidth ? `width: 100%;` : `max-width: 500px;`)};
+    ${({ $useTriggerWidth }) => ($useTriggerWidth ? `width: 100%;` : `max-width: ${DEFAULT_MAX_WIDTH};`)};
 `
 const SelectItem = styled(Select.Item)`
     ${MenuItemShared};
