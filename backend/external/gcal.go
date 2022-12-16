@@ -48,6 +48,10 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	dbStartTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
 	dbEndTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
 	conferenceCall := GetConferenceCall(event, accountID)
+	canModify := event.GuestsCanModify
+	if event.Organizer != nil {
+		canModify = canModify || event.Organizer.Self
+	}
 	dbEvent := &database.CalendarEvent{
 		UserID:          userID,
 		IDExternal:      event.Id,
@@ -62,7 +66,7 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		SourceAccountID: accountID,
 		DatetimeEnd:     primitive.NewDateTimeFromTime(dbEndTime),
 		DatetimeStart:   primitive.NewDateTimeFromTime(dbStartTime),
-		CanModify:       event.GuestsCanModify || event.Organizer.Self,
+		CanModify:       canModify,
 		CallURL:         conferenceCall.URL,
 		CallLogo:        conferenceCall.Logo,
 		CallPlatform:    conferenceCall.Platform,
