@@ -181,7 +181,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 onMonthChange={(newDate) => setCalendarDate(DateTime.fromJSDate(newDate))}
                 fullWidth
             />
-            <HelpText show={!disabled}>Select a date on the calendar</HelpText>
+            <HelpText show={!disabled}>Click to select a date on the calendar</HelpText>
         </Container>
     )
 }
