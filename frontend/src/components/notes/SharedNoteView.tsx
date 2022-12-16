@@ -5,12 +5,11 @@ import styled from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { buttons, icons, noteBackground } from '../../styles/images'
+import { buttons, noteBackground } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
@@ -136,15 +135,12 @@ const SharedNoteView = () => {
                                             )}`}</Label>
                                         )}
                                     </Flex>
-                                    <Flex gap={Spacing._4}>
-                                        <Icon color="gray" icon={icons.link} />
-                                        <Label color="light">{`Link expires in ${getFormattedDuration(
-                                            DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
-                                                conversionAccuracy: 'longterm',
-                                            }),
-                                            2
-                                        )}`}</Label>
-                                    </Flex>
+                                    <Label color="light">{`Link expires in ${getFormattedDuration(
+                                        DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                            conversionAccuracy: 'longterm',
+                                        }),
+                                        2
+                                    )}`}</Label>
                                 </FlexPadding8Horizontal>
                             </>
                         ) : (
