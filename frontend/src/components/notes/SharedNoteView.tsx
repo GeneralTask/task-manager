@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
@@ -17,34 +17,46 @@ import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Body, Label, Title } from '../atoms/typography/Typography'
 import NoteActionsDropdown from './NoteActionsDropdown'
 
+const background = css`
+    background: url(${noteBackground});
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: top left, 0px 0px;
+    background-size: cover;
+`
+
 const Logo = styled.img`
     width: 153px;
 `
 const MainContainer = styled.div`
+    ${background};
     width: 100vw;
     height: 100vh;
-    background: url(${noteBackground});
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: auto;
 `
 const ColumnContainer = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 750px;
 `
 const TopContainer = styled.div`
+    ${background};
+    position: fixed;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: ${Spacing._32} ${Spacing._24} ${Spacing._12};
+    padding: ${Spacing._24};
+    width: 750px;
+    z-index: 10;
 `
 const BottomContainer = styled.div`
-    overflow-y: auto;
+    margin-top: 110px;
 `
 const NoteBody = styled.div`
     background: ${Colors.background.white};
