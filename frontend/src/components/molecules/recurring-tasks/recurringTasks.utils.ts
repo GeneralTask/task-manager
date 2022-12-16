@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import * as Sentry from '@sentry/browser'
+import { DateTime } from 'luxon'
 import { EMPTY_MONGO_OBJECT_ID } from '../../../constants'
 import { useRecurringTaskTemplates } from '../../../services/api/recurring-tasks.hooks'
 import { RecurrenceRate } from '../../../utils/enums'
@@ -88,3 +89,17 @@ export const formatRecurrenceRateForScheduleButton = (recurringTaskTemplate: TRe
             return ''
     }
 }
+
+export const getRecurrenceRateSelectorOptions = (selectedDate: DateTime) => [
+    { value: RecurrenceRate.DAILY.toString(), label: 'Daily' },
+    { value: RecurrenceRate.WEEKLY.toString(), label: `Weekly on ${selectedDate.weekdayLong}` },
+    {
+        value: RecurrenceRate.MONTHLY.toString(),
+        label: `Monthly on the ${getOrdinal(selectedDate.day)}`,
+    },
+    {
+        value: RecurrenceRate.YEARLY.toString(),
+        label: `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`,
+    },
+    { value: RecurrenceRate.WEEK_DAILY.toString(), label: 'Every weekday (Monday to Friday)' },
+]
