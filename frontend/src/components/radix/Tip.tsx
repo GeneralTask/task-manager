@@ -11,8 +11,23 @@ const TooltipContent = styled(Tooltip.Content)`
     ${MenuContentShared};
     padding: ${Spacing._8} ${Spacing._12};
     ${Typography.bodySmall};
+    :before {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-bottom: 10px solid ${Colors.background.white};
+        border-top: 10px solid transparent;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        bottom: -20px;
+        left: 50%;
+        margin-left: -5px;
+        transform: rotate(180deg);
+    }
 `
-const Arrow = styled(Tooltip.Arrow)`
+const TooltipArrow = styled(Tooltip.Arrow)`
     fill: ${Colors.background.white};
 `
 
@@ -58,14 +73,13 @@ const Tip = ({
 
     return (
         <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>
-            <Tooltip.Root defaultOpen={false}>
+            <Tooltip.Root open defaultOpen={true}>
                 <Tooltip.Trigger asChild>
                     <span>{children}</span>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
                     <TooltipContent side={side} align={align}>
                         {tooltipContent}
-                        <Arrow width={11} height={5} />
                     </TooltipContent>
                 </Tooltip.Portal>
             </Tooltip.Root>
