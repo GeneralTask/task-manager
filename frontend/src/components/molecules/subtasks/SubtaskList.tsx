@@ -88,6 +88,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                                 shortcutName="createSubtask"
                                 onBlur={() => setShowCreateNewSubtask(false)}
                                 autoFocus
+                                align="center"
                             />
                         )}
                     </>
