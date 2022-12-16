@@ -43,6 +43,7 @@ interface CreateNewItemInputProps {
     hideIcon?: boolean
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
+    onBlur?: () => void
 }
 const CreateNewItemInput = ({
     initialValue = '',
@@ -52,6 +53,7 @@ const CreateNewItemInput = ({
     hideIcon,
     onChange,
     onSubmit,
+    onBlur,
 }: CreateNewItemInputProps) => {
     const [text, setText] = useState(initialValue)
     const [shouldFocus, setShouldFocus] = useState(autoFocus ?? false)
@@ -96,6 +98,7 @@ const CreateNewItemInput = ({
                         onChange?.(e.target.value)
                     }}
                     data-autofocus={autoFocus}
+                    onBlur={onBlur}
                 />
             </CreateNewItemInputContainer>
         </Tip>
