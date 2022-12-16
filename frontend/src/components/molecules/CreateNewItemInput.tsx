@@ -6,7 +6,7 @@ import { Border, Colors, Dimensions, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { stopKeydownPropogation } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
-import Tip from '../radix/Tip'
+import Tip, { TTooltipAlign } from '../radix/Tip'
 
 export const CreateNewItemInputContainer = styled.div`
     display: flex;
@@ -44,6 +44,7 @@ interface CreateNewItemInputProps {
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
     onBlur?: () => void
+    align?: TTooltipAlign
 }
 const CreateNewItemInput = ({
     initialValue = '',
@@ -54,6 +55,7 @@ const CreateNewItemInput = ({
     onChange,
     onSubmit,
     onBlur,
+    align = 'end',
 }: CreateNewItemInputProps) => {
     const [text, setText] = useState(initialValue)
     const [shouldFocus, setShouldFocus] = useState(autoFocus ?? false)
@@ -85,7 +87,7 @@ const CreateNewItemInput = ({
     )
 
     return (
-        <Tip shortcutName={shortcutName} side="top" align="end" disabled={!shortcutName}>
+        <Tip shortcutName={shortcutName} side="top" align="center" disabled={!shortcutName}>
             <CreateNewItemInputContainer>
                 {!hideIcon && <Icon icon={icons.plus} />}
                 <TaskInput
