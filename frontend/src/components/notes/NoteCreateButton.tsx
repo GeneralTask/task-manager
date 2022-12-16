@@ -22,7 +22,7 @@ const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
     return (
         <>
             {type === 'icon' && (
-                <GTIconButton icon={icons.note} onClick={() => setModalIsOpen(true)} shortcutName="newNote" />
+                <GTIconButton icon={icons.penToSquare} onClick={() => setModalIsOpen(true)} shortcutName="newNote" />
             )}
             {type === 'button' && (
                 <GTButton
@@ -36,7 +36,7 @@ const NoteCreateButton = ({ type }: NoteCreateButtonProps) => {
             {type === 'collapsed' && (
                 <Tip shortcutName="newNote" side="right">
                     <CollapsedIconContainer onClick={() => setModalIsOpen(true)}>
-                        <Icon icon={icons.note} />
+                        <Icon icon={icons.penToSquare} />
                     </CollapsedIconContainer>
                 </Tip>
             )}
