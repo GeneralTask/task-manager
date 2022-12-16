@@ -9,13 +9,15 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     env:
       GO111MODULE: on
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
       - name: Run Gosec Security Scanner
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          go get github.com/securego/gosec/cmd/gosec
-          gosec -r
+        uses: securego/gosec@master
+        with:
+          args: -r
