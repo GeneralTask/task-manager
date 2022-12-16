@@ -21,6 +21,10 @@ func GetServerForEvents(events []*calendar.Event) *httptest.Server {
 			http.Error(w, "unable to marshal request: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		w.Write(b)
+		_, err = w.Write(b)
+		if err != nil {
+			http.Error(w, "unable to write response: "+err.Error(), http.StatusBadRequest)
+			return
+		}
 	}))
 }

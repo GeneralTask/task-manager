@@ -27,6 +27,7 @@ func GetMockAPIServer(t *testing.T, statusCode int, body string) *httptest.Serve
 		assert.NoError(t, err)
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(statusCode)
-		w.Write([]byte(body))
+		_, err = w.Write([]byte(body))
+		assert.NoError(t, err)
 	}))
 }

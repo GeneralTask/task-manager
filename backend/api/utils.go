@@ -103,7 +103,11 @@ func LoggingMiddleware(db *mongo.Database) func(c *gin.Context) {
 		if !exists {
 			userID = primitive.NilObjectID
 		}
-		database.InsertLogEvent(db, userID.(primitive.ObjectID), eventType)
+		err := database.InsertLogEvent(db, userID.(primitive.ObjectID), eventType)
+		if err != nil {
+			logger := logging.GetSentryLogger()
+			logger.Error().Err(err).Msg("error inserting log event")
+		}
 	}
 }
 

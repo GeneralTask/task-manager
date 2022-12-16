@@ -143,7 +143,10 @@ func (slackTask SlackSavedTaskSource) GetSlackAdditionalInformation(db *mongo.Da
 	}
 
 	var oauthToken oauth2.Token
-	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	err = json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	if err != nil {
+		return SlackAdditionalInformation{}, err
+	}
 
 	client := slack.New(oauthToken.AccessToken)
 	config := slackTask.Slack.Config.ConfigValues

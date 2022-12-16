@@ -596,7 +596,9 @@ func (api *API) GetMeetingPrepTaskResult(userID primitive.ObjectID, expirationTi
 			}
 			continue
 		}
-		result = append(result, api.taskBaseToTaskResult(&task, userID))
+		// for implicit memory aliasing
+		tempTask := task
+		result = append(result, api.taskBaseToTaskResult(&tempTask, userID))
 	}
 	return result, nil
 }

@@ -128,7 +128,10 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 			} else {
 				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
 				// TODO update last full refresh after we fetch the tasks
-				api.updateLastFullRefreshTime(token)
+				err := api.updateLastFullRefreshTime(token)
+				if err != nil {
+					api.Logger.Error().Err(err).Msg("error updating last refresh time")
+				}
 			}
 			taskChannels = append(taskChannels, tasks)
 		}
@@ -247,7 +250,9 @@ func (api *API) taskListToTaskResultList(tasks *[]database.Task, userID primitiv
 	parentToChild := make(map[primitive.ObjectID][]*TaskResult)
 	baseNodes := []*TaskResult{}
 	for _, task := range *tasks {
-		result := api.taskBaseToTaskResult(&task, userID)
+		// for implicit memory aliasing
+		tempTask := task
+		result := api.taskBaseToTaskResult(&tempTask, userID)
 		if task.ParentTaskID != primitive.NilObjectID {
 			value, exists := parentToChild[task.ParentTaskID]
 			if exists {
@@ -414,7 +419,9 @@ func (api *API) getSubtaskResults(taskID primitive.ObjectID, userID primitive.Ob
 	if err == nil && len(*subtasks) > 0 {
 		subtaskResults := []*TaskResult{}
 		for _, subtask := range *subtasks {
-			subtaskResults = append(subtaskResults, api.taskBaseToTaskResult(&subtask, userID))
+			// for implicit memory aliasing
+			tempSubtask := subtask
+			subtaskResults = append(subtaskResults, api.taskBaseToTaskResult(&tempSubtask, userID))
 		}
 		return subtaskResults
 	} else {
