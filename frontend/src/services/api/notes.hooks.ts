@@ -121,6 +121,7 @@ export const useModifyNote = () => {
                 note.title = data.title || note.title
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
+                note.updated_at = DateTime.now().toISO()
             })
             queryClient.setQueryData('notes', updatedNotes)
         },
