@@ -22,6 +22,7 @@ const Header = styled.div`
 `
 const ReturnToCurrentMonthButton = styled(GTIconButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+    margin-right: ${Spacing._32};
 `
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     height: 220px;
@@ -151,7 +152,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                     visible={calendarDate.month !== today.getMonth() + 1 || calendarDate.year !== today.getFullYear()}
                     onClick={() => setCalendarDate(DateTime.local())}
                 />
-                <Eyebrow color="light">{calendarDate.toFormat('LLLL yyyy')}</Eyebrow>
+                <Eyebrow color="light">{calendarDate.toFormat('LLL yyyy')}</Eyebrow>
                 <Flex>
                     <GTIconButton
                         icon={icons.arrow_left}
