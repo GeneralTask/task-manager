@@ -53,6 +53,9 @@ const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) =>
         if (ref.current && (e.key === 'Escape' || (props.blurOnEnter && e.key === 'Enter'))) {
             ref.current.blur()
         }
+        if (props.disableEnter && e.key === 'Enter') {
+            e.preventDefault()
+        }
     }
 
     return (

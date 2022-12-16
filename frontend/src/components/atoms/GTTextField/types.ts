@@ -11,6 +11,7 @@ export interface MarkdownEditorProps {
     autoFocus?: boolean
     autoSelect?: boolean
     blurOnEnter?: boolean
+    disableEnter?: boolean
     disabled?: boolean
     readOnly?: boolean
     isFullHeight?: boolean
