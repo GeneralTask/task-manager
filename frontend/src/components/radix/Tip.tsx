@@ -7,12 +7,13 @@ import Flex from '../atoms/Flex'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { MenuContentShared } from './RadixUIConstants'
 
+const TOOLTIP_ARROW_SIZE = 5
 const SharedTooltip = css`
     content: '';
     position: absolute;
     width: 0;
     height: 0;
-    border: 5px solid transparent;
+    border: ${TOOLTIP_ARROW_SIZE}px solid transparent;
 `
 
 const TooltipContent = styled(Tooltip.Content)`
@@ -22,37 +23,37 @@ const TooltipContent = styled(Tooltip.Content)`
     &[data-side='top'] {
         :before {
             ${SharedTooltip};
-            bottom: -10px;
+            bottom: -${TOOLTIP_ARROW_SIZE * 2}px;
             left: 50%;
-            margin-left: -5px;
-            border-top: 5px solid ${Colors.background.white};
+            margin-left: -${TOOLTIP_ARROW_SIZE}px;
+            border-top: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
         }
     }
     &[data-side='bottom'] {
         :before {
             ${SharedTooltip};
-            top: -10px;
+            top: -${TOOLTIP_ARROW_SIZE * 2}px;
             left: 50%;
-            margin-left: -5px;
-            border-bottom: 5px solid ${Colors.background.white};
+            margin-left: -${TOOLTIP_ARROW_SIZE}px;
+            border-bottom: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
         }
     }
     &[data-side='right'] {
         :before {
             ${SharedTooltip};
             top: 50%;
-            left: -10px;
-            margin-top: -5px;
-            border-right: 5px solid ${Colors.background.white};
+            left: -${TOOLTIP_ARROW_SIZE * 2}px;
+            margin-top: -${TOOLTIP_ARROW_SIZE}px;
+            border-right: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
         }
     }
     &[data-side='left'] {
         :before {
             ${SharedTooltip};
             top: 50%;
-            right: -10px;
-            margin-top: -5px;
-            border-left: 5px solid ${Colors.background.white};
+            right: -${TOOLTIP_ARROW_SIZE * 2}px;
+            margin-top: -${TOOLTIP_ARROW_SIZE}px;
+            border-left: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
         }
     }
 `
