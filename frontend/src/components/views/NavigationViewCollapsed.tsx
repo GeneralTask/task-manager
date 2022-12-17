@@ -131,7 +131,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             <Icon icon={icons.sidebar} />
                         </CollapsedIconContainer>
                     </Tip>
-                    {isPreviewMode && <NoteCreateButton type="collapsed" />}
+                    <NoteCreateButton type="collapsed" />
                     <CommandPalette
                         customButton={
                             <Tip shortcutName="toggleCommandPalette" side="right">
