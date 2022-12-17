@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { useKeyboardShortcut } from '../../../hooks'
 import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
@@ -9,6 +10,7 @@ import { getSectionFromTask } from '../../../utils/utils'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
+import Tip from '../../radix/Tip'
 import CreateNewItemInput from '../CreateNewItemInput'
 import Subtask from './Subtask'
 
@@ -47,6 +49,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
+    useKeyboardShortcut('createSubtask', () => setShowCreateNewSubtask(true))
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {
@@ -69,10 +72,12 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                 {sectionId && (
                     <>
                         {!showCreateNewSubtask && (
-                            <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
-                                <Icon icon={icons.plus} color="gray" />
-                                Add new subtask
-                            </AddTaskbutton>
+                            <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
+                                <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
+                                    <Icon icon={icons.plus} color="gray" />
+                                    Add new subtask
+                                </AddTaskbutton>
+                            </Tip>
                         )}
                         {showCreateNewSubtask && (
                             <CreateNewItemInput
@@ -85,7 +90,6 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                                         optimisticId: uuidv4(),
                                     })
                                 }
-                                shortcutName="createSubtask"
                                 onBlur={() => setShowCreateNewSubtask(false)}
                                 autoFocus
                             />

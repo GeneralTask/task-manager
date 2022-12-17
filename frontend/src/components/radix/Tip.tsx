@@ -57,6 +57,13 @@ const TooltipContent = styled(Tooltip.Content)`
         }
     }
 `
+const TriggerSpan = styled.span<{ fitContent?: boolean }>`
+    ${(props) =>
+        props.fitContent &&
+        css`
+            width: fit-content;
+        `}
+`
 
 export type TTooltipSide = 'top' | 'right' | 'bottom' | 'left'
 export type TTooltipAlign = 'start' | 'center' | 'end'
@@ -70,6 +77,7 @@ interface TooltipProps {
     align?: TTooltipAlign
     children?: React.ReactNode
     disabled?: boolean
+    fitContent?: boolean
 }
 const Tip = ({
     content,
@@ -80,6 +88,7 @@ const Tip = ({
     align,
     children,
     disabled,
+    fitContent = false,
 }: TooltipProps) => {
     if (disabled) return <>{children}</>
 
@@ -102,7 +111,7 @@ const Tip = ({
         <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>
             <Tooltip.Root defaultOpen={false}>
                 <Tooltip.Trigger asChild>
-                    <span>{children}</span>
+                    <TriggerSpan fitContent={fitContent}>{children}</TriggerSpan>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
                     <TooltipContent side={side} sideOffset={10} align={align}>
