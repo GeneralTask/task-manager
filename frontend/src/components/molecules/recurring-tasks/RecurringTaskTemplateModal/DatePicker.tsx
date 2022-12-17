@@ -7,7 +7,7 @@ import { icons } from '../../../../styles/images'
 import { RecurrenceRate } from '../../../../utils/enums'
 import Flex from '../../../atoms/Flex'
 import GTIconButton from '../../../atoms/buttons/GTIconButton'
-import { Eyebrow } from '../../../atoms/typography/Typography'
+import { Eyebrow, Label } from '../../../atoms/typography/Typography'
 
 const Container = styled.div`
     width: 250px;
@@ -80,6 +80,11 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     .recurring-selection {
         background-color: ${Colors.gtColor.secondary};
     }
+`
+const HelpText = styled(Label)<{ show: boolean }>`
+    margin-left: ${Spacing._4};
+    color: ${Colors.text.light};
+    visibility: ${(props) => (props.show ? 'visible' : 'hidden')};
 `
 
 interface DatePickerProps {
@@ -176,6 +181,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 onMonthChange={(newDate) => setCalendarDate(DateTime.fromJSDate(newDate))}
                 fullWidth
             />
+            <HelpText show={!disabled}>Click to select a date on the calendar</HelpText>
         </Container>
     )
 }
