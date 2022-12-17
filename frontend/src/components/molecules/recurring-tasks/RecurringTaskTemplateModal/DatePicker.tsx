@@ -7,7 +7,7 @@ import { icons } from '../../../../styles/images'
 import { RecurrenceRate } from '../../../../utils/enums'
 import Flex from '../../../atoms/Flex'
 import GTIconButton from '../../../atoms/buttons/GTIconButton'
-import { Eyebrow } from '../../../atoms/typography/Typography'
+import { Eyebrow, Label } from '../../../atoms/typography/Typography'
 
 const Container = styled.div`
     width: 250px;
@@ -22,6 +22,7 @@ const Header = styled.div`
 `
 const ReturnToCurrentMonthButton = styled(GTIconButton)<{ visible: boolean }>`
     visibility: ${(props) => (props.visible ? 'visible' : 'hidden')};
+    margin-right: ${Spacing._32};
 `
 const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     height: 220px;
@@ -80,6 +81,11 @@ const StyledCalendar = styled(Calendar)<{ disabled: boolean }>`
     .recurring-selection {
         background-color: ${Colors.gtColor.secondary};
     }
+`
+const HelpText = styled(Label)<{ show: boolean }>`
+    margin-left: ${Spacing._4};
+    color: ${Colors.text.light};
+    visibility: ${(props) => (props.show ? 'visible' : 'hidden')};
 `
 
 interface DatePickerProps {
@@ -148,7 +154,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                     visible={calendarDate.month !== today.getMonth() + 1 || calendarDate.year !== today.getFullYear()}
                     onClick={() => setCalendarDate(DateTime.local())}
                 />
-                <Eyebrow color="light">{calendarDate.toFormat('LLLL yyyy')}</Eyebrow>
+                <Eyebrow color="light">{calendarDate.toFormat('LLL yyyy')}</Eyebrow>
                 <Flex>
                     <GTIconButton
                         icon={icons.arrow_left}
@@ -175,6 +181,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 onMonthChange={(newDate) => setCalendarDate(DateTime.fromJSDate(newDate))}
                 fullWidth
             />
+            <HelpText show={!disabled}>Click to select a date on the calendar</HelpText>
         </Container>
     )
 }

@@ -121,7 +121,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
         if (
             keyCode === KEYBOARD_SHORTCUTS.close.key ||
             keyCode === KEYBOARD_SHORTCUTS.submit.key ||
-            (keyCode === KEYBOARD_SHORTCUTS.newNote.key && !noteBody && !optimisticId && !isEditing)
+            KEYBOARD_SHORTCUTS.newNote.key.split('|').some((key) => key === keyCode)
         ) {
             setIsOpen(false)
         }
