@@ -92,6 +92,7 @@ export const formatRecurrenceRateForScheduleButton = (recurringTaskTemplate: TRe
 
 export const getRecurrenceRateSelectorOptions = (selectedDate: DateTime) => [
     { value: RecurrenceRate.DAILY.toString(), label: 'Daily' },
+    { value: RecurrenceRate.WEEK_DAILY.toString(), label: 'Every weekday (Monday to Friday)' },
     { value: RecurrenceRate.WEEKLY.toString(), label: `Weekly on ${selectedDate.weekdayLong}` },
     {
         value: RecurrenceRate.MONTHLY.toString(),
@@ -101,5 +102,4 @@ export const getRecurrenceRateSelectorOptions = (selectedDate: DateTime) => [
         value: RecurrenceRate.YEARLY.toString(),
         label: `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`,
     },
-    { value: RecurrenceRate.WEEK_DAILY.toString(), label: 'Every weekday (Monday to Friday)' },
 ]
