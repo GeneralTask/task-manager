@@ -1,3 +1,4 @@
+import { scrollbarWidth } from '@xobotyi/scrollbar-width'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 
@@ -24,6 +25,7 @@ export const CalendarWeekDateHeaderContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     margin-left: ${CELL_TIME_WIDTH};
+    padding-right: ${scrollbarWidth()}px;
 `
 
 export const DayContainer = styled.div`
