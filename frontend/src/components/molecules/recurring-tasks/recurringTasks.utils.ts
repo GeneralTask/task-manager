@@ -100,6 +100,6 @@ export const getRecurrenceRateSelectorOptions = (selectedDate: DateTime) => [
     },
     {
         value: RecurrenceRate.YEARLY.toString(),
-        label: `Annually on ${selectedDate.monthShort} ${getOrdinal(selectedDate.day)}`,
+        label: `Annually on ${selectedDate.monthLong} ${getOrdinal(selectedDate.day)}`,
     },
 ]

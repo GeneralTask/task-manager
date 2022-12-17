@@ -125,24 +125,20 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
             return 'selected'
         }
 
-        // if DAILY or WEEK_DAILY, show highlight on all days after today
-        if (
-            (recurrenceRate === RecurrenceRate.DAILY ||
-                recurrenceRate === RecurrenceRate.WEEK_DAILY ||
-                recurrenceRate === RecurrenceRate.WEEKLY) &&
-            day.getTime() < today.getTime()
-        ) {
+        // do not show recurring indica
+        if (day.getTime() < today.getTime()) {
             return ''
         }
 
         if (
-            recurrenceRate === RecurrenceRate.DAILY ||
-            (recurrenceRate === RecurrenceRate.WEEK_DAILY && !modifiers.weekend) ||
-            (recurrenceRate === RecurrenceRate.WEEKLY && day.getDay() === date.weekday % 7) ||
-            (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day) ||
-            (recurrenceRate === RecurrenceRate.YEARLY &&
-                day.getMonth() === date.month - 1 &&
-                day.getDate() === date.day)
+            day.getTime() > today.getTime() &&
+            (recurrenceRate === RecurrenceRate.DAILY ||
+                (recurrenceRate === RecurrenceRate.WEEK_DAILY && !modifiers.weekend) ||
+                (recurrenceRate === RecurrenceRate.WEEKLY && day.getDay() === date.weekday % 7) ||
+                (recurrenceRate === RecurrenceRate.MONTHLY && day.getDate() === date.day) ||
+                (recurrenceRate === RecurrenceRate.YEARLY &&
+                    day.getMonth() === date.month - 1 &&
+                    day.getDate() === date.day))
         )
             return 'recurring-selection'
         return ''
@@ -154,6 +150,7 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                 <ReturnToCurrentMonthButton
                     icon={icons.calendar_star}
                     iconColor="gray"
+                    tooltipText="Return to current month"
                     visible={calendarDate.month !== today.getMonth() + 1 || calendarDate.year !== today.getFullYear()}
                     onClick={() => setCalendarDate(DateTime.local())}
                 />
@@ -162,11 +159,13 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                     <GTIconButton
                         icon={icons.arrow_left}
                         iconColor="gray"
+                        tooltipText="Previous month"
                         onClick={() => setCalendarDate(calendarDate.minus({ month: 1 }))}
                     />
                     <GTIconButton
                         icon={icons.arrow_right}
                         iconColor="gray"
+                        tooltipText="Next month"
                         onClick={() => setCalendarDate(calendarDate.plus({ month: 1 }))}
                     />
                 </Flex>
