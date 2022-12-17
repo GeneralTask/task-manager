@@ -153,11 +153,13 @@ const DatePicker = ({ date, setDate, recurrenceRate }: DatePickerProps) => {
                     <GTIconButton
                         icon={icons.arrow_left}
                         iconColor="gray"
+                        tooltipText="Previous month"
                         onClick={() => setCalendarDate(calendarDate.minus({ month: 1 }))}
                     />
                     <GTIconButton
                         icon={icons.arrow_right}
                         iconColor="gray"
+                        tooltipText="Next month"
                         onClick={() => setCalendarDate(calendarDate.plus({ month: 1 }))}
                     />
                 </Flex>
