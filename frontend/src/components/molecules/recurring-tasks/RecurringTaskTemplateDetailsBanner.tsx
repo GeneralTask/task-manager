@@ -58,7 +58,9 @@ const RecurringTaskTemplateDetailsBanner = ({ id, folderId }: RecurringTaskTempl
                         }
                     />
                 </FolderSelectorContainer>
-                (<Link to={`/tasks/${folder.id}`}>view folder</Link>)
+                <span>
+                    (<Link to={`/tasks/${folder.id}`}>view folder</Link>)
+                </span>
             </Flex>
         </Banner>
     )

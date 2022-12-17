@@ -23,6 +23,7 @@ const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRat
                 items={getRecurrenceRateSelectorOptions(selectedDate)}
                 value={value.toString()}
                 onChange={(newValue) => onChange(parseInt(newValue))}
+                useTriggerWidth
             />
         </Flex>
     )
