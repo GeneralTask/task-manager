@@ -16,6 +16,7 @@ interface RecurrenceRateSelectorProps {
     selectedDate: DateTime
 }
 const RecurrenceRateSelector = ({ value, onChange, selectedDate }: RecurrenceRateSelectorProps) => {
+    console.log('selectedDate', selectedDate)
     return (
         <Flex column gap={Spacing._12}>
             <BodySmall>How often would you like this task to repeat?</BodySmall>
