@@ -174,7 +174,10 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		events = append(events, eventResult.CalendarEvents...)
 	}
 	calendarAccount.Calendars = calendars
-	database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
+	_, err = database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
+	if err != nil {
+		log.Error().Err(err).Msgf("could not create CalendarAccount: %+v", calendarAccount)
+	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
 
