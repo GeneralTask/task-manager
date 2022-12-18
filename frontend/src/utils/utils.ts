@@ -180,10 +180,11 @@ export const stopKeydownPropogation = (
     disableCommandPalette?: boolean
 ) => {
     const key = getKeyCode(e)
+    const allExceptions = [...exceptions.map((e) => e.split('|')).flat()]
     if (!disableCommandPalette) {
-        exceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
+        allExceptions.push(KEYBOARD_SHORTCUTS.toggleCommandPalette.key)
     }
-    if (!exceptions.includes(key)) {
+    if (!allExceptions.includes(key)) {
         e.stopPropagation()
     }
 }

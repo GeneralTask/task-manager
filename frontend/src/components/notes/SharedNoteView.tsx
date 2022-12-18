@@ -1,50 +1,64 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
+import getEnvVars from '../../environment'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { buttons, icons, noteBackground } from '../../styles/images'
+import { buttons, noteBackground } from '../../styles/images'
 import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import { Icon } from '../atoms/Icon'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Body, Label, Title } from '../atoms/typography/Typography'
+import NoteActionsDropdown from './NoteActionsDropdown'
+
+const background = css`
+    background: url(${noteBackground});
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: top left, 0px 0px;
+    background-size: cover;
+`
 
 const Logo = styled.img`
     width: 153px;
 `
 const MainContainer = styled.div`
+    ${background};
     width: 100vw;
     height: 100vh;
-    background: url(${noteBackground});
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: auto;
 `
 const ColumnContainer = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 750px;
 `
 const TopContainer = styled.div`
+    ${background};
+    position: fixed;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: ${Spacing._32} ${Spacing._24} ${Spacing._12};
+    padding: ${Spacing._24};
+    width: 750px;
+    z-index: 10;
 `
 const BottomContainer = styled.div`
-    overflow-y: auto;
+    margin-top: 110px;
 `
 const NoteBody = styled.div`
     background: ${Colors.background.white};
@@ -64,6 +78,9 @@ const GoogleImage = styled.img`
 `
 const FlexPadding8Horizontal = styled(Flex)`
     padding: 0 ${Spacing._8};
+`
+const FlexMargin8Top = styled(Flex)`
+    margin-top: ${Spacing._8};
 `
 
 const SharedNoteView = () => {
@@ -96,15 +113,18 @@ const SharedNoteView = () => {
                     <NoteBody>
                         {note && note.shared_until ? (
                             <>
-                                <GTTextField
-                                    type="plaintext"
-                                    itemId={note.title}
-                                    value={note.title}
-                                    onChange={emptyFunction}
-                                    fontSize="large"
-                                    disabled
-                                    readOnly
-                                />
+                                <Flex alignItems="flex-start">
+                                    <GTTextField
+                                        type="plaintext"
+                                        itemId={note.title}
+                                        value={note.title}
+                                        onChange={emptyFunction}
+                                        fontSize="large"
+                                        disabled
+                                        readOnly
+                                    />
+                                    <NoteActionsDropdown note={note} />
+                                </Flex>
                                 <GTTextField
                                     type="markdown"
                                     itemId={note.body}
@@ -136,24 +156,38 @@ const SharedNoteView = () => {
                                             )}`}</Label>
                                         )}
                                     </Flex>
-                                    <Flex gap={Spacing._4}>
-                                        <Icon color="gray" icon={icons.link} />
-                                        <Label color="light">{`Link expires in ${getFormattedDuration(
-                                            DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
-                                                conversionAccuracy: 'longterm',
-                                            }),
-                                            2
-                                        )}`}</Label>
-                                    </Flex>
+                                    <Label color="light">{`Link expires in ${getFormattedDuration(
+                                        DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                            conversionAccuracy: 'longterm',
+                                        }),
+                                        2
+                                    )}`}</Label>
                                 </FlexPadding8Horizontal>
                             </>
                         ) : (
                             <>
-                                <Title>This note is no longer available.</Title>
+                                <Title>This note is not available</Title>
                                 <Body>
-                                    This shared note has expired or is unavailable. Please reach out to the person who
-                                    sent this shared note for a new link.
+                                    If you need access to this note, please reach out to the person who sent it.
                                 </Body>
+                                <FlexMargin8Top gap={Spacing._8}>
+                                    {isLoggedIn ? (
+                                        <GTButton
+                                            styleType="primary"
+                                            value="Back to General Task"
+                                            onClick={() => navigate('/')}
+                                        />
+                                    ) : (
+                                        <>
+                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_SIGN_UP_URL}>
+                                                <GTButton styleType="primary" value="Sign In to General Task" />
+                                            </NoStyleAnchor>
+                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_BASE_URL}>
+                                                <GTButton styleType="secondary" value="Learn more about General Task" />
+                                            </NoStyleAnchor>
+                                        </>
+                                    )}
+                                </FlexMargin8Top>
                             </>
                         )}
                     </NoteBody>

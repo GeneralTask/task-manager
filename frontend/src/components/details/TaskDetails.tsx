@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -73,7 +73,6 @@ const DetailItem = styled.div`
     display: flex;
     align-items: center;
     margin-left: ${Spacing._8};
-    display: block;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -128,14 +127,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
 
     const navigate = useNavigate()
     const location = useLocation()
-    const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { is_meeting_preparation_task, meeting_preparation_params } = currentTask as TTask
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
-
-    const isInTrash = params.section === TRASH_SECTION_ID
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
 
@@ -233,6 +229,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
 
     const { data: folders } = useGetTasks()
     const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
+    const isInTrash = folderId === TRASH_SECTION_ID
 
     useKeyboardShortcut(
         'backToParentTask',
@@ -325,7 +322,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
-                    blurOnEnter
+                    enterBehavior="blur"
                 />
             </div>
             {meeting_preparation_params && (
@@ -400,9 +397,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         !isRecurringTaskTemplate &&
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
-                        params.section && (
-                            <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />
-                        )}
+                        folderId && <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />}
                     {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}

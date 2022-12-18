@@ -854,7 +854,7 @@ func AdjustOrderingIDsForCollection(collection *mongo.Collection, userID primiti
 	for index, item := range items {
 		newIDOrdering := index + 1
 		if item.IDOrdering != newIDOrdering {
-			collection.UpdateOne(
+			_, err = collection.UpdateOne(
 				context.Background(),
 				bson.M{"$and": []bson.M{
 					{"_id": item.ID},
@@ -862,6 +862,10 @@ func AdjustOrderingIDsForCollection(collection *mongo.Collection, userID primiti
 				},
 				bson.M{"$set": bson.M{"id_ordering": newIDOrdering}},
 			)
+			if err != nil {
+				logger.Error().Err(err).Msg("failed to update ordering ids")
+				return err
+			}
 		}
 	}
 	return nil

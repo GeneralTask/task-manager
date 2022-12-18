@@ -1,14 +1,38 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { useKeyboardShortcut } from '../../../hooks'
 import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
+import { Border, Colors, Spacing, Typography } from '../../../styles'
+import { icons } from '../../../styles/images'
 import { DropItem, DropType, TTask } from '../../../utils/types'
 import { getSectionFromTask } from '../../../utils/utils'
 import Flex from '../../atoms/Flex'
+import { Icon } from '../../atoms/Icon'
 import ReorderDropContainer from '../../atoms/ReorderDropContainer'
+import Tip from '../../radix/Tip'
 import CreateNewItemInput from '../CreateNewItemInput'
 import Subtask from './Subtask'
 
+const AddTaskbutton = styled.div`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    color: ${Colors.text.light};
+    ${Typography.label};
+    cursor: pointer;
+    user-select: none;
+    padding: ${Spacing._8};
+    height: ${Spacing._32};
+    width: fit-content;
+    border: ${Border.stroke.small} solid transparent;
+    box-sizing: border-box;
+    :hover {
+        border-color: ${Colors.border.light};
+        border-radius: ${Border.radius.small};
+    }
+    margin-bottom: ${Spacing._24};
+`
 const TaskListContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -24,6 +48,8 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
+    const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
+    useKeyboardShortcut('createSubtask', () => setShowCreateNewSubtask(true))
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {
@@ -44,18 +70,31 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
         <Flex flex="1" column>
             <TaskListContainer>
                 {sectionId && (
-                    <CreateNewItemInput
-                        placeholder="Add new subtask"
-                        onSubmit={(title) =>
-                            createTask({
-                                title: title,
-                                parent_task_id: taskId,
-                                taskSectionId: sectionId,
-                                optimisticId: uuidv4(),
-                            })
-                        }
-                        shortcutName="createSubtask"
-                    />
+                    <>
+                        {!showCreateNewSubtask && (
+                            <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
+                                <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
+                                    <Icon icon={icons.plus} color="gray" />
+                                    Add new subtask
+                                </AddTaskbutton>
+                            </Tip>
+                        )}
+                        {showCreateNewSubtask && (
+                            <CreateNewItemInput
+                                placeholder="Add new subtask"
+                                onSubmit={(title) =>
+                                    createTask({
+                                        title: title,
+                                        parent_task_id: taskId,
+                                        taskSectionId: sectionId,
+                                        optimisticId: uuidv4(),
+                                    })
+                                }
+                                onBlur={() => setShowCreateNewSubtask(false)}
+                                autoFocus
+                            />
+                        )}
+                    </>
                 )}
                 {subtasks.map((subtask, index) => {
                     return (

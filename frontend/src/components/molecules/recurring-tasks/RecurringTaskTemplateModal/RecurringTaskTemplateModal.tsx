@@ -10,6 +10,7 @@ import { TRecurringTaskTemplate, TTask } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
+import { BodySmall } from '../../../atoms/typography/Typography'
 import GTModal from '../../../mantine/GTModal'
 import CreateNewItemInput from '../../CreateNewItemInput'
 import DatePicker from './DatePicker'
@@ -18,6 +19,7 @@ import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -128,7 +130,10 @@ const RecurringTaskTemplateModal = ({
                                     onChange={setTitle}
                                     onSubmit={handleSave}
                                 />
-                                <TemplateFolderSelector value={folder} onChange={setFolder} />
+                                <Flex column gap={Spacing._12}>
+                                    <BodySmall>Which folder should this task appear in?</BodySmall>
+                                    <TemplateFolderSelector value={folder} onChange={setFolder} useTriggerWidth />
+                                </Flex>
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}

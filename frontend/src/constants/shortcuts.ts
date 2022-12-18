@@ -265,8 +265,9 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     newNote: {
         label: 'New note',
-        key: ' ',
-        keyLabel: 'Space', // maybe ␣
+        // eslint-disable-next-line no-irregular-whitespace
+        key: `${OPT_ALT.key}+ |${OPT_ALT.key}+ `,
+        keyLabel: `${OPT_ALT.label}+Space`,
         category: 'General',
         icon: 'note',
     },

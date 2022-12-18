@@ -29,7 +29,6 @@ func GetGcalFetchServer(events []*calendar.Event) *httptest.Server {
 			}
 			c.JSON(200, response)
 		})
-
 		return r
 	}())
 }

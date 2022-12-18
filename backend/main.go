@@ -32,5 +32,8 @@ func main() {
 	}
 	apiStruct, dbCleanup := api.GetAPIWithDBCleanup()
 	defer dbCleanup()
-	api.GetRouter(apiStruct).Run()
+	err = api.GetRouter(apiStruct).Run()
+	if err != nil {
+		logger.Error().Err(err).Msg("error running router")
+	}
 }
