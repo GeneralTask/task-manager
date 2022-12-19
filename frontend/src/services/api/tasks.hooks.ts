@@ -334,9 +334,18 @@ export const useModifyTask = () => {
                         id: view.task_section_id,
                         tasks: view.view_items,
                     }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
+                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                        sections,
+                        data.id,
+                        undefined,
+                        data.subtaskId
+                    )
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
+                    if (data.subtaskId && !subtaskIndex) return
+                    const task =
+                        subtaskIndex === undefined
+                            ? draft[sectionIndex].view_items[taskIndex]
+                            : draft[sectionIndex].view_items[taskIndex].sub_tasks?.[subtaskIndex]
                     if (!task) return
                     task.title = data.title || task.title
                     task.due_date = data.dueDate ?? task.due_date
