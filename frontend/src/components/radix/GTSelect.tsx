@@ -47,7 +47,7 @@ const SelectItemTextContent = styled.div`
     overflow: hidden;
 `
 const DownCaret = styled(Icon)`
-    margin-left: ${Spacing._4};
+    margin-left: ${Spacing._8};
 `
 
 interface GTSelectProps {
