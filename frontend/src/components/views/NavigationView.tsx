@@ -104,7 +104,7 @@ const NavigationView = () => {
                                 onClick={() => setIsCollapsed(!isCollapsed)}
                                 shortcutName="navigationView"
                             />
-                            {isPreviewMode && <NoteCreateButton type="icon" />}
+                            <NoteCreateButton type="icon" />
                             <CommandPalette />
                         </Flex>
                     </NavigationViewHeader>

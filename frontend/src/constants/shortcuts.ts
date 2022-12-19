@@ -2,16 +2,20 @@ import { TShortcut, TShortcutCategory } from '../utils/types'
 
 const IS_MAC_OS = navigator.userAgent.includes('Mac')
 
-const CMD_CTRL = {
+export const CMD_CTRL = {
     key: IS_MAC_OS ? 'Meta' : 'Ctrl',
     label: IS_MAC_OS ? '⌘' : 'Ctrl',
 }
-const OPT_ALT = {
+export const OPT_ALT = {
     key: IS_MAC_OS ? 'Alt' : 'Alt',
     label: IS_MAC_OS ? '⌥' : 'Alt',
 }
+export const CTRL = {
+    key: 'Ctrl',
+    label: '^',
+}
 
-const SHIFT = 'Shift'
+export const SHIFT = 'Shift'
 const NO_SHORTCUT = ''
 
 // command palette categories will be sorted in the order they appear in this array
@@ -158,12 +162,14 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 'k|ArrowUp',
         keyLabel: 'K or ↑',
         category: 'Navigation',
+        icon: 'arrow_up',
     },
     down: {
         label: 'Next item',
         key: 'j|ArrowDown',
         keyLabel: 'J or ↓',
         category: 'Navigation',
+        icon: 'arrow_down',
     },
     refresh: {
         label: 'Refresh',
@@ -259,8 +265,9 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
     },
     newNote: {
         label: 'New note',
-        key: ' ',
-        keyLabel: 'Space', // maybe ␣
+        // eslint-disable-next-line no-irregular-whitespace
+        key: `${OPT_ALT.key}+ |${OPT_ALT.key}+ `,
+        keyLabel: `${OPT_ALT.label}+Space`,
         category: 'General',
         icon: 'note',
     },

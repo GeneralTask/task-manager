@@ -185,12 +185,28 @@ type PullRequestComment struct {
 	CreatedAt       primitive.DateTime `bson:"last_updated_at,omitempty"`
 }
 
+type Calendar struct {
+	CalendarID string `bson:"calendar_id,omitempty"`
+	ColorID    string `bson:"color_id,omitempty"`
+}
+
+type CalendarAccount struct {
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	UserID     primitive.ObjectID `bson:"user_id,omitempty"`
+	IDExternal string             `bson:"id_external,omitempty"`
+	Calendars  []Calendar         `bson:"calendars,omitempty"`
+	Scopes     []string           `bson:"scopes,omitempty"`
+	SourceID   string             `bson:"source_id,omitempty"`
+}
+
 type CalendarEvent struct {
 	ID              primitive.ObjectID `bson:"_id,omitempty"`
 	UserID          primitive.ObjectID `bson:"user_id,omitempty"`
 	IDExternal      string             `bson:"id_external,omitempty"`
 	SourceID        string             `bson:"source_id,omitempty"`
 	SourceAccountID string             `bson:"source_account_id,omitempty"`
+	CalendarID      string             `bson:"calendar_id,omitempty"`
+	ColorID         string             `bson:"color_id,omitempty"`
 	Deeplink        string             `bson:"deeplink,omitempty"`
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`

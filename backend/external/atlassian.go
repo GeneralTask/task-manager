@@ -254,7 +254,7 @@ func (atlassian AtlassianService) getAndRefreshToken(userID primitive.ObjectID, 
 		return nil, err
 	}
 	params := []byte(`{"grant_type": "refresh_token","client_id": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_ID") + `","client_secret": "` + config.GetConfigValue("JIRA_OAUTH_CLIENT_SECRET") + `","refresh_token": "` + token.RefreshToken + `"}`)
-	tokenURL := "https://auth.atlassian.com/oauth/token"
+	tokenURL := "https://auth.atlassian.com/oauth/token" //#nosec
 	if atlassian.Config.ConfigValues.TokenURL != nil {
 		tokenURL = *atlassian.Config.ConfigValues.TokenURL
 	}

@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -45,6 +45,7 @@ import RecurringTaskTemplateDetailsBanner from '../molecules/recurring-tasks/Rec
 import RecurringTaskTemplateScheduleButton from '../molecules/recurring-tasks/RecurringTaskTemplateScheduleButton'
 import SubtaskList from '../molecules/subtasks/SubtaskList'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
+import JiraStatusDropdown from '../radix/JiraStatusDropdown'
 import LinearStatusDropdown from '../radix/LinearStatusDropdown'
 import PriorityDropdown from '../radix/PriorityDropdown'
 import TaskActionsDropdown from '../radix/TaskActionsDropdown'
@@ -54,7 +55,6 @@ import LinearCommentList from './linear/LinearCommentList'
 import SlackMessage from './slack/SlackMessage'
 
 const TITLE_MAX_HEIGHT = 208
-const TASK_TITLE_MAX_WIDTH = 145
 
 const DetailsTopContainer = styled.div`
     display: flex;
@@ -73,8 +73,6 @@ const DetailItem = styled.div`
     display: flex;
     align-items: center;
     margin-left: ${Spacing._8};
-    max-width: ${TASK_TITLE_MAX_WIDTH}px;
-    display: block;
 `
 const TaskStatusContainer = styled.div`
     display: flex;
@@ -129,14 +127,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
 
     const navigate = useNavigate()
     const location = useLocation()
-    const params = useParams()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { is_meeting_preparation_task, meeting_preparation_params } = currentTask as TTask
     const dateTimeStart = DateTime.fromISO(meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
-
-    const isInTrash = params.section === TRASH_SECTION_ID
 
     const titleRef = useRef<HTMLTextAreaElement>(null)
 
@@ -234,6 +229,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
 
     const { data: folders } = useGetTasks()
     const folderId = getFolderIdFromTask(folders ?? [], currentTask.id)
+    const isInTrash = folderId === TRASH_SECTION_ID
 
     useKeyboardShortcut(
         'backToParentTask',
@@ -251,7 +247,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     {subtask ? (
                         <BackButtonContainer to=".." relative="path">
                             <Icon icon={icons.caret_left} color="purple" />
-                            <BackButtonText>Return to {task.title}</BackButtonText>
+                            <BackButtonText>Return to parent task</BackButtonText>
                         </BackButtonContainer>
                     ) : (
                         <Icon icon={logos[currentTask?.source?.logo_v2 ?? 'generaltask']} />
@@ -326,7 +322,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
                     hideUnfocusedOutline
-                    blurOnEnter
+                    enterBehavior="blur"
                 />
             </div>
             {meeting_preparation_params && (
@@ -379,14 +375,18 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                             />
                         )
                     ))}
-                {!isRecurringTaskTemplate &&
-                    task.external_status &&
-                    task.all_statuses &&
-                    task.source?.name === 'Linear' && (
-                        <MarginLeftAuto>
-                            <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
-                        </MarginLeftAuto>
+                <MarginLeftAuto>
+                    {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
+                        <>
+                            {task.source?.name === 'Linear' && (
+                                <LinearStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                            )}
+                            {task.source?.name === 'Jira' && (
+                                <JiraStatusDropdown task={currentTask as TTask} disabled={isInTrash} />
+                            )}
+                        </>
                     )}
+                </MarginLeftAuto>
             </TaskStatusContainer>
             {currentTask.optimisticId ? (
                 <Spinner />
@@ -397,9 +397,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         !isRecurringTaskTemplate &&
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
-                        params.section && (
-                            <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />
-                        )}
+                        folderId && <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />}
                     {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}

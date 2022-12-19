@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
@@ -25,9 +26,14 @@ const NoteListView = () => {
     const { noteId } = useParams()
     const navigate = useNavigate()
 
+    const sortedNotes = useMemo(() => {
+        if (!notes) return EMPTY_ARRAY
+        return notes.sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
+    }, [notes])
+
     const selectedNote = useMemo(() => {
-        if (notes == null || notes.length === 0) return null
-        return notes.find((note) => note.id === noteId) ?? notes[notes.length - 1]
+        if (sortedNotes.length === 0) return null
+        return sortedNotes.find((note) => note.id === noteId) ?? sortedNotes[0]
     }, [noteId, notes])
 
     useEffect(() => {
@@ -35,12 +41,15 @@ const NoteListView = () => {
         navigate(`/notes/${selectedNote.id}`, { replace: true })
     }, [selectedNote])
 
-    const selectNote = useCallback((note: TNote) => {
-        navigate(`/notes/${note.id}`)
-        Log(`notes_select_${note.id}`)
-    }, [])
+    const selectNote = useCallback(
+        (note: TNote) => {
+            navigate(`/notes/${note.id}`, { replace: true })
+            Log(`notes_select_${note.id}`)
+        },
+        [sortedNotes]
+    )
 
-    useItemSelectionController(notes ?? EMPTY_ARRAY, selectNote)
+    useItemSelectionController(sortedNotes, selectNote)
 
     return (
         <>
@@ -53,8 +62,7 @@ const NoteListView = () => {
                     <Spinner />
                 ) : (
                     <>
-                        {/* temporarily reversing notes so that the most recent note is at the top (backend will change to be correct soon) */}
-                        {[...notes].reverse().map((note) => (
+                        {sortedNotes.map((note) => (
                             <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
                         ))}
                     </>

@@ -389,6 +389,6 @@ export interface TNote {
     author: string
     created_at: string
     updated_at: string
-    shared_until: string
+    shared_until?: string
     optimisticId?: string
 }

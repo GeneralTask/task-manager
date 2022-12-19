@@ -166,7 +166,6 @@ export const CalendarDayHeader = styled.div`
     justify-content: center;
     height: ${CALENDAR_DAY_HEADER_HEIGHT}px;
     position: sticky;
-    background-color: ${Colors.background.medium};
     top: 0;
     z-index: 2;
     margin: 0 auto;
@@ -175,7 +174,7 @@ export const DayHeaderText = styled.div<{ isToday: boolean }>`
     border-radius: 50vh;
     padding: ${Spacing._4} ${Spacing._8};
     color: ${(props) => (props.isToday ? Colors.text.white : Colors.text.black)};
-    background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : Colors.background.medium)};
+    background-color: ${(props) => (props.isToday ? Colors.gtColor.primary : 'transparent')};
     ${Typography.body};
 `
 export const CalendarContainer = styled.div<{ isExpanded: boolean; showShadow: boolean; hasLeftBorder: boolean }>`

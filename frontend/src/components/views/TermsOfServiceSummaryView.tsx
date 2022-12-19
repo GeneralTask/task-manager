@@ -87,7 +87,6 @@ const TermsOfServiceSummaryView = () => {
         {
             onSuccess: () => {
                 queryClient.invalidateQueries('user_info')
-                navigate('/')
             },
         }
     )

@@ -43,7 +43,7 @@ type SlackAdditionalInformation struct {
 	Deeplink string
 }
 
-func (slackTask SlackSavedTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (slackTask SlackSavedTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(errors.New("slack saved cannot fetch events"))
 }
 
@@ -143,7 +143,10 @@ func (slackTask SlackSavedTaskSource) GetSlackAdditionalInformation(db *mongo.Da
 	}
 
 	var oauthToken oauth2.Token
-	json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	err = json.Unmarshal([]byte(externalToken.Token), &oauthToken)
+	if err != nil {
+		return SlackAdditionalInformation{}, err
+	}
 
 	client := slack.New(oauthToken.AccessToken)
 	config := slackTask.Slack.Config.ConfigValues

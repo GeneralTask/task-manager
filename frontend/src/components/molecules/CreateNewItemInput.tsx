@@ -40,16 +40,20 @@ interface CreateNewItemInputProps {
     placeholder: string
     shortcutName?: TShortcutName
     autoFocus?: boolean
+    hideIcon?: boolean
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
+    onBlur?: () => void
 }
 const CreateNewItemInput = ({
     initialValue = '',
     placeholder,
     shortcutName,
     autoFocus,
+    hideIcon,
     onChange,
     onSubmit,
+    onBlur,
 }: CreateNewItemInputProps) => {
     const [text, setText] = useState(initialValue)
     const [shouldFocus, setShouldFocus] = useState(autoFocus ?? false)
@@ -83,7 +87,7 @@ const CreateNewItemInput = ({
     return (
         <Tip shortcutName={shortcutName} side="top" align="end" disabled={!shortcutName}>
             <CreateNewItemInputContainer>
-                <Icon icon={icons.plus} />
+                {!hideIcon && <Icon icon={icons.plus} />}
                 <TaskInput
                     ref={inputRef}
                     value={text}
@@ -94,6 +98,7 @@ const CreateNewItemInput = ({
                         onChange?.(e.target.value)
                     }}
                     data-autofocus={autoFocus}
+                    onBlur={onBlur}
                 />
             </CreateNewItemInputContainer>
         </Tip>

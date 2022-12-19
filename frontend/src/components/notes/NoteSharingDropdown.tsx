@@ -8,11 +8,11 @@ import { icons } from '../../styles/images'
 import { TNote } from '../../utils/types'
 import { getFormattedDuration } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
-import { Mini } from '../atoms/typography/Typography'
+import { Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
 
-const MiniWrap = styled(Mini)`
+const LabelWrap = styled(Label)`
     width: ${MENU_WIDTH};
 `
 
@@ -47,11 +47,13 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
         window.open(`${REACT_APP_FRONTEND_BASE_URL}/note/${note.id}`, '_blank')
     }
 
-    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
-    const sharedUntilString = getFormattedDuration(
-        DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
-        2
-    )
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const sharedUntilString = note.shared_until
+        ? getFormattedDuration(
+              DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
+              2
+          )
+        : 'not shared'
     const dropdownItems: GTMenuItem[] = isShared
         ? [
               {
@@ -68,7 +70,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
               },
               {
                   icon: icons.link_slashed,
-                  label: 'Disable shared link...',
+                  label: 'Disable shared link',
                   hideCheckmark: true,
                   onClick: unshareNote,
               },
@@ -77,7 +79,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   disabled: true,
                   keepOpenOnSelect: true,
                   renderer: () => (
-                      <MiniWrap>{`This note is currently being shared. The link will expire in ${sharedUntilString}.`}</MiniWrap>
+                      <LabelWrap>{`This note is currently being shared. The link will expire in ${sharedUntilString}.`}</LabelWrap>
                   ),
               },
           ]
@@ -96,10 +98,10 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   disabled: true,
                   keepOpenOnSelect: true,
                   renderer: () => (
-                      <MiniWrap>
-                          This note is currently not being shared. Sharing a note will share your full name to whoever
-                          opens the link. Links to shared notes expire after 3 months upon creation.
-                      </MiniWrap>
+                      <LabelWrap>
+                          This note is currently private. Sharing a note will reveal your full name to anyone with the
+                          link. Links to shared notes expire 3 months after they are shared.
+                      </LabelWrap>
                   ),
               },
           ]
