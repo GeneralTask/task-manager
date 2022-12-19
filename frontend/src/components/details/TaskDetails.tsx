@@ -406,7 +406,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
                     />
-                    {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
+                    {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && !isInTrash && (
                         <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
                     )}
                     {currentTask.external_status && (
