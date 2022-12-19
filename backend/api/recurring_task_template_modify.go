@@ -21,6 +21,7 @@ type RecurringTaskTemplateModifyParams struct {
 	MonthToCreateTask            *int     `json:"month_to_create_task,omitempty"`
 	IsEnabled                    *bool    `json:"is_enabled,omitempty"`
 	IsDeleted                    *bool    `json:"is_deleted,omitempty"`
+	ReplaceExisting              *bool    `json:"replace_existing,omitempty"`
 }
 
 func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
@@ -75,6 +76,7 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 		DayToCreateTask:              modifyParams.DayToCreateTask,
 		MonthToCreateTask:            modifyParams.MonthToCreateTask,
 		IDTaskSection:                taskSection,
+		ReplaceExisting:              modifyParams.ReplaceExisting,
 		UpdatedAt:                    primitive.NewDateTimeFromTime(api.GetCurrentTime()),
 	}
 
