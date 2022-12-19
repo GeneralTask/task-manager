@@ -107,7 +107,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         ...(showRecurringTaskOption
             ? [
                   {
-                      label: 'Create recurring task',
+                      label: 'Create a recurring task',
                       icon: icons.arrows_repeat,
                       iconColor: 'green' as TIconColor, // needed for TS validation
                       onClick: () => setIsRecurringTaskTemplateModalOpen(true),
