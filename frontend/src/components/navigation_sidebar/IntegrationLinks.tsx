@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -21,7 +21,6 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { pathname } = useLocation()
     const { data: folders } = useGetTasks()
-    const { isPreviewMode } = usePreviewMode()
 
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
