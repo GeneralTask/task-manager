@@ -117,7 +117,7 @@ const RecurringTaskTemplateModal = ({
             setIsModalOpen={onClose}
             size="sm"
             tabs={{
-                title: 'Setting a recurring task',
+                title: 'Create a recurring task',
                 body: (
                     <>
                         <Flex flex="1" onKeyDown={handleKeyDown} justifyContent="space-between">
