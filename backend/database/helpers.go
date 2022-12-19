@@ -39,6 +39,29 @@ func UpdateOrCreateTask(
 	return &task, nil
 }
 
+func UpdateOrCreateCalendarAccount(
+	db *mongo.Database,
+	userID primitive.ObjectID,
+	IDExternal string,
+	sourceID string,
+	fields interface{},
+	additionalFilters *[]bson.M,
+) (*CalendarAccount, error) {
+	mongoResult, err := FindOneAndUpdateWithCollection(GetCalendarAccountCollection(db), userID, IDExternal, sourceID, nil, fields, additionalFilters)
+	if err != nil {
+		return nil, err
+	}
+
+	var account CalendarAccount
+	err = mongoResult.Decode(&account)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to update or create event")
+		return nil, err
+	}
+	return &account, nil
+}
+
 func UpdateOrCreateCalendarEvent(
 	db *mongo.Database,
 	userID primitive.ObjectID,
@@ -880,6 +903,10 @@ func GetTaskCollection(db *mongo.Database) *mongo.Collection {
 
 func GetNoteCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("notes")
+}
+
+func GetCalendarAccountCollection(db *mongo.Database) *mongo.Collection {
+	return db.Collection("calendar_accounts")
 }
 
 func GetCalendarEventCollection(db *mongo.Database) *mongo.Collection {

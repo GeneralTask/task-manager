@@ -27,21 +27,76 @@ type GoogleCalendarSource struct {
 	Google GoogleService
 }
 
-func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
-	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
-	if err != nil {
-		result <- emptyCalendarResult(err)
-		return
+func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarID string) *database.CalendarEvent {
+	//exclude all day events which won't have a start time.
+	if len(event.Start.DateTime) == 0 {
+		return &database.CalendarEvent{}
 	}
 
+	//exclude clockwise events
+	if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
+		return &database.CalendarEvent{}
+	}
+
+	//exclude events we declined.
+	for _, attendee := range event.Attendees {
+		if attendee.Self && attendee.ResponseStatus == "declined" {
+			return &database.CalendarEvent{}
+		}
+	}
+
+	dbStartTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
+	dbEndTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
+	conferenceCall := GetConferenceCall(event, accountID)
+	canModify := event.GuestsCanModify
+	if event.Organizer != nil {
+		canModify = canModify || event.Organizer.Self
+	}
+	dbEvent := &database.CalendarEvent{
+		UserID:          userID,
+		IDExternal:      event.Id,
+		CalendarID:      calendarID,
+		ColorID:         event.ColorId,
+		Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
+		SourceID:        TASK_SOURCE_ID_GCAL,
+		Title:           event.Summary,
+		Body:            event.Description,
+		Location:        event.Location,
+		TimeAllocation:  dbEndTime.Sub(dbStartTime).Nanoseconds(),
+		SourceAccountID: accountID,
+		DatetimeEnd:     primitive.NewDateTimeFromTime(dbEndTime),
+		DatetimeStart:   primitive.NewDateTimeFromTime(dbStartTime),
+		CanModify:       canModify,
+		CallURL:         conferenceCall.URL,
+		CallLogo:        conferenceCall.Logo,
+		CallPlatform:    conferenceCall.Platform,
+	}
+
+	dbEvent, err := database.UpdateOrCreateCalendarEvent(
+		db,
+		userID,
+		dbEvent.IDExternal,
+		dbEvent.SourceID,
+		dbEvent,
+		nil,
+	)
+	if err != nil {
+		log.Error().Msgf("could not store event in db %+v", dbEvent)
+		return &database.CalendarEvent{}
+	}
+	return dbEvent
+}
+
+func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar.Service, db *mongo.Database, userID primitive.ObjectID, accountID string, calendarId string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
 	calendarResponse, err := calendarService.Events.
-		List("primary").
+		List(calendarId).
 		TimeMin(startTime.Format(time.RFC3339)).
 		TimeMax(endTime.Format(time.RFC3339)).
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
 	logger := logging.GetSentryLogger()
+
 	if err != nil {
 		isBadToken := CheckAndHandleBadToken(err, db, userID, accountID, TASK_SERVICE_ID_GOOGLE)
 		if !isBadToken {
@@ -51,64 +106,77 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		return
 	}
 
-	events := []*database.CalendarEvent{}
+	var events []*database.CalendarEvent
 	for _, event := range calendarResponse.Items {
-		//exclude all day events which won't have a start time.
-		if len(event.Start.DateTime) == 0 {
+		dbEvent := processAndStoreEvent(event, db, userID, accountID, calendarId)
+		if dbEvent != nil && *dbEvent != (database.CalendarEvent{}) {
+			events = append(events, dbEvent)
+		}
+	}
+	result <- CalendarResult{events, nil}
+}
+
+func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
+	calendarService, err := createGcalService(googleCalendar.Google.OverrideURLs.CalendarFetchURL, userID, accountID, context.Background(), db)
+	if err != nil {
+		result <- emptyCalendarResult(err)
+		return
+	}
+	calendarAccount := database.CalendarAccount{
+		UserID:     userID,
+		IDExternal: accountID,
+		SourceID:   TASK_SOURCE_ID_GCAL,
+		Scopes:     scopes,
+	}
+	var events []*database.CalendarEvent
+
+	fetchAllCalendars := false
+	var calendarList *calendar.CalendarList
+	if hasUserGrantedMultiCalendarScope(scopes) {
+		calendarList, err = calendarService.CalendarList.List().Do()
+		if err == nil && calendarList != nil {
+			fetchAllCalendars = true
+		} else {
+			log.Error().Err(err).Send()
+		}
+	}
+
+	// If we can't fetch the calendar list, we try fetching just the primary calendar
+	if !fetchAllCalendars {
+		log.Debug().Err(err).Msgf("could not fetch calendar list for accountID: %s", accountID)
+		eventChannel := make(chan CalendarResult)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, "primary", startTime, endTime, eventChannel)
+		eventResult := <-eventChannel
+		if eventResult.Error != nil {
+			result <- emptyCalendarResult(errors.New("failed to fetch events"))
+		}
+		events = append(events, eventResult.CalendarEvents...)
+		result <- CalendarResult{CalendarEvents: events, Error: nil}
+		return
+	}
+
+	var calendars []database.Calendar
+	eventsChannels := []chan CalendarResult{}
+	for _, calendar := range calendarList.Items {
+		calendars = append(calendars, database.Calendar{
+			CalendarID: calendar.Id,
+			ColorID:    calendar.ColorId,
+		})
+		eventChannel := make(chan CalendarResult)
+		go googleCalendar.fetchEvents(calendarService, db, userID, accountID, calendar.Id, startTime, endTime, eventChannel)
+		eventsChannels = append(eventsChannels, eventChannel)
+	}
+	for _, eventChannel := range eventsChannels {
+		eventResult := <-eventChannel
+		if eventResult.Error != nil {
 			continue
 		}
-
-		//exclude clockwise events
-		if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
-			continue
-		}
-
-		//exclude events we declined.
-		didDeclineEvent := false
-		for _, attendee := range event.Attendees {
-			if attendee.Self && attendee.ResponseStatus == "declined" {
-				didDeclineEvent = true
-				continue
-			}
-		}
-		if didDeclineEvent {
-			continue
-		}
-
-		startTime, _ := time.Parse(time.RFC3339, event.Start.DateTime)
-		endTime, _ := time.Parse(time.RFC3339, event.End.DateTime)
-		conferenceCall := GetConferenceCall(event, accountID)
-		event := &database.CalendarEvent{
-			UserID:          userID,
-			IDExternal:      event.Id,
-			Deeplink:        fmt.Sprintf("%s&authuser=%s", event.HtmlLink, accountID),
-			SourceID:        TASK_SOURCE_ID_GCAL,
-			Title:           event.Summary,
-			Body:            event.Description,
-			Location:        event.Location,
-			TimeAllocation:  endTime.Sub(startTime).Nanoseconds(),
-			SourceAccountID: accountID,
-			DatetimeEnd:     primitive.NewDateTimeFromTime(endTime),
-			DatetimeStart:   primitive.NewDateTimeFromTime(startTime),
-			CanModify:       event.GuestsCanModify || event.Organizer.Self,
-			CallURL:         conferenceCall.URL,
-			CallLogo:        conferenceCall.Logo,
-			CallPlatform:    conferenceCall.Platform,
-		}
-
-		dbEvent, err := database.UpdateOrCreateCalendarEvent(
-			db,
-			userID,
-			event.IDExternal,
-			event.SourceID,
-			event,
-			nil,
-		)
-		if err != nil {
-			result <- emptyCalendarResult(err)
-			return
-		}
-		events = append(events, dbEvent)
+		events = append(events, eventResult.CalendarEvents...)
+	}
+	calendarAccount.Calendars = calendars
+	_, err = database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
+	if err != nil {
+		log.Error().Err(err).Msgf("could not create CalendarAccount: %+v", calendarAccount)
 	}
 	result <- CalendarResult{CalendarEvents: events, Error: nil}
 }
