@@ -70,22 +70,26 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 />
             </Tip>
             {isPreviewMode && (
+                <Tip shortcutName="goToRecurringTasksPage" side="right">
+                    <NavigationLink
+                        link="/recurring-tasks"
+                        title="Recurring tasks"
+                        icon={icons.arrows_repeat}
+                        iconColor="green"
+                        isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                        isCollapsed={isCollapsed}
+                    />
+                </Tip>
+            )}
+            <Tip shortcutName="goToNotesPage" side="right">
                 <NavigationLink
-                    link="/recurring-tasks"
-                    title="Recurring tasks"
-                    icon={icons.arrows_repeat}
-                    iconColor="green"
-                    isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                    link="/notes"
+                    title="Notes"
+                    icon={icons.note}
+                    isCurrentPage={pathname.split('/')[1] === 'notes'}
                     isCollapsed={isCollapsed}
                 />
-            )}
-            <NavigationLink
-                link="/notes"
-                title="Notes"
-                icon={icons.note}
-                isCurrentPage={pathname.split('/')[1] === 'notes'}
-                isCollapsed={isCollapsed}
-            />
+            </Tip>
             <Tip shortcutName="enterFocusMode" side="right">
                 <NavigationLink
                     link="/focus-mode"
