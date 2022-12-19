@@ -4,6 +4,7 @@ import (
 	"context"
 	"sort"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
@@ -169,5 +170,23 @@ func (api *API) SectionDelete(c *gin.Context) {
 		Handle404(c)
 		return
 	}
+
+	recurringTaskTemplateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
+
+	_, err = recurringTaskTemplateCollection.UpdateMany(
+		context.Background(),
+		bson.M{"$and": []bson.M{
+			{"id_task_section": sectionID},
+			{"user_id": userID},
+		}},
+		bson.M{"$set": bson.M{"id_task_section": constants.IDTaskSectionDefault}},
+	)
+
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to update recurring task templates")
+		Handle500(c)
+		return
+	}
+
 	c.JSON(200, gin.H{})
 }
