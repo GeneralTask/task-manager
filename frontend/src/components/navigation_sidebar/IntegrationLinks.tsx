@@ -70,14 +70,13 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                 />
             </Tip>
             <NavigationLink
-                    link="/recurring-tasks"
-                    title="Recurring tasks"
-                    icon={icons.arrows_repeat}
-                    iconColor="green"
-                    isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
-                    isCollapsed={isCollapsed}
-                />
-            )}
+                link="/recurring-tasks"
+                title="Recurring tasks"
+                icon={icons.arrows_repeat}
+                iconColor="green"
+                isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
+                isCollapsed={isCollapsed}
+            />
             <NavigationLink
                 link="/notes"
                 title="Notes"
