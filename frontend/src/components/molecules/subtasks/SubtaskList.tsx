@@ -49,7 +49,10 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
-    useKeyboardShortcut('createSubtask', () => setShowCreateNewSubtask(true))
+    useKeyboardShortcut(
+        'createSubtask',
+        useCallback(() => setShowCreateNewSubtask(true), [])
+    )
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {
