@@ -15,6 +15,7 @@ import {
 } from '../../utils/types'
 import {
     arrayMoveInPlace,
+    getSubtaskFromSections,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
@@ -37,6 +38,7 @@ export interface TCreateTaskResponse {
 
 export interface TModifyTaskData {
     id: string
+    subtaskId?: string
     title?: string
     dueDate?: string
     body?: string
@@ -288,7 +290,10 @@ export const useModifyTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id)
+                    const task = data.subtaskId
+                        ? getSubtaskFromSections(draft, data.id, data.subtaskId)
+                        : getTaskFromSections(draft, data.id)
+                    console.log(data)
                     if (!task) return
                     task.title = data.title ?? task.title
                     task.due_date = data.dueDate ?? task.due_date
