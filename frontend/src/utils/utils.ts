@@ -135,7 +135,6 @@ export const getSubtaskFromSections = (
     subtaskId: string
 ): TTask | undefined => {
     const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(sections, parentId, undefined, subtaskId)
-    console.log({ taskIndex, sectionIndex, subtaskIndex })
     if (taskIndex === undefined || sectionIndex === undefined || subtaskIndex === undefined) return undefined
     return sections[sectionIndex].tasks[taskIndex].sub_tasks?.[subtaskIndex]
 }

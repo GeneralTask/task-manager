@@ -293,7 +293,6 @@ export const useModifyTask = () => {
                     const task = data.subtaskId
                         ? getSubtaskFromSections(draft, data.id, data.subtaskId)
                         : getTaskFromSections(draft, data.id)
-                    console.log(data)
                     if (!task) return
                     task.title = data.title ?? task.title
                     task.due_date = data.dueDate ?? task.due_date
