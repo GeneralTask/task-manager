@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import produce from 'immer'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
 import { useInterval } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
@@ -37,7 +38,7 @@ const TasksDue = ({ date }: TasksDueProps) => {
         () => {
             setCurrentTime(DateTime.local())
         },
-        1000,
+        SINGLE_SECOND_INTERVAL,
         false
     )
 
