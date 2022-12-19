@@ -144,23 +144,21 @@ export default function CalendarHeader({
                     )}
                 </>
             )
-        } else {
-            if (isCalendarShowingToday) {
-                return (
-                    <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
-                        <GTButton
-                            icon={icons.headphones}
-                            iconColor="black"
-                            value="Enter Focus Mode"
-                            size="small"
-                            styleType="secondary"
-                        />
-                    </NoStyleLink>
-                )
-            } else {
-                return <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
-            }
         }
+        if (isCalendarShowingToday) {
+            return (
+                <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                    <GTButton
+                        icon={icons.headphones}
+                        iconColor="black"
+                        value="Enter Focus Mode"
+                        size="small"
+                        styleType="secondary"
+                    />
+                </NoStyleLink>
+            )
+        }
+        return <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
     }, [isPreviewMode, isCalendarShowingToday, calendarType, date, showTaskToCalSidebar])
 
     return (
