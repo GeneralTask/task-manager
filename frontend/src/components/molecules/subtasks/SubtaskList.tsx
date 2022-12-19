@@ -32,10 +32,12 @@ const AddTaskbutton = styled.div`
         border-radius: ${Border.radius.small};
     }
 `
+const MarginBottomDiv = styled.div`
+    margin-bottom: ${Spacing._24};
+`
 const TaskListContainer = styled.div`
     display: flex;
     flex-direction: column;
-    gap: ${Spacing._24};
 `
 
 interface SubtasksProps {
@@ -75,12 +77,14 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                 {sectionId && (
                     <>
                         {!showCreateNewSubtask && (
-                            <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
-                                <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
-                                    <Icon icon={icons.plus} color="gray" />
-                                    Add new subtask
-                                </AddTaskbutton>
-                            </Tip>
+                            <MarginBottomDiv>
+                                <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
+                                    <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
+                                        <Icon icon={icons.plus} color="gray" />
+                                        Add new subtask
+                                    </AddTaskbutton>
+                                </Tip>
+                            </MarginBottomDiv>
                         )}
                         {showCreateNewSubtask && (
                             <CreateNewItemInput
