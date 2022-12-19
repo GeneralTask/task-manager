@@ -68,7 +68,7 @@ export const useDeleteTaskSection = () => {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'recurring-tasks'],
         onMutate: async ({ id }) => {
-            await queryClient.cancelQueries('tasks')
+            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('recurring-tasks')])
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
