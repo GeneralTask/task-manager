@@ -72,6 +72,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'trash',
     },
+    oldMarkAsDone: {
+        label: 'Old mark as done',
+        key: `d`,
+        keyLabel: 'D',
+        category: 'Tasks',
+        hideFromCommandPalette: true,
+    },
     markAsDone: {
         label: 'Mark as done',
         key: `${SHIFT}+D`,

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useToast } from '../../../hooks'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
 import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
@@ -25,6 +26,8 @@ const MarkTaskDoneButton = ({
     optimsticId,
 }: MarkTaskDoneButtonProps) => {
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
+    const toast = useToast()
+
     const onMarkTaskDone = useCallback(() => {
         if (onMarkComplete) onMarkComplete()
         markTaskDoneOrDeleted(
@@ -45,7 +48,23 @@ const MarkTaskDoneButton = ({
         })
     }, [taskId, sectionId, isDone])
 
+    const onOldMarkTaskDone = useCallback(() => {
+        toast.show(
+            {
+                message: `This shortcut is deprecated — use Shift + D instead`,
+            },
+            {
+                autoClose: 2000,
+                pauseOnFocusLoss: false,
+                theme: 'dark',
+            }
+        )
+        // onMarkTaskDone()
+    }, [onMarkTaskDone])
+
+    useKeyboardShortcut('oldMarkAsDone', onOldMarkTaskDone, !isSelected || isDisabled)
     useKeyboardShortcut('markAsDone', onMarkTaskDone, !isSelected || isDisabled)
+
     return <GTCheckbox isChecked={isDone} onChange={onMarkTaskDone} animated />
 }
 
