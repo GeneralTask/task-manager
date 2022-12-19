@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
-import { TIconColor } from '../../styles/colors'
 import { icons, linearStatus } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -106,7 +105,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
                   {
                       label: 'Create a recurring task',
                       icon: icons.arrows_repeat,
-                      iconColor: 'green' as TIconColor, // needed for TS validation
                       onClick: () => setIsRecurringTaskTemplateModalOpen(true),
                   },
               ]

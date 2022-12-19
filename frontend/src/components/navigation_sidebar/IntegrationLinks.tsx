@@ -73,7 +73,6 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     link="/recurring-tasks"
                     title="Recurring tasks"
                     icon={icons.arrows_repeat}
-                    iconColor="green"
                     isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
                     isCollapsed={isCollapsed}
                 />
