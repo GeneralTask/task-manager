@@ -12,7 +12,7 @@ import {
     SYNC_MESSAGES,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -122,7 +122,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
 
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { isPreviewMode } = usePreviewMode()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
