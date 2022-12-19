@@ -362,8 +362,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                     />
                 )}
-                {isPreviewMode &&
-                    (isRecurringTaskTemplate ? (
+                {(isRecurringTaskTemplate ? (
                         <RecurringTaskTemplateScheduleButton templateId={task.id} />
                     ) : (
                         task.source?.name === 'General Task' &&
@@ -393,12 +392,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
             ) : (
                 <>
                     {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
-                    {isPreviewMode &&
-                        !isRecurringTaskTemplate &&
+                    {!isRecurringTaskTemplate &&
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
                         folderId && <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />}
-                    {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
+                    {isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody

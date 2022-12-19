@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { usePreviewMode } from '../../hooks'
 import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
 import { TIconColor } from '../../styles/colors'
 import { icons, linearStatus } from '../../styles/images'
@@ -23,11 +22,9 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { isPreviewMode } = usePreviewMode()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
 
     const showRecurringTaskOption =
-        isPreviewMode &&
         task.source?.name === 'General Task' && // must be a native task
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
         !isSubtask
