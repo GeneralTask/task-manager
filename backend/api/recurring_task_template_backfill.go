@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -101,10 +102,31 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 	}
 
 	if len(tasks) > 0 {
-		_, err = database.GetTaskCollection(api.DB).InsertMany(context.Background(), tasks)
-		if err != nil {
-			api.Logger.Error().Msg("unable to insert tasks from template")
-			return currentTime, err
+		if template.ReplaceExisting != nil && *template.ReplaceExisting == true {
+			_, err = database.GetTaskCollection(api.DB).UpdateMany(
+				context.Background(),
+				bson.M{"$and": []bson.M{
+					{"recurring_task_template_id": template.ID},
+					{"user_id": template.UserID},
+				}},
+				bson.M{"$set": bson.M{"is_deleted": true}},
+			)
+			if err != nil && err != mongo.ErrNoDocuments {
+				api.Logger.Error().Err(err).Msg("failed to update existing tasks from template")
+				return currentTime, err
+			}
+
+			_, err = database.GetTaskCollection(api.DB).InsertOne(context.Background(), tasks[0])
+			if err != nil {
+				api.Logger.Error().Msg("unable to insert task from template")
+				return currentTime, err
+			}
+		} else {
+			_, err = database.GetTaskCollection(api.DB).InsertMany(context.Background(), tasks)
+			if err != nil {
+				api.Logger.Error().Msg("unable to insert tasks from template")
+				return currentTime, err
+			}
 		}
 	}
 
