@@ -35,6 +35,7 @@ const LinkContainer = styled.div<{ isSelected: boolean; isOver: boolean }>`
     flex-direction: row;
     align-items: center;
     padding: ${Spacing._8};
+    margin: 0 ${Spacing._8};
     width: 100%;
     border-radius: ${Border.radius.small};
     background-color: ${({ isOver, isSelected }) =>
