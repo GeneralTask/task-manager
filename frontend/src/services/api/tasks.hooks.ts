@@ -15,6 +15,7 @@ import {
 } from '../../utils/types'
 import {
     arrayMoveInPlace,
+    getSubtaskFromSections,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
@@ -37,6 +38,7 @@ export interface TCreateTaskResponse {
 
 export interface TModifyTaskData {
     id: string
+    subtaskId?: string
     title?: string
     dueDate?: string
     body?: string
@@ -288,7 +290,9 @@ export const useModifyTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id)
+                    const task = data.subtaskId
+                        ? getSubtaskFromSections(draft, data.id, data.subtaskId)
+                        : getTaskFromSections(draft, data.id)
                     if (!task) return
                     task.title = data.title ?? task.title
                     task.due_date = data.dueDate ?? task.due_date
@@ -329,9 +333,18 @@ export const useModifyTask = () => {
                         id: view.task_section_id,
                         tasks: view.view_items,
                     }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
+                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                        sections,
+                        data.id,
+                        undefined,
+                        data.subtaskId
+                    )
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
+                    if (data.subtaskId && !subtaskIndex) return
+                    const task =
+                        subtaskIndex === undefined
+                            ? draft[sectionIndex].view_items[taskIndex]
+                            : draft[sectionIndex].view_items[taskIndex].sub_tasks?.[subtaskIndex]
                     if (!task) return
                     task.title = data.title || task.title
                     task.due_date = data.dueDate ?? task.due_date

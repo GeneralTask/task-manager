@@ -358,22 +358,22 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
                         initialDate={DateTime.fromISO(currentTask.due_date ?? '').toJSDate()}
-                        setDate={(date) => modifyTask({ id: currentTask.id, dueDate: date })}
+                        setDate={(date) => modifyTask({ id: task.id, dueDate: date, subtaskId: subtask?.id })}
                         disabled={isInTrash}
                     />
                 )}
-                {(isRecurringTaskTemplate ? (
-                        <RecurringTaskTemplateScheduleButton templateId={task.id} />
-                    ) : (
-                        task.source?.name === 'General Task' &&
-                        subtask === undefined && (
-                            <RecurringTaskTemplateScheduleButton
-                                templateId={currentTask.recurring_task_template_id}
-                                task={currentTask as TTask}
-                                folderId={folderId}
-                            />
-                        )
-                    ))}
+                {isRecurringTaskTemplate ? (
+                    <RecurringTaskTemplateScheduleButton templateId={task.id} />
+                ) : (
+                    task.source?.name === 'General Task' &&
+                    subtask === undefined && (
+                        <RecurringTaskTemplateScheduleButton
+                            templateId={currentTask.recurring_task_template_id}
+                            task={currentTask as TTask}
+                            folderId={folderId}
+                        />
+                    )
+                )}
                 <MarginLeftAuto>
                     {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                         <>
