@@ -31,11 +31,11 @@ const AddTaskbutton = styled.div`
         border-color: ${Colors.border.light};
         border-radius: ${Border.radius.small};
     }
-    margin-bottom: ${Spacing._24};
 `
 const TaskListContainer = styled.div`
     display: flex;
     flex-direction: column;
+    gap: ${Spacing._24};
 `
 
 interface SubtasksProps {
