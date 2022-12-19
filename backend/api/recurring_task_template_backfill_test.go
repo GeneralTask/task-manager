@@ -158,6 +158,54 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 		assert.Equal(t, 6, len(*tasks))
 		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
 	})
+	t.Run("WeeklyTest", func(t *testing.T) {
+		authToken := login("weekly_recur_replace@generaltask.com", "")
+		userID := getUserIDFromAuthToken(t, api.DB, authToken)
+
+		title := "hello!"
+		enabled := true
+		deleted := false
+		replace := true
+		recurrenceRate := Weekly
+		// 10:00:10
+		creationTimeSeconds := 60*60*10 + 60*0 + 10
+		creationDay := int(time.Monday)
+
+		// last backfill time before creation time
+		// Sunday November 6 (2 periods should pass)
+		lastBackfillTime := time.Date(2022, time.November, 6, 9, 0, 0, 0, time.UTC)
+
+		templateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
+		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
+			UserID:                       userID,
+			Title:                        &title,
+			IsEnabled:                    &enabled,
+			IsDeleted:                    &deleted,
+			ReplaceExisting:              &replace,
+			RecurrenceRate:               &recurrenceRate,
+			TimeOfDaySecondsToCreateTask: &creationTimeSeconds,
+			DayToCreateTask:              &creationDay,
+			LastBackfillDatetime:         primitive.NewDateTimeFromTime(lastBackfillTime),
+		})
+		templateID := insertResult.InsertedID.(primitive.ObjectID)
+		assert.NoError(t, err)
+
+		request, _ := http.NewRequest(
+			"GET",
+			"/recurring_task_templates/backfill_tasks/",
+			nil,
+		)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		request.Header.Set("Timezone-Offset", "0")
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		tasks, err := database.GetActiveTasks(api.DB, userID)
+		assert.NoError(t, err)
+		assert.Equal(t, 5, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+	})
 	t.Run("MonthlyTest", func(t *testing.T) {
 		authToken := login("monthly_recur@generaltask.com", "")
 		userID := getUserIDFromAuthToken(t, api.DB, authToken)

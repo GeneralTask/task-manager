@@ -86,7 +86,7 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		request, _ := http.NewRequest(
 			"PATCH",
 			"/recurring_task_templates/modify/"+templateID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "new title!"}`)),
+			bytes.NewBuffer([]byte(`{"title": "new title!", "replace_existing": true}`)),
 		)
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		recorder := httptest.NewRecorder()
@@ -97,6 +97,7 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		err = database.FindWithCollection(database.GetRecurringTaskTemplateCollection(api.DB), userID, &[]bson.M{{"is_deleted": false}}, &templates, nil)
 		assert.NoError(t, err)
 		assert.Equal(t, "new title!", *(templates[0].Title))
+		assert.True(t, *templates[0].ReplaceExisting)
 		assert.Equal(t, primitive.NewDateTimeFromTime(currentTime), templates[0].UpdatedAt)
 	})
 }
