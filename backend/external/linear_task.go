@@ -20,7 +20,7 @@ type LinearTaskSource struct {
 	Linear LinearService
 }
 
-func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, result chan<- CalendarResult) {
+func (linearTask LinearTaskSource) GetEvents(db *mongo.Database, userID primitive.ObjectID, accountID string, startTime time.Time, endTime time.Time, scopes []string, result chan<- CalendarResult) {
 	result <- emptyCalendarResult(errors.New("linear task cannot fetch events"))
 }
 

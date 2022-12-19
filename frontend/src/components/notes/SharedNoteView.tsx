@@ -1,50 +1,64 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
-import styled from 'styled-components'
-import { AUTHORIZATION_COOKE } from '../../constants'
-import { useGetNote } from '../../services/api/notes.hooks'
+import styled, { css } from 'styled-components'
+import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
+import getEnvVars from '../../environment'
+import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { icons, noteBackground } from '../../styles/images'
-import { emptyFunction, getHumanTimeSinceDateTime } from '../../utils/utils'
+import { buttons, noteBackground } from '../../styles/images'
+import { openPopupWindow } from '../../utils/auth'
+import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
-import { Icon } from '../atoms/Icon'
+import NoStyleAnchor from '../atoms/NoStyleAnchor'
 import { Divider } from '../atoms/SectionDivider'
 import Spinner from '../atoms/Spinner'
 import GTButton from '../atoms/buttons/GTButton'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { Body, Label, Subtitle, Title } from '../atoms/typography/Typography'
+import { Body, Label, Title } from '../atoms/typography/Typography'
+import NoteActionsDropdown from './NoteActionsDropdown'
+
+const background = css`
+    background: url(${noteBackground});
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: top left, 0px 0px;
+    background-size: cover;
+`
 
 const Logo = styled.img`
     width: 153px;
 `
 const MainContainer = styled.div`
+    ${background};
     width: 100vw;
     height: 100vh;
-    background: url(${noteBackground});
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: auto;
 `
 const ColumnContainer = styled.div`
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 750px;
 `
 const TopContainer = styled.div`
+    ${background};
+    position: fixed;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: ${Spacing._32} ${Spacing._24} ${Spacing._12};
+    padding: ${Spacing._24};
+    width: 750px;
+    z-index: 10;
 `
 const BottomContainer = styled.div`
-    overflow-y: auto;
+    margin-top: 110px;
 `
 const NoteBody = styled.div`
     background: ${Colors.background.white};
@@ -53,23 +67,33 @@ const NoteBody = styled.div`
     display: flex;
     flex-direction: column;
     padding: ${Spacing._24};
-    gap: ${Spacing._32};
+    gap: ${Spacing._24};
     margin: ${Spacing._24};
 `
-const SignInButton = styled.div`
+const SignInButton = styled(NoStyleButton)`
     width: 200px;
+`
+const GoogleImage = styled.img`
+    width: 100%;
+`
+const FlexPadding8Horizontal = styled(Flex)`
+    padding: 0 ${Spacing._8};
+`
+const FlexMargin8Top = styled(Flex)`
+    margin-top: ${Spacing._8};
 `
 
 const SharedNoteView = () => {
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
+    const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
-    if (isLoading) return <Spinner />
 
-    const isLoggedIn = Cookies.get(AUTHORIZATION_COOKE)
+    const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
 
+    if (isLoading || isLoadingNotes) return <Spinner />
     return (
         <MainContainer>
             <ColumnContainer>
@@ -80,18 +104,30 @@ const SharedNoteView = () => {
                     {isLoggedIn ? (
                         <GTButton styleType="secondary" value="Back to General Task" onClick={() => navigate('/')} />
                     ) : (
-                        <SignInButton>
-                            <GoogleSignInButton />
+                        <SignInButton onClick={() => openPopupWindow(LOGIN_URL, emptyFunction, false, true)}>
+                            <GoogleImage src={buttons.google_sign_in} />
                         </SignInButton>
                     )}
                 </TopContainer>
                 <BottomContainer>
                     <NoteBody>
-                        {note ? (
+                        {note && note.shared_until ? (
                             <>
-                                <Subtitle>{note.title}</Subtitle>
+                                <Flex alignItems="flex-start">
+                                    <GTTextField
+                                        type="plaintext"
+                                        itemId={note.title}
+                                        value={note.title}
+                                        onChange={emptyFunction}
+                                        fontSize="large"
+                                        disabled
+                                        readOnly
+                                    />
+                                    <NoteActionsDropdown note={note} />
+                                </Flex>
                                 <GTTextField
                                     type="markdown"
+                                    itemId={note.body}
                                     value={note.body}
                                     onChange={emptyFunction}
                                     fontSize="small"
@@ -99,27 +135,59 @@ const SharedNoteView = () => {
                                     readOnly
                                 />
                                 <Divider color={Colors.border.light} />
-                                <Flex justifyContent="space-between" alignItems="center">
+                                <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
                                     <Flex gap={Spacing._4}>
-                                        <Label>{note.author}</Label>
-                                        <Label color="light">shared this note with you</Label>
-                                        <Label>{getHumanTimeSinceDateTime(DateTime.fromISO(note.updated_at))}</Label>
+                                        {isLoggedIn && notes?.findIndex((n) => n.id === note.id) !== -1 ? (
+                                            <>
+                                                <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
+                                                    DateTime.fromISO(note.updated_at)
+                                                )}`}</Label>
+                                                <Label>
+                                                    {'('}
+                                                    <Link to={`/notes/${noteId}`}>edit note</Link>
+                                                    {')'}
+                                                </Label>
+                                            </>
+                                        ) : (
+                                            <Label color="light">{`${
+                                                note.author
+                                            } shared this note ${getHumanTimeSinceDateTime(
+                                                DateTime.fromISO(note.updated_at)
+                                            )}`}</Label>
+                                        )}
                                     </Flex>
-                                    <Flex gap={Spacing._4}>
-                                        <Icon color="gray" icon={icons.link} />
-                                        <Label color="light">{`Link expires in ${DateTime.fromISO(note.shared_until)
-                                            .diffNow(['days', 'hours'])
-                                            .toHuman({ maximumFractionDigits: 0 })}`}</Label>
-                                    </Flex>
-                                </Flex>
+                                    <Label color="light">{`Link expires in ${getFormattedDuration(
+                                        DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                            conversionAccuracy: 'longterm',
+                                        }),
+                                        2
+                                    )}`}</Label>
+                                </FlexPadding8Horizontal>
                             </>
                         ) : (
                             <>
-                                <Title>This link has expired.</Title>
+                                <Title>This note is not available</Title>
                                 <Body>
-                                    The link to this shared note has expired. Please reach out to the person who sent
-                                    this shared note for a new link.
+                                    If you need access to this note, please reach out to the person who sent it.
                                 </Body>
+                                <FlexMargin8Top gap={Spacing._8}>
+                                    {isLoggedIn ? (
+                                        <GTButton
+                                            styleType="primary"
+                                            value="Back to General Task"
+                                            onClick={() => navigate('/')}
+                                        />
+                                    ) : (
+                                        <>
+                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_SIGN_UP_URL}>
+                                                <GTButton styleType="primary" value="Sign In to General Task" />
+                                            </NoStyleAnchor>
+                                            <NoStyleAnchor href={getEnvVars().REACT_APP_TRY_BASE_URL}>
+                                                <GTButton styleType="secondary" value="Learn more about General Task" />
+                                            </NoStyleAnchor>
+                                        </>
+                                    )}
+                                </FlexMargin8Top>
                             </>
                         )}
                     </NoteBody>

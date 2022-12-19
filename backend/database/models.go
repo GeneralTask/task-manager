@@ -141,6 +141,8 @@ type RecurringTaskTemplate struct {
 	DayToCreateTask              *int               `bson:"day_to_create_task,omitempty" json:"day_to_create_task,omitempty"`
 	MonthToCreateTask            *int               `bson:"month_to_create_task,omitempty" json:"month_to_create_task,omitempty"`
 	LastBackfillDatetime         primitive.DateTime `bson:"last_backfill_datetime,omitempty" json:"last_backfill_datetime,omitempty"`
+	// existing template tasks replaced by new task
+	ReplaceExisting *bool `bson:"replace_existing,omitempty" json:"replace_existing,omitempty"`
 	// created at
 	CreatedAt primitive.DateTime `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt primitive.DateTime `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
@@ -185,12 +187,28 @@ type PullRequestComment struct {
 	CreatedAt       primitive.DateTime `bson:"last_updated_at,omitempty"`
 }
 
+type Calendar struct {
+	CalendarID string `bson:"calendar_id,omitempty"`
+	ColorID    string `bson:"color_id,omitempty"`
+}
+
+type CalendarAccount struct {
+	ID         primitive.ObjectID `bson:"_id,omitempty"`
+	UserID     primitive.ObjectID `bson:"user_id,omitempty"`
+	IDExternal string             `bson:"id_external,omitempty"`
+	Calendars  []Calendar         `bson:"calendars,omitempty"`
+	Scopes     []string           `bson:"scopes,omitempty"`
+	SourceID   string             `bson:"source_id,omitempty"`
+}
+
 type CalendarEvent struct {
 	ID              primitive.ObjectID `bson:"_id,omitempty"`
 	UserID          primitive.ObjectID `bson:"user_id,omitempty"`
 	IDExternal      string             `bson:"id_external,omitempty"`
 	SourceID        string             `bson:"source_id,omitempty"`
 	SourceAccountID string             `bson:"source_account_id,omitempty"`
+	CalendarID      string             `bson:"calendar_id,omitempty"`
+	ColorID         string             `bson:"color_id,omitempty"`
 	Deeplink        string             `bson:"deeplink,omitempty"`
 	Title           string             `bson:"title,omitempty"`
 	Body            string             `bson:"body,omitempty"`

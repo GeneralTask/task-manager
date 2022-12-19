@@ -4,16 +4,10 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import {
-    DONE_SECTION_ID,
-    EMPTY_MONGO_OBJECT_ID,
-    SINGLE_SECOND_INTERVAL,
-    TASK_PRIORITIES,
-    TRASH_SECTION_ID,
-} from '../../constants'
-import { useInterval, usePreviewMode } from '../../hooks'
+import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
+import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import Log from '../../services/api/log'
-import { useModifyTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
@@ -30,6 +24,7 @@ import GTDropdownMenu from '../radix/GTDropdownMenu'
 import JiraPriorityDropdown from '../radix/JiraPriorityDropdown'
 import TaskContextMenuWrapper from '../radix/TaskContextMenuWrapper'
 import ItemContainer from './ItemContainer'
+import { useGetRecurringTaskTemplateFromId } from './recurring-tasks/recurringTasks.utils'
 
 export const GTButtonHack = styled(GTButton)`
     width: 20px !important;
@@ -93,6 +88,7 @@ const Task = ({
     const { meeting_preparation_params } = task
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
+    const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -180,6 +176,14 @@ const Task = ({
     const dueDate = DateTime.fromISO(task.due_date).toJSDate()
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
+    const deleteTask = useCallback(() => {
+        markTaskDoneOrDeleted({ id: task.id, isDeleted: true }, task.optimisticId)
+    }, [task])
+
+    useKeyboardShortcut('deleteTask', deleteTask, !isSelected)
+
+    const recurringTaskTemplate = useGetRecurringTaskTemplateFromId(task.recurring_task_template_id)
+
     return (
         <TaskContextMenuWrapper task={task} sectionId={sectionId} onOpenChange={setContextMenuOpen}>
             <TaskTemplate
@@ -223,11 +227,7 @@ const Task = ({
                         ))}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
-                        {isPreviewMode &&
-                            task.recurring_task_template_id &&
-                            task.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID && (
-                                <Icon icon={icons.arrows_repeat} color="green" />
-                            )}
+                        {isPreviewMode && recurringTaskTemplate && <Icon icon={icons.arrows_repeat} color="green" />}
                         <DueDate date={dueDate} />
                         {task.priority && task.all_priorities && (
                             <JiraPriorityDropdown

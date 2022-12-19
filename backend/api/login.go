@@ -3,6 +3,8 @@ package api
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -11,7 +13,6 @@ import (
 	guuid "github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 )
 
 // GoogleRedirectParams ...
@@ -161,6 +162,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 	taskCollection := database.GetTaskCollection(db)
 	for index, title := range constants.StarterTasks {
+		tempTitle := title
 		body := ""
 		completed := false
 		deleted := false
@@ -170,7 +172,7 @@ func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 			IDOrdering:        index + 1,
 			IDTaskSection:     constants.IDTaskSectionDefault,
 			SourceID:          external.TASK_SOURCE_ID_GT_TASK,
-			Title:             &title,
+			Title:             &tempTitle,
 			Body:              &body,
 			SourceAccountID:   external.GeneralTaskDefaultAccountID,
 			IsCompleted:       &completed,

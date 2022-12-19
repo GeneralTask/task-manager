@@ -23,6 +23,7 @@ import FeedbackModal from '../molecules/FeedbackModal'
 import SettingsModalButton from '../molecules/SettingsModalButton'
 import IntegrationLinks from '../navigation_sidebar/IntegrationLinks'
 import NavigationLink, { CollapsedIconContainer } from '../navigation_sidebar/NavigationLink'
+import NoteCreateButton from '../notes/NoteCreateButton'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem } from '../radix/RadixUIConstants'
 import Tip from '../radix/Tip'
@@ -130,6 +131,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             <Icon icon={icons.sidebar} />
                         </CollapsedIconContainer>
                     </Tip>
+                    <NoteCreateButton type="collapsed" />
                     <CommandPalette
                         customButton={
                             <Tip shortcutName="toggleCommandPalette" side="right">

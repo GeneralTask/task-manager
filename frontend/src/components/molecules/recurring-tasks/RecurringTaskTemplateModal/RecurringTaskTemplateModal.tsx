@@ -10,14 +10,17 @@ import { TRecurringTaskTemplate, TTask } from '../../../../utils/types'
 import { stopKeydownPropogation } from '../../../../utils/utils'
 import Flex from '../../../atoms/Flex'
 import GTButton from '../../../atoms/buttons/GTButton'
+import { BodySmall } from '../../../atoms/typography/Typography'
 import GTModal from '../../../mantine/GTModal'
 import CreateNewItemInput from '../../CreateNewItemInput'
+import { getInitialSelectedDate } from '../recurringTasks.utils'
 import DatePicker from './DatePicker'
 import RecurrenceRateSelector from './RecurrenceRateSelector'
 import TemplateFolderSelector from './TemplateFolderSelector'
 
 const SettingsForm = styled.div`
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -54,13 +57,8 @@ const RecurringTaskTemplateModal = ({
     const [folder, setFolder] = useState(
         initialRecurringTaskTemplate?.id_task_section ?? initialFolderId ?? DEFAULT_SECTION_ID
     )
-    const [selectedDate, setSelectedDate] = useState<DateTime>(
-        initialRecurringTaskTemplate?.day_to_create_task && initialRecurringTaskTemplate?.day_to_create_task
-            ? DateTime.fromObject({
-                  day: initialRecurringTaskTemplate.day_to_create_task,
-                  month: initialRecurringTaskTemplate.month_to_create_task,
-              })
-            : DateTime.local()
+    const [selectedDate, setSelectedDate] = useState<DateTime>(() =>
+        getInitialSelectedDate(initialRecurringTaskTemplate)
     )
     const isValid = !!title.trim()
 
@@ -115,7 +113,7 @@ const RecurringTaskTemplateModal = ({
             setIsModalOpen={onClose}
             size="sm"
             tabs={{
-                title: 'Setting a recurring task',
+                title: `${initialRecurringTaskTemplate ? 'Edit' : 'Create'} a recurring task`,
                 body: (
                     <>
                         <Flex flex="1" onKeyDown={handleKeyDown} justifyContent="space-between">
@@ -124,10 +122,14 @@ const RecurringTaskTemplateModal = ({
                                     placeholder="Recurring task title"
                                     initialValue={title}
                                     autoFocus
+                                    hideIcon
                                     onChange={setTitle}
                                     onSubmit={handleSave}
                                 />
-                                <TemplateFolderSelector value={folder} onChange={setFolder} />
+                                <Flex column gap={Spacing._12}>
+                                    <BodySmall>Which folder should this task appear in?</BodySmall>
+                                    <TemplateFolderSelector value={folder} onChange={setFolder} useTriggerWidth />
+                                </Flex>
                                 <RecurrenceRateSelector
                                     value={recurrenceRate}
                                     onChange={setRecurrenceRate}

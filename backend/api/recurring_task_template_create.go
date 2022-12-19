@@ -17,6 +17,7 @@ type RecurringTaskTemplateCreateParams struct {
 	TimeOfDaySecondsToCreateTask *int     `json:"time_of_day_seconds_to_create_task,omitempty" binding:"required"`
 	DayToCreateTask              *int     `json:"day_to_create_task,omitempty"`
 	MonthToCreateTask            *int     `json:"month_to_create_task,omitempty"`
+	ReplaceExisting              *bool    `json:"replace_existing,omitempty"`
 }
 
 func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
@@ -48,6 +49,7 @@ func (api *API) RecurringTaskTemplateCreate(c *gin.Context) {
 		PriorityNormalized:           templateCreateParams.PriorityNormalized,
 		IsEnabled:                    &enabled,
 		IsDeleted:                    &deleted,
+		ReplaceExisting:              templateCreateParams.ReplaceExisting,
 		RecurrenceRate:               templateCreateParams.RecurrenceRate,
 		TimeOfDaySecondsToCreateTask: templateCreateParams.TimeOfDaySecondsToCreateTask,
 		DayToCreateTask:              templateCreateParams.DayToCreateTask,

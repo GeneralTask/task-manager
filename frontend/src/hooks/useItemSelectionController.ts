@@ -17,7 +17,8 @@ export default function useItemSelectionController<T extends { id: string }>(
                 params.linearIssueId ??
                 params.slackTaskId ??
                 params.overviewItemId ??
-                params.recurringTaskId
+                params.recurringTaskId ??
+                params.noteId
             let newSelectedItem = null
             // if an item is not selected, select the first one
             if (selectedItemId == null && items.length > 0) {
@@ -46,14 +47,6 @@ export default function useItemSelectionController<T extends { id: string }>(
     )
     useKeyboardShortcut(
         'up',
-        useCallback(() => onUpDown('up'), [onUpDown])
-    )
-    useKeyboardShortcut(
-        'arrowDown',
-        useCallback(() => onUpDown('down'), [onUpDown])
-    )
-    useKeyboardShortcut(
-        'arrowUp',
         useCallback(() => onUpDown('up'), [onUpDown])
     )
 }

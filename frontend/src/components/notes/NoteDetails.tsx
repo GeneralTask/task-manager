@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { DETAILS_SYNC_TIMEOUT, SYNC_MESSAGES } from '../../constants'
+import { DETAILS_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
 import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -11,6 +11,7 @@ import GTTextField from '../atoms/GTTextField'
 import { Icon } from '../atoms/Icon'
 import { Label } from '../atoms/typography/Typography'
 import DetailsViewTemplate from '../templates/DetailsViewTemplate'
+import NoteActionsDropdown from './NoteActionsDropdown'
 import NoteSharingDropdown from './NoteSharingDropdown'
 
 const TITLE_MAX_HEIGHT = 208
@@ -36,7 +37,6 @@ const DetailItem = styled.div`
     align-items: center;
     margin-left: ${Spacing._8};
     max-width: ${NOTE_TITLE_MAX_WIDTH}px;
-    display: block;
 `
 interface NoteDetailsProps {
     note: TNote
@@ -72,6 +72,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         ({ id, title, body }: TModifyNoteData) => {
             setIsEditing(false)
             const timerId = id + (title === undefined ? 'body' : 'title')
+            if (title === '') title = NO_TITLE
             if (timers.current[timerId]) clearTimeout(timers.current[timerId].timeout)
             modifyNote({ id, title, body })
         },
@@ -88,8 +89,8 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
         }
     }
 
-    const isShared = +DateTime.fromISO(note.shared_until) > +DateTime.local()
-    const sharedUntil = DateTime.fromISO(note.shared_until).toLocaleString({
+    const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    const sharedUntil = DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
         month: 'long',
         day: 'numeric',
     })
@@ -103,13 +104,14 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     <Label color="light">{syncIndicatorText}</Label>
                 </DetailItem>
                 <MarginLeftAuto>
-                    <Flex gap={Spacing._8}>
-                        <Icon icon={isShared ? icons.link : icons.link_slashed} color={isShared ? 'green' : 'red'} />
-                        <Label color={isShared ? 'green' : 'red'}>{`${
-                            isShared ? `Shared until ${sharedUntil}` : 'Not shared'
-                        }`}</Label>
-                    </Flex>
+                    {isShared && (
+                        <Flex gap={Spacing._8}>
+                            <Icon icon={icons.link} color="green" />
+                            <Label color="green">{`Shared until ${sharedUntil}`}</Label>
+                        </Flex>
+                    )}
                     <NoteSharingDropdown note={note} />
+                    <NoteActionsDropdown note={note} />
                 </MarginLeftAuto>
             </DetailsTopContainer>
             <div>
@@ -120,24 +122,18 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     onChange={(val) => onEdit({ id: note.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
                     fontSize="medium"
-                    blurOnEnter
+                    enterBehavior="blur"
                 />
             </div>
             <GTTextField
-                itemId={note.id}
                 type="markdown"
+                itemId={note.id}
                 value={note.body}
                 placeholder="Add details"
                 onChange={(val) => onEdit({ id: note.id, body: val })}
                 minHeight={BODY_MIN_HEIGHT}
                 fontSize="small"
             />
-            <Label color="light">{`Last updated ${DateTime.fromISO(note.updated_at).toLocaleString({
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit',
-            })}`}</Label>
         </DetailsViewTemplate>
     )
 }

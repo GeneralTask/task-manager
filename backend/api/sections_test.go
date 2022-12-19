@@ -2,13 +2,17 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/GeneralTask/task-manager/backend/constants"
+	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -251,5 +255,66 @@ func TestSections(t *testing.T) {
 		assert.NoError(t, err)
 		// only one left now
 		assert.Equal(t, 1, len(sectionResult))
+	})
+	t.Run("DeleteAndUpdateRecurringTaskTemplatesSuccess", func(t *testing.T) {
+		api, dbCleanup := GetAPIWithDBCleanup()
+		defer dbCleanup()
+		userID := getUserIDFromAuthToken(t, api.DB, authToken)
+
+		// create two sections
+		sectionCollection := database.GetTaskSectionCollection(api.DB)
+		res, err := sectionCollection.InsertOne(context.Background(), database.TaskSection{
+			Name:   "Section 1",
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		section1ID := res.InsertedID.(primitive.ObjectID)
+		res, err = sectionCollection.InsertOne(context.Background(), database.TaskSection{
+			Name:   "Section 2",
+			UserID: userID,
+		})
+		assert.NoError(t, err)
+		section2ID := res.InsertedID.(primitive.ObjectID)
+
+		// create recurring task templates
+		recurringTaskTemplateCollection := database.GetRecurringTaskTemplateCollection(api.DB)
+		createTemplate := func(sectionID primitive.ObjectID) primitive.ObjectID {
+			res, err = recurringTaskTemplateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
+				UserID:        userID,
+				IDTaskSection: sectionID,
+			})
+			assert.NoError(t, err)
+			return res.InsertedID.(primitive.ObjectID)
+		}
+		template1ID := createTemplate(section1ID)
+		template2ID := createTemplate(section1ID)
+		template3ID := createTemplate(section2ID)
+		template4ID := createTemplate(section2ID)
+
+		// delete task section
+		router := GetRouter(api)
+		request, _ := http.NewRequest(
+			"DELETE",
+			"/sections/delete/"+section1ID.Hex()+"/",
+			nil)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := ioutil.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "{}", string(body))
+
+		// check that templates with id_task_section of the deleted section were reverted to the task inbox ID
+		var template database.RecurringTaskTemplate
+		checkTemplateSectionID := func(templateID primitive.ObjectID, sectionID primitive.ObjectID) {
+			err = recurringTaskTemplateCollection.FindOne(context.Background(), bson.M{"_id": templateID}).Decode(&template)
+			assert.NoError(t, err)
+			assert.Equal(t, template.IDTaskSection, sectionID)
+		}
+		checkTemplateSectionID(template1ID, constants.IDTaskSectionDefault)
+		checkTemplateSectionID(template2ID, constants.IDTaskSectionDefault)
+		checkTemplateSectionID(template3ID, section2ID)
+		checkTemplateSectionID(template4ID, section2ID)
 	})
 }

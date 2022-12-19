@@ -60,7 +60,36 @@ const CalendarContext = createContext<ContextValues>({
     setShowTaskToCalSidebar: emptyFunction,
 })
 
-export const useCalendarContext = () => {
+const FocusModeContext = createContext<ContextValues>({
+    date: DateTime.now(),
+    dayViewDate: DateTime.now(),
+    calendarType: 'day',
+    showMainHeader: true,
+    showDateHeader: true,
+    isCollapsed: false,
+    isTaskDraggingOverDetailsView: false,
+    selectedEvent: null,
+    isPopoverDisabled: false,
+    isTasksDueViewCollapsed: false,
+    disableSelectEvent: false,
+    isTasksOverdueViewCollapsed: false,
+    showTaskToCalSidebar: false,
+    setDate: emptyFunction,
+    setDayViewDate: emptyFunction,
+    setCalendarType: emptyFunction,
+    setShowMainHeader: emptyFunction,
+    setShowDateHeader: emptyFunction,
+    setIsCollapsed: emptyFunction,
+    setIsTaskDraggingOverDetailsView: emptyFunction,
+    setSelectedEvent: emptyFunction,
+    setIsPopoverDisabled: emptyFunction,
+    setIsTasksDueViewCollapsed: emptyFunction,
+    setIsTasksOverdueViewCollapsed: emptyFunction,
+    setShowTaskToCalSidebar: emptyFunction,
+})
+
+export const useCalendarContext = (ignoreContext?: boolean | undefined) => {
+    if (ignoreContext) return useContext(FocusModeContext)
     return useContext(CalendarContext)
 }
 

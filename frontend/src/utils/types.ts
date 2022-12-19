@@ -96,6 +96,7 @@ export interface TTaskV4 {
     priority_normalized: number
     due_date: string
     source: TTaskSource
+    sender: string // Slack sender name
     is_done: boolean
     is_deleted: boolean
     created_at: string
@@ -388,6 +389,6 @@ export interface TNote {
     author: string
     created_at: string
     updated_at: string
-    shared_until: string
+    shared_until?: string
     optimisticId?: string
 }

@@ -63,7 +63,8 @@ const TasksDue = ({ date }: TasksDueProps) => {
         () =>
             incompleteTasks.filter(
                 (task) =>
-                    !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
+                    !DateTime.fromISO(task.due_date).hasSame(DateTime.now(), 'day') &&
+                    DateTime.fromISO(task.due_date) < DateTime.now()
             ),
         [incompleteTasks, date]
     )

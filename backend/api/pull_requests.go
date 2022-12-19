@@ -87,7 +87,11 @@ func (api *API) PullRequestsList(c *gin.Context) {
 		Handle500(c)
 		return
 	}
-	cursor.All(context.Background(), &repositories)
+	err = cursor.All(context.Background(), &repositories)
+	if err != nil {
+		Handle500(c)
+		return
+	}
 
 	repositoryIDToResult := make(map[string]RepositoryResult)
 	repositoryIDToPullRequests := make(map[string][]*PullRequestResult)
