@@ -5,7 +5,6 @@ const DropdownContainer = styled.div`
     display: flex;
     align-items: center;
     padding: ${Spacing._16} 0 ${Spacing._4};
-    margin: 0 ${Spacing._4} 0 ${Spacing._12};
 `
 const Title = styled.span`
     color: ${Colors.text.black};

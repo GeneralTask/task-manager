@@ -24,7 +24,6 @@ const AddSectionContainer = styled.div`
     flex-direction: row;
     align-items: center;
     padding: ${Spacing._8};
-    margin: 0 ${Spacing._8};
     gap: ${Spacing._12};
     width: 100%;
     box-sizing: border-box;
