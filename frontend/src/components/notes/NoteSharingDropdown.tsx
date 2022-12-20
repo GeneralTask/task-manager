@@ -117,7 +117,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   renderer: () => (
                       <LabelWrap>
                           This note is currently private. Sharing a note will reveal your full name to anyone with the
-                          link. Links to shared notes expire 3 months after they are shared.
+                          link.
                       </LabelWrap>
                   ),
               },
