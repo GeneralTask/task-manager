@@ -34,6 +34,7 @@ const AddTaskbutton = styled.div`
 `
 const MarginBottomDiv = styled.div`
     margin-bottom: ${Spacing._24};
+    width: fit-content;
 `
 const TaskListContainer = styled.div`
     display: flex;
@@ -78,7 +79,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                     <>
                         {!showCreateNewSubtask && (
                             <MarginBottomDiv>
-                                <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
+                                <Tip shortcutName="createSubtask">
                                     <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
                                         <Icon icon={icons.plus} color="gray" />
                                         Add new subtask
