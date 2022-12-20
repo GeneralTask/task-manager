@@ -22,7 +22,6 @@ const RecurringTaskTemplateScheduleButton = ({
     const button = recurringTaskTemplate ? (
         <GTButton
             icon={icons.arrows_repeat}
-            iconColor="green"
             value={formatRecurrenceRateForScheduleButton(recurringTaskTemplate)}
             styleType="simple"
             size="small"
