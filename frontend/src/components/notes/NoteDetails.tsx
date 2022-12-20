@@ -18,6 +18,8 @@ const TITLE_MAX_HEIGHT = 208
 const NOTE_TITLE_MAX_WIDTH = 125
 const BODY_MIN_HEIGHT = 200
 
+export const SHARED_NOTE_INDEFINITE_DATE = '9999-10-31T00:00:00Z'
+
 const DetailsTopContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -90,10 +92,13 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
     }
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
-    const sharedUntil = DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
-        month: 'long',
-        day: 'numeric',
-    })
+    const sharedUntil =
+        note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+            ? 'Shared indefinitely'
+            : `Shared until ${DateTime.fromISO(note.shared_until ?? '0').toLocaleString({
+                  month: 'long',
+                  day: 'numeric',
+              })}`
     return (
         <DetailsViewTemplate>
             <DetailsTopContainer>
@@ -107,7 +112,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                     {isShared && (
                         <Flex gap={Spacing._8}>
                             <Icon icon={icons.link} color="green" />
-                            <Label color="green">{`Shared until ${sharedUntil}`}</Label>
+                            <Label color="green">{sharedUntil}</Label>
                         </Flex>
                     )}
                     <NoteSharingDropdown note={note} />
