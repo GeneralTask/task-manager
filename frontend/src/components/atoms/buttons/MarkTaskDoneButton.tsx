@@ -1,10 +1,17 @@
 import { useCallback } from 'react'
+import styled from 'styled-components'
 import { useToast } from '../../../hooks'
 import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
 import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
+import { Typography } from '../../../styles'
 import GTCheckbox from '../GTCheckbox'
 import { KeyboardShortcutContainer } from '../KeyboardShortcut'
+
+const KeyboardShortcut = styled(KeyboardShortcutContainer)`
+    ${Typography.body};
+    display: inline-block;
+`
 
 interface MarkTaskDoneButtonProps {
     isDone: boolean
@@ -54,13 +61,13 @@ const MarkTaskDoneButton = ({
             {
                 message: (
                     <span>
-                        This shortcut is deprecated — use <KeyboardShortcutContainer>Shift</KeyboardShortcutContainer>{' '}
-                        <KeyboardShortcutContainer>D</KeyboardShortcutContainer> instead
+                        <span>This shortcut is deprecated — use</span> <KeyboardShortcut>Shift</KeyboardShortcut>{' '}
+                        <KeyboardShortcut>D</KeyboardShortcut> <span>instead</span>
                     </span>
                 ),
             },
             {
-                autoClose: 2000,
+                autoClose: 10000,
                 pauseOnFocusLoss: false,
             }
         )
