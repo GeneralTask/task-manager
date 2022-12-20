@@ -158,19 +158,21 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             droppable
                         />
                     )}
-                    <GTDropdownMenu
-                        items={items}
-                        isOpen={isDropdownOpen}
-                        side="right"
-                        setIsOpen={setIsDropdownOpen}
-                        unstyledTrigger
-                        hideCheckmark
-                        trigger={
-                            <CollapsedIconContainer isSelected={filteredFoldersIds.includes(sectionId || '')}>
-                                <Icon icon={icons.folder} />
-                            </CollapsedIconContainer>
-                        }
-                    />
+                    {items.length > 0 && (
+                        <GTDropdownMenu
+                            items={items}
+                            isOpen={isDropdownOpen}
+                            side="right"
+                            setIsOpen={setIsDropdownOpen}
+                            unstyledTrigger
+                            hideCheckmark
+                            trigger={
+                                <CollapsedIconContainer isSelected={filteredFoldersIds.includes(sectionId || '')}>
+                                    <Icon icon={icons.folder} />
+                                </CollapsedIconContainer>
+                            }
+                        />
+                    )}
                     {TRASH_FOLDER && (
                         <NavigationLink
                             link={`/tasks/${TRASH_SECTION_ID}`}
