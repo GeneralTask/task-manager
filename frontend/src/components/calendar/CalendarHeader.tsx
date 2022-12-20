@@ -125,20 +125,21 @@ export default function CalendarHeader({
         if (isPreviewMode) {
             return (
                 <>
-                    {(isCalendarShowingToday || calendarType === 'week') && !showTaskToCalSidebar && (
-                        <GTButton
-                            icon={icons.calendar_pen}
-                            iconColor="black"
-                            value="Schedule Tasks"
-                            size="small"
-                            styleType="secondary"
-                            onClick={() => {
-                                setCalendarType('week')
-                                setDate(date.minus({ days: date.weekday % 7 }))
-                                setShowTaskToCalSidebar(true)
-                            }}
-                        />
-                    )}
+                    {(isCalendarShowingToday || calendarType === 'week') &&
+                        (!showTaskToCalSidebar || calendarType === 'day') && (
+                            <GTButton
+                                icon={icons.calendar_pen}
+                                iconColor="black"
+                                value="Schedule Tasks"
+                                size="small"
+                                styleType="secondary"
+                                onClick={() => {
+                                    setCalendarType('week')
+                                    setDate(date.minus({ days: date.weekday % 7 }))
+                                    setShowTaskToCalSidebar(true)
+                                }}
+                            />
+                        )}
                     {!isCalendarShowingToday && (
                         <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
                     )}
