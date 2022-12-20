@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"golang.org/x/exp/slices"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -628,6 +629,29 @@ func GetCalendarEvents(db *mongo.Database, userID primitive.ObjectID, additional
 	return &calendarEvents, err
 }
 
+func GetCalendarAccounts(db *mongo.Database, userID primitive.ObjectID) (*[]CalendarAccount, error) {
+	noteCollection := GetCalendarAccountCollection(db)
+	cursor, err := noteCollection.Find(
+		context.Background(),
+		bson.M{"user_id": userID},
+	)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch items for user")
+		return nil, err
+	}
+
+	var accounts []CalendarAccount
+	err = cursor.All(context.Background(), &accounts)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch notes for user")
+		return nil, err
+	}
+
+	return &accounts, nil
+}
+
 func GetTaskSections(db *mongo.Database, userID primitive.ObjectID) (*[]TaskSection, error) {
 	var sections []TaskSection
 	err := FindWithCollection(GetTaskSectionCollection(db), userID, &[]bson.M{{"user_id": userID}}, &sections, nil)
@@ -982,4 +1006,8 @@ func IsValidPagination(pagination Pagination) bool {
 		return false
 	}
 	return *pagination.Limit > 0 && *pagination.Page > 0
+}
+
+func HasUserGrantedMultiCalendarScope(scopes []string) bool {
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
