@@ -7,6 +7,7 @@ import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Subtitle } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import CalendarView from '../views/CalendarView'
@@ -23,9 +24,10 @@ const ScheduleTaskSidebar = styled.div`
     box-sizing: border-box;
     overflow-y: auto;
 `
-const SidebarHeader = styled(Subtitle)`
-    display: block;
-    user-select: none;
+const SidebarHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: ${Spacing._16};
 `
 const MarginDivider = styled(Divider)`
@@ -35,7 +37,7 @@ const MarginDivider = styled(Divider)`
 const CalendarWithTaskSelection = () => {
     const { data: taskFolders } = useGetTasks()
     const { section: folderId } = useParams()
-    const { calendarType, showTaskToCalSidebar } = useCalendarContext()
+    const { calendarType, showTaskToCalSidebar, setShowTaskToCalSidebar } = useCalendarContext()
     const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(false)
     const [folderIndex, setFolderIndex] = useState(0)
     const validDragFolders =
@@ -63,7 +65,16 @@ const CalendarWithTaskSelection = () => {
         <Flex>
             {calendarType === 'week' && showTaskToCalSidebar && (
                 <ScheduleTaskSidebar>
-                    <SidebarHeader>Schedule tasks</SidebarHeader>
+                    <SidebarHeader>
+                        <Subtitle>Schedule tasks</Subtitle>
+                        <GTIconButton
+                            icon={icons.x}
+                            onClick={() => {
+                                setShowTaskToCalSidebar(false)
+                            }}
+                            tooltipText="Hide task to calendar sidebar"
+                        />
+                    </SidebarHeader>
                     <GTDropdownMenu
                         items={DropdownMenuItem}
                         trigger={<DropdownButton label={triggerText} />}
