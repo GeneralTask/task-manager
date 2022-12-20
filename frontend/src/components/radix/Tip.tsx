@@ -62,6 +62,7 @@ const TriggerSpan = styled.span<{ fitContent?: boolean }>`
         props.fitContent &&
         css`
             width: fit-content;
+            display: block;
         `}
 `
 
