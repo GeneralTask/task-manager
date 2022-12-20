@@ -17,6 +17,7 @@ import { GTButtonHack } from './Task'
 const DominoIconContainer = styled.div`
     display: flex;
     align-items: center;
+    gap: ${Spacing._8};
 `
 const LinearSelectableContainer = styled(SelectableContainer)`
     display: flex;
