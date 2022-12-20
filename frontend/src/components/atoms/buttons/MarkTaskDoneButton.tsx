@@ -4,6 +4,7 @@ import useKeyboardShortcut from '../../../hooks/useKeyboardShortcut'
 import Log from '../../../services/api/log'
 import { useMarkTaskDoneOrDeleted } from '../../../services/api/tasks.hooks'
 import GTCheckbox from '../GTCheckbox'
+import { KeyboardShortcutContainer } from '../KeyboardShortcut'
 
 interface MarkTaskDoneButtonProps {
     isDone: boolean
@@ -51,12 +52,16 @@ const MarkTaskDoneButton = ({
     const onOldMarkTaskDone = useCallback(() => {
         toast.show(
             {
-                message: `This shortcut is deprecated — use Shift + D instead`,
+                message: (
+                    <span>
+                        This shortcut is deprecated — use <KeyboardShortcutContainer>Shift</KeyboardShortcutContainer>{' '}
+                        <KeyboardShortcutContainer>D</KeyboardShortcutContainer> instead
+                    </span>
+                ),
             },
             {
                 autoClose: 2000,
                 pauseOnFocusLoss: false,
-                theme: 'dark',
             }
         )
         // onMarkTaskDone()

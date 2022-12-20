@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import styled from 'styled-components'
 import { Spacing, Typography } from '../../../styles'
@@ -56,7 +57,7 @@ interface UndoableToastAction extends ToastAction {
 }
 export interface ToastTemplateProps {
     title?: string
-    message: string
+    message: ReactNode
     leftAction?: ToastAction
     rightAction?: UndoableToastAction
 }
