@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { DateTime } from 'luxon'
 import styled, { css } from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import getEnvVars from '../../environment'
+import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { buttons, noteBackground } from '../../styles/images'
@@ -84,6 +86,10 @@ const FlexMargin8Top = styled(Flex)`
 `
 
 const SharedNoteView = () => {
+    const GALog = useAnalyticsEventTracker('Notes')
+    useEffect(() => {
+        GALog('Page view', 'Shared Note View')
+    }, [])
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
@@ -98,13 +104,30 @@ const SharedNoteView = () => {
         <MainContainer>
             <ColumnContainer>
                 <TopContainer>
-                    <NoStyleButton onClick={() => navigate('/')}>
+                    <NoStyleButton
+                        onClick={() => {
+                            GALog('Button click', 'Logo')
+                            navigate('/')
+                        }}
+                    >
                         <Logo src="/images/gt-logo-black-on-white.svg" />
                     </NoStyleButton>
                     {isLoggedIn ? (
-                        <GTButton styleType="secondary" value="Back to General Task" onClick={() => navigate('/')} />
+                        <GTButton
+                            styleType="secondary"
+                            value="Back to General Task"
+                            onClick={() => {
+                                GALog('Button click', 'Back to General Task')
+                                navigate('/')
+                            }}
+                        />
                     ) : (
-                        <SignInButton onClick={() => openPopupWindow(LOGIN_URL, emptyFunction, false, true)}>
+                        <SignInButton
+                            onClick={() => {
+                                GALog('Button click', 'Sign in with Google')
+                                openPopupWindow(LOGIN_URL, emptyFunction, false, true)
+                            }}
+                        >
                             <GoogleImage src={buttons.google_sign_in} />
                         </SignInButton>
                     )}
@@ -175,7 +198,10 @@ const SharedNoteView = () => {
                                         <GTButton
                                             styleType="primary"
                                             value="Back to General Task"
-                                            onClick={() => navigate('/')}
+                                            onClick={() => {
+                                                GALog('Button click', 'Back to General Task')
+                                                navigate('/')
+                                            }}
                                         />
                                     ) : (
                                         <>
