@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { scrollbarWidth } from '@xobotyi/scrollbar-width'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -15,13 +16,13 @@ const TasksDueWeekContainer = styled.div`
     display: flex;
     min-width: 0;
     height: fit-content;
-    width: 100%;
     border-top: ${Border.stroke.medium} solid ${Colors.border.light};
     border-bottom: ${Border.stroke.large} solid ${Colors.border.light};
     background-color: ${Colors.background.white};
     padding-left: ${CELL_TIME_WIDTH};
     position: relative;
     box-sizing: border-box;
+    padding-right: ${scrollbarWidth()}px;
 `
 const TaskDueContainer = styled.div`
     flex: 1 1 0;
