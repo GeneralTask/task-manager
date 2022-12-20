@@ -61,17 +61,18 @@ const MarkTaskDoneButton = ({
             {
                 message: (
                     <span>
-                        <span>This shortcut is deprecated — use</span> <KeyboardShortcut>Shift</KeyboardShortcut>{' '}
-                        <KeyboardShortcut>D</KeyboardShortcut> <span>instead</span>
+                        This shortcut is deprecated — use <KeyboardShortcut>Shift</KeyboardShortcut>{' '}
+                        <KeyboardShortcut>D</KeyboardShortcut>
+                        instead to mark tasks as done
                     </span>
                 ),
             },
             {
-                autoClose: 10000,
+                autoClose: 2000,
                 pauseOnFocusLoss: false,
             }
         )
-        // onMarkTaskDone()
+        onMarkTaskDone()
     }, [onMarkTaskDone])
 
     useKeyboardShortcut('oldMarkAsDone', onOldMarkTaskDone, !isSelected || isDisabled)
