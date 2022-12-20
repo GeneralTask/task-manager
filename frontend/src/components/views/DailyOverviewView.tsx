@@ -1,5 +1,5 @@
 import * as Accordion from '@radix-ui/react-accordion'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
@@ -9,12 +9,31 @@ import useOverviewLists from '../overview/useOverviewLists'
 import { MenuTriggerShared } from '../radix/RadixUIConstants'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
+const slideDown = keyframes`
+
+
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+
+  
+`
+const slideUp = keyframes`
+from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+`
 const AccordionRoot = styled(Accordion.Root)`
     > * > h3 {
         all: unset;
     }
     > div {
-        margin-bottom: ${Spacing._4};
     }
 `
 const AccordionTrigger = styled(Accordion.Trigger)`
@@ -47,6 +66,20 @@ const TriggerRightContainer = styled.div`
     align-items: center;
     gap: ${Spacing._16};
 `
+const AccordionItem = styled(Accordion.Item)`
+    overflow: hidden;
+    padding: 4px;
+`
+
+const AccordionContent = styled(Accordion.Content)`
+    &[data-state='open'] {
+        animation: ${slideDown} 300ms cubic-bezier(0.87, 0, 0.13, 1);
+    }
+    &[data-state='closed'] {
+        animation: ${slideUp} 300ms cubic-bezier(0.87, 0, 0.13, 1);
+      }
+ke      
+`
 const ListContent = styled.div`
     padding: ${Spacing._16};
     background-color: ${Colors.background.white};
@@ -62,7 +95,7 @@ const DailyOverviewView = () => {
             <SectionHeader sectionName="Daily Overview" />
             <AccordionRoot type="multiple">
                 {lists.map((list) => (
-                    <Accordion.Item value={list.id} key={list.id}>
+                    <AccordionItem value={list.id} key={list.id}>
                         <Accordion.Header>
                             <AccordionTrigger>
                                 <TriggerTitle>
@@ -75,10 +108,10 @@ const DailyOverviewView = () => {
                                 </TriggerRightContainer>
                             </AccordionTrigger>
                         </Accordion.Header>
-                        <Accordion.Content>
+                        <AccordionContent>
                             <ListContent>i am the content</ListContent>
-                        </Accordion.Content>
-                    </Accordion.Item>
+                        </AccordionContent>
+                    </AccordionItem>
                 ))}
             </AccordionRoot>
         </ScrollableListTemplate>
