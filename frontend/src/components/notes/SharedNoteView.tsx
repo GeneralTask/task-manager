@@ -18,6 +18,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
 import { Body, Label, Title } from '../atoms/typography/Typography'
 import NoteActionsDropdown from './NoteActionsDropdown'
+import { SHARED_NOTE_INDEFINITE_DATE } from './NoteDetails'
 
 const background = css`
     background: url(${noteBackground});
@@ -156,12 +157,16 @@ const SharedNoteView = () => {
                                             )}`}</Label>
                                         )}
                                     </Flex>
-                                    <Label color="light">{`Link expires in ${getFormattedDuration(
-                                        DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
-                                            conversionAccuracy: 'longterm',
-                                        }),
-                                        2
-                                    )}`}</Label>
+                                    <Label color="light">
+                                        {note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+                                            ? ''
+                                            : `Link expires in ${getFormattedDuration(
+                                                  DateTime.fromISO(note.shared_until).diffNow('milliseconds', {
+                                                      conversionAccuracy: 'longterm',
+                                                  }),
+                                                  2
+                                              )}`}
+                                    </Label>
                                 </FlexPadding8Horizontal>
                             </>
                         ) : (

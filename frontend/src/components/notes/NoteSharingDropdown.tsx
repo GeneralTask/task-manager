@@ -11,6 +11,7 @@ import GTButton from '../atoms/buttons/GTButton'
 import { Label } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
 import { GTMenuItem, MENU_WIDTH } from '../radix/RadixUIConstants'
+import { SHARED_NOTE_INDEFINITE_DATE } from './NoteDetails'
 
 const LabelWrap = styled(Label)`
     width: ${MENU_WIDTH};
@@ -24,8 +25,8 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
     const { mutate: modifyNote } = useModifyNote()
     const toast = useToast()
 
-    const shareNote = () => {
-        modifyNote({ id: note.id, shared_until: DateTime.local().plus({ months: 3 }).toISO() })
+    const shareNote = (expiryDate: string) => {
+        modifyNote({ id: note.id, shared_until: expiryDate })
     }
     const unshareNote = () => {
         modifyNote({ id: note.id, shared_until: DateTime.fromMillis(1).toISO() })
@@ -49,10 +50,12 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
     const sharedUntilString = note.shared_until
-        ? getFormattedDuration(
-              DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
-              2
-          )
+        ? note.shared_until === SHARED_NOTE_INDEFINITE_DATE
+            ? 'The link will never expire'
+            : `The link will expire in ${getFormattedDuration(
+                  DateTime.fromISO(note.shared_until).diffNow('milliseconds', { conversionAccuracy: 'longterm' }),
+                  2
+              )}`
         : 'not shared'
     const dropdownItems: GTMenuItem[] = isShared
         ? [
@@ -78,9 +81,7 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   label: 'Shared note info',
                   disabled: true,
                   keepOpenOnSelect: true,
-                  renderer: () => (
-                      <LabelWrap>{`This note is currently being shared. The link will expire in ${sharedUntilString}.`}</LabelWrap>
-                  ),
+                  renderer: () => <LabelWrap>{`This note is currently being shared. ${sharedUntilString}.`}</LabelWrap>,
               },
           ]
         : [
@@ -88,10 +89,26 @@ const NoteSharingDropdown = ({ note }: NoteSharingDropdownProps) => {
                   icon: icons.copy,
                   label: 'Create & copy link',
                   hideCheckmark: true,
-                  onClick: () => {
-                      shareNote()
-                      copyNoteLink()
-                  },
+                  subItems: [
+                      {
+                          icon: icons.infinity,
+                          label: 'Share indefinitely',
+                          hideCheckmark: true,
+                          onClick: () => {
+                              shareNote(SHARED_NOTE_INDEFINITE_DATE)
+                              copyNoteLink()
+                          },
+                      },
+                      {
+                          icon: icons.timer,
+                          label: 'Share for 3 months',
+                          hideCheckmark: true,
+                          onClick: () => {
+                              shareNote(DateTime.local().plus({ months: 3 }).toISO())
+                              copyNoteLink()
+                          },
+                      },
+                  ],
               },
               {
                   label: 'Unshared note info',
