@@ -10,33 +10,37 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const PullRequestViewItems = forwardRef(({ view, visibleItemsCount }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
-    const { overviewItemId } = useParams()
-    const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG, view.id)
-    return (
-        <>
-            <ViewHeader ref={ref}>
-                <ViewName>{view.name}</ViewName>
-            </ViewHeader>
-            {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
-            {view.view_items.length === 0 && view.is_linked && (
-                <EmptyViewItem
-                    header="You have no more pull requests!"
-                    body="When new pull requests get assigned to you, they will appear here."
-                />
-            )}
-            <Repository>
-                {view.view_items.slice(0, visibleItemsCount).map((pr) => (
-                    <PullRequest
-                        key={pr.id}
-                        pullRequest={pr}
-                        link={`/overview/${view.id}/${pr.id}`}
-                        isSelected={pr.id === overviewItemId}
+const PullRequestViewItems = forwardRef(
+    ({ view, visibleItemsCount, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+        const { overviewItemId } = useParams()
+        const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG, view.id)
+        return (
+            <>
+                {!hideHeader && (
+                    <ViewHeader ref={ref}>
+                        <ViewName>{view.name}</ViewName>
+                    </ViewHeader>
+                )}
+                {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
+                {view.view_items.length === 0 && view.is_linked && (
+                    <EmptyViewItem
+                        header="You have no more pull requests!"
+                        body="When new pull requests get assigned to you, they will appear here."
                     />
-                ))}
-            </Repository>
-        </>
-    )
-})
+                )}
+                <Repository>
+                    {view.view_items.slice(0, visibleItemsCount).map((pr) => (
+                        <PullRequest
+                            key={pr.id}
+                            pullRequest={pr}
+                            link={`/overview/${view.id}/${pr.id}`}
+                            isSelected={pr.id === overviewItemId}
+                        />
+                    ))}
+                </Repository>
+            </>
+        )
+    }
+)
 
 export default PullRequestViewItems
