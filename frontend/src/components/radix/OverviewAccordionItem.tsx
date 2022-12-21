@@ -8,6 +8,7 @@ import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
+import StatusLabel from '../atoms/StatusLabel'
 import { Body, Label } from '../atoms/typography/Typography'
 import { PAGE_SIZE } from '../overview/OverviewViewContainer'
 import { OptimisticItemsContainer, PaginateTextButton } from '../overview/styles'
@@ -135,6 +136,9 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
                     <TriggerRightContainer>
                         {list.view_items.length > 0 && (
                             <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
+                        )}
+                        {list.view_items.length === 0 && list.is_linked && (
+                            <StatusLabel status="List complete" color="green" icon={icons.check} />
                         )}
                         <Icon icon={icons.caret_down} className="AccordionChevron" />
                     </TriggerRightContainer>
