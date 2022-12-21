@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { Spacing } from '../../styles'
@@ -17,10 +18,16 @@ const AccordionRoot = styled(Accordion.Root)`
 
 const DailyOverviewView = () => {
     const { lists } = useOverviewLists()
+    const [values, setValues] = useState<string[]>([])
+
+    const collapseAll = () => setValues([])
+    const expandAll = useCallback(() => setValues(lists.map((list) => list.id)), [lists])
     return (
         <ScrollableListTemplate>
             <SectionHeader sectionName="Daily Overview" />
-            <AccordionRoot type="multiple">
+            <button onClick={collapseAll}>collapse all</button>
+            <button onClick={expandAll}>expand all</button>
+            <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
                 {lists.map((list) => (
                     <OverviewAccordionItem key={list.id} list={list} />
                 ))}
