@@ -9,15 +9,17 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const MeetingPreparationViewItems = forwardRef(({ view }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewViewId, overviewItemId } = useParams()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isGoogleLinked = isGoogleCalendarLinked(linkedAccounts || [])
     return (
         <>
-            <ViewHeader ref={ref}>
-                <ViewName>{view.name}</ViewName>
-            </ViewHeader>
+            {!hideHeader && (
+                <ViewHeader ref={ref}>
+                    <ViewName>{view.name}</ViewName>
+                </ViewHeader>
+            )}
             {isGoogleLinked ? (
                 view.view_items.length > 0 ? (
                     view.view_items.map((item, index) => (
