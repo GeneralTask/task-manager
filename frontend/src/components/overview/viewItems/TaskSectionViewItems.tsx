@@ -14,7 +14,7 @@ import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
 const TaskSectionViewItems = forwardRef(
-    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+    ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { task_section_id: sectionId } = view
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: createTask } = useCreateTask()
@@ -43,9 +43,11 @@ const TaskSectionViewItems = forwardRef(
 
         return (
             <>
-                <ViewHeader ref={ref}>
-                    <ViewName>{view.name}</ViewName>
-                </ViewHeader>
+                {!hideHeader && (
+                    <ViewHeader ref={ref}>
+                        <ViewName>{view.name}</ViewName>
+                    </ViewHeader>
+                )}
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                 {sectionId && (
                     <CreateNewItemInput

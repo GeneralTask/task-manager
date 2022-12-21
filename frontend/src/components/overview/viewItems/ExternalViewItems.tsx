@@ -7,7 +7,7 @@ import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
 const ExternalViewItems = forwardRef(
-    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+    ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewViewId, overviewItemId } = useParams()
 
         const getEmptyViewItem = () => {
@@ -30,9 +30,11 @@ const ExternalViewItems = forwardRef(
 
         return (
             <>
-                <ViewHeader ref={ref}>
-                    <ViewName>{view.name}</ViewName>
-                </ViewHeader>
+                {!hideHeader && (
+                    <ViewHeader ref={ref}>
+                        <ViewName>{view.name}</ViewName>
+                    </ViewHeader>
+                )}
                 {view.view_items.length === 0 && view.is_linked && getEmptyViewItem()}
                 {view.view_items.slice(0, visibleItemsCount).map((item) => (
                     <Task
