@@ -47,6 +47,7 @@ const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
         active &&
         `background-color: ${Colors.background.light};
         outline: ${Border.stroke.small} solid ${Colors.border.light};`}
+    ${Typography.label};
 `
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
@@ -82,7 +83,6 @@ const Button = styled(NoStyleButton)<{
     user-select: none;
     font-family: inherit;
     box-sizing: border-box;
-    ${Typography.body};
     ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
     ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
@@ -107,13 +107,14 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 
-interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
     styleType?: TButtonStyle
     size?: TButtonSize
     wrapText?: boolean
     icon?: IconProp | string
     iconColor?: TIconColor
     textColor?: TTextColor
+    value?: React.ReactNode
     fitContent?: boolean
     active?: boolean
     isDropdown?: boolean
