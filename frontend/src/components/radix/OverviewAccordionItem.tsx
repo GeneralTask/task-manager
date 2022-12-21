@@ -16,7 +16,6 @@ import ExternalViewItems from '../overview/viewItems/ExternalViewItems'
 import MeetingPreparationViewItems from '../overview/viewItems/MeetingPreparationViewItems'
 import PullRequestViewItems from '../overview/viewItems/PullRequestViewItems'
 import TaskSectionViewItems from '../overview/viewItems/TaskSectionViewItems'
-import Status from '../pull-requests/Status'
 import { MenuTriggerShared } from './RadixUIConstants'
 
 const AccordionTrigger = styled(Accordion.Trigger)`
