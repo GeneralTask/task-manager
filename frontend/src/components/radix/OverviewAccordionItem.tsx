@@ -41,11 +41,23 @@ const TriggerTitle = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._16};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: ${Spacing._8};
+    white-space: nowrap;
+`
+const ListTitle = styled(Body)`
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 `
 const TriggerRightContainer = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._16};
+`
+const ItemsRemainingText = styled(Label)`
+    white-space: nowrap;
 `
 const ListContent = styled.div`
     padding: ${Spacing._16};
@@ -53,7 +65,6 @@ const ListContent = styled.div`
     border-radius: 0 0 ${Border.radius.small} ${Border.radius.small};
     box-shadow: ${Shadows.button.default};
 `
-
 interface OverviewAccordionItemProps {
     list: TOverviewView
 }
@@ -106,10 +117,12 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
                 <AccordionTrigger>
                     <TriggerTitle>
                         <Icon icon={logos[list.logo]} />
-                        <Body>{list.name}</Body>
+                        <ListTitle>{list.name}</ListTitle>
                     </TriggerTitle>
                     <TriggerRightContainer>
-                        {list.view_items.length > 0 && <Label>{list.view_items.length} remaining</Label>}
+                        {list.view_items.length > 0 && (
+                            <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
+                        )}
                         <Icon icon={icons.caret_down} className="AccordionChevron" />
                     </TriggerRightContainer>
                 </AccordionTrigger>
