@@ -1,6 +1,7 @@
 import { Ref, forwardRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
+import { usePreviewMode } from '../../../hooks'
 import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
@@ -10,6 +11,7 @@ import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
+import EmptyListMessage from './EmptyListMessage'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
@@ -19,6 +21,7 @@ const TaskSectionViewItems = forwardRef(
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: createTask } = useCreateTask()
         const { mutate: reorderTask } = useReorderTask()
+        const { isPreviewMode } = usePreviewMode()
 
         const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
             TASK_SORT_AND_FILTER_CONFIG,
@@ -89,10 +92,14 @@ const TaskSectionViewItems = forwardRef(
                         indicatorType="WHOLE"
                         disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                     >
-                        <EmptyViewItem
-                            header="You've completed all your tasks!"
-                            body="Create new tasks to see them here."
-                        />
+                        {isPreviewMode ? (
+                            <EmptyListMessage list={view} />
+                        ) : (
+                            <EmptyViewItem
+                                header="You've completed all your tasks!"
+                                body="Create new tasks to see them here."
+                            />
+                        )}
                     </ReorderDropContainer>
                 )}
             </>
