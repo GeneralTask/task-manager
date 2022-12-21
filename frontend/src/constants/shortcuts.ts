@@ -93,6 +93,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'folder',
     },
+    visitExternalLink: {
+        label: 'Visit external link',
+        key: `${SHIFT}+L`,
+        keyLabel: `${SHIFT}+L`,
+        category: 'Tasks',
+        icon: 'external_link',
+    },
     navigationView: {
         label: 'Show/hide navigation view',
         key: '[',
@@ -100,7 +107,6 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Navigation',
         icon: 'sidebar',
     },
-    // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',
         key: ']',
