@@ -46,10 +46,16 @@ const TriggerTitle = styled.div`
     margin-right: ${Spacing._8};
     white-space: nowrap;
 `
-const ListTitle = styled(Body)`
+const ListTitle = styled(Body)<{ isComplete: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+    ${(props) =>
+        props.isComplete &&
+        `
+        text-decoration: line-through;
+        color: ${Colors.text.light};
+    `}
 `
 const TriggerRightContainer = styled.div`
     display: flex;
@@ -117,7 +123,7 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
                 <AccordionTrigger>
                     <TriggerTitle>
                         <Icon icon={logos[list.logo]} />
-                        <ListTitle>{list.name}</ListTitle>
+                        <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
                     </TriggerTitle>
                     <TriggerRightContainer>
                         {list.view_items.length > 0 && (
