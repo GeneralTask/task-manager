@@ -4,6 +4,7 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
 import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
+import { Bold } from '../typography/Typography'
 import NoStyleButton from './NoStyleButton'
 
 type TButtonStyle = 'primary' | 'secondary' | 'simple'
@@ -47,6 +48,7 @@ const SimpleButtonStyles = css<{ active?: boolean; disabled?: boolean }>`
         active &&
         `background-color: ${Colors.background.light};
         outline: ${Border.stroke.small} solid ${Colors.border.light};`}
+    ${Typography.label};
 `
 const LargeButtonStyle = css`
     padding: ${Spacing._8} ${Spacing._16};
@@ -82,7 +84,6 @@ const Button = styled(NoStyleButton)<{
     user-select: none;
     font-family: inherit;
     box-sizing: border-box;
-    ${Typography.body};
     ${(props) => props.styleType === 'primary' && PrimaryButtonStyles};
     ${(props) => props.styleType === 'secondary' && SecondaryButtonStyles};
     ${(props) => props.styleType === 'simple' && SimpleButtonStyles};
@@ -114,6 +115,7 @@ interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: IconProp | string
     iconColor?: TIconColor
     textColor?: TTextColor
+    boldValue?: string
     fitContent?: boolean
     active?: boolean
     isDropdown?: boolean
@@ -127,6 +129,7 @@ const GTButton = ({
     icon,
     iconColor,
     textColor,
+    boldValue = '',
     value,
     active,
     isDropdown = false,
@@ -145,7 +148,10 @@ const GTButton = ({
             {...rest}
         >
             {icon && <Icon icon={icon} color={iconColor} />}
-            {value}
+            <span>
+                <Bold>{boldValue}</Bold>
+                {value}
+            </span>
             {isDropdown && (
                 <MarginLeftAuto>
                     <Icon icon={icons.caret_down_solid} color="gray" />
