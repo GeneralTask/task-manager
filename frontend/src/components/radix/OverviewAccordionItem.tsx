@@ -7,6 +7,7 @@ import { icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
+import StatusLabel from '../atoms/StatusLabel'
 import { Body, Label } from '../atoms/typography/Typography'
 import { PAGE_SIZE } from '../overview/OverviewViewContainer'
 import { OptimisticItemsContainer, PaginateTextButton } from '../overview/styles'
@@ -15,6 +16,7 @@ import ExternalViewItems from '../overview/viewItems/ExternalViewItems'
 import MeetingPreparationViewItems from '../overview/viewItems/MeetingPreparationViewItems'
 import PullRequestViewItems from '../overview/viewItems/PullRequestViewItems'
 import TaskSectionViewItems from '../overview/viewItems/TaskSectionViewItems'
+import Status from '../pull-requests/Status'
 import { MenuTriggerShared } from './RadixUIConstants'
 
 const AccordionTrigger = styled(Accordion.Trigger)`
@@ -128,6 +130,9 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
                     <TriggerRightContainer>
                         {list.view_items.length > 0 && (
                             <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
+                        )}
+                        {list.view_items.length === 0 && list.is_linked && (
+                            <StatusLabel status="List complete" color="green" icon={icons.check} />
                         )}
                         <Icon icon={icons.caret_down} className="AccordionChevron" />
                     </TriggerRightContainer>
