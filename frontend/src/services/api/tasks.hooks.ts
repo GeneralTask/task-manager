@@ -340,7 +340,7 @@ export const useModifyTask = () => {
                         data.subtaskId
                     )
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    if (data.subtaskId && !subtaskIndex) return
+                    if (data.subtaskId && subtaskIndex === undefined) return
                     const task =
                         subtaskIndex === undefined
                             ? draft[sectionIndex].view_items[taskIndex]
@@ -380,7 +380,8 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.recurringTaskTemplateId !== undefined)
         requestBody.task.recurring_task_template_id = data.recurringTaskTemplateId
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
+        const taskId = data.subtaskId ? data.subtaskId : data.id
+        const res = await apiClient.patch(`/tasks/modify/${taskId}/`, requestBody)
         return castImmutable(res.data)
     } catch {
         throw new Error('modifyTask failed')

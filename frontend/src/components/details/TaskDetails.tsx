@@ -347,7 +347,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                       currentTask.optimisticId
                                   )
                                 : modifyTask(
-                                      { id: currentTask.id, priorityNormalized: priority },
+                                      { id: task.id, priorityNormalized: priority, subtaskId: subtask?.id },
                                       currentTask.optimisticId
                                   )
                         }
