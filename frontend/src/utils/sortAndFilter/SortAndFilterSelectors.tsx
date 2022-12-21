@@ -50,13 +50,13 @@ const SortAndFilterDropdowns = <T,>({
         () => [
             {
                 label: 'Ascending',
-                icon: icons.arrow_up,
+                icon: icons.arrow_ascend,
                 selected: selectedSortDirection === SORT_DIRECTION.ASC,
                 onClick: () => setSelectedSortDirection(SORT_DIRECTION.ASC),
             },
             {
                 label: 'Descending',
-                icon: icons.arrow_down,
+                icon: icons.arrow_descend,
                 selected: selectedSortDirection === SORT_DIRECTION.DESC,
                 onClick: () => setSelectedSortDirection(SORT_DIRECTION.DESC),
             },
@@ -80,8 +80,8 @@ const SortAndFilterDropdowns = <T,>({
     const sortIcon = selectedSort.icon
         ? icons[selectedSort.icon]
         : selectedSortDirection === SORT_DIRECTION.ASC
-        ? icons.arrow_up
-        : icons.arrow_down
+        ? icons.arrow_ascend
+        : icons.arrow_descend
 
     return (
         <SortAndFilterContainer>
