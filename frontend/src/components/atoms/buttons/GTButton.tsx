@@ -4,7 +4,6 @@ import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor, TTextColor } from '../../../styles/colors'
 import { icons } from '../../../styles/images'
 import { Icon } from '../Icon'
-import { Bold } from '../typography/Typography'
 import NoStyleButton from './NoStyleButton'
 
 type TButtonStyle = 'primary' | 'secondary' | 'simple'
@@ -108,14 +107,14 @@ const MarginLeftAuto = styled.div`
     margin-left: auto;
 `
 
-interface GTButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface GTButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'value'> {
     styleType?: TButtonStyle
     size?: TButtonSize
     wrapText?: boolean
     icon?: IconProp | string
     iconColor?: TIconColor
     textColor?: TTextColor
-    boldValue?: string
+    value?: React.ReactNode
     fitContent?: boolean
     active?: boolean
     isDropdown?: boolean
@@ -129,7 +128,6 @@ const GTButton = ({
     icon,
     iconColor,
     textColor,
-    boldValue = '',
     value,
     active,
     isDropdown = false,
@@ -148,10 +146,7 @@ const GTButton = ({
             {...rest}
         >
             {icon && <Icon icon={icon} color={iconColor} />}
-            <span>
-                <Bold>{boldValue}</Bold>
-                {value}
-            </span>
+            {value}
             {isDropdown && (
                 <MarginLeftAuto>
                     <Icon icon={icons.caret_down_solid} color="gray" />

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import GTButton from '../../components/atoms/buttons/GTButton'
+import { Bold } from '../../components/atoms/typography/Typography'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
 import { Spacing } from '../../styles'
@@ -104,8 +105,12 @@ const SortAndFilterDropdowns = <T,>({
                 trigger={
                     <GTButton
                         icon={sortIcon}
-                        boldValue="Sort: "
-                        value={sortOptions[selectedSort.id].label}
+                        value={
+                            <span>
+                                <Bold>Sort: </Bold>
+                                {sortOptions[selectedSort.id].label}
+                            </span>
+                        }
                         styleType="simple"
                         size="small"
                         asDiv
