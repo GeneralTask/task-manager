@@ -74,7 +74,7 @@ const NavigationView = () => {
     useGlobalKeyboardShortcuts()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
-    const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)
+    const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false, true)
 
     const [isOver, drop] = useDrop(
         () => ({

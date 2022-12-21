@@ -10,7 +10,7 @@ interface UsePreviewModeOutput {
 
 function usePreviewMode(defaultValue?: boolean): UsePreviewModeOutput {
     const { data: userInfo } = useGetUserInfo()
-    const [isPreviewMode, setPreviewMode] = useGTLocalStorage<boolean>('previewMode', defaultValue ?? false)
+    const [isPreviewMode, setPreviewMode] = useGTLocalStorage<boolean>('previewMode', defaultValue ?? false, true)
 
     return {
         isPreviewMode: isPreviewMode && (userInfo?.is_employee ?? false),
