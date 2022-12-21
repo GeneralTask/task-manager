@@ -2,8 +2,9 @@ import { useLayoutEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
+import { DEFAULT_SECTION_ID } from '../../constants'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
-import { icons, logos } from '../../styles/images'
+import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
@@ -65,6 +66,12 @@ const ListContent = styled.div`
     border-radius: 0 0 ${Border.radius.small} ${Border.radius.small};
     box-shadow: ${Shadows.button.default};
 `
+
+const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {
+    if (logo !== 'generaltask') return logos[logo]
+    return sectionId === DEFAULT_SECTION_ID ? icons.inbox : icons.folder
+}
+
 interface OverviewAccordionItemProps {
     list: TOverviewView
 }
@@ -116,7 +123,7 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
             <Accordion.Header>
                 <AccordionTrigger>
                     <TriggerTitle>
-                        <Icon icon={logos[list.logo]} />
+                        <Icon icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)} />
                         <ListTitle>{list.name}</ListTitle>
                     </TriggerTitle>
                     <TriggerRightContainer>
