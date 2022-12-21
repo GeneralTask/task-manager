@@ -4,6 +4,7 @@ import { TIconColor, TTextColor } from '../../styles/colors'
 import { TIconType } from '../atoms/Icon'
 
 export const MENU_WIDTH = '192px'
+const MENU_LABEL_WIDTH = '100px'
 
 export const MenuTriggerShared = css<{ $unstyled?: boolean }>`
     all: unset;
@@ -62,6 +63,7 @@ export const MenuItemLabel = styled.span`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: ${MENU_LABEL_WIDTH};
 `
 
 export interface GTMenuItem {
