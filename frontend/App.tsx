@@ -1,4 +1,5 @@
 import { Suspense, lazy } from 'react'
+import ReactGA from 'react-ga'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Spinner from './src/components/atoms/Spinner'
@@ -8,10 +9,13 @@ import { NOTE_ROUTE, PRIVACY_POLICY_ROUTE, TERMS_OF_SERVICE_ROUTE } from './src/
 import { GlobalStyle } from './src/styles'
 import { CompanyPolicyPages } from './src/utils/enums'
 
+const GA_TRACKING_ID = 'G-GLHZBNMPN9'
+
 const AuthenticatedRoutes = lazy(() => import('./src/AuthenticatedRoutes'))
 const CompanyPolicyView = lazy(() => import('./src/components/views/CompanyPolicyView'))
 
 const App = () => {
+    ReactGA.initialize(GA_TRACKING_ID)
     const queryClient = new QueryClient()
     return (
         <QueryClientProvider client={queryClient}>
