@@ -23,10 +23,10 @@ const OverviewListsModal = () => {
     return (
         <>
             <GTButton
-                value="Edit"
-                styleType="secondary"
+                value="Edit lists"
+                styleType="simple"
                 size="small"
-                icon={icons.pencil}
+                icon={icons.gear}
                 onClick={() => setModalIsOpen(true)}
             />
             <GTModal

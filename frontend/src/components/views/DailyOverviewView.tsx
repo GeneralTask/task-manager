@@ -12,6 +12,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
+import OverviewListsModal from '../overview/OverviewListsModal'
 import useOverviewLists from '../overview/useOverviewLists'
 import OverviewAccordionItem from '../radix/OverviewAccordionItem'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -31,6 +32,9 @@ const AccordionRoot = styled(Accordion.Root)`
     > div {
         margin-bottom: ${Spacing._4};
     }
+`
+const MarginLeftDiv = styled.div`
+    margin-left: auto;
 `
 
 const DailyOverviewView = () => {
@@ -107,6 +111,9 @@ const DailyOverviewView = () => {
                             iconColor="gray"
                             value="Expand all"
                         />
+                        <MarginLeftDiv>
+                            <OverviewListsModal />
+                        </MarginLeftDiv>
                     </ActionsContainer>
                     <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
                         {lists.map((list) => (
