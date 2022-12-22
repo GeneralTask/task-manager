@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import ReactGA from 'react-ga'
+import ReactGA from 'react-ga4'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Spinner from './src/components/atoms/Spinner'
@@ -10,12 +10,16 @@ import { GlobalStyle } from './src/styles'
 import { CompanyPolicyPages } from './src/utils/enums'
 
 const GA_TRACKING_ID = 'G-GLHZBNMPN9'
+ReactGA.initialize(GA_TRACKING_ID, {
+    gaOptions: {
+        siteSpeedSampleRate: 100,
+    },
+})
 
 const AuthenticatedRoutes = lazy(() => import('./src/AuthenticatedRoutes'))
 const CompanyPolicyView = lazy(() => import('./src/components/views/CompanyPolicyView'))
 
 const App = () => {
-    ReactGA.initialize(GA_TRACKING_ID)
     const queryClient = new QueryClient()
     return (
         <QueryClientProvider client={queryClient}>

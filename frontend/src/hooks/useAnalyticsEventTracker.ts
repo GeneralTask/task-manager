@@ -1,4 +1,4 @@
-import ReactGA from 'react-ga'
+import ReactGA from 'react-ga4'
 
 export type EVENT_CATEGORIES = 'Notes' // | 'Tasks' | 'Settings', etc
 
