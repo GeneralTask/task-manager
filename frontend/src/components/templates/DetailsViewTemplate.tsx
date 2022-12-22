@@ -1,6 +1,4 @@
-import { useRef } from 'react'
 import styled from 'styled-components'
-import useDetailsViewDrop from '../../hooks/useDetailsViewDrop'
 import { Colors, Spacing } from '../../styles'
 
 const DetailsViewContainer = styled.div`
@@ -16,10 +14,7 @@ const DetailsViewContainer = styled.div`
 `
 
 const DetailsViewTemplate = ({ children }: { children: React.ReactNode }) => {
-    const detailsViewContainerRef = useRef<HTMLDivElement>(null)
-    useDetailsViewDrop(detailsViewContainerRef)
-
-    return <DetailsViewContainer ref={detailsViewContainerRef}>{children}</DetailsViewContainer>
+    return <DetailsViewContainer>{children}</DetailsViewContainer>
 }
 
 export default DetailsViewTemplate
