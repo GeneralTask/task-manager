@@ -60,6 +60,12 @@ const (
 	ChoiceKeyManual                   = "manual"
 	ChoiceKeyDueDate                  = "due_date"
 	ChoiceKeyPriority                 = "priority"
+	// Note sorting and filtering
+	SettingFieldNoteSortingPreference   = "note_sorting_preference"
+	SettingFieldNoteSortingDirection    = "note_sorting_direction"
+	SettingFieldNoteFilteringPreference = "note_filtering_preference"
+	ChoiceKeyNoDeleted                  = "no_deleted"
+	ChoiceKeyShowDeleted                = "show_deleted"
 	// Calendar choice
 	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
 )
@@ -151,6 +157,33 @@ var TaskSortingDirectionSetting = SettingDefinition{
 	},
 }
 
+var NoteSortingPreferenceSetting = SettingDefinition{
+	FieldKey:      SettingFieldNoteSortingPreference,
+	DefaultChoice: ChoiceKeyUpdatedAt,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyUpdatedAt},
+		{Key: ChoiceKeyCreatedAt},
+	},
+}
+
+var NoteSortingDirectionSetting = SettingDefinition{
+	FieldKey:      SettingFieldNoteSortingDirection,
+	DefaultChoice: ChoiceKeyDescending,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyDescending},
+		{Key: ChoiceKeyAscending},
+	},
+}
+
+var NoteFilteringSetting = SettingDefinition{
+	FieldKey:      SettingFieldNoteFilteringPreference,
+	DefaultChoice: ChoiceKeyNoDeleted,
+	Choices: []SettingChoice{
+		{Key: ChoiceKeyNoDeleted},
+		{Key: ChoiceKeyShowDeleted},
+	},
+}
+
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
@@ -163,6 +196,10 @@ var hardcodedSettings = []SettingDefinition{
 	SidebarJiraSetting,
 	SidebarGithubSetting,
 	SidebarSlackSetting,
+	// these settings are for the notes page
+	NoteSortingPreferenceSetting,
+	NoteSortingDirectionSetting,
+	NoteFilteringSetting,
 }
 
 func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {
