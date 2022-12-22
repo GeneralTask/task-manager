@@ -28,6 +28,7 @@ export interface TModifyNoteData {
     title?: string
     body?: string
     shared_until?: string
+    is_deleted?: boolean
 }
 
 export const useGetNote = (params: TGetNoteParams) => {
@@ -122,6 +123,7 @@ export const useModifyNote = () => {
                 note.body = data.body ?? note.body
                 note.shared_until = data.shared_until ?? note.shared_until
                 note.updated_at = DateTime.now().toISO()
+                note.is_deleted = data.is_deleted ?? note.is_deleted
             })
             queryClient.setQueryData('notes', updatedNotes)
         },
@@ -147,6 +149,7 @@ export const createNewNoteHelper = (
         author: data.author,
         created_at: data.created_at ?? DateTime.local().toISO(),
         updated_at: data.updated_at ?? DateTime.local().toISO(),
+        is_deleted: data.is_deleted ?? false,
         shared_until: data.shared_until,
     }
 }

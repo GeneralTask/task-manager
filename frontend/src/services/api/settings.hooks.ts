@@ -13,6 +13,10 @@ export type TaskSortPreference = `${string}task_sorting_preference${string}`
 export type TaskSortDirection = `${string}task_sorting_direction${string}`
 export type TaskFilterPreference = `${string}task_filtering_preference${string}`
 
+export type NoteSortPreference = `${string}note_sorting_preference${string}`
+export type NoteSortDirection = `${string}note_sorting_direction${string}`
+export type NoteFilterPreference = `${string}note_filtering_preference${string}`
+
 export type TSettingsKey =
     | 'calendar_account_id_for_new_tasks'
     | GHFilterPreference
@@ -21,6 +25,9 @@ export type TSettingsKey =
     | TaskSortPreference
     | TaskSortDirection
     | TaskFilterPreference
+    | NoteSortPreference
+    | NoteSortDirection
+    | NoteFilterPreference
     | 'sidebar_linear_preference'
     | 'sidebar_github_preference'
     | 'sidebar_slack_preference'
