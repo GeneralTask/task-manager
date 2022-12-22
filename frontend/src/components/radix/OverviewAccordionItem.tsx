@@ -130,7 +130,10 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
             <Accordion.Header>
                 <AccordionTrigger>
                     <TriggerTitle>
-                        <Icon icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)} />
+                        <Icon
+                            icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
+                            color={list.view_items.length === 0 ? 'gray' : 'black'}
+                        />
                         <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
                     </TriggerTitle>
                     <TriggerRightContainer>
