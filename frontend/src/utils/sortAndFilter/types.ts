@@ -2,6 +2,9 @@ import {
     GHFilterPreference,
     GHSortDirection,
     GHSortPreference,
+    NoteFilterPreference,
+    NoteSortDirection,
+    NoteSortPreference,
     TaskFilterPreference,
     TaskSortDirection,
     TaskSortPreference,
@@ -59,9 +62,9 @@ export interface FilterOptions<T> {
 export interface SortAndFilterSettingsConfig<T> {
     sortOptions: SortOptions<T>
     filterOptions: FilterOptions<T>
-    sortPreferenceId: GHSortPreference | TaskSortPreference
-    sortDirectionId: GHSortDirection | TaskSortDirection
-    filterPreferenceId: GHFilterPreference | TaskFilterPreference
+    sortPreferenceId: GHSortPreference | TaskSortPreference | NoteSortPreference
+    sortDirectionId: GHSortDirection | TaskSortDirection | NoteSortDirection
+    filterPreferenceId: GHFilterPreference | TaskFilterPreference | NoteFilterPreference
     tieBreakerField: keyof T
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }

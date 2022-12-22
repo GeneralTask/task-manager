@@ -92,9 +92,14 @@ const SortAndFilterDropdowns = <T,>({
                     trigger={
                         <GTButton
                             icon={icons.filter}
-                            value={selectedFilter.label}
+                            value={
+                                <span>
+                                    <Bold>Filter: </Bold>
+                                    {filterOptions[selectedFilter.id].label}
+                                </span>
+                            }
+                            styleType="simple"
                             size="small"
-                            styleType="secondary"
                             asDiv
                         />
                     }
