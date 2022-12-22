@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
@@ -24,8 +23,12 @@ import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 const ActionsContainer = styled.div`
     display: flex;
     flex-direction: row;
-    gap: ${Spacing._8};
+`
+const CreateButtonContainer = styled.div`
+    display: flex;
+    flex-direction: column;
     margin-bottom: ${Spacing._16};
+    margin-left: auto;
 `
 
 const NoteListView = () => {
@@ -70,8 +73,10 @@ const NoteListView = () => {
             <ScrollableListTemplate>
                 <SectionHeader sectionName="Notes" />
                 <ActionsContainer>
-                    <NoteCreateButton type="button" />
                     <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                    <CreateButtonContainer>
+                        <NoteCreateButton type="button" />
+                    </CreateButtonContainer>
                 </ActionsContainer>
                 {!notes ? (
                     <Spinner />
