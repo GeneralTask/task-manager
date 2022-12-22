@@ -8,6 +8,7 @@ import { TPullRequest } from '../../../utils/types'
 import PullRequest from '../../pull-requests/PullRequest'
 import { Repository } from '../../pull-requests/styles'
 import { ViewHeader, ViewName } from '../styles'
+import EmptyListMessage from './EmptyListMessage'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
@@ -28,10 +29,16 @@ const PullRequestViewItems = forwardRef(
                 )}
                 {view.total_view_items !== 0 && <SortAndFilterSelectors settings={sortAndFilterSettings} />}
                 {view.view_items.length === 0 && view.is_linked && (
-                    <EmptyViewItem
-                        header="You have no more pull requests!"
-                        body="When new pull requests get assigned to you, they will appear here."
-                    />
+                    <>
+                        {isPreviewMode ? (
+                            <EmptyListMessage list={view} />
+                        ) : (
+                            <EmptyViewItem
+                                header="You have no more pull requests!"
+                                body="When new pull requests get assigned to you, they will appear here."
+                            />
+                        )}
+                    </>
                 )}
                 <Repository>
                     {view.view_items.slice(0, visibleItemsCount).map((pr) => (
