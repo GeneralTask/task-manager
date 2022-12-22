@@ -138,7 +138,7 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
                             <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
                         )}
                         {list.view_items.length === 0 && list.is_linked && (
-                            <StatusLabel status="List complete" color="green" icon={icons.check} />
+                            <StatusLabel status="Empty" color="gray" icon={icons.emptySet} />
                         )}
                         <Icon icon={icons.caret_down} className="AccordionChevron" />
                     </TriggerRightContainer>
