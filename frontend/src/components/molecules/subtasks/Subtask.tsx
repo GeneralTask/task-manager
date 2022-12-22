@@ -75,10 +75,10 @@ const TitleSpan = styled.span<{ isDone: boolean; shouldAnimate: boolean }>`
 `
 
 interface SubtaskProps {
-    parentTaskId: string
+    parentTask: TTask
     subtask: TTask
 }
-const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
+const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
     const navigateToTask = useNavigateToTask()
     const [isVisible, setIsVisible] = useState(false)
     const dueDate = DateTime.fromISO(subtask.due_date).toJSDate()
@@ -105,9 +105,9 @@ const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
 
     return (
         <SubtaskDropOffset>
-            <TaskContextMenuWrapper task={subtask} onOpenChange={setContextMenuOpen} isSubtask>
+            <TaskContextMenuWrapper task={parentTask} subtask={subtask} onOpenChange={setContextMenuOpen}>
                 <SubtaskContainer
-                    onClick={() => navigateToTask(parentTaskId, subtask.id)}
+                    onClick={() => navigateToTask(parentTask.id, subtask.id)}
                     ref={drag}
                     {...visibilityToggle}
                     forceHoverStyle={contextMenuOpen}
@@ -116,7 +116,7 @@ const Subtask = ({ parentTaskId, subtask }: SubtaskProps) => {
                     <Domino isVisible={isVisible} />
                     <MarkTaskDoneButton
                         isDone={subtask.is_done}
-                        taskId={parentTaskId}
+                        taskId={parentTask.id}
                         subtaskId={subtask.id}
                         isSelected={false}
                         onMarkComplete={() => setShouldAnimate(true)}

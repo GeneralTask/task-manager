@@ -420,6 +420,10 @@ export const useMarkTaskDoneOrDeleted = () => {
                             const subtask = task.sub_tasks?.[subtaskIndex]
                             if (!subtask) return
                             if (data.isDone !== undefined) subtask.is_done = data.isDone
+                            if (data.isDeleted !== undefined) {
+                                subtask.is_deleted = data.isDeleted
+                                draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                            }
                         } else {
                             if (data.isDone !== undefined) task.is_done = data.isDone
                             if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
@@ -467,7 +471,10 @@ export const useMarkTaskDoneOrDeleted = () => {
                         if (subtaskIndex === undefined) return
                         if (!task.sub_tasks) return
                         if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                        if (data.isDeleted !== undefined) {
+                            task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                            draft[sectionIndex].view_items[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                        }
                     } else {
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
