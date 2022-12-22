@@ -1,10 +1,11 @@
 import { useDrag } from 'react-dnd'
 import { useRemoveView } from '../../services/api/overview.hooks'
-import { icons, logos } from '../../styles/images'
+import { icons } from '../../styles/images'
 import { DropItem, DropType, TOverviewView } from '../../utils/types'
 import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
+import { getOverviewAccordionHeaderIcon } from '../radix/OverviewAccordionItem'
 import { EditViewsDeleteButton, SelectedList } from './styles'
 
 interface EditViewsSelectedViewProps {
@@ -33,7 +34,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
         >
             <SelectedList key={view.id} ref={dragPreview}>
                 <Domino />
-                <Icon icon={logos[view.logo]} />
+                <Icon icon={getOverviewAccordionHeaderIcon(view.logo, view.task_section_id)} />
                 {view.name}
                 <EditViewsDeleteButton onClick={() => removeView({ id: view.id }, view.optimisticId)}>
                     <Icon icon={icons.trash} />
