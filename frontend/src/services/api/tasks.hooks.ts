@@ -423,6 +423,8 @@ export const useMarkTaskDoneOrDeleted = () => {
                             if (data.isDeleted !== undefined) {
                                 subtask.is_deleted = data.isDeleted
                                 draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                                const trashSection = draft.find((section) => section.id === TRASH_SECTION_ID)
+                                trashSection?.tasks.unshift(subtask)
                             }
                         } else {
                             if (data.isDone !== undefined) task.is_done = data.isDone
