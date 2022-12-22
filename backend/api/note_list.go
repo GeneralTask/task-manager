@@ -18,6 +18,7 @@ type NoteResult struct {
 	CreatedAt   primitive.DateTime `json:"created_at,omitempty"`
 	UpdatedAt   primitive.DateTime `json:"updated_at,omitempty"`
 	SharedUntil string             `json:"shared_until,omitempty"`
+	IsDeleted   bool               `json:"is_deleted,omitempty"`
 }
 
 func (api *API) NotesList(c *gin.Context) {
@@ -61,6 +62,10 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 	if note.Title != nil {
 		title = *note.Title
 	}
+	isDeleted := false
+	if note.IsDeleted != nil && *note.IsDeleted {
+		isDeleted = true
+	}
 	return &NoteResult{
 		ID:          note.ID,
 		Title:       title,
@@ -69,5 +74,6 @@ func (api *API) noteToNoteResult(note *database.Note) *NoteResult {
 		CreatedAt:   note.CreatedAt,
 		UpdatedAt:   note.UpdatedAt,
 		SharedUntil: note.SharedUntil.Time().UTC().Format(time.RFC3339),
+		IsDeleted:   isDeleted,
 	}
 }

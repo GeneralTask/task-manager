@@ -400,4 +400,5 @@ type Note struct {
 	CreatedAt   primitive.DateTime `bson:"created_at,omitempty"`
 	UpdatedAt   primitive.DateTime `bson:"updated_at,omitempty"`
 	SharedUntil primitive.DateTime `bson:"shared_until,omitempty"`
+	IsDeleted   *bool              `bson:"is_deleted,omitempty"`
 }
