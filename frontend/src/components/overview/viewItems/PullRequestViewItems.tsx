@@ -1,5 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { usePreviewMode } from '../../../hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { PR_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/pull-requests.config'
 import useSortAndFilterSettings from '../../../utils/sortAndFilter/useSortAndFilterSettings'
@@ -14,6 +15,10 @@ const PullRequestViewItems = forwardRef(
     ({ view, visibleItemsCount, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewItemId } = useParams()
         const sortAndFilterSettings = useSortAndFilterSettings<TPullRequest>(PR_SORT_AND_FILTER_CONFIG, view.id)
+        const { isPreviewMode } = usePreviewMode()
+        const basePath =
+            location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
+
         return (
             <>
                 {!hideHeader && (
@@ -33,7 +38,7 @@ const PullRequestViewItems = forwardRef(
                         <PullRequest
                             key={pr.id}
                             pullRequest={pr}
-                            link={`/overview/${view.id}/${pr.id}`}
+                            link={`${basePath}/${view.id}/${pr.id}`}
                             isSelected={pr.id === overviewItemId}
                         />
                     ))}
