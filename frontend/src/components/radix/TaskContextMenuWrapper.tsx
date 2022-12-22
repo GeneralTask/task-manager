@@ -9,6 +9,19 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
+const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
+    if (isSubtask) {
+        if (task.is_deleted) {
+            return 'Restore subtask'
+        }
+        return 'Delete subtask'
+    }
+    if (task.is_deleted) {
+        return 'Restore task'
+    }
+    return 'Delete task'
+}
+
 interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
@@ -16,7 +29,13 @@ interface TaskContextMenuProps {
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenChange }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({
+    task,
+    sectionId,
+    isSubtask = false,
+    children,
+    onOpenChange,
+}: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -27,13 +46,6 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         task.source?.name === 'General Task' && // must be a native task
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
         !isSubtask
-
-    let deleteLabel = 'Delete task'
-    if (task.is_deleted) {
-        deleteLabel = 'Restore task'
-    } else if (isSubtask) {
-        deleteLabel = 'Delete subtask'
-    }
 
     const contextMenuItems: GTMenuItem[] = [
         ...(sectionId
@@ -117,7 +129,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
               ]
             : []),
         {
-            label: deleteLabel,
+            label: getDeleteLabel(task, isSubtask),
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
