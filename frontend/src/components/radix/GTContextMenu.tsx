@@ -40,7 +40,7 @@ interface GTContextMenuProps {
 const GTContextMenu = ({ items, trigger, onOpenChange }: GTContextMenuProps) => {
     return (
         <FullWidth>
-            <ContextMenu.Root onOpenChange={onOpenChange}>
+            <ContextMenu.Root onOpenChange={onOpenChange} modal={false}>
                 <ContextMenuTrigger>{trigger}</ContextMenuTrigger>
                 <ContextMenu.Portal>
                     <ContextMenuContent onKeyDown={(e) => stopKeydownPropogation(e, ['Escape'], true)}>
