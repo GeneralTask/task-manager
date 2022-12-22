@@ -9,6 +9,19 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
+const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
+    if (isSubtask) {
+        if (task.is_deleted) {
+            return 'Restore subtask'
+        }
+        return 'Delete subtask'
+    }
+    if (task.is_deleted) {
+        return 'Restore task'
+    }
+    return 'Delete task'
+}
+
 interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
@@ -16,7 +29,13 @@ interface TaskContextMenuProps {
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenChange }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({
+    task,
+    sectionId,
+    isSubtask = false,
+    children,
+    onOpenChange,
+}: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -32,7 +51,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         ...(sectionId
             ? [
                   {
-                      label: 'Move to Folder',
+                      label: 'Move to folder',
                       icon: icons.folder,
                       subItems: taskSections
                           ? [
@@ -60,7 +79,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
               ]
             : []),
         {
-            label: 'Set Due Date',
+            label: 'Set due date',
             icon: icons.clock,
             subItems: [
                 {
@@ -76,7 +95,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
             ],
         },
         {
-            label: 'Set Priority',
+            label: 'Set priority',
             icon: icons.priority,
             subItems: TASK_PRIORITIES.map((priority, val) => ({
                 label: priority.label,
@@ -89,7 +108,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         ...(task.all_statuses && task.external_status
             ? [
                   {
-                      label: 'Set Status',
+                      label: 'Set status',
                       icon: linearStatus[task.external_status.type],
                       subItems: task.all_statuses.map((status) => ({
                           label: status.state,
@@ -110,7 +129,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
               ]
             : []),
         {
-            label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
+            label: getDeleteLabel(task, isSubtask),
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
