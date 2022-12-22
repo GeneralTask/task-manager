@@ -27,6 +27,7 @@ const OverviewListsModal = () => {
                 styleType="simple"
                 size="small"
                 icon={icons.gear}
+                iconColor="gray"
                 onClick={() => setModalIsOpen(true)}
             />
             <GTModal
