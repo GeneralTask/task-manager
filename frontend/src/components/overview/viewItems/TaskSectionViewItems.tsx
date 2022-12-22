@@ -11,6 +11,7 @@ import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import CreateNewItemInput from '../../molecules/CreateNewItemInput'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
+import EmptyListMessage from './EmptyListMessage'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
@@ -94,10 +95,14 @@ const TaskSectionViewItems = forwardRef(
                         indicatorType="WHOLE"
                         disabled={sortAndFilterSettings.selectedSort.id !== 'manual'}
                     >
-                        <EmptyViewItem
-                            header="You've completed all your tasks!"
-                            body="Create new tasks to see them here."
-                        />
+                        {isPreviewMode ? (
+                            <EmptyListMessage list={view} />
+                        ) : (
+                            <EmptyViewItem
+                                header="You've completed all your tasks!"
+                                body="Create new tasks to see them here."
+                            />
+                        )}
                     </ReorderDropContainer>
                 )}
             </>
