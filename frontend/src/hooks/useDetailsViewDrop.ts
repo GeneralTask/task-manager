@@ -10,7 +10,7 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
     const { isCollapsed, setIsCollapsed, isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView } =
         useCalendarContext()
 
-    const [, drop] = useDrop(
+    const [{ isOver }, drop] = useDrop(
         () => ({
             accept: [DropType.TASK, DropType.NON_REORDERABLE_TASK],
             collect: (monitor) => {
@@ -22,7 +22,9 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
                 if (!monitor.isOver()) {
                     hoverStarted.current = undefined
                 }
-                setIsTaskDraggingOverDetailsView(monitor.isOver())
+                return {
+                    isOver: monitor.isOver(),
+                }
             },
             hover: (_, monitor) => {
                 const dropType = monitor.getItemType()
@@ -43,6 +45,9 @@ const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElem
         }),
         [isCollapsed, isTaskDraggingOverDetailsView]
     )
+    useEffect(() => {
+        setIsTaskDraggingOverDetailsView(isOver)
+    }, [isOver])
 
     useEffect(() => {
         drop(detailsViewContainerRef)
