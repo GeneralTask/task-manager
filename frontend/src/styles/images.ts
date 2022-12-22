@@ -40,7 +40,6 @@ import {
     faFolder,
     faGear,
     faGlobe,
-    faGripDotsVertical,
     faHouseDay,
     faInbox,
     faInfinity,
@@ -73,6 +72,7 @@ import {
     faVideo,
     faXmark,
 } from '@fortawesome/pro-light-svg-icons'
+import { faGripDotsVertical } from '@fortawesome/pro-regular-svg-icons'
 import {
     faBold,
     faCaretDown,
