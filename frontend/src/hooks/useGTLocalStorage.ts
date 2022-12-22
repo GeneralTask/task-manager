@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 
 type TLocalStorageKeys =
     | 'noteCreation'
@@ -11,7 +11,12 @@ type TLocalStorageKeys =
     | 'taskToCalendarSidebar'
 
 // based on https://usehooks.com/useLocalStorage/
-const useGTLocalStorage = <T>(key: TLocalStorageKeys, initialValue: T): [T, Dispatch<SetStateAction<T>>] => {
+// if updateOnStoreChange is true, the hook will update the state when the value is changed on this tab or another tab
+const useGTLocalStorage = <T>(
+    key: TLocalStorageKeys,
+    initialValue: T,
+    updateOnStoreChange = false
+): [T, Dispatch<SetStateAction<T>>] => {
     const [storedValue, setStoredValue] = useState(() => {
         // Get from local storage by key
         const item = window.localStorage.getItem(key)
@@ -24,9 +29,32 @@ const useGTLocalStorage = <T>(key: TLocalStorageKeys, initialValue: T): [T, Disp
         const valueToStore = value instanceof Function ? value(storedValue) : value
         // Save state
         setStoredValue(valueToStore)
+        const serialized = JSON.stringify(valueToStore)
         // Save to local storage
-        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+        window.localStorage.setItem(key, serialized)
+        // Dispatch custom event so other instances of this hook can re-render
+        window.dispatchEvent(
+            new StorageEvent('storage', {
+                key,
+                newValue: serialized,
+            })
+        )
     }
+
+    useEffect(() => {
+        if (!updateOnStoreChange) return
+
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === key && e.newValue) {
+                setStoredValue(JSON.parse(e.newValue))
+            }
+        }
+        addEventListener('storage', handleStorageChange)
+        return () => {
+            removeEventListener('storage', handleStorageChange)
+        }
+    }, [key])
+
     return [storedValue, setValue]
 }
 
