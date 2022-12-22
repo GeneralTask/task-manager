@@ -97,7 +97,7 @@ const DailyOverviewView = () => {
                             onClick={collapseAll}
                             icon={icons.squareMinus}
                             iconColor="gray"
-                            value="Collapse All"
+                            value="Collapse all"
                         />
                         <GTButton
                             styleType="simple"
@@ -105,7 +105,7 @@ const DailyOverviewView = () => {
                             onClick={expandAll}
                             icon={icons.squarePlus}
                             iconColor="gray"
-                            value="Expand All"
+                            value="Expand all"
                         />
                     </ActionsContainer>
                     <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
