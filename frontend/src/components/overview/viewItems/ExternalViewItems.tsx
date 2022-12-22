@@ -4,6 +4,7 @@ import { usePreviewMode } from '../../../hooks'
 import { DropType, TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
+import EmptyListMessage from './EmptyListMessage'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
@@ -15,6 +16,7 @@ const ExternalViewItems = forwardRef(
             location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
 
         const getEmptyViewItem = () => {
+            if (isPreviewMode) return <EmptyListMessage list={view} />
             if (view.type === 'slack') {
                 return (
                     <EmptyViewItem
