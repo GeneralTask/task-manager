@@ -274,7 +274,7 @@ func TestGetNotes(t *testing.T) {
 	t.Run("GetNotes", func(t *testing.T) {
 		notes, err := GetNotes(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(*notes))
+		assert.Equal(t, 3, len(*notes))
 		assert.Equal(t, note1.ID, (*notes)[0].ID)
 		assert.Equal(t, note2.ID, (*notes)[1].ID)
 	})
