@@ -94,7 +94,7 @@ const SortAndFilterDropdowns = <T,>({
                             icon={icons.filter}
                             value={selectedFilter.label}
                             size="small"
-                            styleType="secondary"
+                            styleType="simple"
                             asDiv
                         />
                     }
