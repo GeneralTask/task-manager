@@ -40,7 +40,7 @@ export const NOTE_SORT_AND_FILTER_CONFIG: SortAndFilterSettingsConfig<TNote> = {
     filterOptions: NOTE_FILTER_OPTIONS,
     sortPreferenceId: 'note_sorting_preference',
     sortDirectionId: 'note_sorting_direction',
-    filterPreferenceId: 'github_filtering_preference',
+    filterPreferenceId: 'note_filtering_preference',
     tieBreakerField: 'updated_at',
     defaultSortsAndFilters: {
         sortOptions: NOTE_SORT_SELECTOR_ITEMS,
