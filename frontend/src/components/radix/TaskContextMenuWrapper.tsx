@@ -28,11 +28,18 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
         !isSubtask
 
+    let deleteLabel = 'Delete task'
+    if (task.is_deleted) {
+        deleteLabel = 'Restore task'
+    } else if (isSubtask) {
+        deleteLabel = 'Delete subtask'
+    }
+
     const contextMenuItems: GTMenuItem[] = [
         ...(sectionId
             ? [
                   {
-                      label: 'Move to Folder',
+                      label: 'Move to folder',
                       icon: icons.folder,
                       subItems: taskSections
                           ? [
@@ -60,7 +67,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
               ]
             : []),
         {
-            label: 'Set Due Date',
+            label: 'Set due date',
             icon: icons.clock,
             subItems: [
                 {
@@ -76,7 +83,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
             ],
         },
         {
-            label: 'Set Priority',
+            label: 'Set priority',
             icon: icons.priority,
             subItems: TASK_PRIORITIES.map((priority, val) => ({
                 label: priority.label,
@@ -89,7 +96,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         ...(task.all_statuses && task.external_status
             ? [
                   {
-                      label: 'Set Status',
+                      label: 'Set status',
                       icon: linearStatus[task.external_status.type],
                       subItems: task.all_statuses.map((status) => ({
                           label: status.state,
@@ -110,7 +117,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
               ]
             : []),
         {
-            label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
+            label: deleteLabel,
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
