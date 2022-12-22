@@ -25,17 +25,11 @@ const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
 interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
-    isSubtask?: boolean
+    parentTask?: TTask
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({
-    task,
-    sectionId,
-    isSubtask = false,
-    children,
-    onOpenChange,
-}: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -45,7 +39,7 @@ const TaskContextMenuWrapper = ({
     const showRecurringTaskOption =
         task.source?.name === 'General Task' && // must be a native task
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
-        !isSubtask
+        !parentTask
 
     const contextMenuItems: GTMenuItem[] = [
         ...(sectionId
@@ -129,12 +123,20 @@ const TaskContextMenuWrapper = ({
               ]
             : []),
         {
-            label: getDeleteLabel(task, isSubtask),
+            label: getDeleteLabel(task, parentTask !== undefined),
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
-            onClick: () =>
-                markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId),
+            onClick: () => {
+                if (parentTask && task) {
+                    markTaskDoneOrDeleted(
+                        { id: parentTask.id, isDeleted: sectionId !== TRASH_SECTION_ID, subtaskId: task?.id },
+                        task.optimisticId
+                    )
+                } else {
+                    markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId)
+                }
+            },
         },
     ]
     return (
