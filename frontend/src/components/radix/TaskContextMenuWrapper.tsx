@@ -25,11 +25,11 @@ const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
 interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
-    subtask?: TTask
+    parentTask?: TTask
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, subtask, children, onOpenChange }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
@@ -39,7 +39,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, subtask, children, onOpenChan
     const showRecurringTaskOption =
         task.source?.name === 'General Task' && // must be a native task
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
-        !subtask
+        !parentTask
 
     const contextMenuItems: GTMenuItem[] = [
         ...(sectionId
@@ -123,15 +123,20 @@ const TaskContextMenuWrapper = ({ task, sectionId, subtask, children, onOpenChan
               ]
             : []),
         {
-            label: getDeleteLabel(task, subtask !== undefined),
+            label: getDeleteLabel(task, parentTask !== undefined),
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
-            onClick: () =>
-                markTaskDoneOrDeleted(
-                    { id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID, subtaskId: subtask?.id },
-                    task.optimisticId
-                ),
+            onClick: () => {
+                if (parentTask && task) {
+                    markTaskDoneOrDeleted(
+                        { id: parentTask.id, isDeleted: sectionId !== TRASH_SECTION_ID, subtaskId: task?.id },
+                        task.optimisticId
+                    )
+                } else {
+                    markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId)
+                }
+            },
         },
     ]
     return (
