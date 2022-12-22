@@ -130,7 +130,10 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
             <Accordion.Header>
                 <AccordionTrigger>
                     <TriggerTitle>
-                        <Icon icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)} />
+                        <Icon
+                            icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
+                            color={list.view_items.length === 0 ? 'gray' : 'black'}
+                        />
                         <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
                     </TriggerTitle>
                     <TriggerRightContainer>
@@ -138,7 +141,7 @@ const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
                             <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
                         )}
                         {list.view_items.length === 0 && list.is_linked && (
-                            <StatusLabel status="List complete" color="green" icon={icons.check} />
+                            <StatusLabel status="Empty" color="gray" icon={icons.emptySet} />
                         )}
                         <Icon icon={icons.caret_down} className="AccordionChevron" />
                     </TriggerRightContainer>
