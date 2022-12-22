@@ -3,12 +3,13 @@ package api
 import (
 	"bytes"
 	"context"
+	"net/http"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
-	"net/http"
-	"testing"
 )
 
 func TestNoteModifyEditFields(t *testing.T) {
@@ -43,7 +44,7 @@ func TestNoteModifyEditFields(t *testing.T) {
 	})
 	t.Run("Success", func(t *testing.T) {
 		response := ServeRequest(t, authToken, "PATCH", "/notes/modify/"+note1.ID.Hex()+"/",
-			bytes.NewBuffer([]byte(`{"title": "new title", "body": "new body", "author": "new author", "is_shared": false}`)), http.StatusOK, nil)
+			bytes.NewBuffer([]byte(`{"title": "new title", "body": "new body", "author": "new author", "is_shared": false, "is_deleted": true}`)), http.StatusOK, nil)
 		assert.Equal(t, "{}", string(response))
 
 		var note database.Note
@@ -56,5 +57,9 @@ func TestNoteModifyEditFields(t *testing.T) {
 		assert.Equal(t, *testutils.CreateDateTime("2020-04-20"), note.CreatedAt)
 		assert.Greater(t, note.UpdatedAt, *testutils.CreateDateTime("2020-04-20"))
 		assert.Equal(t, *testutils.CreateDateTime("9999-01-01"), note.SharedUntil)
+		assert.NotNil(t, note.IsDeleted)
+		if note.IsDeleted != nil {
+			assert.True(t, *note.IsDeleted)
+		}
 	})
 }
