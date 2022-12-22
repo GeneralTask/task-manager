@@ -1,6 +1,7 @@
 import { Ref, forwardRef, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
+import { usePreviewMode } from '../../../hooks'
 import { useCreateTask, useReorderTask } from '../../../services/api/tasks.hooks'
 import SortAndFilterSelectors from '../../../utils/sortAndFilter/SortAndFilterSelectors'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../../utils/sortAndFilter/tasks.config'
@@ -19,6 +20,10 @@ const TaskSectionViewItems = forwardRef(
         const { overviewViewId, overviewItemId } = useParams()
         const { mutate: createTask } = useCreateTask()
         const { mutate: reorderTask } = useReorderTask()
+        const location = useLocation()
+        const { isPreviewMode } = usePreviewMode()
+        const basePath =
+            location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
 
         const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
             TASK_SORT_AND_FILTER_CONFIG,
@@ -77,7 +82,7 @@ const TaskSectionViewItems = forwardRef(
                                 sectionId={sectionId}
                                 sectionScrollingRef={scrollRef}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                                link={`/overview/${view.id}/${item.id}`}
+                                link={`${basePath}/${view.id}/${item.id}`}
                             />
                         </ReorderDropContainer>
                     ))

@@ -1,5 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { usePreviewMode } from '../../../hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { TTask } from '../../../utils/types'
 import { isGoogleCalendarLinked } from '../../../utils/utils'
@@ -13,6 +14,9 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
     const { overviewViewId, overviewItemId } = useParams()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isGoogleLinked = isGoogleCalendarLinked(linkedAccounts || [])
+    const { isPreviewMode } = usePreviewMode()
+    const basePath =
+        location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
     return (
         <>
             {!hideHeader && (
@@ -29,7 +33,7 @@ const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsP
                             dragDisabled={true}
                             index={index}
                             isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                            link={`/overview/${view.id}/${item.id}`}
+                            link={`${basePath}/${view.id}/${item.id}`}
                         />
                     ))
                 ) : (
