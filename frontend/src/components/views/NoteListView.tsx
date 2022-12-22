@@ -42,6 +42,7 @@ const NoteListView = () => {
         if (!notes || areSettingsLoading) return EMPTY_ARRAY
         return sortAndFilterItems({
             items: notes,
+            filter: selectedFilter,
             sort: selectedSort,
             sortDirection: selectedSortDirection,
             tieBreakerField: NOTE_SORT_AND_FILTER_CONFIG.tieBreakerField,
