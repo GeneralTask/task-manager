@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -61,7 +60,6 @@ func (api *API) NoteModify(c *gin.Context) {
 		if modifyParams.NoteChangeable.SharedUntil != nil {
 			sharedUntil = *modifyParams.NoteChangeable.SharedUntil
 		}
-		fmt.Println("hmm:", modifyParams.NoteChangeable.IsDeleted)
 		updatedNote := database.Note{
 			UserID:      userID,
 			Title:       modifyParams.NoteChangeable.Title,
