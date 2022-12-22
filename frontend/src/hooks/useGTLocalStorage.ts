@@ -1,5 +1,4 @@
-import { Dispatch, SetStateAction } from 'react'
-import { useLocalStorage } from 'usehooks-ts'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 type TLocalStorageKeys =
     | 'noteCreation'
@@ -11,9 +10,24 @@ type TLocalStorageKeys =
     | 'dueTodayCollapsed'
     | 'taskToCalendarSidebar'
 
-declare type SetValue<T> = Dispatch<SetStateAction<T>>
-const useGTLocalStorage = <T>(key: TLocalStorageKeys, initialValue: T): [T, SetValue<T>] => {
-    return useLocalStorage(key, initialValue)
+// based on https://usehooks.com/useLocalStorage/
+const useGTLocalStorage = <T>(key: TLocalStorageKeys, initialValue: T): [T, Dispatch<SetStateAction<T>>] => {
+    const [storedValue, setStoredValue] = useState(() => {
+        // Get from local storage by key
+        const item = window.localStorage.getItem(key)
+        // Parse stored json or if none return initialValue
+        return item ? JSON.parse(item) : initialValue
+    })
+
+    const setValue = (value: T | ((val: T) => T)) => {
+        // Allow value to be a function so we have same API as useState
+        const valueToStore = value instanceof Function ? value(storedValue) : value
+        // Save state
+        setStoredValue(valueToStore)
+        // Save to local storage
+        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+    }
+    return [storedValue, setValue]
 }
 
 export default useGTLocalStorage
