@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
-	"github.com/GeneralTask/task-manager/backend/testutils"
 	"testing"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/testutils"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/stretchr/testify/assert"
@@ -245,6 +246,19 @@ func TestGetNotes(t *testing.T) {
 		},
 	)
 	assert.NoError(t, err)
+	isDeleted := true
+	note3, err := GetOrCreateNote(
+		db,
+		userID,
+		"123abcdefdogecoin",
+		"foobar_source",
+		&Note{
+			UserID:      userID,
+			SharedUntil: *testutils.CreateDateTime("9999-01-01"),
+			IsDeleted:   &isDeleted,
+		},
+	)
+	assert.NoError(t, err)
 	_, err = GetOrCreateNote(
 		db,
 		userID,
@@ -270,6 +284,10 @@ func TestGetNotes(t *testing.T) {
 	})
 	t.Run("GetSharedNoteForExpiredNote", func(t *testing.T) {
 		_, err := GetSharedNote(db, note2.ID)
+		assert.Error(t, err)
+	})
+	t.Run("GetSharedNoteForDeletedNote", func(t *testing.T) {
+		_, err := GetSharedNote(db, note3.ID)
 		assert.Error(t, err)
 	})
 }
