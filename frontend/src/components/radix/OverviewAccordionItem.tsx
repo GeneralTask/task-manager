@@ -74,7 +74,7 @@ const ListContent = styled.div`
     box-shadow: ${Shadows.button.default};
 `
 
-const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {
+export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: string) => {
     if (logo !== 'generaltask') return logos[logo]
     return sectionId === DEFAULT_SECTION_ID ? icons.inbox : icons.folder
 }
