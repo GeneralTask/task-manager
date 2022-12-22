@@ -8,6 +8,7 @@ import Domino from '../atoms/Domino'
 import { Icon } from '../atoms/Icon'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import { TemplateContainer } from '../atoms/TaskTemplate'
+import { Truncated } from '../atoms/typography/Typography'
 import ItemContainer from '../molecules/ItemContainer'
 import { getOverviewAccordionHeaderIcon } from '../radix/OverviewAccordionItem'
 import { EditViewsDeleteButton } from './styles'
@@ -23,6 +24,7 @@ const TextContainer = styled.div`
     align-items: center;
     margin-left: ${Spacing._12};
     gap: ${Spacing._12};
+    min-width: 0;
 `
 
 interface EditViewsSelectedViewProps {
@@ -54,7 +56,7 @@ const EditViewsSelectedView = ({ view, viewIndex, onReorder }: EditViewsSelected
                     <Domino />
                     <TextContainer>
                         <Icon icon={getOverviewAccordionHeaderIcon(view.logo, view.task_section_id)} />
-                        {view.name}
+                        <Truncated>{view.name}</Truncated>
                     </TextContainer>
                     <EditViewsDeleteButton onClick={() => removeView({ id: view.id }, view.optimisticId)}>
                         <Icon icon={icons.trash} />
