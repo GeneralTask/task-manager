@@ -10,9 +10,10 @@ export const DueDateContainer = styled.span<{ color: TTextColor }>`
 
 interface DueDateProps {
     date: Date
+    isDoneOrDeleted: boolean
 }
-const DueDate = ({ date }: DueDateProps) => {
-    const formattedDate = getFormattedDate(date)
+const DueDate = ({ date, isDoneOrDeleted }: DueDateProps) => {
+    const formattedDate = getFormattedDate(date, isDoneOrDeleted)
     if (!isValidDueDate(date)) {
         return null
     }
