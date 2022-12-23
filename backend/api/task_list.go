@@ -67,6 +67,7 @@ type TaskResult struct {
 	NUXNumber                int                          `json:"nux_number_id,omitempty"`
 	CreatedAt                string                       `json:"created_at,omitempty"`
 	UpdatedAt                string                       `json:"updated_at,omitempty"`
+	CompletedAt              primitive.DateTime           `json:"completed_at,omitempty"`
 }
 
 type TaskSection struct {
@@ -409,6 +410,10 @@ func (api *API) taskBaseToTaskResult(t *database.Task, userID primitive.ObjectID
 
 	if t.RecurringTaskTemplateID != primitive.NilObjectID {
 		taskResult.RecurringTaskTemplateID = t.RecurringTaskTemplateID
+	}
+
+	if t.CompletedAt != primitive.DateTime(0) {
+		taskResult.CompletedAt = t.CompletedAt
 	}
 
 	return taskResult
