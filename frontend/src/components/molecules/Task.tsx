@@ -228,7 +228,7 @@ const Task = ({
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
                         {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
-                        <DueDate date={dueDate} />
+                        <DueDate date={dueDate} isDoneOrDeleted={task.is_done || task.is_deleted} />
                         {task.priority && task.all_priorities && (
                             <JiraPriorityDropdown
                                 taskId={task.id}
