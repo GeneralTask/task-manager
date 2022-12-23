@@ -102,17 +102,13 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
     }
     type TNameToSetting = keyof typeof nameToSetting
 
-    const settingVisibilityButton = (account: string) => {
-        if (!(account in nameToSetting)) return null
-        const accountName = account as TNameToSetting
-        return (
-            <GTIconButton
-                icon={nameToSetting[accountName].show ? icons.eye : icons.eye_slash}
-                onClick={() => nameToSetting[accountName].setting.updateSetting(!nameToSetting[accountName].show)}
-                tooltipText={`${nameToSetting[accountName].show ? 'Hide' : 'Show'} ${accountName} in sidebar`}
-            />
-        )
-    }
+    const VisibilityButton = ({ accountName }: { accountName: TNameToSetting }) => (
+        <GTIconButton
+            icon={nameToSetting[accountName].show ? icons.eye : icons.eye_slash}
+            onClick={() => nameToSetting[accountName].setting.updateSetting(!nameToSetting[accountName].show)}
+            tooltipText={`${nameToSetting[accountName].show ? 'Hide' : 'Show'} ${accountName} in sidebar`}
+        />
+    )
 
     return (
         <GTModal
@@ -191,7 +187,9 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                             </Flex>
                                         </Flex>
                                         <Flex gap={Spacing._8}>
-                                            {settingVisibilityButton(account.name)}
+                                            {account.name in nameToSetting && (
+                                                <VisibilityButton accountName={account.name as TNameToSetting} />
+                                            )}
                                             {account.has_bad_token && (
                                                 <GTButton
                                                     onClick={() => onRelink(account.name)}
