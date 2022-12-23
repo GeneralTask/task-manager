@@ -52,12 +52,12 @@ const NoteListView = () => {
     const selectedNote = useMemo(() => {
         if (sortedNotes.length === 0) return null
         return sortedNotes.find((note) => note.id === noteId) ?? sortedNotes[0]
-    }, [noteId, notes])
+    }, [noteId, notes, sortedNotes])
 
     useEffect(() => {
         if (selectedNote == null) return
         navigate(`/notes/${selectedNote.id}`, { replace: true })
-    }, [selectedNote])
+    }, [selectedNote, navigate])
 
     const selectNote = useCallback(
         (note: TNote) => {
