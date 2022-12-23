@@ -482,6 +482,9 @@ export const useMarkTaskDoneOrDeleted = () => {
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                         draft[sectionIndex].view_items.splice(taskIndex, 1)
                     }
+                    if (draft[sectionIndex].view_items.length === 0) {
+                        draft[sectionIndex].has_tasks_completed_today = true
+                    }
                 })
                 if (data.waitForAnimation) {
                     await sleep(TASK_MARK_AS_DONE_TIMEOUT)
