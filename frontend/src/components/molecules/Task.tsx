@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut } from '../../hooks'
 import Log from '../../services/api/log'
 import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
@@ -77,7 +77,6 @@ const Task = ({
     shouldScrollToTask,
     setShouldScrollToTask,
 }: TaskProps) => {
-    const { isPreviewMode } = usePreviewMode()
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
     const isScrolling = useRef<boolean>(false)
@@ -244,7 +243,7 @@ const Task = ({
                                     color={TASK_PRIORITIES[task.priority_normalized].color}
                                 />
                             )}
-                        {isPreviewMode && task.sub_tasks && task.sub_tasks.length > 0 && (
+                        {task.sub_tasks && task.sub_tasks.length > 0 && (
                             <Flex gap={Spacing._4}>
                                 <Icon icon={icons.subtask} />
                                 <Mini>{task.sub_tasks.length}</Mini>
