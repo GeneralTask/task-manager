@@ -50,6 +50,7 @@ const NoteActionsDropdown = ({ note }: NoteActionsDropdownProps) => {
             trigger={
                 <GTIconButton
                     icon={icons.ellipsisVertical}
+                    tooltipText="Note Actions"
                     onClick={() => setIsOpen(!isOpen)}
                     forceShowHoverEffect={isOpen}
                     asDiv

@@ -289,6 +289,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                         renderTrigger={(isOpen, setIsOpen) => (
                                             <GTIconButton
                                                 icon={icons.folder}
+                                                shortcutName="moveTaskToFolder"
                                                 onClick={() => setIsOpen(!isOpen)}
                                                 forceShowHoverEffect={isOpen}
                                                 asDiv
