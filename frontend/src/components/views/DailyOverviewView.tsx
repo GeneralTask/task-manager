@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
@@ -67,6 +67,11 @@ const DailyOverviewView = () => {
         }
         return null
     }, [lists, overviewItemId, overviewViewId, subtaskId])
+
+    useLayoutEffect(() => {
+        const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
+        if (firstNonEmptyList) setValues([firstNonEmptyList.id])
+    }, [])
 
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
