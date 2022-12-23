@@ -16,6 +16,7 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
                 } else {
                     if (a[sort.secondaryField] && b[sort.secondaryField]) {
                         result = a[sort.secondaryField] > b[sort.secondaryField] ? 1 : -1
+                        result *= sortDirectionMultiplier
                     } else if (!a[sort.secondaryField]) {
                         result = sortDirectionMultiplier
                     } else if (!b[sort.secondaryField]) {
