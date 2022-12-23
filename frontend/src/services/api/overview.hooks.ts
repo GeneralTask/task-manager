@@ -141,6 +141,7 @@ export const useAddView = () => {
                             view_items: [],
                             sources: [],
                             is_linked: true,
+                            has_tasks_completed_today: false,
                         }
                         draft.push(optimisticView)
                     })
