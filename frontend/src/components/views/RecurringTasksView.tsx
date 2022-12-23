@@ -6,6 +6,7 @@ import { useBackfillRecurringTasks, useRecurringTaskTemplates } from '../../serv
 import { icons } from '../../styles/images'
 import { TRecurringTaskTemplate } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -40,24 +41,26 @@ const RecurringTasksView = () => {
 
     return (
         <>
-            <ScrollableListTemplate>
-                <SectionHeader sectionName="Recurring tasks" />
-                {!recurringTaskTemplates ? (
-                    <Spinner />
-                ) : (
-                    <>
-                        <AddRecurringTask />
-                        {recurringTaskTemplates.map((recurringTask) => (
-                            <RecurringTask
-                                key={recurringTask.id}
-                                recurringTask={recurringTask}
-                                isSelected={recurringTask.id === recurringTaskId}
-                                onSelect={selectRecurringTask}
-                            />
-                        ))}
-                    </>
-                )}
-            </ScrollableListTemplate>
+            <Flex>
+                <ScrollableListTemplate>
+                    <SectionHeader sectionName="Recurring tasks" />
+                    {!recurringTaskTemplates ? (
+                        <Spinner />
+                    ) : (
+                        <>
+                            <AddRecurringTask />
+                            {recurringTaskTemplates.map((recurringTask) => (
+                                <RecurringTask
+                                    key={recurringTask.id}
+                                    recurringTask={recurringTask}
+                                    isSelected={recurringTask.id === recurringTaskId}
+                                    onSelect={selectRecurringTask}
+                                />
+                            ))}
+                        </>
+                    )}
+                </ScrollableListTemplate>
+            </Flex>
             {selectedRecurringTask ? (
                 <TaskDetails
                     task={selectedRecurringTask}

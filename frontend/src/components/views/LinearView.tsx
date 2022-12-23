@@ -9,6 +9,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { doesAccountNeedRelinking, isLinearLinked } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -55,20 +56,22 @@ const LinearView = () => {
 
     return (
         <>
-            <ScrollableListTemplate>
-                <SectionHeader sectionName="Linear Issues" />
-                {doesNeedRelinking && <ConnectIntegration type="linear" reconnect />}
-                {isLinearIntegrationLinked ? (
-                    <>
-                        <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
-                        {linearTasks?.map((task) => (
-                            <LinearTask key={task.id} task={task} />
-                        ))}
-                    </>
-                ) : (
-                    <ConnectIntegration type="linear" />
-                )}
-            </ScrollableListTemplate>
+            <Flex>
+                <ScrollableListTemplate>
+                    <SectionHeader sectionName="Linear Issues" />
+                    {doesNeedRelinking && <ConnectIntegration type="linear" reconnect />}
+                    {isLinearIntegrationLinked ? (
+                        <>
+                            <LinearBodyHeader>All issues assigned to you.</LinearBodyHeader>
+                            {linearTasks?.map((task) => (
+                                <LinearTask key={task.id} task={task} />
+                            ))}
+                        </>
+                    ) : (
+                        <ConnectIntegration type="linear" />
+                    )}
+                </ScrollableListTemplate>
+            </Flex>
             {task ? (
                 <TaskDetails task={task} link={`/linear/${task.id}`} />
             ) : (
