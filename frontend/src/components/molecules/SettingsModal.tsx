@@ -15,7 +15,7 @@ import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
-import NoStyleButton from '../atoms/buttons/NoStyleButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from './SignOutButton'
@@ -106,11 +106,11 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
         if (!(account in nameToSetting)) return null
         const accountName = account as TNameToSetting
         return (
-            <NoStyleButton
+            <GTIconButton
+                icon={nameToSetting[accountName].show ? icons.eye : icons.eye_slash}
                 onClick={() => nameToSetting[accountName].setting.updateSetting(!nameToSetting[accountName].show)}
-            >
-                <Icon icon={nameToSetting[accountName].show ? icons.eye : icons.eye_slash} />
-            </NoStyleButton>
+                tooltipText={`${nameToSetting[accountName].show ? 'Hide' : 'Show'} ${accountName} in sidebar`}
+            />
         )
     }
 
