@@ -35,7 +35,7 @@ func TestOverview(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := ioutil.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Put tasks on your calendar with click-and-drag","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Connect other services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}]},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\]},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\]}]`
+		regex := `\[{"id":"[a-z0-9]{24}","name":"Task Inbox","type":"task_section","logo":"generaltask","is_linked":true,"sources":\[\],"task_section_id":"000000000000000000000001","is_reorderable":true,"ordering_id":1,"view_items":\[{"id":"[a-z0-9]{24}","id_ordering":1,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Put tasks on your calendar with click-and-drag","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":1,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":2,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Shut out distractions with Focus Mode","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":2,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":3,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"Connect other services to see things in one place","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":3,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"},{"id":"[a-z0-9]{24}","id_ordering":4,"source":{"name":"General Task","logo":"\/images\/generaltask.svg","logo_v2":"generaltask","is_completable":true,"is_replyable":false},"deeplink":"","title":"A sincere thank you from the team","body":"","sender":"","due_date":"","priority_normalized":0,"time_allocated":0,"sent_at":"20.*Z","is_done":false,"is_deleted":false,"is_meeting_preparation_task":false,"recurring_task_template_id":"000000000000000000000000","nux_number_id":4,"created_at":"20.*Z","updated_at":"1970-01-01T00:00:00Z"}],"task_completed_in_last_day":false},{"id":"[a-z0-9]{24}","name":"Linear Issues","type":"linear","logo":"linear","is_linked":false,"sources":\[{"name":"Linear","authorization_url":"http://localhost:8080/link/linear/"}],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":2,"view_items":\[\],"task_completed_in_last_day":false},{"id":"[a-z0-9]{24}","name":"Slack Messages","type":"slack","logo":"slack","is_linked":false,"sources":\[{"name":"Slack","authorization_url":"http://localhost:8080/link/slack/"}\],"task_section_id":"000000000000000000000000","is_reorderable":false,"ordering_id":3,"view_items":\[\],"task_completed_in_last_day":false}]`
 		assert.Regexp(t, regex, string(body))
 	})
 	t.Run("NoViews", func(t *testing.T) {
@@ -329,6 +329,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 			IsCompleted:   &completed,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      external.TASK_SOURCE_ID_LINEAR,
+			CompletedAt:   primitive.NewDateTimeFromTime(time.Now()),
 		})
 		assert.NoError(t, err)
 
@@ -369,6 +370,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 				ID: taskID,
 			},
 		}
+		expectedViewResult.TaskCompletedLastDay = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
@@ -384,6 +386,7 @@ func TestGetLinearOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
 		expectedViewResult.ViewItems = []*TaskResult{}
+		expectedViewResult.TaskCompletedLastDay = false
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 }
@@ -449,6 +452,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 			IsCompleted:   &completed,
 			IDTaskSection: primitive.NilObjectID,
 			SourceID:      external.TASK_SOURCE_ID_SLACK_SAVED,
+			CompletedAt:   primitive.NewDateTimeFromTime(time.Now()),
 		})
 		assert.NoError(t, err)
 		_, err = taskCollection.InsertOne(context.Background(), database.Task{
@@ -491,6 +495,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 				ID: taskID,
 			},
 		}
+		expectedViewResult.TaskCompletedLastDay = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
@@ -506,6 +511,7 @@ func TestGetSlackOverviewResult(t *testing.T) {
 		assert.NotNil(t, result)
 		expectedViewResult.IsLinked = false
 		expectedViewResult.ViewItems = []*TaskResult{}
+		expectedViewResult.TaskCompletedLastDay = false
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 }
@@ -630,9 +636,11 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		assert.NoError(t, err)
 		// Insert completed Github PR. This PR should not be in the view result.
 		_, err = pullRequestCollection.InsertOne(context.Background(), database.PullRequest{
-			UserID:      userID,
-			IsCompleted: &trueBool,
-			SourceID:    external.TASK_SOURCE_ID_GITHUB_PR,
+			UserID:       userID,
+			IsCompleted:  &trueBool,
+			SourceID:     external.TASK_SOURCE_ID_GITHUB_PR,
+			RepositoryID: githubID.Hex(),
+			CompletedAt:  primitive.NewDateTimeFromTime(time.Now()),
 		})
 		assert.NoError(t, err)
 		// Insert Github PR with different RepositoryID. This PR should not be in the view result.
@@ -670,6 +678,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 			{ID: pullRequestID3.Hex()},
 			{ID: pullRequestID2.Hex()},
 		}
+		expectedViewResult.TaskCompletedLastDay = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 		assert.Equal(t, expectedViewResult.ViewItems[0].Body, result.ViewItems[0].Body)
 		assert.Equal(t, expectedViewResult.ViewItems[0].Comments, result.ViewItems[0].Comments)
@@ -688,6 +697,7 @@ func TestGetGithubOverviewResult(t *testing.T) {
 		expectedViewResult.IsLinked = false
 		expectedViewResult.Name = "Github PRs"
 		expectedViewResult.ViewItems = []*PullRequestResult{}
+		expectedViewResult.TaskCompletedLastDay = false
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 }
@@ -957,6 +967,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				SourceID:    external.TASK_SOURCE_ID_GT_TASK,
 				DueDate:     &primitiveBefore,
 				IDOrdering:  4,
+				CompletedAt: primitive.NewDateTimeFromTime(time.Now()),
 			},
 			// not completed, due after
 			database.Task{
@@ -1034,6 +1045,7 @@ func TestGetDueTodayOverviewResult(t *testing.T) {
 				IDOrdering: 3,
 			},
 		}
+		expectedViewResult.TaskCompletedLastDay = true
 		assertOverviewViewResultEqual(t, expectedViewResult, *result)
 	})
 	t.Run("InvalidUser", func(t *testing.T) {
@@ -1761,6 +1773,7 @@ func assertOverviewViewResultEqual[T ViewItem](t *testing.T, expected OverviewRe
 	assert.Equal(t, expected.IsReorderable, actual.IsReorderable)
 	assert.Equal(t, expected.IDOrdering, actual.IDOrdering)
 	assert.Equal(t, len(expected.ViewItems), len(actual.ViewItems))
+	assert.Equal(t, expected.TaskCompletedLastDay, actual.TaskCompletedLastDay)
 	for i := range expected.ViewItems {
 		expectedViewItem := *(expected.ViewItems[i])
 		actualViewItem := *(actual.ViewItems[i])
