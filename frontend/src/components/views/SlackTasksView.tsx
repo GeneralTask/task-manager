@@ -9,6 +9,7 @@ import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import { doesAccountNeedRelinking, isSlackLinked } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import EmptyDetails from '../details/EmptyDetails'
 import TaskDetails from '../details/TaskDetails'
 import ConnectIntegration from '../molecules/ConnectIntegration'
@@ -62,25 +63,27 @@ const SlackTasksView = () => {
 
     return (
         <>
-            <ScrollableListTemplate>
-                <SectionHeader sectionName="Slack Messages" />
-                {doesNeedRelinking && <ConnectIntegration type="slack" reconnect />}
-                {isSlackIntegrationLinked ? (
-                    <>
-                        <BodyHeader>All messages you&apos;ve created tasks for</BodyHeader>
-                        {slackTasks?.map((task) => (
-                            <SlackTask
-                                key={task.id}
-                                task={task}
-                                isSelected={task.id === slackTaskId}
-                                onClick={onClick}
-                            />
-                        ))}
-                    </>
-                ) : (
-                    <ConnectIntegration type="slack" />
-                )}
-            </ScrollableListTemplate>
+            <Flex>
+                <ScrollableListTemplate>
+                    <SectionHeader sectionName="Slack Messages" />
+                    {doesNeedRelinking && <ConnectIntegration type="slack" reconnect />}
+                    {isSlackIntegrationLinked ? (
+                        <>
+                            <BodyHeader>All messages you&apos;ve created tasks for</BodyHeader>
+                            {slackTasks?.map((task) => (
+                                <SlackTask
+                                    key={task.id}
+                                    task={task}
+                                    isSelected={task.id === slackTaskId}
+                                    onClick={onClick}
+                                />
+                            ))}
+                        </>
+                    ) : (
+                        <ConnectIntegration type="slack" />
+                    )}
+                </ScrollableListTemplate>
+            </Flex>
             {task ? (
                 <TaskDetails task={task} link={`/slack/${task.id}`} />
             ) : (

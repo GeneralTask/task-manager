@@ -11,6 +11,7 @@ import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TNote } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import { SectionHeader } from '../molecules/Header'
@@ -71,24 +72,26 @@ const NoteListView = () => {
 
     return (
         <>
-            <ScrollableListTemplate>
-                <SectionHeader sectionName="Notes" />
-                <ActionsContainer>
-                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
-                    <CreateButtonContainer>
-                        <NoteCreateButton type="button" />
-                    </CreateButtonContainer>
-                </ActionsContainer>
-                {!notes ? (
-                    <Spinner />
-                ) : (
-                    <>
-                        {sortedNotes.map((note) => (
-                            <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
-                        ))}
-                    </>
-                )}
-            </ScrollableListTemplate>
+            <Flex>
+                <ScrollableListTemplate>
+                    <SectionHeader sectionName="Notes" />
+                    <ActionsContainer>
+                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                        <CreateButtonContainer>
+                            <NoteCreateButton type="button" />
+                        </CreateButtonContainer>
+                    </ActionsContainer>
+                    {!notes ? (
+                        <Spinner />
+                    ) : (
+                        <>
+                            {sortedNotes.map((note) => (
+                                <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
+                            ))}
+                        </>
+                    )}
+                </ScrollableListTemplate>
+            </Flex>
             {selectedNote ? (
                 <NoteDetails note={selectedNote} link={`/notes/${selectedNote.id}`} />
             ) : (
