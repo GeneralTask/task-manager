@@ -7,55 +7,15 @@ import Flex from '../atoms/Flex'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { MenuContentShared } from './RadixUIConstants'
 
-const TOOLTIP_ARROW_SIZE = 5
-const SharedTooltip = css`
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border: ${TOOLTIP_ARROW_SIZE}px solid transparent;
+const TooltipArrow = styled(Tooltip.Arrow)`
+    visibility: visible;
+    fill: ${Colors.background.white};
 `
 
 const TooltipContent = styled(Tooltip.Content)`
     ${MenuContentShared};
     padding: ${Spacing._8} ${Spacing._12};
     ${Typography.bodySmall};
-    &[data-side='top'] {
-        :before {
-            ${SharedTooltip};
-            bottom: -${TOOLTIP_ARROW_SIZE * 2}px;
-            left: 50%;
-            margin-left: -${TOOLTIP_ARROW_SIZE}px;
-            border-top: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
-    &[data-side='bottom'] {
-        :before {
-            ${SharedTooltip};
-            top: -${TOOLTIP_ARROW_SIZE * 2}px;
-            left: 50%;
-            margin-left: -${TOOLTIP_ARROW_SIZE}px;
-            border-bottom: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
-    &[data-side='right'] {
-        :before {
-            ${SharedTooltip};
-            top: 50%;
-            left: -${TOOLTIP_ARROW_SIZE * 2}px;
-            margin-top: -${TOOLTIP_ARROW_SIZE}px;
-            border-right: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
-    &[data-side='left'] {
-        :before {
-            ${SharedTooltip};
-            top: 50%;
-            right: -${TOOLTIP_ARROW_SIZE * 2}px;
-            margin-top: -${TOOLTIP_ARROW_SIZE}px;
-            border-left: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
 `
 const TriggerSpan = styled.span<{ fitContent?: boolean }>`
     ${(props) =>
@@ -115,8 +75,9 @@ const Tip = ({
                     <TriggerSpan fitContent={fitContent}>{children}</TriggerSpan>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
-                    <TooltipContent side={side} sideOffset={10} align={align}>
+                    <TooltipContent side={side} sideOffset={5} align={align} arrowPadding={10}>
                         {tooltipContent}
+                        <TooltipArrow />
                     </TooltipContent>
                 </Tooltip.Portal>
             </Tooltip.Root>
