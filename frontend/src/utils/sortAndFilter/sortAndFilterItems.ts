@@ -12,11 +12,10 @@ const sortAndFilterItems = <T>({ items, sort, sortDirection, filter, tieBreakerF
                     (sort.secondaryField && a[sort.secondaryField] === b[sort.secondaryField])
                 ) {
                     result = a[tieBreakerField] < b[tieBreakerField] ? -1 : 1
-                    result *= sortDirectionMultiplier
                 } else {
                     result = a[sort.secondaryField] > b[sort.secondaryField] ? 1 : -1
-                    result *= sortDirectionMultiplier
                 }
+                result *= sortDirectionMultiplier
             } else {
                 if (a[sort.field] && b[sort.field]) {
                     if (sort.customComparator) {
