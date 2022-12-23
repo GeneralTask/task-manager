@@ -31,6 +31,8 @@ const AddTaskbutton = styled.div`
         border-color: ${Colors.border.light};
         border-radius: ${Border.radius.small};
     }
+`
+const MarginBottomDiv = styled.div`
     margin-bottom: ${Spacing._24};
 `
 const TaskListContainer = styled.div`
@@ -39,30 +41,33 @@ const TaskListContainer = styled.div`
 `
 
 interface SubtasksProps {
-    taskId: string
+    parentTask: TTask
     subtasks: TTask[]
 }
 
-const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
+const SubtaskList = ({ parentTask, subtasks }: SubtasksProps) => {
     const { data: taskSections } = useGetTasks()
-    const sectionId = getSectionFromTask(taskSections ?? [], taskId)?.id
+    const sectionId = getSectionFromTask(taskSections ?? [], parentTask.id)?.id
     const { mutate: createTask } = useCreateTask()
     const { mutate: reorderMutate } = useReorderTask()
     const [showCreateNewSubtask, setShowCreateNewSubtask] = useState(false)
-    useKeyboardShortcut('createSubtask', () => setShowCreateNewSubtask(true))
+    useKeyboardShortcut(
+        'createSubtask',
+        useCallback(() => setShowCreateNewSubtask(true), [])
+    )
 
     const handleReorder = useCallback(
         (item: DropItem, dropIndex: number) => {
             if (!sectionId) return
             reorderMutate({
                 id: item.id,
-                parentId: taskId,
+                parentId: parentTask.id,
                 isSubtask: true,
                 orderingId: dropIndex,
                 dropSectionId: sectionId,
             })
         },
-        [sectionId, taskId]
+        [sectionId, parentTask.id]
     )
 
     if (!sectionId) return null
@@ -72,12 +77,14 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                 {sectionId && (
                     <>
                         {!showCreateNewSubtask && (
-                            <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
-                                <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
-                                    <Icon icon={icons.plus} color="gray" />
-                                    Add new subtask
-                                </AddTaskbutton>
-                            </Tip>
+                            <MarginBottomDiv>
+                                <Tip shortcutName="createSubtask" content="Create new subtask" fitContent>
+                                    <AddTaskbutton onClick={() => setShowCreateNewSubtask(true)}>
+                                        <Icon icon={icons.plus} color="gray" />
+                                        Add new subtask
+                                    </AddTaskbutton>
+                                </Tip>
+                            </MarginBottomDiv>
                         )}
                         {showCreateNewSubtask && (
                             <CreateNewItemInput
@@ -85,7 +92,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                                 onSubmit={(title) =>
                                     createTask({
                                         title: title,
-                                        parent_task_id: taskId,
+                                        parent_task_id: parentTask.id,
                                         taskSectionId: sectionId,
                                         optimisticId: uuidv4(),
                                     })
@@ -105,7 +112,7 @@ const SubtaskList = ({ taskId, subtasks }: SubtasksProps) => {
                             onReorder={handleReorder}
                             disabled={false}
                         >
-                            <Subtask key={subtask.id} parentTaskId={taskId} subtask={subtask} />
+                            <Subtask key={subtask.id} parentTask={parentTask} subtask={subtask} />
                         </ReorderDropContainer>
                     )
                 })}

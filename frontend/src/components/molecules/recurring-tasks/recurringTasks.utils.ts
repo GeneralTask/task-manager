@@ -103,3 +103,16 @@ export const getRecurrenceRateSelectorOptions = (selectedDate: DateTime) => [
         label: `Annually on ${selectedDate.monthLong} ${getOrdinal(selectedDate.day)}`,
     },
 ]
+
+export const getInitialSelectedDate = (recurringTaskTemplate?: TRecurringTaskTemplate) => {
+    if (!recurringTaskTemplate || recurringTaskTemplate.day_to_create_task === undefined) return DateTime.local()
+    if (recurringTaskTemplate.recurrence_rate === RecurrenceRate.WEEKLY) {
+        return DateTime.fromObject({
+            weekday: recurringTaskTemplate.day_to_create_task,
+        })
+    }
+    return DateTime.fromObject({
+        day: recurringTaskTemplate.day_to_create_task,
+        month: recurringTaskTemplate.month_to_create_task,
+    })
+}

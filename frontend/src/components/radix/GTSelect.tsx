@@ -46,6 +46,9 @@ const SelectItemTextContent = styled.div`
     width: 100%;
     overflow: hidden;
 `
+const DownCaret = styled(Icon)`
+    margin-left: ${Spacing._8};
+`
 
 interface GTSelectProps {
     items: {
@@ -66,7 +69,7 @@ const GTSelect = ({ items, value, placeholder, useTriggerWidth, onChange }: GTSe
                 <Truncated>
                     <Select.Value placeholder={placeholder ?? 'Select an item'} />
                 </Truncated>
-                <Icon icon={icons.caret_down_solid} color="gray" />
+                <DownCaret icon={icons.caret_down_solid} color="gray" />
             </SelectTrigger>
             <Select.Portal>
                 <SelectContent

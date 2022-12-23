@@ -12,7 +12,7 @@ import {
     SYNC_MESSAGES,
     TRASH_SECTION_ID,
 } from '../../constants'
-import { useInterval, useKeyboardShortcut, usePreviewMode } from '../../hooks'
+import { useInterval, useKeyboardShortcut } from '../../hooks'
 import { useModifyRecurringTask } from '../../services/api/recurring-tasks.hooks'
 import {
     TModifyTaskData,
@@ -122,7 +122,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const { mutate: modifyRecurringTask } = useModifyRecurringTask()
 
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { isPreviewMode } = usePreviewMode()
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
@@ -348,7 +347,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                       currentTask.optimisticId
                                   )
                                 : modifyTask(
-                                      { id: currentTask.id, priorityNormalized: priority },
+                                      { id: task.id, priorityNormalized: priority, subtaskId: subtask?.id },
                                       currentTask.optimisticId
                                   )
                         }
@@ -358,23 +357,22 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
                         initialDate={DateTime.fromISO(currentTask.due_date ?? '').toJSDate()}
-                        setDate={(date) => modifyTask({ id: currentTask.id, dueDate: date })}
+                        setDate={(date) => modifyTask({ id: task.id, dueDate: date, subtaskId: subtask?.id })}
                         disabled={isInTrash}
                     />
                 )}
-                {isPreviewMode &&
-                    (isRecurringTaskTemplate ? (
-                        <RecurringTaskTemplateScheduleButton templateId={task.id} />
-                    ) : (
-                        task.source?.name === 'General Task' &&
-                        subtask === undefined && (
-                            <RecurringTaskTemplateScheduleButton
-                                templateId={currentTask.recurring_task_template_id}
-                                task={currentTask as TTask}
-                                folderId={folderId}
-                            />
-                        )
-                    ))}
+                {isRecurringTaskTemplate ? (
+                    <RecurringTaskTemplateScheduleButton templateId={task.id} />
+                ) : (
+                    task.source?.name === 'General Task' &&
+                    subtask === undefined && (
+                        <RecurringTaskTemplateScheduleButton
+                            templateId={currentTask.recurring_task_template_id}
+                            task={currentTask as TTask}
+                            folderId={folderId}
+                        />
+                    )
+                )}
                 <MarginLeftAuto>
                     {!isRecurringTaskTemplate && task.external_status && task.all_statuses && (
                         <>
@@ -393,12 +391,11 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
             ) : (
                 <>
                     {/* TODO: remove empty ObjectId check once backend stops giving us empty object ids */}
-                    {isPreviewMode &&
-                        !isRecurringTaskTemplate &&
+                    {!isRecurringTaskTemplate &&
                         currentTask.recurring_task_template_id &&
                         currentTask.recurring_task_template_id !== EMPTY_MONGO_OBJECT_ID &&
                         folderId && <RecurringTaskDetailsBanner templateId={currentTask.recurring_task_template_id} />}
-                    {isPreviewMode && isRecurringTaskTemplate && task.id_task_section && (
+                    {isRecurringTaskTemplate && task.id_task_section && (
                         <RecurringTaskTemplateDetailsBanner id={task.id} folderId={task.id_task_section} />
                     )}
                     <TaskBody
@@ -408,8 +405,8 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
                     />
-                    {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && isPreviewMode && !isInTrash && (
-                        <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
+                    {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && !isInTrash && (
+                        <SubtaskList parentTask={currentTask as TTask} subtasks={currentTask.sub_tasks ?? []} />
                     )}
                     {currentTask.external_status && (
                         <CommentContainer>

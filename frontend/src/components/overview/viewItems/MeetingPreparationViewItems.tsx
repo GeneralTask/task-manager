@@ -1,5 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { usePreviewMode } from '../../../hooks'
 import { useGetLinkedAccounts } from '../../../services/api/settings.hooks'
 import { TTask } from '../../../utils/types'
 import { isGoogleCalendarLinked } from '../../../utils/utils'
@@ -9,15 +10,20 @@ import { ViewHeader, ViewName } from '../styles'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
-const MeetingPreparationViewItems = forwardRef(({ view }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+const MeetingPreparationViewItems = forwardRef(({ view, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
     const { overviewViewId, overviewItemId } = useParams()
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const isGoogleLinked = isGoogleCalendarLinked(linkedAccounts || [])
+    const { isPreviewMode } = usePreviewMode()
+    const basePath =
+        location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
     return (
         <>
-            <ViewHeader ref={ref}>
-                <ViewName>{view.name}</ViewName>
-            </ViewHeader>
+            {!hideHeader && (
+                <ViewHeader ref={ref}>
+                    <ViewName>{view.name}</ViewName>
+                </ViewHeader>
+            )}
             {isGoogleLinked ? (
                 view.view_items.length > 0 ? (
                     view.view_items.map((item, index) => (
@@ -27,7 +33,7 @@ const MeetingPreparationViewItems = forwardRef(({ view }: ViewItemsProps, ref: R
                             dragDisabled={true}
                             index={index}
                             isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                            link={`/overview/${view.id}/${item.id}`}
+                            link={`${basePath}/${view.id}/${item.id}`}
                         />
                     ))
                 ) : (

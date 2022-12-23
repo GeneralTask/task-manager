@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import styled from 'styled-components'
 import GTButton from '../../components/atoms/buttons/GTButton'
+import { Bold } from '../../components/atoms/typography/Typography'
 import GTDropdownMenu from '../../components/radix/GTDropdownMenu'
 import { GTMenuItem } from '../../components/radix/RadixUIConstants'
 import { Spacing } from '../../styles'
@@ -50,13 +51,13 @@ const SortAndFilterDropdowns = <T,>({
         () => [
             {
                 label: 'Ascending',
-                icon: icons.arrow_up,
+                icon: icons.arrow_ascend,
                 selected: selectedSortDirection === SORT_DIRECTION.ASC,
                 onClick: () => setSelectedSortDirection(SORT_DIRECTION.ASC),
             },
             {
                 label: 'Descending',
-                icon: icons.arrow_down,
+                icon: icons.arrow_descend,
                 selected: selectedSortDirection === SORT_DIRECTION.DESC,
                 onClick: () => setSelectedSortDirection(SORT_DIRECTION.DESC),
             },
@@ -80,8 +81,8 @@ const SortAndFilterDropdowns = <T,>({
     const sortIcon = selectedSort.icon
         ? icons[selectedSort.icon]
         : selectedSortDirection === SORT_DIRECTION.ASC
-        ? icons.arrow_up
-        : icons.arrow_down
+        ? icons.arrow_ascend
+        : icons.arrow_descend
 
     return (
         <SortAndFilterContainer>
@@ -91,9 +92,14 @@ const SortAndFilterDropdowns = <T,>({
                     trigger={
                         <GTButton
                             icon={icons.filter}
-                            value={selectedFilter.label}
+                            value={
+                                <span>
+                                    <Bold>Filter: </Bold>
+                                    {filterOptions[selectedFilter.id].label}
+                                </span>
+                            }
+                            styleType="simple"
                             size="small"
-                            styleType="secondary"
                             asDiv
                         />
                     }
@@ -104,8 +110,13 @@ const SortAndFilterDropdowns = <T,>({
                 trigger={
                     <GTButton
                         icon={sortIcon}
-                        value={sortOptions[selectedSort.id].label}
-                        styleType="secondary"
+                        value={
+                            <span>
+                                <Bold>Sort: </Bold>
+                                {sortOptions[selectedSort.id].label}
+                            </span>
+                        }
+                        styleType="simple"
                         size="small"
                         asDiv
                     />

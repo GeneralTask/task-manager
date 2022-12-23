@@ -23,21 +23,26 @@ const OverviewListsModal = () => {
     return (
         <>
             <GTButton
-                value="Edit"
-                styleType="secondary"
+                value="Edit lists"
+                styleType="simple"
                 size="small"
-                icon={icons.pencil}
+                icon={icons.gear}
+                iconColor="gray"
                 onClick={() => setModalIsOpen(true)}
             />
             <GTModal
                 open={modalIsOpen}
                 setIsModalOpen={setModalIsOpen}
-                title="Overview lists"
                 size="lg"
                 tabs={[
                     {
-                        title: 'Edit lists',
-                        icon: icons.domino,
+                        title: 'Add lists',
+                        icon: icons.plus,
+                        body: <AddListsModalContent />,
+                    },
+                    {
+                        title: 'List order',
+                        icon: icons.sortArrows,
                         body: (
                             <Flex column flex="1">
                                 {views?.map((view, index) => (
@@ -56,11 +61,6 @@ const OverviewListsModal = () => {
                                 />
                             </Flex>
                         ),
-                    },
-                    {
-                        title: 'Add lists',
-                        icon: icons.plus,
-                        body: <AddListsModalContent />,
                     },
                 ]}
             />

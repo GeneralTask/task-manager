@@ -227,7 +227,7 @@ const Task = ({
                         ))}
                     <Title title={task.title}>{task.title}</Title>
                     <RightContainer>
-                        {isPreviewMode && recurringTaskTemplate && <Icon icon={icons.arrows_repeat} color="green" />}
+                        {recurringTaskTemplate && <Icon icon={icons.arrows_repeat} />}
                         <DueDate date={dueDate} />
                         {task.priority && task.all_priorities && (
                             <JiraPriorityDropdown

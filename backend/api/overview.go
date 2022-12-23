@@ -11,6 +11,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
+	"github.com/GeneralTask/task-manager/backend/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,16 +30,17 @@ type ViewItem interface {
 }
 
 type OverviewResult[T ViewItem] struct {
-	ID            primitive.ObjectID `json:"id"`
-	Name          string             `json:"name"`
-	Type          constants.ViewType `json:"type"`
-	Logo          string             `json:"logo"`
-	IsLinked      bool               `json:"is_linked"`
-	Sources       []SourcesResult    `json:"sources"`
-	TaskSectionID primitive.ObjectID `json:"task_section_id"`
-	IsReorderable bool               `json:"is_reorderable"`
-	IDOrdering    int                `json:"ordering_id"`
-	ViewItems     []*T               `json:"view_items"`
+	ID                   primitive.ObjectID `json:"id"`
+	Name                 string             `json:"name"`
+	Type                 constants.ViewType `json:"type"`
+	Logo                 string             `json:"logo"`
+	IsLinked             bool               `json:"is_linked"`
+	Sources              []SourcesResult    `json:"sources"`
+	TaskSectionID        primitive.ObjectID `json:"task_section_id"`
+	IsReorderable        bool               `json:"is_reorderable"`
+	IDOrdering           int                `json:"ordering_id"`
+	ViewItems            []*T               `json:"view_items"`
+	TaskCompletedLastDay bool               `json:"task_completed_in_last_day"`
 }
 
 type SupportedViewItem struct {
@@ -173,9 +175,12 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 	// Reset ID orderings to begin at 1
 	taskResults := api.taskListToTaskResultList(tasks, userID)
 	usableTaskResults := []*TaskResult{}
+	completedTaskResults := []*TaskResult{}
 	for _, task := range taskResults {
 		if task.IsDone != true {
 			usableTaskResults = append(usableTaskResults, task)
+		} else {
+			completedTaskResults = append(completedTaskResults, task)
 		}
 	}
 
@@ -199,18 +204,57 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 		}
 		orderingID++
 	}
+
+	taskCompletedInLastDay := getTaskCompletedInLastDayFromResults(completedTaskResults)
 	return &OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          name,
-		Logo:          external.TaskServiceGeneralTask.LogoV2,
-		Type:          constants.ViewTaskSection,
-		IsLinked:      view.IsLinked,
-		Sources:       []SourcesResult{},
-		TaskSectionID: view.TaskSectionID,
-		IsReorderable: view.IsReorderable,
-		IDOrdering:    view.IDOrdering,
-		ViewItems:     usableTaskResults,
+		ID:                   view.ID,
+		Name:                 name,
+		Logo:                 external.TaskServiceGeneralTask.LogoV2,
+		Type:                 constants.ViewTaskSection,
+		IsLinked:             view.IsLinked,
+		Sources:              []SourcesResult{},
+		TaskSectionID:        view.TaskSectionID,
+		IsReorderable:        view.IsReorderable,
+		IDOrdering:           view.IDOrdering,
+		ViewItems:            usableTaskResults,
+		TaskCompletedLastDay: taskCompletedInLastDay,
 	}, nil
+}
+
+func getTaskCompletedInLastDayFromResults(taskResults []*TaskResult) bool {
+	for _, task := range taskResults {
+		if time.Now().Sub(task.CompletedAt.Time()) < time.Hour*24 {
+			return true
+		}
+	}
+	return false
+}
+
+func (api *API) getCompletedInLastDay(collection *mongo.Collection, userID primitive.ObjectID, additionalFilters *[]bson.M) bool {
+	filter := bson.M{
+		"$and": []bson.M{
+			{"user_id": userID},
+			{"is_completed": true},
+			{"is_deleted": bson.M{"$ne": true}},
+			{"completed_at": bson.M{"$gte": time.Now().AddDate(0, 0, -1)}},
+		},
+	}
+	if additionalFilters != nil && len(*additionalFilters) > 0 {
+		for _, additionalFilter := range *additionalFilters {
+			filter["$and"] = append(filter["$and"].([]bson.M), additionalFilter)
+		}
+	}
+
+	count, err := collection.CountDocuments(
+		context.Background(),
+		filter,
+	)
+	if err != nil {
+		logger := logging.GetSentryLogger()
+		logger.Error().Err(err).Msg("failed to fetch items for user")
+		return false
+	}
+	return count > 0
 }
 
 func (api *API) IsServiceLinked(db *mongo.Database, userID primitive.ObjectID, serviceID string) (bool, error) {
@@ -308,8 +352,11 @@ func (api *API) GetLinearOverviewResult(view database.View, userID primitive.Obj
 		return nil, err
 	}
 	taskResults := api.taskListToTaskResultList(linearTasks, userID)
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, &[]bson.M{{"source_id": external.TASK_SOURCE_ID_LINEAR}})
+
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	result.TaskCompletedLastDay = taskCompletedInLastDay
 	return &result, nil
 }
 
@@ -348,8 +395,11 @@ func (api *API) GetSlackOverviewResult(view database.View, userID primitive.Obje
 		return nil, err
 	}
 	taskResults := api.taskListToTaskResultList(slackTasks, userID)
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, &[]bson.M{{"source_id": external.TASK_SOURCE_ID_SLACK_SAVED}})
+
 	result.IsLinked = view.IsLinked
 	result.ViewItems = taskResults
+	result.TaskCompletedLastDay = taskCompletedInLastDay
 	return &result, nil
 }
 
@@ -403,8 +453,11 @@ func (api *API) GetGithubOverviewResult(view database.View, userID primitive.Obj
 		pullResults = append(pullResults, &pullRequestResult)
 	}
 	api.sortPullRequestResults(pullResults)
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetPullRequestCollection(api.DB), userID, &[]bson.M{{"repository_id": view.GithubID}})
+
 	result.Name = fmt.Sprintf("GitHub PRs from %s", repository.FullName)
 	result.ViewItems = pullResults
+	result.TaskCompletedLastDay = taskCompletedInLastDay
 	return &result, nil
 }
 
@@ -440,18 +493,20 @@ func (api *API) GetMeetingPreparationOverviewResult(view database.View, userID p
 	if err != nil {
 		return nil, err
 	}
+	taskCompletedInLastDay := api.getCompletedInLastDay(database.GetTaskCollection(api.DB), userID, &[]bson.M{{"is_meeting_preparation_task": true}})
 
 	return &OverviewResult[TaskResult]{
-		ID:            view.ID,
-		Name:          constants.ViewMeetingPreparationName,
-		Logo:          external.TaskSourceGoogleCalendar.LogoV2,
-		Type:          constants.ViewMeetingPreparation,
-		IsLinked:      true,
-		Sources:       []SourcesResult{},
-		TaskSectionID: view.TaskSectionID,
-		IsReorderable: view.IsReorderable,
-		IDOrdering:    view.IDOrdering,
-		ViewItems:     result,
+		ID:                   view.ID,
+		Name:                 constants.ViewMeetingPreparationName,
+		Logo:                 external.TaskSourceGoogleCalendar.LogoV2,
+		Type:                 constants.ViewMeetingPreparation,
+		IsLinked:             true,
+		Sources:              []SourcesResult{},
+		TaskSectionID:        view.TaskSectionID,
+		IsReorderable:        view.IsReorderable,
+		IDOrdering:           view.IDOrdering,
+		ViewItems:            result,
+		TaskCompletedLastDay: taskCompletedInLastDay,
 	}, nil
 }
 
@@ -492,6 +547,17 @@ func (api *API) GetDueTodayOverviewResult(view database.View, userID primitive.O
 			result.SubTasks = subTasks
 		}
 	}
+	taskCompletedInLastDay := api.getCompletedInLastDay(
+		database.GetTaskCollection(api.DB),
+		userID,
+		&[]bson.M{
+			{"due_date": bson.M{"$lte": primitive.NewDateTimeFromTime(timeEndOfDay)}},
+			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Time{})}},
+			{"due_date": bson.M{"$ne": primitive.NewDateTimeFromTime(time.Unix(0, 0))}},
+		},
+	)
+
+	result.TaskCompletedLastDay = taskCompletedInLastDay
 	result.ViewItems = taskResults
 	return &result, nil
 }

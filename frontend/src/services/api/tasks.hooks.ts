@@ -15,6 +15,7 @@ import {
 } from '../../utils/types'
 import {
     arrayMoveInPlace,
+    getSubtaskFromSections,
     getTaskFromSections,
     getTaskIndexFromSections,
     resetOrderingIds,
@@ -37,6 +38,7 @@ export interface TCreateTaskResponse {
 
 export interface TModifyTaskData {
     id: string
+    subtaskId?: string
     title?: string
     dueDate?: string
     body?: string
@@ -288,7 +290,9 @@ export const useModifyTask = () => {
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (sections) {
                 const newSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, data.id)
+                    const task = data.subtaskId
+                        ? getSubtaskFromSections(draft, data.id, data.subtaskId)
+                        : getTaskFromSections(draft, data.id)
                     if (!task) return
                     task.title = data.title ?? task.title
                     task.due_date = data.dueDate ?? task.due_date
@@ -329,9 +333,18 @@ export const useModifyTask = () => {
                         id: view.task_section_id,
                         tasks: view.view_items,
                     }))
-                    const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, data.id)
+                    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(
+                        sections,
+                        data.id,
+                        undefined,
+                        data.subtaskId
+                    )
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    const task = draft[sectionIndex].view_items[taskIndex]
+                    if (data.subtaskId && subtaskIndex === undefined) return
+                    const task =
+                        subtaskIndex === undefined
+                            ? draft[sectionIndex].view_items[taskIndex]
+                            : draft[sectionIndex].view_items[taskIndex].sub_tasks?.[subtaskIndex]
                     if (!task) return
                     task.title = data.title || task.title
                     task.due_date = data.dueDate ?? task.due_date
@@ -367,7 +380,8 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.recurringTaskTemplateId !== undefined)
         requestBody.task.recurring_task_template_id = data.recurringTaskTemplateId
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
+        const taskId = data.subtaskId ? data.subtaskId : data.id
+        const res = await apiClient.patch(`/tasks/modify/${taskId}/`, requestBody)
         return castImmutable(res.data)
     } catch {
         throw new Error('modifyTask failed')
@@ -406,6 +420,12 @@ export const useMarkTaskDoneOrDeleted = () => {
                             const subtask = task.sub_tasks?.[subtaskIndex]
                             if (!subtask) return
                             if (data.isDone !== undefined) subtask.is_done = data.isDone
+                            if (data.isDeleted !== undefined) {
+                                subtask.is_deleted = data.isDeleted
+                                draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                                const trashSection = draft.find((section) => section.id === TRASH_SECTION_ID)
+                                trashSection?.tasks.unshift(subtask)
+                            }
                         } else {
                             if (data.isDone !== undefined) task.is_done = data.isDone
                             if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
@@ -453,7 +473,10 @@ export const useMarkTaskDoneOrDeleted = () => {
                         if (subtaskIndex === undefined) return
                         if (!task.sub_tasks) return
                         if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                        if (data.isDeleted !== undefined) {
+                            task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                            draft[sectionIndex].view_items[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                        }
                     } else {
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted

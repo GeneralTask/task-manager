@@ -1,9 +1,7 @@
 import { useState } from 'react'
 import { DateTime } from 'luxon'
 import { DEFAULT_SECTION_ID, EMPTY_MONGO_OBJECT_ID, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
-import { usePreviewMode } from '../../hooks'
 import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask, useReorderTask } from '../../services/api/tasks.hooks'
-import { TIconColor } from '../../styles/colors'
 import { icons, linearStatus } from '../../styles/images'
 import { TTask } from '../../utils/types'
 import GTDatePicker from '../molecules/GTDatePicker'
@@ -11,32 +9,43 @@ import RecurringTaskTemplateModal from '../molecules/recurring-tasks/RecurringTa
 import GTContextMenu from './GTContextMenu'
 import { GTMenuItem } from './RadixUIConstants'
 
+const getDeleteLabel = (task: TTask, isSubtask: boolean) => {
+    if (isSubtask) {
+        if (task.is_deleted) {
+            return 'Restore subtask'
+        }
+        return 'Delete subtask'
+    }
+    if (task.is_deleted) {
+        return 'Restore task'
+    }
+    return 'Delete task'
+}
+
 interface TaskContextMenuProps {
     task: TTask
     sectionId?: string
-    isSubtask?: boolean
+    parentTask?: TTask
     children: React.ReactNode
     onOpenChange: (open: boolean) => void
 }
-const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenChange }: TaskContextMenuProps) => {
+const TaskContextMenuWrapper = ({ task, sectionId, parentTask, children, onOpenChange }: TaskContextMenuProps) => {
     const { data: taskSections } = useGetTasks(false)
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: modifyTask } = useModifyTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { isPreviewMode } = usePreviewMode()
     const [isRecurringTaskTemplateModalOpen, setIsRecurringTaskTemplateModalOpen] = useState(false)
 
     const showRecurringTaskOption =
-        isPreviewMode &&
         task.source?.name === 'General Task' && // must be a native task
         (!task.recurring_task_template_id || task.recurring_task_template_id === EMPTY_MONGO_OBJECT_ID) && // and not already be a recurring task
-        !isSubtask
+        !parentTask
 
     const contextMenuItems: GTMenuItem[] = [
         ...(sectionId
             ? [
                   {
-                      label: 'Move to Folder',
+                      label: 'Move to folder',
                       icon: icons.folder,
                       subItems: taskSections
                           ? [
@@ -64,7 +73,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
               ]
             : []),
         {
-            label: 'Set Due Date',
+            label: 'Set due date',
             icon: icons.clock,
             subItems: [
                 {
@@ -80,7 +89,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
             ],
         },
         {
-            label: 'Set Priority',
+            label: 'Set priority',
             icon: icons.priority,
             subItems: TASK_PRIORITIES.map((priority, val) => ({
                 label: priority.label,
@@ -93,7 +102,7 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         ...(task.all_statuses && task.external_status
             ? [
                   {
-                      label: 'Set Status',
+                      label: 'Set status',
                       icon: linearStatus[task.external_status.type],
                       subItems: task.all_statuses.map((status) => ({
                           label: status.state,
@@ -107,20 +116,27 @@ const TaskContextMenuWrapper = ({ task, sectionId, isSubtask, children, onOpenCh
         ...(showRecurringTaskOption
             ? [
                   {
-                      label: 'Create recurring task',
+                      label: 'Create a recurring task',
                       icon: icons.arrows_repeat,
-                      iconColor: 'green' as TIconColor, // needed for TS validation
                       onClick: () => setIsRecurringTaskTemplateModalOpen(true),
                   },
               ]
             : []),
         {
-            label: sectionId !== TRASH_SECTION_ID ? 'Delete Task' : 'Restore Task',
+            label: getDeleteLabel(task, parentTask !== undefined),
             icon: icons.trash,
             iconColor: 'red',
             textColor: 'red',
-            onClick: () =>
-                markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId),
+            onClick: () => {
+                if (parentTask && task) {
+                    markTaskDoneOrDeleted(
+                        { id: parentTask.id, isDeleted: sectionId !== TRASH_SECTION_ID, subtaskId: task?.id },
+                        task.optimisticId
+                    )
+                } else {
+                    markTaskDoneOrDeleted({ id: task.id, isDeleted: sectionId !== TRASH_SECTION_ID }, task.optimisticId)
+                }
+            },
         },
     ]
     return (

@@ -1,8 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import produce from 'immer'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
+import { SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useInterval } from '../../hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { useCalendarContext } from './CalendarContext'
@@ -26,10 +28,25 @@ interface TasksDueProps {
     date: DateTime
 }
 const TasksDue = ({ date }: TasksDueProps) => {
-    const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed } = useCalendarContext()
+    const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext()
     const location = useLocation()
     const isOnFocusMode = location.pathname.includes('focus-mode')
     const { data: taskFolders } = useGetTasks()
+    const [currentTime, setCurrentTime] = useState(DateTime.local())
+
+    useInterval(
+        () => {
+            setCurrentTime(DateTime.local())
+        },
+        SINGLE_SECOND_INTERVAL,
+        false
+    )
+
+    useEffect(() => {
+        if (currentTime.hour === 0 && currentTime.minute === 0 && currentTime.second === 0) {
+            setDate(DateTime.local())
+        }
+    }, [currentTime])
 
     const incompleteTasks = useMemo(() => {
         const allTasks = taskFolders?.flatMap((section) => section.tasks) ?? []
@@ -63,7 +80,8 @@ const TasksDue = ({ date }: TasksDueProps) => {
         () =>
             incompleteTasks.filter(
                 (task) =>
-                    !DateTime.fromISO(task.due_date).hasSame(date, 'day') && DateTime.fromISO(task.due_date) < date
+                    !DateTime.fromISO(task.due_date).hasSame(DateTime.now(), 'day') &&
+                    DateTime.fromISO(task.due_date) < DateTime.now()
             ),
         [incompleteTasks, date]
     )

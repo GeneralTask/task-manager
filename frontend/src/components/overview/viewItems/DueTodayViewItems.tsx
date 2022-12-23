@@ -1,5 +1,6 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { usePreviewMode } from '../../../hooks'
 import { TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
@@ -7,13 +8,18 @@ import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
 const DueTodayViewItems = forwardRef(
-    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+    ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewViewId, overviewItemId } = useParams()
+        const { isPreviewMode } = usePreviewMode()
+        const basePath =
+            location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
         return (
             <>
-                <ViewHeader ref={ref}>
-                    <ViewName>{view.name}</ViewName>
-                </ViewHeader>
+                {!hideHeader && (
+                    <ViewHeader ref={ref}>
+                        <ViewName>{view.name}</ViewName>
+                    </ViewHeader>
+                )}
                 {view.view_items.length > 0 ? (
                     view.view_items
                         .slice(0, visibleItemsCount)
@@ -25,7 +31,7 @@ const DueTodayViewItems = forwardRef(
                                 index={index}
                                 isSelected={overviewViewId === view.id && overviewItemId === item.id}
                                 sectionScrollingRef={scrollRef}
-                                link={`/overview/${view.id}/${item.id}`}
+                                link={`${basePath}/${view.id}/${item.id}`}
                             />
                         ))
                 ) : (

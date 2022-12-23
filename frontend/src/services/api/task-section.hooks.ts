@@ -1,7 +1,8 @@
 import produce, { castImmutable } from 'immer'
+import { DEFAULT_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
-import { TTaskSection } from '../../utils/types'
+import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
 import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
@@ -65,9 +66,9 @@ export const useDeleteTaskSection = () => {
     const queryClient = useGTQueryClient()
     return useQueuedMutation(({ id }: TDeleteSectionData) => deleteTaskSection(id), {
         tag: 'tasks',
-        invalidateTagsOnSettled: ['tasks'],
+        invalidateTagsOnSettled: ['tasks', 'recurring-tasks'],
         onMutate: async ({ id }) => {
-            await queryClient.cancelQueries('tasks')
+            await Promise.all([queryClient.cancelQueries('tasks'), queryClient.cancelQueries('recurring-tasks')])
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
             if (!sections) return
@@ -78,6 +79,18 @@ export const useDeleteTaskSection = () => {
                 draft.splice(sectionIdx, 1)
             })
             queryClient.setQueryData('tasks', newSections)
+
+            const templates = queryClient.getImmutableQueryData<TRecurringTaskTemplate[]>('recurring-tasks')
+            if (!templates) return
+
+            const newTemplates = produce(templates, (draft) => {
+                draft.forEach((t) => {
+                    if (t.id_task_section === id) {
+                        t.id_task_section = DEFAULT_SECTION_ID
+                    }
+                })
+            })
+            queryClient.setQueryData('recurring-tasks', newTemplates)
         },
     })
 }

@@ -129,6 +129,16 @@ export const getTaskIndexFromSections = (
     return invalidResult
 }
 
+export const getSubtaskFromSections = (
+    sections: TTaskSection[],
+    parentId: string,
+    subtaskId: string
+): TTask | undefined => {
+    const { taskIndex, sectionIndex, subtaskIndex } = getTaskIndexFromSections(sections, parentId, undefined, subtaskId)
+    if (taskIndex === undefined || sectionIndex === undefined || subtaskIndex === undefined) return undefined
+    return sections[sectionIndex].tasks[taskIndex].sub_tasks?.[subtaskIndex]
+}
+
 export const getTaskFromSections = (
     sections: TTaskSection[],
     taskId: string,

@@ -14,6 +14,14 @@ const useGlobalKeyboardShortcuts = () => {
         }, [pathname])
     )
     useKeyboardShortcut(
+        'goToNotesPage',
+        useCallback(() => navigate('/notes'), [])
+    )
+    useKeyboardShortcut(
+        'goToOverviewPage',
+        useCallback(() => navigate('/overview'), [])
+    )
+    useKeyboardShortcut(
         'goToOverviewPage',
         useCallback(() => navigate('/overview'), [])
     )
@@ -24,6 +32,10 @@ const useGlobalKeyboardShortcuts = () => {
     useKeyboardShortcut(
         'goToLinearPage',
         useCallback(() => navigate('/linear'), [])
+    )
+    useKeyboardShortcut(
+        'goToRecurringTasksPage',
+        useCallback(() => navigate('/recurring-tasks'), [])
     )
     useKeyboardShortcut(
         'goToSlackPage',

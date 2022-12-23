@@ -71,7 +71,10 @@ export default function useEventBanners(date: DateTime) {
                     toast.update(event.id, { render: <ToastTemplate {...toastProps} /> })
                     eventBannerLastShownAt.current.set(event.id, timeUntilEvent)
                 } else {
-                    if (!lastShownAt || (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))) {
+                    if (
+                        lastShownAt === undefined ||
+                        (lastShownAt > timeUntilEvent && [0, 1, 5].includes(timeUntilEvent))
+                    ) {
                         toast(<ToastTemplate {...toastProps} />, {
                             toastId: event.id,
                             autoClose: false,

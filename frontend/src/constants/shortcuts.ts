@@ -93,6 +93,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'folder',
     },
+    visitExternalLink: {
+        label: 'Visit external link',
+        key: `${SHIFT}+L`,
+        keyLabel: `${SHIFT}+L`,
+        category: 'Tasks',
+        icon: 'external_link',
+    },
     navigationView: {
         label: 'Show/hide navigation view',
         key: '[',
@@ -100,7 +107,6 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Navigation',
         icon: 'sidebar',
     },
-    // Calendar shortcuts
     calendar: {
         label: 'Show/hide calendar',
         key: ']',
@@ -206,6 +212,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Navigation',
         icon: 'headphones',
     },
+    goToNotesPage: {
+        label: 'Go to Notes page',
+        key: `${OPT_ALT.key}+${SHIFT}+N|${OPT_ALT.key}+${SHIFT}+˜`,
+        keyLabel: `${OPT_ALT.label}+${SHIFT}+N`,
+        category: 'Navigation',
+        icon: 'note',
+    },
     goToOverviewPage: {
         label: 'Go to Overview page',
         key: `${OPT_ALT.key}+${SHIFT}+O|${OPT_ALT.key}+${SHIFT}+Ø`,
@@ -226,6 +239,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         keyLabel: `${OPT_ALT.label}+${SHIFT}+L`,
         category: 'Navigation',
         icon: 'linear',
+    },
+    goToRecurringTasksPage: {
+        label: 'Go to Recurring Tasks page',
+        key: `${OPT_ALT.key}+${SHIFT}+R|${OPT_ALT.key}+${SHIFT}+‰`,
+        keyLabel: `${OPT_ALT.label}+${SHIFT}+R`,
+        category: 'Navigation',
+        icon: 'arrows_repeat',
     },
     goToSlackPage: {
         label: 'Go to Slack page',

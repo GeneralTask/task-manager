@@ -25,7 +25,7 @@ const RecurringTask = ({ recurringTask, isSelected, onSelect }: RecurringTaskPro
                             color={TASK_PRIORITIES[recurringTask.priority_normalized].color}
                         />
                     )}
-                    <Icon icon={icons.arrows_repeat} color="green" />
+                    <Icon icon={icons.arrows_repeat} />
                 </Flex>
             </ItemContainer>
         </TaskTemplate>

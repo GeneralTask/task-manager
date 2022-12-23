@@ -22,7 +22,6 @@ const RecurringTaskTemplateScheduleButton = ({
     const button = recurringTaskTemplate ? (
         <GTButton
             icon={icons.arrows_repeat}
-            iconColor="green"
             value={formatRecurrenceRateForScheduleButton(recurringTaskTemplate)}
             styleType="simple"
             size="small"
@@ -31,7 +30,7 @@ const RecurringTaskTemplateScheduleButton = ({
     ) : (
         <GTIconButton
             icon={icons.arrows_repeat}
-            tooltipText="Make this a recurring task"
+            tooltipText="Create a recurring task"
             onClick={() => setIsEditModalOpen(true)}
         />
     )
