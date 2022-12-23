@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import styled from 'styled-components'
 import { useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
-import { useGTLocalStorage, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage, usePreviewMode, useSetting } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -15,6 +15,7 @@ import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
 import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
+import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Body, BodySmall, Label } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import SignOutButton from './SignOutButton'
@@ -80,6 +81,34 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
 
     const { isDarkMode, toggleTernaryDarkMode } = useTernaryDarkMode()
     const [resizableDetails, setResizableDetails] = useGTLocalStorage('resizableDetails', false)
+
+    const showGitHubSetting = useSetting('sidebar_github_preference')
+    const showLinearSetting = useSetting('sidebar_linear_preference')
+    const showSlackSetting = useSetting('sidebar_slack_preference')
+
+    const nameToSetting = {
+        GitHub: {
+            setting: showGitHubSetting,
+            show: showGitHubSetting.field_value === 'true',
+        },
+        Linear: {
+            setting: showLinearSetting,
+            show: showLinearSetting.field_value === 'true',
+        },
+        Slack: {
+            setting: showSlackSetting,
+            show: showSlackSetting.field_value === 'true',
+        },
+    }
+    type TNameToSetting = keyof typeof nameToSetting
+
+    const VisibilityButton = ({ accountName }: { accountName: TNameToSetting }) => (
+        <GTIconButton
+            icon={nameToSetting[accountName].show ? icons.eye : icons.eye_slash}
+            onClick={() => nameToSetting[accountName].setting.updateSetting(!nameToSetting[accountName].show)}
+            tooltipText={`${nameToSetting[accountName].show ? 'Hide' : 'Show'} ${accountName} in sidebar`}
+        />
+    )
 
     return (
         <GTModal
@@ -158,6 +187,9 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                             </Flex>
                                         </Flex>
                                         <Flex gap={Spacing._8}>
+                                            {account.name in nameToSetting && (
+                                                <VisibilityButton accountName={account.name as TNameToSetting} />
+                                            )}
                                             {account.has_bad_token && (
                                                 <GTButton
                                                     onClick={() => onRelink(account.name)}
