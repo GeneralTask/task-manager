@@ -9,6 +9,7 @@ type TLocalStorageKeys =
     | 'overdueCollapsed'
     | 'dueTodayCollapsed'
     | 'taskToCalendarSidebar'
+    | 'overviewAutomaticEmptySort'
 
 // based on https://usehooks.com/useLocalStorage/
 // if updateOnStoreChange is true, the hook will update the state when the value is changed on this tab or another tab
