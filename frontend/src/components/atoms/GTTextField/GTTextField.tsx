@@ -2,6 +2,7 @@ import { forwardRef, useRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
+import AtlassianEditor from './AtlassianEditor'
 import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
@@ -49,11 +50,13 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
     const containerRef = useRef<HTMLDivElement>(null)
 
     const getEditor = () => {
-        if (props.type === 'markdown') {
-            return <MarkdownEditor {...props} />
-        } else {
+        if (props.type === 'plaintext') {
             return <PlainTextEditor ref={ref} {...props} />
-        }
+        } else if (props.type === 'markdown') {
+            return <MarkdownEditor {...props} />
+        } else if (props.type === 'atlassian') {
+            return <AtlassianEditor {...props} />
+        } else return null
     }
 
     if (props.type === 'plaintext') {

@@ -6,7 +6,7 @@ export interface MarkdownEditorProps {
     onChange: (newValue: string) => void
     placeholder?: string
     fontSize: FontSize
-    type: 'markdown'
+    type: 'markdown' | 'atlassian'
     itemId?: string // use if reusing field for multiple items
     autoFocus?: boolean
     autoSelect?: boolean

@@ -4,6 +4,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+const webpack = require('webpack')
 
 const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default
 const styledComponentsTransformer = createStyledComponentsTransformer()
@@ -18,34 +19,36 @@ module.exports = {
                     loader: 'ts-loader',
                     options: {
                         getCustomTransformers: () => ({
-                            before: [
-                                styledComponentsTransformer
-                            ]
+                            before: [styledComponentsTransformer],
                         }),
                         transpileOnly: true,
-                    }
+                    },
                 },
                 exclude: /node_modules/,
             },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                use: "babel-loader",
+                use: 'babel-loader',
             },
             {
                 test: /\.css$/,
-                use: ["style-loader", "css-loader"],
+                use: ['style-loader', 'css-loader'],
                 include: [
                     path.resolve(__dirname, 'src'),
                     path.resolve(__dirname, 'node_modules/react-toastify'),
                     path.resolve(__dirname, 'node_modules/animate.css'),
                     path.resolve(__dirname, 'node_modules/@remirror'),
-                ]
+                ],
             },
         ],
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
+        fallback: {
+            buffer: require.resolve('buffer/'),
+            assert: require.resolve('assert/'),
+        },
     },
     output: {
         filename: 'bundle.js',
@@ -54,13 +57,14 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './src/index.html'
+            template: './src/index.html',
         }),
         new CopyWebpackPlugin({
-            patterns: [
-                { from: 'public', to: '' }
-            ]
+            patterns: [{ from: 'public', to: '' }],
         }),
         new ForkTsCheckerWebpackPlugin(),
+        new webpack.DefinePlugin({
+            'process.env.NODE_DEBUG': false,
+        }),
     ],
 }
