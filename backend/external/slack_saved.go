@@ -20,20 +20,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type slackSavedMessagesResponse struct {
-	Items []slackItem `json:"items"`
-}
-
-type slackItem struct {
-	Message slackMessage `json:"message"`
-}
-
-type slackMessage struct {
-	ClientMsgID string `json:"client_msg_id"`
-	Text        string `json:"text"`
-	Permalink   string `json:"permalink"`
-}
-
 type SlackSavedTaskSource struct {
 	Slack SlackService
 }
@@ -195,7 +181,6 @@ func GetSlackUsername(client *slack.Client, userID string, result chan<- string)
 		return
 	}
 	result <- userProfile.Profile.DisplayName
-	return
 }
 
 func SendConfirmationResponse(externalToken database.ExternalAPIToken, responseURL string) error {
@@ -206,6 +191,9 @@ func SendConfirmationResponse(externalToken database.ExternalAPIToken, responseU
 	}
 
 	request, err := http.NewRequest("POST", responseURL, bytes.NewBuffer(getSlackSuccessResponse()))
+	if err != nil {
+		return err
+	}
 	request.Header.Set("Content-type", "application/json")
 	request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 	client := &http.Client{}

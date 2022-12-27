@@ -16,10 +16,10 @@ import (
 
 const (
 	Daily     int = 0
-	WeekDaily     = 1
-	Weekly        = 2
-	Monthly       = 3
-	Annually      = 4
+	WeekDaily int = 1
+	Weekly    int = 2
+	Monthly   int = 3
+	Annually  int = 4
 )
 
 func (api *API) RecurringTaskTemplateBackfillTasks(c *gin.Context) {
@@ -102,7 +102,7 @@ func (api *API) backfillTemplate(c *gin.Context, template database.RecurringTask
 	}
 
 	if len(tasks) > 0 {
-		if template.ReplaceExisting != nil && *template.ReplaceExisting == true {
+		if template.ReplaceExisting != nil && *template.ReplaceExisting {
 			_, err = database.GetTaskCollection(api.DB).UpdateMany(
 				context.Background(),
 				bson.M{"$and": []bson.M{

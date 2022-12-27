@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/config"
@@ -178,7 +178,7 @@ func (atlassian AtlassianService) getSites(token *oauth2.Token) *[]AtlassianSite
 		logger.Error().Err(err).Msg("failed to load cloud ID")
 		return nil
 	}
-	cloudIDData, err := ioutil.ReadAll(resp.Body)
+	cloudIDData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read cloud ID response")
 		return nil
@@ -269,7 +269,7 @@ func (atlassian AtlassianService) getAndRefreshToken(userID primitive.ObjectID, 
 		logger.Error().Err(err).Msg("failed to request token")
 		return nil, err
 	}
-	tokenBytes, err := ioutil.ReadAll(resp.Body)
+	tokenBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read token response")
 		return nil, err

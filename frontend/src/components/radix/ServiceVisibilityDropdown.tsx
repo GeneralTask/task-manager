@@ -16,7 +16,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
     const showLinearSetting = useSetting('sidebar_linear_preference')
     const showSlackSetting = useSetting('sidebar_slack_preference')
 
-    const showGithub = showGitHubSetting.field_value === 'true'
+    const showGitHub = showGitHubSetting.field_value === 'true'
     const showLinear = showLinearSetting.field_value === 'true'
     const showSlack = showSlackSetting.field_value === 'true'
 
@@ -43,8 +43,8 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                         {
                             label: 'GitHub',
                             icon: logos.github,
-                            onClick: () => showGitHubSetting.updateSetting(!showGithub),
-                            selected: showGithub,
+                            onClick: () => showGitHubSetting.updateSetting(!showGitHub),
+                            selected: showGitHub,
                         },
                         {
                             label: 'Linear',

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"github.com/slack-go/slack"
 
@@ -131,8 +130,4 @@ func (slackService SlackService) HandleSignupCallback(db *mongo.Database, params
 
 func (slackService SlackService) CreateNewTask(userID primitive.ObjectID, accountID string, task TaskCreationObject) error {
 	return errors.New("has not been implemented yet")
-}
-
-func getSlackHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
-	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_SLACK, getSlackConfig().OauthConfig)
 }

@@ -125,7 +125,7 @@ const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
                         {subtask.title}
                     </TitleSpan>
                     <RightContainer>
-                        <DueDate date={dueDate} />
+                        <DueDate date={dueDate} isDoneOrDeleted={subtask.is_done || subtask.is_deleted} />
                         {subtask.priority_normalized !== 0 && (
                             <Icon
                                 icon={TASK_PRIORITIES[subtask.priority_normalized].icon}

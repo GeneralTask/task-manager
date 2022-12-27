@@ -58,13 +58,6 @@ func (asanaTask AsanaTaskSource) GetEvents(db *mongo.Database, userID primitive.
 }
 
 func (asanaTask AsanaTaskSource) GetTasks(db *mongo.Database, userID primitive.ObjectID, accountID string, result chan<- TaskResult) {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_ASANA)
-		return
-	}
-	defer dbCleanup()
-
 	client := getAsanaHttpClient(db, userID, accountID)
 
 	userInfoURL := AsanaUserInfoURL
@@ -74,7 +67,7 @@ func (asanaTask AsanaTaskSource) GetTasks(db *mongo.Database, userID primitive.O
 	}
 
 	var userInfo AsanaUserInfoResponse
-	err = getJSON(client, userInfoURL, &userInfo)
+	err := getJSON(client, userInfoURL, &userInfo)
 	logger := logging.GetSentryLogger()
 	if err != nil || len(userInfo.Data.Workspaces) == 0 {
 		logger.Error().Err(err).Msg("failed to get asana workspace ID")
@@ -159,12 +152,6 @@ func (asanaTask AsanaTaskSource) GetPullRequests(db *mongo.Database, userID prim
 }
 
 func (asanaTask AsanaTaskSource) ModifyTask(db *mongo.Database, userID primitive.ObjectID, accountID string, issueID string, updateFields *database.Task, task *database.Task) error {
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		return err
-	}
-	defer dbCleanup()
-
 	client := getAsanaHttpClient(db, userID, accountID)
 
 	taskUpdateURL := fmt.Sprintf(AsanaTasksURL+"%s/", issueID)

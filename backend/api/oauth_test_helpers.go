@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -20,7 +20,7 @@ func TestAuthorizeCookieMissing(t *testing.T, api *API, url string) {
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -36,7 +36,7 @@ func TestAuthorizeCookieBad(t *testing.T, api *API, url string) {
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -53,7 +53,7 @@ func TestAuthorizeSuccess(t *testing.T, api *API, url string, expectedResult fun
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusFound, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	// Grab from body where we expect the state token
 	exp := regexp.MustCompile("state=([^&\"]+)(&|$|\")")
 	bodyString := string(body)
@@ -76,7 +76,7 @@ func TestAuthorizeCallbackMissingCodeParam(t *testing.T, api *API, url string) {
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -93,7 +93,7 @@ func TestAuthorizeCallbackBadStateTokenFormat(t *testing.T, api *API, url string
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -110,7 +110,7 @@ func TestAuthorizeCallbackInvalidStateToken(t *testing.T, api *API, url string) 
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,
@@ -134,7 +134,7 @@ func TestAuthorizeCallbackStateTokenWrongUser(t *testing.T, api *API, url string
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, http.StatusBadRequest, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(
 		t,

@@ -28,6 +28,8 @@ export interface Sort<T> {
     id: string
     label: string
     field: keyof T
+    // if this is set, the sort will fall back to this field before using the tieBreakerField
+    secondaryField?: keyof T
     customComparator?: (a: T, b: T) => number
     icon?: TIconImage
     // when this sort is selected, the direction will initially be set to this value
