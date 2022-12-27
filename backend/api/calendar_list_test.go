@@ -89,8 +89,8 @@ func TestCalendarList(t *testing.T) {
 		assert.Equal(t, 2, len(result))
 
 		assert.Equal(t, []CalendarAccountResult{
-			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1"}}, NeedsMulticalScopes: false},
-			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2"}, {CalendarID: "cal3", ColorID: "col3"}}, NeedsMulticalScopes: true},
+			{AccountID: "account1", Calendars: []CalendarResult{{CalendarID: "cal1", ColorID: "col1"}}, HasMulticalScope: true},
+			{AccountID: "account2", Calendars: []CalendarResult{{CalendarID: "cal2", ColorID: "col2"}, {CalendarID: "cal3", ColorID: "col3"}}, HasMulticalScope: false},
 		},
 			result)
 	})

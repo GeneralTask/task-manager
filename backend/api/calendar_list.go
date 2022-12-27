@@ -13,9 +13,9 @@ type CalendarResult struct {
 }
 
 type CalendarAccountResult struct {
-	AccountID           string           `json:"account_id"`
-	Calendars           []CalendarResult `json:"calendars"`
-	NeedsMulticalScopes bool             `json:"needs_multical_scopes"`
+	AccountID        string           `json:"account_id"`
+	Calendars        []CalendarResult `json:"calendars"`
+	HasMulticalScope bool             `json:"needs_multical_scopes"`
 }
 
 func (api *API) CalendarsList(c *gin.Context) {
@@ -47,9 +47,9 @@ func (api *API) CalendarsList(c *gin.Context) {
 
 		}
 		result := CalendarAccountResult{
-			AccountID:           account.IDExternal,
-			Calendars:           calendars,
-			NeedsMulticalScopes: !database.HasUserGrantedMultiCalendarScope(account.Scopes),
+			AccountID:        account.IDExternal,
+			Calendars:        calendars,
+			HasMulticalScope: database.HasUserGrantedMultiCalendarScope(account.Scopes),
 		}
 		results = append(results, &result)
 	}
