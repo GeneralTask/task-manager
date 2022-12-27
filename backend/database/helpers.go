@@ -631,14 +631,14 @@ func GetCalendarEvents(db *mongo.Database, userID primitive.ObjectID, additional
 }
 
 func GetCalendarAccounts(db *mongo.Database, userID primitive.ObjectID) (*[]CalendarAccount, error) {
-	noteCollection := GetCalendarAccountCollection(db)
-	cursor, err := noteCollection.Find(
+	calendarAccountCollection := GetCalendarAccountCollection(db)
+	cursor, err := calendarAccountCollection.Find(
 		context.Background(),
 		bson.M{"user_id": userID},
 	)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("failed to fetch items for user")
+		logger.Error().Err(err).Msg("failed to fetch calendar accounts for user")
 		return nil, err
 	}
 
@@ -646,7 +646,7 @@ func GetCalendarAccounts(db *mongo.Database, userID primitive.ObjectID) (*[]Cale
 	err = cursor.All(context.Background(), &accounts)
 	if err != nil {
 		logger := logging.GetSentryLogger()
-		logger.Error().Err(err).Msg("failed to fetch notes for user")
+		logger.Error().Err(err).Msg("failed to fetch calendar accounts for user")
 		return nil, err
 	}
 
