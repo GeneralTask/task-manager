@@ -22,7 +22,7 @@ const TaskBody = ({ id, body, onChange, disabled, nux_number_id }: TaskBodyProps
         <BodyContainer>
             <GTTextField
                 itemId={id}
-                type="markdown"
+                type="atlassian"
                 value={body}
                 placeholder="Add details"
                 onChange={onChange}
