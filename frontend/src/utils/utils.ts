@@ -200,7 +200,8 @@ export const stopKeydownPropogation = (
 }
 
 export const getFormattedDate = (
-    date: Date | null
+    date: Date | null,
+    isDoneOrDeleted?: boolean
 ): {
     dateString: string
     textColor: TTextColor
@@ -210,12 +211,25 @@ export const getFormattedDate = (
         return { dateString: 'No due date', textColor: 'light', iconColor: 'gray' }
     }
     if (DateTime.fromJSDate(date).hasSame(DateTime.local(), 'day')) {
+        if (isDoneOrDeleted) {
+            return { dateString: 'Today', textColor: 'light', iconColor: 'gray' }
+        }
         return { dateString: 'Today', textColor: 'red', iconColor: 'red' }
     }
     if (DateTime.fromJSDate(date).hasSame(DateTime.local().plus({ days: 1 }), 'day')) {
+        if (isDoneOrDeleted) {
+            return { dateString: 'Tomorrow', textColor: 'light', iconColor: 'gray' }
+        }
         return { dateString: 'Tomorrow', textColor: 'orange', iconColor: 'orange' }
     }
     if (DateTime.fromJSDate(date) < DateTime.local()) {
+        if (isDoneOrDeleted) {
+            return {
+                dateString: `${DateTime.fromJSDate(date).toFormat('LLL dd')}`,
+                textColor: 'light',
+                iconColor: 'gray',
+            }
+        }
         return {
             dateString: `Overdue (${DateTime.fromJSDate(date).toFormat('LLL dd')})`,
             textColor: 'red',
@@ -227,7 +241,6 @@ export const getFormattedDate = (
     }
     return { dateString: DateTime.fromJSDate(date).toFormat('LLL dd'), textColor: 'light', iconColor: 'gray' }
 }
-
 export const getFormattedDuration = (duration: Duration, maxUnits?: number) => {
     const allUnits: DurationUnit[] = ['years', 'months', 'days', 'hours', 'minutes', 'seconds']
     const newDuration = duration.rescale()

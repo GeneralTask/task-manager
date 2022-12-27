@@ -2,6 +2,9 @@ import {
     GHFilterPreference,
     GHSortDirection,
     GHSortPreference,
+    NoteFilterPreference,
+    NoteSortDirection,
+    NoteSortPreference,
     TaskFilterPreference,
     TaskSortDirection,
     TaskSortPreference,
@@ -25,6 +28,8 @@ export interface Sort<T> {
     id: string
     label: string
     field: keyof T
+    // if this is set, the sort will fall back to this field before using the tieBreakerField
+    secondaryField?: keyof T
     customComparator?: (a: T, b: T) => number
     icon?: TIconImage
     // when this sort is selected, the direction will initially be set to this value
@@ -59,9 +64,9 @@ export interface FilterOptions<T> {
 export interface SortAndFilterSettingsConfig<T> {
     sortOptions: SortOptions<T>
     filterOptions: FilterOptions<T>
-    sortPreferenceId: GHSortPreference | TaskSortPreference
-    sortDirectionId: GHSortDirection | TaskSortDirection
-    filterPreferenceId: GHFilterPreference | TaskFilterPreference
+    sortPreferenceId: GHSortPreference | TaskSortPreference | NoteSortPreference
+    sortDirectionId: GHSortDirection | TaskSortDirection | NoteSortDirection
+    filterPreferenceId: GHFilterPreference | TaskFilterPreference | NoteFilterPreference
     tieBreakerField: keyof T
     defaultSortsAndFilters: SortAndFilterSettings<T>
 }

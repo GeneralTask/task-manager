@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { OrangeEdge } from '../atoms/SelectableContainer'
 
-const ItemContainerDiv = styled.div<{ isSelected: boolean; forceHoverStyle?: boolean }>`
+const ItemContainerDiv = styled.div<{ isSelected?: boolean; forceHoverStyle?: boolean }>`
     position: relative;
     display: flex;
     flex-direction: row;
@@ -30,14 +30,21 @@ const ItemContainerDiv = styled.div<{ isSelected: boolean; forceHoverStyle?: boo
 `
 
 interface ItemContainerProps {
-    isSelected: boolean
-    onClick: () => void
+    isSelected?: boolean
+    onClick?: () => void
     children: React.ReactNode
     forceHoverStyle?: boolean
+    className?: string
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, onClick, children, forceHoverStyle }, ref) => (
-        <ItemContainerDiv isSelected={isSelected} onClick={onClick} ref={ref} forceHoverStyle={forceHoverStyle}>
+    ({ isSelected, onClick, children, forceHoverStyle, className }, ref) => (
+        <ItemContainerDiv
+            isSelected={isSelected}
+            onClick={onClick}
+            ref={ref}
+            forceHoverStyle={forceHoverStyle}
+            className={className}
+        >
             {isSelected && <OrangeEdge />}
             {children}
         </ItemContainerDiv>

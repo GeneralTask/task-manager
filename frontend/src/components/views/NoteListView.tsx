@@ -1,24 +1,35 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useItemSelectionController } from '../../hooks'
 import Log from '../../services/api/log'
 import { useGetNotes } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
+import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { TNote } from '../../utils/types'
 import { EMPTY_ARRAY } from '../../utils/utils'
+import Flex from '../atoms/Flex'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
 import { SectionHeader } from '../molecules/Header'
 import Note from '../notes/Note'
 import NoteCreateButton from '../notes/NoteCreateButton'
 import NoteDetails from '../notes/NoteDetails'
+import { NOTE_SORT_AND_FILTER_CONFIG } from '../notes/note.config'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+`
+const CreateButtonContainer = styled.div`
+    display: flex;
+    flex-direction: column;
     margin-bottom: ${Spacing._16};
+    margin-left: auto;
 `
 
 const NoteListView = () => {
@@ -26,20 +37,28 @@ const NoteListView = () => {
     const { noteId } = useParams()
     const navigate = useNavigate()
 
+    const sortAndFilterSettings = useSortAndFilterSettings<TNote>(NOTE_SORT_AND_FILTER_CONFIG)
+    const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
     const sortedNotes = useMemo(() => {
-        if (!notes) return EMPTY_ARRAY
-        return notes.sort((a, b) => +DateTime.fromISO(b.updated_at) - +DateTime.fromISO(a.updated_at))
-    }, [notes])
+        if (!notes || areSettingsLoading) return EMPTY_ARRAY
+        return sortAndFilterItems({
+            items: notes,
+            filter: selectedFilter,
+            sort: selectedSort,
+            sortDirection: selectedSortDirection,
+            tieBreakerField: NOTE_SORT_AND_FILTER_CONFIG.tieBreakerField,
+        })
+    }, [notes, selectedSort, selectedSortDirection, selectedFilter, areSettingsLoading])
 
     const selectedNote = useMemo(() => {
         if (sortedNotes.length === 0) return null
         return sortedNotes.find((note) => note.id === noteId) ?? sortedNotes[0]
-    }, [noteId, notes])
+    }, [noteId, notes, sortedNotes])
 
     useEffect(() => {
         if (selectedNote == null) return
         navigate(`/notes/${selectedNote.id}`, { replace: true })
-    }, [selectedNote])
+    }, [selectedNote, navigate])
 
     const selectNote = useCallback(
         (note: TNote) => {
@@ -53,21 +72,26 @@ const NoteListView = () => {
 
     return (
         <>
-            <ScrollableListTemplate>
-                <SectionHeader sectionName="Notes" />
-                <ActionsContainer>
-                    <NoteCreateButton type="button" />
-                </ActionsContainer>
-                {!notes ? (
-                    <Spinner />
-                ) : (
-                    <>
-                        {sortedNotes.map((note) => (
-                            <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
-                        ))}
-                    </>
-                )}
-            </ScrollableListTemplate>
+            <Flex>
+                <ScrollableListTemplate>
+                    <SectionHeader sectionName="Notes" />
+                    <ActionsContainer>
+                        <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                        <CreateButtonContainer>
+                            <NoteCreateButton type="button" />
+                        </CreateButtonContainer>
+                    </ActionsContainer>
+                    {!notes ? (
+                        <Spinner />
+                    ) : (
+                        <>
+                            {sortedNotes.map((note) => (
+                                <Note key={note.id} note={note} isSelected={note.id === noteId} onSelect={selectNote} />
+                            ))}
+                        </>
+                    )}
+                </ScrollableListTemplate>
+            </Flex>
             {selectedNote ? (
                 <NoteDetails note={selectedNote} link={`/notes/${selectedNote.id}`} />
             ) : (

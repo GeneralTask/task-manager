@@ -12,7 +12,7 @@ import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems
 import PullRequestViewItems from './viewItems/PullRequestViewItems'
 import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 
-const PAGE_SIZE = 5
+export const PAGE_SIZE = 5
 
 interface OverviewViewProps {
     view: TOverviewView

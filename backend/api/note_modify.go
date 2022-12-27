@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/GeneralTask/task-manager/backend/database"
 	"time"
+
+	"github.com/GeneralTask/task-manager/backend/database"
 
 	"github.com/rs/zerolog/log"
 
@@ -18,6 +19,7 @@ type NoteChangeable struct {
 	Body        *string             `json:"body,omitempty"`
 	Author      string              `json:"author,omitempty"`
 	SharedUntil *primitive.DateTime `json:"shared_until,omitempty"`
+	IsDeleted   *bool               `json:"is_deleted,omitempty"`
 }
 
 type NoteModifyParams struct {
@@ -64,6 +66,7 @@ func (api *API) NoteModify(c *gin.Context) {
 			Body:        modifyParams.NoteChangeable.Body,
 			Author:      modifyParams.NoteChangeable.Author,
 			SharedUntil: sharedUntil,
+			IsDeleted:   modifyParams.NoteChangeable.IsDeleted,
 			UpdatedAt:   primitive.NewDateTimeFromTime(time.Now()),
 			CreatedAt:   note.CreatedAt,
 		}

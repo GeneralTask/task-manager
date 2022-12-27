@@ -1,16 +1,22 @@
 import { Ref, forwardRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { usePreviewMode } from '../../../hooks'
 import { DropType, TTask } from '../../../utils/types'
 import Task from '../../molecules/Task'
 import { ViewHeader, ViewName } from '../styles'
+import EmptyListMessage from './EmptyListMessage'
 import EmptyViewItem from './EmptyViewItem'
 import { ViewItemsProps } from './viewItems.types'
 
 const ExternalViewItems = forwardRef(
-    ({ view, visibleItemsCount, scrollRef }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
+    ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewViewId, overviewItemId } = useParams()
+        const { isPreviewMode } = usePreviewMode()
+        const basePath =
+            location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
 
         const getEmptyViewItem = () => {
+            if (isPreviewMode) return <EmptyListMessage list={view} />
             if (view.type === 'slack') {
                 return (
                     <EmptyViewItem
@@ -30,9 +36,11 @@ const ExternalViewItems = forwardRef(
 
         return (
             <>
-                <ViewHeader ref={ref}>
-                    <ViewName>{view.name}</ViewName>
-                </ViewHeader>
+                {!hideHeader && (
+                    <ViewHeader ref={ref}>
+                        <ViewName>{view.name}</ViewName>
+                    </ViewHeader>
+                )}
                 {view.view_items.length === 0 && view.is_linked && getEmptyViewItem()}
                 {view.view_items.slice(0, visibleItemsCount).map((item) => (
                     <Task
@@ -41,7 +49,7 @@ const ExternalViewItems = forwardRef(
                         task={item as TTask}
                         sectionScrollingRef={scrollRef}
                         isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                        link={`/overview/${view.id}/${item.id}`}
+                        link={`${basePath}/${view.id}/${item.id}`}
                     />
                 ))}
             </>

@@ -185,6 +185,7 @@ func GetSharedNote(db *mongo.Database, itemID primitive.ObjectID) (*Note, error)
 		bson.M{"$and": []bson.M{
 			{"_id": itemID},
 			{"shared_until": bson.M{"$gte": time.Now()}},
+			{"is_deleted": bson.M{"$ne": true}},
 		}})
 	var note Note
 	err := mongoResult.Decode(&note)

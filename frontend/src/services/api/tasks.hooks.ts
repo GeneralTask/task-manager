@@ -340,7 +340,7 @@ export const useModifyTask = () => {
                         data.subtaskId
                     )
                     if (sectionIndex === undefined || taskIndex === undefined) return
-                    if (data.subtaskId && !subtaskIndex) return
+                    if (data.subtaskId && subtaskIndex === undefined) return
                     const task =
                         subtaskIndex === undefined
                             ? draft[sectionIndex].view_items[taskIndex]
@@ -380,7 +380,8 @@ const modifyTask = async (data: TModifyTaskData) => {
     if (data.recurringTaskTemplateId !== undefined)
         requestBody.task.recurring_task_template_id = data.recurringTaskTemplateId
     try {
-        const res = await apiClient.patch(`/tasks/modify/${data.id}/`, requestBody)
+        const taskId = data.subtaskId ? data.subtaskId : data.id
+        const res = await apiClient.patch(`/tasks/modify/${taskId}/`, requestBody)
         return castImmutable(res.data)
     } catch {
         throw new Error('modifyTask failed')
@@ -419,6 +420,12 @@ export const useMarkTaskDoneOrDeleted = () => {
                             const subtask = task.sub_tasks?.[subtaskIndex]
                             if (!subtask) return
                             if (data.isDone !== undefined) subtask.is_done = data.isDone
+                            if (data.isDeleted !== undefined) {
+                                subtask.is_deleted = data.isDeleted
+                                draft[sectionIndex].tasks[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                                const trashSection = draft.find((section) => section.id === TRASH_SECTION_ID)
+                                trashSection?.tasks.unshift(subtask)
+                            }
                         } else {
                             if (data.isDone !== undefined) task.is_done = data.isDone
                             if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
@@ -466,11 +473,17 @@ export const useMarkTaskDoneOrDeleted = () => {
                         if (subtaskIndex === undefined) return
                         if (!task.sub_tasks) return
                         if (data.isDone !== undefined) task.sub_tasks[subtaskIndex].is_done = data.isDone
-                        if (data.isDeleted !== undefined) task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                        if (data.isDeleted !== undefined) {
+                            task.sub_tasks[subtaskIndex].is_deleted = data.isDeleted
+                            draft[sectionIndex].view_items[taskIndex].sub_tasks?.splice(subtaskIndex, 1)
+                        }
                     } else {
                         if (data.isDone !== undefined) task.is_done = data.isDone
                         if (data.isDeleted !== undefined) task.is_deleted = data.isDeleted
                         draft[sectionIndex].view_items.splice(taskIndex, 1)
+                    }
+                    if (draft[sectionIndex].view_items.length === 0) {
+                        draft[sectionIndex].has_tasks_completed_today = true
                     }
                 })
                 if (data.waitForAnimation) {

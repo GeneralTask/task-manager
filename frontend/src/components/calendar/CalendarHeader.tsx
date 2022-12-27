@@ -13,7 +13,6 @@ import { Divider } from '../atoms/SectionDivider'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import ConnectIntegration from '../molecules/ConnectIntegration'
-import Tip from '../radix/Tip'
 import { useCalendarContext } from './CalendarContext'
 
 const RelativeDiv = styled.div`
@@ -122,63 +121,54 @@ export default function CalendarHeader({
         return isToday || (calendarType === 'week' && isThisWeek)
     }, [date, calendarType])
 
+    const topLeftButtons = useMemo(() => {
+        if (isPreviewMode) {
+            return (
+                <>
+                    {(isCalendarShowingToday || calendarType === 'week') &&
+                        (!showTaskToCalSidebar || calendarType === 'day') && (
+                            <GTButton
+                                icon={icons.calendar_pen}
+                                iconColor="black"
+                                value="Schedule Tasks"
+                                size="small"
+                                styleType="secondary"
+                                onClick={() => {
+                                    setCalendarType('week')
+                                    setDate(date.minus({ days: date.weekday % 7 }))
+                                    setShowTaskToCalSidebar(true)
+                                }}
+                            />
+                        )}
+                    {!isCalendarShowingToday && (
+                        <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
+                    )}
+                </>
+            )
+        }
+        if (isCalendarShowingToday) {
+            return (
+                <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
+                    <GTButton
+                        icon={icons.headphones}
+                        iconColor="black"
+                        value="Enter Focus Mode"
+                        size="small"
+                        styleType="secondary"
+                    />
+                </NoStyleLink>
+            )
+        }
+        return <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
+    }, [isPreviewMode, isCalendarShowingToday, calendarType, date, showTaskToCalSidebar])
+
     return (
         <RelativeDiv>
             {showMainHeader && (
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
-                            <HeaderActionsContainer>
-                                {showTaskToCalSidebar && calendarType === 'week' && (
-                                    <Tip content="Hide task to calendar sidebar">
-                                        <GTIconButton
-                                            icon={icons.caret_left}
-                                            onClick={() => {
-                                                setShowTaskToCalSidebar(false)
-                                            }}
-                                        />
-                                    </Tip>
-                                )}
-                                {isPreviewMode && isCalendarShowingToday ? (
-                                    <>
-                                        {(calendarType === 'day' || !showTaskToCalSidebar) && (
-                                            <GTButton
-                                                icon={icons.calendar_blank}
-                                                iconColor="black"
-                                                value="Schedule Tasks"
-                                                size="small"
-                                                styleType="secondary"
-                                                onClick={() => {
-                                                    setCalendarType('week')
-                                                    setDate(date.minus({ days: date.weekday % 7 }))
-                                                    setShowTaskToCalSidebar(true)
-                                                }}
-                                            />
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        {isCalendarShowingToday ? (
-                                            <NoStyleLink to={`/${FOCUS_MODE_ROUTE}`}>
-                                                <GTButton
-                                                    icon={icons.headphones}
-                                                    iconColor="black"
-                                                    value="Enter Focus Mode"
-                                                    size="small"
-                                                    styleType="secondary"
-                                                />
-                                            </NoStyleLink>
-                                        ) : (
-                                            <GTButton
-                                                value="Jump to Today"
-                                                onClick={selectToday}
-                                                size="small"
-                                                styleType="secondary"
-                                            />
-                                        )}
-                                    </>
-                                )}
-                            </HeaderActionsContainer>
+                            <HeaderActionsContainer>{topLeftButtons}</HeaderActionsContainer>
                             <HeaderActionsContainer>
                                 <GTIconButton
                                     onClick={toggleCalendar}

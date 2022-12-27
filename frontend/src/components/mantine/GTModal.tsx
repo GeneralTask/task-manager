@@ -31,7 +31,8 @@ const ModalSidebar = styled.div`
     padding: ${Spacing._32} ${Spacing._12} ${Spacing._12};
     background-color: ${Colors.background.light};
     border-radius: ${Border.radius.small} 0 0 ${Border.radius.small};
-    width: ${SIDEBAR_WIDTH};
+    flex-basis: ${SIDEBAR_WIDTH};
+    box-sizing: border-box;
 `
 const Link = styled.button<{ isSelected: boolean }>`
     display: flex;

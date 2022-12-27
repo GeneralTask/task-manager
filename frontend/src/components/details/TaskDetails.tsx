@@ -347,7 +347,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                                       currentTask.optimisticId
                                   )
                                 : modifyTask(
-                                      { id: currentTask.id, priorityNormalized: priority },
+                                      { id: task.id, priorityNormalized: priority, subtaskId: subtask?.id },
                                       currentTask.optimisticId
                                   )
                         }
@@ -406,7 +406,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                         nux_number_id={currentTask.nux_number_id}
                     />
                     {currentTask.source?.name === GENERAL_TASK_SOURCE_NAME && !isInTrash && (
-                        <SubtaskList taskId={currentTask.id} subtasks={currentTask.sub_tasks ?? []} />
+                        <SubtaskList parentTask={currentTask as TTask} subtasks={currentTask.sub_tasks ?? []} />
                     )}
                     {currentTask.external_status && (
                         <CommentContainer>

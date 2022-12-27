@@ -329,6 +329,7 @@ export interface TOverviewView {
     total_view_items?: number // the total number of items in the view without filters applied
     sources: TSourcesResult[]
     is_linked: boolean
+    has_tasks_completed_today: boolean
 }
 
 export interface TSupportedViewItem {
@@ -389,6 +390,7 @@ export interface TNote {
     author: string
     created_at: string
     updated_at: string
+    is_deleted: boolean
     shared_until?: string
     optimisticId?: string
 }
