@@ -68,6 +68,9 @@ const (
 	ChoiceKeyShowDeleted                = "show_deleted"
 	// Calendar choice
 	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
+	// Overview page settings
+	SettingCollapseEmptyLists     = "collapse_empty_lists"
+	SettingMoveEmptyListsToBottom = "most_empty_lists_to_bottom"
 )
 
 var SidebarLinearSetting = SettingDefinition{
@@ -184,6 +187,24 @@ var NoteFilteringSetting = SettingDefinition{
 	},
 }
 
+var OverviewCollapseEmptyListsSetting = SettingDefinition{
+	FieldKey:      SettingCollapseEmptyLists,
+	DefaultChoice: "true",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
+var OverviewMoveEmptyListsToBottomSetting = SettingDefinition{
+	FieldKey:      SettingMoveEmptyListsToBottom,
+	DefaultChoice: "true",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
@@ -200,6 +221,8 @@ var hardcodedSettings = []SettingDefinition{
 	NoteSortingPreferenceSetting,
 	NoteSortingDirectionSetting,
 	NoteFilteringSetting,
+	OverviewCollapseEmptyListsSetting,
+	OverviewMoveEmptyListsToBottomSetting,
 }
 
 func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {
