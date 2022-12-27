@@ -100,15 +100,17 @@ func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID p
 	defer cleanup()
 	if err != nil {
 		authURL = Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		return &authURL, nil
+	}
+
+	user, err := database.GetUser(db, userID)
+	if err == nil && strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
+		authURL = getGoogleLinkConfigForEmployees().AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	} else {
-		user, err := database.GetUser(db, userID)
-		if err == nil && strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
-			authURL = getGoogleLinkConfigForEmployees().AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-		} else {
-			authURL = Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
-		}
+		authURL = Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
 	}
 	return &authURL, nil
+
 }
 
 func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
