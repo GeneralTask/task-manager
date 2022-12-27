@@ -70,7 +70,7 @@ const (
 	SettingFieldCalendarForNewTasks = "calendar_account_id_for_new_tasks"
 	// Overview page settings
 	SettingCollapseEmptyLists     = "collapse_empty_lists"
-	SettingMoveEmptyListsToBottom = "most_empty_lists_to_bottom"
+	SettingMoveEmptyListsToBottom = "move_empty_lists_to_bottom"
 )
 
 var SidebarLinearSetting = SettingDefinition{

@@ -100,7 +100,7 @@ func TestGetSettingsOptions(t *testing.T) {
 		assert.Equal(t, "note_sorting_direction", (*settings)[8].FieldKey)
 		assert.Equal(t, "note_filtering_preference", (*settings)[9].FieldKey)
 		assert.Equal(t, "collapse_empty_lists", (*settings)[10].FieldKey)
-		assert.Equal(t, "most_empty_lists_to_bottom", (*settings)[11].FieldKey)
+		assert.Equal(t, "move_empty_lists_to_bottom", (*settings)[11].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_filtering_preference", (*settings)[12].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_sorting_preference", (*settings)[13].FieldKey)
 		assert.Equal(t, insertedViewID+"_github_sorting_direction", (*settings)[14].FieldKey)
