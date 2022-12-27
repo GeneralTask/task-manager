@@ -71,6 +71,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 
+	router.GET("/calendars/", handlers.CalendarsList)
 	router.GET("/events/", handlers.EventsList)
 	router.POST("/events/create/:source_id/", handlers.EventCreate)
 	router.DELETE("/events/delete/:event_id/", handlers.EventDelete)

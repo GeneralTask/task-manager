@@ -49,7 +49,7 @@ func (api *API) CalendarsList(c *gin.Context) {
 		result := CalendarAccountResult{
 			AccountID:           account.IDExternal,
 			Calendars:           calendars,
-			NeedsMulticalScopes: database.HasUserGrantedMultiCalendarScope(account.Scopes),
+			NeedsMulticalScopes: !database.HasUserGrantedMultiCalendarScope(account.Scopes),
 		}
 		results = append(results, &result)
 	}
