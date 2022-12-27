@@ -176,7 +176,7 @@ func ValidateFields(c *gin.Context, updateFields *TaskItemChangeableFields, task
 			return false
 		}
 
-		if (task.IsCompleted != nil) && ((*task.IsCompleted && statusToUpdateTo.IsCompletedStatus == false) || (task.IsCompleted != nil && !*task.IsCompleted && statusToUpdateTo.IsCompletedStatus == true)) {
+		if (task.IsCompleted != nil) && ((*task.IsCompleted && !statusToUpdateTo.IsCompletedStatus) || (task.IsCompleted != nil && !*task.IsCompleted && statusToUpdateTo.IsCompletedStatus)) {
 			updateFields.IsCompleted = &statusToUpdateTo.IsCompletedStatus
 		}
 	}

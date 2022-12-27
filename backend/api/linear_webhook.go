@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -76,14 +76,14 @@ func (api *API) LinearWebhook(c *gin.Context) {
 	}
 
 	// make request body readable
-	body, err := ioutil.ReadAll(c.Request.Body)
+	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(400, gin.H{"detail": "unable to read request body"})
 		return
 	}
 	// this is required, as the first write fully consumes the body
 	// the Form in the body is required for payload extraction
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	// unmarshal into request params for type and trigger id
 	var webhookPayload LinearWebhookPayload

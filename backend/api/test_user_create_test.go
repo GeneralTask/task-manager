@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/GeneralTask/task-manager/backend/database"
@@ -43,7 +43,7 @@ func TestCreateTestUser(t *testing.T) {
 
 		var result map[string]interface{}
 
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		err = json.Unmarshal(body, &result)
 		assert.NoError(t, err)

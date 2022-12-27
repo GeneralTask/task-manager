@@ -123,8 +123,9 @@ func (api *API) fetchTasks(db *mongo.Database, userID interface{}) (*[]*database
 		}
 		for _, taskSourceResult := range taskServiceResult.Sources {
 			var tasks = make(chan external.TaskResult)
-			//if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
-			if false {
+
+			// DO NOT COMMENT OUT BELOW LOGIC: CAN LEAD TO RATE LIMITING ISSUES
+			if token.ServiceID == external.TASK_SERVICE_ID_LINEAR && shouldPartialRefreshLinear(token) {
 				go api.getActiveLinearTasksFromDBForToken(token.UserID, token.AccountID, tasks)
 			} else {
 				go taskSourceResult.Source.GetTasks(api.DB, userID.(primitive.ObjectID), token.AccountID, tasks)
@@ -475,5 +476,5 @@ func (api *API) updateLastFullRefreshTime(token database.ExternalAPIToken) error
 }
 
 func shouldPartialRefreshLinear(token database.ExternalAPIToken) bool {
-	return time.Now().Sub(token.LastFullRefreshTime.Time()) < (15 * time.Minute)
+	return time.Since(token.LastFullRefreshTime.Time()) < (15 * time.Minute)
 }

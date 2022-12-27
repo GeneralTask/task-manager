@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -82,7 +82,7 @@ func TestAuthenticationMiddleware(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
 		recorder = runAuthenticatedEndpoint(authToken)
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"incorrect auth token format\"}", string(body))
 	})
@@ -90,7 +90,7 @@ func TestAuthenticationMiddleware(t *testing.T) {
 	t.Run("InvalidToken", func(t *testing.T) {
 		recorder := runAuthenticatedEndpoint("Bearer c5b034f4-a645-4352-91d6-0c271afc4076")
 		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"unauthorized\"}", string(body))
 	})
@@ -98,7 +98,7 @@ func TestAuthenticationMiddleware(t *testing.T) {
 	t.Run("Valid", func(t *testing.T) {
 		recorder := runAuthenticatedEndpoint("Bearer " + authToken)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "\"success\"", string(body))
 	})
@@ -180,7 +180,7 @@ func Test404(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
