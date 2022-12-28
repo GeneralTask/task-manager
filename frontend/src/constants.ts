@@ -11,19 +11,20 @@ export const AUTHORIZATION_COOKE = 'authToken'
 export const MESSAGE_TYPE_DM = 'directmessage'
 
 // Time constants (in milliseconds)
-export const TASK_REFETCH_INTERVAL = 60 * 1000
-export const PR_REFETCH_INTERVAL = 120 * 1000
-export const EVENTS_REFETCH_INTERVAL = 60 * 1000
-export const TIME_INDICATOR_INTERVAL = 6 * 1000
-export const TASK_MARK_AS_DONE_TIMEOUT = 0.25 * 1000
-export const DETAILS_SYNC_TIMEOUT = 1 * 1000
-export const NOTE_SYNC_TIMEOUT = 1 * 1000
-export const FIVE_SECOND_TIMEOUT = 5 * 1000
-export const SINGLE_SECOND_INTERVAL = 1000
-export const EVENT_UNDO_TIMEOUT = 5 * 1000
-export const DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT = 0.5 * 1000
 export const BACKFILL_RECURRING_TASKS_INTERVAL = 5 * 60 * 1000
+export const DETAILS_SYNC_TIMEOUT = 1 * 1000
+export const DRAG_TASK_TO_OPEN_CALENDAR_TIMEOUT = 0.5 * 1000
+export const EVENT_UNDO_TIMEOUT = 5 * 1000
+export const EVENTS_REFETCH_INTERVAL = 60 * 1000
+export const FIFTEEN_MINUTE_INTERVAL = 15 * 60 * 1000
+export const FIVE_SECOND_TIMEOUT = 5 * 1000
+export const NOTE_SYNC_TIMEOUT = 1 * 1000
+export const PR_REFETCH_INTERVAL = 120 * 1000
 export const QUEUED_MUTATION_DEBOUNCE = 1 * 1000
+export const SINGLE_SECOND_INTERVAL = 1000
+export const TASK_MARK_AS_DONE_TIMEOUT = 0.25 * 1000
+export const TASK_REFETCH_INTERVAL = 60 * 1000
+export const TIME_INDICATOR_INTERVAL = 6 * 1000
 
 // Backend Endpoints
 export const TASKS_URL = REACT_APP_API_BASE_URL + '/tasks/'
