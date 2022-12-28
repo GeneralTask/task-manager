@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,7 +37,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter\"}", string(body))
 	})
@@ -53,7 +53,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'name' parameter\"}", string(body))
 	})
@@ -69,7 +69,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusCreated, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		responseObject := sectionCreateResponse{}
 		err = json.Unmarshal(body, &responseObject)
@@ -83,7 +83,7 @@ func TestSections(t *testing.T) {
 		request.Header.Add("Authorization", "Bearer "+authToken)
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusCreated, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		responseObject = sectionCreateResponse{}
 		err = json.Unmarshal(body, &responseObject)
@@ -100,7 +100,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		var sectionResult []SectionResult
 		err = json.Unmarshal(body, &sectionResult)
@@ -123,7 +123,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing task section modify parameter\"}", string(body))
 	})
@@ -139,7 +139,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing task section modify parameter\"}", string(body))
 	})
@@ -168,7 +168,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
@@ -181,7 +181,7 @@ func TestSections(t *testing.T) {
 		recorder = httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
@@ -194,7 +194,7 @@ func TestSections(t *testing.T) {
 		recorder = httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
@@ -204,7 +204,7 @@ func TestSections(t *testing.T) {
 		recorder = httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		var sectionResult []SectionResult
 		err = json.Unmarshal(body, &sectionResult)
@@ -238,7 +238,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
@@ -248,7 +248,7 @@ func TestSections(t *testing.T) {
 		recorder = httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		var sectionResult []SectionResult
 		err = json.Unmarshal(body, &sectionResult)
@@ -301,7 +301,7 @@ func TestSections(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 

@@ -3,7 +3,7 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -568,7 +568,7 @@ func createAtlassianSiteConfiguration(t *testing.T, userID *primitive.ObjectID, 
 func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "Bearer sample-access-token", r.Header.Get("Authorization"))
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "", string(body))
 		w.WriteHeader(statusCode)
@@ -590,7 +590,7 @@ func getSearchServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.
 
 func getTokenServerForJIRA(t *testing.T, statusCode int) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
+		_, err := io.ReadAll(r.Body)
 		assert.NoError(t, err)
 		w.WriteHeader(statusCode)
 		w.Write([]byte(`{"access_token":"sample-access-token","refresh_token":"sample-refresh-token","scope":"sample-scope","expires_in":3600,"token_type":"Bearer"}`))

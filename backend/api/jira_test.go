@@ -1,7 +1,7 @@
 package api
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -93,7 +93,7 @@ func TestLinkJIRACallback(t *testing.T) {
 func getCloudIDServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "Bearer sample-access-token", r.Header.Get("Authorization"))
-		body, err := ioutil.ReadAll(r.Body)
+		body, err := io.ReadAll(r.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "", string(body))
 		w.WriteHeader(statusCode)
@@ -107,7 +107,7 @@ func getCloudIDServerForJIRA(t *testing.T, statusCode int, empty bool) *httptest
 
 func getTokenServerForJIRA(t *testing.T, statusCode int) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
+		_, err := io.ReadAll(r.Body)
 		assert.NoError(t, err)
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(statusCode)
@@ -122,7 +122,7 @@ func getTransitionIDServerForJIRA(t *testing.T) *httptest.Server {
 			w.WriteHeader(200)
 			w.Write([]byte(`{"transitions": [{"id": "100"}]}`))
 		} else if r.Method == "POST" {
-			body, err := ioutil.ReadAll(r.Body)
+			body, err := io.ReadAll(r.Body)
 			assert.NoError(t, err)
 			assert.Equal(t, "{\"transition\": {\"id\": \"100\"}}", string(body))
 			w.WriteHeader(204)

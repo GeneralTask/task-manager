@@ -81,9 +81,7 @@ func (api *API) fetchPRs(userID interface{}, tokens []database.ExternalAPIToken)
 			failedFetchSources[pullRequestResult.SourceID] = true
 			continue
 		}
-		for _, pullRequest := range pullRequestResult.PullRequests {
-			pullRequests = append(pullRequests, pullRequest)
-		}
+		pullRequests = append(pullRequests, pullRequestResult.PullRequests...)
 	}
 	return pullRequests, failedFetchSources, nil
 }

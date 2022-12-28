@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/GeneralTask/task-manager/backend/logging"
@@ -27,7 +27,7 @@ func requestJSON(client *http.Client, method string, url string, body string, da
 	if err != nil {
 		return err
 	}
-	responseBody, bodyErr := ioutil.ReadAll(response.Body)
+	responseBody, bodyErr := io.ReadAll(response.Body)
 	logger := logging.GetSentryLogger()
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		if err == nil {
