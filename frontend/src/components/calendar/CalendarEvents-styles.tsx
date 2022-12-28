@@ -136,13 +136,8 @@ export const EventIconAndTitle = styled.div`
     min-width: 0;
 `
 export const EventIcon = styled(Icon)<{ isShort: boolean }>`
-    ${({ isShort }) =>
-        isShort
-            ? `
-        width: ${Spacing._8};
-        margin: 0 ${Spacing._4};
-    `
-            : `width: ${Spacing._16};`};
+    width: ${({ isShort }) => (isShort ? Spacing._8 : Spacing._16)};
+    ${({ isShort }) => isShort && `margin: 0 ${Spacing._4};`}
 `
 export const EventTitle = styled.div`
     text-overflow: ellipsis;
