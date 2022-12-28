@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useKeyboardShortcut, useNavigateToTask, useToast } from '../../hooks'
+import { useKeyboardShortcut, useNavigateToTask, usePreviewMode, useToast } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
 import { Spacing } from '../../styles'
 import { icons, logos } from '../../styles/images'
@@ -33,6 +33,7 @@ interface EventDetailPopoverProps {
     children: ReactNode
 }
 const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
     const { selectedEvent, setSelectedEvent } = useCalendarContext()
@@ -117,9 +118,11 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 </EventHeaderIcons>
             </EventHeader>
             <EventTitle>{event.title}</EventTitle>
-            <Label style={{ wordBreak: 'break-all' }}>
-                <strong>Calendar ID:</strong> {event.calendar_id}
-            </Label>
+            {isPreviewMode && (
+                <Label style={{ wordBreak: 'break-all' }}>
+                    <strong>Calendar ID:</strong> {event.calendar_id}
+                </Label>
+            )}
             <EventDateContainer>
                 <Icon icon={icons.calendar_blank} />
                 <EventDate>
