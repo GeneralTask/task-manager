@@ -10,6 +10,7 @@ import { TEvent } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
+import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import {
     CopyButton,
@@ -116,6 +117,9 @@ const EventDetailPopover = ({ event, date, hidePopover = false, children }: Even
                 </EventHeaderIcons>
             </EventHeader>
             <EventTitle>{event.title}</EventTitle>
+            <Label style={{ wordBreak: 'break-all' }}>
+                <strong>Calendar ID:</strong> {event.calendar_id}
+            </Label>
             <EventDateContainer>
                 <Icon icon={icons.calendar_blank} />
                 <EventDate>

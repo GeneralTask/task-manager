@@ -123,6 +123,7 @@ export const useCreateEvent = () => {
                 title: createEventPayload.summary ?? '',
                 body: createEventPayload.description ?? '',
                 account_id: createEventPayload.account_id,
+                calendar_id: 'TODO',
                 logo: linkedTask?.source.logo_v2 ?? 'gcal',
                 deeplink: '',
                 datetime_start: createEventPayload.datetime_start,
