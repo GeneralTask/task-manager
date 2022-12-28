@@ -22,4 +22,4 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          tests: false
+          working-directory: backend
