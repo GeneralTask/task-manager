@@ -1,10 +1,20 @@
+import { FIFTEEN_MINUTE_INTERVAL } from '../../../constants'
 import { TEvent } from '../../../utils/types'
 
 function eventsDoOverlap(eventA: TEvent, eventB: TEvent): boolean {
     const eventAStart = new Date(eventA.datetime_start)
-    const eventAEnd = new Date(eventA.datetime_end)
     const eventBStart = new Date(eventB.datetime_start)
-    const eventBEnd = new Date(eventB.datetime_end)
+
+    let eventAEnd = new Date(eventA.datetime_end)
+    let eventBEnd = new Date(eventB.datetime_end)
+
+    // if the events are less than 15 minutes, consider duration to be 15 minutes
+    if (eventAEnd.getTime() - eventAStart.getTime() < FIFTEEN_MINUTE_INTERVAL) {
+        eventAEnd = new Date(eventAStart.getTime() + FIFTEEN_MINUTE_INTERVAL)
+    }
+    if (eventBEnd.getTime() - eventBStart.getTime() < FIFTEEN_MINUTE_INTERVAL) {
+        eventBEnd = new Date(eventBStart.getTime() + FIFTEEN_MINUTE_INTERVAL)
+    }
 
     return eventAStart < eventBEnd && eventAEnd > eventBStart
 }
