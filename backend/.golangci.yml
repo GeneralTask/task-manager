@@ -2,3 +2,4 @@
 run:
   # Include test files or not.
   tests: false
+  skip-files: api/test_utils.go
