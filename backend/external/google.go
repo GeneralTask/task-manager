@@ -76,13 +76,41 @@ func getGoogleLinkConfig() OauthConfigWrapper {
 	return &OauthConfig{Config: googleConfig}
 }
 
+func getGoogleLinkConfigForEmployees() OauthConfigWrapper {
+	googleConfig := &oauth2.Config{
+		ClientID:     config.GetConfigValue("GOOGLE_OAUTH_CLIENT_ID"),
+		ClientSecret: config.GetConfigValue("GOOGLE_OAUTH_CLIENT_SECRET"),
+		RedirectURL:  config.GetConfigValue("GOOGLE_OAUTH_AUTHORIZE_REDIRECT_URL"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://oauth2.googleapis.com/token",
+		},
+	}
+	return &OauthConfig{Config: googleConfig}
+}
+
 func getGoogleHttpClient(db *mongo.Database, userID primitive.ObjectID, accountID string) *http.Client {
 	return getExternalOauth2Client(db, userID, accountID, TASK_SERVICE_ID_GOOGLE, getGoogleLoginConfig())
 }
 
 func (Google GoogleService) GetLinkURL(stateTokenID primitive.ObjectID, userID primitive.ObjectID) (*string, error) {
-	authURL := Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	var authURL string
+	db, cleanup, err := database.GetDBConnection()
+	defer cleanup()
+	if err != nil {
+		authURL = Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+		return &authURL, nil
+	}
+
+	user, err := database.GetUser(db, userID)
+	if err == nil && strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
+		authURL = getGoogleLinkConfigForEmployees().AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	} else {
+		authURL = Google.LinkConfig.AuthCodeURL(stateTokenID.Hex(), oauth2.AccessTypeOffline, oauth2.ApprovalForce)
+	}
 	return &authURL, nil
+
 }
 
 func (Google GoogleService) GetSignupURL(stateTokenID primitive.ObjectID, forcePrompt bool) (*string, error) {
