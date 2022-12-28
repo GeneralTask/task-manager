@@ -1,6 +1,7 @@
 import { scrollbarWidth } from '@xobotyi/scrollbar-width'
 import styled from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Icon } from '../atoms/Icon'
 
 export const CELL_HEIGHT_VALUE = 64
 export const CELL_HEIGHT = `${CELL_HEIGHT_VALUE}px`
@@ -133,6 +134,15 @@ export const EventIconAndTitle = styled.div`
     gap: ${Spacing._8};
     max-height: 100%;
     min-width: 0;
+`
+export const EventIcon = styled(Icon)<{ isShort: boolean }>`
+    ${({ isShort }) =>
+        isShort
+            ? `
+        width: ${Spacing._8};
+        margin: 0 ${Spacing._4};
+    `
+            : `width: ${Spacing._16};`};
 `
 export const EventTitle = styled.div`
     text-overflow: ellipsis;

@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
-import { Icon } from '../atoms/Icon'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
 import EventDetailPopover from '../radix/EventDetailPopover'
 import { useCalendarContext } from './CalendarContext'
@@ -9,6 +8,7 @@ import {
     CELL_HEIGHT_VALUE,
     EventBodyStyle,
     EventFill,
+    EventIcon,
     EventIconAndTitle,
     EventInfo,
     EventInfoContainer,
@@ -72,7 +72,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
                             <EventInfo isLongEvent={isLongEvent}>
                                 <EventIconAndTitle>
-                                    {props.event.linked_task_id && <Icon icon={logos[props.event.logo]} />}
+                                    {props.event.linked_task_id && (
+                                        <EventIcon icon={logos[props.event.logo]} isShort={timeDurationMinutes <= 15} />
+                                    )}
                                     <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                                 </EventIconAndTitle>
                                 <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
