@@ -151,8 +151,16 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			result <- emptyCalendarResult(errors.New("failed to fetch events"))
 		}
 		events = append(events, eventResult.CalendarEvents...)
-		calendarAccount.Calendars = []database.Calendar{{"primary", ""}}
+		calendarAccount.Calendars = []database.Calendar{
+			{
+				CalendarID: "primary",
+				ColorID:    "",
+			},
+		}
 		_, err = database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
+		if err != nil {
+			result <- emptyCalendarResult(err)
+		}
 		result <- CalendarResult{CalendarEvents: events, Error: nil}
 		return
 	}
