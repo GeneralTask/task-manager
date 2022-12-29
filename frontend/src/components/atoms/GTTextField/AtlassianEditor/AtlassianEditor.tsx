@@ -1,6 +1,5 @@
-import { useCallback } from 'react'
 import '@atlaskit/css-reset'
-import { Editor, EditorActions, EditorContext, WithEditorActions } from '@atlaskit/editor-core'
+import { Editor, EditorContext } from '@atlaskit/editor-core'
 import styled from 'styled-components'
 import { Border, Typography } from '../../../../styles'
 import { MarkdownEditorProps } from '../types'
@@ -33,20 +32,20 @@ const Container = styled.div`
 `
 
 const AtlassianEditor = (props: MarkdownEditorProps) => {
-    const updateEditor = useCallback(
-        (actions: EditorActions) => {
-            actions.replaceDocument(props.value)
-            return null
-        },
-        [props.itemId]
-    )
+    // const updateEditor = useCallback(
+    //     (actions: EditorActions) => {
+    //         actions.replaceDocument(props.value)
+    //         return null
+    //     },
+    //     [props.itemId]
+    // )
 
     return (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
         <EditorContext>
             <Container>
-                <WithEditorActions render={updateEditor} />
+                {/* <WithEditorActions render={updateEditor} /> */}
                 <Editor defaultValue={props.value} placeholder="Add details" disabled appearance="comment" />
             </Container>
         </EditorContext>

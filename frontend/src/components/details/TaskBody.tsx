@@ -23,7 +23,7 @@ const TaskBody = ({ id, body, contentType, onChange, disabled, nux_number_id }: 
     return (
         <BodyContainer>
             <GTTextField
-                itemId={id}
+                key={id}
                 type={contentType}
                 value={body}
                 placeholder="Add details"
