@@ -1,4 +1,5 @@
 export type FontSize = 'small' | 'medium' | 'large'
+export type ContentType = 'markdown' | 'atlassian' | 'plaintext'
 
 // props we support for markdown
 export interface MarkdownEditorProps {

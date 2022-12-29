@@ -1,7 +1,8 @@
+import { useCallback } from 'react'
 import '@atlaskit/css-reset'
-import { Editor } from '@atlaskit/editor-core'
+import { Editor, EditorActions, EditorContext, WithEditorActions } from '@atlaskit/editor-core'
 import styled from 'styled-components'
-import { Border, Spacing, Typography } from '../../../../styles'
+import { Border, Typography } from '../../../../styles'
 import { MarkdownEditorProps } from '../types'
 
 const Container = styled.div`
@@ -17,13 +18,13 @@ const Container = styled.div`
     }
     /* align text to top of editor */
     .ak-editor-content-area {
-        padding: 0 ${Spacing._8};
+        padding: 0;
     }
     /* stop from intersecting with parent border */
     [data-testid='ak-editor-main-toolbar'] {
         border-radius: ${Border.radius.small};
         height: fit-content;
-        padding: 0 ${Spacing._8};
+        padding: 0;
     }
     /* needed to make editor match container height */
     > div > :nth-child(2) {
@@ -32,11 +33,23 @@ const Container = styled.div`
 `
 
 const AtlassianEditor = (props: MarkdownEditorProps) => {
-    console.log(props)
+    const updateEditor = useCallback(
+        (actions: EditorActions) => {
+            actions.replaceDocument(props.value)
+            return null
+        },
+        [props.itemId]
+    )
+
     return (
-        <Container id="duck">
-            <Editor appearance="comment" onChange={(e) => console.log(e)} placeholder="Add details" />
-        </Container>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
+        <EditorContext>
+            <Container>
+                <WithEditorActions render={updateEditor} />
+                <Editor defaultValue={props.value} placeholder="Add details" disabled appearance="comment" />
+            </Container>
+        </EditorContext>
     )
 }
 
