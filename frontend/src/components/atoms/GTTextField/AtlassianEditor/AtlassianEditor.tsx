@@ -32,21 +32,12 @@ const Container = styled.div`
 `
 
 const AtlassianEditor = (props: MarkdownEditorProps) => {
-    // const updateEditor = useCallback(
-    //     (actions: EditorActions) => {
-    //         actions.replaceDocument(props.value)
-    //         return null
-    //     },
-    //     [props.itemId]
-    // )
-
     return (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
         <EditorContext>
             <Container>
-                {/* <WithEditorActions render={updateEditor} /> */}
-                <Editor defaultValue={props.value} placeholder="Add details" disabled appearance="comment" />
+                <Editor defaultValue={props.value} placeholder="Add details" appearance="comment" />
             </Container>
         </EditorContext>
     )
