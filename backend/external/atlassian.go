@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -93,7 +92,7 @@ func (atlassian AtlassianService) HandleLinkCallback(db *mongo.Database, params 
 	token, err := atlassian.Config.OauthConfig.Exchange(extCtx, *params.Oauth2Code)
 	logger := logging.GetSentryLogger()
 	if err != nil {
-		logger.Error().Err(err).Msg(fmt.Sprintf("failed to fetch token from Atlassian, code: %s", *params.Oauth2Code))
+		logger.Error().Err(err).Msg("failed to fetch token from Atlassian")
 		return errors.New("internal server error")
 	}
 
