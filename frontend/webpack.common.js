@@ -68,4 +68,9 @@ module.exports = {
             'process.env.NODE_DEBUG': false,
         }),
     ],
+    ignoreWarnings: [
+        {
+            module: /@atlaskit/,
+        },
+    ],
 }
