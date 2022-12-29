@@ -37,7 +37,13 @@ const AtlassianEditor = (props: MarkdownEditorProps) => {
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
         <EditorContext>
             <Container>
-                <Editor defaultValue={props.value} placeholder="Add details" appearance="comment" />
+                <Editor
+                    defaultValue={props.value}
+                    placeholder={props.placeholder}
+                    disabled={props.disabled}
+                    shouldFocus={props.autoFocus}
+                    appearance="comment"
+                />
             </Container>
         </EditorContext>
     )
