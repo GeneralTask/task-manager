@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useCommands, useRemirrorContext } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
-import { FontSize, MarkdownEditorProps } from '../types'
+import { FontSize, RichTextEditorProps } from '../types'
 import RichTextToolbar from './RichTextToolbar'
 
 const EditorContainer = styled.div`
@@ -78,7 +78,7 @@ const Editor = styled.div<{
     }
 `
 
-const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
+const MarkdownEditorInternal = (props: RichTextEditorProps) => {
     const editorRef = useRef<HTMLDivElement>(null)
     const { blur, selectAll } = useCommands()
     const { getRootProps } = useRemirrorContext({ autoUpdate: true })

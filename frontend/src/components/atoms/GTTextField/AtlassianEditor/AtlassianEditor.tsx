@@ -2,7 +2,7 @@ import '@atlaskit/css-reset'
 import { Editor, EditorContext } from '@atlaskit/editor-core'
 import styled from 'styled-components'
 import { Border, Typography } from '../../../../styles'
-import { MarkdownEditorProps } from '../types'
+import { RichTextEditorProps } from '../types'
 
 const Container = styled.div`
     height: 100%;
@@ -31,7 +31,7 @@ const Container = styled.div`
     }
 `
 
-const AtlassianEditor = (props: MarkdownEditorProps) => {
+const AtlassianEditor = (props: RichTextEditorProps) => {
     return (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
