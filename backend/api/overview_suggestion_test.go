@@ -25,7 +25,7 @@ func TestOverviewSuggestions(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, `{"detail": "inaccessible"}`, string(body))
+		assert.Equal(t, `{"detail":"inaccessible"}`, string(body))
 	})
 
 	// TODO mock responses for further testing
