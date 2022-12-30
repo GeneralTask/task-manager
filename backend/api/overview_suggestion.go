@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type GPTView struct {
@@ -147,23 +146,4 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 
 func getPrompt(sectionString string) string {
 	return "I have folders in which I keep tasks. The tasks are related to the folder in question. The folders are as follows: " + sectionString + ". If I value helping the team, fixing bugs, good engineering and being dependable, in which order should I complete these folders? Please provide the order, and then short reasoning as to why it is prioritized after the ordering."
-}
-
-func (api *API) getTaskSectionName(userID primitive.ObjectID, view database.View) string {
-	name, err := database.GetTaskSectionName(api.DB, view.TaskSectionID, userID)
-	if err != nil {
-		return ""
-	}
-	return name
-}
-
-func (api *API) getGithubViewName(userID primitive.ObjectID, view database.View) string {
-	var repository database.Repository
-	repositoryCollection := database.GetRepositoryCollection(api.DB)
-	err := repositoryCollection.FindOne(context.Background(), bson.M{"$and": []bson.M{{"repository_id": view.GithubID, "user_id": userID}}}).Decode(&repository)
-	if err != nil {
-		return ""
-	}
-
-	return fmt.Sprintf("GitHub PRs from %s", repository.FullName)
 }
