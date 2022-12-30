@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { AUTHORIZATION_COOKE } from '../../constants'
 import getEnvVars, { isDevelopmentMode } from '../../environment'
-import GoogleSignInButton from '../atoms/buttons/GoogleSignInButton'
+import GoogleAuthScreen from './GoogleAuthScreen'
 
 const LandingScreen = () => {
     if (Cookies.get(AUTHORIZATION_COOKE)) return <Navigate to="/overview" replace />
@@ -14,11 +14,7 @@ const LandingScreen = () => {
     }, [])
 
     if (!isDevelopmentMode) return <></>
-    return (
-        <div>
-            <GoogleSignInButton />
-        </div>
-    )
+    return <GoogleAuthScreen />
 }
 
 export default LandingScreen

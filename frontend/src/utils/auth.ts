@@ -1,5 +1,5 @@
 import Cookie from 'js-cookie'
-import { AUTHORIZATION_COOKE, COOKIE_DOMAIN } from '../constants'
+import { AUTHORIZATION_COOKE, COOKIE_DOMAIN, GOOGLE_AUTH_ROUTE } from '../constants'
 import getEnvVars from '../environment'
 import Log from '../services/api/log'
 
@@ -18,13 +18,17 @@ export const openPopupWindow = (
     authorizationURL: string,
     onWindowClose: () => void,
     logEvent = true,
-    closeOnCookieSet = false
+    closeOnCookieSet = false,
+    isGoogleSignIn = false
 ) => {
     if (logEvent) Log(`open_auth_window_${authorizationURL}`)
     const left = (screen.width - AUTH_WINDOW_WIDTH) / 2
     const top = (screen.height - AUTH_WINDOW_HEIGHT) / 4
+    const link = isGoogleSignIn
+        ? `${getEnvVars().REACT_APP_FRONTEND_BASE_URL}/${GOOGLE_AUTH_ROUTE}?authUrl=${authorizationURL}`
+        : authorizationURL
     const win = window.open(
-        authorizationURL,
+        link,
         '_blank',
         `height=${AUTH_WINDOW_HEIGHT},width=${AUTH_WINDOW_WIDTH},top=${top},left=${left}toolbar=no,menubar=no,scrollbars=no,location=no,status=no`
     )
