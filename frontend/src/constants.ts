@@ -48,6 +48,7 @@ export const TERMS_OF_SERVICE_ROUTE = 'terms-of-service'
 export const PRIVACY_POLICY_ROUTE = 'privacy-policy'
 export const FOCUS_MODE_ROUTE = 'focus-mode'
 export const NOTE_ROUTE = 'note'
+export const GOOGLE_AUTH_ROUTE = 'link/google'
 
 export const NO_TITLE = '(no title)'
 export const EMPTY_MONGO_OBJECT_ID = '000000000000000000000000'

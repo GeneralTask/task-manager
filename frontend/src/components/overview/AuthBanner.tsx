@@ -34,9 +34,10 @@ interface AuthBannerProps {
     name: string
     logo: TLogoImage
     hasBorder: boolean
+    isGoogleSignIn?: boolean
 }
 
-const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps) => {
+const AuthBanner = ({ authorizationUrl, name, logo, hasBorder, isGoogleSignIn }: AuthBannerProps) => {
     const { refetch: refetchViews } = useGetOverviewViews()
     const { refetch: refetchSupportedViews } = useGetSupportedViews()
     const { refetch: fetchExternalTasks } = useFetchExternalTasks()
@@ -61,7 +62,7 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
                     icon={icons.external_link}
                     size="small"
                     styleType="secondary"
-                    onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
+                    onClick={() => openPopupWindow(authorizationUrl, onWindowClose, true, false, isGoogleSignIn)}
                 />
             </div>
         </BannerContainer>
