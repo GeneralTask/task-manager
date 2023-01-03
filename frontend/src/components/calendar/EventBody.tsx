@@ -73,7 +73,10 @@ function EventBody(props: EventBodyProps): JSX.Element {
                             <EventInfo isLongEvent={isLongEvent}>
                                 <EventIconAndTitle>
                                     {props.event.linked_task_id && (
-                                        <EventIcon icon={logos[props.event.logo]} isShort={timeDurationMinutes <= 15} />
+                                        <EventIcon
+                                            icon={logos[props.event.logo]}
+                                            isShort={timeDurationMinutes <= MINIMUM_BODY_HEIGHT}
+                                        />
                                     )}
                                     <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                                 </EventIconAndTitle>
