@@ -148,7 +148,7 @@ const SharedNoteView = () => {
                                         disabled
                                         readOnly
                                     />
-                                    {isUserNoteOwner && <NoteActionsDropdown note={note} />}
+                                    <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
                                 </Flex>
                                 <GTTextField
                                     type="markdown"
