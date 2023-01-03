@@ -20,52 +20,40 @@ interface GTIconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
     icon: TIconType
     iconColor?: TIconColor
     forceShowHoverEffect?: boolean
-    tooltipText?: string // note: shortcutName takes precedence over tooltipText
     tooltipSide?: TTooltipSide
-    shortcutName?: TShortcutName
     asDiv?: boolean
 }
-const GTIconButton = forwardRef(
-    (
-        {
-            icon,
-            iconColor,
-            forceShowHoverEffect,
-            tooltipText,
-            tooltipSide,
-            shortcutName,
-            asDiv = false,
-            onClick,
-            ...props
-        }: GTIconButtonProps,
-        ref: React.Ref<HTMLButtonElement>
-    ) => {
-        if (tooltipText || shortcutName)
-            return (
-                <Tip content={tooltipText} shortcutName={shortcutName} side={tooltipSide}>
-                    <Button
-                        ref={ref}
-                        onClick={onClick}
-                        forceShowHoverEffect={forceShowHoverEffect}
-                        as={asDiv ? 'div' : 'button'}
-                        {...props}
-                    >
-                        <Icon icon={icon} color={iconColor} />
-                    </Button>
-                </Tip>
-            )
+// note: shortcutName takes precedence over tooltipText
+type TooltipProps =
+    | { tooltipText: string; shortcutName?: TShortcutName }
+    | { tooltipText?: string; shortcutName: TShortcutName }
+type GTIconButtonPropsWithTooltip = GTIconButtonProps & TooltipProps
+const GTIconButton = forwardRef((props: GTIconButtonPropsWithTooltip, ref: React.Ref<HTMLButtonElement>) => {
+    if (props.tooltipText || props.shortcutName)
         return (
-            <Button
-                ref={ref}
-                onClick={onClick}
-                forceShowHoverEffect={forceShowHoverEffect}
-                as={asDiv ? 'div' : 'button'}
-                {...props}
-            >
-                <Icon icon={icon} color={iconColor} />
-            </Button>
+            <Tip content={props.tooltipText} shortcutName={props.shortcutName} side={props.tooltipSide}>
+                <Button
+                    ref={ref}
+                    onClick={props.onClick}
+                    forceShowHoverEffect={props.forceShowHoverEffect}
+                    as={props.asDiv ? 'div' : 'button'}
+                    {...props}
+                >
+                    <Icon icon={props.icon} color={props.iconColor} />
+                </Button>
+            </Tip>
         )
-    }
-)
+    return (
+        <Button
+            ref={ref}
+            onClick={props.onClick}
+            forceShowHoverEffect={props.forceShowHoverEffect}
+            as={props.asDiv ? 'div' : 'button'}
+            {...props}
+        >
+            <Icon icon={props.icon} color={props.iconColor} />
+        </Button>
+    )
+})
 
 export default GTIconButton

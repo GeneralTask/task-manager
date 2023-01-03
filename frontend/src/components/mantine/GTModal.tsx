@@ -88,7 +88,11 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                 <ModalContent smallGap={!Array.isArray(tabs)}>
                     <Flex justifyContent="space-between" alignItems="center">
                         <Subtitle>{tab.title}</Subtitle>
-                        <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
+                        <GTIconButton
+                            tooltipText="Close"
+                            icon={icons.x}
+                            onClick={() => baseModalProps.setIsModalOpen(false)}
+                        />
                     </Flex>
                     {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
                     {Array.isArray(tabs) && <Divider color={Colors.border.light} />}

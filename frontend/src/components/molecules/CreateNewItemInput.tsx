@@ -85,7 +85,7 @@ const CreateNewItemInput = ({
     )
 
     return (
-        <Tip shortcutName={shortcutName} side="top" align="end" disabled={!shortcutName}>
+        <Tip shortcutName={shortcutName} side="top" disabled={!shortcutName}>
             <CreateNewItemInputContainer>
                 {!hideIcon && <Icon icon={icons.plus} />}
                 <TaskInput
