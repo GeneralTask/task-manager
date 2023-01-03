@@ -107,6 +107,7 @@ const SharedNoteView = () => {
             {note && (
                 <Helmet>
                     <title>{note.title}</title>
+                    <meta property="og:image" content="/images/shared_note_preview.png" />
                     <meta content={note.title} property="og:title" />
                     <meta content={note.body} property="og:description" />
                 </Helmet>
