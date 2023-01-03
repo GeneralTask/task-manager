@@ -20,8 +20,17 @@ ReactGA.initialize(GA_TRACKING_ID, {
 const AuthenticatedRoutes = lazy(() => import('./src/AuthenticatedRoutes'))
 const CompanyPolicyView = lazy(() => import('./src/components/views/CompanyPolicyView'))
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: Infinity,
+            cacheTime: Infinity,
+            refetchIntervalInBackground: true,
+        },
+    },
+})
+
 const App = () => {
-    const queryClient = new QueryClient()
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>

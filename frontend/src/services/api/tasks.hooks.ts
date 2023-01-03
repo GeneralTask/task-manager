@@ -21,7 +21,7 @@ import {
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
-import { GTQueryClient, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { GTQueryClient, getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
@@ -121,8 +121,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks_v4')
             queryClient.invalidateQueries('overview')
         },
-        refetchInterval: TASK_REFETCH_INTERVAL,
-        refetchIntervalInBackground: true,
+        ...getBackgroundQueryOptions(TASK_REFETCH_INTERVAL),
     })
 }
 const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
