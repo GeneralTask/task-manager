@@ -45,7 +45,7 @@ const Tip = ({
     shortcutName,
     overrideShortcutLabel,
     overrideShortcut,
-    side,
+    side = 'bottom',
     align,
     children,
     disabled,
@@ -69,7 +69,7 @@ const Tip = ({
         )
 
     return (
-        <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>
+        <Tooltip.Provider delayDuration={250} skipDelayDuration={1000} disableHoverableContent>
             <Tooltip.Root defaultOpen={false}>
                 <Tooltip.Trigger asChild>
                     <TriggerSpan fitContent={fitContent}>{children}</TriggerSpan>
