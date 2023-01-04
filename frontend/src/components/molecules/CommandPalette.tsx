@@ -103,6 +103,23 @@ const FlexWidth100 = styled(Flex)`
 const RightLabel = styled(Label)`
     margin-left: auto;
 `
+
+const BoldMatches = ({ text, query }: { text: string; query: string | undefined }) => {
+    if (!query) return <BodySmall>{text}</BodySmall>
+    const matches = text.match(new RegExp(query, 'gi'))
+    if (!matches) return <BodySmall>{text}</BodySmall>
+    const split = text.split(new RegExp(query, 'gi'))
+    return (
+        <BodySmall>
+            {split.map((part, i) => (
+                <span key={i}>
+                    {part}
+                    {matches[i] && <strong>{matches[i]}</strong>}
+                </span>
+            ))}
+        </BodySmall>
+    )
+}
 interface CommandPaletteProps {
     customButton?: React.ReactNode
     hideButton?: boolean
@@ -171,6 +188,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                 }}
                 value={selectedShortcut}
                 onValueChange={setSelectedShortcut}
+                filter={(value, search) => (value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)}
             >
                 <Searchbar>
                     <IconContainer>
@@ -201,7 +219,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
-                                                <BodySmall>{label}</BodySmall>
+                                                <BoldMatches text={label} query={searchValue} />
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
                                         </CommandItem>
@@ -234,7 +252,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                                     }
                                                 />
                                             </IconContainer>
-                                            <TruncatedTitle>{name}</TruncatedTitle>
+                                            <TruncatedTitle>
+                                                <BoldMatches text={name} query={searchValue} />
+                                            </TruncatedTitle>
                                         </FlexWidth100>
                                     </CommandItem>
                                 ))}
