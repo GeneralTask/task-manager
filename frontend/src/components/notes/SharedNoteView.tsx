@@ -100,6 +100,7 @@ const SharedNoteView = () => {
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
 
     const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
+    const isUserNoteOwner = (notes ?? []).some((userNote) => userNote.id === note?.id)
 
     if (isLoading || isLoadingNotes) return <Spinner />
     return (
@@ -168,24 +169,23 @@ const SharedNoteView = () => {
                                         disabled
                                         readOnly
                                     />
-                                    <Divider color={Colors.border.light} />
-                                    <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
-                                        <Flex gap={Spacing._4}>
-                                            {isLoggedIn && notes?.findIndex((n) => n.id === note.id) !== -1 ? (
-                                                <>
-                                                    <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
-                                                        DateTime.fromISO(note.updated_at)
-                                                    )}`}</Label>
-                                                    <Label>
-                                                        {'('}
-                                                        <Link to={`/notes/${noteId}`}>edit note</Link>
-                                                        {')'}
-                                                    </Label>
-                                                </>
-                                            ) : (
-                                                <Label color="light">{`${
-                                                    note.author
-                                                } shared this note ${getHumanTimeSinceDateTime(
+                                    <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
+                                </Flex>
+                                <GTTextField
+                                    type="markdown"
+                                    itemId={note.body}
+                                    value={note.body}
+                                    onChange={emptyFunction}
+                                    fontSize="small"
+                                    disabled
+                                    readOnly
+                                />
+                                <Divider color={Colors.border.light} />
+                                <FlexPadding8Horizontal justifyContent="space-between" alignItems="center">
+                                    <Flex gap={Spacing._4}>
+                                        {isLoggedIn && isUserNoteOwner ? (
+                                            <>
+                                                <Label color="light">{`You shared this note ${getHumanTimeSinceDateTime(
                                                     DateTime.fromISO(note.updated_at)
                                                 )}`}</Label>
                                             )}
