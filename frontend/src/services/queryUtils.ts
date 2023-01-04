@@ -2,7 +2,7 @@ import { MutationFunction, QueryClient, QueryKey, UseMutationOptions, useMutatio
 import { QueryFilters } from 'react-query/types/core/utils'
 import { Immutable } from 'immer'
 import { DateTime } from 'luxon'
-import { QUEUED_MUTATION_DEBOUNCE } from '../constants'
+import { QUEUED_MUTATION_DEBOUNCE, TASK_REFETCH_INTERVAL } from '../constants'
 import useQueryContext from '../context/QueryContext'
 import { getMonthsAroundDate } from '../utils/time'
 import { TEvent } from '../utils/types'
@@ -128,3 +128,13 @@ export const useQueuedMutation = <TData = unknown, TError = unknown, TVariables 
         mutate: newMutate,
     }
 }
+
+/**
+ * If the window is focused, refetch regularly
+ * If the window is not focused for more than refetchInterval, refetch when the user returns to the window
+ **/
+export const getBackgroundQueryOptions = (refetchInterval = TASK_REFETCH_INTERVAL) => ({
+    staleTime: refetchInterval,
+    refetchInterval,
+    refetchIntervalInBackground: false,
+})

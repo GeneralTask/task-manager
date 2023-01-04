@@ -5,8 +5,6 @@ import { DateTime } from 'luxon'
 import { useEventBanners, usePreviewMode } from '../../hooks'
 import { useGetNotes } from '../../services/api/notes.hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
-import { useRecurringTaskTemplates } from '../../services/api/recurring-tasks.hooks'
-import { useGetSettings } from '../../services/api/settings.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
@@ -31,10 +29,7 @@ const MainScreen = () => {
     const { isPreviewMode } = usePreviewMode()
     useFetchPullRequests()
     useFetchExternalTasks()
-    useGetSettings()
     useEventBanners(DateTime.now())
-    useRecurringTaskTemplates()
-
     const currentPage = (isPreviewMode: boolean) => {
         switch (location.pathname.split('/')[1]) {
             case 'overview':
