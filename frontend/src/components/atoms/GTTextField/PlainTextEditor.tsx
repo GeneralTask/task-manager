@@ -74,7 +74,7 @@ const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) =>
             }}
             onKeyDown={handleKeyDown}
             autoFocus={autoFocus}
-            data-autoFocus={autoFocus}
+            data-autofocus={autoFocus}
             {...rest}
         />
     )
