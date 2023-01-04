@@ -1,9 +1,8 @@
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
+import useAuthWindow from '../../hooks/useAuthWindow'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
-import { openPopupWindow } from '../../utils/auth'
-import { emptyFunction } from '../../utils/utils'
 import GTButton from '../atoms/buttons/GTButton'
 
 const TextContainerWidth = '40%'
@@ -30,6 +29,7 @@ const ButtonContainer = styled.div`
 
 const MissingRepositoryMessage = () => {
     const { data: supportedTypes } = useGetSupportedTypes()
+    const { openAuthWindow } = useAuthWindow()
     const githubAuthorizationUrl = supportedTypes?.find(
         (type) => type.name === GITHUB_SUPPORTED_TYPE_NAME
     )?.authorization_url
@@ -48,7 +48,7 @@ const MissingRepositoryMessage = () => {
                 <GTButton
                     size="large"
                     value="Request access"
-                    onClick={() => openPopupWindow(githubAuthorizationUrl, emptyFunction)}
+                    onClick={() => openAuthWindow({ url: githubAuthorizationUrl })}
                 />
             </ButtonContainer>
         </MessageContainer>

@@ -7,10 +7,10 @@ import styled, { css } from 'styled-components'
 import { AUTHORIZATION_COOKE, LOGIN_URL } from '../../constants'
 import getEnvVars from '../../environment'
 import useAnalyticsEventTracker from '../../hooks/useAnalyticsEventTracker'
+import useAuthWindow from '../../hooks/useAuthWindow'
 import { useGetNote, useGetNotes } from '../../services/api/notes.hooks'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { buttons, noteBackground } from '../../styles/images'
-import { openPopupWindow } from '../../utils/auth'
 import { emptyFunction, getFormattedDuration, getHumanTimeSinceDateTime } from '../../utils/utils'
 import Flex from '../atoms/Flex'
 import GTTextField from '../atoms/GTTextField'
@@ -92,6 +92,7 @@ const SharedNoteView = () => {
     useEffect(() => {
         GALog('Page view', 'Shared Note View')
     }, [])
+    const { openAuthWindow } = useAuthWindow()
     const navigate = useNavigate()
     const { noteId } = useParams()
     if (!noteId) navigate('/')
@@ -137,7 +138,7 @@ const SharedNoteView = () => {
                             <SignInButton
                                 onClick={() => {
                                     GALog('Button click', 'Sign in with Google')
-                                    openPopupWindow(LOGIN_URL, emptyFunction, false, true)
+                                    openAuthWindow({ url: LOGIN_URL, logEvent: false, closeOnCookieSet: true })
                                 }}
                             >
                                 <GoogleImage src={buttons.google_sign_in} />

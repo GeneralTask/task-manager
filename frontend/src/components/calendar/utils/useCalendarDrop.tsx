@@ -101,7 +101,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                         icon: logos.gcal,
                         label: 'Connect',
                         onClick: () => {
-                            openAuthWindow({ url: googleSupportedType?.authorization_url })
+                            openAuthWindow({ url: googleSupportedType?.authorization_url, isGoogleSignIn: true })
                         },
                     },
                 }
