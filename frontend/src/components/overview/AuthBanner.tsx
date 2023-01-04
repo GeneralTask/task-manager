@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import useAuthWindow from '../../hooks/useAuthWindow'
+import { useAuthWindow } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { Icon } from '../atoms/Icon'

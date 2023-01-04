@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
-import useAuthWindow from '../../hooks/useAuthWindow'
+import { useAuthWindow } from '../../hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import GTButton from '../atoms/buttons/GTButton'

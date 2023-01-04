@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { GOOGLE_AUTH_ROUTE, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import getEnvVars from '../../environment'
-import useAuthWindow from '../../hooks/useAuthWindow'
+import { useAuthWindow } from '../../hooks'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
