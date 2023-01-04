@@ -97,7 +97,7 @@ const CreateNewItemInput = ({
                         setText(e.target.value)
                         onChange?.(e.target.value)
                     }}
-                    data-autofocus={autoFocus}
+                    data-autoFocus={autoFocus}
                     onBlur={onBlur}
                 />
             </CreateNewItemInputContainer>
