@@ -147,7 +147,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                                             refetchStaleQueries,
                                                             true,
                                                             false,
-                                                            true
+                                                            supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
                                                         )
                                                     }
                                                     styleType="secondary"
