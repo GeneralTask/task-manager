@@ -141,7 +141,13 @@ export default function CalendarHeader({
                             />
                         )}
                     {!isCalendarShowingToday && (
-                        <GTButton value="Jump to Today" onClick={selectToday} size="small" styleType="secondary" />
+                        <GTButton
+                            value="Jump to Today"
+                            icon={icons.calendar_star}
+                            onClick={selectToday}
+                            size="small"
+                            styleType="secondary"
+                        />
                     )}
                 </>
             )
