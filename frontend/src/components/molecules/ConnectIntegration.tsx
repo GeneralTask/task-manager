@@ -1,12 +1,10 @@
-import { useState } from 'react'
 import styled from 'styled-components'
-import { FIVE_SECOND_TIMEOUT, GOOGLE_AUTH_ROUTE, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import { GOOGLE_AUTH_ROUTE, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import getEnvVars from '../../environment'
-import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
+import useAuthWindow from '../../hooks/useAuthWindow'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { openPopupWindow } from '../../utils/auth'
 import { TLinkedAccountName, TSupportedType } from '../../utils/types'
 import GTShadowContainer from '../atoms/GTShadowContainer'
 import { Icon } from '../atoms/Icon'
@@ -46,9 +44,8 @@ interface ConnectIntegrationProps {
 }
 
 const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps) => {
-    const [userIsConnecting, setUserIsConnecting] = useState(false)
-    const refetchStaleQueries = useRefetchStaleQueries()
     const { data: supportedTypes } = useGetSupportedTypes()
+    const { openAuthWindow, isAuthWindowOpen } = useAuthWindow()
     const { icon, name, authUrl } = (() => {
         switch (type) {
             case 'github':
@@ -80,21 +77,14 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
         }
     })()
 
-    const title = userIsConnecting ? `Connecting to ${name}...` : `Connect to ${name}`
+    const title = isAuthWindowOpen ? `Connecting to ${name}...` : `Connect to ${name}`
 
     const isGCal = type === 'google_calendar'
-    const hideConnectButton = isGCal && userIsConnecting
+    const hideConnectButton = isGCal && isAuthWindowOpen
 
     const onClick = () => {
         if (!authUrl) return
-        setUserIsConnecting(true)
-        const onClose = () => {
-            refetchStaleQueries()
-            setTimeout(() => {
-                setUserIsConnecting(false)
-            }, FIVE_SECOND_TIMEOUT)
-        }
-        openPopupWindow(authUrl, onClose)
+        openAuthWindow({ url: authUrl })
     }
 
     if (!icon || !name || !authUrl || !title) return null
@@ -106,7 +96,7 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
             </IconAndText>
             {!hideConnectButton && (
                 <GTButton
-                    disabled={userIsConnecting}
+                    disabled={isAuthWindowOpen}
                     value={reconnect ? 'Re-link account' : 'Connect'}
                     color={Colors.gtColor.primary}
                     size="small"

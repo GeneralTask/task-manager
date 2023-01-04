@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGTLocalStorage, usePreviewMode, useSetting } from '../../hooks'
+import useAuthWindow from '../../hooks/useAuthWindow'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
@@ -50,6 +51,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
     const { data: supportedTypes } = useGetSupportedTypes()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { openAuthWindow } = useAuthWindow()
 
     const refetchStaleQueries = useRefetchStaleQueries()
 
@@ -66,7 +68,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === accountType) {
-                openPopupWindow(type.authorization_url, refetchStaleQueries)
+                openAuthWindow({ url: type.authorization_url })
                 return
             }
         }
