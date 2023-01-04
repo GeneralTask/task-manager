@@ -23,7 +23,7 @@ const PlainTextArea = styled.textarea<{ fontSize: FontSize }>`
 `
 
 const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) => {
-    const { isFullHeight, maxHeight, value, onChange, ...rest } = props
+    const { isFullHeight, maxHeight, value, onChange, autoFocus, ...rest } = props
     const ref = useRef<HTMLTextAreaElement | null>(null)
     const windowSize = useWindowSize()
     const { isCollapsed } = useCalendarContext()
@@ -73,6 +73,8 @@ const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) =>
                 onChange(e.target.value)
             }}
             onKeyDown={handleKeyDown}
+            autoFocus={autoFocus}
+            data-autoFocus={autoFocus}
             {...rest}
         />
     )

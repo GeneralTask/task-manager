@@ -84,7 +84,6 @@ const FeedbackModal = ({ isCollapsed = false }: FeedbackModalProps) => {
                                 fontSize="small"
                                 placeholder="Let us know your thoughts"
                                 autoFocus
-                                data-autofocus
                             />
                             <GTButton
                                 onClick={submitFeedback}

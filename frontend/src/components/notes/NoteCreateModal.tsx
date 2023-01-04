@@ -161,7 +161,7 @@ const NoteCreateModal = ({ isOpen, setIsOpen }: NoteCreateModalProps) => {
                                 fontSize="medium"
                             />
                         </Flex>
-                        <Flex data-autofocus>
+                        <Flex data-autoFocus>
                             <GTTextField
                                 type="markdown"
                                 value={noteBody}
