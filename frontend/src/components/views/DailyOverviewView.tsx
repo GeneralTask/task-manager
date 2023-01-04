@@ -16,6 +16,7 @@ import OverviewListsModal from '../overview/OverviewListsModal'
 import useOverviewLists from '../overview/useOverviewLists'
 import OverviewAccordionItem from '../radix/OverviewAccordionItem'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
+import { useGTLocalStorage } from '../../hooks'
 
 const ActionsContainer = styled.div`
     background-color: ${Colors.background.medium};
@@ -42,6 +43,7 @@ const DailyOverviewView = () => {
     const [values, setValues] = useState<string[]>([])
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
+    const [automaticSortEmpty] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
 
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
@@ -49,6 +51,21 @@ const DailyOverviewView = () => {
             navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
         }
     }
+
+    if (automaticSortEmpty) {
+
+    }
+    useLayoutEffect(() => {
+        lists?.sort((a, b) => {
+            if (a.is_linked && !b.is_linked) return 1
+            if (a.view_items.length === 0 && b.view_items.length === 0) return 0
+
+
+            if (a.view_items.length === 0) return 1
+            if (b.view_items.length === 0) return -1
+            return 0
+        })
+    }, [lists])
 
     const detailsView = useMemo(() => {
         if (!lists?.length) return <EmptyDetails icon={icons.list} text="You have no views" />
