@@ -3,13 +3,14 @@ package api
 import (
 	"bytes"
 	"context"
-	"github.com/GeneralTask/task-manager/backend/database"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/GeneralTask/task-manager/backend/database"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -41,7 +42,7 @@ func TestUserInfo(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, `{"agreed_to_terms":false,"opted_into_marketing":false,"name":"name","is_employee":true,"email":"userinfo@generaltask.com","linear_name":"linearName","linear_display_name":"linearDisplayName"}`, string(body))
 	})
@@ -56,7 +57,7 @@ func TestUserInfo(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"agreed_to_terms\":false,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":false,\"email\":\"userinfo@gmail.com\"}", string(body))
 	})
@@ -70,7 +71,7 @@ func TestUserInfo(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(body))
 	})
@@ -86,7 +87,7 @@ func TestUserInfo(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing parameters.\"}", string(body))
 	})
@@ -102,7 +103,7 @@ func TestUserInfo(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
@@ -112,7 +113,7 @@ func TestUserInfo(t *testing.T) {
 		recorder = httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":true,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\"}", string(body))
 	})
@@ -129,7 +130,7 @@ func TestUserInfo(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{}", string(body))
 
@@ -139,7 +140,7 @@ func TestUserInfo(t *testing.T) {
 		recorder = httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err = ioutil.ReadAll(recorder.Body)
+		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"agreed_to_terms\":true,\"opted_into_marketing\":false,\"name\":\"\",\"is_employee\":true,\"email\":\"userinfo2@generaltask.com\"}", string(body))
 	})

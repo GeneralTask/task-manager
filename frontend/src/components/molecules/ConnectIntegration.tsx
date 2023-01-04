@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { FIVE_SECOND_TIMEOUT, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import { FIVE_SECOND_TIMEOUT, GOOGLE_AUTH_ROUTE, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
+import getEnvVars from '../../environment'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
@@ -31,6 +32,11 @@ const IconAndText = styled.span`
 const getAuthorizationUrl = (supportedTypes: TSupportedType[], name: TLinkedAccountName) => {
     const supportedType = supportedTypes.find((type) => type.name === name)
     if (!supportedType) return null
+
+    if (name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
+        return `${getEnvVars().REACT_APP_FRONTEND_BASE_URL}/${GOOGLE_AUTH_ROUTE}?authUrl=${
+            supportedType.authorization_url
+        }`
     return supportedType.authorization_url
 }
 

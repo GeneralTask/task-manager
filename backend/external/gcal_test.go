@@ -106,6 +106,16 @@ func TestGetEvents(t *testing.T) {
 		assert.NoError(t, err)
 		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventFromDB)
 		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+
+		var calendarAccount database.CalendarAccount
+		err = database.GetCalendarAccountCollection(db).FindOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"user_id": userID},
+			}},
+		).Decode(&calendarAccount)
+		assert.Equal(t, "primary", calendarAccount.Calendars[0].CalendarID)
+		assert.NoError(t, err)
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
 		standardEvent := calendar.Event{
@@ -357,10 +367,8 @@ func TestGetEvents(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstTask)
 
-		eventCollection := database.GetCalendarEventCollection(db)
-
 		var calendarEventFromDB database.CalendarEvent
-		err = eventCollection.FindOne(
+		err = database.GetCalendarEventCollection(db).FindOne(
 			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},

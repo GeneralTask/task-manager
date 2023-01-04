@@ -177,7 +177,7 @@ func (api *API) GetTaskSectionOverviewResult(view database.View, userID primitiv
 	usableTaskResults := []*TaskResult{}
 	completedTaskResults := []*TaskResult{}
 	for _, task := range taskResults {
-		if task.IsDone != true {
+		if !task.IsDone {
 			usableTaskResults = append(usableTaskResults, task)
 		} else {
 			completedTaskResults = append(completedTaskResults, task)

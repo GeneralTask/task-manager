@@ -15,7 +15,7 @@ func ExtractSenderName(sendLine string) (string, string) {
 }
 
 func ExtractEmailDomain(email string) string {
-	exp := regexp.MustCompile("@(\\S+)")
+	exp := regexp.MustCompile("@(\\S+)") //nolint
 	matches := exp.FindStringSubmatch(email)
 	if len(matches) == 2 {
 		return matches[1]

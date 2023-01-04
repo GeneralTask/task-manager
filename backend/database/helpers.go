@@ -977,10 +977,3 @@ func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("recurring_task_templates")
 }
-
-func IsValidPagination(pagination Pagination) bool {
-	if pagination.Limit == nil || pagination.Page == nil {
-		return false
-	}
-	return *pagination.Limit > 0 && *pagination.Page > 0
-}

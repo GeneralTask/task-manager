@@ -144,7 +144,10 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                                     onClick={() =>
                                                         openPopupWindow(
                                                             supportedType.authorization_url,
-                                                            refetchStaleQueries
+                                                            refetchStaleQueries,
+                                                            true,
+                                                            false,
+                                                            true
                                                         )
                                                     }
                                                     styleType="secondary"
