@@ -1,11 +1,13 @@
-import { forwardRef, useRef } from 'react'
+import { Suspense, forwardRef, lazy, useRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
-import AtlassianEditor from './AtlassianEditor'
-import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
+import Spinner from '../Spinner'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
+
+const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
+const MarkdownEditor = lazy(() => import('./MarkdownEditor'))
 
 const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled?: boolean }>`
     border: ${Border.stroke.medium} solid
@@ -83,7 +85,7 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
             minHeight={props.minHeight}
             hideUnfocusedOutline={props.hideUnfocusedOutline}
         >
-            {getEditor()}
+            <Suspense fallback={<Spinner />}>{getEditor()}</Suspense>
         </Container>
     )
 })
