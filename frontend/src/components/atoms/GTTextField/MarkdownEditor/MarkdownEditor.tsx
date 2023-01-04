@@ -5,10 +5,10 @@ import jsx from 'refractor/lang/jsx'
 import typescript from 'refractor/lang/typescript'
 import * as RemirrorExtensions from 'remirror/extensions'
 import tlds from 'tlds'
-import { MarkdownEditorProps } from '../types'
+import { RichTextEditorProps } from '../types'
 import MarkdownEditorInternal from './MarkdownEditorInternal'
 
-const MarkdownEditor = (props: MarkdownEditorProps) => {
+const MarkdownEditor = (props: RichTextEditorProps) => {
     const linkExtension = useMemo(() => {
         const extension = new RemirrorExtensions.LinkExtension({ autoLink: true, autoLinkAllowedTLDs: tlds })
         extension.addHandler('onClick', (_, data) => {

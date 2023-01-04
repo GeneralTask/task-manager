@@ -402,6 +402,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                     <TaskBody
                         id={currentTask.id}
                         body={currentTask.body ?? ''}
+                        contentType={currentTask.source?.name === 'Jira' ? 'atlassian' : 'markdown'}
                         onChange={(val) => onEdit({ id: currentTask.id, body: val })}
                         disabled={isInTrash}
                         nux_number_id={currentTask.nux_number_id}
