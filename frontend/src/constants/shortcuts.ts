@@ -161,7 +161,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 't',
         keyLabel: 'T',
         category: 'Calendar',
-        icon: 'calendar_blank',
+        icon: 'calendar_star',
     },
     up: {
         label: 'Previous item',
