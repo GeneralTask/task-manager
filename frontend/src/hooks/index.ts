@@ -1,3 +1,4 @@
+import useAuthWindow from './useAuthWindow'
 import useClickOutside from './useClickOutside'
 import useEventBanners from './useEventBanners'
 import useGTLocalStorage from './useGTLocalStorage'
@@ -14,18 +15,19 @@ import useToast from './useToast'
 import useWindowSize from './useWindowSize'
 
 export {
+    useAuthWindow,
     useClickOutside,
     useEventBanners,
+    useGlobalKeyboardShortcuts,
+    useGTLocalStorage,
     useInterval,
     useIsDragging,
     useItemSelectionController,
     useKeyboardShortcut,
     useNavigateToTask,
+    usePreviewMode,
     useSetting,
     useTimeout,
     useToast,
     useWindowSize,
-    usePreviewMode,
-    useGlobalKeyboardShortcuts,
-    useGTLocalStorage,
 }

@@ -3,13 +3,13 @@ import styled from 'styled-components'
 import { useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGTLocalStorage, usePreviewMode, useSetting } from '../../hooks'
+import { useAuthWindow } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { openPopupWindow } from '../../utils/auth'
 import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
@@ -50,6 +50,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
     const { data: supportedTypes } = useGetSupportedTypes()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { openAuthWindow } = useAuthWindow()
 
     const refetchStaleQueries = useRefetchStaleQueries()
 
@@ -66,7 +67,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === accountType) {
-                openPopupWindow(type.authorization_url, refetchStaleQueries)
+                openAuthWindow({ url: type.authorization_url })
                 return
             }
         }
@@ -142,13 +143,12 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                                             : supportedType.name
                                                     }`}
                                                     onClick={() =>
-                                                        openPopupWindow(
-                                                            supportedType.authorization_url,
-                                                            refetchStaleQueries,
-                                                            true,
-                                                            false,
-                                                            supportedType.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME
-                                                        )
+                                                        openAuthWindow({
+                                                            url: supportedType.authorization_url,
+                                                            isGoogleSignIn:
+                                                                supportedType.name ===
+                                                                GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME,
+                                                        })
                                                     }
                                                     styleType="secondary"
                                                     size="small"
