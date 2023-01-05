@@ -42,7 +42,7 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
                     placeholder={props.placeholder}
                     disabled={props.disabled}
                     shouldFocus={props.autoFocus}
-                    appearance="comment"
+                    appearance={props.disabled ? 'chromeless' : 'comment'}
                 />
             </Container>
         </EditorContext>
