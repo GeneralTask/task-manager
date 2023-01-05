@@ -83,7 +83,6 @@ interface TMarkTaskDoneOrDeletedRequestBody {
 export interface TReorderTaskData {
     id: string
     isSubtask?: boolean
-    isSubtaskCompleted?: boolean
     parentId?: string
     dropSectionId: string
     orderingId: number
@@ -93,7 +92,7 @@ export interface TReorderTaskData {
 interface TReorderTaskRequestBody {
     id_task_section: string
     id_ordering: number
-    is_completed: boolean
+    is_completed?: boolean
     is_deleted?: boolean
 }
 export interface TPostCommentData {
@@ -687,12 +686,11 @@ export const useReorderTask = () => {
 }
 
 export const reorderTask = async (data: TReorderTaskData) => {
-    const isTaskCompleted = data.isSubtask ? data.isSubtaskCompleted : data.dropSectionId === DONE_SECTION_ID
     try {
         const requestBody: TReorderTaskRequestBody = {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
-            is_completed: !!isTaskCompleted,
+            is_completed: data.isSubtask ? undefined : data.dropSectionId === DONE_SECTION_ID,
         }
         if (data.isJiraTask) {
             requestBody.is_deleted = data.dropSectionId === TRASH_SECTION_ID
