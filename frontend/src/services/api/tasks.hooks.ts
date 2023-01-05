@@ -83,6 +83,7 @@ interface TMarkTaskDoneOrDeletedRequestBody {
 export interface TReorderTaskData {
     id: string
     isSubtask?: boolean
+    isSubtaskCompleted?: boolean
     parentId?: string
     dropSectionId: string
     orderingId: number
@@ -686,11 +687,12 @@ export const useReorderTask = () => {
 }
 
 export const reorderTask = async (data: TReorderTaskData) => {
+    const isTaskCompleted = data.isSubtask ? data.isSubtaskCompleted : data.dropSectionId === DONE_SECTION_ID
     try {
         const requestBody: TReorderTaskRequestBody = {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
-            is_completed: data.dropSectionId === DONE_SECTION_ID,
+            is_completed: !!isTaskCompleted,
         }
         if (data.isJiraTask) {
             requestBody.is_deleted = data.dropSectionId === TRASH_SECTION_ID

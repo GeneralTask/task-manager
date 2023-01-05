@@ -63,6 +63,7 @@ const SubtaskList = ({ parentTask, subtasks }: SubtasksProps) => {
                 id: item.id,
                 parentId: parentTask.id,
                 isSubtask: true,
+                isSubtaskCompleted: item.task?.is_done,
                 orderingId: dropIndex,
                 dropSectionId: sectionId,
             })
