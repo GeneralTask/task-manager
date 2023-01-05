@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DETAILS_SYNC_TIMEOUT, NO_TITLE, SYNC_MESSAGES } from '../../constants'
+import { useKeyboardShortcut } from '../../hooks'
 import { TModifyNoteData, useModifyNote } from '../../services/api/notes.hooks'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -92,6 +93,11 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
     }
 
     const isShared = +DateTime.fromISO(note.shared_until ?? '0') > +DateTime.local()
+    useKeyboardShortcut(
+        'disableSharedLink',
+        () => modifyNote({ id: note.id, shared_until: DateTime.fromMillis(1).toISO() }),
+        !isShared
+    )
     const sharedUntil =
         note.shared_until === SHARED_NOTE_INDEFINITE_DATE
             ? 'Shared indefinitely'

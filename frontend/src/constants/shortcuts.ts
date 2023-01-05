@@ -291,6 +291,13 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'General',
         icon: 'note',
     },
+    disableSharedLink: {
+        label: 'Disable shared link',
+        key: NO_SHORTCUT,
+        keyLabel: NO_SHORTCUT,
+        category: 'General',
+        icon: 'link_slashed',
+    },
     submit: {
         label: 'Submit text',
         key: `${CMD_CTRL.key}+Enter`,
