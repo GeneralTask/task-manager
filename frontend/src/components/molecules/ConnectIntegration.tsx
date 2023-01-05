@@ -80,7 +80,6 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
     const title = isAuthWindowOpen ? `Connecting to ${name}...` : `Connect to ${name}`
 
     const isGCal = type === 'google_calendar'
-    const hideConnectButton = isGCal && isAuthWindowOpen
 
     const onClick = () => {
         if (!authUrl) return
@@ -94,15 +93,13 @@ const ConnectIntegration = ({ type, reconnect = false }: ConnectIntegrationProps
                 <Icon icon={reconnect ? icons.warning : icon} color={reconnect ? 'red' : 'black'} />
                 <Text>{reconnect ? 'This account needs to be re-linked.' : isGCal ? name : title}</Text>
             </IconAndText>
-            {!hideConnectButton && (
-                <GTButton
-                    disabled={isAuthWindowOpen}
-                    value={reconnect ? 'Re-link account' : 'Connect'}
-                    color={Colors.gtColor.primary}
-                    size="small"
-                    onClick={onClick}
-                />
-            )}
+            <GTButton
+                disabled={isAuthWindowOpen}
+                value={reconnect ? 'Re-link account' : 'Connect'}
+                color={Colors.gtColor.primary}
+                size="small"
+                onClick={onClick}
+            />
         </Container>
     )
 }
