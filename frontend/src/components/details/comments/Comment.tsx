@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { useGetUserInfo } from '../../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../../styles'
-import { TLinearComment } from '../../../utils/types'
+import { TComment, TTaskSourceName } from '../../../utils/types'
 import { emptyFunction, getHumanTimeSinceDateTime } from '../../../utils/utils'
 import GTTextField from '../../atoms/GTTextField'
 
@@ -26,28 +26,33 @@ const GrayText = styled.span`
     ${Typography.bodySmall};
 `
 
-interface LinearCommentProps {
-    comment: TLinearComment
+interface CommentProps {
+    comment: TComment
+    sourceName: TTaskSourceName
 }
 
-const LinearComment = ({ comment }: LinearCommentProps) => {
+const Comment = ({ comment, sourceName }: CommentProps) => {
     const { data: userInfo } = useGetUserInfo()
     const dateSent = DateTime.fromISO(comment.created_at)
     // This is kinda sus, but it gets the job done until backend is fixed
     const modifiedDateSent = getHumanTimeSinceDateTime(dateSent.toMillis() === 0 ? DateTime.local() : dateSent)
-    const name = comment.user.Name ? comment.user.Name : userInfo?.linear_name
-    const displayName = comment.user.DisplayName ? comment.user.DisplayName : userInfo?.linear_display_name
+
+    let userName = comment.user.Name ? comment.user.Name : userInfo?.linear_name
+    if (sourceName === 'Linear' && (comment.user.DisplayName ?? userInfo?.linear_display_name)) {
+        userName += ` (${comment.user.DisplayName ?? userInfo?.linear_display_name})`
+    }
+    const contentType = sourceName === 'Jira' ? 'atlassian' : 'markdown'
 
     return (
         <div>
             <TopContainer>
-                <UsernameText>{`${name} (${displayName})`}</UsernameText>
+                <UsernameText>{userName}</UsernameText>
                 <GrayText>{modifiedDateSent}</GrayText>
             </TopContainer>
             <BodyContainer>
                 <GTTextField
                     itemId={comment.user.ExternalID}
-                    type="markdown"
+                    type={contentType}
                     value={comment.body}
                     onChange={emptyFunction}
                     fontSize="small"
@@ -59,4 +64,4 @@ const LinearComment = ({ comment }: LinearCommentProps) => {
     )
 }
 
-export default LinearComment
+export default Comment

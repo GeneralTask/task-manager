@@ -7,13 +7,12 @@ import showdown from 'showdown'
 import { v4 as uuidv4 } from 'uuid'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../../constants'
 import { useToast } from '../../../hooks'
+import { useAuthWindow } from '../../../hooks'
 import { useCreateEvent, useModifyEvent } from '../../../services/api/events.hooks'
 import { useGetSupportedTypes } from '../../../services/api/settings.hooks'
 import { logos } from '../../../styles/images'
-import { openPopupWindow } from '../../../utils/auth'
 import { getDiffBetweenISOTimes } from '../../../utils/time'
 import { DropItem, DropType, TEvent } from '../../../utils/types'
-import { emptyFunction } from '../../../utils/utils'
 import { NuxTaskBodyStatic } from '../../details/NUXTaskBody'
 import {
     CELL_HEIGHT_VALUE,
@@ -36,6 +35,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
     const toast = useToast()
     const { data: supportedTypes } = useGetSupportedTypes()
     const googleSupportedType = supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)
+    const { openAuthWindow } = useAuthWindow()
 
     const getTimeFromDropPosition = useCallback(
         (dropPosition: number) =>
@@ -101,7 +101,7 @@ const useCalendarDrop = ({ primaryAccountID, date, eventsContainerRef }: Calenda
                         icon: logos.gcal,
                         label: 'Connect',
                         onClick: () => {
-                            openPopupWindow(googleSupportedType?.authorization_url ?? '', emptyFunction)
+                            openAuthWindow({ url: googleSupportedType?.authorization_url, isGoogleSignIn: true })
                         },
                     },
                 }

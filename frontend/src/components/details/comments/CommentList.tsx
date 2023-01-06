@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../../styles'
-import { TLinearComment } from '../../../utils/types'
-import LinearComment from './LinearComment'
+import { TComment, TTaskSourceName } from '../../../utils/types'
+import Comment from './Comment'
 
 const CommentListContainer = styled.div`
     display: flex;
@@ -16,11 +16,12 @@ const CommentHeader = styled.div`
     margin-bottom: ${Spacing._16};
 `
 
-interface LinearCommentListProps {
-    comments: TLinearComment[]
+interface CommentListProps {
+    comments: TComment[]
+    sourceName: TTaskSourceName
 }
 
-const LinearCommentList = ({ comments }: LinearCommentListProps) => {
+const CommentList = ({ comments, sourceName }: CommentListProps) => {
     // This is kinda sus, but it gets the job done until backend is fixed
     const sortedComments = comments.slice().sort((a, b) => {
         if (DateTime.fromISO(a.created_at).toMillis() === 0) {
@@ -34,10 +35,10 @@ const LinearCommentList = ({ comments }: LinearCommentListProps) => {
         <CommentListContainer>
             <CommentHeader>Comments ({comments.length})</CommentHeader>
             {sortedComments.map((comment, index) => (
-                <LinearComment key={index} comment={comment} />
+                <Comment key={index} comment={comment} sourceName={sourceName} />
             ))}
         </CommentListContainer>
     )
 }
 
-export default LinearCommentList
+export default CommentList

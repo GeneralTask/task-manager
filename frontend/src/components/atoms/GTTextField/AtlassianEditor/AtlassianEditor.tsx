@@ -1,8 +1,11 @@
 import '@atlaskit/css-reset'
 import { Editor, EditorContext } from '@atlaskit/editor-core'
+import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import styled from 'styled-components'
 import { Border, Typography } from '../../../../styles'
 import { RichTextEditorProps } from '../types'
+
+const serializer = new JSONTransformer()
 
 const Container = styled.div`
     height: 100%;
@@ -42,7 +45,8 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
                     placeholder={props.placeholder}
                     disabled={props.disabled}
                     shouldFocus={props.autoFocus}
-                    appearance="comment"
+                    appearance={props.disabled ? 'chromeless' : 'comment'}
+                    onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
                 />
             </Container>
         </EditorContext>
