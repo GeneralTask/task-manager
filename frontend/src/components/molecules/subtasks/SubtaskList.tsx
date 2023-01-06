@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { MAX_ORDERING_ID } from '../../../constants'
 import { useKeyboardShortcut } from '../../../hooks'
 import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
@@ -89,14 +90,33 @@ const SubtaskList = ({ parentTask, subtasks }: SubtasksProps) => {
                         {showCreateNewSubtask && (
                             <CreateNewItemInput
                                 placeholder="Add new subtask"
-                                onSubmit={(title) =>
+                                onSubmit={(title) => {
                                     createTask({
                                         title: title,
                                         parent_task_id: parentTask.id,
                                         taskSectionId: sectionId,
                                         optimisticId: uuidv4(),
                                     })
-                                }
+                                }}
+                                onSubmitShift={(title) => {
+                                    const optimisticId = uuidv4()
+                                    createTask({
+                                        title: title,
+                                        parent_task_id: parentTask.id,
+                                        taskSectionId: sectionId,
+                                        optimisticId,
+                                    })
+                                    reorderMutate(
+                                        {
+                                            id: optimisticId,
+                                            parentId: parentTask.id,
+                                            isSubtask: true,
+                                            orderingId: MAX_ORDERING_ID,
+                                            dropSectionId: sectionId,
+                                        },
+                                        optimisticId
+                                    )
+                                }}
                                 onBlur={() => setShowCreateNewSubtask(false)}
                                 autoFocus
                             />

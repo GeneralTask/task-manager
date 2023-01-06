@@ -43,6 +43,7 @@ interface CreateNewItemInputProps {
     hideIcon?: boolean
     onChange?: (text: string) => void
     onSubmit?: (text: string) => void
+    onSubmitShift?: (text: string) => void
     onBlur?: () => void
 }
 const CreateNewItemInput = ({
@@ -53,6 +54,7 @@ const CreateNewItemInput = ({
     hideIcon,
     onChange,
     onSubmit,
+    onSubmitShift,
     onBlur,
 }: CreateNewItemInputProps) => {
     const [text, setText] = useState(initialValue)
@@ -65,9 +67,14 @@ const CreateNewItemInput = ({
             inputRef.current?.blur()
         }
         const trimmedText = text.trim()
-        if (onSubmit && e.key === 'Enter' && trimmedText !== '') {
-            setText('')
-            onSubmit(trimmedText)
+        if (e.key === 'Enter' && trimmedText !== '') {
+            if (e.shiftKey && onSubmitShift) {
+                onSubmitShift(trimmedText)
+                setText('')
+            } else if (onSubmit) {
+                onSubmit(trimmedText)
+                setText('')
+            }
         }
     }
 

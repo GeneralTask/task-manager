@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { MAX_ORDERING_ID } from '../../constants'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useCreateTask, useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
@@ -159,13 +160,29 @@ const TaskSectionView = () => {
                                     <CreateNewItemInput
                                         placeholder="Create new task"
                                         shortcutName="createTask"
-                                        onSubmit={(title) =>
+                                        onSubmit={(title) => {
                                             createTask({
                                                 title: title,
                                                 taskSectionId: section.id,
                                                 optimisticId: uuidv4(),
                                             })
-                                        }
+                                        }}
+                                        onSubmitShift={(title) => {
+                                            const optimisticId = uuidv4()
+                                            createTask({
+                                                title: title,
+                                                taskSectionId: section.id,
+                                                optimisticId,
+                                            })
+                                            reorderTask(
+                                                {
+                                                    id: optimisticId,
+                                                    orderingId: MAX_ORDERING_ID,
+                                                    dropSectionId: section.id,
+                                                },
+                                                optimisticId
+                                            )
+                                        }}
                                     />
                                 )}
                                 <TasksContainer ref={sectionViewRef}>

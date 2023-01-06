@@ -63,6 +63,8 @@ export const DONE_FOLDER_NAME = 'Done'
 export const GITHUB_SUPPORTED_TYPE_NAME = 'GitHub'
 export const GITHUB_SUPPORTED_VIEW_NAME = 'GitHub'
 
+export const MAX_ORDERING_ID = 2147483647
+
 export interface TTaskPriority {
     icon: TIconType
     label: string
