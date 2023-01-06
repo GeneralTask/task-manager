@@ -114,6 +114,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.PATCH("/overview/views/:view_id/", handlers.OverviewViewModify)
 	router.DELETE("/overview/views/:view_id/", handlers.OverviewViewDelete)
 	router.GET("/overview/supported_views/", handlers.OverviewSupportedViewsList)
+	router.GET("/overview/views/suggestion/", handlers.OverviewViewsSuggestion)
 
 	router.GET("/pull_requests/", handlers.PullRequestsList)
 	router.GET("/pull_requests/fetch/", handlers.PullRequestsFetch)
