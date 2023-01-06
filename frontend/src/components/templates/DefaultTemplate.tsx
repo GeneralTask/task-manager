@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
 import { useGTLocalStorage, useWindowSize } from '../../hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -49,15 +49,19 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const { width } = useWindowSize()
+    const { width } = useWindowSize(false)
     const { calendarType, isCollapsed: isCalCollapsed, setIsCollapsed: setIsCalCollapsed } = useCalendarContext()
     const [isNavCollapsed, setIsNavCollapsed] = useGTLocalStorage('navigationCollapsed', false)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!width) return
         if (width < COLLAPSE_BREAKPOINT) {
             if (!isNavCollapsed) setIsNavCollapsed(true)
             if (!isCalCollapsed) setIsCalCollapsed(true)
+        }
+        if (width > COLLAPSE_BREAKPOINT) {
+            if (isNavCollapsed) setIsNavCollapsed(false)
+            if (isCalCollapsed) setIsCalCollapsed(false)
         }
     }, [width])
 
