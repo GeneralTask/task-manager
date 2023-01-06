@@ -6,6 +6,8 @@ import Spinner from '../Spinner'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
+// import x from 'prosemirror-gapcursor'
+
 const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
 const MarkdownEditor = lazy(() => import('./MarkdownEditor'))
 
@@ -26,20 +28,25 @@ const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled
     }
 `
 
-const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number; hideUnfocusedOutline?: boolean }>`
+const Container = styled.div<{
+    isFullHeight?: boolean
+    minHeight?: number
+    hideUnfocusedOutline?: boolean
+    noBorder?: boolean
+}>`
     background-color: inherit;
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid
-        ${({ hideUnfocusedOutline }) => (hideUnfocusedOutline ? 'transparent' : Colors.border.extra_light)};
+        ${({ hideUnfocusedOutline, noBorder }) =>
+            hideUnfocusedOutline || noBorder ? 'transparent' : Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     width: 100%;
     :hover,
     :focus-within {
-        box-shadow: ${Shadows.light};
         background-color: ${Colors.background.white};
     }
     :hover {
-        border-color: ${Colors.border.light};
+        border-color: ${({ noBorder }) => !noBorder && Colors.border.light};
     }
     :focus-within {
         border-color: ${Colors.gtColor.primary};
@@ -73,10 +80,6 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
         )
     }
 
-    if (props.readOnly) {
-        return getEditor()
-    }
-
     return (
         <Container
             ref={containerRef}
@@ -84,6 +87,7 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
             isFullHeight={props.isFullHeight}
             minHeight={props.minHeight}
             hideUnfocusedOutline={props.hideUnfocusedOutline}
+            noBorder={props.readOnly}
         >
             <Suspense fallback={<Spinner />}>{getEditor()}</Suspense>
         </Container>
