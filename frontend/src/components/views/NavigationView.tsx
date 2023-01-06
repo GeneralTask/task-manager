@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 import { useDrop } from 'react-dnd'
 import styled from 'styled-components'
 import { useGlobalKeyboardShortcuts, useKeyboardShortcut, usePreviewMode } from '../../hooks'
-import { useGTLocalStorage } from '../../hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Shadows, Spacing } from '../../styles'
 import { NAVIGATION_BAR_WIDTH } from '../../styles/dimensions'
@@ -69,12 +68,14 @@ export const GTBetaLogo = styled.img`
     pointer-events: none;
     width: ${GT_BETA_LOGO_WIDTH};
 `
-
-const NavigationView = () => {
+interface NavigationViewProps {
+    isCollapsed: boolean
+    setIsCollapsed: (isCollapsed: boolean) => void
+}
+const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) => {
     useGlobalKeyboardShortcuts()
     const { data: userInfo } = useGetUserInfo()
     const { isPreviewMode, toggle: togglePreviewMode } = usePreviewMode()
-    const [isCollapsed, setIsCollapsed] = useGTLocalStorage('navigationCollapsed', false)
 
     const [isOver, drop] = useDrop(
         () => ({
