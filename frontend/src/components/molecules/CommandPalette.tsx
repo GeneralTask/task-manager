@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
-import { useKeyboardShortcut } from '../../hooks'
+import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
 import Log from '../../services/api/log'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -125,6 +125,7 @@ interface CommandPaletteProps {
     hideButton?: boolean
 }
 const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
@@ -188,7 +189,11 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                 }}
                 value={selectedShortcut}
                 onValueChange={setSelectedShortcut}
-                filter={(value, search) => (value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)}
+                filter={
+                    isPreviewMode
+                        ? (value, search) => (value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)
+                        : undefined
+                }
             >
                 <Searchbar>
                     <IconContainer>
