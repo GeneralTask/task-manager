@@ -105,19 +105,19 @@ const RightLabel = styled(Label)`
 `
 
 const BoldMatches = ({ text, query }: { text: string; query: string | undefined }) => {
-    if (!query) return <BodySmall>{text}</BodySmall>
+    if (!query) return <>{text}</>
     const matches = text.match(new RegExp(query, 'gi'))
-    if (!matches) return <BodySmall>{text}</BodySmall>
+    if (!matches) return <>{text}</>
     const split = text.split(new RegExp(query, 'gi'))
     return (
-        <BodySmall>
+        <>
             {split.map((part, i) => (
                 <span key={i}>
                     {part}
                     {matches[i] && <strong>{matches[i]}</strong>}
                 </span>
             ))}
-        </BodySmall>
+        </>
     )
 }
 interface CommandPaletteProps {
@@ -219,7 +219,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
-                                                <BoldMatches text={label} query={searchValue} />
+                                                <BodySmall>
+                                                    <BoldMatches text={label} query={searchValue} />
+                                                </BodySmall>
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
                                         </CommandItem>
@@ -275,7 +277,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                             strike={is_done || is_deleted}
                                             color={is_done || is_deleted ? 'light' : 'black'}
                                         >
-                                            {title}
+                                            <BoldMatches text={title} query={searchValue} />
                                         </TruncatedTitle>
                                         {(is_done || is_deleted) && (
                                             <RightLabel color="light">{is_deleted ? '(deleted)' : '(done)'}</RightLabel>
