@@ -45,10 +45,10 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
                     placeholder={props.placeholder}
                     disabled={props.disabled}
                     shouldFocus={props.autoFocus}
-                    appearance={props.disabled ? 'chromeless' : 'comment'}
+                    appearance="chromeless"
                     onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
                 />
-                <Toolbar />
+                <Toolbar rightContent={props.actions} />
             </Container>
         </EditorContext>
     )

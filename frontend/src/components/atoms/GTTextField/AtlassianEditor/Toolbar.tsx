@@ -5,6 +5,7 @@ import {
     TextFormattingState,
     WithEditorActions,
     WithPluginState,
+    blockPluginStateKey,
     getListCommands,
     listStateKey,
     textFormattingStateKey,
@@ -53,13 +54,15 @@ const Toolbar = ({ rightContent }: ToolbarProps) => {
                     plugins={{
                         textFormattingState: textFormattingStateKey,
                         listState: listStateKey,
+                        blockState: blockPluginStateKey,
                     }}
                     render={(pluginState) => {
                         const textFormattingState = pluginState.textFormattingState as TextFormattingState
                         const listState = pluginState.listState as ListState
+
                         if (!textFormattingState || !listState) return null
 
-                        const toggleTextFormattingMark = (toggleFunc: () => Command) => {
+                        const getToggleTextFormattingAction = (toggleFunc: () => Command) => {
                             return () => {
                                 toggleFunc()(
                                     actions._privateGetEditorView().state,
@@ -72,28 +75,28 @@ const Toolbar = ({ rightContent }: ToolbarProps) => {
                             <MenuContainer onMouseDown={(e) => e.preventDefault()}>
                                 <ToolbarButton
                                     icon={icons.bold}
-                                    action={toggleTextFormattingMark(toggleStrong)}
+                                    action={getToggleTextFormattingAction(toggleStrong)}
                                     isActive={textFormattingState.strongActive}
                                     shortcutLabel="Bold"
                                     shortcut={`${CMD_CTRL.label}+B`}
                                 />
                                 <ToolbarButton
                                     icon={icons.italic}
-                                    action={toggleTextFormattingMark(toggleEm)}
+                                    action={getToggleTextFormattingAction(toggleEm)}
                                     isActive={textFormattingState.emActive}
                                     shortcutLabel="Italic"
                                     shortcut={`${CMD_CTRL.label}+I`}
                                 />
                                 <ToolbarButton
                                     icon={icons.underline}
-                                    action={toggleTextFormattingMark(toggleUnderline)}
+                                    action={getToggleTextFormattingAction(toggleUnderline)}
                                     isActive={textFormattingState.underlineActive}
                                     shortcutLabel="Underline"
                                     shortcut={`${CMD_CTRL.label}+U`}
                                 />
                                 <ToolbarButton
                                     icon={icons.strikethrough}
-                                    action={toggleTextFormattingMark(toggleStrike)}
+                                    action={getToggleTextFormattingAction(toggleStrike)}
                                     isActive={textFormattingState.strikeActive}
                                     shortcutLabel="Strikethrough"
                                     shortcut={`${CMD_CTRL.label}+D`}
@@ -127,19 +130,21 @@ const Toolbar = ({ rightContent }: ToolbarProps) => {
                                     shortcut={`${CMD_CTRL.label}+${SHIFT}+8`}
                                 />
                                 <Divider />
+                                {/* TODO: add blockquote */}
                                 {/* <ToolbarButton
                                     icon={icons.quote_right}
                                     action={q}
-                                    isActive={active.blockquote()}
+                                    isActive={}
                                     shortcutLabel="Blockquote"
                                     shortcut={`${CTRL.label}+>`}
                                 /> */}
                                 <ToolbarButton
                                     icon={icons.code}
-                                    action={toggleTextFormattingMark(toggleCode)}
+                                    action={getToggleTextFormattingAction(toggleCode)}
                                     isActive={textFormattingState.codeActive}
                                     shortcutLabel="Code"
                                 />
+                                {/* TODO: add code block */}
                                 {/* <ToolbarButton
                                     icon={icons.code_block}
                                     action={commands.toggleCodeBlock}
