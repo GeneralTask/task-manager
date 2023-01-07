@@ -4,11 +4,11 @@ import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import styled from 'styled-components'
 import { Border, Typography } from '../../../../styles'
 import { RichTextEditorProps } from '../types'
+import Toolbar from './Toolbar'
 
 const serializer = new JSONTransformer()
 
 const Container = styled.div`
-    height: 100%;
     .akEditor {
         border: none;
         border-radius: ${Border.radius.small};
@@ -48,6 +48,7 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
                     appearance={props.disabled ? 'chromeless' : 'comment'}
                     onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
                 />
+                <Toolbar />
             </Container>
         </EditorContext>
     )
