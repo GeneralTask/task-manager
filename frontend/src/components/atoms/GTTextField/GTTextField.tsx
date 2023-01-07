@@ -6,8 +6,6 @@ import Spinner from '../Spinner'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
 
-// import x from 'prosemirror-gapcursor'
-
 const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
 const MarkdownEditor = lazy(() => import('./MarkdownEditor'))
 
