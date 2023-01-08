@@ -35,7 +35,7 @@ const MenuContainer = styled.div`
     overflow-x: auto;
 `
 const Divider = styled.div`
-    border: ${Border.stroke.medium} solid ${Colors.border.light};
+    border-left: ${Border.stroke.medium} solid ${Colors.border.light};
     height: ${Spacing._16};
 `
 const MarginLeftGap = styled.div`
@@ -72,7 +72,7 @@ const Toolbar = ({ rightContent }: ToolbarProps) => {
                         }
 
                         return (
-                            <MenuContainer onMouseDown={(e) => e.preventDefault()}>
+                            <MenuContainer className="toolbar" onMouseDown={(e) => e.preventDefault()}>
                                 <ToolbarButton
                                     icon={icons.bold}
                                     action={getToggleTextFormattingAction(toggleStrong)}
