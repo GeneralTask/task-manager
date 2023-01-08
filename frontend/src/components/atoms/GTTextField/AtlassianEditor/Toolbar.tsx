@@ -15,33 +15,10 @@ import {
     toggleStrong,
     toggleUnderline,
 } from '@atlaskit/editor-core'
-import styled from 'styled-components'
 import { CMD_CTRL, SHIFT } from '../../../../constants/shortcuts'
-import { Border, Colors, Spacing } from '../../../../styles'
 import { icons } from '../../../../styles/images'
-import ToolbarButton from '../MarkdownEditor/ToolbarButton'
-
-const MenuContainer = styled.div`
-    display: flex;
-    align-items: center;
-    background-color: ${Colors.background.medium};
-    padding: ${Spacing._4} ${Spacing._8};
-    border-bottom-left-radius: ${Border.radius.small};
-    border-bottom-right-radius: ${Border.radius.small};
-    gap: ${Spacing._8};
-    bottom: 0;
-    left: 0;
-    right: 0;
-    overflow-x: auto;
-`
-const Divider = styled.div`
-    border-left: ${Border.stroke.medium} solid ${Colors.border.light};
-    height: ${Spacing._16};
-`
-const MarginLeftGap = styled.div`
-    margin-left: auto !important;
-    gap: ${Spacing._8};
-`
+import ToolbarButton from '../toolbar/ToolbarButton'
+import { Divider, MarginLeftGap, MenuContainer } from '../toolbar/styles'
 
 interface ToolbarProps {
     rightContent?: React.ReactNode
