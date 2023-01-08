@@ -8,11 +8,14 @@ import Toolbar from './Toolbar'
 
 const serializer = new JSONTransformer()
 
-const Container = styled.div`
+const EditorAndToolbarContainer = styled.div`
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     .akEditor {
         border: none;
         border-radius: ${Border.radius.small};
-        height: 100%;
+        /* height: 100%; */
     }
     /* && allows us to override existing styles - basically same as !important for entire selectors */
     && .ProseMirror {
@@ -30,8 +33,13 @@ const Container = styled.div`
     }
     /* needed to make editor match container height */
     > div > :nth-child(2) {
-        height: 100%;
+        /* height: 100%; */
     }
+`
+const EditorContainer = styled.div`
+    overflow: auto;
+    width: 100%;
+    flex: 1;
 `
 
 const AtlassianEditor = (props: RichTextEditorProps) => {
@@ -39,17 +47,19 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
         <EditorContext>
-            <Container>
-                <Editor
-                    defaultValue={props.value}
-                    placeholder={props.placeholder}
-                    disabled={props.disabled}
-                    shouldFocus={props.autoFocus}
-                    appearance="chromeless"
-                    onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
-                />
+            <EditorAndToolbarContainer>
+                <EditorContainer>
+                    <Editor
+                        defaultValue={props.value}
+                        placeholder={props.placeholder}
+                        disabled={props.disabled}
+                        shouldFocus={props.autoFocus}
+                        appearance="chromeless"
+                        onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
+                    />
+                </EditorContainer>
                 <Toolbar rightContent={props.actions} />
-            </Container>
+            </EditorAndToolbarContainer>
         </EditorContext>
     )
 }
