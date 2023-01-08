@@ -7,6 +7,7 @@ import {
     WithPluginState,
     blockPluginStateKey,
     getListCommands,
+    insertBlockType,
     listStateKey,
     textFormattingStateKey,
     toggleCode,
@@ -15,7 +16,7 @@ import {
     toggleStrong,
     toggleUnderline,
 } from '@atlaskit/editor-core'
-import { CMD_CTRL, SHIFT } from '../../../../constants/shortcuts'
+import { CMD_CTRL, CTRL, SHIFT } from '../../../../constants/shortcuts'
 import { icons } from '../../../../styles/images'
 import ToolbarButton from '../toolbar/ToolbarButton'
 import { Divider, MarginLeftGap, MenuContainer } from '../toolbar/styles'
@@ -45,6 +46,13 @@ const Toolbar = ({ rightContent }: ToolbarProps) => {
                                     actions._privateGetEditorView().state,
                                     actions._privateGetEditorView().dispatch
                                 )
+                            }
+                        }
+
+                        const getInsertBlockAction = (blockType: string) => {
+                            return () => {
+                                const { state, dispatch } = actions._privateGetEditorView()
+                                insertBlockType(blockType)(state, dispatch)
                             }
                         }
 
@@ -107,27 +115,25 @@ const Toolbar = ({ rightContent }: ToolbarProps) => {
                                     shortcut={`${CMD_CTRL.label}+${SHIFT}+8`}
                                 />
                                 <Divider />
-                                {/* TODO: add blockquote */}
-                                {/* <ToolbarButton
+                                <ToolbarButton
                                     icon={icons.quote_right}
-                                    action={q}
-                                    isActive={}
+                                    action={getInsertBlockAction('blockquote')}
+                                    isActive={false}
                                     shortcutLabel="Blockquote"
                                     shortcut={`${CTRL.label}+>`}
-                                /> */}
+                                />
                                 <ToolbarButton
                                     icon={icons.code}
                                     action={getToggleTextFormattingAction(toggleCode)}
                                     isActive={textFormattingState.codeActive}
                                     shortcutLabel="Code"
                                 />
-                                {/* TODO: add code block */}
-                                {/* <ToolbarButton
+                                <ToolbarButton
                                     icon={icons.code_block}
-                                    action={commands.toggleCodeBlock}
-                                    isActive={active.codeBlock()}
+                                    action={getInsertBlockAction('codeblock')}
+                                    isActive={false}
                                     shortcutLabel="Code block"
-                                /> */}
+                                />
                                 <MarginLeftGap>{rightContent}</MarginLeftGap>
                             </MenuContainer>
                         )
