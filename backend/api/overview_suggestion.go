@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/GeneralTask/task-manager/backend/config"
+	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type GPTView struct {
@@ -45,6 +48,23 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// TODO uncomment following code once development is complete
+	// suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
+	// if err !=  nil {
+	// 	c.JSON(400, gin.H{"error": "error fetching suggestions"})
+	// }
+	// if suggestionsLeft < 1 {
+	// 	c.JSON(400, gin.H{"error": "no remaining suggestions for user"})
+	// 	return
+	// }
+
+	err = api.decrementGPTRemainingByOne(user, timezoneOffset)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("unable to decrement suggestions remaining")
+		Handle500(c)
 		return
 	}
 
@@ -146,4 +166,71 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 
 func getPrompt(sectionString string) string {
 	return "I have folders in which I keep tasks. The tasks are related to the folder in question. The folders are as follows: " + sectionString + ". If I value helping the team, fixing bugs, good engineering and being dependable, in which order should I complete these folders? Please provide the order, and then short reasoning as to why it is prioritized after the ordering."
+}
+
+func (api *API) OverviewViewsSuggestionsRemaining(c *gin.Context) {
+	userID := getUserIDFromContext(c)
+	user, err := database.GetUser(api.DB, userID)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("failed to find user")
+		Handle500(c)
+		return
+	}
+
+	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
+	if err != nil {
+		api.Logger.Error().Err(err).Msg("error fetching suggestions remaining")
+		Handle500(c)
+		return
+	}
+
+	c.JSON(200, suggestionsLeft)
+}
+
+func (api *API) getRemainingSuggestionsForUser(user *database.User, timezoneOffset time.Duration) (int, error) {
+	lastSuggestionPrim := user.GPTLastSuggestionTime
+	lastSuggestion := lastSuggestionPrim.Time()
+	refreshTime := time.Date(lastSuggestion.Year(), lastSuggestion.Month(), lastSuggestion.Day(), 23, 59, 59, 0, time.FixedZone("", 0))
+
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+
+	if timeNow.Sub(refreshTime) > 0 && user.GPTSuggestionsLeft != constants.MAX_OVERVIEW_SUGGESTION {
+		_, err := database.GetUserCollection(api.DB).UpdateOne(
+			context.Background(),
+			bson.M{"_id": user.ID},
+			bson.M{"$set": bson.M{
+				"gpt_suggestions_left": constants.MAX_OVERVIEW_SUGGESTION,
+			}},
+		)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to update suggestions left")
+			return 0, err
+		}
+		return constants.MAX_OVERVIEW_SUGGESTION, nil
+	}
+
+	return user.GPTSuggestionsLeft, nil
+}
+
+func (api *API) decrementGPTRemainingByOne(user *database.User, timezoneOffset time.Duration) error {
+	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+
+	_, err := database.GetUserCollection(api.DB).UpdateOne(
+		context.Background(),
+		bson.M{"_id": user.ID},
+		bson.M{
+			"$inc": bson.M{
+				"gpt_suggestions_left": -1,
+			},
+			"$set": bson.M{
+				"gpt_last_suggestion_time": primitive.NewDateTimeFromTime(timeNow),
+			}},
+	)
+	return err
 }

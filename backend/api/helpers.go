@@ -2,7 +2,9 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -58,7 +60,16 @@ func GetTimezoneOffsetFromHeader(c *gin.Context) (time.Duration, error) {
 	if len(timezoneOffsetHeader) == 0 {
 		return time.Duration(0), errors.New("Timezone-Offset header is required")
 	}
-	duration, err := time.ParseDuration(timezoneOffsetHeader[0] + "m")
+
+	timezoneOffsetInt, err := strconv.Atoi(timezoneOffsetHeader[0])
+	if err != nil {
+		return 0, errors.New("Timezone-Offset header is invalid")
+	}
+
+	// mod timezone to limit to minutes in a day (for security)
+	modTimezone := timezoneOffsetInt % 1440
+
+	duration, err := time.ParseDuration(fmt.Sprint(modTimezone) + "m")
 	if err != nil {
 		return duration, errors.New("Timezone-Offset header is invalid")
 	}
