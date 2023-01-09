@@ -63,7 +63,8 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 
 	err = api.decrementGPTRemainingByOne(user, timezoneOffset)
 	if err != nil {
-		c.JSON(400, gin.H{"detail": "unable to decrement suggestions remaining"})
+		api.Logger.Error().Err(err).Msg("unable to decrement suggestions remaining")
+		Handle500(c)
 		return
 	}
 
@@ -184,7 +185,9 @@ func (api *API) OverviewViewsSuggestionsRemaining(c *gin.Context) {
 
 	suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "error fetching suggestions remaining"})
+		api.Logger.Error().Err(err).Msg("error fetching suggestions remaining")
+		Handle500(c)
+		return
 	}
 
 	c.JSON(200, suggestionsLeft)
