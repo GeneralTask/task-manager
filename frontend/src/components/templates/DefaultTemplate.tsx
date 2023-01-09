@@ -58,12 +58,11 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
         if (width < COLLAPSE_BREAKPOINT) {
             if (!isNavCollapsed) setIsNavCollapsed(true)
             if (!isCalCollapsed) setIsCalCollapsed(true)
-        }
-        if (width > COLLAPSE_BREAKPOINT) {
+        } else if (width > COLLAPSE_BREAKPOINT) {
             if (isNavCollapsed) setIsNavCollapsed(false)
             if (isCalCollapsed) setIsCalCollapsed(false)
         }
-    }, [width])
+    }, [width, isNavCollapsed, isCalCollapsed])
 
     return (
         <DefaultTemplateContainer>
