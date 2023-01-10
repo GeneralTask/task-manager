@@ -63,25 +63,23 @@ const usePageFocus = (logTimeSpent = false) => {
             if (!logTimeSpent) return
             const now = Date.now()
 
+            // if the page is focused/visible, update the timeFocused/timeVisible
             if (lastTimeFocused.current != null) {
                 const timeSpentFocused = now - lastTimeFocused.current
                 timeFocused.current += timeSpentFocused
                 lastTimeFocused.current = now
             }
-            if (timeFocused.current > 0) {
-                Log({ page_visible: timeFocused.current })
-                timeFocused.current = 0
-            }
-
             if (lastTimeVisible.current != null) {
                 const timeSpentVisible = now - lastTimeVisible.current
                 timeVisible.current += timeSpentVisible
                 lastTimeVisible.current = now
             }
-            if (timeVisible.current > 0) {
-                Log({ page_visible: timeVisible.current })
-                timeVisible.current = 0
+
+            if (timeFocused.current > 0 || timeVisible.current > 0) {
+                Log({ type: 'time_spent', time_focused: timeFocused.current, time_visible: timeVisible.current })
             }
+            timeFocused.current = 0
+            timeVisible.current = 0
         }, []),
         FIVE_MINUTE_INTERVAL,
         false
