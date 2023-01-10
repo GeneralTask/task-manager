@@ -24,7 +24,11 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
                     render={(editorActions) => (
                         <>
                             <Editor editorActions={editorActions} {...props} />
-                            <Toolbar editorActions={editorActions} rightContent={props.actions} />
+                            <Toolbar
+                                editorActions={editorActions}
+                                isMarkdown={props.type === 'markdown'}
+                                rightContent={props.actions}
+                            />
                         </>
                     )}
                 />
