@@ -5,7 +5,7 @@ import useInterval from './useInterval'
 
 const VISIBLE_STATES = [undefined, 'visible', 'prerender']
 
-const useTrackPageFocus = (logTimeSpent = false) => {
+const usePageFocus = (logTimeSpent = false) => {
     const [isPageFocused, setIsPageFocused] = useState(true)
     const [isPageVisible, setIsPageVisible] = useState(true)
 
@@ -90,4 +90,4 @@ const useTrackPageFocus = (logTimeSpent = false) => {
     return { isPageFocused, isPageVisible }
 }
 
-export default useTrackPageFocus
+export default usePageFocus
