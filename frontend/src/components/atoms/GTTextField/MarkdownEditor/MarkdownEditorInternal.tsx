@@ -73,11 +73,9 @@ const Editor = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
-    p {
-        padding-bottom: ${Spacing._8};
-    }
     * {
         margin: 0;
+        padding-bottom: ${Spacing._8};
     }
 `
 
