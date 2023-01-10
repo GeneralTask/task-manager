@@ -73,10 +73,10 @@ const Editor = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
-    * {
+    /* * {
         margin: 0;
         padding-bottom: ${Spacing._8};
-    }
+    } */
 `
 
 const MarkdownEditorInternal = (props: RichTextEditorProps) => {
