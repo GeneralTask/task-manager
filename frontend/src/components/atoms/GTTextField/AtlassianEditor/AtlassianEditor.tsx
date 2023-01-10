@@ -1,4 +1,4 @@
-import { EditorContext } from '@atlaskit/editor-core'
+import { EditorContext, WithEditorActions } from '@atlaskit/editor-core'
 import styled from 'styled-components'
 import { RichTextEditorProps } from '../types'
 import Editor from './Editor'
@@ -20,8 +20,14 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
         <EditorContext>
             <EditorAndToolbarContainer>
-                <Editor {...props} />
-                <Toolbar rightContent={props.actions} />
+                <WithEditorActions
+                    render={(editorActions) => (
+                        <>
+                            <Editor editorActions={editorActions} {...props} />
+                            <Toolbar editorActions={editorActions} rightContent={props.actions} />
+                        </>
+                    )}
+                />
             </EditorAndToolbarContainer>
         </EditorContext>
     )

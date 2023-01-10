@@ -32,6 +32,7 @@ const TaskBody = ({ id, body, contentType, onChange, disabled, nux_number_id }: 
                 readOnly={disabled}
                 disabled={disabled}
                 fontSize="small"
+                enterBehavior="blur"
             />
         </BodyContainer>
     )

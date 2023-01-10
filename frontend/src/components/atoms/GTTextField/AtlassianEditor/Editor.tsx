@@ -1,4 +1,4 @@
-import { Editor as AtlaskitEditor } from '@atlaskit/editor-core'
+import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import styled from 'styled-components'
 import { Spacing } from '../../../../styles'
@@ -35,16 +35,26 @@ const EditorContainer = styled.div`
     }
 `
 
-const Editor = (props: RichTextEditorProps) => {
+interface EditorProps extends RichTextEditorProps {
+    editorActions: EditorActions
+}
+
+const Editor = ({ value, placeholder, disabled, autoFocus, enterBehavior, onChange, editorActions }: EditorProps) => {
+    const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+        if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
+            editorActions.blur()
+        }
+    }
+
     return (
-        <EditorContainer>
+        <EditorContainer onKeyDown={handleKeyDown}>
             <AtlaskitEditor
-                defaultValue={props.value}
-                placeholder={props.placeholder}
-                disabled={props.disabled}
-                shouldFocus={props.autoFocus}
+                defaultValue={value}
+                placeholder={placeholder}
+                disabled={disabled}
+                shouldFocus={autoFocus}
                 appearance="chromeless"
-                onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
+                onChange={(e) => onChange(JSON.stringify(serializer.encode(e.state.doc)))}
             />
         </EditorContainer>
     )
