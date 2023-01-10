@@ -25,8 +25,7 @@ const EditorContainer = styled.div`
     && .ProseMirror {
         height: 100%;
         > * {
-            margin-top: 8px;
-            margin-bottom: 8px;
+            margin: ${Spacing._8} 0;
         }
     }
     .assistive {
