@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -17,8 +18,9 @@ import (
 )
 
 type GPTView struct {
-	Name      string    `json:"name"`
-	ViewItems []GPTTask `json:"view_items"`
+	ID        primitive.ObjectID `json:"id"`
+	Name      string             `json:"name"`
+	ViewItems []GPTTask          `json:"view_items"`
 }
 
 type GPTTask struct {
@@ -109,7 +111,8 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 
 	promptConstruction := ""
 	for _, gptView := range gptViews {
-		promptConstruction = promptConstruction + `"` + gptView.Name + `" with tasks (`
+		nameSanitized := sanitizeGPTString(gptView.Name)
+		promptConstruction = promptConstruction + `"` + nameSanitized + `" with tasks (`
 		for _, gptTask := range gptView.ViewItems {
 			promptConstruction = promptConstruction + `"` + gptTask.Title + `", `
 		}
@@ -151,7 +154,15 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 			suggestion = suggestion[:strings.Index(suggestion, ": ")]
 			response[fmt.Sprint(idx)+" reasoning"] = reasoning
 		}
-		response[fmt.Sprint(idx)] = suggestion
+
+		var suggestionID primitive.ObjectID
+		for _, gptView := range gptViews {
+			sanitizedView := sanitizeGPTString(gptView.Name)
+			if sanitizedView == suggestion {
+				suggestionID = gptView.ID
+			}
+		}
+		response[fmt.Sprint(idx)] = suggestionID
 		idx++
 	}
 
@@ -216,6 +227,13 @@ func (api *API) getRemainingSuggestionsForUser(user *database.User, timezoneOffs
 	}
 
 	return user.GPTSuggestionsLeft, nil
+}
+
+func sanitizeGPTString(name string) string {
+	// from https://www.golangprograms.com/how-to-remove-special-characters-from-a-string-in-golang.html
+	// remove punctuation from the string to prevent prompt hacking
+	sanitized := regexp.MustCompile(`[^a-zA-Z0-9 ]+`).ReplaceAllString(name, "")
+	return sanitized
 }
 
 func (api *API) decrementGPTRemainingByOne(user *database.User, timezoneOffset time.Duration) error {
