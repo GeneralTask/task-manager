@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { FIVE_MINUTE_INTERVAL } from '../constants'
+import { ONE_MINUTE_INTERVAL } from '../constants'
 import Log from '../services/api/log'
 import useInterval from './useInterval'
 
 const VISIBLE_STATES = [undefined, 'visible', 'prerender']
+const LOG_INTERVAL = ONE_MINUTE_INTERVAL * 2
 
 const usePageFocus = (logTimeSpent = false) => {
     const [isPageFocused, setIsPageFocused] = useState(true)
@@ -81,7 +82,7 @@ const usePageFocus = (logTimeSpent = false) => {
             timeFocused.current = 0
             timeVisible.current = 0
         }, []),
-        FIVE_MINUTE_INTERVAL,
+        LOG_INTERVAL,
         false
     )
 
