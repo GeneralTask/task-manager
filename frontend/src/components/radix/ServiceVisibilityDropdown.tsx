@@ -76,7 +76,7 @@ const ServiceVisibilityDropdown = ({ disabled }: ServiceVisibilityDropdownProps)
                         onClick={() => setIsOpen(!isOpen)}
                         disabled={disabled}
                         forceShowHoverEffect={isOpen}
-                        tooltipText="Hide/show integrations"
+                        tooltipText="Hide/show services"
                         asDiv
                     />
                 }
