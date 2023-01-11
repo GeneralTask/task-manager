@@ -86,6 +86,8 @@ func TestOverviewSuggestions(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, constants.MAX_OVERVIEW_SUGGESTION-1, resultUser.GPTSuggestionsLeft)
 	})
+
+	// TODO assert doesn't work if no remaining tokens
 }
 
 func TestOverviewRemaining(t *testing.T) {
@@ -138,6 +140,27 @@ func TestOverviewRemaining(t *testing.T) {
 		body, err = io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, fmt.Sprint(constants.MAX_OVERVIEW_SUGGESTION), string(body))
+	})
+
+	t.Run("SuccessMaliciousTimezone", func(t *testing.T) {
+		authtoken := login("test_overview_suggestion_timezone@generaltask.com", "")
+		request, _ := http.NewRequest("GET", "/overview/views/suggestions_remaining/", nil)
+		request.Header.Set("Authorization", "Bearer "+authtoken)
+		request.Header.Set("Timezone-Offset", "-2880")
+
+		currentTime := time.Now()
+		api.OverrideTime = &currentTime
+
+		userCollection := database.GetUserCollection(api.DB)
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_timezone@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime)}})
+		assert.NoError(t, err)
+
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+		body, err := io.ReadAll(recorder.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, `0`, string(body))
 	})
 }
 
