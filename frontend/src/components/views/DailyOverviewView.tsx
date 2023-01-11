@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'reac
 import { useNavigate, useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
+import { useGTLocalStorage } from '../../hooks'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
@@ -39,9 +40,18 @@ const MarginLeftDiv = styled.div`
 
 const DailyOverviewView = () => {
     const { lists, isLoading } = useOverviewLists()
-    const [values, setValues] = useState<string[]>([])
+    const [openListIds, setOpenListIds] = useState<string[]>([])
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+
+    if (overviewAutomaticEmptySort) {
+        lists.sort((a, b) => {
+            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+            return 0
+        })
+    }
 
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
@@ -70,8 +80,10 @@ const DailyOverviewView = () => {
 
     useLayoutEffect(() => {
         const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) setValues([firstNonEmptyList.id])
+        if (firstNonEmptyList) setOpenListIds([firstNonEmptyList.id])
     }, [])
+
+    const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
 
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
@@ -90,8 +102,8 @@ const DailyOverviewView = () => {
         selectFirstItem()
     }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
 
-    const collapseAll = () => setValues([])
-    const expandAll = useCallback(() => setValues(lists.map((list) => list.id)), [lists])
+    const collapseAll = () => setOpenListIds([])
+    const expandAll = useCallback(() => setOpenListIds(lists.map((list) => list.id)), [lists])
 
     if (isLoading) return <Spinner />
     return (
@@ -120,9 +132,13 @@ const DailyOverviewView = () => {
                             <OverviewListsModal />
                         </MarginLeftDiv>
                     </ActionsContainer>
-                    <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
+                    <AccordionRoot type="multiple" value={openListIds} onValueChange={setOpenListIds}>
                         {lists.map((list) => (
-                            <OverviewAccordionItem key={list.id} list={list} />
+                            <OverviewAccordionItem
+                                key={list.id}
+                                list={list}
+                                closeAccordion={() => removeListFromOpenListIds(list.id)}
+                            />
                         ))}
                     </AccordionRoot>
                 </ScrollableListTemplate>

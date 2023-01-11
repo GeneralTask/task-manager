@@ -36,9 +36,8 @@ const EditorContainer = styled.div`
         * {
             margin: 0;
         }
-        > blockquote,
-        .code-block {
-            margin: 12px 0;
+        > * {
+            margin-bottom 14px;
         }
     }
     .assistive {
