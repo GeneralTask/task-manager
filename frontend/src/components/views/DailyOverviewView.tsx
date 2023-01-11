@@ -40,7 +40,7 @@ const MarginLeftDiv = styled.div`
 
 const DailyOverviewView = () => {
     const { lists, isLoading } = useOverviewLists()
-    const [values, setValues] = useState<string[]>([])
+    const [openListIds, setOpenListIds] = useState<string[]>([])
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
@@ -80,8 +80,10 @@ const DailyOverviewView = () => {
 
     useLayoutEffect(() => {
         const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) setValues([firstNonEmptyList.id])
+        if (firstNonEmptyList) setOpenListIds([firstNonEmptyList.id])
     }, [])
+
+    const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
 
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
@@ -100,8 +102,8 @@ const DailyOverviewView = () => {
         selectFirstItem()
     }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
 
-    const collapseAll = () => setValues([])
-    const expandAll = useCallback(() => setValues(lists.map((list) => list.id)), [lists])
+    const collapseAll = () => setOpenListIds([])
+    const expandAll = useCallback(() => setOpenListIds(lists.map((list) => list.id)), [lists])
 
     if (isLoading) return <Spinner />
     return (
@@ -130,9 +132,13 @@ const DailyOverviewView = () => {
                             <OverviewListsModal />
                         </MarginLeftDiv>
                     </ActionsContainer>
-                    <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
+                    <AccordionRoot type="multiple" value={openListIds} onValueChange={setOpenListIds}>
                         {lists.map((list) => (
-                            <OverviewAccordionItem key={list.id} list={list} />
+                            <OverviewAccordionItem
+                                key={list.id}
+                                list={list}
+                                closeAccordion={() => removeListFromOpenListIds(list.id)}
+                            />
                         ))}
                     </AccordionRoot>
                 </ScrollableListTemplate>
