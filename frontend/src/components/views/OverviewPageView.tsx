@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetSupportedViews } from '../../services/api/overview.hooks'
@@ -9,6 +9,7 @@ import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
 import Spinner from '../atoms/Spinner'
+import GTButton from '../atoms/buttons/GTButton'
 import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
@@ -29,6 +30,7 @@ const ActionsContainer = styled.div`
 `
 
 const OverviewView = () => {
+    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const { lists: views, isLoading } = useOverviewLists()
     const { isLoading: areSettingsLoading } = useGetSettings()
     useFetchExternalTasks()
@@ -98,7 +100,14 @@ const OverviewView = () => {
                 <ScrollableListTemplate ref={scrollRef}>
                     <SectionHeader sectionName="Overview" />
                     <ActionsContainer>
-                        <OverviewListsModal />
+                        <GTButton
+                            styleType="simple"
+                            size="small"
+                            onClick={() => setIsEditListsModalOpen(true)}
+                            icon={icons.squarePlus}
+                            iconColor="gray"
+                            value="Edit lists"
+                        />
                     </ActionsContainer>
                     {views.map((view) => (
                         <OverviewViewContainer view={view} key={view.id} scrollRef={scrollRef} />
@@ -106,6 +115,7 @@ const OverviewView = () => {
                 </ScrollableListTemplate>
             </OverviewPageContainer>
             {detailsView}
+            <OverviewListsModal isOpen={isEditListsModalOpen} setisOpen={setIsEditListsModalOpen} />
         </>
     )
 }

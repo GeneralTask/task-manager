@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { useGTLocalStorage } from '../../hooks'
-import { Border, Colors, Spacing } from '../../styles'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
 import Flex from '../atoms/Flex'
@@ -26,6 +26,9 @@ const ActionsContainer = styled.div`
     gap: ${Spacing._24};
     margin-bottom: ${Spacing._16};
 `
+const BannerButton = styled(GTButton)`
+    ${Typography.label};
+`
 const AccordionRoot = styled(Accordion.Root)`
     > * > h3 {
         all: unset;
@@ -34,13 +37,16 @@ const AccordionRoot = styled(Accordion.Root)`
         margin-bottom: ${Spacing._4};
     }
 `
-const MarginLeftDiv = styled.div`
+const RightActions = styled.div`
     margin-left: auto;
+    display: flex;
 `
 
 const DailyOverviewView = () => {
     const { lists, isLoading } = useOverviewLists()
     const [values, setValues] = useState<string[]>([])
+    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
+    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
@@ -110,25 +116,50 @@ const DailyOverviewView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="Daily Overview" />
                     <ActionsContainer>
-                        <GTButton
+                        <BannerButton
                             styleType="simple"
                             size="small"
-                            onClick={collapseAll}
-                            icon={icons.squareMinus}
+                            onClick={() => {
+                                setEditListTabIndex(1)
+                                setIsEditListsModalOpen(true)
+                            }}
+                            icon={icons.bolt}
                             iconColor="gray"
-                            value="Collapse all"
+                            value={
+                                <span>
+                                    Smart Prioritize<sup>AI</sup>
+                                </span>
+                            }
                         />
-                        <GTButton
-                            styleType="simple"
-                            size="small"
-                            onClick={expandAll}
-                            icon={icons.squarePlus}
-                            iconColor="gray"
-                            value="Expand all"
-                        />
-                        <MarginLeftDiv>
-                            <OverviewListsModal />
-                        </MarginLeftDiv>
+                        <RightActions>
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={collapseAll}
+                                icon={icons.squareMinus}
+                                iconColor="gray"
+                                value="Collapse all"
+                            />
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={expandAll}
+                                icon={icons.squarePlus}
+                                iconColor="gray"
+                                value="Expand all"
+                            />
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={() => {
+                                    setEditListTabIndex(0)
+                                    setIsEditListsModalOpen(true)
+                                }}
+                                icon={icons.squarePlus}
+                                iconColor="gray"
+                                value="Edit lists"
+                            />
+                        </RightActions>
                     </ActionsContainer>
                     <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
                         {lists.map((list) => (
@@ -138,6 +169,11 @@ const DailyOverviewView = () => {
                 </ScrollableListTemplate>
             </Flex>
             {detailsView}
+            <OverviewListsModal
+                isOpen={isEditListsModalOpen}
+                setisOpen={setIsEditListsModalOpen}
+                defaultTabIndex={editListTabIndex}
+            />
         </>
     )
 }
