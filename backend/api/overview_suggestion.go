@@ -121,6 +121,9 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 
 	token := config.GetConfigValue("OPEN_AI_CLIENT_SECRET")
 	client := gogpt.NewClient(token)
+	if api.ExternalConfig.OpenAIOverrideURL != "" {
+		client.BaseURL = api.ExternalConfig.OpenAIOverrideURL
+	}
 	ctx := context.Background()
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
@@ -142,6 +145,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	response := bson.M{}
 	idx := 0
 	for _, suggestion := range strings.Split(resp.Choices[0].Text, "\n") {
+		suggestionResponse := bson.M{}
 		if suggestion == "" {
 			continue
 		} else if strings.Index(suggestion, ". ") != 0 {
@@ -152,7 +156,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 			// strip reasoning
 			reasoning := suggestion[strings.Index(suggestion, ": ")+2:]
 			suggestion = suggestion[:strings.Index(suggestion, ": ")]
-			response[fmt.Sprint(idx)+" reasoning"] = reasoning
+			suggestionResponse["reasoning"] = reasoning
 		}
 
 		var suggestionID primitive.ObjectID
@@ -160,13 +164,14 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 			sanitizedView := sanitizeGPTString(gptView.Name)
 			if sanitizedView == suggestion {
 				suggestionID = gptView.ID
+				suggestionResponse["id"] = suggestionID
 			}
 		}
-		response[fmt.Sprint(idx)] = suggestionID
+		response[fmt.Sprint(idx)] = suggestionResponse
 		idx++
 	}
 
-	if len(response) != (len(views) * 2) {
+	if len(response) != len(views) {
 		api.Logger.Error().Err(err).Msg("failed to fetch suggestions for all sections")
 		Handle500(c)
 		return
@@ -231,7 +236,7 @@ func (api *API) getRemainingSuggestionsForUser(user *database.User, timezoneOffs
 
 func sanitizeGPTString(name string) string {
 	// from https://www.golangprograms.com/how-to-remove-special-characters-from-a-string-in-golang.html
-	// remove punctuation from the string to prevent prompt hacking
+	// remove special characters from the string to prevent prompt hacking
 	sanitized := regexp.MustCompile(`[^a-zA-Z0-9 ]+`).ReplaceAllString(name, "")
 	return sanitized
 }
