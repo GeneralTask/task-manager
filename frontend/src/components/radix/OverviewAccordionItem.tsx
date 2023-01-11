@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
@@ -81,11 +81,16 @@ export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: str
 
 interface OverviewAccordionItemProps {
     list: TOverviewView
+    closeAccordion: () => void
 }
-const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
+const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(0)
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
     const { overviewViewId, overviewItemId } = useParams()
+
+    useEffect(() => {
+        if (list.view_items.length === 0) closeAccordion()
+    }, [list.view_items.length])
 
     useLayoutEffect(() => {
         setVisibleItemsCount(
