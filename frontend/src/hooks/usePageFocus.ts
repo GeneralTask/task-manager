@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { DateTime } from 'luxon'
 import { FIVE_MINUTE_INTERVAL } from '../constants'
 import Log from '../services/api/log'
 import useInterval from './useInterval'
@@ -10,8 +11,8 @@ const usePageFocus = (logTimeSpent = false) => {
     const [isPageVisible, setIsPageVisible] = useState(true)
 
     // last time the page was focused or visible, null if not currently focused or visible
-    const lastTimeFocused = useRef<number | null>(Date.now())
-    const lastTimeVisible = useRef<number | null>(Date.now())
+    const lastTimeFocused = useRef<number | null>(DateTime.utc().toMillis())
+    const lastTimeVisible = useRef<number | null>(DateTime.utc().toMillis())
     // how long the page has been focused or visible in the current 5 minute interval
     const timeFocused = useRef(0)
     const timeVisible = useRef(0)
@@ -24,7 +25,7 @@ const usePageFocus = (logTimeSpent = false) => {
             setIsPageVisible(isVisible)
 
             if (!logTimeSpent) return
-            const now = Date.now()
+            const now = DateTime.utc().toMillis()
 
             // focus -> blur
             if (lastTimeFocused.current != null && !isFocused) {
@@ -61,7 +62,7 @@ const usePageFocus = (logTimeSpent = false) => {
     useInterval(
         useCallback(() => {
             if (!logTimeSpent) return
-            const now = Date.now()
+            const now = DateTime.utc().toMillis()
 
             // if the page is focused/visible, update the timeFocused/timeVisible
             if (lastTimeFocused.current != null) {
