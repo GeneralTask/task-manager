@@ -78,7 +78,7 @@ func TestOverviewSuggestions(t *testing.T) {
 		assert.Equal(t, http.StatusOK, recorder.Code)
 		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
-		regex := `{"0":{"id":"[a-z0-9]{24}","reasoning":"This is the reasoning"},"1":{"id":"[a-z0-9]{24}","reasoning":"Reasoning 2"},"2":{"id":"[a-z0-9]{24}","reasoning":"Reasoning 3"}}`
+		regex := `[{"id":"[a-z0-9]{24}","reasoning":"This is the reasoning"},{"id":"[a-z0-9]{24}","reasoning":"Reasoning 2"},{"id":"[a-z0-9]{24}","reasoning":"Reasoning 3"}]`
 		assert.Regexp(t, regex, string(body))
 
 		var resultUser *database.User

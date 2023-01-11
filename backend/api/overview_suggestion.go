@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -142,7 +141,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	response := bson.M{}
+	response := []bson.M{}
 	idx := 0
 	for _, suggestion := range strings.Split(resp.Choices[0].Text, "\n") {
 		suggestionResponse := bson.M{}
@@ -167,7 +166,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 				suggestionResponse["id"] = suggestionID
 			}
 		}
-		response[fmt.Sprint(idx)] = suggestionResponse
+		response = append(response, suggestionResponse)
 		idx++
 	}
 
