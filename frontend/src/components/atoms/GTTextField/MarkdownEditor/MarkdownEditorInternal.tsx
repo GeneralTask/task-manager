@@ -73,6 +73,9 @@ const Editor = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
+    * {
+        margin: 0;
+    }
 `
 
 const MarkdownEditorInternal = (props: RichTextEditorProps) => {
