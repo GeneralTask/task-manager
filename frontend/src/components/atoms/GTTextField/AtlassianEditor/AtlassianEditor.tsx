@@ -1,36 +1,44 @@
-import '@atlaskit/css-reset'
 import { Editor, EditorContext } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
 import styled from 'styled-components'
-import { Border, Typography } from '../../../../styles'
+import { Spacing } from '../../../../styles'
 import { RichTextEditorProps } from '../types'
+import Toolbar from './Toolbar'
 
 const serializer = new JSONTransformer()
 
-const Container = styled.div`
+const EditorAndToolbarContainer = styled.div`
     height: 100%;
-    .akEditor {
-        border: none;
-        border-radius: ${Border.radius.small};
-        height: 100%;
+    display: flex;
+    flex-direction: column;
+    :not(:focus-within) {
+        .toolbar {
+            display: none;
+        }
     }
-    /* && allows us to override existing styles - basically same as !important for entire selectors */
-    && .ProseMirror {
-        ${Typography.bodySmall};
-    }
-    /* align text to top of editor */
-    .ak-editor-content-area {
-        padding: 0;
-    }
-    /* stop from intersecting with parent border */
-    [data-testid='ak-editor-main-toolbar'] {
-        border-radius: ${Border.radius.small};
-        height: fit-content;
-        padding: 0;
-    }
-    /* needed to make editor match container height */
+`
+const EditorContainer = styled.div`
+    flex: 1;
+    padding: ${Spacing._8} ${Spacing._8} 0;
+    box-sizing: border-box;
+    /* height: 100%s needed to make editor match container height so entire area is clickable */
     > div > :nth-child(2) {
         height: 100%;
+        > div {
+            height: 100%;
+        }
+    }
+    .ak-editor-content-area {
+        height: 100%;
+    }
+    .ProseMirror {
+        height: 100%;
+        > * {
+            margin: 0 !important;
+        }
+    }
+    .assistive {
+        display: none;
     }
 `
 
@@ -39,16 +47,19 @@ const AtlassianEditor = (props: RichTextEditorProps) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - EditorContext uses old React type where children are not explicitly defined
         <EditorContext>
-            <Container>
-                <Editor
-                    defaultValue={props.value}
-                    placeholder={props.placeholder}
-                    disabled={props.disabled}
-                    shouldFocus={props.autoFocus}
-                    appearance={props.disabled ? 'chromeless' : 'comment'}
-                    onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
-                />
-            </Container>
+            <EditorAndToolbarContainer>
+                <EditorContainer>
+                    <Editor
+                        defaultValue={props.value}
+                        placeholder={props.placeholder}
+                        disabled={props.disabled}
+                        shouldFocus={props.autoFocus}
+                        appearance="chromeless"
+                        onChange={(e) => props.onChange(JSON.stringify(serializer.encode(e.state.doc)))}
+                    />
+                </EditorContainer>
+                <Toolbar rightContent={props.actions} />
+            </EditorAndToolbarContainer>
         </EditorContext>
     )
 }
