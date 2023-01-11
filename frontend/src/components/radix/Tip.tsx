@@ -60,9 +60,7 @@ const Tip = ({
         shortcutLabel || shortcut ? (
             <Flex alignItems="center" justifyContent="center" gap={Spacing._8}>
                 {shortcutLabel}
-                {shortcut?.split('+').map((keyLabel) => (
-                    <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
-                ))}
+                <KeyboardShortcutContainer>{shortcut}</KeyboardShortcutContainer>
             </Flex>
         ) : (
             content

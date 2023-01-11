@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css'
 import { DateTime } from 'luxon'
-import { useEventBanners, usePreviewMode } from '../../hooks'
+import { useEventBanners, usePageFocus, usePreviewMode } from '../../hooks'
 import { useGetNotes } from '../../services/api/notes.hooks'
 import { useFetchPullRequests, useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hooks'
@@ -30,6 +30,8 @@ const MainScreen = () => {
     useFetchPullRequests()
     useFetchExternalTasks()
     useEventBanners(DateTime.now())
+    usePageFocus(true)
+
     const currentPage = (isPreviewMode: boolean) => {
         switch (location.pathname.split('/')[1]) {
             case 'overview':

@@ -23,3 +23,7 @@ const (
 	ViewMeetingPreparation ViewType = "meeting_preparation"
 	ViewDueToday           ViewType = "due_today"
 )
+
+const (
+	MAX_OVERVIEW_SUGGESTION int = 3
+)

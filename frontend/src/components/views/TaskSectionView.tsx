@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import { useKeyboardShortcut } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useCreateTask, useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
@@ -139,6 +140,31 @@ const TaskSectionView = () => {
         : `/tasks/${params.section}/${task?.id}`
 
     useItemSelectionController(sortedTasks, selectTask)
+
+    useKeyboardShortcut(
+        'moveTaskDown',
+        useCallback(() => {
+            if (!task || !section || taskIndex === section.tasks.length - 1) return
+            reorderTask({
+                id: task.id,
+                orderingId: task.id_ordering + 2,
+                dropSectionId: section.id,
+            })
+        }, [task, section, sortedTasks, taskIndex]),
+        selectedSort.id !== 'manual'
+    )
+    useKeyboardShortcut(
+        'moveTaskUp',
+        useCallback(() => {
+            if (!task || !section || taskIndex === 0) return
+            reorderTask({
+                id: task.id,
+                orderingId: task.id_ordering - 1,
+                dropSectionId: section.id,
+            })
+        }, [task, section, sortedTasks, taskIndex]),
+        selectedSort.id !== 'manual'
+    )
 
     return (
         <>
