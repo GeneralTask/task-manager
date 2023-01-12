@@ -36,7 +36,7 @@ const EditorContainer = styled.div`
         * {
             margin: 0;
         }
-        > * {
+        > :not(:last-child) {
             margin-bottom 14px;
         }
     }
