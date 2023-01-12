@@ -8,6 +8,7 @@ import useIsDragging from './useIsDragging'
 import useItemSelectionController from './useItemSelectionController'
 import useKeyboardShortcut from './useKeyboardShortcut'
 import useNavigateToTask from './useNavigateToTask'
+import usePageFocus from './usePageFocus'
 import usePreviewMode from './usePreviewMode'
 import useSetting from './useSetting'
 import useTimeout from './useTimeout'
@@ -29,5 +30,6 @@ export {
     useSetting,
     useTimeout,
     useToast,
+    usePageFocus,
     useWindowSize,
 }

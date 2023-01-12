@@ -3,7 +3,7 @@ import { useCommands, useRemirrorContext } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
 import { FontSize, RichTextEditorProps } from '../types'
-import RichTextToolbar from './RichTextToolbar'
+import Toolbar from './Toolbar'
 
 const EditorContainer = styled.div`
     overflow: auto;
@@ -73,6 +73,9 @@ const Editor = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
+    * {
+        margin: 0;
+    }
 `
 
 const MarkdownEditorInternal = (props: RichTextEditorProps) => {
@@ -106,7 +109,7 @@ const MarkdownEditorInternal = (props: RichTextEditorProps) => {
                     fontSize={props.fontSize}
                 />
             </EditorContainer>
-            {!props.readOnly && isEditorFocused && <RichTextToolbar actions={props.actions} />}
+            {!props.readOnly && isEditorFocused && <Toolbar actions={props.actions} />}
         </EditorAndToolbarContainer>
     )
 }
