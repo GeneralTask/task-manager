@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { useGTLocalStorage, usePreviewMode } from '../../../hooks'
 import { useGetOverviewViews, useReorderViews } from '../../../services/api/overview.hooks'
@@ -10,6 +10,7 @@ import { Divider } from '../../atoms/SectionDivider'
 import { Body } from '../../atoms/typography/Typography'
 import EditListsSelectedList from './EditListsSelectedList'
 import ListModalPreference from './ListModalPreference'
+import SmartPrioritize, { SmartPrioritizeState } from './SmartPrioritize'
 
 const PositionedDivider = styled(Divider)`
     margin-top: ${Spacing._24};
@@ -23,6 +24,7 @@ const PreferencesTitle = styled(Body)`
 `
 
 const ListOrderTab = () => {
+    const [smartPrioritizeState, setSmartPrioritizeState] = useState<SmartPrioritizeState>(SmartPrioritizeState.MANUAL)
     const { data: lists } = useGetOverviewViews()
     const { isPreviewMode } = usePreviewMode()
     const [automaticSortEmpty, setAutomaticSortEmpty] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
@@ -35,9 +37,11 @@ const ListOrderTab = () => {
     )
     return (
         <Flex column flex="1">
-            {lists?.map((view, index) => (
-                <EditListsSelectedList key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
-            ))}
+            {isPreviewMode && <SmartPrioritize state={smartPrioritizeState} setState={setSmartPrioritizeState} />}
+            {!smartPrioritizeState &&
+                lists?.map((view, index) => (
+                    <EditListsSelectedList key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
+                ))}
             <ReorderDropContainer
                 index={lists?.length ?? 0}
                 acceptDropType={DropType.OVERVIEW_VIEW}
