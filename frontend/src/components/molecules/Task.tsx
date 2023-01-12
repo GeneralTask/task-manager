@@ -1,17 +1,16 @@
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { DONE_SECTION_ID, SINGLE_SECOND_INTERVAL, TASK_PRIORITIES, TRASH_SECTION_ID } from '../../constants'
 import { useInterval, useKeyboardShortcut } from '../../hooks'
 import Log from '../../services/api/log'
-import { useGetTasks, useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
+import { useMarkTaskDoneOrDeleted, useModifyTask } from '../../services/api/tasks.hooks'
 import { Spacing, Typography } from '../../styles'
 import { icons, linearStatus, logos } from '../../styles/images'
 import { DropType, TTask } from '../../utils/types'
-import { getTaskIndexFromSections } from '../../utils/utils'
 import Domino from '../atoms/Domino'
 import DueDate from '../atoms/DueDate'
 import Flex from '../atoms/Flex'
@@ -64,6 +63,7 @@ interface TaskProps {
     meetingPreparationStartTime?: DateTime
     shouldScrollToTask?: boolean
     setShouldScrollToTask?: (shouldScrollToTask: boolean) => void
+    onMarkTaskDone?: () => void
 }
 
 const Task = ({
@@ -77,6 +77,7 @@ const Task = ({
     link,
     shouldScrollToTask,
     setShouldScrollToTask,
+    onMarkTaskDone,
 }: TaskProps) => {
     const navigate = useNavigate()
     const observer = useRef<IntersectionObserver>()
@@ -89,9 +90,6 @@ const Task = ({
     const dateTimeStart = DateTime.fromISO(task.meeting_preparation_params?.datetime_start || '')
     const dateTimeEnd = DateTime.fromISO(meeting_preparation_params?.datetime_end || '')
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { data: sections } = useGetTasks()
-    const { pathname } = useLocation()
-    const isUserOnTaskPage = pathname.includes('/task')
 
     useInterval(() => {
         if (!meeting_preparation_params) return
@@ -171,22 +169,9 @@ const Task = ({
         dragPreview(getEmptyImage())
     }, [])
 
-    const selectTaskAfterCompletion = () => {
-        if (!sections || !isUserOnTaskPage) return
-
-        const { taskIndex, sectionIndex } = getTaskIndexFromSections(sections, task.id)
-        if (sectionIndex == null || taskIndex == null) return
-
-        if (sections.length === 0 || sections[sectionIndex].tasks.length === 0) return
-        const previousTask = sections[sectionIndex].tasks[taskIndex - 1]
-        if (!previousTask) return
-        const sectionId = sections[sectionIndex].id
-        navigate(`/tasks/${sectionId}/${previousTask.id}`)
-    }
-
     const [isVisible, setIsVisible] = useState(true)
     const taskFadeOut = () => {
-        selectTaskAfterCompletion()
+        onMarkTaskDone?.()
         if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
     }
 
