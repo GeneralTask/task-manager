@@ -118,7 +118,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
             size="lg"
             tabs={[
                 {
-                    title: 'Services',
+                    title: 'Integrations',
                     icon: icons.globe,
                     body: (
                         <Flex column gap={Spacing._24}>
@@ -178,7 +178,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                 </Service>
                             </ServicesContainer>
                             <Divider color={Colors.border.light} />
-                            <Body>My services</Body>
+                            <Body>My integrations</Body>
                             {linkedAccounts && linkedAccounts.length > 0 ? (
                                 linkedAccounts?.map((account) => (
                                     <Flex justifyContent="space-between" alignItems="center" key={account.id}>
@@ -215,7 +215,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                 ))
                             ) : (
                                 <ServiceDetails>
-                                    You have no connected services. Click from the options above to get started.
+                                    You have no connected integrations. Click from the options above to get started.
                                 </ServiceDetails>
                             )}
                         </Flex>
