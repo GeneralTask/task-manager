@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
@@ -26,6 +27,7 @@ interface TModifyTaskSectionData {
 export const useAddTaskSection = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
+    const navigate = useNavigate()
 
     return useQueuedMutation((data: TAddTaskSectionData) => addTaskSection(data), {
         tag: 'tasks',
@@ -59,6 +61,11 @@ export const useAddTaskSection = () => {
                 section.optimisticId = undefined
             })
             queryClient.setQueryData('tasks', newSections)
+            console.log(window.location.pathname)
+            if (window.location.pathname.includes(`tasks/${optimisticId}`)) {
+                console.log('replacing', window.location.pathname, 'with', location.pathname.replace(optimisticId, id))
+                navigate(window.location.pathname.replace(optimisticId, id), { replace: true })
+            }
         },
     })
 }
