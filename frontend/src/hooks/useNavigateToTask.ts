@@ -15,17 +15,25 @@ const useNavigateToTask = () => {
 
     const getTaskURL = useCallback(
         (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string, subtaskId?: string) => {
-            const isUserOnOverviewPage = pathname.startsWith('/overview')
+            const isUserOnOverviewPage = pathname.startsWith('/overview') || pathname.startsWith('/daily-overview')
             if (isUserOnOverviewPage) {
                 for (const view of views) {
                     for (const item of view.view_items) {
                         if (item.id === taskID) {
                             setCalendarType('day')
                             if (subtaskId) {
-                                navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
+                                if (pathname.startsWith('/overview')) {
+                                    navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
+                                } else {
+                                    navigate(`/daily-overview/${view.id}/${item.id}/${subtaskId}`)
+                                }
                                 Log(`task_navigate__/overview/${view.id}/${item.id}/${subtaskId}`)
                             } else {
-                                navigate(`/overview/${view.id}/${item.id}`)
+                                if (pathname.startsWith('/overview')) {
+                                    navigate(`/overview/${view.id}/${item.id}`)
+                                } else {
+                                    navigate(`/daily-overview/${view.id}/${item.id}`)
+                                }
                                 Log(`task_navigate__/overview/${view.id}/${item.id}`)
                             }
                             return
