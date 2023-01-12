@@ -46,13 +46,13 @@ interface SmartPrioritizeProps {
 }
 const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
     const { data: suggestionsRemaining, isLoading: suggestionsLoading } = useSmartPrioritizationSuggestionsRemaining()
-    const [suggestion, setSuggestion] = useState<TOverviewSuggestion>()
+    const [suggestions, setSuggestions] = useState<TOverviewSuggestion[]>()
 
     const getSuggestion = async () => {
         setState(SmartPrioritizeState.LOADING)
         try {
             const suggestion = await getOverviewSmartSuggestion()
-            setSuggestion(suggestion)
+            setSuggestions(suggestion)
             setState(SmartPrioritizeState.LOADED)
         } catch (e) {
             setState(SmartPrioritizeState.ERROR)
@@ -108,10 +108,10 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:
-                if (!suggestion) return
+                if (!suggestions) return null
                 return (
                     <SmartSuggestion
-                        suggestion={suggestion}
+                        suggestions={suggestions}
                         onRevertToManual={() => setState(SmartPrioritizeState.MANUAL)}
                     />
                 )
