@@ -841,7 +841,6 @@ func (api *API) OverviewViewBulkModify(c *gin.Context) {
 	}
 
 	viewCollection := database.GetViewCollection(api.DB)
-	fmt.Println(operations)
 	result, err := viewCollection.BulkWrite(context.Background(), operations)
 	if err != nil {
 		api.Logger.Error().Err(err).Msg("failed to bulk modify view ordering")
