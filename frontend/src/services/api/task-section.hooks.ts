@@ -61,9 +61,7 @@ export const useAddTaskSection = () => {
                 section.optimisticId = undefined
             })
             queryClient.setQueryData('tasks', newSections)
-            console.log(window.location.pathname)
             if (window.location.pathname.includes(`tasks/${optimisticId}`)) {
-                console.log('replacing', window.location.pathname, 'with', location.pathname.replace(optimisticId, id))
                 navigate(window.location.pathname.replace(optimisticId, id), { replace: true })
             }
         },
