@@ -1350,10 +1350,20 @@ func TestOverviewModify(t *testing.T) {
 		// Expected Result: [1, 2, 3]
 		params := fmt.Sprintf(`{"ordered_view_ids": ["%s"]}`, fourthViewID.Hex())
 		body := ServeRequest(t, authToken, "PATCH", "/overview/views/bulk_modify/", bytes.NewBuffer([]byte(params)), http.StatusBadRequest, nil)
-		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
+		assert.Equal(t, "{\"detail\":\"invalid or duplicate view IDs provided\"}", string(body))
 		checkViewPosition(t, viewCollection, firstViewID, 1)
 		checkViewPosition(t, viewCollection, secondViewID, 2)
 		checkViewPosition(t, viewCollection, thirdViewID, 3)
+		checkViewPosition(t, viewCollection, fourthViewID, 1)
+	})
+	t.Run("Success", func(t *testing.T) {
+		// Expected Result: [3, 1, 2]
+		params := fmt.Sprintf(`{"ordered_view_ids": ["%s", "%s", "%s"]}`, secondViewID.Hex(), thirdViewID.Hex(), firstViewID.Hex())
+		body := ServeRequest(t, authToken, "PATCH", "/overview/views/bulk_modify/", bytes.NewBuffer([]byte(params)), http.StatusOK, nil)
+		assert.Equal(t, "{}", string(body))
+		checkViewPosition(t, viewCollection, firstViewID, 3)
+		checkViewPosition(t, viewCollection, secondViewID, 1)
+		checkViewPosition(t, viewCollection, thirdViewID, 2)
 		checkViewPosition(t, viewCollection, fourthViewID, 1)
 	})
 }

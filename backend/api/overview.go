@@ -836,7 +836,7 @@ func (api *API) OverviewViewBulkModify(c *gin.Context) {
 				{"_id": viewID},
 			},
 		})
-		operation.SetUpdate(bson.M{"id_ordering": newIDOrdering})
+		operation.SetUpdate(bson.M{"$set": bson.M{"id_ordering": newIDOrdering}})
 		operations = append(operations, operation)
 	}
 
