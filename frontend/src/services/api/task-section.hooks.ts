@@ -50,6 +50,15 @@ export const useAddTaskSection = () => {
         },
         onSuccess: ({ id }: TAddTaskSectionResponse, { optimisticId }) => {
             setOptimisticId(optimisticId, id)
+            const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
+            if (!sections) return
+            const newSections = produce(sections, (draft) => {
+                const section = draft.find((section) => section.optimisticId === optimisticId)
+                if (!section) return
+                section.id = id
+                section.optimisticId = undefined
+            })
+            queryClient.setQueryData('tasks', newSections)
         },
     })
 }
