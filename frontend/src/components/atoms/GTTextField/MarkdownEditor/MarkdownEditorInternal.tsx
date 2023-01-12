@@ -73,6 +73,9 @@ const Editor = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
+    p:not(:last-child) {
+        padding-bottom: 14px;
+    }
     * {
         margin: 0;
     }
