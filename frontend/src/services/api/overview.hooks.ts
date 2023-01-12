@@ -226,3 +226,15 @@ const removeView = async (viewId: string) => {
         throw new Error('removeView failed')
     }
 }
+
+export const useSmartPrioritizationSuggestionsRemaining = () => {
+    return useQuery<number>('overview-suggestions-remaining', getSmartPrioritizationSuggestionsRemaining)
+}
+const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/overview/views/suggestions_remaining/', { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getOverviewSuggestionsRemaining failed')
+    }
+}

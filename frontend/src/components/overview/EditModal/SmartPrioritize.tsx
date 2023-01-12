@@ -1,9 +1,11 @@
 import styled from 'styled-components'
+import { useSmartPrioritizationSuggestionsRemaining } from '../../../services/api/overview.hooks'
 import { Border, Colors, Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
+import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
 
 const Container = styled.div`
@@ -37,13 +39,32 @@ interface SmartPrioritizeProps {
     setState: (state: SmartPrioritizeState) => void
 }
 const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
+    const { data: suggestionsRemaining, isLoading: suggestionsLoading } = useSmartPrioritizationSuggestionsRemaining()
     const BodyContent = () => {
+        if (suggestionsLoading) {
+            return (
+                <Flex justifyContent="center">
+                    <RefreshSpinner isRefreshing>
+                        <Icon icon={icons.spinner} />
+                    </RefreshSpinner>
+                </Flex>
+            )
+        }
         switch (state) {
             case SmartPrioritizeState.MANUAL:
                 return (
                     <Flex gap={Spacing._16} alignItems="center">
-                        <GTButton size="small" value="Enable" onClick={() => setState(SmartPrioritizeState.LOADING)} />
-                        <Mini color="light">x uses remaining today</Mini>
+                        <GTButton
+                            size="small"
+                            value="Enable"
+                            onClick={() => setState(SmartPrioritizeState.LOADING)}
+                            disabled={suggestionsRemaining === 0}
+                        />
+                        <Mini color="light">
+                            {suggestionsRemaining === 0
+                                ? 'No more uses remaining today'
+                                : `${suggestionsRemaining} uses remaining today`}
+                        </Mini>
                     </Flex>
                 )
             case SmartPrioritizeState.LOADING:
