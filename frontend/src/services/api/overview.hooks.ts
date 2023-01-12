@@ -238,3 +238,13 @@ const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunct
         throw new Error('getOverviewSuggestionsRemaining failed')
     }
 }
+
+export interface TOverviewSuggestion {
+    id: string
+}
+
+export const getOverviewSmartSuggestion = async () => {
+    const res = await apiClient.get('/overview/views/suggestion/')
+    if (res.status !== 200) throw new Error('getOverviewSmartSuggestion failed')
+    return res.data
+}

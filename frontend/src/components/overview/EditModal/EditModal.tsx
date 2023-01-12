@@ -15,7 +15,7 @@ const EditModal = ({ isOpen, setisOpen, defaultTabIndex }: OverviewListsModalPro
             <GTModal
                 open={isOpen}
                 setIsModalOpen={setisOpen}
-                size="md"
+                size="lg"
                 defaultTabIndex={defaultTabIndex}
                 tabs={[
                     {
