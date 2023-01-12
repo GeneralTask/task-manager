@@ -54,8 +54,17 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             case SmartPrioritizeState.MANUAL:
                 return (
                     <Flex gap={Spacing._16} alignItems="center">
-                        <GTButton size="small" value="Enable" onClick={() => setState(SmartPrioritizeState.LOADING)} />
-                        <Mini color="light">{suggestionsRemaining} uses remaining today</Mini>
+                        <GTButton
+                            size="small"
+                            value="Enable"
+                            onClick={() => setState(SmartPrioritizeState.LOADING)}
+                            disabled={suggestionsRemaining === 0}
+                        />
+                        <Mini color="light">
+                            {suggestionsRemaining === 0
+                                ? 'No more uses remaining today'
+                                : `${suggestionsRemaining} uses remaining today`}
+                        </Mini>
                     </Flex>
                 )
             case SmartPrioritizeState.LOADING:
