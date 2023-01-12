@@ -241,6 +241,7 @@ const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunct
 
 export interface TOverviewSuggestion {
     id: string
+    reasoning: string
 }
 
 export const getOverviewSmartSuggestion = async () => {

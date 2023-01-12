@@ -12,6 +12,7 @@ import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
+import SmartSuggestion from './SmartSuggestion'
 
 const Container = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.border.light};
@@ -45,13 +46,13 @@ interface SmartPrioritizeProps {
 }
 const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
     const { data: suggestionsRemaining, isLoading: suggestionsLoading } = useSmartPrioritizationSuggestionsRemaining()
-    const [suggestion, setSuggestion] = useState<TOverviewSuggestion>()
+    const [suggestions, setSuggestions] = useState<TOverviewSuggestion[]>()
 
     const getSuggestion = async () => {
         setState(SmartPrioritizeState.LOADING)
         try {
             const suggestion = await getOverviewSmartSuggestion()
-            setSuggestion(suggestion)
+            setSuggestions(suggestion)
             setState(SmartPrioritizeState.LOADED)
         } catch (e) {
             setState(SmartPrioritizeState.ERROR)
@@ -107,7 +108,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:
-                return <div>loaded{JSON.stringify(suggestion)}</div>
+                if (!suggestions) return null
+                return (
+                    <SmartSuggestion
+                        suggestions={suggestions}
+                        onRevertToManual={() => setState(SmartPrioritizeState.MANUAL)}
+                    />
+                )
         }
     }
     return (
