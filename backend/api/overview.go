@@ -811,9 +811,9 @@ type ViewBulkModifyParams struct {
 	OrderedViewIDs []string `json:"ordered_view_ids" binding:"required"`
 }
 
+// NOTE: this endpoint ONLY updates the view IDs provided, so a complete list of view IDs should be provided
 func (api *API) OverviewViewBulkModify(c *gin.Context) {
 	userID := getUserIDFromContext(c)
-	// NOTE: this endpoint ONLY updates the view IDs provided, so a complete list of view IDs should be provided
 	var viewModifyParams ViewBulkModifyParams
 	err := c.BindJSON(&viewModifyParams)
 	if err != nil {
