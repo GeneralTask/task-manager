@@ -31,10 +31,13 @@ const EditorContainer = styled.div`
     .ak-editor-content-area {
         height: 100%;
     }
-    .ProseMirror {
+    && .ProseMirror {
         height: 100%;
-        > * {
-            margin: 0 !important;
+        * {
+            margin: 0;
+        }
+        > :not(:last-child) {
+            margin-bottom 14px;
         }
     }
     .assistive {
