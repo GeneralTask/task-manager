@@ -4,7 +4,6 @@ import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
-import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
 
 const Container = styled.div`
@@ -50,9 +49,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             case SmartPrioritizeState.LOADING:
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
-                        <RefreshSpinner>
-                            <Icon icon={icons.gear} />
-                        </RefreshSpinner>
+                        <Icon icon={icons.gear} />
                         <Label>Prioritizing your lists...</Label>
                     </Flex>
                 )
