@@ -52,6 +52,7 @@ const TaskSectionViewItems = forwardRef(
 
         const selectTaskAfterCompletion = (taskId: string) => {
             if (!taskSections) return
+            if (overviewItemId !== taskId) return
             const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
             if (sectionIndex == null || taskIndex == null) return
 

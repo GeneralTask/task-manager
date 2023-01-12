@@ -171,6 +171,7 @@ const TaskSectionView = () => {
 
     const selectTaskAfterCompletion = (taskId: string) => {
         if (!taskSections) return
+        if (params.task !== taskId) return
         const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
         if (sectionIndex == null || taskIndex == null) return
 
