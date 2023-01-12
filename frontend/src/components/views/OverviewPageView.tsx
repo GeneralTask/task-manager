@@ -14,7 +14,7 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import OverviewListsModal from '../overview/OverviewListsModal'
+import EditModal from '../overview/EditModal'
 import OverviewViewContainer from '../overview/OverviewViewContainer'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -115,7 +115,7 @@ const OverviewView = () => {
                 </ScrollableListTemplate>
             </OverviewPageContainer>
             {detailsView}
-            <OverviewListsModal isOpen={isEditListsModalOpen} setisOpen={setIsEditListsModalOpen} />
+            <EditModal isOpen={isEditListsModalOpen} setisOpen={setIsEditListsModalOpen} />
         </>
     )
 }
