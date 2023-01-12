@@ -13,9 +13,9 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import OverviewListsModal from '../overview/OverviewListsModal'
+import EditModal from '../overview/EditModal'
+import OverviewAccordionItem from '../overview/OverviewAccordionItem'
 import useOverviewLists from '../overview/useOverviewLists'
-import OverviewAccordionItem from '../radix/OverviewAccordionItem'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
@@ -175,7 +175,7 @@ const DailyOverviewView = () => {
                 </ScrollableListTemplate>
             </Flex>
             {detailsView}
-            <OverviewListsModal
+            <EditModal
                 isOpen={isEditListsModalOpen}
                 setisOpen={setIsEditListsModalOpen}
                 defaultTabIndex={editListTabIndex}
