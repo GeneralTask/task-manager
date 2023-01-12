@@ -66,7 +66,7 @@ const useOverviewLists = () => {
     }, [])
     useItemSelectionController(flattenedLists, selectItem)
 
-    return { lists: sortedAndFilteredLists, isLoading: false }
+    return { lists: sortedAndFilteredLists, isLoading: areListsLoading }
 }
 
 export default useOverviewLists
