@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
@@ -50,6 +50,7 @@ const DailyOverviewView = () => {
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+    const hasAutomaticallyOpenedFirstList = useRef(false)
 
     if (overviewAutomaticEmptySort) {
         lists.sort((a, b) => {
@@ -84,10 +85,14 @@ const DailyOverviewView = () => {
         return null
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+        if (hasAutomaticallyOpenedFirstList.current) return
         const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) setOpenListIds([firstNonEmptyList.id])
-    }, [])
+        if (firstNonEmptyList) {
+            setOpenListIds([firstNonEmptyList.id])
+            hasAutomaticallyOpenedFirstList.current = true
+        }
+    }, [isLoading, lists])
 
     const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
 
