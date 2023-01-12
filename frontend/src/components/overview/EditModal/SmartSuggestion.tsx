@@ -1,14 +1,41 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
+import styled from 'styled-components'
 import { TOverviewSuggestion } from '../../../services/api/overview.hooks'
-import { Spacing } from '../../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
 import { Icon } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
-import TaskTemplate from '../../atoms/TaskTemplate'
 import GTButton from '../../atoms/buttons/GTButton'
-import { Mini } from '../../atoms/typography/Typography'
+import { getOverviewAccordionHeaderIcon } from '../OverviewAccordionItem'
 import useOverviewLists from '../useOverviewLists'
+
+const TopButtons = styled(Flex)`
+    margin-top: ${Spacing._16};
+`
+const Suggestion = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: ${Spacing._16} 0;
+    gap: ${Spacing._16};
+    width: 100%;
+`
+const ListContainer = styled.div`
+    display: flex;
+    padding: ${Spacing._16};
+    box-sizing: border-box;
+    gap: ${Spacing._16};
+    height: fit-content;
+    flex: 1;
+    background-color: ${Colors.background.white};
+    box-shadow: ${Shadows.button.default};
+    border-radius: ${Border.radius.small};
+`
+const Reasoning = styled.span`
+    ${Typography.mini};
+    width: 300px;
+    color: ${Colors.text.light};
+`
 
 interface SmartSuggestionProps {
     suggestions: TOverviewSuggestion[]
@@ -17,12 +44,21 @@ interface SmartSuggestionProps {
 const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps) => {
     const [isSaved, setIsSaved] = useState(false)
     const { lists } = useOverviewLists()
-    if (!lists) console.log(lists)
-    const idToList = new Map(lists.map((list) => [list.id, list]))
+    const idToList = useMemo(() => new Map(lists.map((list) => [list.id, list])), [lists])
+
+    const List = ({ id }: { id: string }) => {
+        const list = idToList.get(id)
+        if (!list) return null
+        return (
+            <ListContainer>
+                <Icon icon={getOverviewAccordionHeaderIcon(list.logo)} /> {list.name}
+            </ListContainer>
+        )
+    }
 
     return (
-        <div>
-            <Flex justifyContent="space-between" alignItems="center">
+        <>
+            <TopButtons justifyContent="space-between" alignItems="center">
                 <GTButton
                     size="small"
                     value={
@@ -44,18 +80,17 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
                     styleType="secondary"
                     onClick={onRevertToManual}
                 />
-            </Flex>
-            {JSON.stringify(suggestions)}
-            {suggestions.map((suggestion, index) => (
-                <Fragment key={suggestion.id}>
-                    <Flex justifyContent="space-between">
-                        <TaskTemplate>{idToList.get(suggestion.id)?.name}</TaskTemplate>
-                        <Mini color="light">{suggestion.reasoning}</Mini>
-                    </Flex>
-                    {index !== suggestions.length - 1 && <Divider />}
+            </TopButtons>
+            {suggestions.map(({ id, reasoning }, index) => (
+                <Fragment key={id}>
+                    <Suggestion>
+                        <List id={id} />
+                        <Reasoning>{reasoning}</Reasoning>
+                    </Suggestion>
+                    {index !== suggestions.length - 1 && <Divider color={Colors.border.light} />}
                 </Fragment>
             ))}
-        </div>
+        </>
     )
 }
 
