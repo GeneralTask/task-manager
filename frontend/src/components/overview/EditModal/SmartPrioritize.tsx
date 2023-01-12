@@ -1,5 +1,10 @@
+import { useState } from 'react'
 import styled from 'styled-components'
-import { useSmartPrioritizationSuggestionsRemaining } from '../../../services/api/overview.hooks'
+import {
+    TOverviewSuggestion,
+    getOverviewSmartSuggestion,
+    useSmartPrioritizationSuggestionsRemaining,
+} from '../../../services/api/overview.hooks'
 import { Border, Colors, Spacing } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
@@ -40,6 +45,19 @@ interface SmartPrioritizeProps {
 }
 const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
     const { data: suggestionsRemaining, isLoading: suggestionsLoading } = useSmartPrioritizationSuggestionsRemaining()
+    const [suggestion, setSuggestion] = useState<TOverviewSuggestion>()
+
+    const getSuggestion = async () => {
+        setState(SmartPrioritizeState.LOADING)
+        try {
+            const suggestion = await getOverviewSmartSuggestion()
+            setSuggestion(suggestion)
+            setState(SmartPrioritizeState.LOADED)
+        } catch (e) {
+            setState(SmartPrioritizeState.ERROR)
+        }
+    }
+
     const BodyContent = () => {
         if (suggestionsLoading) {
             return (
@@ -57,7 +75,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                         <GTButton
                             size="small"
                             value="Enable"
-                            onClick={() => setState(SmartPrioritizeState.LOADING)}
+                            onClick={getSuggestion}
                             disabled={suggestionsRemaining === 0}
                         />
                         <Mini color="light">
@@ -75,9 +93,21 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     </Flex>
                 )
             case SmartPrioritizeState.ERROR:
-                return <div>Error</div>
+                return (
+                    <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
+                        <Icon icon={icons.warning} color="red" />
+                        <Label color="red">There was an error sorting your lists. Please try again.</Label>
+                        <GTButton
+                            size="small"
+                            value="Cancel"
+                            styleType="secondary"
+                            onClick={() => setState(SmartPrioritizeState.MANUAL)}
+                        />
+                        <GTButton size="small" value="Retry" onClick={getSuggestion} />
+                    </Flex>
+                )
             case SmartPrioritizeState.LOADED:
-                return <div>Loaded</div>
+                return <div>loaded{JSON.stringify(suggestion)}</div>
         }
     }
     return (
