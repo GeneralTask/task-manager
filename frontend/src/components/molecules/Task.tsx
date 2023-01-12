@@ -171,8 +171,8 @@ const Task = ({
 
     const [isVisible, setIsVisible] = useState(true)
     const taskFadeOut = () => {
-        onMarkTaskDone?.()
         if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
+        onMarkTaskDone?.()
     }
 
     const dueDate = DateTime.fromISO(task.due_date).toJSDate()
