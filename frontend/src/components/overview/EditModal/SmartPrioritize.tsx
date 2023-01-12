@@ -12,6 +12,7 @@ import { Icon } from '../../atoms/Icon'
 import GTButton from '../../atoms/buttons/GTButton'
 import RefreshSpinner from '../../atoms/buttons/RefreshSpinner'
 import { BodySmall, Label, Mini } from '../../atoms/typography/Typography'
+import SmartSuggestion from './SmartSuggestion'
 
 const Container = styled.div`
     border: ${Border.stroke.medium} solid ${Colors.border.light};
@@ -107,7 +108,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     </Flex>
                 )
             case SmartPrioritizeState.LOADED:
-                return <div>loaded{JSON.stringify(suggestion)}</div>
+                if (!suggestion) return
+                return (
+                    <SmartSuggestion
+                        suggestion={suggestion}
+                        onRevertToManual={() => setState(SmartPrioritizeState.MANUAL)}
+                    />
+                )
         }
     }
     return (
