@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { Dispatch, useCallback } from 'react'
 import styled from 'styled-components'
 import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import { useGetOverviewViews, useReorderViews } from '../../services/api/overview.hooks'
@@ -8,7 +8,6 @@ import { DropItem, DropType } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import { Divider } from '../atoms/SectionDivider'
-import GTButton from '../atoms/buttons/GTButton'
 import { Body } from '../atoms/typography/Typography'
 import GTModal from '../mantine/GTModal'
 import { AddListsModalContent } from './AddListsModal'
@@ -26,8 +25,12 @@ const PreferencesTitle = styled(Body)`
     ${Typography.bold}
 `
 
-const OverviewListsModal = () => {
-    const [modalIsOpen, setModalIsOpen] = useState(false)
+interface OverviewListsModalProps {
+    isOpen: boolean
+    setisOpen: Dispatch<React.SetStateAction<boolean>>
+    defaultTabIndex?: number
+}
+const OverviewListsModal = ({ isOpen, setisOpen, defaultTabIndex }: OverviewListsModalProps) => {
     const { data: views } = useGetOverviewViews()
     const { mutate: reorderViews } = useReorderViews()
     const [automaticSortEmpty, setAutomaticSortEmpty] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
@@ -41,18 +44,11 @@ const OverviewListsModal = () => {
 
     return (
         <>
-            <GTButton
-                value="Edit lists"
-                styleType="simple"
-                size="small"
-                icon={icons.gear}
-                iconColor="gray"
-                onClick={() => setModalIsOpen(true)}
-            />
             <GTModal
-                open={modalIsOpen}
-                setIsModalOpen={setModalIsOpen}
+                open={isOpen}
+                setIsModalOpen={setisOpen}
                 size="lg"
+                defaultTabIndex={defaultTabIndex}
                 tabs={[
                     {
                         title: 'Add lists',
