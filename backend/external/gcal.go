@@ -52,6 +52,9 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 	if event.Organizer != nil {
 		canModify = canModify || event.Organizer.Self
 	}
+	if calendarID == "primary" {
+		calendarID = accountID
+	}
 	dbEvent := &database.CalendarEvent{
 		UserID:          userID,
 		IDExternal:      event.Id,
@@ -153,7 +156,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 		events = append(events, eventResult.CalendarEvents...)
 		calendarAccount.Calendars = []database.Calendar{
 			{
-				CalendarID: "primary",
+				CalendarID: accountID,
 				ColorID:    "",
 			},
 		}
