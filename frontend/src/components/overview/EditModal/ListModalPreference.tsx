@@ -21,6 +21,7 @@ const StyledMini = styled(Mini)`
     cursor: pointer;
     width: fit-content;
     user-select: none;
+    white-space: pre;
 `
 const StyledLabel = styled(Label)`
     width: fit-content;
