@@ -25,7 +25,7 @@ const EditModal = ({ isOpen, setisOpen, defaultTabIndex }: OverviewListsModalPro
                     },
                     {
                         title: 'List order',
-                        icon: icons.sortArrows,
+                        icon: icons.arrow_up_down,
                         body: <ListOrderTab />,
                     },
                 ]}
