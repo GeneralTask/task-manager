@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
-import { Border, Colors, Shadows, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { DropType, TOverviewView } from '../../utils/types'
 import Flex from '../atoms/Flex'
@@ -58,6 +58,7 @@ const ListTitle = styled(Body)<{ isComplete: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+    ${Typography.bold}
     ${(props) =>
         props.isComplete &&
         `
@@ -167,7 +168,7 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
                                 <StatusLabel
                                     status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
                                     color={list.has_tasks_completed_today ? 'green' : 'gray'}
-                                    icon={icons.emptySet}
+                                    icon={icons.check}
                                 />
                             )}
                             <Icon icon={icons.caret_down} className="AccordionChevron" />
