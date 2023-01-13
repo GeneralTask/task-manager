@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
@@ -60,13 +60,6 @@ const DailyOverviewView = () => {
         })
     }
 
-    const selectFirstItem = () => {
-        const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyView) {
-            navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
-        }
-    }
-
     const detailsView = useMemo(() => {
         if (!lists?.length) return <EmptyDetails icon={icons.list} text="You have no views" />
         for (const list of lists) {
@@ -97,6 +90,14 @@ const DailyOverviewView = () => {
     const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
 
     useEffect(() => {
+        const selectFirstItem = () => {
+            const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
+            if (firstNonEmptyView) {
+                navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, {
+                    replace: true,
+                })
+            }
+        }
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
@@ -111,7 +112,29 @@ const DailyOverviewView = () => {
             }
         }
         selectFirstItem()
-    }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
+    }, [isLoading, overviewViewId, overviewItemId, lists])
+
+    const list = useMemo(() => lists?.find(({ id }) => id === overviewViewId), [lists, overviewViewId])
+    const item = useMemo(() => list?.view_items.find(({ id }) => id === overviewItemId), [list, overviewItemId])
+    const [itemIndex, setItemIndex] = useState(0)
+
+    useLayoutEffect(() => {
+        if (item) {
+            const index = list?.view_items.findIndex(({ id }) => id === item.id)
+            if (index !== undefined) setItemIndex(index === -1 ? 0 : index)
+        } else if (lists && lists.length > 0 && (!list || !item)) {
+            const firstViewId = lists[0].id
+            if (!list) {
+                navigate(`/daily-overview/${firstViewId}/`, { replace: true })
+            } else if (!item && list.view_items.length > itemIndex) {
+                navigate(`/daily-overview/${list.id}/${list.view_items[itemIndex].id}`, { replace: true })
+            } else if (!item && list.view_items.length === itemIndex && itemIndex > 0) {
+                navigate(`/daily-overview/${list.id}/${list.view_items[itemIndex - 1].id}`, { replace: true })
+            } else if (!item && list.view_items.length > 0) {
+                navigate(`/daily-overview/${list.id}/${list.view_items[0].id}`, { replace: true })
+            }
+        }
+    }, [overviewViewId, overviewItemId, list, lists])
 
     const collapseAll = () => setOpenListIds([])
     const expandAll = useCallback(() => setOpenListIds(lists.map((list) => list.id)), [lists])

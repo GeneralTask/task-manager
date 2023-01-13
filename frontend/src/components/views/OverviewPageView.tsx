@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { useGetSupportedViews } from '../../services/api/overview.hooks'
@@ -36,18 +36,12 @@ const OverviewView = () => {
     useFetchExternalTasks()
     useFetchPullRequests()
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
+    const params = useParams()
     const navigate = useNavigate()
     const scrollRef = useRef<HTMLDivElement>(null)
 
     // Prefetch supported views
     useGetSupportedViews()
-
-    const selectFirstItem = () => {
-        const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
-        if (firstNonEmptyView) {
-            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
-        }
-    }
 
     const detailsView = useMemo(() => {
         if (!views?.length) {
@@ -72,6 +66,12 @@ const OverviewView = () => {
 
     // select first item if none is selected or invalid item is selected in url
     useEffect(() => {
+        const selectFirstItem = () => {
+            const firstNonEmptyView = views?.find((view) => view.view_items.length > 0)
+            if (firstNonEmptyView) {
+                navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            }
+        }
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
@@ -87,6 +87,31 @@ const OverviewView = () => {
         }
         selectFirstItem()
     }, [isLoading, overviewViewId, overviewItemId, views])
+
+    const view = useMemo(() => views?.find(({ id }) => id === params.overviewViewId), [views, params.overviewViewId])
+    const item = useMemo(
+        () => view?.view_items.find(({ id }) => id === params.overviewItemId),
+        [view, params.overviewItemId]
+    )
+    const [itemIndex, setItemIndex] = useState(0)
+
+    useLayoutEffect(() => {
+        if (item) {
+            const index = view?.view_items.findIndex(({ id }) => id === item.id)
+            if (index !== undefined) setItemIndex(index === -1 ? 0 : index)
+        } else if (views && views.length > 0 && (!view || !item)) {
+            const firstViewId = views[0].id
+            if (!view) {
+                navigate(`/overview/${firstViewId}/`, { replace: true })
+            } else if (!item && view.view_items.length > itemIndex) {
+                navigate(`/overview/${view.id}/${view.view_items[itemIndex].id}`, { replace: true })
+            } else if (!item && view.view_items.length === itemIndex && itemIndex > 0) {
+                navigate(`/overview/${view.id}/${view.view_items[itemIndex - 1].id}`, { replace: true })
+            } else if (!item && view.view_items.length > 0) {
+                navigate(`/overview/${view.id}/${view.view_items[0].id}`, { replace: true })
+            }
+        }
+    }, [params.overviewViewId, params.overviewItemId, view, views])
 
     if (isLoading || areSettingsLoading) {
         return <Spinner />
