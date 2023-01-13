@@ -95,7 +95,9 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             case SmartPrioritizeState.LOADING:
                 return (
                     <Flex gap={Spacing._16} alignItems="center" justifyContent="center">
-                        <Icon icon={icons.gear} />
+                        <RefreshSpinner isRefreshing>
+                            <Icon icon={icons.gear} />
+                        </RefreshSpinner>
                         <Label>Prioritizing your lists...</Label>
                     </Flex>
                 )
