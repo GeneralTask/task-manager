@@ -1,11 +1,14 @@
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
-import { TOverviewView } from '../../utils/types'
+import { DropType, TOverviewView } from '../../utils/types'
+import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
 import StatusLabel from '../atoms/StatusLabel'
@@ -38,6 +41,9 @@ const AccordionTrigger = styled(Accordion.Trigger)`
         transform: rotate(180deg);
     }
     box-shadow: ${Shadows.button.default};
+`
+const StyledFlex = styled(Flex)`
+    width: 100%;
 `
 const TriggerTitle = styled.div`
     display: flex;
@@ -88,6 +94,16 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
     const { overviewViewId, overviewItemId } = useParams()
 
+    const [, drag, dragPreview] = useDrag(() => ({
+        type: DropType.OVERVIEW_VIEW_HEADER,
+        item: { view: list },
+        collect: (monitor) => monitor.isDragging(),
+    }))
+
+    useEffect(() => {
+        dragPreview(getEmptyImage(), { captureDraggingState: true })
+    }, [dragPreview])
+
     useEffect(() => {
         if (list.view_items.length === 0) closeAccordion()
     }, [list.view_items.length])
@@ -134,26 +150,30 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
         <Accordion.Item value={list.id} key={list.id}>
             <Accordion.Header>
                 <AccordionTrigger>
-                    <TriggerTitle>
-                        <Icon
-                            icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
-                            color={list.view_items.length === 0 ? 'gray' : 'black'}
-                        />
-                        <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>{list.name}</ListTitle>
-                    </TriggerTitle>
-                    <TriggerRightContainer>
-                        {list.view_items.length > 0 && (
-                            <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
-                        )}
-                        {list.view_items.length === 0 && list.is_linked && (
-                            <StatusLabel
-                                status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
-                                color={list.has_tasks_completed_today ? 'green' : 'gray'}
-                                icon={icons.emptySet}
+                    <StyledFlex ref={drag} justifyContent="space-between">
+                        <TriggerTitle>
+                            <Icon
+                                icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
+                                color={list.view_items.length === 0 ? 'gray' : 'black'}
                             />
-                        )}
-                        <Icon icon={icons.caret_down} className="AccordionChevron" />
-                    </TriggerRightContainer>
+                            <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>
+                                {list.name}
+                            </ListTitle>
+                        </TriggerTitle>
+                        <TriggerRightContainer>
+                            {list.view_items.length > 0 && (
+                                <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
+                            )}
+                            {list.view_items.length === 0 && list.is_linked && (
+                                <StatusLabel
+                                    status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
+                                    color={list.has_tasks_completed_today ? 'green' : 'gray'}
+                                    icon={icons.emptySet}
+                                />
+                            )}
+                            <Icon icon={icons.caret_down} className="AccordionChevron" />
+                        </TriggerRightContainer>
+                    </StyledFlex>
                 </AccordionTrigger>
             </Accordion.Header>
             <Accordion.Content>
