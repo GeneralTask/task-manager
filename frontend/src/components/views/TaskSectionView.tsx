@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { MAX_ORDERING_ID } from '../../constants'
 import { useKeyboardShortcut } from '../../hooks'
 import { useNavigateToTask } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
@@ -218,7 +217,7 @@ const TaskSectionView = () => {
                                             reorderTask(
                                                 {
                                                     id: optimisticId,
-                                                    orderingId: MAX_ORDERING_ID,
+                                                    orderingId: section.tasks.length,
                                                     dropSectionId: section.id,
                                                 },
                                                 optimisticId

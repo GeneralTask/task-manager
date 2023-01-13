@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
-import { MAX_ORDERING_ID } from '../../../constants'
 import { useKeyboardShortcut } from '../../../hooks'
 import { useCreateTask, useGetTasks, useReorderTask } from '../../../services/api/tasks.hooks'
 import { Border, Colors, Spacing, Typography } from '../../../styles'
@@ -111,7 +110,7 @@ const SubtaskList = ({ parentTask, subtasks }: SubtasksProps) => {
                                             id: optimisticId,
                                             parentId: parentTask.id,
                                             isSubtask: true,
-                                            orderingId: MAX_ORDERING_ID,
+                                            orderingId: parentTask.sub_tasks?.length ?? 0,
                                             dropSectionId: sectionId,
                                         },
                                         optimisticId
