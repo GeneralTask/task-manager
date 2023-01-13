@@ -11,7 +11,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -145,7 +144,6 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	response := []bson.M{}
 	idx := 0
 	for _, suggestion := range strings.Split(resp.Choices[0].Text, "\n") {
-		log.Print(suggestion)
 		suggestionResponse := bson.M{}
 		if suggestion == "" {
 			continue
