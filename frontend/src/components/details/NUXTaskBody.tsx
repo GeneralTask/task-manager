@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { GITHUB_SUPPORTED_TYPE_NAME } from '../../constants'
+import { GITHUB_SUPPORTED_TYPE_NAME, GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -28,19 +28,18 @@ const DivCursorPointer = styled.div`
 const TaskToCal = () => {
     return (
         <Container>
-            Welcome to General Task! We’ve created a few sample tasks to help you get a feel for things.
+            <strong>Welcome to General Task!</strong> To help you get started, we’ve put together a list of introductory
+            tasks.
             <p>
-                First up, we have Task-to-Calendar. This helps you get your tasks done by setting aside time for them on
-                your calendar. Try dragging this task to the calendar on the right to give it a shot — any tasks you
-                drag will appear on your Google Calendar.
+                <strong>Task-to-Calendar</strong> can help you set aside time for each of your tasks. If you’d like to
+                set aside time to work on something, just <strong>drag a task over to the calendar sidebar</strong> on
+                the right. This will also add it to your Google Calendar.
             </p>
             <p>
-                Next, we’ll take a look at how to shut out distractions with Focus Mode. Click the checkbox to mark this
-                task as done whenever you’re ready.
+                ✅ Click the checkbox to mark this task as complete whenever you feel ready. Next up, we’ll take a look
+                at Focus Mode.
             </p>
-            <video width="100%" autoPlay loop muted>
-                <source src="/video/task-to-cal.mp4" type="video/mp4" />
-            </video>
+            <img width="100%" src="/images/nux-task-to-cal.png" />
         </Container>
     )
 }
@@ -48,19 +47,16 @@ const TaskToCal = () => {
 const FocusMode = () => {
     return (
         <Container>
-            Distractions can make it difficult to get things done, so we’ve created Focus Mode to help you keep your
-            attention on the things you care about. To use it, click Enter Focus Mode to immerse yourself in one thing
-            at a time. Any events on your calendar will take center stage, including tasks you’ve put there using
-            Task-to-Calendar. This way, you’ll have easy access to task details, and can join meetings in just one
-            click.
+            <strong>Focus Mode</strong> helps you stay on track by focusing on one task at a time.
             <p>
-                If you don’t have anything planned on your calendar, Focus Mode can also help you decide what to work on
-                next. This way, you can leave it open throughout your day and always have a clear sense of what to work
-                on next.
+                You can <strong>enter Focus Mode from the navigation bar on the left</strong> or by pressing the{' '}
+                <strong>F key</strong>. From here, Focus Mode will spotlight whichever tasks or events you have planned
+                at that time. You can even join meetings with just one click. If you don’t have anything on your
+                calendar, Focus Mode will present you a few options to help you decide what to work on next.
             </p>
             <p>
-                Pro tip: Try pinning this tab in your browser for easy access, or keep it on a second monitor to get
-                details about your day at a quick glance.
+                <strong>Pro tip:</strong> You can pin the tab in your browser, or keep it on a second monitor for easy
+                access to your task and event details throughout the day. Give it a try and see how it works for you.
             </p>
             <img src="/images/nux-focus-mode.png" width="100%" />
         </Container>
@@ -68,43 +64,44 @@ const FocusMode = () => {
 }
 
 const IntegrationsStaticContent = ({
+    googleUrl,
     githubUrl,
     linearUrl,
     slackUrl,
     setIsSettingsModalOpen,
 }: {
+    googleUrl: string
     githubUrl: string
     linearUrl: string
     slackUrl: string
     setIsSettingsModalOpen: (isSettingsModalOpen: boolean) => void
 }) => (
-    <>
-        We want to make it easy for you to get a bird’s-eye view of your day, so we integrate with other services to
-        reduce the need to jump from site to site.
-        <ul>
-            <li>
-                <a href={githubUrl}>Connect to GitHub</a> to see which pull requests you can take action on.
-            </li>
-            <li>
-                <a href={linearUrl}>Connect to Linear</a> to see and update the issues assigned to you.
-            </li>
-            <li>
-                <a href={slackUrl}>Connect to Slack</a> for the ability to turn any message into a task on the spot.
-            </li>
-        </ul>
+    <Container>
+        With General Task, you can <strong>connect a variety of services</strong> to give you a comprehensive view of
+        all your tasks and reduce the need to switch between apps.
         <p>
-            You can find the full list via the Settings button in the lower left corner of the screen. (We’re just
-            getting started — if there are integrations you want to see, use the Share feedback button in the lower left
-            to let us know what you’d like to see next.)
+            📅 <a href={googleUrl}>Google Calendar</a>: easily schedule tasks onto your calendar.
+            <br />
+            🤖 <a href={githubUrl}>GitHub</a>: manage and view your pull requests.
+            <br />✅ <a href={linearUrl}>Linear</a>: edit and keep track of your assigned issues.
+            <br />
+            💬 <a href={slackUrl}>Slack</a>: easily convert actionable messages into tasks.
+            <br />
+        </p>
+        <p>
+            You can find the full list of services in settings. Please leave us feedback to let us know which services
+            you want to see next.
         </p>
         <DivCursorPointer onClick={() => setIsSettingsModalOpen(true)}>
             <img src="/images/nux-integrations.png" width="100%" />
         </DivCursorPointer>
-    </>
+    </Container>
 )
 
 const Integrations = () => {
     const { data: supportedTypes } = useGetSupportedTypes()
+    const googleUrl =
+        supportedTypes?.find((type) => type.name === GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME)?.authorization_url || ''
     const githubUrl = supportedTypes?.find((type) => type.name === GITHUB_SUPPORTED_TYPE_NAME)?.authorization_url || ''
     const linearUrl = supportedTypes?.find((type) => type.name === 'Linear')?.authorization_url || ''
     const slackUrl = supportedTypes?.find((type) => type.name === 'Slack')?.authorization_url || ''
@@ -113,6 +110,7 @@ const Integrations = () => {
     return (
         <Container>
             <IntegrationsStaticContent
+                googleUrl={googleUrl}
                 githubUrl={githubUrl}
                 linearUrl={linearUrl}
                 slackUrl={slackUrl}
@@ -134,7 +132,7 @@ const JohnsLetterStaticContent = () => (
             software engineers. And it’s free! We don’t limit our software to those who can afford to pay $30+/month,
             like many of our competitors do. At General Task, we believe that everyone, not just a select few, should
             have access to the very best productivity tools and services. That means we will be keeping our personal
-            productivity solution <b>free forever</b>.
+            productivity solution <strong>free forever</strong>.
         </p>
         <p>
             Productivity is close to our hearts. Our team has worked at some of the most successful companies in the
@@ -154,7 +152,7 @@ const JohnsLetterStaticContent = () => (
             we can’t wait to have you along for the ride.
         </p>
         <p>
-            <b>But we can’t do this alone!</b>
+            <strong>But we can’t do this alone!</strong>
         </p>
         <p>
             We are committed to listening to each and every one of your ideas, and will work tirelessly to improve our
@@ -183,6 +181,34 @@ const JohnsLetter = () => {
     )
 }
 
+const SlackTask = () => {
+    return (
+        <Container>
+            With the Slack integration, you can <strong>quickly create a new task from a message</strong> by using the
+            three-dot menu. This can be a great way to keep track of important to-dos and ensure that nothing falls
+            through the cracks.
+            <ul>
+                <li>
+                    First, <strong>connect your Slack account</strong> to General Task in Settings.
+                </li>
+                <li>
+                    When connected, you can create a task from a Slack message by simply clicking the three dot menu on
+                    any message.
+                </li>
+                <li>
+                    Then, from the dropdown click the <strong>&quot;Create a task&quot;</strong> button.
+                </li>
+                <li>
+                    Once you’ve created a task, it will appear in Slack in the{' '}
+                    <strong>Services section of your Navigation Sidebar</strong> as well as your{' '}
+                    <strong>Task Inbox.</strong>
+                </li>
+            </ul>
+            <img width="100%" src="/images/nux-slack-task.png" />
+        </Container>
+    )
+}
+
 interface NUXTaskBodyProps {
     nux_number_id: number
     renderSettingsModal?: boolean
@@ -197,6 +223,8 @@ const NUXTaskBody = ({ nux_number_id }: NUXTaskBodyProps) => {
             return <Integrations />
         case 4:
             return <JohnsLetter />
+        case 5:
+            return <SlackTask />
         default:
             return null
     }
@@ -216,6 +244,7 @@ export const NuxTaskBodyStatic = ({ nux_number_id, renderSettingsModal }: NUXTas
                         <SettingsModal isOpen={isSettingsModalOpen} setIsOpen={setIsSettingsModalOpen} />
                     )}
                     <IntegrationsStaticContent
+                        googleUrl="https://api.generaltask.com/link/google/"
                         githubUrl="https://api.generaltask.com/link/github/"
                         slackUrl="https://api.generaltask.com/link/slack/"
                         linearUrl="https://api.generaltask.com/link/linear/"
@@ -225,6 +254,8 @@ export const NuxTaskBodyStatic = ({ nux_number_id, renderSettingsModal }: NUXTas
             )
         case 4:
             return <JohnsLetterStaticContent />
+        case 5:
+            return <SlackTask />
         default:
             return null
     }
