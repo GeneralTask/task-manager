@@ -73,11 +73,11 @@ const Editor = styled.div<{
         cursor: pointer;
         color: ${Colors.gtColor.primary};
     }
-    p {
-        padding-bottom: 14px;
-    }
     * {
         margin: 0;
+    }
+    .ProseMirror > *:not(:last-child) {
+        margin-bottom: 14px;
     }
 `
 
