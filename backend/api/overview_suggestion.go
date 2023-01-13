@@ -11,6 +11,7 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -144,6 +145,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	response := []bson.M{}
 	idx := 0
 	for _, suggestion := range strings.Split(resp.Choices[0].Text, "\n") {
+		log.Print(suggestion)
 		suggestionResponse := bson.M{}
 		if suggestion == "" {
 			continue
@@ -180,7 +182,10 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 }
 
 func getPrompt(sectionString string) string {
-	return "I have folders in which I keep tasks. The tasks are related to the folder in question. The folders are as follows: " + sectionString + ". If I value helping the team, fixing bugs, good engineering and being dependable, in which order should I complete these folders? Please provide the order, and then short reasoning as to why it is prioritized after the ordering."
+	return `I have folders in which I keep tasks. The tasks in general are related to the folder. The folders are as follows: ` + sectionString + `
+	I am an employee at a startup, and I value reliable engineering, being dependable, and helping the company towards its goals. I would like to feel as productive as possible.
+	Provide an ordering in which I should complete these folders, in accordance with my values. In this ordering, use the name of the folder verbatim. For each folder, provide a short reason as to why the folder was prioritized as it was. Mention at least one of the tasks in the folder as part of the reasoning. Do not use the first person in the reasoning.
+	`
 }
 
 func (api *API) OverviewViewsSuggestionsRemaining(c *gin.Context) {
