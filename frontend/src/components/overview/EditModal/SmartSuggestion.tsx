@@ -51,7 +51,8 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
         if (!list) return null
         return (
             <ListContainer>
-                <Icon icon={getOverviewAccordionHeaderIcon(list.logo)} /> {list.name}
+                <Icon icon={getOverviewAccordionHeaderIcon(list.logo)} />
+                {list.name}
             </ListContainer>
         )
     }
