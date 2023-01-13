@@ -60,6 +60,44 @@ const reorderView = async (data: TReorderViewData) => {
     }
 }
 
+interface TBulkModifyViewsData {
+    ordered_view_ids?: string[]
+}
+export const useBulkModifyViews = () => {
+    const queryClient = useGTQueryClient()
+    return useQueuedMutation((data: TBulkModifyViewsData) => bulkModifyViews(data), {
+        tag: 'overview',
+        invalidateTagsOnSettled: ['overview'],
+        onMutate: async (data: TBulkModifyViewsData) => {
+            const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
+            if (!views) return
+            await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
+            const newViews = produce(views, (draft) => {
+                // if ordered_view_ids is provided, reorder the views
+                if (data.ordered_view_ids) {
+                    const idToNewIndex = new Map(data.ordered_view_ids.map((id, index) => [id, index]))
+                    draft.sort((a, b) => {
+                        const aIndex = idToNewIndex.get(a.id)
+                        const bIndex = idToNewIndex.get(b.id)
+                        if (aIndex === undefined || bIndex === undefined) return 0
+                        return aIndex - bIndex
+                    })
+                }
+            })
+            queryClient.setQueryData('overview', newViews)
+        },
+    })
+}
+
+const bulkModifyViews = async (data: TBulkModifyViewsData) => {
+    try {
+        const res = await apiClient.patch('/overview/views/bulk_modify/', data)
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('bulkModifyViews failed')
+    }
+}
+
 export const useGetSupportedViews = () => {
     return useQuery<TSupportedView[], void>('overview-supported-views', getSupportedViews)
 }
@@ -225,4 +263,27 @@ const removeView = async (viewId: string) => {
     } catch {
         throw new Error('removeView failed')
     }
+}
+
+export const useSmartPrioritizationSuggestionsRemaining = () => {
+    return useQuery<number>('overview-suggestions-remaining', getSmartPrioritizationSuggestionsRemaining)
+}
+const getSmartPrioritizationSuggestionsRemaining = async ({ signal }: QueryFunctionContext) => {
+    try {
+        const res = await apiClient.get('/overview/views/suggestions_remaining/', { signal })
+        return castImmutable(res.data)
+    } catch {
+        throw new Error('getOverviewSuggestionsRemaining failed')
+    }
+}
+
+export interface TOverviewSuggestion {
+    id: string
+    reasoning: string
+}
+
+export const getOverviewSmartSuggestion = async () => {
+    const res = await apiClient.get('/overview/views/suggestion/')
+    if (res.status !== 200) throw new Error('getOverviewSmartSuggestion failed')
+    return res.data
 }

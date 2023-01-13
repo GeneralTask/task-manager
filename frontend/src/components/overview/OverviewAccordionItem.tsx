@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
@@ -10,14 +10,14 @@ import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
 import StatusLabel from '../atoms/StatusLabel'
 import { Body, Label } from '../atoms/typography/Typography'
-import { PAGE_SIZE } from '../overview/OverviewViewContainer'
-import { OptimisticItemsContainer, PaginateTextButton } from '../overview/styles'
-import DueTodayViewItems from '../overview/viewItems/DueTodayViewItems'
-import ExternalViewItems from '../overview/viewItems/ExternalViewItems'
-import MeetingPreparationViewItems from '../overview/viewItems/MeetingPreparationViewItems'
-import PullRequestViewItems from '../overview/viewItems/PullRequestViewItems'
-import TaskSectionViewItems from '../overview/viewItems/TaskSectionViewItems'
-import { MenuTriggerShared } from './RadixUIConstants'
+import { MenuTriggerShared } from '../radix/RadixUIConstants'
+import { PAGE_SIZE } from './OverviewViewContainer'
+import { OptimisticItemsContainer, PaginateTextButton } from './styles'
+import DueTodayViewItems from './viewItems/DueTodayViewItems'
+import ExternalViewItems from './viewItems/ExternalViewItems'
+import MeetingPreparationViewItems from './viewItems/MeetingPreparationViewItems'
+import PullRequestViewItems from './viewItems/PullRequestViewItems'
+import TaskSectionViewItems from './viewItems/TaskSectionViewItems'
 
 const AccordionTrigger = styled(Accordion.Trigger)`
     ${MenuTriggerShared};
@@ -81,11 +81,16 @@ export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: str
 
 interface OverviewAccordionItemProps {
     list: TOverviewView
+    closeAccordion: () => void
 }
-const OverviewAccordionItem = ({ list }: OverviewAccordionItemProps) => {
+const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemProps) => {
     const [visibleItemsCount, setVisibleItemsCount] = useState(0)
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
     const { overviewViewId, overviewItemId } = useParams()
+
+    useEffect(() => {
+        if (list.view_items.length === 0) closeAccordion()
+    }, [list.view_items.length])
 
     useLayoutEffect(() => {
         setVisibleItemsCount(

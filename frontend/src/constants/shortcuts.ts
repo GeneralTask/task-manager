@@ -100,6 +100,20 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'external_link',
     },
+    moveTaskUp: {
+        label: 'Move task up',
+        key: `${SHIFT}+K|${SHIFT}+ArrowUp`,
+        keyLabel: `${SHIFT}+K or ${SHIFT}+↑`,
+        category: 'Tasks',
+        icon: 'caret_up',
+    },
+    moveTaskDown: {
+        label: 'Move task down',
+        key: `${SHIFT}+J|${SHIFT}+ArrowDown`,
+        keyLabel: `${SHIFT}+J or ${SHIFT}+↓`,
+        category: 'Tasks',
+        icon: 'caret_down',
+    },
     navigationView: {
         label: 'Show/hide navigation view',
         key: '[',

@@ -299,6 +299,7 @@ export const useModifyTask = () => {
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
                     task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+                    task.updated_at = DateTime.utc().toISO()
                     if (data.external_priority_id) {
                         const newPriority = task.all_priorities?.find(
                             (priority) => priority.external_id === data.external_priority_id
@@ -321,6 +322,7 @@ export const useModifyTask = () => {
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
                     task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+                    task.updated_at = DateTime.utc().toISO()
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
@@ -350,6 +352,7 @@ export const useModifyTask = () => {
                     task.body = data.body ?? task.body
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
+                    task.updated_at = DateTime.utc().toISO()
                     if (data.external_priority_id) {
                         const newPriority = task.all_priorities?.find(
                             (priority) => priority.external_id === data.external_priority_id

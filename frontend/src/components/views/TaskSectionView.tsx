@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 import { MAX_ORDERING_ID } from '../../constants'
+import { useKeyboardShortcut } from '../../hooks'
+import { useNavigateToTask } from '../../hooks'
 import useItemSelectionController from '../../hooks/useItemSelectionController'
 import Log from '../../services/api/log'
 import { useCreateTask, useFetchExternalTasks, useGetTasks, useReorderTask } from '../../services/api/tasks.hooks'
@@ -13,6 +15,7 @@ import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
 import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
 import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
 import { DropItem, DropType, TTask } from '../../utils/types'
+import { getTaskIndexFromSections } from '../../utils/utils'
 import ReorderDropContainer from '../atoms/ReorderDropContainer'
 import Spinner from '../atoms/Spinner'
 import EmptyDetails from '../details/EmptyDetails'
@@ -63,6 +66,7 @@ const TaskSectionView = () => {
 
     const navigate = useNavigate()
     const params = useParams()
+    const navigateToTask = useNavigateToTask()
 
     const section = useMemo(() => taskSections?.find(({ id }) => id === params.section), [taskSections, params.section])
 
@@ -141,6 +145,43 @@ const TaskSectionView = () => {
 
     useItemSelectionController(sortedTasks, selectTask)
 
+    useKeyboardShortcut(
+        'moveTaskDown',
+        useCallback(() => {
+            if (!task || !section || taskIndex === section.tasks.length - 1) return
+            reorderTask({
+                id: task.id,
+                orderingId: task.id_ordering + 2,
+                dropSectionId: section.id,
+            })
+        }, [task, section, sortedTasks, taskIndex]),
+        selectedSort.id !== 'manual'
+    )
+    useKeyboardShortcut(
+        'moveTaskUp',
+        useCallback(() => {
+            if (!task || !section || taskIndex === 0) return
+            reorderTask({
+                id: task.id,
+                orderingId: task.id_ordering - 1,
+                dropSectionId: section.id,
+            })
+        }, [task, section, sortedTasks, taskIndex]),
+        selectedSort.id !== 'manual'
+    )
+
+    const selectTaskAfterCompletion = (taskId: string) => {
+        if (!taskSections) return
+        if (params.task !== taskId) return
+        const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
+        if (sectionIndex == null || taskIndex == null) return
+
+        if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
+        const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
+        if (!previousTask) return
+        navigateToTask(previousTask.id)
+    }
+
     return (
         <>
             <TaskSectionContainer>
@@ -207,6 +248,7 @@ const TaskSectionView = () => {
                                                 link={`/tasks/${params.section}/${task.id}`}
                                                 shouldScrollToTask={shouldScrollToTask}
                                                 setShouldScrollToTask={setShouldScrollToTask}
+                                                onMarkTaskDone={() => selectTaskAfterCompletion(task.id)}
                                             />
                                         </ReorderDropContainer>
                                     ))}

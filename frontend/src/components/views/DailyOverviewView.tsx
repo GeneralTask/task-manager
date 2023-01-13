@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
-import { Border, Colors, Spacing } from '../../styles'
+import { useGTLocalStorage } from '../../hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
 import Flex from '../atoms/Flex'
@@ -12,9 +13,9 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import OverviewListsModal from '../overview/OverviewListsModal'
+import EditModal from '../overview/EditModal'
+import OverviewAccordionItem from '../overview/OverviewAccordionItem'
 import useOverviewLists from '../overview/useOverviewLists'
-import OverviewAccordionItem from '../radix/OverviewAccordionItem'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
@@ -25,6 +26,9 @@ const ActionsContainer = styled.div`
     gap: ${Spacing._24};
     margin-bottom: ${Spacing._16};
 `
+const BannerButton = styled(GTButton)`
+    ${Typography.label};
+`
 const AccordionRoot = styled(Accordion.Root)`
     > * > h3 {
         all: unset;
@@ -33,15 +37,28 @@ const AccordionRoot = styled(Accordion.Root)`
         margin-bottom: ${Spacing._4};
     }
 `
-const MarginLeftDiv = styled.div`
+const RightActions = styled.div`
     margin-left: auto;
+    display: flex;
 `
 
 const DailyOverviewView = () => {
     const { lists, isLoading } = useOverviewLists()
-    const [values, setValues] = useState<string[]>([])
+    const [openListIds, setOpenListIds] = useState<string[]>([])
+    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
+    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+    const hasAutomaticallyOpenedFirstList = useRef(false)
+
+    if (overviewAutomaticEmptySort) {
+        lists.sort((a, b) => {
+            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+            return 0
+        })
+    }
 
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
@@ -68,10 +85,16 @@ const DailyOverviewView = () => {
         return null
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+        if (hasAutomaticallyOpenedFirstList.current) return
         const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) setValues([firstNonEmptyList.id])
-    }, [])
+        if (firstNonEmptyList) {
+            setOpenListIds([firstNonEmptyList.id])
+            hasAutomaticallyOpenedFirstList.current = true
+        }
+    }, [isLoading, lists])
+
+    const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
 
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
@@ -90,8 +113,8 @@ const DailyOverviewView = () => {
         selectFirstItem()
     }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
 
-    const collapseAll = () => setValues([])
-    const expandAll = useCallback(() => setValues(lists.map((list) => list.id)), [lists])
+    const collapseAll = () => setOpenListIds([])
+    const expandAll = useCallback(() => setOpenListIds(lists.map((list) => list.id)), [lists])
 
     if (isLoading) return <Spinner />
     return (
@@ -100,34 +123,68 @@ const DailyOverviewView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="Daily Overview" />
                     <ActionsContainer>
-                        <GTButton
+                        <BannerButton
                             styleType="simple"
                             size="small"
-                            onClick={collapseAll}
-                            icon={icons.squareMinus}
+                            onClick={() => {
+                                setEditListTabIndex(1)
+                                setIsEditListsModalOpen(true)
+                            }}
+                            icon={icons.bolt}
                             iconColor="gray"
-                            value="Collapse all"
+                            value={
+                                <span>
+                                    Smart Prioritize<sup>AI</sup>
+                                </span>
+                            }
                         />
-                        <GTButton
-                            styleType="simple"
-                            size="small"
-                            onClick={expandAll}
-                            icon={icons.squarePlus}
-                            iconColor="gray"
-                            value="Expand all"
-                        />
-                        <MarginLeftDiv>
-                            <OverviewListsModal />
-                        </MarginLeftDiv>
+                        <RightActions>
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={collapseAll}
+                                icon={icons.squareMinus}
+                                iconColor="gray"
+                                value="Collapse all"
+                            />
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={expandAll}
+                                icon={icons.squarePlus}
+                                iconColor="gray"
+                                value="Expand all"
+                            />
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={() => {
+                                    setEditListTabIndex(0)
+                                    setIsEditListsModalOpen(true)
+                                }}
+                                icon={icons.squarePlus}
+                                iconColor="gray"
+                                value="Edit lists"
+                            />
+                        </RightActions>
                     </ActionsContainer>
-                    <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
+                    <AccordionRoot type="multiple" value={openListIds} onValueChange={setOpenListIds}>
                         {lists.map((list) => (
-                            <OverviewAccordionItem key={list.id} list={list} />
+                            <OverviewAccordionItem
+                                key={list.id}
+                                list={list}
+                                closeAccordion={() => removeListFromOpenListIds(list.id)}
+                            />
                         ))}
                     </AccordionRoot>
                 </ScrollableListTemplate>
             </Flex>
             {detailsView}
+            <EditModal
+                isOpen={isEditListsModalOpen}
+                setisOpen={setIsEditListsModalOpen}
+                defaultTabIndex={editListTabIndex}
+            />
         </>
     )
 }

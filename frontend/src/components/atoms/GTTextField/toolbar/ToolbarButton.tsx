@@ -5,7 +5,7 @@ import GTIconButton from '../../buttons/GTIconButton'
 interface Props {
     icon: TIconType
     action: () => void
-    isActive: boolean
+    isActive?: boolean
     shortcutLabel: string
     shortcut?: string
 }

@@ -100,4 +100,61 @@ func TestRecurringTaskTemplateModify(t *testing.T) {
 		assert.True(t, *templates[0].ReplaceExisting)
 		assert.Equal(t, primitive.NewDateTimeFromTime(currentTime), templates[0].UpdatedAt)
 	})
+	t.Run("Delete", func(t *testing.T) {
+		template2Title := "whats up!"
+		insertResult, err := templateCollection.InsertOne(context.Background(), database.RecurringTaskTemplate{
+			UserID:    userID,
+			Title:     &template2Title,
+			IsEnabled: &enabled,
+			IsDeleted: &deleted,
+		})
+		assert.NoError(t, err)
+
+		template2ID := insertResult.InsertedID.(primitive.ObjectID)
+
+		taskCollection := database.GetTaskCollection(api.DB)
+
+		createRecurringTask := func(recurringTaskTemplateID primitive.ObjectID) primitive.ObjectID {
+			insertResult, err := taskCollection.InsertOne(context.Background(), database.Task{
+				UserID:                  userID,
+				RecurringTaskTemplateID: recurringTaskTemplateID,
+			})
+			assert.NoError(t, err)
+			return insertResult.InsertedID.(primitive.ObjectID)
+		}
+		task1ID := createRecurringTask(templateID)
+		task2ID := createRecurringTask(templateID)
+		task3ID := createRecurringTask(template2ID)
+		task4ID := createRecurringTask(template2ID)
+
+		request, _ := http.NewRequest(
+			"PATCH",
+			"/recurring_task_templates/modify/"+template2ID.Hex()+"/",
+			bytes.NewBuffer([]byte(`{"is_deleted": true, "replace_existing": true}`)),
+		)
+		request.Header.Add("Authorization", "Bearer "+authToken)
+		recorder := httptest.NewRecorder()
+		router.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusOK, recorder.Code)
+
+		// check that template is deleted
+		var template database.RecurringTaskTemplate
+		templateCollection.FindOne(context.Background(), bson.M{"_id": template2ID}).Decode(&template)
+		assert.True(t, *template.IsDeleted)
+
+		// check that task recurring task template IDs are correct
+		task1, err := database.GetTask(api.DB, task1ID, userID)
+		assert.NoError(t, err)
+		task2, err := database.GetTask(api.DB, task2ID, userID)
+		assert.NoError(t, err)
+		task3, err := database.GetTask(api.DB, task3ID, userID)
+		assert.NoError(t, err)
+		task4, err := database.GetTask(api.DB, task4ID, userID)
+		assert.NoError(t, err)
+
+		assert.Equal(t, task1.RecurringTaskTemplateID, templateID)
+		assert.Equal(t, task2.RecurringTaskTemplateID, templateID)
+		assert.Equal(t, task3.RecurringTaskTemplateID, primitive.NilObjectID)
+		assert.Equal(t, task4.RecurringTaskTemplateID, primitive.NilObjectID)
+	})
 }
