@@ -97,7 +97,6 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
     const [, drag, dragPreview] = useDrag(() => ({
         type: DropType.OVERVIEW_VIEW_HEADER,
         item: { view: list },
-        collect: (monitor) => monitor.isDragging(),
     }))
 
     useEffect(() => {
