@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useQueryClient } from 'react-query'
 import styled from 'styled-components'
+import { usePreviewMode } from '../../../hooks'
 import {
     TOverviewSuggestion,
     getOverviewSmartSuggestion,
@@ -45,8 +47,11 @@ interface SmartPrioritizeProps {
     setState: (state: SmartPrioritizeState) => void
 }
 const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const { data: suggestionsRemaining, isLoading: suggestionsLoading } = useSmartPrioritizationSuggestionsRemaining()
+    const hasSuggestionsRemaining = suggestionsRemaining && suggestionsRemaining > 0
     const [suggestions, setSuggestions] = useState<TOverviewSuggestion[]>()
+    const queryClient = useQueryClient()
 
     const getSuggestion = async () => {
         setState(SmartPrioritizeState.LOADING)
@@ -54,12 +59,13 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
             const suggestion = await getOverviewSmartSuggestion()
             setSuggestions(suggestion)
             setState(SmartPrioritizeState.LOADED)
+            queryClient.invalidateQueries('overview-suggestions-remaining')
         } catch (e) {
             setState(SmartPrioritizeState.ERROR)
         }
     }
 
-    const BodyContent = () => {
+    const getBodyContent = () => {
         if (suggestionsLoading) {
             return (
                 <Flex justifyContent="center">
@@ -77,12 +83,12 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                             size="small"
                             value="Enable"
                             onClick={getSuggestion}
-                            disabled={suggestionsRemaining === 0}
+                            disabled={!hasSuggestionsRemaining && !isPreviewMode}
                         />
                         <Mini color="light">
-                            {suggestionsRemaining === 0
-                                ? 'No more uses remaining today'
-                                : `${suggestionsRemaining} uses remaining today`}
+                            {hasSuggestionsRemaining
+                                ? `${suggestionsRemaining} uses remaining today`
+                                : `No more uses remaining today${isPreviewMode ? " (but you're an employee 😎)" : ''}`}
                         </Mini>
                     </Flex>
                 )
@@ -132,9 +138,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                     currently in Alpha testing.
                 </Mini>
             </Description>
-            <Body>
-                <BodyContent />
-            </Body>
+            <Body>{getBodyContent()}</Body>
         </Container>
     )
 }
