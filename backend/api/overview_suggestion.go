@@ -40,27 +40,21 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	if !strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
-		api.Logger.Error().Err(err).Msg("outside user access to suggestions attempted")
-		c.JSON(400, gin.H{"detail": "inaccessible"})
-		return
-	}
-
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	// TODO uncomment following code once development is complete
-	// suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
-	// if err !=  nil {
-	// 	c.JSON(400, gin.H{"error": "error fetching suggestions"})
-	// }
-	// if suggestionsLeft < 1 {
-	// 	c.JSON(400, gin.H{"error": "no remaining suggestions for user"})
-	// 	return
-	// }
+	suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "error fetching suggestions"})
+		return
+	}
+	if suggestionsLeft < 1 && !strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
+		c.JSON(400, gin.H{"error": "no remaining suggestions for user"})
+		return
+	}
 
 	err = api.decrementGPTRemainingByOne(user, timezoneOffset)
 	if err != nil {
