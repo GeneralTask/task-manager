@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { TOverviewSuggestion } from '../../../services/api/overview.hooks'
+import { TOverviewSuggestion, useBulkModifyViews } from '../../../services/api/overview.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
@@ -44,7 +44,26 @@ interface SmartSuggestionProps {
 const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps) => {
     const [isSaved, setIsSaved] = useState(false)
     const { lists } = useOverviewLists()
+    const [initialLists] = useState(lists) // saves initial lists to revert back to
+    const { mutate: bulkModifyViews } = useBulkModifyViews()
+
     const idToList = useMemo(() => new Map(lists.map((list) => [list.id, list])), [lists])
+
+    const handleSaveSuggestion = () => {
+        setIsSaved(true)
+        bulkModifyViews({
+            ordered_view_ids: suggestions.map((suggestion) => suggestion.id),
+        })
+    }
+
+    const handleRevertToManual = () => {
+        if (isSaved) {
+            bulkModifyViews({
+                ordered_view_ids: initialLists.map((list) => list.id),
+            })
+        }
+        onRevertToManual()
+    }
 
     const List = ({ id }: { id: string }) => {
         const list = idToList.get(id)
@@ -72,14 +91,14 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
                             'Save'
                         )
                     }
-                    onClick={() => setIsSaved(true)}
+                    onClick={handleSaveSuggestion}
                     disabled={isSaved}
                 />
                 <GTButton
                     size="small"
                     value="Revert to manual sorting"
                     styleType="secondary"
-                    onClick={onRevertToManual}
+                    onClick={handleRevertToManual}
                 />
             </TopButtons>
             {suggestions.map(({ id, reasoning }, index) => (

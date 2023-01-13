@@ -49,7 +49,7 @@ interface SmartPrioritizeProps {
 const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
     const { isPreviewMode } = usePreviewMode()
     const { data: suggestionsRemaining, isLoading: suggestionsLoading } = useSmartPrioritizationSuggestionsRemaining()
-    const hasSuggestionsRemaining = (suggestionsRemaining && suggestionsRemaining > 0) || isPreviewMode
+    const hasSuggestionsRemaining = suggestionsRemaining && suggestionsRemaining > 0
     const [suggestions, setSuggestions] = useState<TOverviewSuggestion[]>()
     const queryClient = useQueryClient()
 
@@ -83,14 +83,12 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                             size="small"
                             value="Enable"
                             onClick={getSuggestion}
-                            disabled={!hasSuggestionsRemaining}
+                            disabled={!hasSuggestionsRemaining && !isPreviewMode}
                         />
                         <Mini color="light">
                             {hasSuggestionsRemaining
-                                ? `${suggestionsRemaining} uses remaining today${
-                                      isPreviewMode ? " (because you're an employee 😎)" : ''
-                                  }`
-                                : 'No more uses remaining today'}
+                                ? `${suggestionsRemaining} uses remaining today`
+                                : `No more uses remaining today${isPreviewMode ? " (but you're an employee 😎)" : ''}`}
                         </Mini>
                     </Flex>
                 )
