@@ -76,7 +76,7 @@ const IntegrationsStaticContent = ({
     slackUrl: string
     setIsSettingsModalOpen: (isSettingsModalOpen: boolean) => void
 }) => (
-    <Container>
+    <>
         With General Task, you can <strong>connect a variety of services</strong> to give you a comprehensive view of
         all your tasks and reduce the need to switch between apps.
         <p>
@@ -95,7 +95,7 @@ const IntegrationsStaticContent = ({
         <DivCursorPointer onClick={() => setIsSettingsModalOpen(true)}>
             <img src="/images/nux-integrations.png" width="100%" />
         </DivCursorPointer>
-    </Container>
+    </>
 )
 
 const Integrations = () => {
