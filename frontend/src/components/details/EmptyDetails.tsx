@@ -18,17 +18,20 @@ const Text = styled.span`
 `
 
 interface EmptyDetailsProps {
+    isLoading?: boolean
     icon: IconProp | string
     text: string
 }
 
-const EmptyDetails = ({ icon, text }: EmptyDetailsProps) => {
+const EmptyDetails = ({ isLoading, icon, text }: EmptyDetailsProps) => {
     return (
         <DetailsViewTemplate>
-            <EmptyMessage>
-                <Icon size="large" icon={icon} color="gray" />
-                <Text>{text}</Text>
-            </EmptyMessage>
+            {!isLoading && (
+                <EmptyMessage>
+                    <Icon size="large" icon={icon} color="gray" />
+                    <Text>{text}</Text>
+                </EmptyMessage>
+            )}
         </DetailsViewTemplate>
     )
 }

@@ -170,10 +170,10 @@ const Task = ({
     }, [])
 
     const [isVisible, setIsVisible] = useState(true)
-    const taskFadeOut = () => {
+    const taskFadeOut = useCallback(() => {
         if (sectionId !== DONE_SECTION_ID) setIsVisible(task.is_done)
         onMarkTaskDone?.()
-    }
+    }, [task, sectionId, onMarkTaskDone])
 
     const dueDate = DateTime.fromISO(task.due_date).toJSDate()
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
