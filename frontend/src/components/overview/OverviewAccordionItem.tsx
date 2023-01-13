@@ -149,7 +149,7 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
                             <StatusLabel
                                 status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
                                 color={list.has_tasks_completed_today ? 'green' : 'gray'}
-                                icon={icons.emptySet}
+                                icon={icons.check}
                             />
                         )}
                         <Icon icon={icons.caret_down} className="AccordionChevron" />
