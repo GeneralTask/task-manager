@@ -161,8 +161,7 @@ func (api *API) LoginCallback(c *gin.Context) {
 
 func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 	taskCollection := database.GetTaskCollection(db)
-	index := 0
-	for title, nuxNumber := range constants.StarterTasks {
+	for index, title := range constants.StarterTasks {
 		tempTitle := title
 		body := ""
 		completed := false
@@ -178,14 +177,13 @@ func createNewUserTasks(userID primitive.ObjectID, db *mongo.Database) error {
 			SourceAccountID:   external.GeneralTaskDefaultAccountID,
 			IsCompleted:       &completed,
 			IsDeleted:         &deleted,
-			NUXNumber:         nuxNumber,
+			NUXNumber:         constants.StarterTasksNuxIDs[index],
 			CreatedAtExternal: primitive.NewDateTimeFromTime(time.Now()),
 		}
 		_, err := taskCollection.InsertOne(context.Background(), newTask)
 		if err != nil {
 			return err
 		}
-		index += 1
 	}
 	return nil
 }
