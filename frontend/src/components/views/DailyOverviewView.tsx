@@ -162,7 +162,7 @@ const DailyOverviewView = () => {
                                     setEditListTabIndex(0)
                                     setIsEditListsModalOpen(true)
                                 }}
-                                icon={icons.squarePlus}
+                                icon={icons.gear}
                                 iconColor="gray"
                                 value="Edit lists"
                             />
