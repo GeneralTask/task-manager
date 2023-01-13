@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
-import { Border, Colors, Shadows, Spacing } from '../../styles'
+import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import { Icon } from '../atoms/Icon'
@@ -52,6 +52,7 @@ const ListTitle = styled(Body)<{ isComplete: boolean }>`
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
+    ${Typography.bold}
     ${(props) =>
         props.isComplete &&
         `
