@@ -35,6 +35,7 @@ const ListOrderTab = () => {
             reorderViews({ id: item.id, idOrdering: dropIndex }, item.view?.optimisticId),
         [reorderViews]
     )
+    const preferenceSubtext = `Once a list that was previously empty or completed is filled with items again, it${'\n'}will return to its original position.`
     return (
         <Flex column flex="1">
             {isPreviewMode && <SmartPrioritize state={smartPrioritizeState} setState={setSmartPrioritizeState} />}
@@ -55,8 +56,7 @@ const ListOrderTab = () => {
                         <PreferencesTitle>Preferences</PreferencesTitle>
                         <ListModalPreference
                             text="Move empty or completed lists to the bottom of Daily Overview"
-                            subtext="Once a list that was previously empty or completed is filled
-                    with items again, it will return to its original position."
+                            subtext={preferenceSubtext}
                             onClick={() => setAutomaticSortEmpty(!automaticSortEmpty)}
                             isChecked={automaticSortEmpty}
                         />
