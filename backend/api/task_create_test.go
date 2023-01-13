@@ -144,7 +144,7 @@ func TestCreateTask(t *testing.T) {
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
 		assert.Equal(t, 5, len(*tasks))
-		task := (*tasks)[4]
+		task := (*tasks)[5]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "", *task.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
