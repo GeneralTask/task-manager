@@ -27,6 +27,7 @@ export const RightContainer = styled.div`
     display: flex;
     align-items: center;
     gap: ${Spacing._12};
+    white-space: nowrap;
 `
 export const SubtaskContainer = styled.div<{ forceHoverStyle?: boolean; isDone?: boolean }>`
     display: flex;
