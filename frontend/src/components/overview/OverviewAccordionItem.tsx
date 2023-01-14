@@ -14,6 +14,7 @@ import Spinner from '../atoms/Spinner'
 import StatusLabel from '../atoms/StatusLabel'
 import { Body, Label } from '../atoms/typography/Typography'
 import { MenuTriggerShared } from '../radix/RadixUIConstants'
+import AuthBanner from './AuthBanner'
 import { PAGE_SIZE } from './OverviewViewContainer'
 import { OptimisticItemsContainer, PaginateTextButton } from './styles'
 import DueTodayViewItems from './viewItems/DueTodayViewItems'
@@ -178,11 +179,27 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
             </Accordion.Header>
             <Accordion.Content>
                 <ListContent>
-                    <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                    {visibleItemsCount < list.view_items.length && (
-                        <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
-                            View more ({nextPageLength})
-                        </PaginateTextButton>
+                    {list.is_linked ? (
+                        <>
+                            <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
+                            {visibleItemsCount < list.view_items.length && (
+                                <PaginateTextButton
+                                    onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
+                                >
+                                    View more ({nextPageLength})
+                                </PaginateTextButton>
+                            )}
+                        </>
+                    ) : (
+                        list.sources.map((source) => (
+                            <AuthBanner
+                                key={source.name}
+                                authorizationUrl={source.authorization_url}
+                                name={source.name}
+                                logo={list.logo}
+                                hasBorder={true}
+                            />
+                        ))
                     )}
                 </ListContent>
             </Accordion.Content>
