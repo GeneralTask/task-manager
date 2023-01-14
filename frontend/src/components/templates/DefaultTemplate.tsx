@@ -62,7 +62,7 @@ const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
             if (isNavCollapsed) setIsNavCollapsed(false)
             if (isCalCollapsed) setIsCalCollapsed(false)
         }
-    }, [width, setIsNavCollapsed, setIsCalCollapsed])
+    }, [width])
 
     return (
         <DefaultTemplateContainer>
