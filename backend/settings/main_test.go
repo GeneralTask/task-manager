@@ -113,7 +113,7 @@ func TestGetSettingsOptions(t *testing.T) {
 		assert.Equal(t, "000000000000000000000001_task_sorting_direction_main", (*settings)[21].FieldKey)
 		assert.Equal(t, "000000000000000000000001_task_sorting_preference_overview", (*settings)[22].FieldKey)
 		assert.Equal(t, "000000000000000000000001_task_sorting_direction_overview", (*settings)[23].FieldKey)
-		calendarSetting := (*settings)[23]
+		calendarSetting := (*settings)[24]
 		assert.Equal(t, SettingFieldCalendarForNewTasks, calendarSetting.FieldKey)
 		assert.Equal(t, "a", calendarSetting.DefaultChoice)
 		assert.Equal(t, []SettingChoice{
