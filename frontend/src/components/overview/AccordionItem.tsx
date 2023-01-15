@@ -7,6 +7,7 @@ import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
 import GTAccordionHeader from './AccordionHeader'
+import AuthBanner from './AuthBanner'
 import { PAGE_SIZE } from './OverviewViewContainer'
 import { PaginateTextButton } from './styles'
 
@@ -70,11 +71,27 @@ const AccordionItem = ({ list, openListIds, setOpenListIds }: AccordionItemProps
             </Trigger>
             {isOpen && (
                 <ListContent>
-                    <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
-                    {visibleItemsCount < list.view_items.length && (
-                        <PaginateTextButton onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}>
-                            View more ({nextPageLength})
-                        </PaginateTextButton>
+                    {list.is_linked ? (
+                        <>
+                            <ViewItems view={list} visibleItemsCount={visibleItemsCount} hideHeader />
+                            {visibleItemsCount < list.view_items.length && (
+                                <PaginateTextButton
+                                    onClick={() => setVisibleItemsCount(visibleItemsCount + nextPageLength)}
+                                >
+                                    View more ({nextPageLength})
+                                </PaginateTextButton>
+                            )}
+                        </>
+                    ) : (
+                        list.sources.map((source) => (
+                            <AuthBanner
+                                key={source.name}
+                                authorizationUrl={source.authorization_url}
+                                name={source.name}
+                                logo={list.logo}
+                                hasBorder={true}
+                            />
+                        ))
                     )}
                 </ListContent>
             )}
