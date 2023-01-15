@@ -14,6 +14,7 @@ import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import EditModal from '../overview/EditModal'
+import GTAccordionItem from '../overview/GTAccordionItem'
 import OverviewAccordionItem from '../overview/OverviewAccordionItem'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
@@ -44,13 +45,14 @@ const RightActions = styled.div`
 
 const DailyOverviewView = () => {
     const { lists, isLoading } = useOverviewLists()
-    const [openListIds, setOpenListIds] = useState<string[]>([])
     const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
-    const hasAutomaticallyOpenedFirstList = useRef(false)
+    // const hasAutomaticallyOpenedFirstList = useRef(false)
+
+    const [openListIds, setOpenListIds] = useState<string[]>([])
 
     if (overviewAutomaticEmptySort) {
         lists.sort((a, b) => {
@@ -85,16 +87,16 @@ const DailyOverviewView = () => {
         return null
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
-    useEffect(() => {
-        if (hasAutomaticallyOpenedFirstList.current) return
-        const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) {
-            setOpenListIds([firstNonEmptyList.id])
-            hasAutomaticallyOpenedFirstList.current = true
-        }
-    }, [isLoading, lists])
+    // useEffect(() => {
+    //     if (hasAutomaticallyOpenedFirstList.current) return
+    //     const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
+    //     if (firstNonEmptyList) {
+    //         setOpenListIds([firstNonEmptyList.id])
+    //         hasAutomaticallyOpenedFirstList.current = true
+    //     }
+    // }, [isLoading, lists])
 
-    const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
+    // const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
 
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
@@ -168,15 +170,14 @@ const DailyOverviewView = () => {
                             />
                         </RightActions>
                     </ActionsContainer>
-                    <AccordionRoot type="multiple" value={openListIds} onValueChange={setOpenListIds}>
-                        {lists.map((list) => (
-                            <OverviewAccordionItem
-                                key={list.id}
-                                list={list}
-                                closeAccordion={() => removeListFromOpenListIds(list.id)}
-                            />
-                        ))}
-                    </AccordionRoot>
+                    {lists.map((list) => (
+                        <GTAccordionItem
+                            key={list.id}
+                            list={list}
+                            openListIds={openListIds}
+                            setOpenListIds={setOpenListIds}
+                        />
+                    ))}
                 </ScrollableListTemplate>
             </Flex>
             {detailsView}

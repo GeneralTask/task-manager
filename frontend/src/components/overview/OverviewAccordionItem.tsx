@@ -42,38 +42,7 @@ const AccordionTrigger = styled(Accordion.Trigger)`
     }
     box-shadow: ${Shadows.button.default};
 `
-const StyledFlex = styled(Flex)`
-    width: 100%;
-`
-const TriggerTitle = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._16};
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-right: ${Spacing._8};
-    white-space: nowrap;
-`
-const ListTitle = styled(Body)<{ isComplete: boolean }>`
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-    ${Typography.bold}
-    ${(props) =>
-        props.isComplete &&
-        `
-        text-decoration: line-through;
-        color: ${Colors.text.light};
-    `}
-`
-const TriggerRightContainer = styled.div`
-    display: flex;
-    align-items: center;
-    gap: ${Spacing._16};
-`
-const ItemsRemainingText = styled(Label)`
-    white-space: nowrap;
-`
+
 const ListContent = styled.div`
     padding: ${Spacing._16};
     background-color: ${Colors.background.white};
@@ -149,32 +118,7 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
     return (
         <Accordion.Item value={list.id} key={list.id}>
             <Accordion.Header>
-                <AccordionTrigger>
-                    <StyledFlex ref={drag} justifyContent="space-between">
-                        <TriggerTitle>
-                            <Icon
-                                icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
-                                color={list.view_items.length === 0 ? 'gray' : 'black'}
-                            />
-                            <ListTitle isComplete={list.view_items.length === 0 && list.is_linked}>
-                                {list.name}
-                            </ListTitle>
-                        </TriggerTitle>
-                        <TriggerRightContainer>
-                            {list.view_items.length > 0 && (
-                                <ItemsRemainingText>{list.view_items.length} remaining</ItemsRemainingText>
-                            )}
-                            {list.view_items.length === 0 && list.is_linked && (
-                                <StatusLabel
-                                    status={list.has_tasks_completed_today ? 'List complete' : 'Empty'}
-                                    color={list.has_tasks_completed_today ? 'green' : 'gray'}
-                                    icon={icons.check}
-                                />
-                            )}
-                            <Icon icon={icons.caret_down} className="AccordionChevron" />
-                        </TriggerRightContainer>
-                    </StyledFlex>
-                </AccordionTrigger>
+                <AccordionTrigger></AccordionTrigger>
             </Accordion.Header>
             <Accordion.Content>
                 <ListContent>
