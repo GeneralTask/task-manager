@@ -37,11 +37,13 @@ export const useGetCorrectlyOrderedOverviewLists = () => {
     const { lists, isLoading } = useOverviewLists()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     if (overviewAutomaticEmptySort) {
-        lists.sort((a, b) => {
+        const listsCopy = [...lists]
+        listsCopy.sort((a, b) => {
             if (a.view_items.length === 0 && b.view_items.length > 0) return 1
             if (a.view_items.length > 0 && b.view_items.length === 0) return -1
             return 0
         })
+        return { lists: listsCopy, isLoading }
     }
     return { lists, isLoading }
 }
@@ -66,7 +68,7 @@ const DailyOverviewView = () => {
                 return ids
             })
         }
-    }, [overviewItemId, lists])
+    }, [overviewItemId, JSON.stringify(lists)])
 
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
