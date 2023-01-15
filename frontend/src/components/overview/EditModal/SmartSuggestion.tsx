@@ -1,5 +1,6 @@
 import { Fragment, useMemo, useState } from 'react'
 import styled from 'styled-components'
+import { useGTLocalStorage } from '../../../hooks'
 import { TOverviewSuggestion, useBulkModifyViews } from '../../../services/api/overview.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
 import { TIconColor } from '../../../styles/colors'
@@ -47,11 +48,13 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
     const { lists } = useOverviewLists()
     const [initialLists] = useState(lists) // saves initial lists to revert back to
     const { mutate: bulkModifyViews } = useBulkModifyViews()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
 
     const idToList = useMemo(() => new Map(lists.map((list) => [list.id, list])), [lists])
 
     const handleSaveSuggestion = () => {
         setIsSaved(true)
+        setIsUsingSmartPrioritization(true)
         bulkModifyViews({
             ordered_view_ids: suggestions.map((suggestion) => suggestion.id),
         })

@@ -1,6 +1,7 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
 import produce, { castImmutable } from 'immer'
 import useQueryContext from '../../context/QueryContext'
+import { useGTLocalStorage } from '../../hooks'
 import apiClient from '../../utils/api'
 import { TOverviewView, TOverviewViewType, TSupportedView, TSupportedViewItem } from '../../utils/types'
 import { arrayMoveInPlace } from '../../utils/utils'
@@ -24,10 +25,12 @@ interface TReorderViewData {
 }
 export const useReorderViews = () => {
     const queryClient = useGTQueryClient()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
     return useQueuedMutation((data: TReorderViewData) => reorderView(data), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview'],
         onMutate: async ({ id, idOrdering }: TReorderViewData) => {
+            setIsUsingSmartPrioritization(false)
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             if (!views) return
             await Promise.all([queryClient.cancelQueries('overview'), queryClient.cancelQueries('tasks')])
@@ -129,6 +132,7 @@ interface TAddViewReponse {
 export const useAddView = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
 
     return useQueuedMutation<TAddViewReponse, unknown, TAddViewData, unknown>(
         ({ supportedView, supportedViewItem }: TAddViewData) => {
@@ -150,6 +154,7 @@ export const useAddView = () => {
                 supportedViewItem,
                 supportedViewItemIndex,
             }: TAddViewData) => {
+                setIsUsingSmartPrioritization(false)
                 await Promise.all([
                     queryClient.cancelQueries('overview-supported-views'),
                     queryClient.cancelQueries('overview'),
@@ -214,10 +219,13 @@ interface TRemoveViewData {
 }
 export const useRemoveView = () => {
     const queryClient = useGTQueryClient()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
+
     return useQueuedMutation(({ id }: TRemoveViewData) => removeView(id), {
         tag: 'overview',
         invalidateTagsOnSettled: ['overview', 'overview-supported-views'],
         onMutate: async ({ id }) => {
+            setIsUsingSmartPrioritization(false)
             const supportedViews = queryClient.getImmutableQueryData<TSupportedView[]>('overview-supported-views')
             const views = queryClient.getImmutableQueryData<TOverviewView[]>('overview')
             await Promise.all([
