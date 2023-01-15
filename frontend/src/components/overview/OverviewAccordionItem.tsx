@@ -5,14 +5,10 @@ import { useParams } from 'react-router-dom'
 import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID } from '../../constants'
-import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
+import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { DropType, TOverviewView } from '../../utils/types'
-import Flex from '../atoms/Flex'
-import { Icon } from '../atoms/Icon'
 import Spinner from '../atoms/Spinner'
-import StatusLabel from '../atoms/StatusLabel'
-import { Body, Label } from '../atoms/typography/Typography'
 import { MenuTriggerShared } from '../radix/RadixUIConstants'
 import { PAGE_SIZE } from './OverviewViewContainer'
 import { OptimisticItemsContainer, PaginateTextButton } from './styles'
@@ -64,7 +60,7 @@ const OverviewAccordionItem = ({ list, closeAccordion }: OverviewAccordionItemPr
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
     const { overviewViewId, overviewItemId } = useParams()
 
-    const [, drag, dragPreview] = useDrag(() => ({
+    const [, , dragPreview] = useDrag(() => ({
         type: DropType.OVERVIEW_VIEW_HEADER,
         item: { view: list },
     }))
