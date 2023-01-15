@@ -15,6 +15,7 @@ import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
 import EditModal from '../overview/EditModal'
 import OverviewAccordionItem from '../overview/OverviewAccordionItem'
+import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -168,6 +169,7 @@ const DailyOverviewView = () => {
                             />
                         </RightActions>
                     </ActionsContainer>
+                    <SmartPrioritizationBanner />
                     <AccordionRoot type="multiple" value={openListIds} onValueChange={setOpenListIds}>
                         {lists.map((list) => (
                             <OverviewAccordionItem
