@@ -94,7 +94,7 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
 
 export const useCreateEvent = () => {
     const queryClient = useGTQueryClient()
-    const { selectedEvent, setSelectedEvent } = useCalendarContext(false)
+    const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { setOptimisticId } = useQueryContext()
 
     // Keep selectedEvent in a ref so that it can be accessed in can be updated in the onSuccess callback

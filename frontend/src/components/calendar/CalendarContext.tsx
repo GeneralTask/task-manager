@@ -193,9 +193,8 @@ export const FocusModeContextProvider = ({ children }: FocusModeContextProviderP
     return <FocusModeContext.Provider value={value}>{children}</FocusModeContext.Provider>
 }
 
-export const useCalendarContext = (useFocusModeContext: boolean) => {
+export const useCalendarContext = (useFocusModeContext: boolean | undefined = false) => {
     if (useFocusModeContext) {
-        console.log('this is hit')
         return useContext(FocusModeContext)
     }
     return useContext(CalendarContext)

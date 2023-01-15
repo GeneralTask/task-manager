@@ -26,7 +26,7 @@ const PlainTextEditor = forwardRef((props: PlainTextEditorProps, textAreaRef) =>
     const { isFullHeight, maxHeight, value, onChange, autoFocus, ...rest } = props
     const ref = useRef<HTMLTextAreaElement | null>(null)
     const windowSize = useWindowSize()
-    const { isCollapsed } = useCalendarContext(false)
+    const { isCollapsed } = useCalendarContext()
     const resizeEditor = () => {
         if (!isFullHeight && ref.current) {
             ref.current.style.height = '0px'

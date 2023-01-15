@@ -93,7 +93,7 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
-    const { setCalendarType, setDate, dayViewDate } = useCalendarContext(false)
+    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const navigate = useNavigate()
 

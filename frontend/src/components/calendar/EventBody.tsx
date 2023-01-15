@@ -57,7 +57,6 @@ function EventBody(props: EventBodyProps): JSX.Element {
         if (selectedEvent?.id === props.event.id) {
             setSelectedEvent(null)
         } else {
-            console.log('selection is happening')
             setSelectedEvent(props.event)
         }
     }

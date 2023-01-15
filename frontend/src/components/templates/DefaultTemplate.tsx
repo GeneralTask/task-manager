@@ -50,7 +50,7 @@ interface DefaultTemplateProps {
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
     const { width } = useWindowSize(false)
-    const { calendarType, isCollapsed: isCalCollapsed, setIsCollapsed: setIsCalCollapsed } = useCalendarContext(false)
+    const { calendarType, isCollapsed: isCalCollapsed, setIsCollapsed: setIsCalCollapsed } = useCalendarContext()
     const [isNavCollapsed, setIsNavCollapsed] = useGTLocalStorage('navigationCollapsed', false)
 
     useLayoutEffect(() => {
