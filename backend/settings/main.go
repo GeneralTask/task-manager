@@ -71,6 +71,8 @@ const (
 	// Overview page settings
 	SettingCollapseEmptyLists     = "collapse_empty_lists"
 	SettingMoveEmptyListsToBottom = "move_empty_lists_to_bottom"
+	// Lab settings
+	LabSmartPrioritizeEnabled = "lab_smart_prioritize_enabled"
 )
 
 var SidebarLinearSetting = SettingDefinition{
@@ -205,6 +207,15 @@ var OverviewMoveEmptyListsToBottomSetting = SettingDefinition{
 	},
 }
 
+var LabSmartPrioritizeEnabledSetting = SettingDefinition{
+	FieldKey:      LabSmartPrioritizeEnabled,
+	DefaultChoice: "false",
+	Choices: []SettingChoice{
+		{Key: "true"},
+		{Key: "false"},
+	},
+}
+
 var TaskSectionSettingTypes = []string{"main", "overview"}
 
 var hardcodedSettings = []SettingDefinition{
@@ -223,6 +234,7 @@ var hardcodedSettings = []SettingDefinition{
 	NoteFilteringSetting,
 	OverviewCollapseEmptyListsSetting,
 	OverviewMoveEmptyListsToBottomSetting,
+	LabSmartPrioritizeEnabledSetting,
 }
 
 func GetSettingsOptions(db *mongo.Database, userID primitive.ObjectID) (*[]SettingDefinition, error) {

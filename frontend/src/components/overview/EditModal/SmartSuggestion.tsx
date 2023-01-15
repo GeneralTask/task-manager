@@ -1,13 +1,15 @@
 import { Fragment, useMemo, useState } from 'react'
 import styled from 'styled-components'
+import { useGTLocalStorage } from '../../../hooks'
 import { TOverviewSuggestion, useBulkModifyViews } from '../../../services/api/overview.hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../../styles'
+import { TIconColor } from '../../../styles/colors'
 import { icons } from '../../../styles/images'
 import Flex from '../../atoms/Flex'
-import { Icon } from '../../atoms/Icon'
+import { Icon, TIconType } from '../../atoms/Icon'
 import { Divider } from '../../atoms/SectionDivider'
 import GTButton from '../../atoms/buttons/GTButton'
-import { getOverviewAccordionHeaderIcon } from '../OverviewAccordionItem'
+import { getOverviewAccordionHeaderIcon } from '../AccordionItem'
 import useOverviewLists from '../useOverviewLists'
 
 const TopButtons = styled(Flex)`
@@ -22,9 +24,9 @@ const Suggestion = styled.div`
 `
 const ListContainer = styled.div`
     display: flex;
+    justify-content: space-between;
     padding: ${Spacing._16};
     box-sizing: border-box;
-    gap: ${Spacing._16};
     height: fit-content;
     flex: 1;
     background-color: ${Colors.background.white};
@@ -46,11 +48,13 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
     const { lists } = useOverviewLists()
     const [initialLists] = useState(lists) // saves initial lists to revert back to
     const { mutate: bulkModifyViews } = useBulkModifyViews()
+    const [, setIsUsingSmartPrioritization] = useGTLocalStorage('isUsingSmartPrioritization', false, true)
 
     const idToList = useMemo(() => new Map(lists.map((list) => [list.id, list])), [lists])
 
     const handleSaveSuggestion = () => {
         setIsSaved(true)
+        setIsUsingSmartPrioritization(true)
         bulkModifyViews({
             ordered_view_ids: suggestions.map((suggestion) => suggestion.id),
         })
@@ -65,13 +69,26 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
         onRevertToManual()
     }
 
-    const List = ({ id }: { id: string }) => {
+    const getPriority = (index: number): { icon: TIconType; color: TIconColor } => {
+        if (index === 0) return { icon: icons.priority_urgent, color: 'red' }
+        else if (index === suggestions.length - 1) return { icon: icons.priority_low, color: 'green' }
+        else if (index === 1 && suggestions.length > 4) return { icon: icons.priority_high, color: 'yellow' }
+        else return { icon: icons.priority_medium, color: 'blue' }
+    }
+
+    const List = ({ id, index }: { id: string; index: number }) => {
         const list = idToList.get(id)
         if (!list) return null
+        const { icon, color } = getPriority(index)
         return (
             <ListContainer>
-                <Icon icon={getOverviewAccordionHeaderIcon(list.logo)} />
-                {list.name}
+                <Flex alignItems="center" gap={Spacing._16}>
+                    <Icon icon={getOverviewAccordionHeaderIcon(list.logo)} />
+                    {list.name}
+                </Flex>
+                <Flex alignItems="center">
+                    <Icon icon={icon} color={color} />
+                </Flex>
             </ListContainer>
         )
     }
@@ -104,7 +121,7 @@ const SmartSuggestion = ({ suggestions, onRevertToManual }: SmartSuggestionProps
             {suggestions.map(({ id, reasoning }, index) => (
                 <Fragment key={id}>
                     <Suggestion>
-                        <List id={id} />
+                        <List id={id} index={index} />
                         <Reasoning>{reasoning}</Reasoning>
                     </Suggestion>
                     {index !== suggestions.length - 1 && <Divider color={Colors.border.light} />}
