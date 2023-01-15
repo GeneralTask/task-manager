@@ -9,7 +9,7 @@ import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import StatusLabel from '../atoms/StatusLabel'
 import { Body, Label } from '../atoms/typography/Typography'
-import { getOverviewAccordionHeaderIcon } from './GTAccordionItem'
+import { getOverviewAccordionHeaderIcon } from './AccordionItem'
 
 const TriggerTitle = styled.div`
     display: flex;
@@ -57,6 +57,7 @@ const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
     useEffect(() => {
         dragPreview(getEmptyImage(), { captureDraggingState: true })
     }, [dragPreview])
+
     return (
         <StyledFlex justifyContent="space-between" ref={drag}>
             <TriggerTitle>

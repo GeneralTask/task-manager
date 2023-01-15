@@ -12,8 +12,8 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
+import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
-import GTAccordionItem from '../overview/GTAccordionItem'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -162,7 +162,7 @@ const DailyOverviewView = () => {
                         </RightActions>
                     </ActionsContainer>
                     {lists.map((list) => (
-                        <GTAccordionItem
+                        <AccordionItem
                             key={list.id}
                             list={list}
                             openListIds={openListIds}

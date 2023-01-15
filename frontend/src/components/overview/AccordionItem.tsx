@@ -6,7 +6,7 @@ import useGetVisibleItemCount from '../../hooks/useGetVisibleItemCount'
 import { Border, Colors, Shadows, Spacing } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
 import { TOverviewView } from '../../utils/types'
-import AccordionHeader from './GTAccordionHeader'
+import GTAccordionHeader from './AccordionHeader'
 import { PAGE_SIZE } from './OverviewViewContainer'
 import { PaginateTextButton } from './styles'
 
@@ -40,12 +40,12 @@ export const getOverviewAccordionHeaderIcon = (logo: TLogoImage, sectionId?: str
     return sectionId === DEFAULT_SECTION_ID ? icons.inbox : icons.folder
 }
 
-interface GTAccordionItemProps {
+interface AccordionItemProps {
     list: TOverviewView
     openListIds: string[]
     setOpenListIds: React.Dispatch<React.SetStateAction<string[]>>
 }
-const GTAccordionItem = ({ list, openListIds, setOpenListIds }: GTAccordionItemProps) => {
+const AccordionItem = ({ list, openListIds, setOpenListIds }: AccordionItemProps) => {
     const ViewItems = useGetViewItems(list)
     const isOpen = openListIds.includes(list.id)
     const toggerAccordion = () => {
@@ -66,7 +66,7 @@ const GTAccordionItem = ({ list, openListIds, setOpenListIds }: GTAccordionItemP
     return (
         <AccordionContainer>
             <Trigger onClick={toggerAccordion} isOpen={isOpen}>
-                <AccordionHeader list={list} isOpen={isOpen} />
+                <GTAccordionHeader list={list} isOpen={isOpen} />
             </Trigger>
             {isOpen && (
                 <ListContent>
@@ -82,4 +82,4 @@ const GTAccordionItem = ({ list, openListIds, setOpenListIds }: GTAccordionItemP
     )
 }
 
-export default GTAccordionItem
+export default AccordionItem

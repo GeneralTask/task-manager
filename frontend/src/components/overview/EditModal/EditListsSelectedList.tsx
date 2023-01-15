@@ -10,7 +10,7 @@ import ReorderDropContainer from '../../atoms/ReorderDropContainer'
 import { TemplateContainer } from '../../atoms/TaskTemplate'
 import { Truncated } from '../../atoms/typography/Typography'
 import ItemContainer from '../../molecules/ItemContainer'
-import { getOverviewAccordionHeaderIcon } from '../GTAccordionItem'
+import { getOverviewAccordionHeaderIcon } from '../AccordionItem'
 import { EditViewsDeleteButton } from '../styles'
 
 const StyledItemContainer = styled(ItemContainer)`
