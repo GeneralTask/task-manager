@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import { Outlet, Route, Routes } from 'react-router-dom'
 import { enableMapSet } from 'immer'
 import StyledToastContainer from './components/atoms/toast/StyledToastContainer'
+import { CalendarContextProvider } from './components/calendar/CalendarContext'
 import FocusModeScreen from './components/screens/FocusModeScreen'
 import MainScreen from './components/screens/MainScreen'
 import { FOCUS_MODE_ROUTE } from './constants'
@@ -65,7 +66,14 @@ const AuthenticatedRoutes = () => {
                             <Route path=":slackTaskId" element={<MainScreen />} />
                         </Route>
                         <Route path={FOCUS_MODE_ROUTE} element={<Outlet />}>
-                            <Route index element={<FocusModeScreen />} />
+                            <Route
+                                index
+                                element={
+                                    <CalendarContextProvider isPopoverDisabled={true}>
+                                        <FocusModeScreen />
+                                    </CalendarContextProvider>
+                                }
+                            />
                         </Route>
                         <Route path="notes" element={<Outlet />}>
                             <Route index element={<MainScreen />} />

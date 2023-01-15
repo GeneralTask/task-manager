@@ -9,6 +9,7 @@ import { useFetchExternalTasks, useGetTasks } from '../../services/api/tasks.hoo
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { focusModeBackground, noteBackground } from '../../styles/images'
 import Loading from '../atoms/Loading'
+import { CalendarContextProvider } from '../calendar/CalendarContext'
 import DragLayer from '../molecules/DragLayer'
 import DefaultTemplate from '../templates/DefaultTemplate'
 import DailyOverviewView from '../views/DailyOverviewView'
@@ -60,14 +61,14 @@ const MainScreen = () => {
     if (!isTaskSectionsLoading && !userInfo?.agreed_to_terms) return <Navigate to="/tos-summary" />
 
     return (
-        <>
+        <CalendarContextProvider>
             <link rel="preload" as="image" href={focusModeBackground} />
             <link rel="preload" as="image" href={noteBackground} />
             <DefaultTemplate>
                 <>{currentPage(isPreviewMode)}</>
             </DefaultTemplate>
             <DragLayer />
-        </>
+        </CalendarContextProvider>
     )
 }
 

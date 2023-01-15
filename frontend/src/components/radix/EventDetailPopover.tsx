@@ -31,19 +31,12 @@ interface EventDetailPopoverProps {
     date: DateTime
     hidePopover?: boolean
     children: ReactNode
-    useFocusModeContext: boolean
 }
-const EventDetailPopover = ({
-    event,
-    date,
-    hidePopover = false,
-    children,
-    useFocusModeContext,
-}: EventDetailPopoverProps) => {
+const EventDetailPopover = ({ event, date, hidePopover = false, children }: EventDetailPopoverProps) => {
     const { isPreviewMode } = usePreviewMode()
     const toast = useToast()
     const [isOpen, setIsOpen] = useState(false)
-    const { selectedEvent, setSelectedEvent } = useCalendarContext(useFocusModeContext)
+    const { selectedEvent, setSelectedEvent } = useCalendarContext()
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const startTimeString = DateTime.fromISO(event.datetime_start).toFormat('h:mm')
     const endTimeString = DateTime.fromISO(event.datetime_end).toFormat('h:mm a')

@@ -156,7 +156,6 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             count={DEFAULT_FOLDER.tasks.length}
                             isCollapsed
                             droppable
-                            useFocusModeContext={false}
                         />
                     )}
                     {items.length > 0 && (
@@ -184,7 +183,6 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             count={TRASH_FOLDER.tasks.length}
                             isCollapsed
                             droppable
-                            useFocusModeContext={false}
                         />
                     )}
                     {DONE_FOLDER && (
@@ -197,7 +195,6 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             count={DONE_FOLDER.tasks.length}
                             isCollapsed
                             droppable
-                            useFocusModeContext={false}
                         />
                     )}
                 </FoldersContainer>

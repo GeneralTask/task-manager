@@ -21,7 +21,7 @@ import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { useCalendarContext } from '../calendar/CalendarContext'
+import { CalendarContextProvider, useCalendarContext } from '../calendar/CalendarContext'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import CommandPalette from '../molecules/CommandPalette'
@@ -185,7 +185,7 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 
 const FocusModeScreen = () => {
     const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
-        useCalendarContext(true)
+        useCalendarContext()
     useEffect(() => {
         setIsCollapsed(false)
         setCalendarType('day')
@@ -395,7 +395,6 @@ const FocusModeScreen = () => {
                                 initialShowMainHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
-                                useFocusModeContext={true}
                             />
                         </CalendarContainer>
                     </MainContainer>

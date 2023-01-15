@@ -160,7 +160,6 @@ const NavigationSectionLinks = () => {
                     taskSection={defaultFolder}
                     count={defaultFolder.tasks.length}
                     droppable
-                    useFocusModeContext={false}
                 />
             )}
             {folders
@@ -189,7 +188,6 @@ const NavigationSectionLinks = () => {
                                     count={section.tasks.length}
                                     draggable
                                     droppable
-                                    useFocusModeContext={false}
                                 />
                             </NavigationContextMenuWrapper>
                         </ReorderDropContainer>
@@ -253,7 +251,6 @@ const NavigationSectionLinks = () => {
                             count={doneFolder.tasks.length}
                             taskSection={doneFolder}
                             droppable
-                            useFocusModeContext={false}
                         />
                     )}
                     {trashFolder && (
@@ -264,7 +261,6 @@ const NavigationSectionLinks = () => {
                             isCurrentPage={sectionId === trashFolder.id}
                             taskSection={trashFolder}
                             droppable
-                            useFocusModeContext={false}
                         />
                     )}
                 </>

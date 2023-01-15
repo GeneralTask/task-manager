@@ -88,7 +88,7 @@ const CalendarWithTaskSelection = () => {
                     ))}
                 </ScheduleTaskSidebar>
             )}
-            <CalendarView initialType="day" useFocusModeContext={false} />
+            <CalendarView initialType="day" />
         </Flex>
     )
 }

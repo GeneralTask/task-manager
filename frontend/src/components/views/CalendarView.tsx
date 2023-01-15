@@ -32,7 +32,6 @@ interface CalendarViewProps {
     hideContainerShadow?: boolean
     hasLeftBorder?: boolean
     additonalHeaderContent?: React.ReactNode
-    useFocusModeContext: boolean
 }
 const CalendarView = ({
     initialType,
@@ -42,13 +41,12 @@ const CalendarView = ({
     hideContainerShadow = false,
     hasLeftBorder = false,
     additonalHeaderContent,
-    useFocusModeContext,
 }: CalendarViewProps) => {
     const [showMainHeader, setShowMainHeader] = useState<boolean>(initialShowMainHeader ?? true)
     const [showDateHeader, setShowDateHeader] = useState<boolean>(initialShowDateHeader ?? true)
     const timeoutTimer = useIdleTimer({}) // default timeout is 20 minutes
     const { date, calendarType, isCollapsed, setDate, setCalendarType, setIsCollapsed, setShowTaskToCalSidebar } =
-        useCalendarContext(useFocusModeContext)
+        useCalendarContext()
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
         return blocks.map((block) => ({ startISO: block.start.toISO(), endISO: block.end.toISO() }))
@@ -113,7 +111,7 @@ const CalendarView = ({
     )
 
     return isCollapsed ? (
-        <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} useFocusModeContext={useFocusModeContext} />
+        <CollapsedCalendarSidebar onClick={() => setIsCollapsed(false)} />
     ) : (
         <CalendarContainer
             isExpanded={calendarType === 'week'}
@@ -124,9 +122,8 @@ const CalendarView = ({
                 showMainHeader={showMainHeader}
                 showDateHeader={showDateHeader}
                 additionalHeaderContent={additonalHeaderContent}
-                useFocusModeContext={useFocusModeContext}
             />
-            {calendarType === 'day' && <TasksDue date={date} useFocusModeContext={useFocusModeContext} />}
+            {calendarType === 'day' && <TasksDue date={date} />}
             <CalendarWeekDateHeaderContainer>
                 {calendarType === 'week' &&
                     [...Array(7)].map((_, offset) => (
@@ -137,8 +134,8 @@ const CalendarView = ({
                         </CalendarDayHeader>
                     ))}
             </CalendarWeekDateHeaderContainer>
-            {calendarType === 'week' && <TasksDueWeek date={date} useFocusModeContext={useFocusModeContext} />}
-            <CalendarEvents date={date} primaryAccountID={primaryAccountID} useFocusModeContext={useFocusModeContext} />
+            {calendarType === 'week' && <TasksDueWeek date={date} />}
+            <CalendarEvents date={date} primaryAccountID={primaryAccountID} />
         </CalendarContainer>
     )
 }

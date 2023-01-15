@@ -48,13 +48,11 @@ interface CalendarHeaderProps {
     showMainHeader?: boolean
     showDateHeader?: boolean
     additionalHeaderContent?: React.ReactNode
-    useFocusModeContext: boolean
 }
 export default function CalendarHeader({
     showMainHeader = true,
     showDateHeader = true,
     additionalHeaderContent,
-    useFocusModeContext,
 }: CalendarHeaderProps) {
     const {
         calendarType,
@@ -67,7 +65,7 @@ export default function CalendarHeader({
         setDate,
         dayViewDate,
         setDayViewDate,
-    } = useCalendarContext(useFocusModeContext)
+    } = useCalendarContext()
     const isCalendarExpanded = calendarType === 'week' && !isCollapsed
     const { pathname } = useLocation()
     const { isPreviewMode } = usePreviewMode()

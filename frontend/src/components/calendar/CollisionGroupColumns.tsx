@@ -7,7 +7,6 @@ import { createEventColumns } from './utils/eventLayout'
 interface CollisionGroupColumnsProps {
     events: TEvent[]
     date: DateTime
-    useFocusModeContext: boolean
 }
 
 const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element => {
@@ -22,7 +21,6 @@ const CollisionGroupColumns = (props: CollisionGroupColumnsProps): JSX.Element =
                             leftOffset={index}
                             collisionGroupSize={eventColumns.length}
                             date={props.date}
-                            useFocusModeContext={props.useFocusModeContext}
                         />
                     </EventBodyDraggable>
                 ))
