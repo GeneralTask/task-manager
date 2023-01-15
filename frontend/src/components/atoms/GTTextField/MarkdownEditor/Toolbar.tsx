@@ -28,13 +28,6 @@ const Toolbar = ({ actions }: ToolbarProps) => {
                 shortcut={`${CMD_CTRL.label}+I`}
             />
             <ToolbarButton
-                icon={icons.underline}
-                action={commands.toggleUnderline}
-                isActive={active.underline()}
-                shortcutLabel="Underline"
-                shortcut={`${CMD_CTRL.label}+U`}
-            />
-            <ToolbarButton
                 icon={icons.strikethrough}
                 action={commands.toggleStrike}
                 isActive={active.strike()}

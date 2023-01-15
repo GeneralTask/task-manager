@@ -37,7 +37,6 @@ const MarkdownEditor = (props: RichTextEditorProps) => {
             new RemirrorExtensions.StrikeExtension(),
             new RemirrorExtensions.TableExtension(),
             new RemirrorExtensions.TrailingNodeExtension(),
-            new RemirrorExtensions.UnderlineExtension(),
             new RemirrorExtensions.ImageExtension({ enableResizing: true }),
         ],
         content: props.value,
