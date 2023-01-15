@@ -134,11 +134,11 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                         Smart Prioritize<sup>AI</sup>
                     </BodySmall>
                 </Flex>
-                <Mini color="light">
+                <Label color="light">
                     Using AI, Smart Prioritize helps you focus on your most important work by organizing your lists
                     based on effectiveness. Please note Smart Prioritize can be used up to three times a day and is
                     currently in Alpha testing.
-                </Mini>
+                </Label>
             </Description>
             <Body>{getBodyContent()}</Body>
         </Container>

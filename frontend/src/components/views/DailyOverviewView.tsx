@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
 import { useGTLocalStorage } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
@@ -13,8 +12,9 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
+import AccordionItem from '../overview/AccordionItem'
 import EditModal from '../overview/EditModal'
-import OverviewAccordionItem from '../overview/OverviewAccordionItem'
+import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
 import useOverviewLists from '../overview/useOverviewLists'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
@@ -29,36 +29,47 @@ const ActionsContainer = styled.div`
 const BannerButton = styled(GTButton)`
     ${Typography.label};
 `
-const AccordionRoot = styled(Accordion.Root)`
-    > * > h3 {
-        all: unset;
-    }
-    > div {
-        margin-bottom: ${Spacing._4};
-    }
-`
 const RightActions = styled.div`
     margin-left: auto;
     display: flex;
 `
 
-const DailyOverviewView = () => {
+export const useGetCorrectlyOrderedOverviewLists = () => {
     const { lists, isLoading } = useOverviewLists()
-    const [openListIds, setOpenListIds] = useState<string[]>([])
-    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
-    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
-    const { overviewViewId, overviewItemId, subtaskId } = useParams()
-    const navigate = useNavigate()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
-    const hasAutomaticallyOpenedFirstList = useRef(false)
-
     if (overviewAutomaticEmptySort) {
-        lists.sort((a, b) => {
+        const listsCopy = [...lists]
+        listsCopy.sort((a, b) => {
             if (a.view_items.length === 0 && b.view_items.length > 0) return 1
             if (a.view_items.length > 0 && b.view_items.length === 0) return -1
             return 0
         })
+        return { lists: listsCopy, isLoading }
     }
+    return { lists, isLoading }
+}
+
+const DailyOverviewView = () => {
+    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
+    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
+    const { overviewViewId, overviewItemId, subtaskId } = useParams()
+    const navigate = useNavigate()
+
+    const [openListIds, setOpenListIds] = useState<string[]>([])
+    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
+    const collapseAll = () => setOpenListIds([])
+
+    const { lists, isLoading } = useGetCorrectlyOrderedOverviewLists()
+    useLayoutEffect(() => {
+        if (overviewViewId && overviewItemId) {
+            setOpenListIds((ids) => {
+                if (!openListIds.includes(overviewViewId)) {
+                    return [...ids, overviewViewId]
+                }
+                return ids
+            })
+        }
+    }, [overviewItemId, JSON.stringify(lists)])
 
     const detailsView = useMemo(() => {
         if (!lists?.length) return <EmptyDetails icon={icons.list} text="You have no views" />
@@ -79,17 +90,6 @@ const DailyOverviewView = () => {
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
     useEffect(() => {
-        if (hasAutomaticallyOpenedFirstList.current) return
-        const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) {
-            setOpenListIds([firstNonEmptyList.id])
-            hasAutomaticallyOpenedFirstList.current = true
-        }
-    }, [isLoading, lists])
-
-    const removeListFromOpenListIds = (id: string) => setOpenListIds(openListIds.filter((value) => value !== id))
-
-    useEffect(() => {
         const selectFirstItem = () => {
             const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
             if (firstNonEmptyView) {
@@ -101,7 +101,6 @@ const DailyOverviewView = () => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
-        // check that selected item is in list of views
         for (const list of lists) {
             if (list.id === overviewViewId) {
                 for (const item of list.view_items) {
@@ -135,9 +134,6 @@ const DailyOverviewView = () => {
             }
         }
     }, [overviewViewId, overviewItemId, list, lists])
-
-    const collapseAll = () => setOpenListIds([])
-    const expandAll = useCallback(() => setOpenListIds(lists.map((list) => list.id)), [lists])
 
     if (isLoading) return <Spinner />
     return (
@@ -185,21 +181,21 @@ const DailyOverviewView = () => {
                                     setEditListTabIndex(0)
                                     setIsEditListsModalOpen(true)
                                 }}
-                                icon={icons.squarePlus}
+                                icon={icons.gear}
                                 iconColor="gray"
                                 value="Edit lists"
                             />
                         </RightActions>
                     </ActionsContainer>
-                    <AccordionRoot type="multiple" value={openListIds} onValueChange={setOpenListIds}>
-                        {lists.map((list) => (
-                            <OverviewAccordionItem
-                                key={list.id}
-                                list={list}
-                                closeAccordion={() => removeListFromOpenListIds(list.id)}
-                            />
-                        ))}
-                    </AccordionRoot>
+                    <SmartPrioritizationBanner />
+                    {lists.map((list) => (
+                        <AccordionItem
+                            key={list.id}
+                            list={list}
+                            openListIds={openListIds}
+                            setOpenListIds={setOpenListIds}
+                        />
+                    ))}
                 </ScrollableListTemplate>
             </Flex>
             {detailsView}

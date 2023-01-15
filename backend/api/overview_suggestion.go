@@ -40,27 +40,21 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	if !strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
-		api.Logger.Error().Err(err).Msg("outside user access to suggestions attempted")
-		c.JSON(400, gin.H{"detail": "inaccessible"})
-		return
-	}
-
 	timezoneOffset, err := GetTimezoneOffsetFromHeader(c)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	// TODO uncomment following code once development is complete
-	// suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
-	// if err !=  nil {
-	// 	c.JSON(400, gin.H{"error": "error fetching suggestions"})
-	// }
-	// if suggestionsLeft < 1 {
-	// 	c.JSON(400, gin.H{"error": "no remaining suggestions for user"})
-	// 	return
-	// }
+	suggestionsLeft, err := api.getRemainingSuggestionsForUser(user, timezoneOffset)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "error fetching suggestions"})
+		return
+	}
+	if suggestionsLeft < 1 && !strings.HasSuffix(strings.ToLower(user.Email), "@generaltask.com") {
+		c.JSON(400, gin.H{"error": "no remaining suggestions for user"})
+		return
+	}
 
 	err = api.decrementGPTRemainingByOne(user, timezoneOffset)
 	if err != nil {
@@ -126,7 +120,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	ctx := context.Background()
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
-		MaxTokens:        1000,
+		MaxTokens:        1500,
 		Temperature:      0.2,
 		TopP:             1.0,
 		FrequencyPenalty: 0.0,
@@ -182,7 +176,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 func getPrompt(sectionString string) string {
 	return `I have folders in which I keep tasks. The tasks in general are related to the folder. The folders are as follows: ` + sectionString + `
 	I am an employee at a startup, and I value efficient engineering, unblocking my coworkers before starting my own work, being prepared for meetings, and helping the company towards its goals. I would like to feel as productive as possible.
-	Provide an ordering in which I should complete these folders, in accordance with my values. In this ordering, use the name of the folder verbatim. For each folder, provide a short reason as to why the folder was prioritized as it was. Mention at least one of the tasks as part of the reasoning. Do not mention tasks if there are none in the folder. Do not use the first person in the reasoning. Do not use any profanity or offensive language.
+	Provide an ordering in which I should complete these folders, in accordance with my values. In this ordering, use the name of the folder verbatim. For each folder, provide a short reason as to why the folder was prioritized as it was. Refer to one of the tasks in part of the reasoning. Do not mention tasks if there are none in the folder. Do not use the first person in the reasoning. Do not use any profanity or offensive language.
 	`
 }
 
