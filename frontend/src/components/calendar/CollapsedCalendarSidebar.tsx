@@ -35,10 +35,9 @@ const Sidebar = styled.div<{ showFlicker: boolean }>`
 
 interface CalendarHeaderProps {
     onClick: () => void
-    useFocusModeContext: boolean
 }
-const CollapsedCalendarSidebar = ({ onClick, useFocusModeContext }: CalendarHeaderProps) => {
-    const { isTaskDraggingOverDetailsView, setIsCollapsed } = useCalendarContext(useFocusModeContext)
+const CollapsedCalendarSidebar = ({ onClick }: CalendarHeaderProps) => {
+    const { isTaskDraggingOverDetailsView, setIsCollapsed } = useCalendarContext()
     const [, drop] = useDrop(
         () => ({
             accept: [DropType.TASK],

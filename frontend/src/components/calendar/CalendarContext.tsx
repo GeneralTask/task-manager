@@ -113,6 +113,6 @@ export const CalendarContextProvider = (props: CalendarContextProviderProps) => 
     return <CalendarContext.Provider value={value}>{props.children}</CalendarContext.Provider>
 }
 
-export const useCalendarContext = (useFocusModeContext: boolean | undefined = false) => {
+export const useCalendarContext = () => {
     return useContext(CalendarContext)
 }

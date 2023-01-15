@@ -21,21 +21,14 @@ interface TasksDueHeaderProps {
     dueType: 'due' | 'overdue'
     numTasksDue: number
     hideCollapseButton?: boolean
-    useFocusModeContext: boolean
 }
-const TasksDueHeader = ({
-    type,
-    dueType,
-    numTasksDue,
-    hideCollapseButton,
-    useFocusModeContext,
-}: TasksDueHeaderProps) => {
+const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: TasksDueHeaderProps) => {
     const {
         isTasksDueViewCollapsed,
         setIsTasksDueViewCollapsed,
         isTasksOverdueViewCollapsed,
         setIsTasksOverdueViewCollapsed,
-    } = useCalendarContext(useFocusModeContext)
+    } = useCalendarContext()
     const isCollapsed = dueType === 'due' ? isTasksDueViewCollapsed : isTasksOverdueViewCollapsed
     const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
     const dayMessage = dueType === 'due' ? `Due Today (${numTasksDue})` : `Overdue (${numTasksDue})`
