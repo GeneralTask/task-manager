@@ -90,7 +90,7 @@ const DailyOverviewView = () => {
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
     useEffect(() => {
-        const selectFirstItem = () => {
+        if (!isLoading && (!overviewViewId || !overviewItemId)) {
             const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
             if (firstNonEmptyView) {
                 navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, {
@@ -98,19 +98,6 @@ const DailyOverviewView = () => {
                 })
             }
         }
-        if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
-            selectFirstItem()
-        }
-        for (const list of lists) {
-            if (list.id === overviewViewId) {
-                for (const item of list.view_items) {
-                    if (item.id === overviewItemId) {
-                        return
-                    }
-                }
-            }
-        }
-        selectFirstItem()
     }, [isLoading, overviewViewId, overviewItemId, lists])
 
     const list = useMemo(() => lists?.find(({ id }) => id === overviewViewId), [lists, overviewViewId])
