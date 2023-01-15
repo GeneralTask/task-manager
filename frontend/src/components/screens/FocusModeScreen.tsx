@@ -21,7 +21,7 @@ import ExternalLinkButton from '../atoms/buttons/ExternalLinkButton'
 import GTButton from '../atoms/buttons/GTButton'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import NoStyleButton from '../atoms/buttons/NoStyleButton'
-import { useCalendarContext } from '../calendar/CalendarContext'
+import { CalendarContextProvider, useCalendarContext } from '../calendar/CalendarContext'
 import FlexTime from '../focus-mode/FlexTime'
 import CardSwitcher from '../molecules/CardSwitcher'
 import CommandPalette from '../molecules/CommandPalette'
@@ -311,119 +311,126 @@ const FocusModeScreen = () => {
 
     const navigate = useNavigate()
     return (
-        <SingleViewTemplate>
-            <TemplateViewContainer>
-                <FocusModeContainer>
-                    <MainContainer>
-                        <EventContainer>
-                            {currentEvents.length > 1 && chosenEvent === null && (
-                                <>
-                                    <GTHeader>Multiple Events</GTHeader>
-                                    <Subtitle>
-                                        There are multiple events scheduled for this time period. Please select the
-                                        event you want to focus on at the moment.
-                                    </Subtitle>
-                                    <BodyHeader>MULTIPLE EVENTS — SELECT WHICH EVENT TO FOCUS ON</BodyHeader>
-                                    <CurrentEventsContainer>
-                                        {currentEvents.map((event) => (
-                                            <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
-                                                <EventTitle>
-                                                    <Icon icon={logos[event.logo]} />
-                                                    <EventTitleText>{event.title}</EventTitleText>
-                                                </EventTitle>
-                                                <TimeRange
-                                                    start={DateTime.fromISO(event.datetime_start)}
-                                                    end={DateTime.fromISO(event.datetime_end)}
-                                                    wrapText={false}
-                                                />
-                                            </CurrentEvent>
-                                        ))}
-                                    </CurrentEventsContainer>
-                                </>
-                            )}
-                            {chosenEvent && (
-                                <>
-                                    <EventHeaderContainer>
-                                        <GTHeader title={title}>{title}</GTHeader>
-                                        <MarginLeftContainer>
-                                            <ExternalLinkButton link={chosenEvent.deeplink} />
-                                            <IconButton onClick={onDelete}>
-                                                <Icon icon={icons.trash} />
-                                            </IconButton>
-                                        </MarginLeftContainer>
-                                    </EventHeaderContainer>
-                                    <GTTitle>
-                                        <TimeRange start={timeStart} end={timeEnd} />
-                                    </GTTitle>
-                                    {conferenceCall && !eventHasEnded && (
-                                        <NotificationMessage>
-                                            <span>
-                                                <span>This meeting is happening</span>
-                                                <BoldText> right now</BoldText>.
-                                            </span>
-                                            <RightAbsoluteContainer>
-                                                <JoinMeetingButton conferenceCall={conferenceCall} shortened={false} />
-                                            </RightAbsoluteContainer>
-                                        </NotificationMessage>
-                                    )}
-                                    {eventHasEnded && (
-                                        <NotificationMessage isCentered>
-                                            <span>
-                                                <span>This event is</span>
-                                                <BoldText> in the past</BoldText>.
-                                            </span>
-                                        </NotificationMessage>
-                                    )}
-                                    <div>
-                                        {chosenEvent.linked_view_id ? (
-                                            <CardSwitcher viewId={chosenEvent.linked_view_id} />
-                                        ) : (
-                                            <>
-                                                <BodyHeader>EVENT DESCRIPTON</BodyHeader>
-                                                <Body dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }} />
-                                            </>
+        <CalendarContextProvider isPopoverDisabled={true}>
+            <SingleViewTemplate>
+                <TemplateViewContainer>
+                    <FocusModeContainer>
+                        <MainContainer>
+                            <EventContainer>
+                                {currentEvents.length > 1 && chosenEvent === null && (
+                                    <>
+                                        <GTHeader>Multiple Events</GTHeader>
+                                        <Subtitle>
+                                            There are multiple events scheduled for this time period. Please select the
+                                            event you want to focus on at the moment.
+                                        </Subtitle>
+                                        <BodyHeader>MULTIPLE EVENTS — SELECT WHICH EVENT TO FOCUS ON</BodyHeader>
+                                        <CurrentEventsContainer>
+                                            {currentEvents.map((event) => (
+                                                <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
+                                                    <EventTitle>
+                                                        <Icon icon={logos[event.logo]} />
+                                                        <EventTitleText>{event.title}</EventTitleText>
+                                                    </EventTitle>
+                                                    <TimeRange
+                                                        start={DateTime.fromISO(event.datetime_start)}
+                                                        end={DateTime.fromISO(event.datetime_end)}
+                                                        wrapText={false}
+                                                    />
+                                                </CurrentEvent>
+                                            ))}
+                                        </CurrentEventsContainer>
+                                    </>
+                                )}
+                                {chosenEvent && (
+                                    <>
+                                        <EventHeaderContainer>
+                                            <GTHeader title={title}>{title}</GTHeader>
+                                            <MarginLeftContainer>
+                                                <ExternalLinkButton link={chosenEvent.deeplink} />
+                                                <IconButton onClick={onDelete}>
+                                                    <Icon icon={icons.trash} />
+                                                </IconButton>
+                                            </MarginLeftContainer>
+                                        </EventHeaderContainer>
+                                        <GTTitle>
+                                            <TimeRange start={timeStart} end={timeEnd} />
+                                        </GTTitle>
+                                        {conferenceCall && !eventHasEnded && (
+                                            <NotificationMessage>
+                                                <span>
+                                                    <span>This meeting is happening</span>
+                                                    <BoldText> right now</BoldText>.
+                                                </span>
+                                                <RightAbsoluteContainer>
+                                                    <JoinMeetingButton
+                                                        conferenceCall={conferenceCall}
+                                                        shortened={false}
+                                                    />
+                                                </RightAbsoluteContainer>
+                                            </NotificationMessage>
                                         )}
-                                    </div>
-                                </>
-                            )}
-                            {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
-                        </EventContainer>
-                        <CalendarContainer>
-                            <CalendarView
-                                initialType="day"
-                                initialShowDateHeader={false}
-                                initialShowMainHeader={false}
-                                hideContainerShadow
-                                hasLeftBorder
-                                useFocusModeContext={true}
-                            />
-                        </CalendarContainer>
-                    </MainContainer>
-                    <ClockContainer>
-                        <NextEventContainer>
-                            {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
-                                <span>
-                                    Next event is in
-                                    <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
-                                </span>
-                            )}
-                        </NextEventContainer>
-                        <AdvanceEventContainer onClick={() => setShouldAutoAdvanceEvent(!shouldAutoAdvanceEvent)}>
-                            <GTStaticCheckbox isChecked={shouldAutoAdvanceEvent} />
-                            Automatically advance to next event
-                        </AdvanceEventContainer>
-                        <span>{time.toFormat('h:mm a')}</span>
-                    </ClockContainer>
-                </FocusModeContainer>
-                <FloatTopRight>
-                    <Icon icon={logos.generaltask_single_color} size="gtLogo" />
-                    <CommandPalette hideButton />
-                </FloatTopRight>
-                <FloatTopLeft>
-                    <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />
-                </FloatTopLeft>
-            </TemplateViewContainer>
-        </SingleViewTemplate>
+                                        {eventHasEnded && (
+                                            <NotificationMessage isCentered>
+                                                <span>
+                                                    <span>This event is</span>
+                                                    <BoldText> in the past</BoldText>.
+                                                </span>
+                                            </NotificationMessage>
+                                        )}
+                                        <div>
+                                            {chosenEvent.linked_view_id ? (
+                                                <CardSwitcher viewId={chosenEvent.linked_view_id} />
+                                            ) : (
+                                                <>
+                                                    <BodyHeader>EVENT DESCRIPTON</BodyHeader>
+                                                    <Body
+                                                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(body || '') }}
+                                                    />
+                                                </>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                                {!chosenEvent && currentEvents.length === 0 && <FlexTime nextEvent={nextEvent} />}
+                            </EventContainer>
+                            <CalendarContainer>
+                                <CalendarView
+                                    initialType="day"
+                                    initialShowDateHeader={false}
+                                    initialShowMainHeader={false}
+                                    hideContainerShadow
+                                    hasLeftBorder
+                                    useFocusModeContext={true}
+                                />
+                            </CalendarContainer>
+                        </MainContainer>
+                        <ClockContainer>
+                            <NextEventContainer>
+                                {nextEvent && isDateToday(DateTime.fromISO(nextEvent.datetime_start)) && (
+                                    <span>
+                                        Next event is in
+                                        <BoldText> {getTimeUntilNextEvent(nextEvent)}</BoldText>.
+                                    </span>
+                                )}
+                            </NextEventContainer>
+                            <AdvanceEventContainer onClick={() => setShouldAutoAdvanceEvent(!shouldAutoAdvanceEvent)}>
+                                <GTStaticCheckbox isChecked={shouldAutoAdvanceEvent} />
+                                Automatically advance to next event
+                            </AdvanceEventContainer>
+                            <span>{time.toFormat('h:mm a')}</span>
+                        </ClockContainer>
+                    </FocusModeContainer>
+                    <FloatTopRight>
+                        <Icon icon={logos.generaltask_single_color} size="gtLogo" />
+                        <CommandPalette hideButton />
+                    </FloatTopRight>
+                    <FloatTopLeft>
+                        <GTButton onClick={backAction} value="Exit Focus Mode" styleType="secondary" />
+                    </FloatTopLeft>
+                </TemplateViewContainer>
+            </SingleViewTemplate>
+        </CalendarContextProvider>
     )
 }
 
