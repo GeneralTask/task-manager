@@ -185,7 +185,7 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 
 const FocusModeScreen = () => {
     const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
-        useCalendarContext(true)
+        useCalendarContext()
     useEffect(() => {
         setIsCollapsed(false)
         setCalendarType('day')
@@ -395,7 +395,6 @@ const FocusModeScreen = () => {
                                 initialShowMainHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
-                                ignoreContext
                             />
                         </CalendarContainer>
                     </MainContainer>
