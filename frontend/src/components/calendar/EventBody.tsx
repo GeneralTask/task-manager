@@ -26,9 +26,14 @@ interface EventBodyProps {
     leftOffset: number
     date: DateTime
     isBeingDragged?: boolean
+    useFocusModeContext: boolean
 }
 function EventBody(props: EventBodyProps): JSX.Element {
-    const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext()
+    const { selectedEvent, setSelectedEvent, isPopoverDisabled, disableSelectEvent } = useCalendarContext(
+        props.useFocusModeContext
+    )
+    console.log('event body context:', props.useFocusModeContext)
+    console.log('disable select event', disableSelectEvent)
     const startTime = DateTime.fromISO(props.event.datetime_start)
     const endTime = DateTime.fromISO(props.event.datetime_end)
     const timeDurationMinutes = endTime.diff(startTime).toMillis() / 1000 / 60
@@ -52,6 +57,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
         if (selectedEvent?.id === props.event.id) {
             setSelectedEvent(null)
         } else {
+            console.log('selection is happening')
             setSelectedEvent(props.event)
         }
     }
@@ -69,7 +75,12 @@ function EventBody(props: EventBodyProps): JSX.Element {
                     isDisabled={disableSelectEvent}
                 >
                     <EventInfoContainer onClick={onClick}>
-                        <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
+                        <EventDetailPopover
+                            event={props.event}
+                            date={props.date}
+                            hidePopover={isPopoverDisabled}
+                            useFocusModeContext={props.useFocusModeContext}
+                        >
                             <EventInfo isLongEvent={isLongEvent}>
                                 <EventIconAndTitle>
                                     {props.event.linked_task_id && (

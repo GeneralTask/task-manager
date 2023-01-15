@@ -1,5 +1,5 @@
 import React from 'react'
-import { CalendarContextProvider } from '../components/calendar/CalendarContext'
+import { CalendarContextProvider, FocusModeContextProvider } from '../components/calendar/CalendarContext'
 import { QueryContextProvider } from './QueryContext'
 import { ShortcutContextProvider } from './ShortcutContext'
 
@@ -10,7 +10,9 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
     return (
         <QueryContextProvider>
             <CalendarContextProvider>
-                <ShortcutContextProvider>{children}</ShortcutContextProvider>
+                <FocusModeContextProvider>
+                    <ShortcutContextProvider>{children}</ShortcutContextProvider>
+                </FocusModeContextProvider>
             </CalendarContextProvider>
         </QueryContextProvider>
     )

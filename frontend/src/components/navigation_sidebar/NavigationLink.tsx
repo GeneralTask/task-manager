@@ -84,6 +84,7 @@ interface NavigationLinkProps {
     draggable?: boolean
     droppable?: boolean
     isCollapsed?: boolean
+    useFocusModeContext: boolean
 }
 const NavigationLink = ({
     isCurrentPage,
@@ -97,10 +98,11 @@ const NavigationLink = ({
     draggable = false,
     droppable,
     isCollapsed = false,
+    useFocusModeContext,
 }: NavigationLinkProps) => {
     const { mutate: reorderTask } = useReorderTask()
     const { mutate: markTaskDoneOrDeleted } = useMarkTaskDoneOrDeleted()
-    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { setCalendarType, setDate, dayViewDate } = useCalendarContext(useFocusModeContext)
     const navigate = useNavigate()
 
     const onDrop = useCallback(

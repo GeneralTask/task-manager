@@ -67,6 +67,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     icon={icons.list_ul}
                     isCurrentPage={pathname.split('/')[1] === 'overview'}
                     isCollapsed={isCollapsed}
+                    useFocusModeContext={false}
                 />
             </Tip>
             {isPreviewMode && (
@@ -77,6 +78,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                         icon={icons.houseDay}
                         isCurrentPage={pathname.split('/')[1] === 'daily-overview'}
                         isCollapsed={isCollapsed}
+                        useFocusModeContext={false}
                     />
                 </Tip>
             )}
@@ -87,6 +89,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     icon={icons.arrows_repeat}
                     isCurrentPage={pathname.split('/')[1] === 'recurring-tasks'}
                     isCollapsed={isCollapsed}
+                    useFocusModeContext={false}
                 />
             </Tip>
             <Tip shortcutName="goToNotesPage" side="right">
@@ -96,6 +99,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     icon={icons.note}
                     isCurrentPage={pathname.split('/')[1] === 'notes'}
                     isCollapsed={isCollapsed}
+                    useFocusModeContext={false}
                 />
             </Tip>
             <Tip shortcutName="enterFocusMode" side="right">
@@ -105,6 +109,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                     icon={icons.headphones}
                     isCurrentPage={pathname.split('/')[1] === 'focus-mode'}
                     isCollapsed={isCollapsed}
+                    useFocusModeContext={false}
                 />
             </Tip>
             {!isCollapsed && <NavigationHeader title="Services" rightContent={<ServiceVisibilityDropdown />} />}
@@ -118,6 +123,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                         needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'GitHub')}
                         isCurrentPage={pathname.split('/')[1] === 'pull-requests'}
                         isCollapsed={isCollapsed}
+                        useFocusModeContext={false}
                     />
                 </Tip>
             )}
@@ -131,6 +137,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                         needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Linear')}
                         isCurrentPage={pathname.split('/')[1] === 'linear'}
                         isCollapsed={isCollapsed}
+                        useFocusModeContext={false}
                     />
                 </Tip>
             )}
@@ -144,6 +151,7 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
                         needsRelinking={doesAccountNeedRelinking(linkedAccounts || [], 'Slack')}
                         isCurrentPage={pathname.split('/')[1] === 'slack'}
                         isCollapsed={isCollapsed}
+                        useFocusModeContext={false}
                     />
                 </Tip>
             )}

@@ -395,7 +395,7 @@ const FocusModeScreen = () => {
                                 initialShowMainHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
-                                ignoreContext
+                                useFocusModeContext={true}
                             />
                         </CalendarContainer>
                     </MainContainer>

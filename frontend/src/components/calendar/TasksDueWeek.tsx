@@ -38,10 +38,11 @@ const AbsoluteCaretIcon = styled.div`
 
 interface TasksDueWeekProps {
     date: DateTime
+    useFocusModeContext: boolean
 }
-const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
+const TasksDueWeek = ({ date, useFocusModeContext }: TasksDueWeekProps) => {
     const { data: taskSections } = useGetTasks()
-    const { isTasksDueViewCollapsed, setIsTasksDueViewCollapsed } = useCalendarContext()
+    const { isTasksDueViewCollapsed, setIsTasksDueViewCollapsed } = useCalendarContext(useFocusModeContext)
     const caretIcon = isTasksDueViewCollapsed ? icons.caret_right : icons.caret_down
 
     const tasksDueWeek = useMemo(() => {
@@ -67,6 +68,7 @@ const TasksDueWeek = ({ date }: TasksDueWeekProps) => {
                                 dueType="due"
                                 numTasksDue={tasksDueWeek[index].length}
                                 hideCollapseButton
+                                useFocusModeContext={useFocusModeContext}
                             />
                             {!isTasksDueViewCollapsed && (
                                 <PaddedTasksScroll>

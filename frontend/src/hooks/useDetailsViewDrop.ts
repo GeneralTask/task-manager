@@ -8,7 +8,7 @@ import { DropType } from '../utils/types'
 const useDetailsViewDrop = (detailsViewContainerRef: React.RefObject<HTMLDivElement>) => {
     const hoverStarted = useRef<DateTime>()
     const { isCollapsed, setIsCollapsed, isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView } =
-        useCalendarContext()
+        useCalendarContext(false)
 
     const [isOver, drop] = useDrop(
         () => ({

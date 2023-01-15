@@ -11,7 +11,7 @@ const useNavigateToTask = () => {
     const { data: viewsData } = useGetOverviewViews()
     const { data: sectionsData } = useGetTasks()
     const navigate = useNavigate()
-    const { setCalendarType } = useCalendarContext()
+    const { setCalendarType } = useCalendarContext(false)
 
     const getTaskURL = useCallback(
         (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string, subtaskId?: string) => {

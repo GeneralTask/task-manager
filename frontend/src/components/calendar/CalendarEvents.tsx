@@ -76,10 +76,11 @@ interface WeekCalendarEventsProps {
     date: DateTime
     groups: TEvent[][]
     primaryAccountID: string | undefined
+    useFocusModeContext: boolean
 }
-const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEventsProps) => {
+const WeekCalendarEvents = ({ date, groups, primaryAccountID, useFocusModeContext }: WeekCalendarEventsProps) => {
     const eventsContainerRef = useRef<HTMLDivElement>(null)
-    const { calendarType } = useCalendarContext()
+    const { calendarType } = useCalendarContext(useFocusModeContext)
     const isWeekCalendar = calendarType === 'week'
     const { isOver, dropPreviewPosition, eventPreview } = useCalendarDrop({
         primaryAccountID,
@@ -92,7 +93,12 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
         <DayAndHeaderContainer ref={eventsContainerRef}>
             <DayContainer>
                 {groups.map((group, index) => (
-                    <CollisionGroupColumns key={index} events={group} date={date} />
+                    <CollisionGroupColumns
+                        key={index}
+                        events={group}
+                        date={date}
+                        useFocusModeContext={useFocusModeContext}
+                    />
                 ))}
                 {isOver &&
                     (eventPreview ? (
@@ -102,6 +108,7 @@ const WeekCalendarEvents = ({ date, groups, primaryAccountID }: WeekCalendarEven
                             collisionGroupSize={1}
                             date={date}
                             isBeingDragged
+                            useFocusModeContext={useFocusModeContext}
                         />
                     ) : (
                         <DropPreview isVisible={isOver} offset={EVENT_CREATION_INTERVAL_HEIGHT * dropPreviewPosition} />
@@ -125,14 +132,15 @@ const removeDuplicateEvents = (events: TEvent[]) => {
 interface CalendarEventsProps {
     date: DateTime
     primaryAccountID: string | undefined
+    useFocusModeContext: boolean
 }
 
-const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
+const CalendarEvents = ({ date, primaryAccountID, useFocusModeContext }: CalendarEventsProps) => {
     const { data: linkedAccounts, isLoading: isLinkedAccountsLoading } = useGetLinkedAccounts()
     const scrollRef = useRef<HTMLDivElement>(null)
     const timeIndicatorRef = useRef<HTMLDivElement>(null)
 
-    const { calendarType } = useCalendarContext()
+    const { calendarType } = useCalendarContext(useFocusModeContext)
     const numberOfDays = calendarType === 'week' ? 7 : 1
     const monthBlocks = useMemo(() => {
         const blocks = getMonthsAroundDate(date, 1)
@@ -192,6 +200,7 @@ const CalendarEvents = ({ date, primaryAccountID }: CalendarEventsProps) => {
                     date={date.plus({ days: dayOffset })}
                     groups={groups}
                     primaryAccountID={primaryAccountID}
+                    useFocusModeContext={useFocusModeContext}
                 />
             ))}
         </AllDaysContainer>

@@ -26,9 +26,10 @@ export const PaddedTasksScroll = styled.div`
 
 interface TasksDueProps {
     date: DateTime
+    useFocusModeContext: boolean
 }
-const TasksDue = ({ date }: TasksDueProps) => {
-    const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext()
+const TasksDue = ({ date, useFocusModeContext }: TasksDueProps) => {
+    const { isTasksDueViewCollapsed, isTasksOverdueViewCollapsed, setDate } = useCalendarContext(useFocusModeContext)
     const location = useLocation()
     const isOnFocusMode = location.pathname.includes('focus-mode')
     const { data: taskFolders } = useGetTasks()
@@ -90,7 +91,12 @@ const TasksDue = ({ date }: TasksDueProps) => {
         <>
             {tasksDueToday.length > 0 && (
                 <TasksDueContainer hasTopBorder={!isOnFocusMode}>
-                    <TasksDueHeader type="day" dueType="due" numTasksDue={tasksDueToday.length} />
+                    <TasksDueHeader
+                        type="day"
+                        dueType="due"
+                        numTasksDue={tasksDueToday.length}
+                        useFocusModeContext={useFocusModeContext}
+                    />
                     {!isTasksDueViewCollapsed && (
                         <PaddedTasksScroll>
                             <TaskDueBody tasksDue={tasksDueToday} />
@@ -100,7 +106,12 @@ const TasksDue = ({ date }: TasksDueProps) => {
             )}
             {tasksOverdue.length > 0 && (
                 <TasksDueContainer>
-                    <TasksDueHeader type="day" dueType="overdue" numTasksDue={tasksOverdue.length} />
+                    <TasksDueHeader
+                        type="day"
+                        dueType="overdue"
+                        numTasksDue={tasksOverdue.length}
+                        useFocusModeContext={useFocusModeContext}
+                    />
                     {!isTasksOverdueViewCollapsed && (
                         <PaddedTasksScroll>
                             <TaskDueBody tasksDue={tasksOverdue} showDueDate />

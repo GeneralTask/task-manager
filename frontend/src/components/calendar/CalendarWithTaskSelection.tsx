@@ -37,7 +37,7 @@ const MarginDivider = styled(Divider)`
 const CalendarWithTaskSelection = () => {
     const { data: taskFolders } = useGetTasks()
     const { section: folderId } = useParams()
-    const { calendarType, showTaskToCalSidebar, setShowTaskToCalSidebar } = useCalendarContext()
+    const { calendarType, showTaskToCalSidebar, setShowTaskToCalSidebar } = useCalendarContext(false)
     const [isTaskDropdownOpen, setIsTaskDropdownOpen] = useState(false)
     const [folderIndex, setFolderIndex] = useState(0)
     const validDragFolders =
@@ -88,7 +88,7 @@ const CalendarWithTaskSelection = () => {
                     ))}
                 </ScheduleTaskSidebar>
             )}
-            <CalendarView initialType="day" />
+            <CalendarView initialType="day" useFocusModeContext={false} />
         </Flex>
     )
 }

@@ -17,7 +17,7 @@ interface FocusModeContextMenuProps {
 const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuProps) => {
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
     const navigateToTask = useNavigateToTask()
-    const { setSelectedEvent } = useCalendarContext()
+    const { setSelectedEvent } = useCalendarContext(true)
     const toast = useToast()
 
     const onDelete = useCallback(() => {

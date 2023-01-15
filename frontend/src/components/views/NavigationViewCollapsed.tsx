@@ -93,7 +93,7 @@ interface NavigationViewCollapsedProps {
 const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProps) => {
     const { data: folders } = useGetTasks()
     const { section: sectionId } = useParams()
-    const { setCalendarType, setDate, dayViewDate } = useCalendarContext()
+    const { setCalendarType, setDate, dayViewDate } = useCalendarContext(false)
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const navigate = useNavigate()
 
@@ -156,6 +156,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             count={DEFAULT_FOLDER.tasks.length}
                             isCollapsed
                             droppable
+                            useFocusModeContext={false}
                         />
                     )}
                     {items.length > 0 && (
@@ -183,6 +184,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             count={TRASH_FOLDER.tasks.length}
                             isCollapsed
                             droppable
+                            useFocusModeContext={false}
                         />
                     )}
                     {DONE_FOLDER && (
@@ -195,6 +197,7 @@ const NavigationViewCollapsed = ({ setIsCollapsed }: NavigationViewCollapsedProp
                             count={DONE_FOLDER.tasks.length}
                             isCollapsed
                             droppable
+                            useFocusModeContext={false}
                         />
                     )}
                 </FoldersContainer>
