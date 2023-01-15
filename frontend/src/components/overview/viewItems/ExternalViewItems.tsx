@@ -12,8 +12,6 @@ const ExternalViewItems = forwardRef(
     ({ view, visibleItemsCount, scrollRef, hideHeader }: ViewItemsProps, ref: Ref<HTMLDivElement>) => {
         const { overviewViewId, overviewItemId } = useParams()
         const { isPreviewMode } = usePreviewMode()
-        const basePath =
-            location.pathname.split('/')[1] === 'daily-overview' && isPreviewMode ? '/daily-overview' : '/overview'
 
         const getEmptyViewItem = () => {
             if (isPreviewMode) return <EmptyListMessage list={view} />
@@ -49,7 +47,7 @@ const ExternalViewItems = forwardRef(
                         task={item as TTask}
                         sectionScrollingRef={scrollRef}
                         isSelected={overviewViewId === view.id && overviewItemId === item.id}
-                        link={`${basePath}/${view.id}/${item.id}`}
+                        link={`/overview/${view.id}/${item.id}`}
                     />
                 ))}
             </>

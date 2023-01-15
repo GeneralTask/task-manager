@@ -74,7 +74,7 @@ const DailyOverviewView = () => {
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
-            navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
         }
     }
 
@@ -88,8 +88,8 @@ const DailyOverviewView = () => {
 
                 const subtask = item?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
                 const detailsLink = subtask
-                    ? `/daily-overview/${list.id}/${item.id}/${subtask.id}`
-                    : `/daily-overview/${list.id}/${item.id}`
+                    ? `/overview/${list.id}/${item.id}/${subtask.id}`
+                    : `/overview/${list.id}/${item.id}`
                 return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
             }
         }

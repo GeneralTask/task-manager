@@ -33,14 +33,6 @@ const AuthenticatedRoutes = () => {
                                 </Route>
                             </Route>
                         </Route>
-                        <Route path="daily-overview" element={<Outlet />}>
-                            <Route index element={<MainScreen />} />
-                            <Route path=":overviewViewId" element={<MainScreen />}>
-                                <Route path=":overviewItemId" element={<MainScreen />}>
-                                    <Route path=":subtaskId" element={<MainScreen />} />
-                                </Route>
-                            </Route>
-                        </Route>
                         <Route path="recurring-tasks" element={<Outlet />}>
                             <Route index element={<MainScreen />} />
                             <Route path=":recurringTaskId" element={<MainScreen />} />
