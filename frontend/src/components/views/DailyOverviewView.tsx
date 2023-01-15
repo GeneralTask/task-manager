@@ -57,10 +57,21 @@ const DailyOverviewView = () => {
     const [openListIds, setOpenListIds] = useState<string[]>([])
 
     const { lists, isLoading } = getCorrectlyOrderedOverviewLists()
+    useLayoutEffect(() => {
+        if (overviewViewId && overviewItemId) {
+            setOpenListIds((ids) => {
+                if (!openListIds.includes(overviewViewId)) {
+                    return [...ids, overviewViewId]
+                }
+                return ids
+            })
+        }
+    }, [overviewItemId, lists])
 
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
+            console.log('firstNonEmptyView', firstNonEmptyView.name)
             navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
         }
     }

@@ -152,7 +152,7 @@ const useGetVisibleItemCount = (list: TOverviewView, listID: string) => {
 interface GTAccordionItemProps {
     list: TOverviewView
     openListIds: string[]
-    setOpenListIds: (ids: string[]) => void
+    setOpenListIds: React.Dispatch<React.SetStateAction<string[]>>
 }
 const GTAccordionItem = ({ list, openListIds, setOpenListIds }: GTAccordionItemProps) => {
     const ViewItems = useGetViewItems(list)
@@ -164,24 +164,11 @@ const GTAccordionItem = ({ list, openListIds, setOpenListIds }: GTAccordionItemP
 
     const [visibleItemsCount, setVisibleItemsCount] = useGetVisibleItemCount(list, list.id)
     const nextPageLength = Math.min(list.view_items.length - visibleItemsCount, PAGE_SIZE)
-    const { lists } = getCorrectlyOrderedOverviewLists()
-    // const [prevList, setPrevList] = useState<TOverviewView[] | null>(null)
 
-    useEffect(() => {
-        console.log('weeeee')
+    useLayoutEffect(() => {
         if (!openListIds.includes(list.id)) return
-        console.log('did include it')
         if (list.view_items.length === 0) {
-            console.log('list is empty')
-            const listWithItRemoved = openListIds.filter((id) => id !== list.id)
-
-            const currentIndex = lists.findIndex((l) => l.id === list.id)
-            console.log('currentIndex', currentIndex)
-            if (currentIndex === -1 || currentIndex === lists.length - 1) return
-            const nextList = lists[currentIndex + 1]
-            console.log(nextList.name)
-            listWithItRemoved.push(nextList.id)
-            setOpenListIds(listWithItRemoved)
+            setOpenListIds((ids) => ids.filter((id) => id !== list.id))
         }
     }, [list.view_items.length])
 
