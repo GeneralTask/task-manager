@@ -1,7 +1,10 @@
+import { useEffect } from 'react'
+import { useDrag } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
 import styled from 'styled-components'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { TOverviewView } from '../../utils/types'
+import { DropType, TOverviewView } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Icon } from '../atoms/Icon'
 import StatusLabel from '../atoms/StatusLabel'
@@ -46,8 +49,16 @@ interface AccordionHeaderProps {
     isOpen: boolean
 }
 const AccordionHeader = ({ list, isOpen }: AccordionHeaderProps) => {
+    const [, drag, dragPreview] = useDrag(() => ({
+        type: DropType.OVERVIEW_VIEW_HEADER,
+        item: { view: list },
+    }))
+
+    useEffect(() => {
+        dragPreview(getEmptyImage(), { captureDraggingState: true })
+    }, [dragPreview])
     return (
-        <StyledFlex justifyContent="space-between">
+        <StyledFlex justifyContent="space-between" ref={drag}>
             <TriggerTitle>
                 <Icon
                     icon={getOverviewAccordionHeaderIcon(list.logo, list.task_section_id)}
