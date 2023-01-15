@@ -33,7 +33,7 @@ const RightActions = styled.div`
     display: flex;
 `
 
-export const getCorrectlyOrderedOverviewLists = () => {
+export const useGetCorrectlyOrderedOverviewLists = () => {
     const { lists, isLoading } = useOverviewLists()
     const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
     if (overviewAutomaticEmptySort) {
@@ -53,8 +53,10 @@ const DailyOverviewView = () => {
     const navigate = useNavigate()
 
     const [openListIds, setOpenListIds] = useState<string[]>([])
+    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
+    const collapseAll = () => setOpenListIds([])
 
-    const { lists, isLoading } = getCorrectlyOrderedOverviewLists()
+    const { lists, isLoading } = useGetCorrectlyOrderedOverviewLists()
     useLayoutEffect(() => {
         if (overviewViewId && overviewItemId) {
             setOpenListIds((ids) => {
@@ -69,7 +71,6 @@ const DailyOverviewView = () => {
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
-            console.log('firstNonEmptyView', firstNonEmptyView.name)
             navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
         }
     }
@@ -92,20 +93,10 @@ const DailyOverviewView = () => {
         return null
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
-    // useLayoutEffect(() => {
-    //     if (hasAutomaticallyOpenedFirstList.current) return
-    //     const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-    //     if (firstNonEmptyList) {
-    //         setOpenListIds([firstNonEmptyList.id])
-    //         hasAutomaticallyOpenedFirstList.current = true
-    //     }
-    // }, [isLoading, lists])
-
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
-        // check that selected item is in list of views
         for (const list of lists) {
             if (list.id === overviewViewId) {
                 for (const item of list.view_items) {
@@ -141,7 +132,7 @@ const DailyOverviewView = () => {
                             }
                         />
                         <RightActions>
-                            {/* <BannerButton
+                            <BannerButton
                                 styleType="simple"
                                 size="small"
                                 onClick={collapseAll}
@@ -156,7 +147,7 @@ const DailyOverviewView = () => {
                                 icon={icons.squarePlus}
                                 iconColor="gray"
                                 value="Expand all"
-                            /> */}
+                            />
                             <BannerButton
                                 styleType="simple"
                                 size="small"
