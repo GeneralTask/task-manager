@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { usePreviewMode, useSetting } from '../../hooks'
+import { useSetting } from '../../hooks'
 import { useGetPullRequests } from '../../services/api/pull-request.hooks'
 import { useGetLinkedAccounts } from '../../services/api/settings.hooks'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -21,7 +21,6 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
     const { data: pullRequestRepositories } = useGetPullRequests()
     const { pathname } = useLocation()
     const { data: folders } = useGetTasks()
-    const { isPreviewMode } = usePreviewMode()
 
     const showGitHubSetting = useSetting('sidebar_github_preference')
     const showLinearSetting = useSetting('sidebar_linear_preference')
@@ -63,23 +62,12 @@ const IntegrationLinks = ({ isCollapsed }: IntegrationLinksProps) => {
             <Tip shortcutName="goToOverviewPage" side="right">
                 <NavigationLink
                     link="/overview"
-                    title="Overview"
-                    icon={icons.list_ul}
+                    title="Daily Overview"
+                    icon={icons.houseDay}
                     isCurrentPage={pathname.split('/')[1] === 'overview'}
                     isCollapsed={isCollapsed}
                 />
             </Tip>
-            {isPreviewMode && (
-                <Tip shortcutName="goToOverviewPage" side="right">
-                    <NavigationLink
-                        link="/daily-overview"
-                        title="Daily Overview"
-                        icon={icons.houseDay}
-                        isCurrentPage={pathname.split('/')[1] === 'daily-overview'}
-                        isCollapsed={isCollapsed}
-                    />
-                </Tip>
-            )}
             <Tip shortcutName="goToRecurringTasksPage" side="right">
                 <NavigationLink
                     link="/recurring-tasks"

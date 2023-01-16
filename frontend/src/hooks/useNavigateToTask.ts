@@ -15,7 +15,7 @@ const useNavigateToTask = () => {
 
     const getTaskURL = useCallback(
         (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string, subtaskId?: string) => {
-            const isUserOnOverviewPage = pathname.startsWith('/overview') || pathname.startsWith('/daily-overview')
+            const isUserOnOverviewPage = pathname.startsWith('/overview') || pathname.startsWith('/overview')
             if (isUserOnOverviewPage) {
                 for (const view of views) {
                     for (const item of view.view_items) {
@@ -25,14 +25,14 @@ const useNavigateToTask = () => {
                                 if (pathname.startsWith('/overview')) {
                                     navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
                                 } else {
-                                    navigate(`/daily-overview/${view.id}/${item.id}/${subtaskId}`)
+                                    navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
                                 }
                                 Log(`task_navigate__/overview/${view.id}/${item.id}/${subtaskId}`)
                             } else {
                                 if (pathname.startsWith('/overview')) {
                                     navigate(`/overview/${view.id}/${item.id}`)
                                 } else {
-                                    navigate(`/daily-overview/${view.id}/${item.id}`)
+                                    navigate(`/overview/${view.id}/${item.id}`)
                                 }
                                 Log(`task_navigate__/overview/${view.id}/${item.id}`)
                             }

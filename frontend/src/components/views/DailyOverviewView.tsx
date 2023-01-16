@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGTLocalStorage } from '../../hooks'
+import { useGTLocalStorage, usePreviewMode } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
@@ -54,6 +54,7 @@ const DailyOverviewView = () => {
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
+    const { isPreviewMode } = usePreviewMode()
 
     const [openListIds, setOpenListIds] = useState<string[]>([])
     const expandAll = () => setOpenListIds(lists.map((list) => list.id))
@@ -74,7 +75,7 @@ const DailyOverviewView = () => {
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
-            navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
         }
     }
 
@@ -88,8 +89,8 @@ const DailyOverviewView = () => {
 
                 const subtask = item?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
                 const detailsLink = subtask
-                    ? `/daily-overview/${list.id}/${item.id}/${subtask.id}`
-                    : `/daily-overview/${list.id}/${item.id}`
+                    ? `/overview/${list.id}/${item.id}/${subtask.id}`
+                    : `/overview/${list.id}/${item.id}`
                 return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
             }
         }
@@ -119,21 +120,23 @@ const DailyOverviewView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="Daily Overview" />
                     <ActionsContainer>
-                        <BannerButton
-                            styleType="simple"
-                            size="small"
-                            onClick={() => {
-                                setEditListTabIndex(1)
-                                setIsEditListsModalOpen(true)
-                            }}
-                            icon={icons.bolt}
-                            iconColor="gray"
-                            value={
-                                <span>
-                                    Smart Prioritize<sup>AI</sup>
-                                </span>
-                            }
-                        />
+                        {isPreviewMode && (
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={() => {
+                                    setEditListTabIndex(1)
+                                    setIsEditListsModalOpen(true)
+                                }}
+                                icon={icons.bolt}
+                                iconColor="gray"
+                                value={
+                                    <span>
+                                        Smart Prioritize<sup>AI</sup>
+                                    </span>
+                                }
+                            />
+                        )}
                         <RightActions>
                             <BannerButton
                                 styleType="simple"
