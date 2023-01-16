@@ -169,17 +169,20 @@ const TaskSectionView = () => {
         selectedSort.id !== 'manual'
     )
 
-    const selectTaskAfterCompletion = (taskId: string) => {
-        if (!taskSections) return
-        if (params.task !== taskId) return
-        const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
-        if (sectionIndex == null || taskIndex == null) return
+    const selectTaskAfterCompletion = useCallback(
+        (taskId: string) => {
+            if (!taskSections) return
+            if (params.task !== taskId) return
+            const { taskIndex, sectionIndex } = getTaskIndexFromSections(taskSections, taskId)
+            if (sectionIndex == null || taskIndex == null) return
 
-        if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
-        const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
-        if (!previousTask) return
-        navigateToTask(previousTask.id)
-    }
+            if (taskSections.length === 0 || taskSections[sectionIndex].tasks.length === 0) return
+            const previousTask = taskSections[sectionIndex].tasks[taskIndex - 1]
+            if (!previousTask) return
+            navigateToTask(previousTask.id)
+        },
+        [taskSections, params.task]
+    )
 
     return (
         <>
@@ -231,7 +234,7 @@ const TaskSectionView = () => {
                                                 link={`/tasks/${params.section}/${task.id}`}
                                                 shouldScrollToTask={shouldScrollToTask}
                                                 setShouldScrollToTask={setShouldScrollToTask}
-                                                onMarkTaskDone={() => selectTaskAfterCompletion(task.id)}
+                                                onMarkTaskDone={selectTaskAfterCompletion}
                                             />
                                         </ReorderDropContainer>
                                     ))}
