@@ -120,23 +120,21 @@ const DailyOverviewView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="Daily Overview" />
                     <ActionsContainer>
-                        {isPreviewMode && (
-                            <BannerButton
-                                styleType="simple"
-                                size="small"
-                                onClick={() => {
-                                    setEditListTabIndex(1)
-                                    setIsEditListsModalOpen(true)
-                                }}
-                                icon={icons.bolt}
-                                iconColor="gray"
-                                value={
-                                    <span>
-                                        Smart Prioritize<sup>AI</sup>
-                                    </span>
-                                }
-                            />
-                        )}
+                        <BannerButton
+                            styleType="simple"
+                            size="small"
+                            onClick={() => {
+                                setEditListTabIndex(1)
+                                setIsEditListsModalOpen(true)
+                            }}
+                            icon={icons.bolt}
+                            iconColor="gray"
+                            value={
+                                <span>
+                                    Smart Prioritize<sup>AI</sup>
+                                </span>
+                            }
+                        />
                         <RightActions>
                             <BannerButton
                                 styleType="simple"

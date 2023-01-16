@@ -38,7 +38,7 @@ const ListOrderTab = () => {
     const preferenceSubtext = `Once a list that was previously empty or completed is filled with items again, it${'\n'}will return to its original position.`
     return (
         <Flex column flex="1">
-            {isPreviewMode && <SmartPrioritize state={smartPrioritizeState} setState={setSmartPrioritizeState} />}
+            <SmartPrioritize state={smartPrioritizeState} setState={setSmartPrioritizeState} />
             {!smartPrioritizeState &&
                 lists?.map((view, index) => (
                     <EditListsSelectedList key={view.id} view={view} viewIndex={index} onReorder={handleReorder} />
