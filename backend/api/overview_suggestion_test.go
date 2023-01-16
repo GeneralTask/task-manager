@@ -36,7 +36,7 @@ func TestOverviewSuggestions(t *testing.T) {
 		request.Header.Set("Timezone-Offset", "0")
 
 		userCollection := database.GetUserCollection(api.DB)
-		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion@yahoo.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime((currentTime))}})
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion@yahoo.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime((currentTime.AddDate(0, 0, 1)))}})
 		assert.NoError(t, err)
 
 		recorder := httptest.NewRecorder()
@@ -130,7 +130,7 @@ func TestOverviewRemaining(t *testing.T) {
 		api.OverrideTime = &currentTime
 
 		userCollection := database.GetUserCollection(api.DB)
-		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_w_refresh@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime)}})
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_w_refresh@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime.AddDate(0, 0, 1))}})
 		assert.NoError(t, err)
 
 		recorder := httptest.NewRecorder()
@@ -162,7 +162,7 @@ func TestOverviewRemaining(t *testing.T) {
 		api.OverrideTime = &currentTime
 
 		userCollection := database.GetUserCollection(api.DB)
-		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_timezone@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime)}})
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_timezone@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime.AddDate(0, 0, 1))}})
 		assert.NoError(t, err)
 
 		recorder := httptest.NewRecorder()
