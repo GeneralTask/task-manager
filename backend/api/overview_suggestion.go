@@ -12,7 +12,6 @@ import (
 	"github.com/GeneralTask/task-manager/backend/constants"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -179,9 +178,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 
 	// not most efficient, but easy to understand
 	missingList := []GPTView{}
-	for _, gptView := range gptViews {
-		missingList = append(missingList, gptView)
-	}
+	missingList = append(missingList, gptViews...)
 	for _, suggestion := range response {
 		missingList = removeFromList(missingList, suggestion.ID)
 	}
@@ -252,10 +249,8 @@ func (api *API) getRemainingSuggestionsForUser(user *database.User, timezoneOffs
 	lastSuggestionPrim := user.GPTLastSuggestionTime
 	lastSuggestion := lastSuggestionPrim.Time()
 	refreshTime := time.Date(lastSuggestion.Year(), lastSuggestion.Month(), lastSuggestion.Day(), 23, 59, 59, 0, time.FixedZone("", 0))
-	log.Print(refreshTime.Day())
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
-	log.Print(timeNow.Day())
 
 	if timeNow.Sub(refreshTime) > 0 && user.GPTSuggestionsLeft != constants.MAX_OVERVIEW_SUGGESTION {
 		_, err := database.GetUserCollection(api.DB).UpdateOne(
