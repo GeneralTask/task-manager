@@ -208,7 +208,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 func removeFromList(idList []GPTView, idToRemove primitive.ObjectID) []GPTView {
 	for idx, list := range idList {
 		if list.ID == idToRemove {
-			return append(idList[:idx], idList[idx:]...)
+			return append(idList[:idx], idList[idx+1:]...)
 		}
 	}
 	return idList
