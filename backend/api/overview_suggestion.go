@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"math/rand"
 	"regexp"
 	"strings"
 	"time"
@@ -24,6 +25,11 @@ type GPTView struct {
 
 type GPTTask struct {
 	Title string `json:"title"`
+}
+
+type Suggestion struct {
+	ID        primitive.ObjectID `json:"id"`
+	Reasoning string             `json:"reasoning"`
 }
 
 /******
@@ -135,10 +141,10 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		return
 	}
 
-	response := []bson.M{}
+	response := []Suggestion{}
 	idx := 0
 	for _, suggestion := range strings.Split(resp.Choices[0].Text, "\n") {
-		suggestionResponse := bson.M{}
+		suggestionResponse := Suggestion{}
 		if suggestion == "" {
 			continue
 		} else if strings.Index(suggestion, ". ") != 0 {
@@ -149,7 +155,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 			// strip reasoning
 			reasoning := suggestion[strings.Index(suggestion, ": ")+2:]
 			suggestion = suggestion[:strings.Index(suggestion, ": ")]
-			suggestionResponse["reasoning"] = reasoning
+			suggestionResponse.Reasoning = reasoning
 		}
 
 		var suggestionID primitive.ObjectID
@@ -157,7 +163,7 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 			sanitizedView := sanitizeGPTString(gptView.Name)
 			if sanitizedView == suggestion {
 				suggestionID = gptView.ID
-				suggestionResponse["id"] = suggestionID
+				suggestionResponse.ID = suggestionID
 			}
 		}
 		response = append(response, suggestionResponse)
@@ -165,12 +171,48 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 	}
 
 	if len(response) != len(views) {
-		api.Logger.Error().Err(err).Msg("failed to fetch suggestions for all sections")
+		api.Logger.Error().Err(err).Msg("failed to fetch suggestions")
 		Handle500(c)
 		return
 	}
 
+	// not most efficient, but easy to understand
+	missingList := []GPTView{}
+	for _, gptView := range gptViews {
+		missingList = append(missingList, gptView)
+	}
+	for _, suggestion := range response {
+		missingList = removeFromList(missingList, suggestion.ID)
+	}
+
+	for _, suggestion := range response {
+		if suggestion.ID == primitive.NilObjectID && suggestion.Reasoning != "" {
+			for _, view := range missingList {
+				for _, task := range view.ViewItems {
+					if strings.Contains(suggestion.Reasoning, task.Title) {
+						suggestion.ID = view.ID
+						missingList = removeFromList(missingList, view.ID)
+						continue
+					}
+				}
+			}
+		} else if suggestion.ID == primitive.NilObjectID {
+			randomIndex := rand.Intn(len(missingList))
+			suggestion.ID = missingList[randomIndex].ID
+			missingList = removeFromList(missingList, missingList[randomIndex].ID)
+		}
+	}
+
 	c.JSON(200, response)
+}
+
+func removeFromList(idList []GPTView, idToRemove primitive.ObjectID) []GPTView {
+	for idx, list := range idList {
+		if list.ID == idToRemove {
+			return append(idList[:idx], idList[idx:]...)
+		}
+	}
+	return idList
 }
 
 func getPrompt(sectionString string) string {
