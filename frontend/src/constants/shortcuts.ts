@@ -234,11 +234,11 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'note',
     },
     goToOverviewPage: {
-        label: 'Go to Overview page',
+        label: 'Go to Daily Overview page',
         key: `${OPT_ALT.key}+${SHIFT}+O|${OPT_ALT.key}+${SHIFT}+Ø`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+O`,
         category: 'Navigation',
-        icon: 'list',
+        icon: 'houseDay',
     },
     goToGithubPRsPage: {
         label: 'Go to GitHub page',
