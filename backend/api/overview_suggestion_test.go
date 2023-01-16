@@ -27,15 +27,16 @@ func TestOverviewSuggestions(t *testing.T) {
 	t.Run("NoTokens", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"id": "1", "choices": [{"text": "1. Task Inbox: This is the reasoning\n2. Linear Issues: Reasoning 2\n3. Slack Messages: Reasoning 3"}]}`)
 		api.ExternalConfig.OpenAIOverrideURL = server.URL
+		currentTime := time.Now()
+		api.OverrideTime = &currentTime
 
 		authtoken := login("test_overview_suggestion@yahoo.com", "")
 		request, _ := http.NewRequest("GET", "/overview/views/suggestion/", nil)
 		request.Header.Set("Authorization", "Bearer "+authtoken)
 		request.Header.Set("Timezone-Offset", "0")
 
-		currentTime := time.Now()
 		userCollection := database.GetUserCollection(api.DB)
-		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion@yahoo.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime((currentTime))}})
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion@yahoo.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime((currentTime.AddDate(0, 0, 1)))}})
 		assert.NoError(t, err)
 
 		recorder := httptest.NewRecorder()
@@ -46,6 +47,8 @@ func TestOverviewSuggestions(t *testing.T) {
 	t.Run("InvalidResponse", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"id": "1", "choices": [{"text": "1. Task Inbox: This is the reasoning"}]}`)
 		api.ExternalConfig.OpenAIOverrideURL = server.URL
+		currentTime := time.Now()
+		api.OverrideTime = &currentTime
 
 		authtoken := login("test_overview_suggestion_invalid@generaltask.com", "")
 		request, _ := http.NewRequest("GET", "/overview/views/suggestion/", nil)
@@ -69,6 +72,8 @@ func TestOverviewSuggestions(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		server := testutils.GetMockAPIServer(t, http.StatusOK, `{"id": "1", "choices": [{"text": "1. Task Inbox: This is the reasoning\n2. Linear Issues: Reasoning 2\n3. Slack Messages: Reasoning 3"}]}`)
 		api.ExternalConfig.OpenAIOverrideURL = server.URL
+		currentTime := time.Now()
+		api.OverrideTime = &currentTime
 
 		authtoken := login("test_overview_suggestion@generaltask.com", "")
 		request, _ := http.NewRequest("GET", "/overview/views/suggestion/", nil)
@@ -125,7 +130,7 @@ func TestOverviewRemaining(t *testing.T) {
 		api.OverrideTime = &currentTime
 
 		userCollection := database.GetUserCollection(api.DB)
-		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_w_refresh@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime)}})
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_w_refresh@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime.AddDate(0, 0, 1))}})
 		assert.NoError(t, err)
 
 		recorder := httptest.NewRecorder()
@@ -157,7 +162,7 @@ func TestOverviewRemaining(t *testing.T) {
 		api.OverrideTime = &currentTime
 
 		userCollection := database.GetUserCollection(api.DB)
-		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_timezone@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime)}})
+		_, err := userCollection.UpdateOne(context.Background(), bson.M{"email": "test_overview_suggestion_timezone@generaltask.com"}, bson.M{"$set": bson.M{"gpt_suggestions_left": 0, "gpt_last_suggestion_time": primitive.NewDateTimeFromTime(currentTime.AddDate(0, 0, 1))}})
 		assert.NoError(t, err)
 
 		recorder := httptest.NewRecorder()
