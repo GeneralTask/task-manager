@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import styled from 'styled-components'
-import { useGTLocalStorage, usePreviewMode } from '../../hooks'
+import { useGTLocalStorage } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
@@ -54,7 +54,6 @@ const DailyOverviewView = () => {
     const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
-    const { isPreviewMode } = usePreviewMode()
 
     const [openListIds, setOpenListIds] = useState<string[]>([])
     const expandAll = () => setOpenListIds(lists.map((list) => list.id))
