@@ -183,20 +183,21 @@ func (api *API) OverviewViewsSuggestion(c *gin.Context) {
 		missingList = removeFromList(missingList, suggestion.ID)
 	}
 
-	for _, suggestion := range response {
+	for idx, suggestion := range response {
 		if suggestion.ID == primitive.NilObjectID && suggestion.Reasoning != "" {
 			for _, view := range missingList {
 				for _, task := range view.ViewItems {
 					if strings.Contains(suggestion.Reasoning, task.Title) {
-						suggestion.ID = view.ID
+						response[idx].ID = view.ID
 						missingList = removeFromList(missingList, view.ID)
 						continue
 					}
 				}
 			}
-		} else if suggestion.ID == primitive.NilObjectID {
+		}
+		if suggestion.ID == primitive.NilObjectID {
 			randomIndex := rand.Intn(len(missingList)) //#nosec
-			suggestion.ID = missingList[randomIndex].ID
+			response[idx].ID = missingList[randomIndex].ID
 			missingList = removeFromList(missingList, missingList[randomIndex].ID)
 		}
 	}
@@ -247,11 +248,10 @@ func (api *API) OverviewViewsSuggestionsRemaining(c *gin.Context) {
 
 func (api *API) getRemainingSuggestionsForUser(user *database.User, timezoneOffset time.Duration) (int, error) {
 	lastSuggestionPrim := user.GPTLastSuggestionTime
-	lastSuggestion := lastSuggestionPrim.Time()
+	lastSuggestion := lastSuggestionPrim.Time().UTC()
 	refreshTime := time.Date(lastSuggestion.Year(), lastSuggestion.Month(), lastSuggestion.Day(), 23, 59, 59, 0, time.FixedZone("", 0))
 
 	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
-
 	if timeNow.Sub(refreshTime) > 0 && user.GPTSuggestionsLeft != constants.MAX_OVERVIEW_SUGGESTION {
 		_, err := database.GetUserCollection(api.DB).UpdateOne(
 			context.Background(),
@@ -278,7 +278,7 @@ func sanitizeGPTString(name string) string {
 }
 
 func (api *API) decrementGPTRemainingByOne(user *database.User, timezoneOffset time.Duration) error {
-	timeNow := api.GetCurrentLocalizedTime(timezoneOffset)
+	timeNow := api.GetCurrentLocalizedTime(0)
 
 	_, err := database.GetUserCollection(api.DB).UpdateOne(
 		context.Background(),
