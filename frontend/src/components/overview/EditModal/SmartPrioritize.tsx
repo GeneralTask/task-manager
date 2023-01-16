@@ -131,7 +131,7 @@ const SmartPrioritize = ({ state, setState }: SmartPrioritizeProps) => {
                 <Flex gap={Spacing._8} alignItems="center">
                     <Icon icon={icons.bolt} />
                     <BodySmall>
-                        Smart Prioritize<sup>AI</sup>
+                        Smart Prioritize<sup>AI</sup> (Alpha)
                     </BodySmall>
                 </Flex>
                 <Label color="light">
