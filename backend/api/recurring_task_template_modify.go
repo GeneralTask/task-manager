@@ -97,5 +97,23 @@ func (api *API) RecurringTaskTemplateModify(c *gin.Context) {
 		return
 	}
 
+	if modifyParams.IsDeleted != nil && *modifyParams.IsDeleted {
+		_, err = database.GetTaskCollection(api.DB).UpdateMany(
+			context.Background(),
+			bson.M{
+				"$and": []bson.M{
+					{"user_id": userID},
+					{"recurring_task_template_id": templateID},
+				},
+			},
+			bson.M{"$unset": bson.M{"recurring_task_template_id": ""}},
+		)
+		if err != nil {
+			api.Logger.Error().Err(err).Msg("failed to remove recurring task template ID from tasks")
+			Handle500(c)
+			return
+		}
+	}
+
 	c.JSON(200, gin.H{})
 }

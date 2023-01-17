@@ -76,6 +76,9 @@ const Editor = styled.div<{
     * {
         margin: 0;
     }
+    .ProseMirror > *:not(:last-child) {
+        margin-bottom: 14px;
+    }
 `
 
 const MarkdownEditorInternal = (props: RichTextEditorProps) => {

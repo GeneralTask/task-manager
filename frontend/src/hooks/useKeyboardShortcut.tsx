@@ -11,6 +11,7 @@ export default function useKeyboardShortcut(
     disabled = false
 ) {
     const { setActiveKeyboardShortcuts } = useShortcutContext()
+
     useEffect(() => {
         if (!disabled && shortcutName) {
             const shortcut = KEYBOARD_SHORTCUTS[shortcutName]
@@ -37,4 +38,9 @@ export default function useKeyboardShortcut(
             }
         }
     }, [shortcutName, action, disabled, setActiveKeyboardShortcuts])
+
+    // uncomment this to debug which shortcuts are causing rerender loops
+    // useEffect(() => {
+    //     console.log(shortcutName)
+    // }, [action])
 }

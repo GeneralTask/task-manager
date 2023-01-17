@@ -1,5 +1,4 @@
 import React from 'react'
-import { CalendarContextProvider } from '../components/calendar/CalendarContext'
 import { QueryContextProvider } from './QueryContext'
 import { ShortcutContextProvider } from './ShortcutContext'
 
@@ -9,9 +8,7 @@ interface AppContextProviderProps {
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
     return (
         <QueryContextProvider>
-            <CalendarContextProvider>
-                <ShortcutContextProvider>{children}</ShortcutContextProvider>
-            </CalendarContextProvider>
+            <ShortcutContextProvider>{children}</ShortcutContextProvider>
         </QueryContextProvider>
     )
 }
