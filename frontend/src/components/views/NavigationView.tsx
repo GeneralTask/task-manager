@@ -120,11 +120,11 @@ const NavigationView = ({ isCollapsed, setIsCollapsed }: NavigationViewProps) =>
                         {userInfo?.is_employee ? (
                             <NoStyleButton onClick={() => togglePreviewMode()}>
                                 <Eyebrow color={isPreviewMode ? 'purple' : 'light'}>
-                                    {isPreviewMode ? '© 2022 GENERAL KENOBI' : '© 2022 GENERAL TASK'}
+                                    {isPreviewMode ? '© 2023 GENERAL KENOBI' : '© 2023 GENERAL TASK'}
                                 </Eyebrow>
                             </NoStyleButton>
                         ) : (
-                            <Eyebrow color="light">© 2022 GENERAL TASK</Eyebrow>
+                            <Eyebrow color="light">© 2023 GENERAL TASK</Eyebrow>
                         )}
                     </CopyrightText>
                 </>
