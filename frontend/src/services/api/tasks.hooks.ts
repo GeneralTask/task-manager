@@ -230,7 +230,9 @@ export const useCreateTask = () => {
 
             if (sections) {
                 const updatedSections = produce(sections, (draft) => {
-                    const task = getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
+                    const task = createData.parent_task_id
+                        ? getSubtaskFromSections(draft, createData.parent_task_id, createData.optimisticId)
+                        : getTaskFromSections(draft, createData.optimisticId, createData.taskSectionId)
                     if (!task?.id) return
                     task.id = response.task_id
                     task.optimisticId = undefined
