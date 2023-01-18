@@ -69,7 +69,7 @@ const CalendarView = ({
                 if (calendarType === 'day') {
                     setDate(DateTime.now())
                 } else {
-                    setDate(DateTime.now().minus({ days: date.weekday % 7 }))
+                    setDate(DateTime.now().minus({ days: DateTime.now().weekday % 7 }))
                 }
                 timeoutTimer.reset()
             }
