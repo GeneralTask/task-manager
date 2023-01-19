@@ -127,7 +127,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 
 	fetchAllCalendars := false
 	var calendarList *calendar.CalendarList
-	if hasUserGrantedMultiCalendarScope(scopes) {
+	if database.HasUserGrantedMultiCalendarScope(scopes) {
 		calendarList, err = calendarService.CalendarList.List().Do()
 		if err == nil && calendarList != nil {
 			fetchAllCalendars = true
