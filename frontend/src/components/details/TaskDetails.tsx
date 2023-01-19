@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import {
@@ -108,11 +108,10 @@ const BackButtonText = styled(Label)`
 
 interface TaskDetailsProps {
     task: Partial<TTask> & Partial<TRecurringTaskTemplate> & { id: string; title: string }
-    link: string
     subtask?: TTask
     isRecurringTaskTemplate?: boolean
 }
-const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
+const TaskDetails = ({ task, subtask, isRecurringTaskTemplate }: TaskDetailsProps) => {
     const currentTask = subtask || task
     const [isEditing, setIsEditing] = useState(false)
     const [syncIndicatorText, setSyncIndicatorText] = useState(SYNC_MESSAGES.COMPLETE)
@@ -125,7 +124,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
     const timers = useRef<{ [key: string]: { timeout: NodeJS.Timeout; callback: () => void } }>({})
 
     const navigate = useNavigate()
-    const location = useLocation()
 
     const [meetingStartText, setMeetingStartText] = useState<string | null>(null)
     const { is_meeting_preparation_task, meeting_preparation_params } = currentTask as TTask
@@ -159,14 +157,6 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
             setSyncIndicatorText(SYNC_MESSAGES.COMPLETE)
         }
     }, [isError, isLoading, isEditing])
-
-    /* when the optimistic ID changes to undefined, we know that that task.id is now the real ID
-    so we can then navigate to the correct link */
-    useEffect(() => {
-        if (!currentTask.optimisticId && location.pathname !== link) {
-            navigate(link, { replace: true })
-        }
-    }, [currentTask.optimisticId, location, link])
 
     useEffect(() => {
         titleRef.current?.addEventListener('focus', () => {

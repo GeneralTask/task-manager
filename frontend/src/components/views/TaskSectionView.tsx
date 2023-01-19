@@ -138,10 +138,6 @@ const TaskSectionView = () => {
         }
     }, [taskSections, params.section, params.task])
 
-    const detailsLink = subtask
-        ? `/tasks/${params.section}/${task?.id}/${subtask.id}`
-        : `/tasks/${params.section}/${task?.id}`
-
     useItemSelectionController(sortedTasks, selectTask)
 
     useKeyboardShortcut(
@@ -258,7 +254,7 @@ const TaskSectionView = () => {
                 </ScrollableListTemplate>
             </TaskSectionContainer>
             {task && section ? (
-                <TaskDetails task={task} subtask={subtask} link={detailsLink} />
+                <TaskDetails task={task} subtask={subtask} />
             ) : (
                 <EmptyDetails icon={icons.check} text="You have no tasks" />
             )}

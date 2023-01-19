@@ -44,6 +44,7 @@ const useNavigateToTask = () => {
             for (const section of sections) {
                 for (const task of section.tasks) {
                     if (task.id === taskID) {
+                        console.log('found a match')
                         setCalendarType('day')
                         if (task.source.name === 'Slack') {
                             navigate(`/slack/${task.id}`)

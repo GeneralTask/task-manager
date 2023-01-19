@@ -1,4 +1,5 @@
 import { QueryFunctionContext, useQuery } from 'react-query'
+import { useNavigate } from 'react-router-dom'
 import produce, { castImmutable } from 'immer'
 import { DateTime } from 'luxon'
 import { DONE_SECTION_ID, TASK_MARK_AS_DONE_TIMEOUT, TASK_REFETCH_INTERVAL, TRASH_SECTION_ID } from '../../constants'
@@ -164,6 +165,7 @@ const updateCacheForOptimsticSubtask = (queryClient: GTQueryClient, data: TCreat
 export const useCreateTask = () => {
     const queryClient = useGTQueryClient()
     const { setOptimisticId } = useQueryContext()
+    const navigate = useNavigate()
     return useQueuedMutation((data: TCreateTaskData) => createTask(data), {
         tag: 'tasks',
         invalidateTagsOnSettled: ['tasks', 'tasks_v4', 'overview'],
@@ -222,6 +224,9 @@ export const useCreateTask = () => {
             }
         },
         onSuccess: async (response: TCreateTaskResponse, createData: TCreateTaskData) => {
+            if (window.location.pathname === `/tasks/${createData.taskSectionId}/${createData.optimisticId}`) {
+                navigate(`/tasks/${createData.taskSectionId}/${response.task_id}`)
+            }
             setOptimisticId(createData.optimisticId, response.task_id)
 
             const sections = queryClient.getImmutableQueryData<TTaskSection[]>('tasks')
