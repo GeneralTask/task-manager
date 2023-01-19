@@ -178,7 +178,7 @@ core-service   NodePort   172.19.64.51   <none>        8080:31254/TCP   21d
 ```
 
 #### Common Commands
-Here's a list of nice k8s commands to add to your shell file:
+Here's a list of nice k8s commands to add to your shell startup file:
 ```
 alias kp="kubectl config use-context prod --namespace prd-gtsk-uswest1"
 alias kgp="kubectl get pods"
