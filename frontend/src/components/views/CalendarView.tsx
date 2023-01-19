@@ -58,7 +58,6 @@ const CalendarView = ({
     const { isPreviewMode } = usePreviewMode()
     useEffect(() => {
         setCalendarType(initialType)
-        setDate(DateTime.local())
         if (showMainHeader !== undefined) setShowMainHeader(showMainHeader)
         if (showDateHeader !== undefined) setShowDateHeader(showDateHeader)
         if (isInitiallyCollapsed !== undefined) setIsCollapsed(isInitiallyCollapsed)
