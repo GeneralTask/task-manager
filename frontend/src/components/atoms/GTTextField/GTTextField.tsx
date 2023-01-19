@@ -1,5 +1,6 @@
 import { Suspense, forwardRef, lazy, useRef } from 'react'
 import styled from 'styled-components'
+import { usePreviewMode } from '../../../hooks'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
 import Spinner from '../Spinner'
@@ -55,11 +56,15 @@ const Container = styled.div<{
 
 const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
     const containerRef = useRef<HTMLDivElement>(null)
+    const { isPreviewMode } = usePreviewMode()
 
     const getEditor = () => {
         if (props.type === 'plaintext') {
             return <PlainTextEditor ref={ref} {...props} />
         } else if (props.type === 'markdown') {
+            if (isPreviewMode) {
+                return <AtlassianEditor {...props} />
+            }
             return <MarkdownEditor {...props} />
         } else if (props.type === 'atlassian') {
             return <AtlassianEditor {...props} />

@@ -1,5 +1,7 @@
 import { Editor as AtlaskitEditor, EditorActions } from '@atlaskit/editor-core'
 import { JSONTransformer } from '@atlaskit/editor-json-transformer'
+import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer'
+import adf2md from 'adf-to-md'
 import styled from 'styled-components'
 import { Spacing } from '../../../../styles'
 import { RichTextEditorProps } from '../types'
@@ -22,12 +24,8 @@ const EditorContainer = styled.div`
     }
     && .ProseMirror {
         height: 100%;
-        * {
-            margin: 0;
-        }
-        > blockquote,
-        .code-block {
-            margin: 12px 0;
+        > * {
+            margin: ${Spacing._8} 0;
         }
     }
     .assistive {
@@ -39,7 +37,16 @@ interface EditorProps extends RichTextEditorProps {
     editorActions: EditorActions
 }
 
-const Editor = ({ value, placeholder, disabled, autoFocus, enterBehavior, onChange, editorActions }: EditorProps) => {
+const Editor = ({
+    type,
+    value,
+    placeholder,
+    disabled,
+    autoFocus,
+    enterBehavior,
+    onChange,
+    editorActions,
+}: EditorProps) => {
     const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
         if (e.key === 'Escape' || (enterBehavior === 'blur' && e.key === 'Enter')) {
             editorActions.blur()
@@ -54,7 +61,17 @@ const Editor = ({ value, placeholder, disabled, autoFocus, enterBehavior, onChan
                 disabled={disabled}
                 shouldFocus={autoFocus}
                 appearance="chromeless"
-                onChange={(e) => onChange(JSON.stringify(serializer.encode(e.state.doc)))}
+                onChange={(e) => {
+                    const json = serializer.encode(e.state.doc)
+                    if (type === 'markdown') {
+                        onChange(adf2md.convert(json).result)
+                    } else {
+                        onChange(JSON.stringify(json))
+                    }
+                }}
+                contentTransformerProvider={
+                    type === 'markdown' ? (schema) => new MarkdownTransformer(schema) : undefined
+                }
             />
         </EditorContainer>
     )

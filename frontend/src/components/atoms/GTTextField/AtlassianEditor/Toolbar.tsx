@@ -23,9 +23,10 @@ import { Divider, MarginLeftGap, MenuContainer } from '../toolbar/styles'
 
 interface ToolbarProps {
     editorActions: EditorActions
+    isMarkdown?: boolean
     rightContent?: React.ReactNode
 }
-const Toolbar = ({ editorActions, rightContent }: ToolbarProps) => {
+const Toolbar = ({ editorActions, isMarkdown, rightContent }: ToolbarProps) => {
     return (
         <WithPluginState
             plugins={{
@@ -71,13 +72,15 @@ const Toolbar = ({ editorActions, rightContent }: ToolbarProps) => {
                             shortcutLabel="Italic"
                             shortcut={`${CMD_CTRL.label}+I`}
                         />
-                        <ToolbarButton
-                            icon={icons.underline}
-                            action={getToggleTextFormattingAction(toggleUnderline)}
-                            isActive={textFormattingState.underlineActive}
-                            shortcutLabel="Underline"
-                            shortcut={`${CMD_CTRL.label}+U`}
-                        />
+                        {!isMarkdown && (
+                            <ToolbarButton
+                                icon={icons.underline}
+                                action={getToggleTextFormattingAction(toggleUnderline)}
+                                isActive={textFormattingState.underlineActive}
+                                shortcutLabel="Underline"
+                                shortcut={`${CMD_CTRL.label}+U`}
+                            />
+                        )}
                         <ToolbarButton
                             icon={icons.strikethrough}
                             action={getToggleTextFormattingAction(toggleStrike)}
