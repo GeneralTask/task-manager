@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
@@ -60,9 +60,17 @@ interface GTModalTab {
 interface GTModalProps extends BaseModalProps {
     title?: string
     tabs: GTModalTab | GTModalTab[]
+    defaultTabIndex?: number
 }
-const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
-    const [selectedTab, setSelectedTab] = useState(0)
+const GTModal = ({ title, tabs, defaultTabIndex = 0, ...baseModalProps }: GTModalProps) => {
+    const [selectedTab, setSelectedTab] = useState(defaultTabIndex)
+    // if defaultTabIndex is updated, switch to that tab
+    useEffect(() => {
+        if (defaultTabIndex != null) {
+            setSelectedTab(defaultTabIndex ?? 0)
+        }
+    }, [defaultTabIndex])
+
     const tab = Array.isArray(tabs) ? tabs[selectedTab] : tabs
 
     return (
@@ -88,7 +96,11 @@ const GTModal = ({ title, tabs, ...baseModalProps }: GTModalProps) => {
                 <ModalContent smallGap={!Array.isArray(tabs)}>
                     <Flex justifyContent="space-between" alignItems="center">
                         <Subtitle>{tab.title}</Subtitle>
-                        <GTIconButton icon={icons.x} onClick={() => baseModalProps.setIsModalOpen(false)} />
+                        <GTIconButton
+                            tooltipText="Close"
+                            icon={icons.x}
+                            onClick={() => baseModalProps.setIsModalOpen(false)}
+                        />
                     </Flex>
                     {tab.subtitle && <Label color="light">{tab.subtitle}</Label>}
                     {Array.isArray(tabs) && <Divider color={Colors.border.light} />}

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useCommands, useRemirrorContext } from '@remirror/react'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../../../styles'
-import { FontSize, MarkdownEditorProps } from '../types'
-import RichTextToolbar from './RichTextToolbar'
+import { FontSize, RichTextEditorProps } from '../types'
+import Toolbar from './Toolbar'
 
 const EditorContainer = styled.div`
     overflow: auto;
@@ -76,9 +76,12 @@ const Editor = styled.div<{
     * {
         margin: 0;
     }
+    .ProseMirror > *:not(:last-child) {
+        margin-bottom: 14px;
+    }
 `
 
-const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
+const MarkdownEditorInternal = (props: RichTextEditorProps) => {
     const editorRef = useRef<HTMLDivElement>(null)
     const { blur, selectAll } = useCommands()
     const { getRootProps } = useRemirrorContext({ autoUpdate: true })
@@ -109,7 +112,7 @@ const MarkdownEditorInternal = (props: MarkdownEditorProps) => {
                     fontSize={props.fontSize}
                 />
             </EditorContainer>
-            {!props.readOnly && isEditorFocused && <RichTextToolbar actions={props.actions} />}
+            {!props.readOnly && isEditorFocused && <Toolbar actions={props.actions} />}
         </EditorAndToolbarContainer>
     )
 }

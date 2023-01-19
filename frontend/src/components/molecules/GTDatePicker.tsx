@@ -114,7 +114,12 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 <DateViewContainer>
                     <Icon icon={icons.calendar_blank} color="black" />
                     <DateViewText>{value?.toDateString()}</DateViewText>
-                    <GTIconButton icon={icons.x} color="black" onClick={() => handleOnChange(null)} />
+                    <GTIconButton
+                        tooltipText="Remove due date"
+                        icon={icons.x}
+                        color="black"
+                        onClick={() => handleOnChange(null)}
+                    />
                 </DateViewContainer>
             )}
         </GTDatePickerWrapper>

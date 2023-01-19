@@ -3,13 +3,13 @@ import styled from 'styled-components'
 import { useTernaryDarkMode } from 'usehooks-ts'
 import { GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME } from '../../constants'
 import { useGTLocalStorage, usePreviewMode, useSetting } from '../../hooks'
+import { useAuthWindow } from '../../hooks'
 import useRefetchStaleQueries from '../../hooks/useRefetchStaleQueries'
 import Log from '../../services/api/log'
 import { useDeleteLinkedAccount, useGetLinkedAccounts, useGetSupportedTypes } from '../../services/api/settings.hooks'
 import { useGetUserInfo } from '../../services/api/user-info.hooks'
 import { Colors, Spacing, Typography } from '../../styles'
 import { icons, logos } from '../../styles/images'
-import { openPopupWindow } from '../../utils/auth'
 import Flex from '../atoms/Flex'
 import GTCheckbox from '../atoms/GTCheckbox'
 import { Icon } from '../atoms/Icon'
@@ -50,6 +50,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
     const { data: supportedTypes } = useGetSupportedTypes()
     const { mutate: deleteAccount } = useDeleteLinkedAccount()
     const { data: linkedAccounts } = useGetLinkedAccounts()
+    const { openAuthWindow } = useAuthWindow()
 
     const refetchStaleQueries = useRefetchStaleQueries()
 
@@ -66,7 +67,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
         if (!supportedTypes) return
         for (const type of supportedTypes) {
             if (type.name === accountType) {
-                openPopupWindow(type.authorization_url, refetchStaleQueries)
+                openAuthWindow({ url: type.authorization_url })
                 return
             }
         }
@@ -118,7 +119,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
             size="lg"
             tabs={[
                 {
-                    title: 'Services',
+                    title: 'Integrations',
                     icon: icons.globe,
                     body: (
                         <Flex column gap={Spacing._24}>
@@ -142,13 +143,12 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                                             : supportedType.name
                                                     }`}
                                                     onClick={() =>
-                                                        openPopupWindow(
-                                                            supportedType.authorization_url,
-                                                            refetchStaleQueries,
-                                                            true,
-                                                            false,
-                                                            true
-                                                        )
+                                                        openAuthWindow({
+                                                            url: supportedType.authorization_url,
+                                                            isGoogleSignIn:
+                                                                supportedType.name ===
+                                                                GOOGLE_CALENDAR_SUPPORTED_TYPE_NAME,
+                                                        })
                                                     }
                                                     styleType="secondary"
                                                     size="small"
@@ -178,7 +178,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                 </Service>
                             </ServicesContainer>
                             <Divider color={Colors.border.light} />
-                            <Body>My services</Body>
+                            <Body>My integrations</Body>
                             {linkedAccounts && linkedAccounts.length > 0 ? (
                                 linkedAccounts?.map((account) => (
                                     <Flex justifyContent="space-between" alignItems="center" key={account.id}>
@@ -215,7 +215,7 @@ const SettingsModal = ({ isOpen, setIsOpen }: SettingsModalProps) => {
                                 ))
                             ) : (
                                 <ServiceDetails>
-                                    You have no connected services. Click from the options above to get started.
+                                    You have no connected integrations. Click from the options above to get started.
                                 </ServiceDetails>
                             )}
                         </Flex>

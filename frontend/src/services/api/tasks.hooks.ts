@@ -21,7 +21,7 @@ import {
     resetOrderingIds,
     sleep,
 } from '../../utils/utils'
-import { GTQueryClient, useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { GTQueryClient, getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 import { createNewTaskV4Helper } from './tasksv4.hooks'
 
 export interface TCreateTaskData {
@@ -92,7 +92,7 @@ export interface TReorderTaskData {
 interface TReorderTaskRequestBody {
     id_task_section: string
     id_ordering: number
-    is_completed: boolean
+    is_completed?: boolean
     is_deleted?: boolean
 }
 export interface TPostCommentData {
@@ -121,8 +121,7 @@ export const useFetchExternalTasks = () => {
             queryClient.invalidateQueries('tasks_v4')
             queryClient.invalidateQueries('overview')
         },
-        refetchInterval: TASK_REFETCH_INTERVAL,
-        refetchIntervalInBackground: true,
+        ...getBackgroundQueryOptions(TASK_REFETCH_INTERVAL),
     })
 }
 const fetchExternalTasks = async ({ signal }: QueryFunctionContext) => {
@@ -300,6 +299,7 @@ export const useModifyTask = () => {
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
                     task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+                    task.updated_at = DateTime.utc().toISO()
                     if (data.external_priority_id) {
                         const newPriority = task.all_priorities?.find(
                             (priority) => priority.external_id === data.external_priority_id
@@ -322,6 +322,7 @@ export const useModifyTask = () => {
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
                     task.recurring_task_template_id = data.recurringTaskTemplateId ?? task.recurring_task_template_id
+                    task.updated_at = DateTime.utc().toISO()
                 })
                 queryClient.setQueryData('tasks_v4', updatedTasks)
             }
@@ -351,6 +352,7 @@ export const useModifyTask = () => {
                     task.body = data.body ?? task.body
                     task.priority_normalized = data.priorityNormalized ?? task.priority_normalized
                     task.external_status = data.status ?? task.external_status
+                    task.updated_at = DateTime.utc().toISO()
                     if (data.external_priority_id) {
                         const newPriority = task.all_priorities?.find(
                             (priority) => priority.external_id === data.external_priority_id
@@ -691,7 +693,7 @@ export const reorderTask = async (data: TReorderTaskData) => {
         const requestBody: TReorderTaskRequestBody = {
             id_task_section: data.dropSectionId,
             id_ordering: data.orderingId,
-            is_completed: data.dropSectionId === DONE_SECTION_ID,
+            is_completed: data.isSubtask ? undefined : data.dropSectionId === DONE_SECTION_ID,
         }
         if (data.isJiraTask) {
             requestBody.is_deleted = data.dropSectionId === TRASH_SECTION_ID

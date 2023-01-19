@@ -1,12 +1,13 @@
 export type FontSize = 'small' | 'medium' | 'large'
+export type ContentType = 'markdown' | 'atlassian' | 'plaintext'
 
 // props we support for markdown
-export interface MarkdownEditorProps {
+export interface RichTextEditorProps {
     value: string
     onChange: (newValue: string) => void
     placeholder?: string
     fontSize: FontSize
-    type: 'markdown'
+    type: 'markdown' | 'atlassian'
     itemId?: string // use if reusing field for multiple items
     autoFocus?: boolean
     autoSelect?: boolean
@@ -23,9 +24,9 @@ export interface MarkdownEditorProps {
 
 // all props we support for markdown + native textarea props
 export interface PlainTextEditorProps
-    extends Omit<MarkdownEditorProps, 'type'>,
+    extends Omit<RichTextEditorProps, 'type'>,
         Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange' | 'value'> {
     type: 'plaintext'
 }
 
-export type GTTextFieldProps = MarkdownEditorProps | PlainTextEditorProps
+export type GTTextFieldProps = RichTextEditorProps | PlainTextEditorProps

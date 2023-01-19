@@ -1,10 +1,13 @@
-import { forwardRef, useRef } from 'react'
+import { Suspense, forwardRef, lazy, useRef } from 'react'
 import styled from 'styled-components'
 import { Border, Colors, Shadows } from '../../../styles'
 import { stopKeydownPropogation } from '../../../utils/utils'
-import MarkdownEditor from './MarkdownEditor/MarkdownEditor'
+import Spinner from '../Spinner'
 import PlainTextEditor from './PlainTextEditor'
 import { GTTextFieldProps } from './types'
+
+const AtlassianEditor = lazy(() => import('./AtlassianEditor'))
+const MarkdownEditor = lazy(() => import('./MarkdownEditor'))
 
 const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled?: boolean }>`
     border: ${Border.stroke.medium} solid
@@ -23,20 +26,25 @@ const PlainTextContainer = styled.div<{ hideUnfocusedOutline?: boolean; disabled
     }
 `
 
-const Container = styled.div<{ isFullHeight?: boolean; minHeight?: number; hideUnfocusedOutline?: boolean }>`
+const Container = styled.div<{
+    isFullHeight?: boolean
+    minHeight?: number
+    hideUnfocusedOutline?: boolean
+    noBorder?: boolean
+}>`
     background-color: inherit;
     box-sizing: border-box;
     border: ${Border.stroke.medium} solid
-        ${({ hideUnfocusedOutline }) => (hideUnfocusedOutline ? 'transparent' : Colors.border.extra_light)};
+        ${({ hideUnfocusedOutline, noBorder }) =>
+            hideUnfocusedOutline || noBorder ? 'transparent' : Colors.border.extra_light};
     border-radius: ${Border.radius.small};
     width: 100%;
     :hover,
     :focus-within {
-        box-shadow: ${Shadows.light};
         background-color: ${Colors.background.white};
     }
     :hover {
-        border-color: ${Colors.border.light};
+        border-color: ${({ noBorder }) => !noBorder && Colors.border.light};
     }
     :focus-within {
         border-color: ${Colors.gtColor.primary};
@@ -49,11 +57,13 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
     const containerRef = useRef<HTMLDivElement>(null)
 
     const getEditor = () => {
-        if (props.type === 'markdown') {
-            return <MarkdownEditor {...props} />
-        } else {
+        if (props.type === 'plaintext') {
             return <PlainTextEditor ref={ref} {...props} />
-        }
+        } else if (props.type === 'markdown') {
+            return <MarkdownEditor {...props} />
+        } else if (props.type === 'atlassian') {
+            return <AtlassianEditor {...props} />
+        } else return null
     }
 
     if (props.type === 'plaintext') {
@@ -68,10 +78,6 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
         )
     }
 
-    if (props.readOnly) {
-        return getEditor()
-    }
-
     return (
         <Container
             ref={containerRef}
@@ -79,8 +85,9 @@ const GTTextField = forwardRef((props: GTTextFieldProps, ref) => {
             isFullHeight={props.isFullHeight}
             minHeight={props.minHeight}
             hideUnfocusedOutline={props.hideUnfocusedOutline}
+            noBorder={props.readOnly}
         >
-            {getEditor()}
+            <Suspense fallback={<Spinner />}>{getEditor()}</Suspense>
         </Container>
     )
 })

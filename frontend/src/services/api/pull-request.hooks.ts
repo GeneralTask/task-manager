@@ -3,7 +3,7 @@ import { castImmutable } from 'immer'
 import { PR_REFETCH_INTERVAL } from '../../constants'
 import apiClient from '../../utils/api'
 import { TRepository } from '../../utils/types'
-import { useGTQueryClient } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTQueryClient } from '../queryUtils'
 
 export const useGetPullRequests = () => {
     return useQuery<TRepository[]>('pull_requests', getPullRequests)
@@ -24,8 +24,7 @@ export const useFetchPullRequests = () => {
             queryClient.invalidateQueries('pull_requests')
             queryClient.invalidateQueries('overview')
         },
-        refetchInterval: PR_REFETCH_INTERVAL,
-        refetchIntervalInBackground: true,
+        ...getBackgroundQueryOptions(PR_REFETCH_INTERVAL),
     })
 }
 const fetchPullRequests = async ({ signal }: QueryFunctionContext) => {

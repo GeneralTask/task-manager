@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import * as Accordion from '@radix-ui/react-accordion'
 import styled from 'styled-components'
-import { Border, Colors, Spacing } from '../../styles'
+import { useGTLocalStorage } from '../../hooks'
+import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
 import { TPullRequest, TTask } from '../../utils/types'
 import Flex from '../atoms/Flex'
@@ -12,9 +12,10 @@ import EmptyDetails from '../details/EmptyDetails'
 import PullRequestDetails from '../details/PullRequestDetails'
 import TaskDetails from '../details/TaskDetails'
 import { SectionHeader } from '../molecules/Header'
-import OverviewListsModal from '../overview/OverviewListsModal'
+import AccordionItem from '../overview/AccordionItem'
+import EditModal from '../overview/EditModal'
+import SmartPrioritizationBanner from '../overview/SmartPrioritizationBanner'
 import useOverviewLists from '../overview/useOverviewLists'
-import OverviewAccordionItem from '../radix/OverviewAccordionItem'
 import ScrollableListTemplate from '../templates/ScrollableListTemplate'
 
 const ActionsContainer = styled.div`
@@ -25,28 +26,55 @@ const ActionsContainer = styled.div`
     gap: ${Spacing._24};
     margin-bottom: ${Spacing._16};
 `
-const AccordionRoot = styled(Accordion.Root)`
-    > * > h3 {
-        all: unset;
-    }
-    > div {
-        margin-bottom: ${Spacing._4};
-    }
+const BannerButton = styled(GTButton)`
+    ${Typography.label};
 `
-const MarginLeftDiv = styled.div`
+const RightActions = styled.div`
     margin-left: auto;
+    display: flex;
 `
 
-const DailyOverviewView = () => {
+export const useGetCorrectlyOrderedOverviewLists = () => {
     const { lists, isLoading } = useOverviewLists()
-    const [values, setValues] = useState<string[]>([])
+    const [overviewAutomaticEmptySort] = useGTLocalStorage('overviewAutomaticEmptySort', false, true)
+    if (overviewAutomaticEmptySort) {
+        const listsCopy = [...lists]
+        listsCopy.sort((a, b) => {
+            if (a.view_items.length === 0 && b.view_items.length > 0) return 1
+            if (a.view_items.length > 0 && b.view_items.length === 0) return -1
+            return 0
+        })
+        return { lists: listsCopy, isLoading }
+    }
+    return { lists, isLoading }
+}
+
+const DailyOverviewView = () => {
+    const [isEditListsModalOpen, setIsEditListsModalOpen] = useState(false)
+    const [editListTabIndex, setEditListTabIndex] = useState(0) // 0 - add, 1 - reorder
     const { overviewViewId, overviewItemId, subtaskId } = useParams()
     const navigate = useNavigate()
+
+    const [openListIds, setOpenListIds] = useState<string[]>([])
+    const expandAll = () => setOpenListIds(lists.map((list) => list.id))
+    const collapseAll = () => setOpenListIds([])
+
+    const { lists, isLoading } = useGetCorrectlyOrderedOverviewLists()
+    useLayoutEffect(() => {
+        if (overviewViewId && overviewItemId) {
+            setOpenListIds((ids) => {
+                if (!openListIds.includes(overviewViewId)) {
+                    return [...ids, overviewViewId]
+                }
+                return ids
+            })
+        }
+    }, [overviewItemId, JSON.stringify(lists)])
 
     const selectFirstItem = () => {
         const firstNonEmptyView = lists?.find((list) => list.view_items.length > 0)
         if (firstNonEmptyView) {
-            navigate(`/daily-overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
+            navigate(`/overview/${firstNonEmptyView.id}/${firstNonEmptyView.view_items[0].id}`, { replace: true })
         }
     }
 
@@ -60,24 +88,18 @@ const DailyOverviewView = () => {
 
                 const subtask = item?.sub_tasks?.find((subtask) => subtask.id === subtaskId)
                 const detailsLink = subtask
-                    ? `/daily-overview/${list.id}/${item.id}/${subtask.id}`
-                    : `/daily-overview/${list.id}/${item.id}`
+                    ? `/overview/${list.id}/${item.id}/${subtask.id}`
+                    : `/overview/${list.id}/${item.id}`
                 return <TaskDetails task={item as TTask} subtask={subtask} link={detailsLink} />
             }
         }
         return null
     }, [lists, overviewItemId, overviewViewId, subtaskId])
 
-    useLayoutEffect(() => {
-        const firstNonEmptyList = lists?.find((list) => list.view_items.length > 0)
-        if (firstNonEmptyList) setValues([firstNonEmptyList.id])
-    }, [])
-
     useEffect(() => {
         if (!isLoading && (!overviewViewId || !overviewItemId || !detailsView)) {
             selectFirstItem()
         }
-        // check that selected item is in list of views
         for (const list of lists) {
             if (list.id === overviewViewId) {
                 for (const item of list.view_items) {
@@ -90,9 +112,6 @@ const DailyOverviewView = () => {
         selectFirstItem()
     }, [isLoading, overviewViewId, overviewItemId, lists, detailsView])
 
-    const collapseAll = () => setValues([])
-    const expandAll = useCallback(() => setValues(lists.map((list) => list.id)), [lists])
-
     if (isLoading) return <Spinner />
     return (
         <>
@@ -100,34 +119,68 @@ const DailyOverviewView = () => {
                 <ScrollableListTemplate>
                     <SectionHeader sectionName="Daily Overview" />
                     <ActionsContainer>
-                        <GTButton
+                        <BannerButton
                             styleType="simple"
                             size="small"
-                            onClick={collapseAll}
-                            icon={icons.squareMinus}
+                            onClick={() => {
+                                setEditListTabIndex(1)
+                                setIsEditListsModalOpen(true)
+                            }}
+                            icon={icons.bolt}
                             iconColor="gray"
-                            value="Collapse all"
+                            value={
+                                <span>
+                                    Smart Prioritize<sup>AI</sup>
+                                </span>
+                            }
                         />
-                        <GTButton
-                            styleType="simple"
-                            size="small"
-                            onClick={expandAll}
-                            icon={icons.squarePlus}
-                            iconColor="gray"
-                            value="Expand all"
-                        />
-                        <MarginLeftDiv>
-                            <OverviewListsModal />
-                        </MarginLeftDiv>
+                        <RightActions>
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={collapseAll}
+                                icon={icons.squareMinus}
+                                iconColor="gray"
+                                value="Collapse all"
+                            />
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={expandAll}
+                                icon={icons.squarePlus}
+                                iconColor="gray"
+                                value="Expand all"
+                            />
+                            <BannerButton
+                                styleType="simple"
+                                size="small"
+                                onClick={() => {
+                                    setEditListTabIndex(0)
+                                    setIsEditListsModalOpen(true)
+                                }}
+                                icon={icons.gear}
+                                iconColor="gray"
+                                value="Edit lists"
+                            />
+                        </RightActions>
                     </ActionsContainer>
-                    <AccordionRoot type="multiple" value={values} onValueChange={setValues}>
-                        {lists.map((list) => (
-                            <OverviewAccordionItem key={list.id} list={list} />
-                        ))}
-                    </AccordionRoot>
+                    <SmartPrioritizationBanner />
+                    {lists.map((list) => (
+                        <AccordionItem
+                            key={list.id}
+                            list={list}
+                            openListIds={openListIds}
+                            setOpenListIds={setOpenListIds}
+                        />
+                    ))}
                 </ScrollableListTemplate>
             </Flex>
             {detailsView}
+            <EditModal
+                isOpen={isEditListsModalOpen}
+                setisOpen={setIsEditListsModalOpen}
+                defaultTabIndex={editListTabIndex}
+            />
         </>
     )
 }

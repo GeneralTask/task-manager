@@ -6,7 +6,7 @@ import apiClient from '../../utils/api'
 import { RecurrenceRate } from '../../utils/enums'
 import { TRecurringTaskTemplate, TTaskSection } from '../../utils/types'
 import { getTaskFromSections } from '../../utils/utils'
-import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 import { useModifyTask } from './tasks.hooks'
 
 interface TCreateRecurringTaskPayload {
@@ -39,9 +39,11 @@ interface TModifyRecurringTaskPayload {
 }
 
 export const useRecurringTaskTemplates = () => {
-    return useQuery<TRecurringTaskTemplate[], void>('recurring-tasks', getRecurringTaskTemplates, {
-        refetchOnMount: false,
-    })
+    return useQuery<TRecurringTaskTemplate[], void>(
+        'recurring-tasks',
+        getRecurringTaskTemplates,
+        getBackgroundQueryOptions()
+    )
 }
 
 const getRecurringTaskTemplates = async ({ signal }: QueryFunctionContext) => {
@@ -172,9 +174,11 @@ const modifyRecurringTask = async (payload: TModifyRecurringTaskPayload) => {
 }
 
 export const useBackfillRecurringTasks = () => {
-    return useQuery('backfill-recurring-tasks', backfillRecurringTasks, {
-        refetchInterval: BACKFILL_RECURRING_TASKS_INTERVAL,
-    })
+    return useQuery(
+        'backfill-recurring-tasks',
+        backfillRecurringTasks,
+        getBackgroundQueryOptions(BACKFILL_RECURRING_TASKS_INTERVAL)
+    )
 }
 
 const backfillRecurringTasks = async ({ signal }: QueryFunctionContext) => {

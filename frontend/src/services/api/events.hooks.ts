@@ -7,7 +7,7 @@ import { EVENTS_REFETCH_INTERVAL } from '../../constants'
 import useQueryContext from '../../context/QueryContext'
 import apiClient from '../../utils/api'
 import { TEvent, TOverviewView, TTask } from '../../utils/types'
-import { useGTQueryClient, useQueuedMutation } from '../queryUtils'
+import { getBackgroundQueryOptions, useGTQueryClient, useQueuedMutation } from '../queryUtils'
 
 interface TEventAttendee {
     name: string
@@ -77,10 +77,7 @@ export const useGetEvents = (params: { startISO: string; endISO: string }, calen
     return useQuery<TEvent[]>(
         ['events', calendarType, params.startISO],
         (queryFunctionContext) => getEvents(params, queryFunctionContext),
-        {
-            refetchInterval: EVENTS_REFETCH_INTERVAL,
-            refetchIntervalInBackground: true,
-        }
+        getBackgroundQueryOptions(EVENTS_REFETCH_INTERVAL)
     )
 }
 const getEvents = async (params: { startISO: string; endISO: string }, { signal }: QueryFunctionContext) => {
