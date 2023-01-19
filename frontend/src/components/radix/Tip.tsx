@@ -7,55 +7,15 @@ import Flex from '../atoms/Flex'
 import { KeyboardShortcutContainer } from '../atoms/KeyboardShortcut'
 import { MenuContentShared } from './RadixUIConstants'
 
-const TOOLTIP_ARROW_SIZE = 5
-const SharedTooltip = css`
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border: ${TOOLTIP_ARROW_SIZE}px solid transparent;
+const TooltipArrow = styled(Tooltip.Arrow)`
+    visibility: visible;
+    fill: ${Colors.background.white};
 `
 
 const TooltipContent = styled(Tooltip.Content)`
     ${MenuContentShared};
     padding: ${Spacing._8} ${Spacing._12};
     ${Typography.bodySmall};
-    &[data-side='top'] {
-        :before {
-            ${SharedTooltip};
-            bottom: -${TOOLTIP_ARROW_SIZE * 2}px;
-            left: 50%;
-            margin-left: -${TOOLTIP_ARROW_SIZE}px;
-            border-top: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
-    &[data-side='bottom'] {
-        :before {
-            ${SharedTooltip};
-            top: -${TOOLTIP_ARROW_SIZE * 2}px;
-            left: 50%;
-            margin-left: -${TOOLTIP_ARROW_SIZE}px;
-            border-bottom: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
-    &[data-side='right'] {
-        :before {
-            ${SharedTooltip};
-            top: 50%;
-            left: -${TOOLTIP_ARROW_SIZE * 2}px;
-            margin-top: -${TOOLTIP_ARROW_SIZE}px;
-            border-right: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
-    &[data-side='left'] {
-        :before {
-            ${SharedTooltip};
-            top: 50%;
-            right: -${TOOLTIP_ARROW_SIZE * 2}px;
-            margin-top: -${TOOLTIP_ARROW_SIZE}px;
-            border-left: ${TOOLTIP_ARROW_SIZE}px solid ${Colors.background.white};
-        }
-    }
 `
 const TriggerSpan = styled.span<{ fitContent?: boolean }>`
     ${(props) =>
@@ -85,7 +45,7 @@ const Tip = ({
     shortcutName,
     overrideShortcutLabel,
     overrideShortcut,
-    side,
+    side = 'bottom',
     align,
     children,
     disabled,
@@ -100,23 +60,22 @@ const Tip = ({
         shortcutLabel || shortcut ? (
             <Flex alignItems="center" justifyContent="center" gap={Spacing._8}>
                 {shortcutLabel}
-                {shortcut?.split('+').map((keyLabel) => (
-                    <KeyboardShortcutContainer key={keyLabel}>{keyLabel}</KeyboardShortcutContainer>
-                ))}
+                <KeyboardShortcutContainer>{shortcut}</KeyboardShortcutContainer>
             </Flex>
         ) : (
             content
         )
 
     return (
-        <Tooltip.Provider delayDuration={250} skipDelayDuration={1000}>
+        <Tooltip.Provider delayDuration={250} skipDelayDuration={1000} disableHoverableContent>
             <Tooltip.Root defaultOpen={false}>
                 <Tooltip.Trigger asChild>
                     <TriggerSpan fitContent={fitContent}>{children}</TriggerSpan>
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
-                    <TooltipContent side={side} sideOffset={10} align={align}>
+                    <TooltipContent side={side} sideOffset={5} align={align} arrowPadding={10}>
                         {tooltipContent}
+                        <TooltipArrow />
                     </TooltipContent>
                 </Tooltip.Portal>
             </Tooltip.Root>

@@ -117,14 +117,25 @@ export const SectionHeader = (props: SectionHeaderProps) => {
                 {props.taskSectionId && isDeletable(props.taskSectionId) && !isEditingTitle && (
                     <GTIconButton
                         onClick={() => handleDelete(props.taskSectionId)}
+                        tooltipText="Delete folder"
                         icon={icons.trash}
                         iconColor="red"
                     />
                 )}
                 {props.taskSectionId && isEditable(props.taskSectionId) && !isEditingTitle && (
-                    <GTIconButton onClick={() => setIsEditingTitle(true)} icon={icons.pencil} />
+                    <GTIconButton
+                        tooltipText="Edit folder name"
+                        onClick={() => setIsEditingTitle(true)}
+                        icon={icons.pencil}
+                    />
                 )}
-                {isEditingTitle && <GTIconButton onClick={() => setIsEditingTitle(false)} icon={icons.check} />}
+                {isEditingTitle && (
+                    <GTIconButton
+                        tooltipText="Save folder name"
+                        onClick={() => setIsEditingTitle(false)}
+                        icon={icons.check}
+                    />
+                )}
             </MarginLeftAutoFlex>
         </SectionHeaderContainer>
     )

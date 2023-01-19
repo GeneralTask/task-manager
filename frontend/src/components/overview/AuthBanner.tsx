@@ -1,10 +1,7 @@
 import styled from 'styled-components'
-import { useGetOverviewViews, useGetSupportedViews } from '../../services/api/overview.hooks'
-import { useFetchPullRequests } from '../../services/api/pull-request.hooks'
-import { useFetchExternalTasks } from '../../services/api/tasks.hooks'
+import { useAuthWindow } from '../../hooks'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { TLogoImage, icons, logos } from '../../styles/images'
-import { openPopupWindow } from '../../utils/auth'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 
@@ -34,19 +31,11 @@ interface AuthBannerProps {
     name: string
     logo: TLogoImage
     hasBorder: boolean
+    isGoogleSignIn?: boolean
 }
 
-const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps) => {
-    const { refetch: refetchViews } = useGetOverviewViews()
-    const { refetch: refetchSupportedViews } = useGetSupportedViews()
-    const { refetch: fetchExternalTasks } = useFetchExternalTasks()
-    const { refetch: fetchPullRequests } = useFetchPullRequests()
-
-    const onWindowClose = async () => {
-        refetchSupportedViews()
-        await Promise.all([fetchExternalTasks(), fetchPullRequests()])
-        refetchViews()
-    }
+const AuthBanner = ({ authorizationUrl, name, logo, hasBorder, isGoogleSignIn }: AuthBannerProps) => {
+    const { openAuthWindow } = useAuthWindow()
 
     return (
         <BannerContainer hasBorder={hasBorder}>
@@ -61,7 +50,7 @@ const AuthBanner = ({ authorizationUrl, name, logo, hasBorder }: AuthBannerProps
                     icon={icons.external_link}
                     size="small"
                     styleType="secondary"
-                    onClick={() => openPopupWindow(authorizationUrl, onWindowClose)}
+                    onClick={() => openAuthWindow({ url: authorizationUrl, isGoogleSignIn })}
                 />
             </div>
         </BannerContainer>

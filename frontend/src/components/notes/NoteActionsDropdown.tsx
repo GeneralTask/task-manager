@@ -7,16 +7,28 @@ import Flex from '../atoms/Flex'
 import GTIconButton from '../atoms/buttons/GTIconButton'
 import { Mini } from '../atoms/typography/Typography'
 import GTDropdownMenu from '../radix/GTDropdownMenu'
+import { GTMenuItem } from '../radix/RadixUIConstants'
 
 interface NoteActionsDropdownProps {
     note: TNote
+    isOwner?: boolean
 }
-const NoteActionsDropdown = ({ note }: NoteActionsDropdownProps) => {
+const NoteActionsDropdown = ({ note, isOwner = true }: NoteActionsDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false)
     const { mutate: modifyNote } = useModifyNote()
 
     const updatedAt = DateTime.fromISO(note.updated_at).toFormat(`MMM d 'at' h:mm a`)
     const createdAt = DateTime.fromISO(note.created_at).toFormat(`MMM d 'at' h:mm a`)
+
+    const ownerItems: GTMenuItem[] = [
+        {
+            label: note.is_deleted ? 'Restore Note' : 'Delete Note',
+            icon: icons.trash,
+            iconColor: 'red',
+            textColor: 'red',
+            onClick: () => modifyNote({ id: note.id, is_deleted: !note.is_deleted }, note.optimisticId),
+        },
+    ]
 
     return (
         <GTDropdownMenu
@@ -24,15 +36,7 @@ const NoteActionsDropdown = ({ note }: NoteActionsDropdownProps) => {
             setIsOpen={setIsOpen}
             hideCheckmark
             items={[
-                [
-                    {
-                        label: note.is_deleted ? 'Restore Note' : 'Delete Note',
-                        icon: icons.trash,
-                        iconColor: 'red',
-                        textColor: 'red',
-                        onClick: () => modifyNote({ id: note.id, is_deleted: !note.is_deleted }, note.optimisticId),
-                    },
-                ],
+                ...(isOwner ? [ownerItems] : []),
                 [
                     {
                         label: 'Info',
@@ -50,6 +54,7 @@ const NoteActionsDropdown = ({ note }: NoteActionsDropdownProps) => {
             trigger={
                 <GTIconButton
                     icon={icons.ellipsisVertical}
+                    tooltipText="Note Actions"
                     onClick={() => setIsOpen(!isOpen)}
                     forceShowHoverEffect={isOpen}
                     asDiv

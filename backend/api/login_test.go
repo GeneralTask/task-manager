@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -40,7 +40,7 @@ func TestLoginRedirect(t *testing.T) {
 			}
 		}
 
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
@@ -67,7 +67,7 @@ func TestLoginRedirect(t *testing.T) {
 			}
 		}
 
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
@@ -94,7 +94,7 @@ func TestLoginRedirect(t *testing.T) {
 			}
 		}
 
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(
 			t,
@@ -121,7 +121,7 @@ func TestLoginCallback(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"missing query params\"}", string(body))
 	})
@@ -151,28 +151,28 @@ func TestLoginCallback(t *testing.T) {
 	t.Run("BadStateTokenFormat", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "example-token", "example-token", false, false)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid state token format\"}", string(body))
 	})
 	t.Run("BadStateTokenCookieFormat", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "6088e1c97018a22f240aa573", "example-token", false, false)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid state token cookie format\"}", string(body))
 	})
 	t.Run("StateTokensDontMatch", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "6088e1c97018a22f240aa573", "6088e1c97018a22f240aa574", false, false)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"state token does not match cookie\"}", string(body))
 	})
 	t.Run("InvalidStateToken", func(t *testing.T) {
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", "6088e1c97018a22f240aa573", "6088e1c97018a22f240aa573", false, false)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid state token\"}", string(body))
 	})
@@ -198,7 +198,7 @@ func TestLoginCallback(t *testing.T) {
 		assert.NoError(t, err)
 		recorder := makeLoginCallbackRequest("noice420", "approved@generaltask.com", "", *stateToken, *stateToken, false, false)
 		assert.Equal(t, http.StatusFound, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Contains(t, string(body), "generaltask://authentication?authToken=")
 		verifyLoginCallback(t, api.DB, "approved@generaltask.com", "noice420", false, true)

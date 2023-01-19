@@ -3,7 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,7 +22,7 @@ func TestWaitlistAdd(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
 	})
@@ -37,7 +37,7 @@ func TestWaitlistAdd(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing 'email' parameter.\"}", string(body))
 	})
@@ -52,7 +52,7 @@ func TestWaitlistAdd(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid email format.\"}", string(body))
 	})
@@ -92,7 +92,7 @@ func sendWaitlistRequest(t *testing.T, expectedCode int, expectedResponse string
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, expectedCode, recorder.Code)
-	body, err := ioutil.ReadAll(recorder.Body)
+	body, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedResponse, string(body))
 }

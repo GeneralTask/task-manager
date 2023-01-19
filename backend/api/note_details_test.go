@@ -2,14 +2,15 @@ package api
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestNoteDetail(t *testing.T) {
@@ -59,7 +60,7 @@ func TestNoteDetail(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		response, err := ioutil.ReadAll(recorder.Body)
+		response, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(response))
 	})
@@ -71,7 +72,7 @@ func TestNoteDetail(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
@@ -83,7 +84,7 @@ func TestNoteDetail(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusOK, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 
 		assert.Equal(t,

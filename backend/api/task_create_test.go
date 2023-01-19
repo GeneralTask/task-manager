@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -35,7 +35,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
@@ -48,7 +48,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusNotFound, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"not found\"}", string(body))
 	})
@@ -61,7 +61,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"invalid or missing parameter\"}", string(body))
 	})
@@ -79,7 +79,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"'id_task_section' is not a valid ID\"}", string(body))
 	})
@@ -94,7 +94,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
 	})
@@ -110,7 +110,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
 	})
@@ -131,7 +131,7 @@ func TestCreateTask(t *testing.T) {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := ioutil.ReadAll(recorder.Body)
+		body, err := io.ReadAll(recorder.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, "{\"detail\":\"'parent_task_id' is not a valid ID\"}", string(body))
 	})
@@ -143,8 +143,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		task := (*tasks)[4]
+		assert.Equal(t, 6, len(*tasks))
+		task := (*tasks)[5]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "", *task.Body)
 		assert.Equal(t, external.GeneralTaskDefaultAccountID, task.SourceAccountID)
@@ -163,11 +163,11 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 6, len(*tasks))
-		task1 := (*tasks)[4]
+		assert.Equal(t, 7, len(*tasks))
+		task1 := (*tasks)[5]
 		assert.Equal(t, "buy more dogecoin", *task1.Title)
 		assert.Equal(t, 2, task1.IDOrdering)
-		task2 := (*tasks)[5]
+		task2 := (*tasks)[6]
 		assert.Equal(t, "buy more dogecoin AGAIN", *task2.Title)
 		assert.Equal(t, constants.DefaultTaskIDOrdering, task2.IDOrdering)
 	})
@@ -209,8 +209,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		task := (*tasks)[4]
+		assert.Equal(t, 6, len(*tasks))
+		task := (*tasks)[5]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "seriously!", *task.Body)
 		assert.Equal(t, int64(300000000000), *task.TimeAllocation)
@@ -233,8 +233,8 @@ func TestCreateTask(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(db, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		task := (*tasks)[4]
+		assert.Equal(t, 6, len(*tasks))
+		task := (*tasks)[5]
 		assert.Equal(t, "buy more dogecoin", *task.Title)
 		assert.Equal(t, "seriously!", *task.Body)
 		assert.Equal(t, int64(300000000000), *task.TimeAllocation)

@@ -100,6 +100,20 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         category: 'Tasks',
         icon: 'external_link',
     },
+    moveTaskUp: {
+        label: 'Move task up',
+        key: `${SHIFT}+K|${SHIFT}+ArrowUp`,
+        keyLabel: `${SHIFT}+K or ${SHIFT}+↑`,
+        category: 'Tasks',
+        icon: 'caret_up',
+    },
+    moveTaskDown: {
+        label: 'Move task down',
+        key: `${SHIFT}+J|${SHIFT}+ArrowDown`,
+        keyLabel: `${SHIFT}+J or ${SHIFT}+↓`,
+        category: 'Tasks',
+        icon: 'caret_down',
+    },
     navigationView: {
         label: 'Show/hide navigation view',
         key: '[',
@@ -161,7 +175,7 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         key: 't',
         keyLabel: 'T',
         category: 'Calendar',
-        icon: 'calendar_blank',
+        icon: 'calendar_star',
     },
     up: {
         label: 'Previous item',
@@ -220,11 +234,11 @@ const KEYBOARD_SHORTCUTS = asShortcuts({
         icon: 'note',
     },
     goToOverviewPage: {
-        label: 'Go to Overview page',
+        label: 'Go to Daily Overview page',
         key: `${OPT_ALT.key}+${SHIFT}+O|${OPT_ALT.key}+${SHIFT}+Ø`,
         keyLabel: `${OPT_ALT.label}+${SHIFT}+O`,
         category: 'Navigation',
-        icon: 'list',
+        icon: 'houseDay',
     },
     goToGithubPRsPage: {
         label: 'Go to GitHub page',

@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -133,7 +132,7 @@ func makeLoginCallbackRequest(
 		"https://www.googleapis.com/oauth2/v3/userinfo",
 	).Return(
 		&http.Response{
-			Body: ioutil.NopCloser(bytes.NewBufferString(fmt.Sprintf(
+			Body: io.NopCloser(bytes.NewBufferString(fmt.Sprintf(
 				"{\"sub\": \"goog12345_%s\", \"email\": \"%s\", \"name\": \"%s\"}",
 				email,
 				email,
@@ -146,7 +145,7 @@ func makeLoginCallbackRequest(
 		fmt.Sprintf("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s", googleToken),
 	).Return(
 		&http.Response{
-			Body: ioutil.NopCloser(bytes.NewBufferString("{\"scope\": \"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events openid\"}"))},
+			Body: io.NopCloser(bytes.NewBufferString("{\"scope\": \"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar.events openid\"}"))},
 		nil,
 	)
 	mockConfig.On("Client", mock.Anything, &mockToken).Return(&mockClient)
@@ -221,7 +220,7 @@ func verifyLoginCallback(t *testing.T, db *mongo.Database, email string, authTok
 	tasksCollection := database.GetTaskCollection(db)
 	count, err = tasksCollection.CountDocuments(context.Background(), bson.M{"user_id": user.ID})
 	assert.NoError(t, err)
-	assert.Equal(t, int64(4), count)
+	assert.Equal(t, int64(5), count)
 	for index, title := range constants.StarterTasks {
 		var task database.Task
 		err = tasksCollection.FindOne(context.Background(), bson.M{"user_id": user.ID, "id_ordering": index + 1}).Decode(&task)
@@ -260,7 +259,7 @@ func ServeRequest(t *testing.T, authToken string, method string, url string, req
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	assert.Equal(t, expectedReponseCode, recorder.Code)
-	responseBody, err := ioutil.ReadAll(recorder.Body)
+	responseBody, err := io.ReadAll(recorder.Body)
 	assert.NoError(t, err)
 	return responseBody
 }

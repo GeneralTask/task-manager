@@ -33,11 +33,6 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		return &database.CalendarEvent{}
 	}
 
-	//exclude clockwise events
-	if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
-		return &database.CalendarEvent{}
-	}
-
 	//exclude events we declined.
 	for _, attendee := range event.Attendees {
 		if attendee.Self && attendee.ResponseStatus == "declined" {
@@ -151,6 +146,16 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 			result <- emptyCalendarResult(errors.New("failed to fetch events"))
 		}
 		events = append(events, eventResult.CalendarEvents...)
+		calendarAccount.Calendars = []database.Calendar{
+			{
+				CalendarID: "primary",
+				ColorID:    "",
+			},
+		}
+		_, err = database.UpdateOrCreateCalendarAccount(db, userID, accountID, TASK_SOURCE_ID_GCAL, calendarAccount, nil)
+		if err != nil {
+			result <- emptyCalendarResult(err)
+		}
 		result <- CalendarResult{CalendarEvents: events, Error: nil}
 		return
 	}

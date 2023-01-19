@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -83,10 +83,10 @@ type SlackInputValue struct {
 func (api *API) SlackTaskCreate(c *gin.Context) {
 	sourceID := external.TASK_SOURCE_ID_SLACK_SAVED
 	// make request body readable
-	body, _ := ioutil.ReadAll(c.Request.Body)
+	body, _ := io.ReadAll(c.Request.Body)
 	// this is required, as the first write fully consumes the body
 	// the Form in the body is required for payload extraction
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	logger := logging.GetSentryLogger()
 
@@ -205,6 +205,11 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			url = override
 		}
 		request, err := http.NewRequest("POST", url, bytes.NewBuffer(modalJSON))
+		if err != nil {
+			logger.Error().Err(err).Msg("error creating Slack modal request")
+			Handle500(c)
+			return
+		}
 		request.Header.Set("Content-type", "application/json")
 		request.Header.Set("Authorization", "Bearer "+oauthToken.AccessToken)
 		client := &http.Client{}
@@ -214,7 +219,7 @@ func (api *API) SlackTaskCreate(c *gin.Context) {
 			Handle500(c)
 			return
 		}
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			logger.Error().Err(err).Msg("error reading Slack response")
 			Handle500(c)

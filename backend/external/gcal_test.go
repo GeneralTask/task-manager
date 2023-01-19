@@ -88,7 +88,7 @@ func TestGetEvents(t *testing.T) {
 		go googleCalendar.GetEvents(db, userID, "exampleAccountID", time.Now(), time.Now(), nil, calendarResult)
 		result := <-calendarResult
 		assert.NoError(t, result.Error)
-		assert.Equal(t, 1, len(result.CalendarEvents))
+		assert.Equal(t, 2, len(result.CalendarEvents))
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstTask)
 
@@ -106,6 +106,16 @@ func TestGetEvents(t *testing.T) {
 		assert.NoError(t, err)
 		assertCalendarEventsEqual(t, &standardDBEvent, &calendarEventFromDB)
 		assert.Equal(t, "exampleAccountID", calendarEventFromDB.SourceAccountID)
+
+		var calendarAccount database.CalendarAccount
+		err = database.GetCalendarAccountCollection(db).FindOne(
+			context.Background(),
+			bson.M{"$and": []bson.M{
+				{"user_id": userID},
+			}},
+		).Decode(&calendarAccount)
+		assert.Equal(t, "primary", calendarAccount.Calendars[0].CalendarID)
+		assert.NoError(t, err)
 	})
 	t.Run("ExistingEvent", func(t *testing.T) {
 		standardEvent := calendar.Event{
@@ -146,16 +156,6 @@ func TestGetEvents(t *testing.T) {
 		standardDBEvent.Body = "new description"
 		standardDBEvent.Location = "new location"
 
-		autoEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Auto Event (via Clockwise)",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "auto_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-		}
-
 		allDayEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
 			Summary:        "All day Event",
@@ -166,7 +166,7 @@ func TestGetEvents(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -321,16 +321,6 @@ func TestGetEvents(t *testing.T) {
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
 
-		autoEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Auto Event (via Clockwise)",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "auto_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-		}
-
 		allDayEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
 			Summary:        "All day Event",
@@ -341,7 +331,7 @@ func TestGetEvents(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent})
 		defer server.Close()
 
 		var calendarResult = make(chan CalendarResult)
@@ -357,10 +347,8 @@ func TestGetEvents(t *testing.T) {
 		firstTask := result.CalendarEvents[0]
 		assertCalendarEventsEqual(t, &standardDBEvent, firstTask)
 
-		eventCollection := database.GetCalendarEventCollection(db)
-
 		var calendarEventFromDB database.CalendarEvent
-		err = eventCollection.FindOne(
+		err = database.GetCalendarEventCollection(db).FindOne(
 			context.Background(),
 			bson.M{"$and": []bson.M{
 				{"id_external": "standard_event"},
@@ -404,16 +392,6 @@ func TestGetEvents(t *testing.T) {
 			DatetimeEnd:   primitive.NewDateTimeFromTime(endTime),
 		}
 
-		autoEvent := calendar.Event{
-			Created:        "2021-02-25T17:53:01.000Z",
-			Summary:        "Auto Event (via Clockwise)",
-			Start:          &calendar.EventDateTime{DateTime: "2021-03-06T15:00:00-05:00"},
-			End:            &calendar.EventDateTime{DateTime: "2021-03-06T15:30:00-05:00"},
-			HtmlLink:       "generaltask.com",
-			Id:             "auto_event",
-			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
-		}
-
 		allDayEvent := calendar.Event{
 			Created:        "2021-02-25T17:53:01.000Z",
 			Summary:        "All day Event",
@@ -424,7 +402,7 @@ func TestGetEvents(t *testing.T) {
 			ServerResponse: googleapi.ServerResponse{HTTPStatusCode: 0},
 		}
 
-		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent, &autoEvent})
+		server := testutils.GetGcalFetchServer([]*calendar.Event{&standardEvent, &allDayEvent})
 
 		defer server.Close()
 

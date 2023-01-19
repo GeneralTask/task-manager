@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,7 +23,7 @@ func CreateDateTime(dt string) *primitive.DateTime {
 
 func GetMockAPIServer(t *testing.T, statusCode int, body string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := ioutil.ReadAll(r.Body)
+		_, err := io.ReadAll(r.Body)
 		assert.NoError(t, err)
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(statusCode)

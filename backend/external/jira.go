@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -124,7 +124,7 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		return
 	}
 
-	taskData, err := ioutil.ReadAll(resp.Body)
+	taskData, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read search response")
 		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
@@ -157,13 +157,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 		logger.Error().Err(err).Msg("failed to fetch priorities")
 	}
 
-	db, dbCleanup, err := database.GetDBConnection()
-	if err != nil {
-		result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
-		return
-	}
-	defer dbCleanup()
-
 	// fetch the comments in tandem to avoid too much latency for tasks fetch endpoint
 	fieldChannelList := []chan JIRAFieldsResult{}
 	commentChannelList := []chan JIRACommentResult{}
@@ -181,11 +174,6 @@ func (jira JIRASource) GetTasks(db *mongo.Database, userID primitive.ObjectID, a
 	for idx, jiraTask := range jiraTasks.Issues {
 		titleString := jiraTask.Fields.Summary
 		bodyString := string(jiraTask.Fields.Description)
-		if err != nil {
-			logger.Error().Err(err).Msg("unable to parse JIRA template")
-			result <- emptyTaskResultWithSource(err, TASK_SOURCE_ID_JIRA)
-			return
-		}
 
 		task := &database.Task{
 			UserID:          userID,
@@ -352,7 +340,7 @@ func (jira JIRASource) GetListOfComments(siteConfiguration *database.AtlassianSi
 		}
 		return
 	}
-	commentListString, err := ioutil.ReadAll(resp.Body)
+	commentListString, err := io.ReadAll(resp.Body)
 	if err != nil {
 		result <- JIRACommentResult{
 			CommentList: &dbComments,
@@ -408,7 +396,7 @@ func (jira JIRASource) GetListOfStatuses(siteConfiguration *database.AtlassianSi
 	if err != nil {
 		return statusMap, err
 	}
-	statusListString, err := ioutil.ReadAll(resp.Body)
+	statusListString, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return statusMap, err
 	}
@@ -453,7 +441,7 @@ func (jira JIRASource) GetListOfPriorities(siteConfiguration *database.Atlassian
 		return priorityIds, err
 	}
 
-	priorityListString, err := ioutil.ReadAll(resp.Body)
+	priorityListString, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return priorityIds, err
 	}
@@ -495,7 +483,7 @@ func (jira JIRASource) GetListOfFields(siteConfiguration *database.AtlassianSite
 		return
 	}
 
-	fieldsString, err := ioutil.ReadAll(resp.Body)
+	fieldsString, err := io.ReadAll(resp.Body)
 	if err != nil {
 		result <- JIRAFieldsResult{
 			JIRATaskParams: jiraFields,
@@ -689,7 +677,7 @@ func (jira JIRASource) getTransitionID(apiBaseURL string, AtlassianAuthToken str
 		return nil
 	}
 
-	responseBytes, err := ioutil.ReadAll(resp.Body)
+	responseBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error().Err(err).Msg("failed to read http response body")
 		return nil

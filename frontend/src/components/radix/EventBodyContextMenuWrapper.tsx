@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import { DateTime } from 'luxon'
 import { EVENT_UNDO_TIMEOUT } from '../../constants'
-import { useToast } from '../../hooks'
+import { useNavigateToTask, useToast } from '../../hooks'
 import { useDeleteEvent } from '../../services/api/events.hooks'
-import { icons } from '../../styles/images'
+import { icons, logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
 import { useCalendarContext } from '../calendar/CalendarContext'
@@ -16,6 +16,7 @@ interface FocusModeContextMenuProps {
 }
 const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuProps) => {
     const { mutate: deleteEvent, deleteEventInCache, undoDeleteEventInCache } = useDeleteEvent()
+    const navigateToTask = useNavigateToTask()
     const { setSelectedEvent } = useCalendarContext()
     const toast = useToast()
 
@@ -59,6 +60,15 @@ const FocusModeContextMenuWrapper = ({ event, children }: FocusModeContextMenuPr
     }, [event, deleteEvent, deleteEventInCache, toast, undoDeleteEventInCache])
 
     const contextMenuItems: GTMenuItem[] = [
+        ...(event.linked_task_id
+            ? [
+                  {
+                      label: 'View task details',
+                      icon: logos.generaltask,
+                      onClick: () => navigateToTask(event.linked_task_id),
+                  },
+              ]
+            : []),
         {
             label: 'Go to Google Calendar',
             icon: icons.external_link,
