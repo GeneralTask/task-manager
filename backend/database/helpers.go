@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"golang.org/x/exp/slices"
 	"time"
 
 	"github.com/GeneralTask/task-manager/backend/constants"
@@ -999,4 +1000,8 @@ func GetTaskSectionCollection(db *mongo.Database) *mongo.Collection {
 
 func GetRecurringTaskTemplateCollection(db *mongo.Database) *mongo.Collection {
 	return db.Collection("recurring_task_templates")
+}
+
+func HasUserGrantedMultiCalendarScope(scopes []string) bool {
+	return slices.Contains(scopes, "https://www.googleapis.com/auth/calendar")
 }
