@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import KEYBOARD_SHORTCUTS, { ShortcutCategories } from '../../constants/shortcuts'
 import useShortcutContext from '../../context/ShortcutContext'
-import { useKeyboardShortcut } from '../../hooks'
+import { useKeyboardShortcut, usePreviewMode } from '../../hooks'
 import useNavigateToTask from '../../hooks/useNavigateToTask'
 import Log from '../../services/api/log'
 import { useGetTasks } from '../../services/api/tasks.hooks'
@@ -103,11 +103,29 @@ const FlexWidth100 = styled(Flex)`
 const RightLabel = styled(Label)`
     margin-left: auto;
 `
+
+const BoldMatches = ({ text, query }: { text: string; query: string | undefined }) => {
+    if (!query) return <>{text}</>
+    const matches = text.match(new RegExp(query, 'gi'))
+    if (!matches) return <>{text}</>
+    const split = text.split(new RegExp(query, 'gi'))
+    return (
+        <>
+            {split.map((part, i) => (
+                <span key={i}>
+                    {part}
+                    {matches[i] && <strong>{matches[i]}</strong>}
+                </span>
+            ))}
+        </>
+    )
+}
 interface CommandPaletteProps {
     customButton?: React.ReactNode
     hideButton?: boolean
 }
 const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
+    const { isPreviewMode } = usePreviewMode()
     const { showCommandPalette, setShowCommandPalette, activeKeyboardShortcuts } = useShortcutContext()
     const [selectedShortcut, setSelectedShortcut] = useState<string>()
     const [searchValue, setSearchValue] = useState<string>()
@@ -171,6 +189,11 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                 }}
                 value={selectedShortcut}
                 onValueChange={setSelectedShortcut}
+                filter={
+                    isPreviewMode
+                        ? (value, search) => (value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0)
+                        : undefined
+                }
             >
                 <Searchbar>
                     <IconContainer>
@@ -201,7 +224,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                         >
                                             <Flex flex="1" alignItems="center">
                                                 <IconContainer>{icon && <Icon icon={icons[icon]} />}</IconContainer>
-                                                <BodySmall>{label}</BodySmall>
+                                                <BodySmall>
+                                                    <BoldMatches text={label} query={searchValue} />
+                                                </BodySmall>
                                             </Flex>
                                             <KeyboardShortcutContainer>{keyLabel}</KeyboardShortcutContainer>
                                         </CommandItem>
@@ -234,7 +259,9 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                                     }
                                                 />
                                             </IconContainer>
-                                            <TruncatedTitle>{name}</TruncatedTitle>
+                                            <TruncatedTitle>
+                                                <BoldMatches text={name} query={searchValue} />
+                                            </TruncatedTitle>
                                         </FlexWidth100>
                                     </CommandItem>
                                 ))}
@@ -255,7 +282,7 @@ const CommandPalette = ({ customButton, hideButton }: CommandPaletteProps) => {
                                             strike={is_done || is_deleted}
                                             color={is_done || is_deleted ? 'light' : 'black'}
                                         >
-                                            {title}
+                                            <BoldMatches text={title} query={searchValue} />
                                         </TruncatedTitle>
                                         {(is_done || is_deleted) && (
                                             <RightLabel color="light">{is_deleted ? '(deleted)' : '(done)'}</RightLabel>

@@ -51,7 +51,7 @@ const Comment = ({ comment, sourceName }: CommentProps) => {
             </TopContainer>
             <BodyContainer>
                 <GTTextField
-                    itemId={comment.user.ExternalID}
+                    itemId={comment.user.ExternalID + comment.body + comment.created_at}
                     type={contentType}
                     value={comment.body}
                     onChange={emptyFunction}

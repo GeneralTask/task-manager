@@ -33,11 +33,6 @@ func processAndStoreEvent(event *calendar.Event, db *mongo.Database, userID prim
 		return &database.CalendarEvent{}
 	}
 
-	//exclude clockwise events
-	if strings.Contains(strings.ToLower(event.Summary), "via clockwise") {
-		return &database.CalendarEvent{}
-	}
-
 	//exclude events we declined.
 	for _, attendee := range event.Attendees {
 		if attendee.Self && attendee.ResponseStatus == "declined" {
@@ -132,7 +127,7 @@ func (googleCalendar GoogleCalendarSource) GetEvents(db *mongo.Database, userID 
 
 	fetchAllCalendars := false
 	var calendarList *calendar.CalendarList
-	if hasUserGrantedMultiCalendarScope(scopes) {
+	if database.HasUserGrantedMultiCalendarScope(scopes) {
 		calendarList, err = calendarService.CalendarList.List().Do()
 		if err == nil && calendarList != nil {
 			fetchAllCalendars = true

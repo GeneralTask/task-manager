@@ -1,8 +1,8 @@
 import styled from 'styled-components'
-import { Colors, Spacing } from '../../styles'
-import { icons } from '../../styles/images'
-import { Icon } from '../atoms/Icon'
-import { Label, Mini } from '../atoms/typography/Typography'
+import { Colors, Spacing } from '../../../styles'
+import { icons } from '../../../styles/images'
+import { Icon } from '../../atoms/Icon'
+import { Label, Mini } from '../../atoms/typography/Typography'
 
 const Preference = styled.div`
     margin-top: ${Spacing._16};
@@ -21,6 +21,7 @@ const StyledMini = styled(Mini)`
     cursor: pointer;
     width: fit-content;
     user-select: none;
+    white-space: pre;
 `
 const StyledLabel = styled(Label)`
     width: fit-content;

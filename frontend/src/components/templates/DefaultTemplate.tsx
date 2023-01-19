@@ -1,9 +1,13 @@
+import { useLayoutEffect } from 'react'
 import styled from 'styled-components'
+import { useGTLocalStorage, useWindowSize } from '../../hooks'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { MEDIA_MAX_WIDTH, TOOLTIP_MAX_WIDTH, WINDOW_MIN_WIDTH } from '../../styles/dimensions'
 import { useCalendarContext } from '../calendar/CalendarContext'
 import CalendarWithTaskSelection from '../calendar/CalendarWithTaskSelection'
 import NavigationView from '../views/NavigationView'
+
+const COLLAPSE_BREAKPOINT = 1500
 
 const DefaultTemplateContainer = styled.div`
     display: grid;
@@ -45,11 +49,24 @@ interface DefaultTemplateProps {
 }
 
 const DefaultTemplate = ({ children }: DefaultTemplateProps) => {
-    const { calendarType } = useCalendarContext()
+    const { width } = useWindowSize(false)
+    const { calendarType, isCollapsed: isCalCollapsed, setIsCollapsed: setIsCalCollapsed } = useCalendarContext()
+    const [isNavCollapsed, setIsNavCollapsed] = useGTLocalStorage('navigationCollapsed', false)
+
+    useLayoutEffect(() => {
+        if (!width) return
+        if (width < COLLAPSE_BREAKPOINT) {
+            if (!isNavCollapsed) setIsNavCollapsed(true)
+            if (!isCalCollapsed) setIsCalCollapsed(true)
+        } else if (width > COLLAPSE_BREAKPOINT) {
+            if (isNavCollapsed) setIsNavCollapsed(false)
+            if (isCalCollapsed) setIsCalCollapsed(false)
+        }
+    }, [width])
 
     return (
         <DefaultTemplateContainer>
-            <NavigationView />
+            <NavigationView isCollapsed={isNavCollapsed} setIsCollapsed={setIsNavCollapsed} />
             {calendarType === 'day' && <TasksandDetails>{children}</TasksandDetails>}
             <CalendarWithTaskSelection />
         </DefaultTemplateContainer>

@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/GeneralTask/task-manager/backend/config"
 	"github.com/GeneralTask/task-manager/backend/database"
 	"github.com/GeneralTask/task-manager/backend/external"
 	"github.com/stretchr/testify/assert"
@@ -120,10 +121,9 @@ func TestLoginCallback(t *testing.T) {
 		request, _ := http.NewRequest("GET", "/login/callback/", nil)
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
-		assert.Equal(t, http.StatusBadRequest, recorder.Code)
-		body, err := io.ReadAll(recorder.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, "{\"detail\":\"missing query params\"}", string(body))
+		assert.Equal(t, http.StatusFound, recorder.Code)
+		// check that we redirect to the home page
+		assert.Equal(t, config.GetConfigValue("HOME_URL"), recorder.Result().Header.Get("Location"))
 	})
 
 	t.Run("Idempotent", func(t *testing.T) {

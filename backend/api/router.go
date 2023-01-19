@@ -71,6 +71,7 @@ func GetRouter(handlers *API) *gin.Engine {
 	router.GET("/linked_accounts/supported_types/", handlers.SupportedAccountTypesList)
 	router.DELETE("/linked_accounts/:account_id/", handlers.DeleteLinkedAccount)
 
+	router.GET("/calendars/", handlers.CalendarsList)
 	router.GET("/events/", handlers.EventsList)
 	router.POST("/events/create/:source_id/", handlers.EventCreate)
 	router.DELETE("/events/delete/:event_id/", handlers.EventDelete)
@@ -111,10 +112,12 @@ func GetRouter(handlers *API) *gin.Engine {
 
 	router.GET("/overview/views/", handlers.OverviewViewsList)
 	router.POST("/overview/views/", handlers.OverviewViewAdd)
+	router.PATCH("/overview/views/bulk_modify/", handlers.OverviewViewBulkModify)
 	router.PATCH("/overview/views/:view_id/", handlers.OverviewViewModify)
 	router.DELETE("/overview/views/:view_id/", handlers.OverviewViewDelete)
 	router.GET("/overview/supported_views/", handlers.OverviewSupportedViewsList)
 	router.GET("/overview/views/suggestion/", handlers.OverviewViewsSuggestion)
+	router.GET("/overview/views/suggestions_remaining/", handlers.OverviewViewsSuggestionsRemaining)
 
 	router.GET("/pull_requests/", handlers.PullRequestsList)
 	router.GET("/pull_requests/fetch/", handlers.PullRequestsFetch)

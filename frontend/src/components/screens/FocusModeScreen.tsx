@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { DateTime } from 'luxon'
 import sanitizeHtml from 'sanitize-html'
 import styled from 'styled-components'
-import { EVENT_UNDO_TIMEOUT, SINGLE_SECOND_INTERVAL } from '../../constants'
-import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, useToast } from '../../hooks'
+import { EVENT_UNDO_TIMEOUT, NO_TITLE, SINGLE_SECOND_INTERVAL } from '../../constants'
+import { useGlobalKeyboardShortcuts, useInterval, useKeyboardShortcut, usePageFocus, useToast } from '../../hooks'
 import { useDeleteEvent, useGetEvents } from '../../services/api/events.hooks'
 import Log from '../../services/api/log'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
@@ -33,8 +33,10 @@ const FOCUS_MODE_WIDTH = '956px'
 const EventHeaderContainer = styled.div`
     display: flex;
 `
-const MarginLeftContainer = styled.div`
+const ActionsContainer = styled.div`
     margin-left: auto;
+    display: flex;
+    height: fit-content;
 `
 export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
@@ -126,6 +128,7 @@ const BodyHeader = styled.div`
 `
 const Body = styled.div`
     ${Typography.body};
+    overflow-wrap: break-word;
 `
 const Subtitle = styled.div`
     ${Typography.subtitle};
@@ -184,11 +187,12 @@ const getEventsCurrentlyHappening = (events: TEvent[]) => {
 }
 
 const FocusModeScreen = () => {
-    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType } =
-        useCalendarContext(true)
+    const { selectedEvent, setSelectedEvent, setIsPopoverDisabled, setIsCollapsed, setCalendarType, setDate } =
+        useCalendarContext()
     useEffect(() => {
         setIsCollapsed(false)
         setCalendarType('day')
+        setDate(DateTime.local())
         setIsPopoverDisabled(true)
         return () => {
             setIsPopoverDisabled(false)
@@ -202,6 +206,8 @@ const FocusModeScreen = () => {
     const [chosenEvent, setChosenEvent] = useState<TEvent | null>(null)
     const [time, setTime] = useState(DateTime.local())
     const [shouldAutoAdvanceEvent, setShouldAutoAdvanceEvent] = useState(true)
+    usePageFocus(true)
+
     const nextEvent = events?.find((event) => {
         const eventStart = DateTime.fromISO(event.datetime_start)
         return eventStart.hasSame(time, 'day') && eventStart > time
@@ -327,7 +333,7 @@ const FocusModeScreen = () => {
                                             <CurrentEvent key={event.id} onClick={() => setSelectedEvent(event)}>
                                                 <EventTitle>
                                                     <Icon icon={logos[event.logo]} />
-                                                    <EventTitleText>{event.title}</EventTitleText>
+                                                    <EventTitleText>{event.title || NO_TITLE}</EventTitleText>
                                                 </EventTitle>
                                                 <TimeRange
                                                     start={DateTime.fromISO(event.datetime_start)}
@@ -342,13 +348,13 @@ const FocusModeScreen = () => {
                             {chosenEvent && (
                                 <>
                                     <EventHeaderContainer>
-                                        <GTHeader title={title}>{title}</GTHeader>
-                                        <MarginLeftContainer>
+                                        <GTHeader>{title || NO_TITLE}</GTHeader>
+                                        <ActionsContainer>
                                             <ExternalLinkButton link={chosenEvent.deeplink} />
                                             <IconButton onClick={onDelete}>
                                                 <Icon icon={icons.trash} />
                                             </IconButton>
-                                        </MarginLeftContainer>
+                                        </ActionsContainer>
                                     </EventHeaderContainer>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
@@ -393,7 +399,6 @@ const FocusModeScreen = () => {
                                 initialShowMainHeader={false}
                                 hideContainerShadow
                                 hasLeftBorder
-                                ignoreContext
                             />
                         </CalendarContainer>
                     </MainContainer>

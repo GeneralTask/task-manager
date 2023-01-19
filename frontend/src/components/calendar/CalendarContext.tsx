@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 import { DateTime } from 'luxon'
 import { useGTLocalStorage } from '../../hooks'
 import { TEvent } from '../../utils/types'
@@ -60,43 +60,11 @@ const CalendarContext = createContext<ContextValues>({
     setShowTaskToCalSidebar: emptyFunction,
 })
 
-const FocusModeContext = createContext<ContextValues>({
-    date: DateTime.now(),
-    dayViewDate: DateTime.now(),
-    calendarType: 'day',
-    showMainHeader: true,
-    showDateHeader: true,
-    isCollapsed: false,
-    isTaskDraggingOverDetailsView: false,
-    selectedEvent: null,
-    isPopoverDisabled: false,
-    isTasksDueViewCollapsed: false,
-    disableSelectEvent: false,
-    isTasksOverdueViewCollapsed: false,
-    showTaskToCalSidebar: false,
-    setDate: emptyFunction,
-    setDayViewDate: emptyFunction,
-    setCalendarType: emptyFunction,
-    setShowMainHeader: emptyFunction,
-    setShowDateHeader: emptyFunction,
-    setIsCollapsed: emptyFunction,
-    setIsTaskDraggingOverDetailsView: emptyFunction,
-    setSelectedEvent: emptyFunction,
-    setIsPopoverDisabled: emptyFunction,
-    setIsTasksDueViewCollapsed: emptyFunction,
-    setIsTasksOverdueViewCollapsed: emptyFunction,
-    setShowTaskToCalSidebar: emptyFunction,
-})
-
-export const useCalendarContext = (ignoreContext?: boolean | undefined) => {
-    if (ignoreContext) return useContext(FocusModeContext)
-    return useContext(CalendarContext)
-}
-
 interface CalendarContextProviderProps {
     children: React.ReactNode
+    isPopoverDisabled?: boolean
 }
-export const CalendarContextProvider = ({ children }: CalendarContextProviderProps) => {
+export const CalendarContextProvider = (props: CalendarContextProviderProps) => {
     const [date, setDate] = useState<DateTime>(DateTime.now())
     const [dayViewDate, setDayViewDate] = useState<DateTime>(DateTime.now())
     const [calendarType, setCalendarType] = useState<TCalendarType>('day')
@@ -105,14 +73,17 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
     const [isCollapsed, setIsCollapsed] = useGTLocalStorage('calendarCollapsed', false)
     const [isTaskDraggingOverDetailsView, setIsTaskDraggingOverDetailsView] = useState<boolean>(false)
     const [selectedEvent, setSelectedEvent] = useState<TEvent | null>(null)
-    const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(false)
+    const [isPopoverDisabled, setIsPopoverDisabled] = useState<boolean>(!!props.isPopoverDisabled)
     const [isTasksDueViewCollapsed, setIsTasksDueViewCollapsed] = useGTLocalStorage('dueTodayCollapsed', false)
     const [isTasksOverdueViewCollapsed, setIsTasksOverdueViewCollapsed] = useGTLocalStorage('overdueCollapsed', false)
     const [showTaskToCalSidebar, setShowTaskToCalSidebar] = useGTLocalStorage('taskToCalendarSidebar', false)
-    const collapseAndSetType = (isCollapsed: boolean) => {
-        setIsCollapsed(isCollapsed)
-        if (isCollapsed) setCalendarType('day')
-    }
+    const collapseAndSetType = useCallback(
+        (isCollapsed: boolean) => {
+            setIsCollapsed(isCollapsed)
+            if (isCollapsed) setCalendarType('day')
+        },
+        [setIsCollapsed, setCalendarType]
+    )
 
     const value = {
         date,
@@ -142,5 +113,9 @@ export const CalendarContextProvider = ({ children }: CalendarContextProviderPro
         setShowTaskToCalSidebar,
     }
 
-    return <CalendarContext.Provider value={value}>{children}</CalendarContext.Provider>
+    return <CalendarContext.Provider value={value}>{props.children}</CalendarContext.Provider>
+}
+
+export const useCalendarContext = () => {
+    return useContext(CalendarContext)
 }

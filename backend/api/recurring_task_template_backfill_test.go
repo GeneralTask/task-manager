@@ -64,8 +64,8 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+		assert.Equal(t, 6, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[5].RecurringTaskTemplateID)
 	})
 	t.Run("WeekDailyTest", func(t *testing.T) {
 		authToken := login("week_daily_recur@generaltask.com", "")
@@ -109,8 +109,8 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+		assert.Equal(t, 6, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[5].RecurringTaskTemplateID)
 	})
 	t.Run("WeeklyTest", func(t *testing.T) {
 		authToken := login("weekly_recur@generaltask.com", "")
@@ -155,8 +155,8 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 6, len(*tasks))
-		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+		assert.Equal(t, 7, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[5].RecurringTaskTemplateID)
 	})
 	t.Run("WeeklyTest", func(t *testing.T) {
 		authToken := login("weekly_recur_replace@generaltask.com", "")
@@ -203,8 +203,8 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+		assert.Equal(t, 6, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[5].RecurringTaskTemplateID)
 	})
 	t.Run("MonthlyTest", func(t *testing.T) {
 		authToken := login("monthly_recur@generaltask.com", "")
@@ -248,8 +248,8 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(*tasks))
-		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+		assert.Equal(t, 6, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[5].RecurringTaskTemplateID)
 	})
 	t.Run("YearlyTest", func(t *testing.T) {
 		authToken := login("yearly_recur@generaltask.com", "")
@@ -296,7 +296,7 @@ func TestRecurringTaskTemplateBackfill(t *testing.T) {
 
 		tasks, err := database.GetActiveTasks(api.DB, userID)
 		assert.NoError(t, err)
-		assert.Equal(t, 6, len(*tasks))
-		assert.Equal(t, templateID, (*tasks)[4].RecurringTaskTemplateID)
+		assert.Equal(t, 7, len(*tasks))
+		assert.Equal(t, templateID, (*tasks)[5].RecurringTaskTemplateID)
 	})
 }
