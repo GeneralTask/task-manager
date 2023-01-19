@@ -126,6 +126,7 @@ const BodyHeader = styled.div`
 `
 const Body = styled.div`
     ${Typography.body};
+    overflow-wrap: break-word;
 `
 const Subtitle = styled.div`
     ${Typography.subtitle};
