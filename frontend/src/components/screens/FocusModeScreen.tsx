@@ -33,8 +33,10 @@ const FOCUS_MODE_WIDTH = '956px'
 const EventHeaderContainer = styled.div`
     display: flex;
 `
-const MarginLeftContainer = styled.div`
+const ActionsContainer = styled.div`
     margin-left: auto;
+    display: flex;
+    height: fit-content;
 `
 export const IconButton = styled(NoStyleButton)`
     padding: ${Spacing._8};
@@ -347,12 +349,12 @@ const FocusModeScreen = () => {
                                 <>
                                     <EventHeaderContainer>
                                         <GTHeader>{title || NO_TITLE}</GTHeader>
-                                        <MarginLeftContainer>
+                                        <ActionsContainer>
                                             <ExternalLinkButton link={chosenEvent.deeplink} />
                                             <IconButton onClick={onDelete}>
                                                 <Icon icon={icons.trash} />
                                             </IconButton>
-                                        </MarginLeftContainer>
+                                        </ActionsContainer>
                                     </EventHeaderContainer>
                                     <GTTitle>
                                         <TimeRange start={timeStart} end={timeEnd} />
