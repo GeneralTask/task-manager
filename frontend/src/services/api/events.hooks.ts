@@ -86,7 +86,11 @@ const getEvents = async (params: { startISO: string; endISO: string }, { signal 
             params: { datetime_start: params.startISO, datetime_end: params.endISO },
             signal,
         })
-        return castImmutable(res.data)
+        return castImmutable(
+            res.data.filter(
+                (event: TEvent) => event.calendar_id === 'primary' || event.calendar_id === event.account_id
+            )
+        )
     } catch {
         throw new Error('getEvents failed')
     }
