@@ -123,7 +123,6 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 <GTTextField
                     key={note.id}
                     type="plaintext"
-                    itemId={note.id}
                     value={note.title}
                     onChange={(val) => onEdit({ id: note.id, title: val })}
                     maxHeight={TITLE_MAX_HEIGHT}
@@ -134,7 +133,6 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
             <GTTextField
                 key={note.id}
                 type="markdown"
-                itemId={note.id}
                 value={note.body}
                 placeholder="Add details"
                 onChange={(val) => onEdit({ id: note.id, body: val })}

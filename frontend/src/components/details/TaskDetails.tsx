@@ -310,7 +310,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 <GTTextField
                     type="plaintext"
                     ref={titleRef}
-                    itemId={currentTask.id}
+                    key={currentTask.id}
                     value={isInTrash ? `${currentTask.title} (deleted)` : currentTask.title}
                     disabled={
                         !!currentTask.optimisticId ||
