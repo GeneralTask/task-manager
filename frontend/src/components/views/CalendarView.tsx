@@ -71,7 +71,6 @@ const CalendarView = ({
                 } else {
                     setDate(DateTime.now().minus({ days: DateTime.now().weekday % 7 }))
                 }
-                timeoutTimer.reset()
             }
         },
         SINGLE_SECOND_INTERVAL,
