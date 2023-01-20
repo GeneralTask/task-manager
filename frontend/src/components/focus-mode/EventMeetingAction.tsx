@@ -5,14 +5,8 @@ import { TEvent } from '../../utils/types'
 import JoinMeetingButton from '../atoms/buttons/JoinMeetingButton'
 import { Bold } from '../atoms/typography/Typography'
 
-const RightAbsoluteContainer = styled.div`
-    position: absolute;
-    right: ${Spacing._16};
-`
-
 const NotificationMessage = styled.div<{ isCentered?: boolean }>`
-    position: relative;
-    ${(props) => props.isCentered && `justify-content: center;`}
+    justify-content: ${({ isCentered }) => (isCentered ? `center` : `space-between`)};
     border: 1px solid ${Colors.border.light};
     border-radius: ${Border.radius.large};
     display: flex;
@@ -54,11 +48,7 @@ const EventMeetingAction = ({ event }: EventMeetingAction) => {
     return (
         <NotificationMessage isCentered={!eventHasConfrenceCall}>
             <span>{eventMessage}</span>
-            {eventHasConfrenceCall && (
-                <RightAbsoluteContainer>
-                    <JoinMeetingButton conferenceCall={event.conference_call} shortened={false} />
-                </RightAbsoluteContainer>
-            )}
+            {eventHasConfrenceCall && <JoinMeetingButton conferenceCall={event.conference_call} shortened={false} />}
         </NotificationMessage>
     )
 }
