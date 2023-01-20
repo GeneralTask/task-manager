@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { DEFAULT_SECTION_ID, DONE_SECTION_ID, TRASH_SECTION_ID } from '../../constants'
 import { useGetTasks } from '../../services/api/tasks.hooks'
 import { Colors, Spacing } from '../../styles'
 import { icons } from '../../styles/images'
+import SortAndFilterSelectors from '../../utils/sortAndFilter/SortAndFilterSelectors'
+import sortAndFilterItems from '../../utils/sortAndFilter/sortAndFilterItems'
+import { TASK_SORT_AND_FILTER_CONFIG } from '../../utils/sortAndFilter/tasks.config'
+import useSortAndFilterSettings from '../../utils/sortAndFilter/useSortAndFilterSettings'
+import { TTask } from '../../utils/types'
 import Flex from '../atoms/Flex'
 import { Divider } from '../atoms/SectionDivider'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -15,7 +20,7 @@ import { useCalendarContext } from './CalendarContext'
 import CalendarDropTask from './CalendarDropTask'
 import DropdownButton from './DropdownButton'
 
-const SIDEBAR_WIDTH = '326px'
+const SIDEBAR_WIDTH = '366px'
 const ScheduleTaskSidebar = styled.div`
     width: ${SIDEBAR_WIDTH};
     padding: ${Spacing._24} ${Spacing._16};
@@ -60,6 +65,22 @@ const CalendarWithTaskSelection = () => {
         if (index !== -1) setFolderIndex(index)
     }, [folderId])
 
+    const sortAndFilterSettings = useSortAndFilterSettings<TTask>(
+        TASK_SORT_AND_FILTER_CONFIG,
+        selectedFolder?.id,
+        '_main'
+    )
+    const { selectedSort, selectedSortDirection, selectedFilter, isLoading: areSettingsLoading } = sortAndFilterSettings
+    const sortedTasks = useMemo(() => {
+        if (!selectedFolder || areSettingsLoading) return []
+        return sortAndFilterItems({
+            items: selectedFolder.tasks,
+            sort: selectedSort,
+            sortDirection: selectedSortDirection,
+            tieBreakerField: TASK_SORT_AND_FILTER_CONFIG.tieBreakerField,
+        })
+    }, [selectedFolder, selectedSort, selectedSortDirection, selectedFilter])
+
     if (!taskFolders) return null
     return (
         <Flex>
@@ -83,7 +104,8 @@ const CalendarWithTaskSelection = () => {
                         useTriggerWidth
                     />
                     <MarginDivider color={Colors.border.light} />
-                    {selectedFolder?.tasks.map((task) => (
+                    <SortAndFilterSelectors settings={sortAndFilterSettings} />
+                    {sortedTasks.map((task) => (
                         <CalendarDropTask task={task} key={task.id} />
                     ))}
                 </ScheduleTaskSidebar>

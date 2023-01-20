@@ -1,5 +1,5 @@
 import { scrollbarWidth } from '@xobotyi/scrollbar-width'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Border, Colors, Shadows, Spacing, Typography } from '../../styles'
 import { Icon } from '../atoms/Icon'
 
@@ -111,22 +111,28 @@ export const EventInfoContainer = styled.div`
     position: absolute;
     z-index: 1;
 `
-export const EventInfo = styled.div<{ isLongEvent: boolean }>`
+export const EventInfo = styled.div<{ isLongEvent: boolean; isShortEvent: boolean }>`
     display: flex;
-    padding: 0 ${Spacing._12};
+    padding: 0 ${Spacing._8} 0 ${Spacing._12};
     width: 100%;
+    height: 100%;
     box-sizing: border-box;
-    ${Typography.label};
-    justify-content: ${({ isLongEvent }) => (isLongEvent ? 'flex-start' : 'space-between')};
+    gap: ${Spacing._4};
+
     ${(props) =>
-        props.isLongEvent
-            ? `
-            padding-top: ${Spacing._12};
-            height: 100%;
-            flex-direction: column;
-            gap: ${Spacing._4};
-        `
-            : 'flex-direction: row;'}
+        props.isShortEvent
+            ? css``
+            : props.isLongEvent
+            ? css`
+                  flex-direction: column;
+                  justify-content: flex-start;
+                  padding-top: ${Spacing._8};
+              `
+            : css`
+                  flex-direction: column;
+                  justify-content: center;
+              `};
+    ${Typography.label};
 `
 export const EventIconAndTitle = styled.div`
     display: flex;
@@ -145,20 +151,18 @@ export const EventTitle = styled.div`
     white-space: nowrap;
 `
 export const EventTime = styled.div`
+    display: flex;
+    align-items: center;
     color: ${Colors.text.light};
-    float: left;
     max-height: 100%;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
 `
 export const EventFill = styled.div<{ squareStart: boolean; squareEnd: boolean; isSelected: boolean }>`
     width: 100%;
     height: 100%;
     background: ${Colors.background.white};
-    border: ${Border.stroke.medium} solid
-        ${(props) => (props.isSelected ? Colors.border.purple : Colors.background.light)};
+    outline: ${Border.stroke.medium} solid ${(props) => (props.isSelected ? Colors.border.purple : 'transparent')};
     box-sizing: border-box;
     box-shadow: ${Shadows.light};
     border-top-left-radius: ${(props) => (props.squareStart ? '0' : Border.radius.mini)};

@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useDrag } from 'react-dnd'
+import { DateTime } from 'luxon'
 import styled from 'styled-components'
-import { logos } from '../../styles/images'
+import { TASK_PRIORITIES } from '../../constants'
+import { Spacing } from '../../styles'
 import { DropType, TTask } from '../../utils/types'
 import { emptyFunction } from '../../utils/utils'
+import DueDate from '../atoms/DueDate'
 import { Icon } from '../atoms/Icon'
 import TaskTemplate from '../atoms/TaskTemplate'
 import { BodySmall } from '../atoms/typography/Typography'
@@ -15,6 +18,14 @@ const TaskInformation = styled(BodySmall)`
     overflow: hidden;
     text-overflow: ellipsis;
     margin-right: auto;
+`
+const RightContainer = styled.span`
+    display: flex;
+    align-items: center;
+    gap: ${Spacing._8};
+    margin-left: auto;
+    padding-left: ${Spacing._4};
+    min-width: fit-content;
 `
 interface CalendarDropTaskProps {
     task: TTask
@@ -32,7 +43,20 @@ const CalendarDropTask = ({ task }: CalendarDropTaskProps) => {
             <ItemContainer isSelected={false} onClick={emptyFunction}>
                 <PositionedDomino isVisible={isHoverTask} />
                 <TaskInformation key={task.id}>{task.title}</TaskInformation>
-                <Icon icon={logos[task.source.logo_v2]} />
+                <RightContainer>
+                    <DueDate
+                        date={DateTime.fromISO(task.due_date).toJSDate()}
+                        isDoneOrDeleted={task.is_done || task.is_deleted}
+                    />
+                    {task.source?.name !== 'Jira' &&
+                        task.priority_normalized !== 0 &&
+                        Number.isInteger(task.priority_normalized) && (
+                            <Icon
+                                icon={TASK_PRIORITIES[task.priority_normalized].icon}
+                                color={TASK_PRIORITIES[task.priority_normalized].color}
+                            />
+                        )}
+                </RightContainer>
             </ItemContainer>
         </TaskTemplate>
     )

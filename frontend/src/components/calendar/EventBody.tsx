@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { logos } from '../../styles/images'
 import { TEvent } from '../../utils/types'
+import { OrangeEdge } from '../atoms/SelectableContainer'
 import FocusModeContextMenuWrapper from '../radix/EventBodyContextMenuWrapper'
 import EventDetailPopover from '../radix/EventDetailPopover'
 import { useCalendarContext } from './CalendarContext'
@@ -17,7 +18,8 @@ import {
 } from './CalendarEvents-styles'
 import ResizeHandle from './ResizeHandle'
 
-const LONG_EVENT_THRESHOLD = 45 // minutes
+const LONG_EVENT_THRESHOLD = 60 // minutes
+const SHORT_EVENT_THRESHOLD = 45 // minutes
 const MINIMUM_BODY_HEIGHT = 15 // minutes
 
 interface EventBodyProps {
@@ -43,8 +45,10 @@ function EventBody(props: EventBodyProps): JSX.Element {
 
     const startTimeString = startTime.toFormat('h:mm') // ex: 3:00
     const endTimeString = endTime.toFormat('h:mm a') // ex: 3:00 PM
+    const startTimeOnlyString = startTime.toFormat('h:mm a') // ex: 3:00 PM
 
     const isLongEvent = timeDurationMinutes >= LONG_EVENT_THRESHOLD
+    const isShortEvent = timeDurationMinutes < SHORT_EVENT_THRESHOLD
     const eventHasEnded = endTime.toMillis() < DateTime.now().toMillis()
 
     const onClick = () => {
@@ -70,7 +74,7 @@ function EventBody(props: EventBodyProps): JSX.Element {
                 >
                     <EventInfoContainer onClick={onClick}>
                         <EventDetailPopover event={props.event} date={props.date} hidePopover={isPopoverDisabled}>
-                            <EventInfo isLongEvent={isLongEvent}>
+                            <EventInfo isLongEvent={isLongEvent} isShortEvent={isShortEvent}>
                                 <EventIconAndTitle>
                                     {props.event.linked_task_id && (
                                         <EventIcon
@@ -80,7 +84,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                                     )}
                                     <EventTitle>{props.event.title || '(no title)'}</EventTitle>
                                 </EventIconAndTitle>
-                                <EventTime>{`${startTimeString} – ${endTimeString}`}</EventTime>
+                                <EventTime>
+                                    {isShortEvent ? startTimeOnlyString : `${startTimeString} – ${endTimeString}`}
+                                </EventTime>
                             </EventInfo>
                         </EventDetailPopover>
                     </EventInfoContainer>
@@ -88,7 +94,9 @@ function EventBody(props: EventBodyProps): JSX.Element {
                         squareStart={startedBeforeToday}
                         squareEnd={endedAfterToday}
                         isSelected={selectedEvent?.id === props.event.id}
-                    />
+                    >
+                        <OrangeEdge />
+                    </EventFill>
                     <ResizeHandle event={props.event} />
                 </EventBodyStyle>
             </FocusModeContextMenuWrapper>
