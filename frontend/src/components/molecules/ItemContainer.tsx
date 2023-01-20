@@ -38,7 +38,7 @@ interface ItemContainerProps {
     className?: string
 }
 const ItemContainer = forwardRef<HTMLDivElement, ItemContainerProps>(
-    ({ isSelected, padded, onClick, children, forceHoverStyle, className }, ref) => (
+    ({ isSelected, padded = true, onClick, children, forceHoverStyle, className }, ref) => (
         <ItemContainerDiv
             isSelected={isSelected}
             padded={padded}
