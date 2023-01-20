@@ -45,15 +45,10 @@ const CalendarDateText = styled.div`
 `
 
 interface CalendarHeaderProps {
-    showMainHeader?: boolean
-    showDateHeader?: boolean
+    showHeader?: boolean
     additionalHeaderContent?: React.ReactNode
 }
-export default function CalendarHeader({
-    showMainHeader = true,
-    showDateHeader = true,
-    additionalHeaderContent,
-}: CalendarHeaderProps) {
+export default function CalendarHeader({ showHeader = true, additionalHeaderContent }: CalendarHeaderProps) {
     const {
         calendarType,
         setCalendarType,
@@ -112,7 +107,7 @@ export default function CalendarHeader({
     const { data: linkedAccounts } = useGetLinkedAccounts()
     const showOauthPrompt = linkedAccounts !== undefined && !isGoogleCalendarLinked(linkedAccounts)
 
-    if (!showMainHeader && !showDateHeader) return null
+    if (!showHeader) return null
 
     const isCalendarShowingToday = useMemo(() => {
         const startOfToday = DateTime.now().startOf('day')
@@ -170,7 +165,7 @@ export default function CalendarHeader({
 
     return (
         <RelativeDiv>
-            {showMainHeader && (
+            {showHeader && (
                 <>
                     <PaddedContainer>
                         <HeaderBodyContainer>
@@ -190,25 +185,23 @@ export default function CalendarHeader({
                         </HeaderBodyContainer>
                     </PaddedContainer>
                     <Divider color={Colors.border.light} />
+                    <PaddedContainer>
+                        <HeaderBodyContainer>
+                            <CalendarDateText>
+                                {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLL d')}
+                            </CalendarDateText>
+                            <ButtonContainer>
+                                <GTIconButton
+                                    shortcutName="previousDate"
+                                    onClick={selectPrevious}
+                                    icon={icons.caret_left}
+                                />
+                                <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
+                                {additionalHeaderContent}
+                            </ButtonContainer>
+                        </HeaderBodyContainer>
+                    </PaddedContainer>
                 </>
-            )}
-            {showDateHeader && (
-                <PaddedContainer>
-                    <HeaderBodyContainer>
-                        <CalendarDateText>
-                            {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLL d')}
-                        </CalendarDateText>
-                        <ButtonContainer>
-                            <GTIconButton
-                                shortcutName="previousDate"
-                                onClick={selectPrevious}
-                                icon={icons.caret_left}
-                            />
-                            <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
-                            {additionalHeaderContent}
-                        </ButtonContainer>
-                    </HeaderBodyContainer>
-                </PaddedContainer>
             )}
             {showOauthPrompt && (
                 <ConnectContainer>
