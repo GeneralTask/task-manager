@@ -21,7 +21,7 @@ spec:
               cpu: "1024m"
             limits:
               memory: "2Gi"
-              cpu: "1024m"
+              cpu: "2048m"
           imagePullPolicy: Always
           name: "core"
           env:
