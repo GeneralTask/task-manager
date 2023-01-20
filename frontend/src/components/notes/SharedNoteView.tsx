@@ -95,13 +95,14 @@ const SharedNoteView = () => {
     const { openAuthWindow } = useAuthWindow()
     const navigate = useNavigate()
     const { noteId } = useParams()
-    if (!noteId) navigate('/')
     const isLoggedIn = !!Cookies.get(AUTHORIZATION_COOKE)
 
     const { data: note, isLoading } = useGetNote({ id: noteId ?? '' })
 
     const { data: notes, isLoading: isLoadingNotes } = useGetNotes(isLoggedIn)
     const isUserNoteOwner = (notes ?? []).some((userNote) => userNote.id === note?.id)
+
+    if (!noteId) navigate('/')
 
     if (isLoading || isLoadingNotes) return <Spinner />
     return (
