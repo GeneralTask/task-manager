@@ -335,7 +335,7 @@ func getTaskSectionFieldKey(taskSection database.TaskSection, suffix string, set
 	return taskSection.ID.Hex() + "_" + suffix + "_" + settingType
 }
 
-func GetUserSettings(db *mongo.Database, userID primitive.ObjectID, settingsOptions *[]SettingDefinition) ([]*UserSetting, error) {
+func GetUserSettings(db *mongo.Database, userID primitive.ObjectID, settingsOptions *[]SettingDefinition) ([]UserSetting, error) {
 	settingCollection := database.GetUserSettingsCollection(db)
 	var userSettings []database.UserSetting
 	cursor, err := settingCollection.Find(
@@ -356,13 +356,13 @@ func GetUserSettings(db *mongo.Database, userID primitive.ObjectID, settingsOpti
 		return nil, err
 	}
 
-	var settingsResponse []*UserSetting
+	var settingsResponse []UserSetting
 	for _, setting := range *settingsOptions {
 		if setting.Hidden {
 			continue
 		}
 		settingValue := GetSettingValue(userSettings, setting)
-		settingsResponse = append(settingsResponse, &UserSetting{
+		settingsResponse = append(settingsResponse, UserSetting{
 			SettingDefinition: setting,
 			FieldValue:        settingValue,
 		})
