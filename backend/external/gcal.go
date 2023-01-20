@@ -87,6 +87,7 @@ func (googleCalendar GoogleCalendarSource) fetchEvents(calendarService *calendar
 		List(calendarId).
 		TimeMin(startTime.Format(time.RFC3339)).
 		TimeMax(endTime.Format(time.RFC3339)).
+		MaxResults(2500).
 		SingleEvents(true).
 		OrderBy("startTime").
 		Do()
