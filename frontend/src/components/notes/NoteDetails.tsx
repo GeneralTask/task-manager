@@ -121,6 +121,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
             </DetailsTopContainer>
             <div>
                 <GTTextField
+                    key={note.id}
                     type="plaintext"
                     itemId={note.id}
                     value={note.title}
@@ -131,6 +132,7 @@ const NoteDetails = ({ note }: NoteDetailsProps) => {
                 />
             </div>
             <GTTextField
+                key={note.id}
                 type="markdown"
                 itemId={note.id}
                 value={note.body}

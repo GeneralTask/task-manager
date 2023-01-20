@@ -151,6 +151,7 @@ const SharedNoteView = () => {
                                 <>
                                     <Flex alignItems="flex-start">
                                         <GTTextField
+                                            key={note.id}
                                             type="plaintext"
                                             itemId={note.title}
                                             value={note.title}
@@ -162,6 +163,7 @@ const SharedNoteView = () => {
                                         <NoteActionsDropdown note={note} isOwner={isUserNoteOwner} />
                                     </Flex>
                                     <GTTextField
+                                        key={note.id}
                                         type="markdown"
                                         itemId={note.body}
                                         value={note.body}
