@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCalendarContext } from '../components/calendar/CalendarContext'
 import Log from '../services/api/log'
 import { useGetOverviewViews } from '../services/api/overview.hooks'
@@ -12,11 +12,23 @@ const useNavigateToTask = () => {
     const { data: sectionsData } = useGetTasks()
     const navigate = useNavigate()
     const { setCalendarType } = useCalendarContext()
+    const params = useParams()
 
     const getTaskURL = useCallback(
         (taskID: string, views: TOverviewView[], sections: TTaskSection[], pathname: string, subtaskId?: string) => {
             const isUserOnOverviewPage = pathname.startsWith('/overview') || pathname.startsWith('/overview')
             if (isUserOnOverviewPage) {
+                // first check the current view
+                const currentView = views.find((view) => view.id === params.overviewViewId)
+                if (currentView) {
+                    const item = currentView.view_items.find((item) => item.id === taskID)
+                    if (item) {
+                        navigate(`/overview/${currentView.id}/${item.id}/${subtaskId}`)
+                        Log(`task_navigate__/overview/${currentView.id}/${item.id}/${subtaskId}`)
+                        return
+                    }
+                }
+                // otherwise check all views
                 for (const view of views) {
                     for (const item of view.view_items) {
                         if (item.id === taskID) {
