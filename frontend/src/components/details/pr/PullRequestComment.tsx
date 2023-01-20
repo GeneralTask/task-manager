@@ -46,7 +46,7 @@ const PullRequestComment = ({ author, body, lastUpdatedAt, isAuthorOfPR = false 
             <BodyContainer>
                 {body ? (
                     <GTTextField
-                        itemId={lastUpdatedAt}
+                        key={lastUpdatedAt}
                         type="markdown"
                         value={body}
                         onChange={emptyFunction}

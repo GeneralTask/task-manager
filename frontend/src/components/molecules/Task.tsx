@@ -175,7 +175,7 @@ const Task = ({
         onMarkTaskDone?.(task.id)
     }, [task.is_done, sectionId, onMarkTaskDone])
 
-    const dueDate = DateTime.fromISO(task.due_date).toJSDate()
+    const dueDate = DateTime.fromISO(task.due_date)
     const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
     const deleteTask = useCallback(() => {

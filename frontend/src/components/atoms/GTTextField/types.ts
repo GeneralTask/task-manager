@@ -8,7 +8,6 @@ export interface RichTextEditorProps {
     placeholder?: string
     fontSize: FontSize
     type: 'markdown' | 'atlassian'
-    itemId?: string // use if reusing field for multiple items
     autoFocus?: boolean
     autoSelect?: boolean
     enterBehavior?: 'blur' | 'disable'

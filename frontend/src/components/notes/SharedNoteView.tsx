@@ -152,9 +152,7 @@ const SharedNoteView = () => {
                                 <>
                                     <Flex alignItems="flex-start">
                                         <GTTextField
-                                            key={note.id}
                                             type="plaintext"
-                                            itemId={note.title}
                                             value={note.title}
                                             onChange={emptyFunction}
                                             fontSize="large"
@@ -166,7 +164,6 @@ const SharedNoteView = () => {
                                     <GTTextField
                                         key={note.id}
                                         type="markdown"
-                                        itemId={note.body}
                                         value={note.body}
                                         onChange={emptyFunction}
                                         fontSize="small"

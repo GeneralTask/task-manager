@@ -16,6 +16,7 @@ import {
     MenuTriggerShared,
 } from './RadixUIConstants'
 
+const DROPDOWN_MENU_ITEM_MAX_WIDTH = '200px'
 const DropdownMenuTrigger = styled(DropdownMenu.Trigger)`
     ${MenuTriggerShared};
 `
@@ -35,6 +36,7 @@ const DropdownMenuContent = styled(DropdownMenu.Content)<{
 const DropdownMenuItem = styled(DropdownMenu.Item)`
     ${MenuItemShared};
     width: 100%;
+    max-width: ${DROPDOWN_MENU_ITEM_MAX_WIDTH};
     box-sizing: border-box;
 `
 const LeftMarginAutoContainer = styled.span`
