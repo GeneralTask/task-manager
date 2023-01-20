@@ -27,7 +27,7 @@ const CreateLinearComment = ({ taskId, numComments }: CreateLinearCommentProps) 
 
     return (
         <GTTextField
-            itemId={`${taskId}${numComments}`}
+            key={`${taskId}${numComments}`}
             type="markdown"
             placeholder="Add a comment"
             value={comment}
