@@ -5,7 +5,7 @@ import { DateTime } from 'luxon'
 import styled from 'styled-components'
 import { Border, Colors, Spacing, Typography } from '../../styles'
 import { icons } from '../../styles/images'
-import { getFormattedDate, isValidDueDate } from '../../utils/utils'
+import { getFormattedDate } from '../../utils/utils'
 import { Icon } from '../atoms/Icon'
 import GTButton from '../atoms/buttons/GTButton'
 import GTIconButton from '../atoms/buttons/GTIconButton'
@@ -37,37 +37,38 @@ const DateViewText = styled.span`
 `
 
 interface GTDatePickerProps {
-    initialDate: Date
+    initialDate: DateTime
     setDate: (date: string) => void
     showIcon?: boolean
     onlyCalendar?: boolean
     disabled?: boolean
 }
 const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = false, disabled }: GTDatePickerProps) => {
-    const [value, onChange] = useState<Date | null>(initialDate)
+    const [currentDate, setCurrentDate] = useState<DateTime | null>(initialDate)
     const [isOpen, setIsOpen] = useState(false)
 
     useLayoutEffect(() => {
-        if (value?.getTime() !== initialDate.getTime()) {
-            onChange(initialDate)
+        if (!currentDate) return
+        if (+currentDate !== +initialDate) {
+            setCurrentDate(initialDate)
         }
     }, [initialDate])
 
-    const formattedDate = useMemo(() => getFormattedDate(value), [value])
+    const formattedDate = useMemo(() => getFormattedDate(currentDate), [currentDate])
 
     const handleOnChange = (date: Date | null) => {
-        onChange(date)
-        if (date) {
-            setDate(DateTime.fromJSDate(date).toISO())
-        } else {
+        if (!date) {
             setDate(DateTime.fromMillis(0).toISO())
+            return
         }
+        setCurrentDate(DateTime.fromJSDate(date))
+        setDate(DateTime.fromJSDate(date).toISO())
     }
 
     const calendar = (
         <GTDatePickerWrapper>
             <Calendar
-                value={value}
+                value={currentDate?.toJSDate()}
                 onChange={handleOnChange}
                 placeholder="Select a Date"
                 firstDayOfWeek="sunday"
@@ -110,10 +111,10 @@ const GTDatePicker = ({ initialDate, setDate, showIcon = true, onlyCalendar = fa
                 }}
                 renderDay={(date) => <div onMouseUp={() => handleOnChange(date)}>{date.getDate()}</div>}
             />
-            {isValidDueDate(value) && (
+            {currentDate?.isValid && (
                 <DateViewContainer>
                     <Icon icon={icons.calendar_blank} color="black" />
-                    <DateViewText>{value?.toDateString()}</DateViewText>
+                    <DateViewText>{currentDate.toFormat('ccc LLL d y')}</DateViewText>
                     <GTIconButton
                         tooltipText="Remove due date"
                         icon={icons.x}

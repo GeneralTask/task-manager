@@ -82,7 +82,7 @@ interface SubtaskProps {
 const Subtask = ({ parentTask, subtask }: SubtaskProps) => {
     const navigateToTask = useNavigateToTask()
     const [isVisible, setIsVisible] = useState(false)
-    const dueDate = DateTime.fromISO(subtask.due_date).toJSDate()
+    const dueDate = DateTime.fromISO(subtask.due_date)
 
     const visibilityToggle = {
         onMouseEnter: () => setIsVisible(true),

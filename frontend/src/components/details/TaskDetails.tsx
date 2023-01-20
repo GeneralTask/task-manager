@@ -357,7 +357,7 @@ const TaskDetails = ({ task, link, subtask, isRecurringTaskTemplate }: TaskDetai
                 )}
                 {!isRecurringTaskTemplate && (
                     <GTDatePicker
-                        initialDate={DateTime.fromISO(currentTask.due_date ?? '').toJSDate()}
+                        initialDate={DateTime.fromISO(currentTask.due_date ?? '')}
                         setDate={(date) => modifyTask({ id: task.id, dueDate: date, subtaskId: subtask?.id })}
                         disabled={isInTrash}
                     />
