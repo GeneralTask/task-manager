@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Spacing } from '../../styles'
 import { icons } from '../../styles/images'
 import { Icon } from '../atoms/Icon'
-import { Eyebrow } from '../atoms/typography/Typography'
+import { Label } from '../atoms/typography/Typography'
 import { useCalendarContext } from './CalendarContext'
 
 const TasksDueHeaderContainer = styled.div`
@@ -32,7 +32,7 @@ const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: Task
     const isCollapsed = dueType === 'due' ? isTasksDueViewCollapsed : isTasksOverdueViewCollapsed
     const caretIcon = isCollapsed ? icons.caret_right : icons.caret_down
     const dayMessage = dueType === 'due' ? `Due Today (${numTasksDue})` : `Overdue (${numTasksDue})`
-    const weekMessage = numTasksDue === 1 ? `1 Task Due` : `${numTasksDue} Tasks Due`
+    const weekMessage = numTasksDue === 1 ? `1 task` : `${numTasksDue} tasks`
     const message = type === 'day' ? dayMessage : weekMessage
 
     return (
@@ -45,8 +45,7 @@ const TasksDueHeader = ({ type, dueType, numTasksDue, hideCollapseButton }: Task
                 }
             }}
         >
-            <Icon icon={icons.clock} color={dueType === 'due' ? 'gray' : 'red'} />
-            <Eyebrow color={dueType === 'due' ? 'light' : 'red'}>{message}</Eyebrow>
+            <Label color={dueType === 'due' ? 'light' : 'red'}>{message}</Label>
             {!hideCollapseButton && (
                 <CaretContainer>
                     <Icon icon={caretIcon} color={dueType === 'due' ? 'gray' : 'red'} />
