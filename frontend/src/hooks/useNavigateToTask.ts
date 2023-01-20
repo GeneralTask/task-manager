@@ -22,18 +22,10 @@ const useNavigateToTask = () => {
                         if (item.id === taskID) {
                             setCalendarType('day')
                             if (subtaskId) {
-                                if (pathname.startsWith('/overview')) {
-                                    navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
-                                } else {
-                                    navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
-                                }
+                                navigate(`/overview/${view.id}/${item.id}/${subtaskId}`)
                                 Log(`task_navigate__/overview/${view.id}/${item.id}/${subtaskId}`)
                             } else {
-                                if (pathname.startsWith('/overview')) {
-                                    navigate(`/overview/${view.id}/${item.id}`)
-                                } else {
-                                    navigate(`/overview/${view.id}/${item.id}`)
-                                }
+                                navigate(`/overview/${view.id}/${item.id}`)
                                 Log(`task_navigate__/overview/${view.id}/${item.id}`)
                             }
                             return
@@ -45,10 +37,10 @@ const useNavigateToTask = () => {
                 for (const task of section.tasks) {
                     if (task.id === taskID) {
                         setCalendarType('day')
-                        if (task.source.name === 'Slack') {
+                        if (task.source.name === 'Slack' && pathname.startsWith('/slack')) {
                             navigate(`/slack/${task.id}`)
                             Log(`task_navigate__/slack/${task.id}`)
-                        } else if (task.source.name === 'Linear') {
+                        } else if (task.source.name === 'Linear' && pathname.startsWith('/linear')) {
                             navigate(`/linear/${task.id}`)
                             Log(`task_navigate__/linear/${task.id}`)
                         } else {
