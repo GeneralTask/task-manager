@@ -199,8 +199,12 @@ export default function CalendarHeader({
                             {calendarType === 'week' ? date.toFormat('LLLL yyyy') : date.toFormat('ccc, LLL d')}
                         </CalendarDateText>
                         <ButtonContainer>
-                            <GTIconButton shortcutName="nextDate" onClick={selectPrevious} icon={icons.caret_left} />
-                            <GTIconButton shortcutName="previousDate" onClick={selectNext} icon={icons.caret_right} />
+                            <GTIconButton
+                                shortcutName="previousDate"
+                                onClick={selectPrevious}
+                                icon={icons.caret_left}
+                            />
+                            <GTIconButton shortcutName="nextDate" onClick={selectNext} icon={icons.caret_right} />
                             {additionalHeaderContent}
                         </ButtonContainer>
                     </HeaderBodyContainer>
