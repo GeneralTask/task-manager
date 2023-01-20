@@ -207,6 +207,8 @@ export const getFormattedDate = (
     textColor: TTextColor
     iconColor: TIconColor
 } => {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    date?.setZone(timeZone)
     if (!date || !date.isValid) {
         return { dateString: 'No due date', textColor: 'light', iconColor: 'gray' }
     }
