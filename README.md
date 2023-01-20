@@ -120,7 +120,8 @@ While we still have the waitlist in place (until October 7th), these are the ste
 Follow these steps, and you should see what a new user to General Task would see when signing up.
 
 ## Deploying backend
-Our backend is currently on AWS EKS in us-west-1 region. These are the steps to setup access
+Our backend is currently on AWS EKS in us-west-1 region. These are the steps to setup access.
+
 We currently perform backend deploys using the Heroku CLI. Assuming you have the heroku credentials, you can deploy with the following steps:
 
 ### One-time Kubernetes setup
